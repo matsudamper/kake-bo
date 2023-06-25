@@ -1,0 +1,79 @@
+# This file was generated. Do not edit manually.
+
+schema {
+    query: Query
+    mutation: Mutation
+}
+
+directive @lazy on FIELD_DEFINITION
+
+type AdminAddUserResult {
+    errorType: [AdminAddUserErrorType!]!
+}
+
+type AdminLoginResult {
+    isSuccess: Boolean!
+}
+
+type AdminMutation {
+    addUser(name: String!, password: String!): AdminAddUserResult!
+    adminLogin(password: String!): AdminLoginResult!
+}
+
+type Mutation {
+    adminMutation: AdminMutation!
+    userMutation: UserMutation!
+}
+
+type Query {
+    user: User
+}
+
+type SettingsMutation {
+    updateImapConfig(config: UpdateUserImapConfigInput!): UserImapConfigResult
+}
+
+type User {
+    isLoggedIn: Boolean!
+    settings: UserSettings!
+}
+
+type UserImapConfig {
+    host: String
+    password: String
+    port: Int
+    userName: String
+}
+
+type UserImapConfigResult {
+    isSuccess: Boolean!
+}
+
+type UserLoginResult {
+    isSuccess: Boolean!
+}
+
+type UserMutation {
+    settingsMutation: SettingsMutation
+    userLogin(name: String!, password: String!): UserLoginResult!
+}
+
+type UserSettings {
+    imapConfig: UserImapConfig
+}
+
+enum AdminAddUserErrorType {
+    PasswordInvalidChar
+    PasswordLength
+    Unknown
+    UserNameAlreadyExists
+    UserNameInvalidChar
+    UserNameLength
+}
+
+input UpdateUserImapConfigInput {
+    host: String
+    password: String
+    port: Int
+    userName: String
+}

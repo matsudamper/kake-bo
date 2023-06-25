@@ -1,0 +1,13 @@
+mutation UserLogin($userName: String!,$password: String!) {
+    userMutation {
+        userLogin(name: $userName, password: $password) {
+            isSuccess
+        }
+    }
+}
+
+query UserIsLoggedIn {
+    user {
+        isLoggedIn
+    }
+}

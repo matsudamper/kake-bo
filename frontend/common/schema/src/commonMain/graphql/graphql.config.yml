@@ -1,0 +1,5 @@
+schema: "schema.graphqls"
+
+extensions:
+  endpoints:
+    default: http://localhost/query

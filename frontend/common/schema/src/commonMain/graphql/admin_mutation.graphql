@@ -1,0 +1,15 @@
+mutation AdminLogin($password: String!) {
+    adminMutation {
+        adminLogin(password: $password) {
+            isSuccess
+        }
+    }
+}
+
+mutation AdminAddUser($userName: String!,$password: String!) {
+    adminMutation {
+        addUser(name: $userName, password: $password) {
+            errorType
+        }
+    }
+}
