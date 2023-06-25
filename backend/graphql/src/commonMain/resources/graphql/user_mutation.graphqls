@@ -1,0 +1,23 @@
+type UserMutation {
+    userLogin(name: String!, password: String!): UserLoginResult!
+    settingsMutation: SettingsMutation @lazy
+}
+
+type UserLoginResult {
+    isSuccess: Boolean!
+}
+
+type SettingsMutation {
+    updateImapConfig(config: UpdateUserImapConfigInput!) : UserImapConfigResult
+}
+
+input UpdateUserImapConfigInput {
+    host: String,
+    port  :   Int,
+    userName: String,
+    password: String
+}
+
+type UserImapConfigResult {
+    isSuccess: Boolean!
+}

@@ -1,0 +1,21 @@
+type AdminMutation {
+    adminLogin(password: String!): AdminLoginResult!
+    addUser(name: String!, password: String!): AdminAddUserResult!
+}
+
+type AdminAddUserResult {
+    errorType:[AdminAddUserErrorType!]!
+}
+
+enum AdminAddUserErrorType {
+    Unknown,
+    UserNameAlreadyExists,
+    UserNameLength,
+    UserNameInvalidChar,
+    PasswordLength,
+    PasswordInvalidChar,
+}
+
+type AdminLoginResult {
+    isSuccess: Boolean!
+}

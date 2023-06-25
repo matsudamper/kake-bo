@@ -1,0 +1,1 @@
+directive @lazy on FIELD_DEFINITION
