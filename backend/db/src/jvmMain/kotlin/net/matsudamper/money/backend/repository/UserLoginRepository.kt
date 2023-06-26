@@ -12,6 +12,7 @@ import java.security.spec.KeySpec
 import java.util.*
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
+import net.matsudamper.money.backend.base.ServerEnv
 
 class UserLoginRepository {
     private val user = JUsers.USERS
@@ -40,7 +41,7 @@ class UserLoginRepository {
 
 
         val spec: KeySpec = PBEKeySpec(
-            passwords.plus(DbModuleConstant.userPasswordPepper).toCharArray(),
+            passwords.plus(ServerEnv.userPasswordPepper).toCharArray(),
             userPasswordExtendDataRecord.salt!!,
             userPasswordExtendDataRecord.iterationCount!!,
             userPasswordExtendDataRecord.keyLength!!,
