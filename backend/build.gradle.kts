@@ -47,6 +47,10 @@ kotlin {
     }
 }
 
+application {
+    mainClass.set("net.matsudamper.money.backend.Main")
+}
+
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 }
