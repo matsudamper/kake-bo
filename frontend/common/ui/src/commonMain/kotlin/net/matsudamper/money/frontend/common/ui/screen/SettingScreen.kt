@@ -1,6 +1,8 @@
 package net.matsudamper.money.frontend.common.ui.screen
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,13 +36,14 @@ public fun RootSettingScreen(
                 Modifier
                     .fillMaxSize(),
             ) {
+                val settingPaddingModifier = Modifier.padding(horizontal = 24.dp)
                 Column(
-                    modifier = Modifier.padding(horizontal = 32.dp),
+                    modifier = Modifier.then(settingPaddingModifier),
                 ) {
                     Text(
                         modifier = Modifier.padding(
-                            horizontal = 32.dp,
-                            vertical = 24.dp
+                            horizontal = 18.dp,
+                            vertical = 24.dp,
                         ),
                         text = "設定",
                         fontFamily = rememberCustomFontFamily(),
@@ -50,7 +53,7 @@ public fun RootSettingScreen(
                 Spacer(modifier = Modifier.height(32.dp))
                 Column(
                     Modifier
-                        .padding(horizontal = 32.dp)
+                        .then(settingPaddingModifier)
                         .padding(horizontal = 8.dp)
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState()),
@@ -60,7 +63,7 @@ public fun RootSettingScreen(
                         modifier = Modifier.widthIn(max = 700.dp),
                     ) {
                         SettingElementContent(
-                            modifier = Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth(),
                         )
                     }
                 }
@@ -70,10 +73,42 @@ public fun RootSettingScreen(
 }
 
 @Composable
-private fun SettingElementContent(
-    modifier: Modifier  = Modifier,
+private fun SettingSection(
+    modifier: Modifier = Modifier,
+    title: @Composable () -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
+
     Column(modifier = modifier) {
+        Box(
+            modifier = Modifier.padding(horizontal = 8.dp),
+        ) {
+            title()
+        }
+        Spacer(Modifier.height(8.dp))
+        Divider(modifier = Modifier.fillMaxWidth())
+        Spacer(Modifier.height(8.dp))
+        Column(
+            modifier = Modifier.padding(horizontal = 8.dp),
+        ) {
+            content()
+        }
+    }
+}
+
+@Composable
+private fun SettingElementContent(
+    modifier: Modifier = Modifier,
+) {
+    SettingSection(
+        modifier = modifier,
+        title = {
+            Text(
+                text = "IMAP設定",
+                fontFamily = rememberCustomFontFamily(),
+            )
+        },
+    ) {
         Column {
             Text("Host")
             Spacer(Modifier.height(8.dp))
@@ -81,7 +116,7 @@ private fun SettingElementContent(
                 modifier = Modifier.fillMaxWidth(),
                 onValueChange = {},
                 placeholder = "host",
-                type = KeyboardType.Text
+                type = KeyboardType.Text,
             )
         }
         Spacer(Modifier.height(12.dp))
@@ -92,7 +127,7 @@ private fun SettingElementContent(
                 modifier = Modifier.fillMaxWidth(),
                 onValueChange = {},
                 placeholder = "user name",
-                type = KeyboardType.Text
+                type = KeyboardType.Text,
             )
         }
         Spacer(Modifier.height(12.dp))
@@ -103,7 +138,7 @@ private fun SettingElementContent(
                 modifier = Modifier.fillMaxWidth(),
                 onValueChange = {},
                 placeholder = "port",
-                type = KeyboardType.Text
+                type = KeyboardType.Text,
             )
         }
         Spacer(Modifier.height(12.dp))
@@ -114,7 +149,7 @@ private fun SettingElementContent(
                 modifier = Modifier.fillMaxWidth(),
                 onValueChange = {},
                 placeholder = "password",
-                type = KeyboardType.Password
+                type = KeyboardType.Password,
             )
         }
     }
