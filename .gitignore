@@ -1,6 +1,7 @@
 # db data
 /data/
 
+.env
 local.env
 local.env.properties
 local.properties

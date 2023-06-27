@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+  money:
+    image: ghcr.io/matsudamper/kake-bo:latest
+    env_file:
+      - .env
+    ports:
+      - 9060:80
+    # environment
+    # volumes

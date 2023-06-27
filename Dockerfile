@@ -1,5 +1,6 @@
 FROM amazoncorretto:17-alpine
-COPY frontend/jsApp/build/developmentExecutable .
+CMD mkdir src
+COPY frontend/jsApp/build/distributions src
 
 COPY backend/build/distributions/backend.tar backend.tar
 RUN tar -xf backend.tar
