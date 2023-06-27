@@ -18,7 +18,7 @@ class GraphQlContext(
 ) {
     private var adminSession: AdminSession? = null
     private var verifyUserSessionResult: UserSessionRepository.VerifySessionResult.Success? = null
-    private val host get() = call.request.host()
+    private val host get() = ServerEnv.domain ?: call.request.host()
 
     fun verifyAdminSession() {
         if (adminSession != null) return

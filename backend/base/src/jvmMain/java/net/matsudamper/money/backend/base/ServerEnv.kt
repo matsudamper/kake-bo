@@ -2,7 +2,7 @@ package net.matsudamper.money.backend.base
 
 object ServerEnv {
     val isSecure: Boolean = System.getenv()["IS_SECURE"].toBoolean()
-    val domain: String = System.getenv()["DOMAIN"]!!
+    val domain: String? = System.getenv()["DOMAIN"]
     val port: Int = System.getenv()["PORT"]!!.toInt()
     val frontPath = System.getenv()["HTML_PATH"] ?: "./frontend/jsApp/build/developmentExecutable"
     val htmlPath = "$frontPath/index.html"
