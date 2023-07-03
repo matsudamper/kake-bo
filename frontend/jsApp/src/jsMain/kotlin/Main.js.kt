@@ -22,6 +22,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -29,7 +30,7 @@ import kotlinx.browser.window
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import lib.compose.HtmlTextOverLay
+import lib.compose.JsCompose
 import lib.compose.ResizableComposeWindow
 import lib.js.NormalizeInputKeyCapture
 import net.matsudamper.money.frontend.common.base.Screen
@@ -55,13 +56,14 @@ import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlMailQuery
 import net.matsudamper.money.frontend.graphql.GraphqlUserConfigQuery
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
+import org.jetbrains.skiko.SkikoKey
 import org.jetbrains.skiko.wasm.onWasmReady
 
 @OptIn(ExperimentalMaterial3Api::class)
 fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
     val composeSize = MutableStateFlow(IntSize.Zero)
 
-    HtmlTextOverLay(
+    JsCompose(
         composeSize = composeSize,
     )
 
@@ -104,7 +106,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                     coroutineScope.launch {
                                         hostState.showSnackbar(
                                             message = message,
-                                            duration = SnackbarDuration.Long,
+                                            duration = SnackbarDuration.Short,
                                         )
                                     }
                                 }

@@ -1,71 +1,80 @@
 package lib.compose
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.IntSize
 import kotlinx.browser.document
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import lib.js.ResizeObserver
-import net.matsudamper.money.frontend.common.ui.layout.html.text.LocalHtmlTextContext
-import net.matsudamper.money.frontend.common.ui.layout.html.text.LocalHtmlTextInputContext
-import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInputContext
+import net.matsudamper.money.frontend.common.ui.layout.html.html.LocalHtmlRenderContext
+import net.matsudamper.money.frontend.common.ui.layout.html.text.input.LocalHtmlTextInputContext
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.LocalHtmlFullScreenTextInputContext
-import org.jetbrains.compose.web.attributes.InputType
-import org.jetbrains.compose.web.attributes.placeholder
-import org.jetbrains.compose.web.attributes.type
-import org.jetbrains.compose.web.css.AlignItems
 import org.jetbrains.compose.web.css.Color
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
-import org.jetbrains.compose.web.css.JustifyContent
 import org.jetbrains.compose.web.css.Position
-import org.jetbrains.compose.web.css.alignItems
 import org.jetbrains.compose.web.css.backgroundColor
 import org.jetbrains.compose.web.css.color
 import org.jetbrains.compose.web.css.display
 import org.jetbrains.compose.web.css.em
+import org.jetbrains.compose.web.css.flexBasis
 import org.jetbrains.compose.web.css.flexDirection
+import org.jetbrains.compose.web.css.flexGrow
 import org.jetbrains.compose.web.css.height
-import org.jetbrains.compose.web.css.justifyContent
-import org.jetbrains.compose.web.css.left
-import org.jetbrains.compose.web.css.marginTop
-import org.jetbrains.compose.web.css.maxHeight
-import org.jetbrains.compose.web.css.maxWidth
-import org.jetbrains.compose.web.css.minHeight
-import org.jetbrains.compose.web.css.minus
-import org.jetbrains.compose.web.css.paddingLeft
-import org.jetbrains.compose.web.css.paddingRight
+import org.jetbrains.compose.web.css.outline
+import org.jetbrains.compose.web.css.overflow
+import org.jetbrains.compose.web.css.padding
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.position
-import org.jetbrains.compose.web.css.px
 import org.jetbrains.compose.web.css.rgba
-import org.jetbrains.compose.web.css.times
-import org.jetbrains.compose.web.css.top
-import org.jetbrains.compose.web.css.vh
 import org.jetbrains.compose.web.css.vw
 import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.Button
+import org.jetbrains.compose.web.dom.Canvas
 import org.jetbrains.compose.web.dom.Div
-import org.jetbrains.compose.web.dom.Input
+import org.jetbrains.compose.web.dom.Iframe
 import org.jetbrains.compose.web.dom.Text
 import org.jetbrains.compose.web.renderComposable
 
 @Suppress("FunctionName")
-fun HtmlTextOverLay(
+internal fun JsCompose(
     composeSize: StateFlow<IntSize>,
 ) {
+    renderComposable(rootElementId = "ComposeTargetContainer") {
+        val htmlRenderContextState by LocalHtmlRenderContext.current.stateFlow.collectAsState()
+        val htmlFullScreenTextInputContextState by LocalHtmlFullScreenTextInputContext.current.stateFlow.collectAsState()
+
+        val hasFullScreenOverlay by remember {
+            derivedStateOf {
+                htmlRenderContextState.isNotEmpty()
+                        || htmlFullScreenTextInputContextState.isNotEmpty()
+            }
+        }
+
+        Canvas(
+            attrs = {
+                id("ComposeTarget")
+                style {
+                    width(100.percent)
+                    height(100.percent)
+                    position(Position.Absolute)
+                    outline("none")
+                    if (hasFullScreenOverlay) {
+                        property(
+                            "pointer-events",
+                            "none",
+                        )
+                    }
+                }
+            },
+        )
+    }
+
     renderComposable(rootElementId = "HtmlComposeTarget") {
         val widthDensityState: MutableState<Float?> = remember { mutableStateOf(null) }
         val heightDensityState: MutableState<Float?> = remember { mutableStateOf(null) }
@@ -97,236 +106,78 @@ fun HtmlTextOverLay(
             }.observe(htmlComposeTarget)
         }
 
-        run {
-            val htmlTextInputContext = LocalHtmlTextInputContext.current
+        val htmlRenderContextState by LocalHtmlRenderContext.current.stateFlow.collectAsState()
+        val htmlFullScreenTextInputContextState by LocalHtmlFullScreenTextInputContext.current.stateFlow.collectAsState()
+        val htmlTextInputContextState by LocalHtmlTextInputContext.current.stateFlow.collectAsState()
 
+        run {
             val heightDensity = heightDensityState.value
             val widthDensity = widthDensityState.value
             if (heightDensity != null && widthDensity != null) {
-                htmlTextInputContext.stateFlow.collectAsState().value.forEach { entry ->
-                    val positionInWindow = entry.value.position
-                    val id = remember(entry.key) { entry.key.toString() }
-
-                    val coroutineScope = rememberCoroutineScope()
-                    DisposableEffect(id, entry.value.sizeCallback) {
-                        val resizeObserver = ResizeObserver { resizeEntries, _ ->
-                            for (resizeEntry in resizeEntries) {
-                                val rect = resizeEntry.contentRect
-                                entry.value.sizeCallback(
-                                    Size(
-                                        (rect.width / widthDensity).toFloat(),
-                                        (rect.height / heightDensity).toFloat(),
-                                    ),
-                                )
-                            }
-                        }
-
-                        coroutineScope.launch {
-                            while (isActive) {
-                                val targetElement = document.getElementById(id)
-                                if (targetElement == null) {
-                                    delay(10)
-                                    continue
-                                }
-                                resizeObserver.observe(targetElement)
-                                break
-                            }
-                        }
-
-                        onDispose {
-                            resizeObserver.disconnect()
-                        }
-                    }
-
-                    Input(
-                        type = InputType.Text,
-                        attrs = {
-                            id(id)
-                            onChange {
-                                entry.value.textCallback(it.value)
-                            }
-                            type(InputType.InputTypeWithUnitValue(entry.value.type ?: "password"))
-                            inputMode(
-                                entry.value.type.toString(),
-                            )
-                            placeholder(entry.value.placeholder)
-                            style {
-                                property(
-                                    "pointer-events",
-                                    "all",
-                                )
-                                val color = entry.value.color
-                                if (color != null) {
-                                    color(rgba(color.red * 255, color.green * 255, color.blue * 255, color.alpha * 255))
-                                }
-                                position(Position.Absolute)
-                                top((positionInWindow.y.px) * heightDensity)
-                                left((positionInWindow.x.px) * widthDensity)
-                                minHeight((entry.value.maxHeight ?: Int.MAX_VALUE).px * heightDensity)
-                                width(((entry.value.width ?: Int.MAX_VALUE).px) * widthDensity)
-                            }
-                        },
+                htmlTextInputContextState.forEach { entry ->
+                    HtmlTextInput(
+                        id = "id_${entry.key}",
+                        textState = entry.value,
+                        heightDensity = heightDensity,
+                        widthDensity = widthDensity,
                     )
                 }
             }
         }
 
         run {
-            val htmlTextContext = LocalHtmlTextContext.current
-
-            val heightDensity = heightDensityState.value
-            val widthDensity = widthDensityState.value
-            if (heightDensity != null && widthDensity != null) {
-                htmlTextContext.stateFlow.collectAsState().value.forEach { entry ->
-                    val positionInWindow = entry.value.position
-                    val id = remember(entry.key) { entry.key.toString() }
-                    LaunchedEffect(id) {
-                        val targetElement = document.getElementById(id) ?: return@LaunchedEffect
-
-                        val resizeObserver = ResizeObserver { resizeEntries, _ ->
-                            for (resizeEntry in resizeEntries) {
-                                val rect = resizeEntry.contentRect
-                                entry.value.sizeCallback(Size((rect.width / widthDensity).toFloat(), (rect.height / heightDensity).toFloat()))
-                            }
+            htmlRenderContextState.toList().lastOrNull()?.also { (id, value) ->
+                Div(
+                    attrs = {
+                        style {
+                            display(DisplayStyle.Flex)
+                            height(100.percent)
+                            flexDirection(FlexDirection.Column)
+                            overflow("hidden")
+                            property(
+                                "pointer-events",
+                                "all",
+                            )
                         }
-                        resizeObserver.observe(targetElement)
-                    }
-                    Div(
+                    },
+                ) {
+                    Iframe(
                         attrs = {
-                            id(id)
                             style {
-                                property(
-                                    "pointer-events",
-                                    "all",
-                                )
-                                val color = entry.value.color
-                                if (color != null) {
-                                    color(rgba(color.red * 255, color.green * 255, color.blue * 255, color.alpha * 255))
-                                }
-
-                                position(Position.Absolute)
-                                top((positionInWindow.y.px) * heightDensity)
-                                left((positionInWindow.x.px) * widthDensity)
-                                maxHeight((entry.value.maxHeight ?: Int.MAX_VALUE).px * heightDensity)
-                                maxWidth(((entry.value.maxWidth ?: Int.MAX_VALUE).px) * widthDensity)
+                                flexGrow(1)
+//                                property("height", "100svh")
+                                backgroundColor(Color.white)
+                                color(Color.black)
+                                display(DisplayStyle.Block)
+                            }
+                            attr("frameboader", "0")
+                            attr("srcdoc", value.html)
+                        },
+                    )
+                    Button(
+                        attrs = {
+                            style {
+                                height(4.em)
+                                padding(1.em)
+                                width(100.percent)
+                            }
+                            onClick {
+                                value.onDismissRequest()
                             }
                         },
                     ) {
-                        Text(entry.value.text)
+                        Text("閉じる")
                     }
                 }
             }
         }
 
         run {
-            LocalHtmlFullScreenTextInputContext.current.stateFlow.collectAsState().value.toList().lastOrNull()?.also { (id, value) ->
+            htmlFullScreenTextInputContextState.toList().lastOrNull()?.also { (id, value) ->
                 HtmlFullScreenTextInputContent(
                     id = id,
                     value = value,
                 )
-            }
-        }
-    }
-}
-
-@Composable
-private fun HtmlFullScreenTextInputContent(
-    id: String,
-    value: HtmlFullScreenTextInputContext.TextState,
-) {
-    var text by remember { mutableStateOf("") }
-    Div(
-        attrs = {
-            style {
-                width(100.vw)
-                height(100.vh)
-                backgroundColor(rgba(0, 0, 0, 0.8))
-                property(
-                    "pointer-events",
-                    "all",
-                )
-                display(DisplayStyle.Flex)
-                alignItems(AlignItems.Center)
-                justifyContent(JustifyContent.Center)
-                flexDirection(FlexDirection.Column)
-            }
-        },
-    ) {
-        Div(
-            attrs = {
-                style {
-                    width(100.percent - (5.percent * 2))
-                    paddingLeft(5.percent)
-                    paddingRight(5.percent)
-                }
-            },
-        ) {
-            Div(
-                attrs = {
-                    style {
-                        color(Color.white)
-                    }
-                },
-            ) {
-                Text(value.title)
-            }
-            val inputId = "id_$id"
-            Input(
-                type = InputType.Text,
-                attrs = {
-                    id(inputId)
-                    style {
-                        width(100.percent)
-                    }
-                    placeholder(value.title)
-                    onChange {
-                        text = it.value
-                    }
-                },
-            )
-            LaunchedEffect(value.default) {
-                val input = document.querySelector("#$inputId")!!
-                text = value.default
-                input.asDynamic().value = value.default
-            }
-
-            Div(
-                attrs = {
-                    style {
-                        marginTop(0.5.em)
-                        display(DisplayStyle.Flex)
-                        flexDirection(FlexDirection.Row)
-                        alignItems(AlignItems.Center)
-                        justifyContent(JustifyContent.End)
-                    }
-                },
-            ) {
-                Button(
-                    attrs = {
-                        onClick {
-                            value.canceled()
-                        }
-                    },
-                ) {
-                    Text("Cancel")
-                }
-                Div(
-                    attrs = {
-                        style {
-                            width(1.em)
-                        }
-                    },
-                )
-                Button(
-                    attrs = {
-
-                        onClick {
-                            value.textComplete(text)
-                        }
-                    },
-                ) {
-                    Text("OK")
-                }
             }
         }
     }

@@ -54,6 +54,7 @@ type UserMail {
     html: String
     id: MailId!
     plain: String
+    subject: String!
     time: DateTime!
 }
 

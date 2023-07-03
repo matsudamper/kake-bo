@@ -70,6 +70,7 @@ class UserResolverImpl : UserResolver {
                             html.getOrNull(0)?.html
                         }.toString(),
                         time = OffsetDateTime.now(),
+                        subject = mail.subject,
                     )
                 },
                 cursor = null,

@@ -27,6 +27,7 @@ query GetMail($mailQuery: MailQuery!) {
             cursor
             error
             usrMails {
+                subject
                 html
                 plain
             }

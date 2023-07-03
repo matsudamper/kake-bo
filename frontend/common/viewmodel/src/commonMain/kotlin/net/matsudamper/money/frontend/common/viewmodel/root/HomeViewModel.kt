@@ -16,9 +16,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import RootHomeScreenUiState
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.common.base.Screen
 import net.matsudamper.money.frontend.common.base.ScreenNavController
+import net.matsudamper.money.frontend.common.base.immutableListOf
+import net.matsudamper.money.frontend.graphql.GetMailQuery
 import net.matsudamper.money.frontend.graphql.GraphqlMailQuery
 
 // TODO move
@@ -68,6 +71,15 @@ public class HomeViewModel(
     public val rootUiStateFlow: StateFlow<RootHomeScreenUiState> = MutableStateFlow(
         RootHomeScreenUiState(
             isLoading = true,
+            html = null,
+            mails = immutableListOf(),
+            event = object : RootHomeScreenUiState.Event {
+                override fun htmlDismissRequest() {
+                    viewModelStateFlow.update {
+                        it.copy(html = null)
+                    }
+                }
+            },
         ),
     ).also {
         coroutineScope.launch {
@@ -75,6 +87,18 @@ public class HomeViewModel(
                 it.update {
                     it.copy(
                         isLoading = viewModelState.isLoading,
+                        mails = viewModelState.usrMails.map { mail ->
+                            RootHomeScreenUiState.Mail(
+                                subject = mail.subject,
+                                text = mail.plain.orEmpty(),
+                                onClick = {
+                                    viewModelStateFlow.update { viewModelState ->
+                                        viewModelState.copy(html = mail.html)
+                                    }
+                                },
+                            )
+                        }.toImmutableList(),
+                        html = viewModelState.html,
                     )
                 }
             }
@@ -104,19 +128,22 @@ public class HomeViewModel(
             }
 
             val mails = runCatching {
-                withContext(ioDispatcher){
+                withContext(ioDispatcher) {
                     mailQuery.getMail()
                 }
             }.getOrNull() ?: return@launch
 
-            println("usrMails: ${mails.data?.user?.mail?.usrMails.toString()}")
-            mails.data?.user?.mail?.usrMails?.onEach {
-                println("mail: $it")
+            viewModelStateFlow.update {
+                it.copy(
+                    usrMails = mails.data?.user?.mail?.usrMails.orEmpty(),
+                )
             }
         }
     }
 
     private data class ViewModelState(
         val isLoading: Boolean = true,
+        val usrMails: List<GetMailQuery.UsrMail> = listOf(),
+        val html: String? = null,
     )
 }

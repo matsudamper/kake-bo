@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.layout.html.text
+package net.matsudamper.money.frontend.common.ui.layout.html.text.input
 
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
