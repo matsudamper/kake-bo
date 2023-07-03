@@ -55,7 +55,7 @@ dependencyResolutionManagement {
             library("log4j.api", "org.slf4j:slf4j-api:2.0.6")
             library("logback.classic", "ch.qos.logback:logback-classic:1.4.8")
 
-            val ktorVersion = "2.2.4"
+            val ktorVersion = "2.3.2"
             library("ktor.server.core", "io.ktor:ktor-server-core:$ktorVersion")
             library("ktor.server.engine", "io.ktor:ktor-server-cio:$ktorVersion")
             library("ktor.server.statusPages", "io.ktor:ktor-server-status-pages:$ktorVersion")
