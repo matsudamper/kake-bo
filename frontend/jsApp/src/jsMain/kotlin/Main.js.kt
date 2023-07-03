@@ -25,9 +25,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import kotlinx.browser.window
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import lib.compose.HtmlOverLay
+import lib.compose.HtmlTextOverLay
 import lib.compose.ResizableComposeWindow
 import lib.js.NormalizeInputKeyCapture
 import net.matsudamper.money.frontend.common.base.Screen
@@ -48,17 +50,21 @@ import net.matsudamper.money.frontend.common.viewmodel.admin.AdminLoginScreenVie
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminRootScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
-import net.matsudamper.money.frontend.common.viewmodel.root.RootViewModel
-import net.matsudamper.money.frontend.graphql.GraphqlUserQuery
+import net.matsudamper.money.frontend.common.viewmodel.root.HomeViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
+import net.matsudamper.money.frontend.graphql.GraphqlMailQuery
+import net.matsudamper.money.frontend.graphql.GraphqlUserConfigQuery
+import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import org.jetbrains.skiko.wasm.onWasmReady
 
 @OptIn(ExperimentalMaterial3Api::class)
-fun main(args: Array<String>) {
+fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
     val composeSize = MutableStateFlow(IntSize.Zero)
 
-    HtmlOverLay(
+    HtmlTextOverLay(
         composeSize = composeSize,
     )
+
     onWasmReady {
         val globalEventSender = EventSender<GlobalEvent>()
         ResizableComposeWindow(
@@ -91,7 +97,7 @@ fun main(args: Array<String>) {
 
                     LaunchedEffect(globalEventSender) {
                         val coroutineScope = this
-                        globalEventSender.asReceiver().collect {
+                        globalEventSender.asReceiver().collect(
                             object : GlobalEvent {
                                 override fun showSnackBar(message: String) {
                                     console.error("show: $message")
@@ -102,8 +108,12 @@ fun main(args: Array<String>) {
                                         )
                                     }
                                 }
-                            }
-                        }
+
+                                override fun showNativeNotification(message: String) {
+                                    window.alert(message)
+                                }
+                            },
+                        )
                     }
 
                     Scaffold(
@@ -125,22 +135,33 @@ fun main(args: Array<String>) {
                             when (val current = navController.currentNavigation) {
                                 is Screen.Root -> {
                                     val rootCoroutineScope = rememberCoroutineScope()
-                                    val rootViewModel = remember {
-                                        RootViewModel(
+                                    val homeViewModel = remember {
+                                        HomeViewModel(
                                             coroutineScope = rootCoroutineScope,
-                                            graphqlQuery = GraphqlUserQuery(),
+                                            ioDispatcher = Dispatchers.Unconfined,
+                                            mailQuery = GraphqlMailQuery(),
+                                            graphqlQuery = GraphqlUserLoginQuery(),
                                             navController = navController,
                                             globalEventSender = globalEventSender,
                                         )
                                     }
-                                    LaunchedEffect(Unit) {
-                                        rootViewModel.onResume()
+
+                                    val settingViewModel = remember {
+                                        SettingViewModel(
+                                            coroutineScope = rootCoroutineScope,
+                                            graphqlQuery = GraphqlUserConfigQuery(),
+                                            globalEventSender = globalEventSender,
+                                            ioDispatchers = Dispatchers.Unconfined,
+                                        )
                                     }
-                                    val uiState = rootViewModel.rootUiStateFlow.collectAsState().value
+                                    LaunchedEffect(Unit) {
+                                        homeViewModel.onResume()
+                                    }
+                                    val homeUiState = homeViewModel.rootUiStateFlow.collectAsState().value
                                     when (current) {
                                         Screen.Root.Home -> {
                                             RootScreen(
-                                                uiState = uiState,
+                                                uiState = homeUiState,
                                                 listener = rootScreenScaffoldListener,
                                             )
                                         }
@@ -155,6 +176,7 @@ fun main(args: Array<String>) {
                                         Screen.Root.Settings -> {
                                             RootSettingScreen(
                                                 modifier = Modifier.fillMaxSize(),
+                                                uiState = settingViewModel.uiState.collectAsState().value,
                                                 listener = rootScreenScaffoldListener,
                                             )
                                         }
@@ -167,7 +189,7 @@ fun main(args: Array<String>) {
                                         LoginScreenViewModel(
                                             coroutineScope = coroutineScope,
                                             navController = navController,
-                                            graphqlQuery = GraphqlUserQuery(),
+                                            graphqlQuery = GraphqlUserLoginQuery(),
                                             globalEventSender = globalEventSender,
                                         )
                                     }

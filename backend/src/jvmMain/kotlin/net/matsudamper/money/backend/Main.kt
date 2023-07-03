@@ -2,6 +2,8 @@ package net.matsudamper.money.backend
 
 import java.io.File
 import java.lang.reflect.UndeclaredThrowableException
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import graphql.ExceptionWhileDataFetching
 import graphql.ExecutionInput
 import graphql.ExecutionResult
@@ -24,6 +26,7 @@ import io.ktor.server.plugins.forwardedheaders.ForwardedHeaders
 import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import io.ktor.server.request.path
 import io.ktor.server.request.receive
+import io.ktor.server.request.receiveStream
 import io.ktor.server.response.*
 import io.ktor.server.routing.accept
 import io.ktor.server.routing.get
@@ -90,7 +93,8 @@ fun Application.myApplicationModule() {
     routing {
         accept(ContentType.Application.Json) {
             post("/query") {
-                val request = call.receive<GraphQlRequest>()
+                val requestText = call.receiveStream().bufferedReader().readText()
+                val request = jacksonObjectMapper().readValue<GraphQlRequest>(requestText)
 
                 val executionInputBuilder = ExecutionInput.newExecutionInput()
                     .graphQLContext(

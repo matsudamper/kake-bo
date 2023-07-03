@@ -1,0 +1,35 @@
+query UserIsLoggedIn {
+    user {
+        isLoggedIn
+    }
+}
+
+query GetConfig {
+    user {
+        settings {
+            imapConfig {
+                ... DisplayImapConfig
+            }
+        }
+    }
+}
+
+fragment DisplayImapConfig on UserImapConfig {
+    hasPassword
+    userName
+    port
+    host
+}
+
+query GetMail($mailQuery: MailQuery!) {
+    user {
+        mail(mailQuery: $mailQuery) {
+            cursor
+            error
+            usrMails {
+                html
+                plain
+            }
+        }
+    }
+}

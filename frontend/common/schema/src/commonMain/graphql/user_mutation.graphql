@@ -6,8 +6,12 @@ mutation UserLogin($userName: String!,$password: String!) {
     }
 }
 
-query UserIsLoggedIn {
-    user {
-        isLoggedIn
+mutation SetImapConfig($config: UpdateUserImapConfigInput!) {
+    userMutation {
+        settingsMutation {
+            updateImapConfig(config: $config) {
+                ... DisplayImapConfig
+            }
+        }
     }
 }

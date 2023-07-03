@@ -50,3 +50,13 @@ CREATE TABLE user_imap_settings
     use_name VARCHAR(500),
     password VARCHAR(500)
 );
+
+CREATE TABLE user_mails
+(
+    user_mail_id     INT                                not null PRIMARY KEY AUTO_INCREMENT,
+    user_id          INT                                not null PRIMARY KEY,
+    plain            TEXT,
+    html             TEXT,
+    datetime         DATETIME                           not null,
+    created_datetime DATETIME DEFAULT CURRENT_TIMESTAMP not null
+);

@@ -21,20 +21,22 @@ class UserLoginRepository {
     private val bases64Encoder = Base64.getEncoder()
 
     fun login(userName: String, passwords: String): Result {
-        val result = DSL.using(DbConnection.get())
-            .select(userPasswords, userPasswordExtendData)
-            .from(user)
+        val result = DbConnection.use {
+            DSL.using(it)
+                .select(userPasswords, userPasswordExtendData)
+                .from(user)
 
-            .join(userPasswords)
-            .on(userPasswords.USER_ID.eq(user.USER_ID))
+                .join(userPasswords)
+                .on(userPasswords.USER_ID.eq(user.USER_ID))
 
-            .join(userPasswordExtendData)
-            .on(userPasswordExtendData.USER_ID.eq(userPasswords.USER_ID))
+                .join(userPasswordExtendData)
+                .on(userPasswordExtendData.USER_ID.eq(userPasswords.USER_ID))
 
-            .where(
-                user.USER_NAME.eq(userName),
-            )
-            .fetchOne() ?: return Result.Failure
+                .where(
+                    user.USER_NAME.eq(userName),
+                )
+                .fetchOne()
+        } ?: return Result.Failure
 
         val userPasswordRecord: JUserPasswordsRecord = result.value1()
         val userPasswordExtendDataRecord: JUserPasswordExtendDataRecord = result.value2()

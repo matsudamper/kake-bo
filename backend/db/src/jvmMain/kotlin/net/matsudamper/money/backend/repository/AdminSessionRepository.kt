@@ -8,7 +8,6 @@ import net.matsudamper.money.db.schema.tables.JAdminSessions
 import net.matsudamper.money.db.schema.tables.records.JAdminSessionsRecord
 import org.jooq.impl.DSL
 import java.util.*
-import java.sql.Connection
 
 /**
  * ＝＝	eq	左項の値が右項の値に等しいとき真になる
@@ -27,57 +26,65 @@ object AdminSessionRepository {
      */
     fun verifySession(adminSessionId: String): AdminSession? {
         // 期限切れのSessionを削除する
-        DSL.using(DbConnection.get())
-            .deleteFrom(adminSession)
-            .where(
-                adminSession.EXPIRE_DATETIME
-                    .lt(DSL.localDateTime(LocalDateTimeExt.nowUtc())),
-            )
-            .execute()
+        DbConnection.use {
+            DSL.using(it)
+                .deleteFrom(adminSession)
+                .where(
+                    adminSession.EXPIRE_DATETIME
+                        .lt(DSL.localDateTime(LocalDateTimeExt.nowUtc())),
+                )
+                .execute()
+        }
 
-        // verify
-        DSL.using(DbConnection.get())
-            .select()
-            .from(adminSession)
-            .where(
-                adminSession.SESSION_ID.eq(adminSessionId)
-                    .and(
-                        adminSession.EXPIRE_DATETIME
-                            .gt(DSL.localDateTime(LocalDateTimeExt.nowUtc())),
+        DbConnection.use {
+            // verify
+            DSL.using(it)
+                .select()
+                .from(adminSession)
+                .where(
+                    adminSession.SESSION_ID.eq(adminSessionId)
+                        .and(
+                            adminSession.EXPIRE_DATETIME
+                                .gt(DSL.localDateTime(LocalDateTimeExt.nowUtc())),
+                        ),
+                )
+                .fetchAny()
+        } ?: return null
+
+        val sessionId = DbConnection.use {
+            // update Expire
+            DSL.using(it)
+                .update(adminSession)
+                .set(
+                    adminSession.EXPIRE_DATETIME,
+                    DSL.localDateTime(
+                        LocalDateTimeExt.nowUtc()
+                            .plusMinutes(10),
                     ),
-            )
-            .fetchAny() ?: return null
-
-        // update Expire
-        val sessionId = DSL.using(DbConnection.get())
-            .update(adminSession)
-            .set(
-                adminSession.EXPIRE_DATETIME,
-                DSL.localDateTime(
-                    LocalDateTimeExt.nowUtc()
-                        .plusMinutes(10),
-                ),
-            )
-            .where(
-                adminSession.SESSION_ID.eq(adminSessionId),
-            )
-            .returningResult(adminSession)
-            .fetchOne()!!
-            .value1()!!
-
+                )
+                .where(
+                    adminSession.SESSION_ID.eq(adminSessionId),
+                )
+                .returningResult(adminSession)
+                .fetchOne()!!
+                .value1()!!
+        }
         return sessionId.toResponse()
     }
 
     fun createSession(): AdminSession {
-        val sessionId = DSL.using(DbConnection.get())
-            .insertInto(adminSession)
-            .set(adminSession.EXPIRE_DATETIME,
-                 DSL.localDateTime(LocalDateTimeExt.nowUtc().plusMinutes(10))
-            )
-            .set(adminSession.SESSION_ID, UUID.randomUUID().toString())
-            .returningResult(adminSession)
-            .fetchOne()!!
-            .value1()!!
+        val sessionId = DbConnection.use {
+            DSL.using(it)
+                .insertInto(adminSession)
+                .set(
+                    adminSession.EXPIRE_DATETIME,
+                    DSL.localDateTime(LocalDateTimeExt.nowUtc().plusMinutes(10)),
+                )
+                .set(adminSession.SESSION_ID, UUID.randomUUID().toString())
+                .returningResult(adminSession)
+                .fetchOne()!!
+                .value1()!!
+        }
 
         return sessionId.toResponse()
     }

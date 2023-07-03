@@ -14,8 +14,8 @@ kotlin {
                 implementation(kotlin("reflect"))
 
                 implementation(libs.kotlin.serialization.json)
-                implementation("com.fasterxml.jackson.core:jackson-databind:2.15.2")
-                implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.2")
+                implementation(libs.jackson.databind)
+                implementation(libs.jackson.kotlin)
                 implementation(libs.log4j.api)
             }
         }

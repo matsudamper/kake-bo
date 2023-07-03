@@ -10,9 +10,11 @@ import net.matsudamper.money.backend.repository.UserLoginRepository
 import net.matsudamper.money.backend.repository.UserSessionRepository
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
+import net.matsudamper.money.backend.repository.UserConfigRepository
 import net.matsudamper.money.graphql.model.QlSettingsMutation
 import net.matsudamper.money.graphql.model.QlUserLoginResult
 import net.matsudamper.money.graphql.model.QlUserMutation
+import net.matsudamper.money.graphql.model.SettingsMutationResolver
 import net.matsudamper.money.graphql.model.UserMutationResolver
 
 class UserMutationResolverImpl : UserMutationResolver {
@@ -52,7 +54,9 @@ class UserMutationResolverImpl : UserMutationResolver {
     }
 
     override fun settingsMutation(userMutation: QlUserMutation, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlSettingsMutation?>> {
-        TODO("Not yet implemented")
+        return CompletableFuture.supplyAsync {
+            QlSettingsMutation()
+        }.toDataFetcher()
     }
 }
 

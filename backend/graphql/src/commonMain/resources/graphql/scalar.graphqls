@@ -1,1 +1,4 @@
 scalar UserId
+scalar MailId
+scalar DateTime
+scalar LocalDate

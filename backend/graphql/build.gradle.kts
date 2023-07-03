@@ -17,10 +17,12 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation(project(":backend:base"))
+                implementation(project(":shared"))
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.kotlin.serialization.json)
                 implementation(libs.logback.classic)
+                implementation("com.graphql-java:graphql-java-extended-scalars:20.2")
 
                 api("com.graphql-java-kickstart:graphql-java-tools:13.0.2")
             }
@@ -71,6 +73,9 @@ val graphqlCodegen = tasks.named<io.github.kobylynskyi.graphql.codegen.gradle.Gr
     }
     customTypesMapping = mutableMapOf(
         "UserId" to "Int",
+        "MailId" to "net.matsudamper.money.element.MailId",
+        "DateTime" to "java.time.OffsetDateTime",
+        "LocalDate" to "java.time.LocalDateTime",
     )
 }
 

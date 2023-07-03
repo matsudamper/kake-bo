@@ -11,6 +11,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation(project(":frontend:common:base"))
                 api(compose.runtime)
                 api(compose.foundation)
                 api(libs.compose.material3)

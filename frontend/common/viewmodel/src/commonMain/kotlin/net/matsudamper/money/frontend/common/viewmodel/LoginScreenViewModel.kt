@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.matsudamper.money.frontend.graphql.GraphqlUserQuery
+import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.common.base.Screen
 import net.matsudamper.money.frontend.common.base.ScreenNavController
 import net.matsudamper.money.frontend.common.uistate.LoginScreenUiState
@@ -16,7 +16,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 
 public class LoginScreenViewModel(
     private val coroutineScope: CoroutineScope,
-    private val graphqlQuery: GraphqlUserQuery,
+    private val graphqlQuery: GraphqlUserLoginQuery,
     private val navController: ScreenNavController,
     private val globalEventSender: EventSender<GlobalEvent>,
 ) {

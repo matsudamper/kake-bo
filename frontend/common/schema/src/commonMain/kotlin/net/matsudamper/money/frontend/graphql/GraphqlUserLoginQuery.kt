@@ -1,13 +1,18 @@
 package net.matsudamper.money.frontend.graphql
 
+import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
+import com.apollographql.apollo3.api.Optional
+import net.matsudamper.money.frontend.graphql.type.MailQuery
 
-class GraphqlUserQuery {
+class GraphqlUserLoginQuery(
+    private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
+) {
     suspend fun login(
         userName: String,
         password: String,
     ): ApolloResponse<UserLoginMutation.Data> {
-        return GraphqlClient.apolloClient
+        return apolloClient
             .mutation(
                 UserLoginMutation(
                     userName = userName,
@@ -19,7 +24,7 @@ class GraphqlUserQuery {
 
     suspend fun isLoggedIn(): Boolean {
         return runCatching {
-            GraphqlClient.apolloClient
+            apolloClient
                 .query(UserIsLoggedInQuery())
                 .execute()
                 .data

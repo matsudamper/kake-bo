@@ -30,27 +30,37 @@ type Query {
 }
 
 type SettingsMutation {
-    updateImapConfig(config: UpdateUserImapConfigInput!): UserImapConfigResult
+    updateImapConfig(config: UpdateUserImapConfigInput!): UserImapConfig
 }
 
 type User {
     isLoggedIn: Boolean!
+    mail(mailQuery: MailQuery!): UserMailConnection!
     settings: UserSettings!
 }
 
 type UserImapConfig {
+    hasPassword: Boolean
     host: String
-    password: String
     port: Int
     userName: String
 }
 
-type UserImapConfigResult {
+type UserLoginResult {
     isSuccess: Boolean!
 }
 
-type UserLoginResult {
-    isSuccess: Boolean!
+type UserMail {
+    html: String
+    id: MailId!
+    plain: String
+    time: DateTime!
+}
+
+type UserMailConnection {
+    cursor: String
+    error: UserMailError
+    usrMails: [UserMail!]!
 }
 
 type UserMutation {
@@ -69,6 +79,22 @@ enum AdminAddUserErrorType {
     UserNameAlreadyExists
     UserNameInvalidChar
     UserNameLength
+}
+
+enum UserMailError {
+    InternalServerError
+    MailConfigNotFound
+    MailServerNotConnected
+}
+
+"A slightly refined version of RFC-3339 compliant DateTime Scalar"
+scalar DateTime
+
+scalar MailId
+
+input MailQuery {
+    cursor: String
+    size: Int!
 }
 
 input UpdateUserImapConfigInput {

@@ -1,10 +1,15 @@
 package net.matsudamper.money.backend.graphql
 
+import java.util.Locale
 import java.util.jar.JarFile
 import graphql.GraphQL
+import graphql.GraphQLContext
 import graphql.execution.AsyncExecutionStrategy
+import graphql.execution.CoercedVariables
 import graphql.kickstart.tools.SchemaParser
+import graphql.language.Value
 import graphql.scalars.ExtendedScalars
+import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
 import net.matsudamper.money.backend.graphql.resolver.MutationResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.QueryResolverImpl
@@ -13,6 +18,7 @@ import net.matsudamper.money.backend.graphql.resolver.UserMutationResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserSettingsResolverImpl
 import net.matsudamper.money.backend.graphql.schema.GraphqlSchemaModule
+import net.matsudamper.money.element.MailId
 
 
 object MoneyGraphQlSchema {
@@ -20,6 +26,7 @@ object MoneyGraphQlSchema {
         return ClassLoader.getSystemClassLoader()
             .getResourceAsStream("graphql")!!
             .bufferedReader().lines()
+            .filter { it.endsWith(".graphqls") }
             .toList()
             .onEach {
                 println("lines -> $it")
@@ -63,6 +70,22 @@ object MoneyGraphQlSchema {
                 GraphQLScalarType.newScalar(ExtendedScalars.GraphQLLong)
                     .name("UserId")
                     .build(),
+                GraphQLScalarType.newScalar()
+                    .coercing(
+                        @Suppress("UNCHECKED_CAST")
+                        ValueClassCoercing(
+                            ExtendedScalars.GraphQLLong.coercing as Coercing<Long, Long>,
+                            ::MailId,
+                        ),
+                    )
+                    .name("MailId")
+                    .build(),
+                GraphQLScalarType.newScalar(ExtendedScalars.DateTime)
+                    .name("DateTime")
+                    .build(),
+                GraphQLScalarType.newScalar(ExtendedScalars.Date)
+                    .name("LocalDate")
+                    .build(),
             )
             .resolvers(
                 QueryResolverImpl(),
@@ -80,4 +103,31 @@ object MoneyGraphQlSchema {
     internal val graphql = GraphQL.newGraphQL(schema)
         .queryExecutionStrategy(AsyncExecutionStrategy())
         .build()
+}
+
+class ValueClassCoercing<T, R>(
+    private val coercing: Coercing<T, T>,
+    private val converter: (T) -> R,
+) : Coercing<R, R> {
+    override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): R? {
+        return coercing.serialize(dataFetcherResult, graphQLContext, locale)?.let {
+            converter(it)
+        }
+    }
+
+    override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): R? {
+        return coercing.parseValue(input, graphQLContext, locale)?.let {
+            converter(it)
+        }
+    }
+
+    override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): R? {
+        return coercing.parseLiteral(input, variables, graphQLContext, locale)?.let {
+            converter(it)
+        }
+    }
+
+    override fun valueToLiteral(input: Any, graphQLContext: GraphQLContext, locale: Locale): Value<*> {
+        return coercing.valueToLiteral(input, graphQLContext, locale)
+    }
 }

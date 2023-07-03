@@ -11,7 +11,7 @@ import org.eclipse.angus.mail.imap.IMAPMessage
 
 class MailRepository(
     private val host: String,
-    private val port: String,
+    private val port: Int,
     private val userName: String,
     private val password: String,
 ) {
@@ -86,7 +86,7 @@ class MailRepository(
             Properties().also {
                 it.setProperty("mail.imap.ssl.enable", "true");
                 it.setProperty("mail.imap.host", host);
-                it.setProperty("mail.imap.port", port);
+                it.setProperty("mail.imap.port", port.toString());
             },
             object : Authenticator() {
                 override fun getPasswordAuthentication(): PasswordAuthentication {

@@ -22,7 +22,7 @@ class UserSettingsResolverImpl : UserSettingsResolver {
             QlUserImapConfig(
                 host = result.host,
                 port = result.port,
-                password = result.password,
+                hasPassword = result.password.isNullOrBlank().not(),
                 userName = result.userName,
             )
         }.toDataFetcher()

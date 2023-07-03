@@ -8,16 +8,12 @@ type UserLoginResult {
 }
 
 type SettingsMutation {
-    updateImapConfig(config: UpdateUserImapConfigInput!) : UserImapConfigResult
+    updateImapConfig(config: UpdateUserImapConfigInput!) : UserImapConfig
 }
 
 input UpdateUserImapConfigInput {
-    host: String,
-    port  :   Int,
-    userName: String,
+    host: String
+    port  :   Int
+    userName: String
     password: String
-}
-
-type UserImapConfigResult {
-    isSuccess: Boolean!
 }

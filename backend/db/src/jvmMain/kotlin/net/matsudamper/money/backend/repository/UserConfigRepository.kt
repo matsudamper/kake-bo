@@ -10,18 +10,49 @@ class UserConfigRepository {
     /**
      * @return isSuccess
      */
-    fun updateImapConfig(userId: UserId, host: String?, port: Int?, password: String?, userName: String?): Boolean {
+    fun updateImapConfig(
+        userId: UserId,
+        host: String?,
+        port: Int?,
+        password: String?,
+        userName: String?,
+    ): Boolean {
         return runCatching {
             val userImap = JUserImapSettings.USER_IMAP_SETTINGS
-            DSL.using(DbConnection.get())
-                .insertInto(userImap)
-                .set(userImap.USER_ID, userId.id)
-                .onDuplicateKeyUpdate()
-                .set(userImap.HOST, host)
-                .set(userImap.PORT, port)
-                .set(userImap.PASSWORD, password)
-                .set(userImap.USE_NAME, userName)
-                .execute()
+            DbConnection.use {
+                host?.also { host ->
+                    DSL.using(it)
+                        .insertInto(userImap)
+                        .set(userImap.USER_ID, userId.id)
+                        .onDuplicateKeyUpdate()
+                        .set(userImap.HOST, host)
+                        .execute()
+                }
+                port?.also { port ->
+                    DSL.using(it)
+                        .insertInto(userImap)
+                        .set(userImap.USER_ID, userId.id)
+                        .onDuplicateKeyUpdate()
+                        .set(userImap.PORT, port)
+                        .execute()
+                }
+                password?.also { password ->
+                    DSL.using(it)
+                        .insertInto(userImap)
+                        .set(userImap.USER_ID, userId.id)
+                        .onDuplicateKeyUpdate()
+                        .set(userImap.PASSWORD, password)
+                        .execute()
+                }
+                userName?.also { userName ->
+                    DSL.using(it)
+                        .insertInto(userImap)
+                        .set(userImap.USER_ID, userId.id)
+                        .onDuplicateKeyUpdate()
+                        .set(userImap.USE_NAME, userName)
+                        .execute()
+                }
+            }
         }.fold(
             onSuccess = { true },
             onFailure = { false },
@@ -31,13 +62,21 @@ class UserConfigRepository {
     fun getImapConfig(userId: UserId): ImapConfig? {
         return runCatching {
             val userImap = JUserImapSettings.USER_IMAP_SETTINGS
-            DSL.using(DbConnection.get())
-                .select(userImap)
-                .where(userImap.USER_ID.eq(userId.id))
-                .fetchOne()
+            DbConnection.use {
+                DSL.using(it)
+                    .select(userImap)
+                    .from(userImap)
+                    .where(userImap.USER_ID.eq(userId.id))
+                    .fetchOne()
+            }
         }.fold(
             onSuccess = { record1 ->
-                val imapConfig = record1?.value1() ?: return null
+                val imapConfig = record1?.value1() ?: return ImapConfig(
+                    host = null,
+                    port = null,
+                    userName = null,
+                    password = null,
+                )
 
                 ImapConfig(
                     host = imapConfig.host,
@@ -46,7 +85,26 @@ class UserConfigRepository {
                     password = imapConfig.password,
                 )
             },
-            onFailure = { null },
+            onFailure = {
+                it.printStackTrace()
+                null
+            },
         )
+    }
+
+    sealed interface Optional<T> {
+        class None<T> : Optional<T>
+        class HasValue<T>(val value: T) : Optional<T>
+
+        fun hasValue(block: (T) -> Unit) {
+            when (this) {
+                is HasValue -> block(value)
+                is None -> Unit
+            }
+        }
+
+        companion object {
+            fun <T> none() = None<T>()
+        }
     }
 }

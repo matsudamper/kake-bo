@@ -9,7 +9,7 @@ import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.repository.UserConfigRepository
 import net.matsudamper.money.graphql.model.QlSettingsMutation
 import net.matsudamper.money.graphql.model.QlUpdateUserImapConfigInput
-import net.matsudamper.money.graphql.model.QlUserImapConfigResult
+import net.matsudamper.money.graphql.model.QlUserImapConfig
 import net.matsudamper.money.graphql.model.SettingsMutationResolver
 
 class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
@@ -17,20 +17,28 @@ class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
         settingsMutation: QlSettingsMutation,
         config: QlUpdateUserImapConfigInput,
         env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<QlUserImapConfigResult?>> {
+    ): CompletionStage<DataFetcherResult<QlUserImapConfig?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
-
         return CompletableFuture.supplyAsync {
-            val isSuccess = UserConfigRepository().updateImapConfig(
+            UserConfigRepository().updateImapConfig(
                 userId = userId,
                 host = config.host,
                 port = config.port,
                 password = config.password,
                 userName = config.userName,
             )
-            QlUserImapConfigResult(
-                isSuccess = isSuccess
+        }.thenApplyAsync { isSuccess ->
+            if (isSuccess.not()) {
+                return@thenApplyAsync null
+            }
+            val result = UserConfigRepository().getImapConfig(userId) ?: return@thenApplyAsync null
+
+            QlUserImapConfig(
+                host = result.host,
+                port = result.port,
+                hasPassword = result.password.isNullOrBlank().not(),
+                userName = result.userName,
             )
         }.toDataFetcher()
     }

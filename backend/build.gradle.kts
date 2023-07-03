@@ -15,6 +15,7 @@ kotlin {
         jvmToolchain(17)
         val jvmMain by getting {
             dependencies {
+                implementation(project(":shared"))
                 implementation(project(":backend:base"))
                 implementation(project(":backend:graphql"))
                 implementation(project(":backend:db"))

@@ -1,23 +1,19 @@
 package net.matsudamper.money.backend
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import com.fasterxml.jackson.annotation.JsonProperty
 
-@Serializable
 data class GraphQlRequest(
-    @SerialName("query") val query: String? = null,
-    @SerialName("operationName") val operationName: String = "",
-    @SerialName("variables") val variables: Map<String, String> = mapOf(),
-    @SerialName("extensions") val extensions: Extensions? = null,
+    @JsonProperty("query") val query: String? = null,
+    @JsonProperty("operationName") val operationName: String = "",
+    @JsonProperty("variables") val variables: Map<String, Any> = mapOf(),
+    @JsonProperty("extensions") val extensions: Extensions? = null,
 ) {
-    @Serializable
     data class Extensions(
-        @SerialName("persistedQuery") val persistedQuery: PersistedQuery? = null,
+        @JsonProperty("persistedQuery") val persistedQuery: PersistedQuery? = null,
     )
 
-    @Serializable
     data class PersistedQuery(
-        @SerialName("version") val version: String,
-        @SerialName("sha256Hash") val sha256Hash: String,
+        @JsonProperty("version") val version: String,
+        @JsonProperty("sha256Hash") val sha256Hash: String,
     )
 }
