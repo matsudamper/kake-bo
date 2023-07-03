@@ -1,8 +1,8 @@
 plugins {
     kotlin("multiplatform") apply false
     alias(libs.plugins.kotlin.serialization) apply false
-    id("org.jetbrains.compose") apply false
-    id("org.jlleitschuh.gradle.ktlint") version "11.3.1"
+    alias(libs.plugins.compose) apply false
+    alias(libs.plugins.ktlint)
 }
 
 dependencies {

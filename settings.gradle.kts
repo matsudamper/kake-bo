@@ -47,6 +47,7 @@ dependencyResolutionManagement {
             plugin("kotlin.serialization", "org.jetbrains.kotlin.plugin.serialization").version(kotlinVersion)
             library("kotlin.coroutines.core", "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
 
+            plugin("compose", "org.jetbrains.compose").version(extra["compose.version"] as String)
             library("compose.material3", "org.jetbrains.compose.material3:material3:1.4.0")
 
 
@@ -54,6 +55,8 @@ dependencyResolutionManagement {
 
             library("log4j.api", "org.slf4j:slf4j-api:2.0.6")
             library("logback.classic", "ch.qos.logback:logback-classic:1.4.8")
+
+            plugin("ktlint", "org.jlleitschuh.gradle.ktlint").version("11.3.1")
 
             val ktorVersion = "2.3.2"
             library("ktor.server.core", "io.ktor:ktor-server-core:$ktorVersion")
