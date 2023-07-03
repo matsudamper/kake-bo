@@ -50,7 +50,7 @@ dependencyResolutionManagement {
             library("compose.material3", "org.jetbrains.compose.material3:material3:1.4.0")
 
 
-            library("kotlin.serialization.json", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+            library("kotlin.serialization.json", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 
             library("log4j.api", "org.slf4j:slf4j-api:2.0.6")
             library("logback.classic", "ch.qos.logback:logback-classic:1.4.5")
