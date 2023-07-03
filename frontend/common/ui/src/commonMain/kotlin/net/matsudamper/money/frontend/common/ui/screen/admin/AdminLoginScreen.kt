@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.layout
+package net.matsudamper.money.frontend.common.ui.screen.admin
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

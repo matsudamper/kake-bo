@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.layout
+package net.matsudamper.money.frontend.common.ui.screen.admin
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
