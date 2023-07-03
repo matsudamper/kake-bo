@@ -11,6 +11,7 @@ kotlin {
     jvm {
     }
     sourceSets {
+        jvmToolchain(17)
         val commonMain by getting {
             dependencies {
                 implementation(kotlin("stdlib"))
