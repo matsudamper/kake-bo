@@ -45,7 +45,7 @@ dependencyResolutionManagement {
             val kotlinVersion = extra["kotlin.version"] as String
             plugin("kotlin.multiplatform", "org.jetbrains.kotlin.multiplatform").version(kotlinVersion)
             plugin("kotlin.serialization", "org.jetbrains.kotlin.plugin.serialization").version(kotlinVersion)
-            library("kotlin.coroutines.core", "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
+            library("kotlin.coroutines.core", "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
 
             library("compose.material3", "org.jetbrains.compose.material3:material3:1.4.0")
 
