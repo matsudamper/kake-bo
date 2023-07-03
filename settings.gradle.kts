@@ -52,7 +52,7 @@ dependencyResolutionManagement {
 
             library("kotlin.serialization.json", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
 
-            library("log4j.api", "org.slf4j:slf4j-api:2.0.6")
+            library("log4j.api", "org.slf4j:slf4j-api:2.0.7")
             library("logback.classic", "ch.qos.logback:logback-classic:1.4.8")
 
             val ktorVersion = "2.3.2"
