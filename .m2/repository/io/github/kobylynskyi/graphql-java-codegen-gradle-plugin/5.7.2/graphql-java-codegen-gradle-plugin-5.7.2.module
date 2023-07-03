@@ -1,0 +1,137 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.github.kobylynskyi",
+    "module": "graphql-java-codegen-gradle-plugin",
+    "version": "5.7.2",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.0.2"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 8,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "files": [
+        {
+          "name": "graphql-java-codegen-gradle-plugin-5.7.2.jar",
+          "url": "graphql-java-codegen-gradle-plugin-5.7.2.jar",
+          "size": 15443,
+          "sha512": "d79f4b84d33d5714fb60fed4289ec4289413e3d4f7c2e028c086537ce6ab96cf99330f36112e42396de8450029577887606f282c9b415c7b4b89293d09b6399b",
+          "sha256": "70be93a026c22904d572d743967fc27c19c1d6d28af9a44a2efeba2e4a39b8ad",
+          "sha1": "cdcf4023990fdf11dff896945c7372b9682be36c",
+          "md5": "85872f21f63067bf7c0e53844124c9f1"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 8,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "io.github.kobylynskyi",
+          "module": "graphql-java-codegen",
+          "version": {
+            "requires": "5.7.2"
+          }
+        },
+        {
+          "group": "org.freemarker",
+          "module": "freemarker",
+          "version": {
+            "requires": "2.3.32"
+          }
+        },
+        {
+          "group": "com.graphql-java",
+          "module": "graphql-java",
+          "version": {
+            "requires": "20.2"
+          }
+        },
+        {
+          "group": "com.fasterxml.jackson.core",
+          "module": "jackson-databind",
+          "version": {
+            "requires": "2.15.0"
+          }
+        },
+        {
+          "group": "com.typesafe",
+          "module": "config",
+          "version": {
+            "requires": "1.4.2"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "graphql-java-codegen-gradle-plugin-5.7.2.jar",
+          "url": "graphql-java-codegen-gradle-plugin-5.7.2.jar",
+          "size": 15443,
+          "sha512": "d79f4b84d33d5714fb60fed4289ec4289413e3d4f7c2e028c086537ce6ab96cf99330f36112e42396de8450029577887606f282c9b415c7b4b89293d09b6399b",
+          "sha256": "70be93a026c22904d572d743967fc27c19c1d6d28af9a44a2efeba2e4a39b8ad",
+          "sha1": "cdcf4023990fdf11dff896945c7372b9682be36c",
+          "md5": "85872f21f63067bf7c0e53844124c9f1"
+        }
+      ]
+    },
+    {
+      "name": "javadocElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "javadoc",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "graphql-java-codegen-gradle-plugin-5.7.2-javadoc.jar",
+          "url": "graphql-java-codegen-gradle-plugin-5.7.2-javadoc.jar",
+          "size": 46772,
+          "sha512": "4e43e52bf1ac6f047800c3516a7ad1b0acc10f59f8b4a9becf16ca4867804728a7adf7f3a034e5cd857a2fd9da8dd91d3f5af27a9b7007c67c94bcd3b1de00fe",
+          "sha256": "3ad6a8ff0cdb96c527a04b96b38552c1b56805156420cb12d83033740b7b1dc5",
+          "sha1": "be865d33b7554765ab0b566ccb9fa969e5d3d3f7",
+          "md5": "7f56f81be435ed49c27c4b0008863f9b"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "graphql-java-codegen-gradle-plugin-5.7.2-sources.jar",
+          "url": "graphql-java-codegen-gradle-plugin-5.7.2-sources.jar",
+          "size": 9217,
+          "sha512": "81983582782a42f4d7d72b78d3d604269d60fd6fc050ecc19c1a3c56a03fc810d09c8c96c7a63feaed4b3c5f4516263a1f08469d6534dec8af7c4e6a45ef2f4d",
+          "sha256": "57de9b87618d919e04536b64f8072410d760a947638f244cc5fdb98058f43c56",
+          "sha1": "9754121585445f1eb086c276b76e81377e066b92",
+          "md5": "b8997ec5bfa7917fbea40f298acef7a2"
+        }
+      ]
+    }
+  ]
+}
