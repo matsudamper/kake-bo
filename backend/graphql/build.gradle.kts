@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
-//    id("io.github.kobylynskyi.graphql.codegen") version "5.5.0"
     id("io.github.kobylynskyi.graphql.codegen") version "5.7.3-SNAPSHOT"
 }
 
