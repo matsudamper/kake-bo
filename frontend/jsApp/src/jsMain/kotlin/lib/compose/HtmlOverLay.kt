@@ -145,13 +145,13 @@ internal fun JsCompose(
                         attrs = {
                             style {
                                 flexGrow(1)
-//                                property("height", "100svh")
                                 backgroundColor(Color.white)
                                 color(Color.black)
                                 display(DisplayStyle.Block)
                             }
                             attr("frameboader", "0")
                             attr("srcdoc", value.html)
+                            attr("sandbox", "")
                         },
                     )
                     Button(
