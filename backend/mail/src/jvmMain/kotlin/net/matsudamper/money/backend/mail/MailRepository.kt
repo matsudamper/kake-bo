@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.mail
 
+import java.lang.IllegalStateException
 import java.util.Properties
 import jakarta.mail.Authenticator
 import jakarta.mail.Flags
@@ -29,12 +30,17 @@ class MailRepository(
                         .map { it as IMAPMessage }
                         .map { message ->
                             val contents = when (val content = message.dataHandler.content) {
-                                is String -> {
-                                    listOf(MailResult.Content.Text(content))
-                                }
-
+                                is String,
                                 is MimeMultipart -> {
-                                    MultipartParser.parseMultipart(content).map {
+                                    when(content) {
+                                        is String -> {
+                                            MultipartParser.parse(message)
+                                        }
+                                        is MimeMultipart -> {
+                                            MultipartParser.parseMultipart(content)
+                                        }
+                                        else -> throw IllegalStateException("")
+                                    }.map {
                                         when (it) {
                                             is MultipartParser.ParseResult.Content.Html -> MailResult.Content.Html(it.html)
                                             is MultipartParser.ParseResult.Content.Text -> MailResult.Content.Text(it.text)
@@ -74,7 +80,6 @@ class MailRepository(
                 .map { it as IMAPMessage }
                 .firstOrNull { it.messageID == deleteMessageID }
                 ?: return false
-
 
             deleteMessage.setFlag(Flags.Flag.DELETED, true)
             return true

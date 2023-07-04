@@ -1,7 +1,9 @@
 package net.matsudamper.money.backend.mail
 
 import jakarta.mail.BodyPart
+import jakarta.mail.Part
 import jakarta.mail.internet.MimeMultipart
+import org.eclipse.angus.mail.imap.IMAPMessage
 
 internal object MultipartParser {
     fun parseMultipart(multipart: MimeMultipart): List<ParseResult.Content> {
@@ -12,7 +14,7 @@ internal object MultipartParser {
         }.flatten()
     }
 
-    private fun parse(bodyPart: BodyPart): List<ParseResult.Content> {
+    fun parse(bodyPart: Part): List<ParseResult.Content> {
         return when {
             bodyPart.isMimeType("text/plain") -> {
                 listOf(ParseResult.Content.Text(bodyPart.content.toString()))

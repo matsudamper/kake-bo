@@ -32,7 +32,7 @@ public fun RootScreen(
     uiState: RootHomeScreenUiState,
     listener: RootScreenScaffoldListener,
 ) {
-    val html = uiState.html
+    val html = uiState.htmlDialog
     if (html != null) {
         Html(
             html = html,

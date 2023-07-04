@@ -3,7 +3,7 @@ import net.matsudamper.money.frontend.common.base.ImmutableList
 public data class RootHomeScreenUiState(
     val isLoading: Boolean,
     val mails: ImmutableList<Mail>,
-    val html: String?,
+    val htmlDialog: String?,
     val event: Event
 ) {
     public data class Mail(

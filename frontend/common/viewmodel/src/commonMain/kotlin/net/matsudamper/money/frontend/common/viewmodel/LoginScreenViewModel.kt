@@ -11,7 +11,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.common.base.Screen
 import net.matsudamper.money.frontend.common.base.ScreenNavController
 import net.matsudamper.money.frontend.common.uistate.LoginScreenUiState
-import net.matsudamper.money.frontend.common.viewmodel.root.EventSender
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 
 public class LoginScreenViewModel(

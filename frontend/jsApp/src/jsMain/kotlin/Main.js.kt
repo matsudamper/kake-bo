@@ -48,7 +48,7 @@ import net.matsudamper.money.frontend.common.viewmodel.LoginScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminAddUserScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminLoginScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminRootScreenViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.EventSender
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.HomeViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
