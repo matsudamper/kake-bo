@@ -7,6 +7,7 @@ import jakarta.mail.Flags
 import jakarta.mail.Folder
 import jakarta.mail.PasswordAuthentication
 import jakarta.mail.Session
+import jakarta.mail.internet.InternetAddress
 import jakarta.mail.internet.MimeMultipart
 import org.eclipse.angus.mail.imap.IMAPMessage
 
@@ -31,14 +32,17 @@ class MailRepository(
                         .map { message ->
                             val contents = when (val content = message.dataHandler.content) {
                                 is String,
-                                is MimeMultipart -> {
-                                    when(content) {
+                                is MimeMultipart,
+                                -> {
+                                    when (content) {
                                         is String -> {
                                             MultipartParser.parse(message)
                                         }
+
                                         is MimeMultipart -> {
                                             MultipartParser.parseMultipart(content)
                                         }
+
                                         else -> throw IllegalStateException("")
                                     }.map {
                                         when (it) {
@@ -59,6 +63,16 @@ class MailRepository(
                                 messageID = message.messageID,
                                 content = contents,
                                 flags = message.flags,
+                                sender = (message.sender as InternetAddress).address,
+                                from = message.from
+                                    .map { it as InternetAddress }
+                                    .mapNotNull { it.address },
+                                forwardedFor = message.getHeader("X-Forwarded-For")
+                                    .orEmpty()
+                                    .flatMap { it.split(" ") },
+                                forwardedTo = message.getHeader("X-Forwarded-To")
+                                    .orEmpty()
+                                    .flatMap { it.split(" ") },
                             )
                         }
                 }
@@ -106,6 +120,10 @@ class MailRepository(
         val messageID: String,
         val content: List<Content>,
         val flags: Flags,
+        val sender: String?,
+        val from: List<String>,
+        val forwardedFor: List<String>,
+        val forwardedTo: List<String>,
     ) {
         sealed interface Content {
             data class Text(val text: String) : Content

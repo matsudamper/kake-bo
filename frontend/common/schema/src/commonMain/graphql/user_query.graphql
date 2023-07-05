@@ -28,6 +28,8 @@ query GetMail($mailQuery: MailQuery!) {
             error
             usrMails {
                 subject
+                from
+                sender
                 html
                 plain
             }

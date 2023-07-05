@@ -35,6 +35,8 @@ type UserImapConfig {
 type UserMail {
     id: MailId!
     subject: String!
+    from: [String!]!
+    sender: String
     plain: String
     html: String
     time: DateTime!

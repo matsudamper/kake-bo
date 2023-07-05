@@ -51,9 +51,11 @@ type UserLoginResult {
 }
 
 type UserMail {
+    from: [String!]!
     html: String
     id: MailId!
     plain: String
+    sender: String
     subject: String!
     time: DateTime!
 }

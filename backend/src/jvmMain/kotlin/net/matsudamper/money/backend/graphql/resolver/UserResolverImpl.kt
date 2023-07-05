@@ -57,6 +57,8 @@ class UserResolverImpl : UserResolver {
                     val html = mail.content.filterIsInstance<MailRepository.MailResult.Content.Html>()
                     val text = mail.content.filterIsInstance<MailRepository.MailResult.Content.Text>()
 
+                    // TODO
+                    // mail.forwardedForの先頭を見て、許可されているメールだけを取り込むようにする
                     QlUserMail(
                         id = MailId(index.toLong()), // TODO
                         plain = if (text.size > 1) {
@@ -71,6 +73,8 @@ class UserResolverImpl : UserResolver {
                         }.toString(),
                         time = OffsetDateTime.now(),
                         subject = mail.subject,
+                        sender = mail.sender,
+                        from = mail.from,
                     )
                 },
                 cursor = null,

@@ -54,12 +54,16 @@ public class HomeViewModel(
                         isLoading = viewModelState.isLoading,
                         mails = viewModelState.usrMails.map { mail ->
                             RootHomeScreenUiState.Mail(
-                                subject = mail.subject,
+                                subject = buildString {
+                                    appendLine(mail.subject)
+                                    appendLine("sender: ${mail.sender}")
+                                    appendLine("from: ${mail.from.joinToString("\n")}")
+                                },
                                 text = mail.plain.orEmpty(),
                                 onClick = {
                                     viewModelStateFlow.update { viewModelState ->
                                         viewModelState.copy(
-                                            html = mail.html ?: mail.plain
+                                            html = mail.html ?: mail.plain,
                                         )
                                     }
                                 },
