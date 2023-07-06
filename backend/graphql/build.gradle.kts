@@ -23,7 +23,7 @@ kotlin {
                 implementation(libs.logback.classic)
                 implementation("com.graphql-java:graphql-java-extended-scalars:20.2")
 
-                api("com.graphql-java-kickstart:graphql-java-tools:13.0.2")
+                api("com.graphql-java-kickstart:graphql-java-tools:13.0.3")
             }
 
         }
