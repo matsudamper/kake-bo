@@ -8,37 +8,32 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import RootHomeScreenUiState
+import MailScreenUiState
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
-import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
-import net.matsudamper.money.frontend.common.base.Screen
-import net.matsudamper.money.frontend.common.base.ScreenNavController
 import net.matsudamper.money.frontend.common.base.immutableListOf
-import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
+import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.graphql.GetMailQuery
-import net.matsudamper.money.frontend.graphql.GraphqlMailQuery
+import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 
 public interface GlobalEvent {
     public fun showSnackBar(message: String)
     public fun showNativeNotification(message: String)
 }
 
-public class HomeViewModel(
+public class MailImportViewModel(
     private val coroutineScope: CoroutineScope,
     private val ioDispatcher: CoroutineDispatcher,
-    private val graphqlQuery: GraphqlUserLoginQuery,
-    private val navController: ScreenNavController,
-    private val mailQuery: GraphqlMailQuery,
-    private val globalEventSender: EventSender<GlobalEvent>,
+    private val graphqlApi: MailImportScreenGraphqlApi,
+    private val loginCheckUseCase: LoginCheckUseCase,
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
-    public val rootUiStateFlow: StateFlow<RootHomeScreenUiState> = MutableStateFlow(
-        RootHomeScreenUiState(
+    public val rootUiStateFlow: StateFlow<MailScreenUiState> = MutableStateFlow(
+        MailScreenUiState(
             isLoading = true,
             htmlDialog = null,
             mails = immutableListOf(),
-            event = object : RootHomeScreenUiState.Event {
+            event = object : MailScreenUiState.Event {
                 override fun htmlDismissRequest() {
                     viewModelStateFlow.update {
                         it.copy(html = null)
@@ -53,7 +48,7 @@ public class HomeViewModel(
                     it.copy(
                         isLoading = viewModelState.isLoading,
                         mails = viewModelState.usrMails.map { mail ->
-                            RootHomeScreenUiState.Mail(
+                            MailScreenUiState.Mail(
                                 subject = buildString {
                                     appendLine(mail.subject)
                                     appendLine("sender: ${mail.sender}")
@@ -78,35 +73,24 @@ public class HomeViewModel(
 
     public fun onResume() {
         coroutineScope.launch {
-            runCatching {
-                withContext(ioDispatcher) {
-                    graphqlQuery.isLoggedIn()
+            val result = loginCheckUseCase.check()
+            if (result) {
+                viewModelStateFlow.update {
+                    it.copy(isLoading = false)
                 }
-            }.onFailure { e ->
-                globalEventSender.send {
-                    it.showSnackBar("${e.message}")
-                }
-            }.onSuccess { isLoggedIn ->
-                if (isLoggedIn.not()) {
-                    navController.navigate(Screen.Login)
-                } else {
-                    viewModelStateFlow.update {
-                        it.copy(
-                            isLoading = false,
-                        )
-                    }
-                }
+            } else {
+                return@launch
             }
 
             val mails = runCatching {
                 withContext(ioDispatcher) {
-                    mailQuery.getMail()
+                    graphqlApi.getMail()
                 }
             }.getOrNull() ?: return@launch
 
             viewModelStateFlow.update {
                 it.copy(
-                    usrMails = mails.data?.user?.mail?.usrMails.orEmpty(),
+                    usrMails = mails.data?.user?.userMailAttributes?.mail?.usrMails.orEmpty(),
                 )
             }
         }

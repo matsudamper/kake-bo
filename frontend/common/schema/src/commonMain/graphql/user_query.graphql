@@ -23,16 +23,25 @@ fragment DisplayImapConfig on UserImapConfig {
 
 query GetMail($mailQuery: MailQuery!) {
     user {
-        mail(mailQuery: $mailQuery) {
-            cursor
-            error
-            usrMails {
-                subject
-                from
-                sender
-                html
-                plain
+        userMailAttributes {
+            mail(mailQuery: $mailQuery) {
+                cursor
+                error
+                usrMails {
+                    subject
+                    from
+                    sender
+                    html
+                    plain
+                }
             }
+        }
+    }
+}
+query HomeScreen {
+    user {
+        userMailAttributes {
+            mailCount
         }
     }
 }

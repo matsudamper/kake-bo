@@ -4,11 +4,13 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -19,60 +21,73 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import RootHomeScreenUiState
 import net.matsudamper.money.frontend.common.base.Screen
-import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.layout.ScrollButton
-import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
+import net.matsudamper.root.HomeScreenUiState
 
+@Composable
+public fun RootScreen(
+    uiState: HomeScreenUiState,
+    scaffoldListener: RootScreenScaffoldListener,
+) {
+    when (val screenState = uiState.screenState) {
+        is HomeScreenUiState.ScreenState.Loading -> {
+            Box(modifier = Modifier.fillMaxSize()) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                )
+            }
+        }
+
+        is HomeScreenUiState.ScreenState.Loaded -> {
+            LoadedContent(
+                uiState = screenState,
+                scaffoldListener = scaffoldListener,
+            )
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-public fun RootScreen(
-    uiState: RootHomeScreenUiState,
-    listener: RootScreenScaffoldListener,
+private fun LoadedContent(
+    uiState: HomeScreenUiState.ScreenState.Loaded,
+    scaffoldListener: RootScreenScaffoldListener,
 ) {
-    val html = uiState.htmlDialog
-    if (html != null) {
-        Html(
-            html = html,
-            onDismissRequest = {
-                uiState.event.htmlDismissRequest()
-            },
-        )
-    }
-    if (uiState.isLoading) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
-            )
-        }
-    } else {
-        RootScreenScaffold(
-            modifier = Modifier.fillMaxSize(),
-            currentScreen = Screen.Root.Home,
-            listener = listener,
-            content = {
-                BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                    val height = this.maxHeight
-                    val lazyListState = rememberLazyListState()
-                    val density = LocalDensity.current
+    RootScreenScaffold(
+        modifier = Modifier.fillMaxSize(),
+        currentScreen = Screen.Root.Home,
+        listener = scaffoldListener,
+        content = {
+            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                val height = this.maxHeight
+                val lazyListState = rememberLazyListState()
+                val density = LocalDensity.current
+                Row(modifier = Modifier.fillMaxSize()) {
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .weight(1f),
                         state = lazyListState,
                     ) {
-                        items(uiState.mails) { item ->
+                        item {
                             Card(
-                                modifier = Modifier.padding(32.dp),
+                                modifier = Modifier
+                                    .padding(start = 24.dp)
+                                    .padding(vertical = 24.dp),
                                 onClick = {
-                                    item.onClick()
+
                                 },
                             ) {
-                                Text(
-                                    modifier = Modifier.padding(32.dp),
-                                    text = item.subject,
-                                    fontFamily = rememberCustomFontFamily(),
-                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth()
+                                        .padding(24.dp),
+                                ) {
+                                    Text("未インポートのメール")
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Text(uiState.notImportMailCount.toString())
+                                }
+
                             }
                         }
                     }
@@ -80,7 +95,7 @@ public fun RootScreen(
                     ScrollButton(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .align(Alignment.CenterEnd),
+                            .padding(12.dp),
                         scrollState = lazyListState,
                         scrollSize = with(density) {
                             height.toPx() * 0.7f
@@ -90,7 +105,7 @@ public fun RootScreen(
                         ),
                     )
                 }
-            },
-        )
-    }
+            }
+        },
+    )
 }

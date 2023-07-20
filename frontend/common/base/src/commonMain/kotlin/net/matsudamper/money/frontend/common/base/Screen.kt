@@ -28,6 +28,11 @@ public sealed interface Screen : Direction {
         override val url: String = "/admin"
     }
 
+    public object MailImport : Screen {
+        override val title: String = "メールインポート"
+        override val url: String = "/mail/import"
+    }
+
     public companion object {
         public val subClass: List<Screen> = listOf(
             Root.Home,

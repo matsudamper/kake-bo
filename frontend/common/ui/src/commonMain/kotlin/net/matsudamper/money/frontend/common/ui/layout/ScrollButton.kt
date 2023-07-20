@@ -29,9 +29,9 @@ public fun ScrollButton(
 ) {
     val coroutineScope = rememberCoroutineScope()
     Box(modifier = modifier) {
+        val size = 38.dp
         Button(
-            modifier = Modifier.align(Alignment.TopEnd)
-                .padding(12.dp),
+            modifier = Modifier.align(Alignment.TopEnd),
             shape = CircleShape,
             contentPadding = PaddingValues(12.dp),
             onClick = {
@@ -45,14 +45,13 @@ public fun ScrollButton(
         ) {
             Icon(
                 modifier = Modifier
-                    .size(38.dp),
+                    .size(size),
                 imageVector = Icons.Default.KeyboardArrowUp,
                 contentDescription = null,
             )
         }
         Button(
-            modifier = Modifier.align(Alignment.BottomEnd)
-                .padding(12.dp),
+            modifier = Modifier.align(Alignment.BottomEnd),
             shape = CircleShape,
             contentPadding = PaddingValues(12.dp),
             onClick = {
@@ -66,7 +65,7 @@ public fun ScrollButton(
         ) {
             Icon(
                 modifier = Modifier
-                    .size(38.dp),
+                    .size(size),
                 imageVector = Icons.Default.KeyboardArrowDown,
                 contentDescription = null,
             )

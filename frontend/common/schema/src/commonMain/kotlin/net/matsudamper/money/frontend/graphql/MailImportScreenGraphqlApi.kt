@@ -5,7 +5,7 @@ import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import net.matsudamper.money.frontend.graphql.type.MailQuery
 
-class GraphqlMailQuery(
+class MailImportScreenGraphqlApi(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
     suspend fun getMail(): ApolloResponse<GetMailQuery.Data>? {

@@ -21,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
@@ -43,16 +44,20 @@ import net.matsudamper.money.frontend.common.ui.screen.RootScreen
 import net.matsudamper.money.frontend.common.ui.screen.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.RootSettingScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
+import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailScreen
 import net.matsudamper.money.frontend.common.uistate.LoginScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.LoginScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminAddUserScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminLoginScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminRootScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
-import net.matsudamper.money.frontend.common.viewmodel.root.HomeViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.MailImportViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
-import net.matsudamper.money.frontend.graphql.GraphqlMailQuery
+import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeGraphqlApi
+import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.GraphqlUserConfigQuery
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import org.jetbrains.skiko.wasm.onWasmReady
@@ -77,6 +82,14 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                         ScreenNavControllerImpl(
                             initial = Screen.Root.Home,
                             directions = Screen.subClass,
+                        )
+                    }
+                    val loginCheckUseCase = remember {
+                        LoginCheckUseCase(
+                            ioDispatcher = Dispatchers.Unconfined,
+                            navController = navController,
+                            globalEventSender = globalEventSender,
+                            graphqlQuery = GraphqlUserLoginQuery(),
                         )
                     }
                     val rootScreenScaffoldListener: RootScreenScaffoldListener = remember(navController) {
@@ -132,53 +145,51 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                             modifier = Modifier.fillMaxSize()
                                 .padding(paddingValues),
                         ) {
+                            val rootCoroutineScope = rememberCoroutineScope()
                             when (val current = navController.currentNavigation) {
                                 is Screen.Root -> {
-                                    val rootCoroutineScope = rememberCoroutineScope()
-                                    val homeViewModel = remember {
-                                        HomeViewModel(
-                                            coroutineScope = rootCoroutineScope,
-                                            ioDispatcher = Dispatchers.Unconfined,
-                                            mailQuery = GraphqlMailQuery(),
-                                            graphqlQuery = GraphqlUserLoginQuery(),
-                                            navController = navController,
-                                            globalEventSender = globalEventSender,
-                                        )
-                                    }
-
-                                    val settingViewModel = remember {
-                                        SettingViewModel(
-                                            coroutineScope = rootCoroutineScope,
-                                            graphqlQuery = GraphqlUserConfigQuery(),
-                                            globalEventSender = globalEventSender,
-                                            ioDispatchers = Dispatchers.Unconfined,
-                                        )
-                                    }
-                                    LaunchedEffect(Unit) {
-                                        homeViewModel.onResume()
-                                    }
-                                    val homeUiState = homeViewModel.rootUiStateFlow.collectAsState().value
+                                    val tabHolder = rememberSaveableStateHolder()
                                     when (current) {
                                         Screen.Root.Home -> {
-                                            RootScreen(
-                                                uiState = homeUiState,
-                                                listener = rootScreenScaffoldListener,
-                                            )
+                                            tabHolder.SaveableStateProvider(Screen.Root.Home) {
+                                                val viewModel = remember {
+                                                    HomeViewModel(
+                                                        coroutineScope = rootCoroutineScope,
+                                                        homeGraphqlApi = HomeGraphqlApi(),
+                                                    )
+                                                }
+                                                RootScreen(
+                                                    uiState = viewModel.uiStateFlow.collectAsState().value,
+                                                    scaffoldListener = rootScreenScaffoldListener,
+                                                )
+                                            }
                                         }
 
                                         Screen.Root.Register -> {
-                                            RootRegisterScreen(
-                                                modifier = Modifier.fillMaxSize(),
-                                                listener = rootScreenScaffoldListener,
-                                            )
+                                            tabHolder.SaveableStateProvider(Screen.Root.Register) {
+                                                RootRegisterScreen(
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    listener = rootScreenScaffoldListener,
+                                                )
+                                            }
                                         }
 
                                         Screen.Root.Settings -> {
-                                            RootSettingScreen(
-                                                modifier = Modifier.fillMaxSize(),
-                                                uiState = settingViewModel.uiState.collectAsState().value,
-                                                listener = rootScreenScaffoldListener,
-                                            )
+                                            tabHolder.SaveableStateProvider(Screen.Root.Settings) {
+                                                val settingViewModel = remember {
+                                                    SettingViewModel(
+                                                        coroutineScope = rootCoroutineScope,
+                                                        graphqlQuery = GraphqlUserConfigQuery(),
+                                                        globalEventSender = globalEventSender,
+                                                        ioDispatchers = Dispatchers.Unconfined,
+                                                    )
+                                                }
+                                                RootSettingScreen(
+                                                    modifier = Modifier.fillMaxSize(),
+                                                    uiState = settingViewModel.uiState.collectAsState().value,
+                                                    listener = rootScreenScaffoldListener,
+                                                )
+                                            }
                                         }
                                     }
                                 }
@@ -237,6 +248,22 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                             }
                                             adminAddUserScreenViewModel.uiStateFlow.collectAsState().value
                                         },
+                                    )
+                                }
+
+                                Screen.MailImport -> {
+                                    val mailImportViewModel = remember {
+                                        MailImportViewModel(
+                                            coroutineScope = rootCoroutineScope,
+                                            ioDispatcher = Dispatchers.Unconfined,
+                                            graphqlApi = MailImportScreenGraphqlApi(),
+                                            loginCheckUseCase = loginCheckUseCase,
+                                        )
+                                    }
+
+                                    MailScreen(
+                                        uiState = mailImportViewModel.rootUiStateFlow.collectAsState().value,
+                                        listener = rootScreenScaffoldListener,
                                     )
                                 }
                             }

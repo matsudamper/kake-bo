@@ -17,6 +17,17 @@ class MailRepository(
     private val userName: String,
     private val password: String,
 ) {
+    fun getMailCount(): Int {
+        val session = getSession()
+
+        val store = session.getStore("imap").also {
+            it.connect()
+        }
+        return store.use { imap4 ->
+            imap4.getFolder("INBOX").messageCount
+        }
+    }
+
     fun getMail(): List<MailResult> {
         val session = getSession()
 

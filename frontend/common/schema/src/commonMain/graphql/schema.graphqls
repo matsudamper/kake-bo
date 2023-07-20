@@ -35,8 +35,8 @@ type SettingsMutation {
 
 type User {
     isLoggedIn: Boolean!
-    mail(mailQuery: MailQuery!): UserMailConnection!
     settings: UserSettings!
+    userMailAttributes: UserMailAttributes!
 }
 
 type UserImapConfig {
@@ -58,6 +58,11 @@ type UserMail {
     sender: String
     subject: String!
     time: DateTime!
+}
+
+type UserMailAttributes {
+    mail(mailQuery: MailQuery!): UserMailConnection!
+    mailCount: Int
 }
 
 type UserMailConnection {

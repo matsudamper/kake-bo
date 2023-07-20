@@ -7,6 +7,7 @@ import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.graphql.model.QlUser
+import net.matsudamper.money.graphql.model.QlUserMailAttributes
 import net.matsudamper.money.graphql.model.QueryResolver
 
 class QueryResolverImpl : QueryResolver {
@@ -16,6 +17,7 @@ class QueryResolverImpl : QueryResolver {
         return CompletableFuture.completedFuture(
             QlUser(
                 isLoggedIn = true,
+                userMailAttributes = QlUserMailAttributes()
             ),
         ).toDataFetcher()
     }

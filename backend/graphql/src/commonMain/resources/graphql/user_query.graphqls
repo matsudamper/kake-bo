@@ -1,6 +1,11 @@
 type User {
     isLoggedIn: Boolean!
     settings: UserSettings! @lazy
+    userMailAttributes: UserMailAttributes!
+}
+
+type UserMailAttributes {
+    mailCount: Int @lazy
     mail(mailQuery : MailQuery!):UserMailConnection! @lazy
 }
 

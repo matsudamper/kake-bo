@@ -14,6 +14,7 @@ import graphql.schema.GraphQLScalarType
 import net.matsudamper.money.backend.graphql.resolver.MutationResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.QueryResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.SettingsMutationResolverResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.UserMailAttributesResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserMutationResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserSettingsResolverImpl
@@ -95,6 +96,7 @@ object MoneyGraphQlSchema {
                 UserResolverImpl(),
                 UserSettingsResolverImpl(),
                 SettingsMutationResolverResolverImpl(),
+                UserMailAttributesResolverImpl(),
             )
             .build()
             .makeExecutableSchema()
