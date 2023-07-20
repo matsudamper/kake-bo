@@ -17,7 +17,7 @@ internal object DbConnection {
         config.password = ServerEnv.dbPassword
         config.connectionTimeout = 5 * 1000
     }
-    private val dataSource = HikariDataSource(config)
+    private val dataSource by lazy { HikariDataSource(config) }
 
     @OptIn(ExperimentalContracts::class)
     internal fun <R> use(connectionBlock: (Connection) -> R): R {
