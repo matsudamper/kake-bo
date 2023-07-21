@@ -25,9 +25,9 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.forwardedheaders.ForwardedHeaders
 import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import io.ktor.server.request.path
-import io.ktor.server.request.receive
 import io.ktor.server.request.receiveStream
-import io.ktor.server.response.*
+import io.ktor.server.response.respondFile
+import io.ktor.server.response.respondText
 import io.ktor.server.routing.accept
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
@@ -78,11 +78,9 @@ fun Application.myApplicationModule() {
                 buildString {
                     appendLine("==========${call.request.path()}==========")
                     appendLine(
-                        call.request.headers.entries()
-                            .map { (key, value) ->
-                                "$key=$value"
-                            }
-                            .joinToString("\n"),
+                        call.request.headers.entries().joinToString("\n") { (key, value) ->
+                            "$key=$value"
+                        },
                     )
                 },
             )

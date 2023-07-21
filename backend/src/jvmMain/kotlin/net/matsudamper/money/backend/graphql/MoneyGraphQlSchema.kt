@@ -75,8 +75,8 @@ object MoneyGraphQlSchema {
                     .coercing(
                         @Suppress("UNCHECKED_CAST")
                         ValueClassCoercing(
-                            ExtendedScalars.GraphQLLong.coercing as Coercing<Long, Long>,
-                            ::MailId,
+                            coercing = ExtendedScalars.GraphQLLong.coercing as Coercing<Long, Long>,
+                            converter = { MailId(it) },
                         ),
                     )
                     .name("MailId")
