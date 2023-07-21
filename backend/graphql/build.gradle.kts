@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
-    id("io.github.kobylynskyi.graphql.codegen") version "5.7.3-SNAPSHOT"
+    id("io.github.kobylynskyi.graphql.codegen") version "5.8.0"
 }
 
 val generatedPath = "$buildDir/generated/codegen"
