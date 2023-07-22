@@ -102,6 +102,7 @@ private fun LoadedContent(
 
                     ScrollButton(
                         modifier = Modifier
+                            .fillMaxHeight()
                             .padding(12.dp)
                             .width(42.dp),
                         scrollState = lazyListState,
