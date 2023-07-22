@@ -14,7 +14,7 @@ public class HomeViewModel(
     private val homeGraphqlApi: HomeGraphqlApi,
     private val loginCheckUseCase: LoginCheckUseCase,
 ) {
-    private val event = object : HomeScreenUiState.Event {
+    private val uiStateEvent = object : HomeScreenUiState.Event {
         override fun onResume() {
             coroutineScope
         }
@@ -23,7 +23,7 @@ public class HomeViewModel(
     public val uiStateFlow: StateFlow<HomeScreenUiState> = MutableStateFlow(
         HomeScreenUiState(
             screenState = HomeScreenUiState.ScreenState.Loading,
-            event = event,
+            event = uiStateEvent,
         ),
     ).also { uiStateFlow ->
         coroutineScope.launch {
