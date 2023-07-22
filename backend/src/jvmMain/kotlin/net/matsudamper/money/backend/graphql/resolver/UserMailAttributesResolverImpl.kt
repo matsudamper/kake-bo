@@ -53,24 +53,16 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
 
             QlUserMailConnection(
                 error = null,
-                usrMails = mails.mapIndexed { index, mail ->
+                usrMails = mails.map { mail ->
                     val html = mail.content.filterIsInstance<MailRepository.MailResult.Content.Html>()
                     val text = mail.content.filterIsInstance<MailRepository.MailResult.Content.Text>()
 
                     // TODO
                     // mail.forwardedForの先頭を見て、許可されているメールだけを取り込むようにする
                     QlUserMail(
-                        id = MailId(index.toLong()), // TODO
-                        plain = if (text.size > 1) {
-                            text.joinToString("\n=====\n") { it.text }
-                        } else {
-                            text.getOrNull(0)?.text
-                        }.toString(),
-                        html = if (html.size > 1) {
-                            html.joinToString("\n=====\n") { it.html }
-                        } else {
-                            html.getOrNull(0)?.html
-                        }.toString(),
+                        id = MailId(mail.messageID),
+                        plain = text.getOrNull(0)?.text,
+                        html = html.getOrNull(0)?.html,
                         time = OffsetDateTime.now(),
                         subject = mail.subject,
                         sender = mail.sender,
