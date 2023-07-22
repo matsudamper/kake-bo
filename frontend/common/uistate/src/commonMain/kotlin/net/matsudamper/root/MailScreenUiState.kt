@@ -12,6 +12,7 @@ public data class MailScreenUiState(
         val onClick: () -> Unit,
     )
     public interface Event {
+        public fun onViewInitialized()
         public fun htmlDismissRequest()
     }
 }

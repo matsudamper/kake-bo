@@ -34,6 +34,10 @@ public class MailImportViewModel(
                         it.copy(html = null)
                     }
                 }
+
+                override fun onViewInitialized() {
+                    fetch()
+                }
             },
         ),
     ).also {
@@ -66,7 +70,7 @@ public class MailImportViewModel(
         }
     }.asStateFlow()
 
-    public fun onResume() {
+    private fun fetch() {
         coroutineScope.launch {
             val result = loginCheckUseCase.check()
             if (result) {
