@@ -30,6 +30,7 @@ import kotlinx.browser.window
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import event.ViewModelEventHandlers
 import lib.compose.JsCompose
 import lib.compose.ResizableComposeWindow
 import lib.js.NormalizeInputKeyCapture
@@ -129,6 +130,12 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                         )
                     }
 
+                    val viewModelEventHandlers = remember(navController) {
+                        ViewModelEventHandlers(
+                            navController = navController,
+                        )
+                    }
+
                     Scaffold(
                         modifier = Modifier
                             .fillMaxSize()
@@ -157,6 +164,11 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                                         coroutineScope = rootCoroutineScope,
                                                         homeGraphqlApi = HomeGraphqlApi(),
                                                         loginCheckUseCase = loginCheckUseCase,
+                                                    )
+                                                }
+                                                LaunchedEffect(viewModel.viewModelEventHandler) {
+                                                    viewModelEventHandlers.handle(
+                                                        handler = viewModel.viewModelEventHandler,
                                                     )
                                                 }
                                                 RootScreen(

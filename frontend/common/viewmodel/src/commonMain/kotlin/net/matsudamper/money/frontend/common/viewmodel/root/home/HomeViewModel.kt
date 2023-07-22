@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.root.HomeScreenUiState
 
 public class HomeViewModel(
@@ -14,9 +16,19 @@ public class HomeViewModel(
     private val homeGraphqlApi: HomeGraphqlApi,
     private val loginCheckUseCase: LoginCheckUseCase,
 ) {
+    private val viewModelEventSender = EventSender<Event>()
+    public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
+
     private val uiStateEvent = object : HomeScreenUiState.Event {
-        override fun onResume() {
-            coroutineScope
+        override fun onViewInitialized() {
+
+        }
+    }
+    private val uiStateLoadedEvent = object : HomeScreenUiState.LoadedEvent {
+        override fun onClickMailImport() {
+            coroutineScope.launch {
+                viewModelEventSender.send { it.navigateToMailImport() }
+            }
         }
     }
 
@@ -33,6 +45,7 @@ public class HomeViewModel(
                         screenState = run screenState@{
                             HomeScreenUiState.ScreenState.Loaded(
                                 notImportMailCount = it.data?.user?.userMailAttributes?.mailCount,
+                                event = uiStateLoadedEvent
                             )
                         },
                     )
@@ -45,5 +58,9 @@ public class HomeViewModel(
         coroutineScope.launch {
             loginCheckUseCase.check()
         }
+    }
+
+    public interface Event {
+        public fun navigateToMailImport()
     }
 }

@@ -17,6 +17,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -30,6 +31,9 @@ public fun RootScreen(
     uiState: HomeScreenUiState,
     scaffoldListener: RootScreenScaffoldListener,
 ) {
+    LaunchedEffect(uiState.event) {
+        uiState.event.onViewInitialized()
+    }
     when (val screenState = uiState.screenState) {
         is HomeScreenUiState.ScreenState.Loading -> {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -75,9 +79,7 @@ private fun LoadedContent(
                                 modifier = Modifier
                                     .padding(start = 24.dp)
                                     .padding(vertical = 24.dp),
-                                onClick = {
-
-                                },
+                                onClick = { uiState.event.onClickMailImport() },
                             ) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth()
