@@ -29,6 +29,9 @@ apollo {
                 .orEmpty()
                 .filter { it.endsWith(".graphqls") },
         )
+        mapScalarToKotlinString(
+            "MailId"
+        )
     }
 }
 
