@@ -5,6 +5,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -196,7 +197,8 @@ public fun MailContent(
         },
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(12.dp)
+                .height(IntrinsicSize.Min),
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -220,6 +222,7 @@ public fun MailContent(
             }
             Spacer(Modifier.width(8.dp))
             Column(
+                modifier = Modifier.fillMaxHeight(),
                 horizontalAlignment = Alignment.End,
             ) {
                 Checkbox(
