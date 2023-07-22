@@ -40,6 +40,7 @@ public sealed interface Screen : Direction {
             Root.Register,
             Login,
             Admin,
+            MailImport,
         )
     }
 }
