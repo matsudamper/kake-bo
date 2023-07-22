@@ -15,11 +15,6 @@ import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.graphql.GetMailQuery
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 
-public interface GlobalEvent {
-    public fun showSnackBar(message: String)
-    public fun showNativeNotification(message: String)
-}
-
 public class MailImportViewModel(
     private val coroutineScope: CoroutineScope,
     private val ioDispatcher: CoroutineDispatcher,
