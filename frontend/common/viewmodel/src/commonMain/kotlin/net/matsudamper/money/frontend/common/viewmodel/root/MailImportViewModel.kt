@@ -48,19 +48,11 @@ public class MailImportViewModel(
                         isLoading = viewModelState.isLoading,
                         mails = viewModelState.usrMails.map { mail ->
                             MailScreenUiState.Mail(
-                                subject = buildString {
-                                    appendLine(mail.subject)
-                                    appendLine("sender: ${mail.sender}")
-                                    appendLine("from: ${mail.from.joinToString("\n")}")
-                                },
-                                text = mail.plain.orEmpty(),
-                                onClick = {
-                                    viewModelStateFlow.update { viewModelState ->
-                                        viewModelState.copy(
-                                            html = mail.html ?: mail.plain,
-                                        )
-                                    }
-                                },
+                                subject = mail.subject.replace("\n", ""),
+                                isSelected = false,
+                                sender = mail.sender,
+                                from = mail.from.joinToString(","),
+                                event = createMailItemEvent(mail = mail),
                             )
                         }.toImmutableList(),
                         htmlDialog = viewModelState.html,
@@ -69,6 +61,22 @@ public class MailImportViewModel(
             }
         }
     }.asStateFlow()
+
+    private fun createMailItemEvent(mail: GetMailQuery.UsrMail): MailScreenUiState.Mail.Event {
+        return object : MailScreenUiState.Mail.Event {
+            override fun onClick() {
+                viewModelStateFlow.update {
+                    it.copy(html = mail.html)
+                }
+            }
+
+            override fun onClickDetail() {
+                viewModelStateFlow.update {
+                    it.copy(html = mail.html)
+                }
+            }
+        }
+    }
 
     private fun fetch() {
         coroutineScope.launch {
