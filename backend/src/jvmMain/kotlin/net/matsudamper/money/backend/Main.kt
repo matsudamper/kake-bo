@@ -108,7 +108,7 @@ fun Application.myApplicationModule() {
 
                 val handleError = handleError(result.errors)
 
-                ExecutionResult.newExecutionResult()
+                val responseResult = ExecutionResult.newExecutionResult()
                     .data(result.getData())
                     .extensions(
                         mapOf(
@@ -125,7 +125,7 @@ fun Application.myApplicationModule() {
 
                 call.respondText(
                     contentType = ContentType.Application.Json,
-                    text = ObjectMapper.jackson.writeValueAsString(result),
+                    text = ObjectMapper.jackson.writeValueAsString(responseResult),
                 )
             }
         }
@@ -154,11 +154,12 @@ private fun handleError(errors: MutableList<GraphQLError>): List<GraphqlMoneyExc
                 runCatching {
                     when (val e = it.exception) {
                         is UndeclaredThrowableException -> {
-                            when(val undeclaredThrowable = e.undeclaredThrowable) {
+                            when (val undeclaredThrowable = e.undeclaredThrowable) {
                                 is GraphqlMoneyException -> {
                                     graphqlMoneyExceptions.add(undeclaredThrowable)
                                     return@runCatching null
                                 }
+
                                 else -> Unit
                             }
                         }
