@@ -134,7 +134,7 @@ fun Application.myApplicationModule() {
             .filterNot { "index.html" == it.name }
             .forEach {
                 val accessPath = it.path.replace("\\", "/").removePrefix(ServerEnv.frontPath)
-                file("/${accessPath}", it.path)
+                file(accessPath, it.path)
             }
         accept(ContentType.Text.Html) {
             get("{...}") {
