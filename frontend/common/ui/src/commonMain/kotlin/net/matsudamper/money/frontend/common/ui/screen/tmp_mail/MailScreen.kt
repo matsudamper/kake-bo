@@ -65,6 +65,7 @@ public fun MailScreen(
                     title = {
                         Text(
                             text = "メール インポート",
+                            fontFamily = rememberCustomFontFamily(),
                         )
                     },
                 )

@@ -62,7 +62,10 @@ internal fun RootScreenScaffold(
                 KakeBoTopAppBar(
                     modifier = Modifier.fillMaxWidth(),
                     title = {
-                        Text("家計簿")
+                        Text(
+                            text = "家計簿",
+                            fontFamily = rememberCustomFontFamily(),
+                        )
                     }
                 )
             },
