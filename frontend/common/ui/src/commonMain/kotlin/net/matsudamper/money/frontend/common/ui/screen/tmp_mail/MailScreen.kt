@@ -2,7 +2,6 @@ package net.matsudamper.money.frontend.common.ui.screen.tmp_mail
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -16,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -123,20 +123,20 @@ public fun MailContent(
     uiState: MailScreenUiState.Mail,
 ) {
     Card(
-        modifier = modifier
-            .then(
-                if (uiState.isSelected) {
-                    Modifier.border(
-                        width = 2.dp,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                } else {
-                    Modifier
-                },
-            ),
+        modifier = modifier,
         onClick = { uiState.event.onClick() },
+        colors = if (uiState.isSelected) {
+            CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.primary
+                    .copy(alpha = 0.1f)
+            )
+        } else {
+            CardDefaults.cardColors()
+        },
     ) {
-        Row(modifier = Modifier.padding(12.dp)) {
+        Row(
+            modifier = Modifier.padding(12.dp),
+        ) {
             Column(modifier = Modifier.weight(1f)) {
                 Row {
                     Text(
@@ -176,7 +176,9 @@ public fun MailContent(
                     )
                 }
             }
-            Column {
+            Column(
+                horizontalAlignment = Alignment.End,
+            ) {
                 Checkbox(
                     checked = uiState.isSelected,
                     onCheckedChange = null,
