@@ -28,13 +28,11 @@ import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.layout.ScrollButton
 import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun MailImportScreen(
     uiState: MailScreenUiState,
-    listener: RootScreenScaffoldListener,
 ) {
     LaunchedEffect(uiState.event) {
         uiState.event.onViewInitialized()

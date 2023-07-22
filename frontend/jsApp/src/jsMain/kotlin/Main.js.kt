@@ -277,7 +277,6 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
 
                                     MailImportScreen(
                                         uiState = mailImportViewModel.rootUiStateFlow.collectAsState().value,
-                                        listener = rootScreenScaffoldListener,
                                     )
                                 }
                             }
