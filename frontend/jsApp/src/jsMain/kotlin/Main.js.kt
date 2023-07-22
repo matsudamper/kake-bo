@@ -22,10 +22,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.CanvasBasedWindow
 import kotlinx.browser.window
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,7 +65,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlUserConfigQuery
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import org.jetbrains.skiko.wasm.onWasmReady
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
     val composeSize = MutableStateFlow(IntSize.Zero)
 
@@ -73,7 +75,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
 
     onWasmReady {
         val globalEventSender = EventSender<GlobalEvent>()
-        ResizableComposeWindow(
+        CanvasBasedWindow(
             title = "家計簿",
         ) {
             NormalizeInputKeyCapture {
