@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import MailScreenUiState
+import net.matsudamper.money.element.MailId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
@@ -49,7 +50,7 @@ public class MailImportViewModel(
                         mails = viewModelState.usrMails.map { mail ->
                             MailScreenUiState.Mail(
                                 subject = mail.subject.replace("\n", ""),
-                                isSelected = false,
+                                isSelected = mail.id in viewModelState.checked,
                                 sender = mail.sender,
                                 from = mail.from.joinToString(","),
                                 event = createMailItemEvent(mail = mail),
@@ -65,8 +66,17 @@ public class MailImportViewModel(
     private fun createMailItemEvent(mail: GetMailQuery.UsrMail): MailScreenUiState.Mail.Event {
         return object : MailScreenUiState.Mail.Event {
             override fun onClick() {
-                viewModelStateFlow.update {
-                    it.copy(html = mail.html)
+                viewModelStateFlow.update { viewModelState ->
+                    val isChecked = mail.id in viewModelState.checked
+                    viewModelState.copy(
+                        checked = run {
+                            if (isChecked) {
+                                viewModelState.checked - mail.id
+                            } else {
+                                viewModelState.checked + mail.id
+                            }
+                        },
+                    )
                 }
             }
 
@@ -95,9 +105,10 @@ public class MailImportViewModel(
                 }
             }.getOrNull() ?: return@launch
 
-            viewModelStateFlow.update {
-                it.copy(
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
                     usrMails = mails.data?.user?.userMailAttributes?.mail?.usrMails.orEmpty(),
+                    checked = mails.data?.user?.userMailAttributes?.mail?.usrMails.orEmpty().map { it.id },
                 )
             }
         }
@@ -106,6 +117,7 @@ public class MailImportViewModel(
     private data class ViewModelState(
         val isLoading: Boolean = true,
         val usrMails: List<GetMailQuery.UsrMail> = listOf(),
+        val checked: List<MailId> = listOf(),
         val html: String? = null,
     )
 }
