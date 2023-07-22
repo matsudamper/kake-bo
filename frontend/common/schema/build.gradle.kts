@@ -13,6 +13,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                api(project(":shared"))
                 api(libs.apollo.runtime)
                 implementation(libs.apollo.normalizedCache)
             }
@@ -29,9 +30,7 @@ apollo {
                 .orEmpty()
                 .filter { it.endsWith(".graphqls") },
         )
-        mapScalarToKotlinString(
-            "MailId"
-        )
+        mapScalar("MailId", "net.matsudamper.money.element.MailId")
     }
 }
 
