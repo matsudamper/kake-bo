@@ -4,6 +4,7 @@ import java.util.Locale
 import java.util.jar.JarFile
 import graphql.GraphQL
 import graphql.GraphQLContext
+import graphql.Scalars
 import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.CoercedVariables
 import graphql.kickstart.tools.SchemaParser
@@ -75,7 +76,7 @@ object MoneyGraphQlSchema {
                     .coercing(
                         @Suppress("UNCHECKED_CAST")
                         ValueClassCoercing(
-                            coercing = ExtendedScalars.GraphQLLong.coercing as Coercing<Long, Long>,
+                            coercing = Scalars.GraphQLString.coercing as Coercing<String, String>,
                             converter = { MailId(it) },
                         ),
                     )
