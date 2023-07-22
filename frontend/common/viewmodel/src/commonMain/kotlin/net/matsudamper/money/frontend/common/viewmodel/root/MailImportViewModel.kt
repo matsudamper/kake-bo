@@ -106,13 +106,7 @@ public class MailImportViewModel(
     private fun fetch() {
         coroutineScope.launch {
             val result = loginCheckUseCase.check()
-            if (result) {
-                viewModelStateFlow.update {
-                    it.copy(isLoading = false)
-                }
-            } else {
-                return@launch
-            }
+            if (result.not()) return@launch
 
             val mails = runCatching {
                 withContext(ioDispatcher) {
@@ -124,6 +118,7 @@ public class MailImportViewModel(
                 viewModelState.copy(
                     usrMails = mails.data?.user?.userMailAttributes?.mail?.usrMails.orEmpty(),
                     checked = mails.data?.user?.userMailAttributes?.mail?.usrMails.orEmpty().map { it.id },
+                    isLoading = false,
                 )
             }
         }

@@ -69,35 +69,29 @@ public fun MailImportScreen(
             },
         )
     }
-    if (uiState.isLoading) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
-            )
-        }
-    } else {
-        Scaffold(
-            contentColor = MaterialTheme.colorScheme.onSurface,
-            topBar = {
-                KakeBoTopAppBar(
-                    modifier = Modifier.fillMaxWidth(),
-                    navigationIcon = {
-                        IconButton(onClick = { uiState.event.onClickBackButton() }) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBack,
-                                contentDescription = "back",
-                            )
-                        }
-                    },
-                    title = {
-                        Text(
-                            text = "メール インポート",
-                            fontFamily = rememberCustomFontFamily(),
+    Scaffold(
+        contentColor = MaterialTheme.colorScheme.onSurface,
+        topBar = {
+            KakeBoTopAppBar(
+                modifier = Modifier.fillMaxWidth(),
+                navigationIcon = {
+                    IconButton(onClick = { uiState.event.onClickBackButton() }) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "back",
                         )
-                    },
-                )
-            },
-            bottomBar = {
+                    }
+                },
+                title = {
+                    Text(
+                        text = "メール インポート",
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                },
+            )
+        },
+        bottomBar = {
+            if (uiState.isLoading.not()) {
                 Box(
                     modifier = Modifier.fillMaxWidth()
                         .padding(end = scrollButtonSize + scrollButtonHorizontalPadding),
@@ -121,8 +115,18 @@ public fun MailImportScreen(
                         )
                     }
                 }
-            },
-        ) { paddingValues ->
+            }
+        },
+    ) { paddingValues ->
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
             BoxWithConstraints(
                 modifier = Modifier.fillMaxSize()
                     .padding(
