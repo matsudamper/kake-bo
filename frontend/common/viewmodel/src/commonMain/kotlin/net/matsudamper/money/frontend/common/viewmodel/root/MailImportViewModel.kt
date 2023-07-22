@@ -13,6 +13,8 @@ import net.matsudamper.money.element.MailId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.GetMailQuery
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 
@@ -22,6 +24,9 @@ public class MailImportViewModel(
     private val graphqlApi: MailImportScreenGraphqlApi,
     private val loginCheckUseCase: LoginCheckUseCase,
 ) {
+    private val viewModelEventSender = EventSender<Event>()
+    public val eventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
+
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     public val rootUiStateFlow: StateFlow<MailScreenUiState> = MutableStateFlow(
@@ -42,6 +47,12 @@ public class MailImportViewModel(
 
                 override fun onClickImport() {
                     import()
+                }
+
+                override fun onClickBackButton() {
+                    coroutineScope.launch {
+                        viewModelEventSender.send { it.backRequest() }
+                    }
                 }
             },
         ),
@@ -120,6 +131,10 @@ public class MailImportViewModel(
 
     private fun import() {
         // TODO
+    }
+
+    public interface Event {
+        public fun backRequest()
     }
 
     private data class ViewModelState(

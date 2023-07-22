@@ -275,6 +275,10 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                         )
                                     }
 
+                                    LaunchedEffect(mailImportViewModel.eventHandler) {
+                                        viewModelEventHandlers.handle(mailImportViewModel.eventHandler)
+                                    }
+
                                     MailImportScreen(
                                         uiState = mailImportViewModel.rootUiStateFlow.collectAsState().value,
                                     )

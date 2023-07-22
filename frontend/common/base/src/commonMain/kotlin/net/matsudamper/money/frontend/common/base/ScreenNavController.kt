@@ -6,6 +6,7 @@ import androidx.compose.runtime.Immutable
 public interface ScreenNavController {
     public var currentNavigation: Screen
     public fun navigate(navigation: Screen)
+    public fun back()
 }
 
 public interface Direction {

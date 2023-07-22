@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 public fun KakeBoTopAppBar(
     modifier: Modifier = Modifier,
+    navigationIcon: @Composable () -> Unit = {},
     title: @Composable () -> Unit,
 ) {
     Column(
@@ -21,6 +22,7 @@ public fun KakeBoTopAppBar(
     ) {
         TopAppBar(
             modifier = Modifier.fillMaxWidth(),
+            navigationIcon = navigationIcon,
             title = title,
         )
         Divider(modifier = Modifier.fillMaxWidth().height(1.dp))

@@ -26,11 +26,19 @@ public class ScreenNavControllerImpl(
 
     override fun navigate(navigation: Screen) {
         window.history.pushState(
-            data = null,
+            data = TAG,
             title = navigation.title,
             url = navigation.url,
         )
         println("navigate: $navigation")
         currentNavigation = navigation
+    }
+
+    override fun back() {
+        window.history.back()
+    }
+
+    public companion object {
+        private const val TAG = "FHAOHWO!!O@&*DAOH(GA&&(DA&("
     }
 }
