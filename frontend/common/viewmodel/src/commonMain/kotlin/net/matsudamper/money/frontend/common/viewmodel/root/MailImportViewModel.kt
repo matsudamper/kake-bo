@@ -39,6 +39,10 @@ public class MailImportViewModel(
                 override fun onViewInitialized() {
                     fetch()
                 }
+
+                override fun onClickImport() {
+                    import()
+                }
             },
         ),
     ).also {
@@ -112,6 +116,10 @@ public class MailImportViewModel(
                 )
             }
         }
+    }
+
+    private fun import() {
+        // TODO
     }
 
     private data class ViewModelState(
