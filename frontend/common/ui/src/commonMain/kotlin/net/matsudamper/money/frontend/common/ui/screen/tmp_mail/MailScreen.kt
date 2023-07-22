@@ -24,17 +24,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import MailScreenUiState
-import net.matsudamper.money.frontend.common.base.Screen
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.layout.ScrollButton
 import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-public fun MailScreen(
+public fun MailImportScreen(
     uiState: MailScreenUiState,
     listener: RootScreenScaffoldListener,
 ) {

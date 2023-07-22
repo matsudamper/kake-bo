@@ -46,7 +46,7 @@ import net.matsudamper.money.frontend.common.ui.screen.RootScreen
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.RootSettingScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
-import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailScreen
+import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailImportScreen
 import net.matsudamper.money.frontend.common.uistate.LoginScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.LoginScreenViewModel
@@ -275,7 +275,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                         )
                                     }
 
-                                    MailScreen(
+                                    MailImportScreen(
                                         uiState = mailImportViewModel.rootUiStateFlow.collectAsState().value,
                                         listener = rootScreenScaffoldListener,
                                     )
