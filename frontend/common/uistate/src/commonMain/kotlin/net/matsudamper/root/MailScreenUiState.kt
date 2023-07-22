@@ -25,5 +25,6 @@ public data class MailScreenUiState(
     public interface Event {
         public fun onViewInitialized()
         public fun htmlDismissRequest()
+        public fun onClickImport()
     }
 }
