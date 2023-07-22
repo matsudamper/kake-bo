@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen
+package net.matsudamper.money.frontend.common.ui.base
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -59,17 +59,12 @@ internal fun RootScreenScaffold(
         Scaffold(
             contentColor = MaterialTheme.colorScheme.onSurface,
             topBar = {
-                Column(
+                KakeBoTopAppBar(
                     modifier = Modifier.fillMaxWidth(),
-                ) {
-                    TopAppBar(
-                        modifier = Modifier.fillMaxWidth(),
-                        title = {
-                            Text("title")
-                        },
-                    )
-                    Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
-                }
+                    title = {
+                        Text("家計簿")
+                    }
+                )
             },
             bottomBar = {
                 if (isLargeScreen.not()) {

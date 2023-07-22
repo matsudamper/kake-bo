@@ -42,7 +42,7 @@ import net.matsudamper.money.frontend.common.ui.CustomTheme
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
 import net.matsudamper.money.frontend.common.ui.screen.RootRegisterScreen
 import net.matsudamper.money.frontend.common.ui.screen.RootScreen
-import net.matsudamper.money.frontend.common.ui.screen.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.RootSettingScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
 import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailScreen
