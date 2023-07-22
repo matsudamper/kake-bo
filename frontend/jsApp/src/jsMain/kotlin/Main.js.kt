@@ -156,6 +156,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                                     HomeViewModel(
                                                         coroutineScope = rootCoroutineScope,
                                                         homeGraphqlApi = HomeGraphqlApi(),
+                                                        loginCheckUseCase = loginCheckUseCase,
                                                     )
                                                 }
                                                 RootScreen(

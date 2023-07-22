@@ -6,11 +6,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.root.HomeScreenUiState
 
 public class HomeViewModel(
     private val coroutineScope: CoroutineScope,
     private val homeGraphqlApi: HomeGraphqlApi,
+    private val loginCheckUseCase: LoginCheckUseCase,
 ) {
     private val event = object : HomeScreenUiState.Event {
         override fun onResume() {
@@ -38,4 +40,10 @@ public class HomeViewModel(
             }
         }
     }.asStateFlow()
+
+    init {
+        coroutineScope.launch {
+            loginCheckUseCase.check()
+        }
+    }
 }
