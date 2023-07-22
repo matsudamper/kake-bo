@@ -89,14 +89,12 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
             val userName = imapConfig.userName ?: return@supplyAsync 0
             val password = imapConfig.password ?: return@supplyAsync 0
 
-            val mailCount = MailRepository(
+            return@supplyAsync MailRepository(
                 host = host,
                 port = port,
                 userName = userName,
                 password = password,
             ).getMailCount()
-
-            return@supplyAsync mailCount
         }.toDataFetcher()
     }
 }
