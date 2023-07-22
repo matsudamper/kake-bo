@@ -34,7 +34,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import event.ViewModelEventHandlers
 import lib.compose.JsCompose
-import lib.compose.ResizableComposeWindow
 import lib.js.NormalizeInputKeyCapture
 import net.matsudamper.money.frontend.common.base.Screen
 import net.matsudamper.money.frontend.common.base.ScreenNavControllerImpl
