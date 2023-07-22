@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -37,13 +38,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import MailScreenUiState
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.layout.ScrollButton
 import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
+
+private val scrollButtonSize = 42.dp
+private val scrollButtonHorizontalPadding = 12.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -84,7 +87,8 @@ public fun MailImportScreen(
             },
             bottomBar = {
                 Box(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(end = scrollButtonSize + scrollButtonHorizontalPadding),
                     contentAlignment = Alignment.Center,
                 ) {
                     Button(
@@ -92,6 +96,10 @@ public fun MailImportScreen(
                             .widthIn(max = 500.dp)
                             .fillMaxWidth(),
                         onClick = { uiState.event.onClickImport() },
+                        elevation = ButtonDefaults.buttonElevation(
+                            defaultElevation = 4.dp,
+                            pressedElevation = 8.dp,
+                        ),
                         shape = CircleShape,
                     ) {
                         Text(
@@ -115,7 +123,6 @@ public fun MailImportScreen(
                 val lazyListState = rememberLazyListState()
                 val density = LocalDensity.current
                 Row(modifier = Modifier.fillMaxSize()) {
-                    val listHorizontalPadding = 12.dp
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxHeight()
@@ -126,7 +133,7 @@ public fun MailImportScreen(
                             MailContent(
                                 modifier = Modifier
                                     .padding(vertical = 12.dp)
-                                    .padding(start = listHorizontalPadding),
+                                    .padding(start = scrollButtonHorizontalPadding),
                                 uiState = item,
                             )
                         }
@@ -138,7 +145,8 @@ public fun MailImportScreen(
                     ScrollButton(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .padding(listHorizontalPadding),
+                            .padding(scrollButtonHorizontalPadding)
+                            .width(scrollButtonSize),
                         scrollState = lazyListState,
                         scrollSize = with(density) {
                             height.toPx() * 0.7f

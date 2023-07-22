@@ -5,8 +5,8 @@ import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -29,7 +29,6 @@ public fun ScrollButton(
 ) {
     val coroutineScope = rememberCoroutineScope()
     Box(modifier = modifier) {
-        val size = 38.dp
         Button(
             modifier = Modifier.align(Alignment.TopEnd),
             shape = CircleShape,
@@ -44,14 +43,15 @@ public fun ScrollButton(
             },
         ) {
             Icon(
-                modifier = Modifier
-                    .size(size),
+                modifier = Modifier.fillMaxWidth()
+                    .aspectRatio(1f),
                 imageVector = Icons.Default.KeyboardArrowUp,
                 contentDescription = null,
             )
         }
         Button(
-            modifier = Modifier.align(Alignment.BottomEnd),
+            modifier = Modifier.align(Alignment.BottomEnd)
+                .fillMaxWidth(),
             shape = CircleShape,
             contentPadding = PaddingValues(12.dp),
             onClick = {
@@ -64,8 +64,8 @@ public fun ScrollButton(
             },
         ) {
             Icon(
-                modifier = Modifier
-                    .size(size),
+                modifier = Modifier.fillMaxWidth()
+                    .aspectRatio(1f),
                 imageVector = Icons.Default.KeyboardArrowDown,
                 contentDescription = null,
             )
