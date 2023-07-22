@@ -20,7 +20,7 @@ public class EventSender<Receiver> {
         }
     }
 
-    public fun asReceiver(): EventHandler<Receiver> {
+    public fun asHandler(): EventHandler<Receiver> {
         return EventHandler(receiverChannel)
     }
 }

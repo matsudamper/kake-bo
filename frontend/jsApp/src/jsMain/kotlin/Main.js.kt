@@ -110,7 +110,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
 
                     LaunchedEffect(globalEventSender) {
                         val coroutineScope = this
-                        globalEventSender.asReceiver().collect(
+                        globalEventSender.asHandler().collect(
                             object : GlobalEvent {
                                 override fun showSnackBar(message: String) {
                                     console.error("show: $message")
