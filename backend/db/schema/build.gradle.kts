@@ -10,9 +10,9 @@ plugins {
 
 buildscript {
     dependencies {
-        classpath("org.jooq:jooq-codegen:3.18.4")
+        classpath("org.jooq:jooq-codegen:3.18.5")
         classpath("org.mariadb.jdbc:mariadb-java-client:3.1.4")
-        classpath("org.jooq:jooq-meta:3.1.4")
+        classpath("org.jooq:jooq-meta:3.18.5")
     }
 }
 
@@ -27,7 +27,7 @@ kotlin {
                 implementation(kotlin("stdlib"))
                 implementation(kotlin("reflect"))
 
-                val jooqVersion = "3.18.4"
+                val jooqVersion = "3.18.5"
                 implementation("org.jooq:jooq:$jooqVersion")
 //                implementation("org.jooq:jooq-kotlin:$jooqVersion")
             }
