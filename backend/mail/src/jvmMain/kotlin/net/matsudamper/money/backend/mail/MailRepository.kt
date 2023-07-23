@@ -28,7 +28,10 @@ class MailRepository(
         }
     }
 
-    fun getMail(): List<MailResult> {
+    fun getMail(
+        size: Int,
+        offset: Int,
+    ): List<MailResult> {
         val session = getSession()
 
         val store = session.getStore("imap").also {
@@ -38,7 +41,7 @@ class MailRepository(
             imap4.getFolder("INBOX").let { folder ->
                 folder.open(Folder.READ_ONLY)
                 folder.use {
-                    folder.messages
+                    folder.getMessages(offset, offset + size)
                         .map { it as IMAPMessage }
                         .map { message ->
                             val contents = when (val content = message.dataHandler.content) {

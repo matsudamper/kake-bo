@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend.graphql.resolver
 
 import java.time.OffsetDateTime
+import java.util.Base64
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
@@ -43,13 +44,19 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
             val port = imapConfig.port ?: return@supplyAsync createError(QlUserMailError.MailConfigNotFound)
             val userName = imapConfig.userName ?: return@supplyAsync createError(QlUserMailError.MailConfigNotFound)
             val password = imapConfig.password ?: return@supplyAsync createError(QlUserMailError.MailConfigNotFound)
+            val cursor = mailQuery.cursor?.let {
+                UserMailQueryCursor.fromString(it) ?: throw IllegalStateException("cursor parse failed: $it")
+            }
 
             val mails = MailRepository(
                 host = host,
                 port = port,
                 userName = userName,
                 password = password,
-            ).getMail()
+            ).getMail(
+                size = mailQuery.size,
+                offset = cursor?.offset ?: 0,
+            )
 
             QlUserMailConnection(
                 error = null,
@@ -57,19 +64,22 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
                     val html = mail.content.filterIsInstance<MailRepository.MailResult.Content.Html>()
                     val text = mail.content.filterIsInstance<MailRepository.MailResult.Content.Text>()
 
-                    // TODO
-                    // mail.forwardedForの先頭を見て、許可されているメールだけを取り込むようにする
+                    // TODO: mail.forwardedForの先頭を見て、許可されているメールだけを取り込むようにする
                     QlUserMail(
                         id = MailId(mail.messageID),
                         plain = text.getOrNull(0)?.text,
                         html = html.getOrNull(0)?.html,
-                        time = OffsetDateTime.now(),
+                        time = OffsetDateTime.now(), // TODO
                         subject = mail.subject,
                         sender = mail.sender,
                         from = mail.from,
                     )
                 },
-                cursor = null,
+                cursor = if (mails.isEmpty()) {
+                    null
+                } else {
+                    UserMailQueryCursor(mails.size + (cursor?.offset ?: 0)).createCursorString()
+                },
             )
         }.toDataFetcher()
     }
@@ -96,5 +106,32 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
                 password = password,
             ).getMailCount()
         }.toDataFetcher()
+    }
+}
+
+private class UserMailQueryCursor(
+    val offset: Int,
+) {
+    fun createCursorString(): String {
+        return encoder.encodeToString("$OFFSET_KEY=$offset".toByteArray(Charsets.UTF_8))
+    }
+
+    companion object {
+        private const val OFFSET_KEY = "offset"
+        private val decoder = Base64.getDecoder()
+        private val encoder = Base64.getEncoder()
+        fun fromString(cursor: String): UserMailQueryCursor? {
+            val keyValues = decoder.decode(cursor).toString(Charsets.UTF_8)
+                .split("&")
+                .map {
+                    val keyValue = it.split("=")
+                    keyValue.getOrNull(0) to keyValue.getOrNull(1)
+                }
+            val offsetValue = keyValues.firstOrNull { it.first == OFFSET_KEY }
+                ?.second?.toIntOrNull() ?: return null
+            return UserMailQueryCursor(
+                offset = offsetValue,
+            )
+        }
     }
 }
