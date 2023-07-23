@@ -2,6 +2,7 @@ package net.matsudamper.money.backend
 
 import java.io.File
 import java.lang.reflect.UndeclaredThrowableException
+import kotlinx.coroutines.launch
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import graphql.ExceptionWhileDataFetching
@@ -72,61 +73,64 @@ fun Application.myApplicationModule() {
         )
     }
     install(CallLogging) {
-        level = Level.WARN
-        filter { call ->
-            CustomLogger.General.debug(
-                buildString {
-                    appendLine("==========${call.request.path()}==========")
-                    appendLine(
-                        call.request.headers.entries().joinToString("\n") { (key, value) ->
-                            "$key=$value"
-                        },
-                    )
-                },
-            )
-            true
+        level = Level.INFO
+        filter { true }
+
+        format { call ->
+            buildString {
+                appendLine("==========${call.request.path()}==========")
+                println("path: ${call.request.path()}")
+                appendLine(
+                    call.request.headers.entries().joinToString("\n") { (key, value) ->
+                        "$key=$value"
+                    },
+                )
+            }
         }
     }
 
     routing {
         accept(ContentType.Application.Json) {
             post("/query") {
-                val requestText = call.receiveStream().bufferedReader().readText()
-                val request = jacksonObjectMapper().readValue<GraphQlRequest>(requestText)
+                launch {
+                    println("/query/query/query")
+                    val requestText = call.receiveStream().bufferedReader().readText()
+                    val request = jacksonObjectMapper().readValue<GraphQlRequest>(requestText)
 
-                val executionInputBuilder = ExecutionInput.newExecutionInput()
-                    .graphQLContext(
-                        mapOf(
-                            GraphQlContext::class.java.name to GraphQlContext(call),
-                        ),
-                    )
-                    .query(request.query)
-                    .variables(request.variables)
+                    val executionInputBuilder = ExecutionInput.newExecutionInput()
+                        .graphQLContext(
+                            mapOf(
+                                GraphQlContext::class.java.name to GraphQlContext(call),
+                            ),
+                        )
+                        .query(request.query)
+                        .variables(request.variables)
 
-                val result = MoneyGraphQlSchema.graphql
-                    .execute(executionInputBuilder)
+                    val result = MoneyGraphQlSchema.graphql
+                        .execute(executionInputBuilder)
 
-                val handleError = handleError(result.errors)
+                    val handleError = handleError(result.errors)
 
-                val responseResult = ExecutionResult.newExecutionResult()
-                    .data(result.getData())
-                    .extensions(
-                        mapOf(
-                            "errors" to handleError.map { e ->
-                                when (e) {
-                                    is GraphqlMoneyException.SessionNotVerify -> {
-                                        "SessionNotVerify"
+                    val responseResult = ExecutionResult.newExecutionResult()
+                        .data(result.getData())
+                        .extensions(
+                            mapOf(
+                                "errors" to handleError.map { e ->
+                                    when (e) {
+                                        is GraphqlMoneyException.SessionNotVerify -> {
+                                            "SessionNotVerify"
+                                        }
                                     }
-                                }
-                            },
-                        ),
-                    )
-                    .build()
+                                },
+                            ),
+                        )
+                        .build()
 
-                call.respondText(
-                    contentType = ContentType.Application.Json,
-                    text = ObjectMapper.jackson.writeValueAsString(responseResult),
-                )
+                    call.respondText(
+                        contentType = ContentType.Application.Json,
+                        text = ObjectMapper.jackson.writeValueAsString(responseResult),
+                    )
+                }
             }
         }
 
