@@ -92,7 +92,9 @@ fun Application.myApplicationModule() {
     routing {
         accept(ContentType.Application.Json) {
             post("/query") {
-                launch {
+                call.respondText(
+                    contentType = ContentType.Application.Json,
+                ) {
                     println("/query/query/query")
                     val requestText = call.receiveStream().bufferedReader().readText()
                     val request = jacksonObjectMapper().readValue<GraphQlRequest>(requestText)
@@ -126,10 +128,7 @@ fun Application.myApplicationModule() {
                         )
                         .build()
 
-                    call.respondText(
-                        contentType = ContentType.Application.Json,
-                        text = ObjectMapper.jackson.writeValueAsString(responseResult),
-                    )
+                    ObjectMapper.jackson.writeValueAsString(responseResult)
                 }
             }
         }
