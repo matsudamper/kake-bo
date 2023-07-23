@@ -59,23 +59,23 @@ tasks.create("generateDbCode") {
                         .withName("org.jooq.codegen.KotlinGenerator")
                         .withGenerate(
                             Generate()
-                                .withRecords(true)
+                                .withRecords(true),
                         )
                         .withStrategy(
                             Strategy()
-                                .withName("org.jooq.codegen.example.JPrefixGeneratorStrategy")
+                                .withName("org.jooq.codegen.example.JPrefixGeneratorStrategy"),
                         )
                         .withTarget(
                             Target()
                                 .withPackageName("net.matsudamper.money.db.schema")
-                                .withDirectory("$projectDir/src/jvmMain/kotlin")
+                                .withDirectory("$projectDir/src/jvmMain/kotlin"),
                         )
                         .withDatabase(
                             Database()
                                 .withName("org.jooq.meta.mariadb.MariaDBDatabase")
-                                .withInputSchema("money")
-                        )
-                )
+                                .withInputSchema("money"),
+                        ),
+                ),
         )
     }
 }
