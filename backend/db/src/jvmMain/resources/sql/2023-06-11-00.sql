@@ -54,7 +54,7 @@ CREATE TABLE user_imap_settings
 CREATE TABLE user_mails
 (
     user_mail_id     INT                                not null PRIMARY KEY AUTO_INCREMENT,
-    user_id          INT                                not null PRIMARY KEY,
+    user_id          INT                                not null,
     plain            TEXT,
     html             TEXT,
     datetime         DATETIME                           not null,
