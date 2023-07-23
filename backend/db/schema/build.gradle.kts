@@ -1,8 +1,12 @@
+import java.util.Properties
 import org.jooq.codegen.GenerationTool
-import org.jooq.meta.jaxb.*
 import org.jooq.meta.jaxb.Configuration
+import org.jooq.meta.jaxb.Database
+import org.jooq.meta.jaxb.Generate
+import org.jooq.meta.jaxb.Generator
+import org.jooq.meta.jaxb.Jdbc
+import org.jooq.meta.jaxb.Strategy
 import org.jooq.meta.jaxb.Target
-import java.util.*
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -52,7 +56,10 @@ tasks.create("generateDbCode") {
                         .withDriver("org.mariadb.jdbc.Driver")
                         .withUrl("jdbc:mariadb://localhost:3306/money")
                         .withUser("root")
-                        .withPassword(localProperties.getProperty("DB_PASS")!!)
+                        .withPassword(
+                            System.getenv("DB_PASS").takeIf { it.isNotBlank() }
+                                ?: localProperties.getProperty("DB_PASS")!!,
+                        ),
                 )
                 .withGenerator(
                     Generator()
