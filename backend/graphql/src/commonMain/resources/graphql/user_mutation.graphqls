@@ -1,6 +1,11 @@
 type UserMutation {
     userLogin(name: String!, password: String!): UserLoginResult!
     settingsMutation: SettingsMutation @lazy
+    importMail(mailIds: [MailId!]!): ImportMailResult!
+}
+
+type ImportMailResult {
+    isSuccess: Boolean!
 }
 
 type UserLoginResult {

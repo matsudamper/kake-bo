@@ -6,12 +6,14 @@ package net.matsudamper.money.db.schema.keys
 
 import net.matsudamper.money.db.schema.tables.JAdminSessions
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
+import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
 import net.matsudamper.money.db.schema.tables.JUserPasswords
 import net.matsudamper.money.db.schema.tables.JUserSessions
 import net.matsudamper.money.db.schema.tables.JUsers
 import net.matsudamper.money.db.schema.tables.records.JAdminSessionsRecord
 import net.matsudamper.money.db.schema.tables.records.JUserImapSettingsRecord
+import net.matsudamper.money.db.schema.tables.records.JUserMailsRecord
 import net.matsudamper.money.db.schema.tables.records.JUserPasswordExtendDataRecord
 import net.matsudamper.money.db.schema.tables.records.JUserPasswordsRecord
 import net.matsudamper.money.db.schema.tables.records.JUserSessionsRecord
@@ -28,8 +30,15 @@ import org.jooq.impl.Internal
 // -------------------------------------------------------------------------
 
 val KEY_ADMIN_SESSIONS_PRIMARY: UniqueKey<JAdminSessionsRecord> = Internal.createUniqueKey(JAdminSessions.ADMIN_SESSIONS, DSL.name("KEY_admin_sessions_PRIMARY"), arrayOf(JAdminSessions.ADMIN_SESSIONS.SESSION_ID), true)
-val KEY_USER_IMAP_SETTINGS_PRIMARY: UniqueKey<JUserImapSettingsRecord> = Internal.createUniqueKey(JUserImapSettings.USER_IMAP_SETTINGS, DSL.name("KEY_user_imap_settings_PRIMARY"), arrayOf(JUserImapSettings.USER_IMAP_SETTINGS.USER_ID), true)
-val KEY_USER_PASSWORD_EXTEND_DATA_PRIMARY: UniqueKey<JUserPasswordExtendDataRecord> = Internal.createUniqueKey(JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA, DSL.name("KEY_user_password_extend_data_PRIMARY"), arrayOf(JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA.USER_ID), true)
+val KEY_USER_IMAP_SETTINGS_PRIMARY: UniqueKey<JUserImapSettingsRecord> =
+    Internal.createUniqueKey(JUserImapSettings.USER_IMAP_SETTINGS, DSL.name("KEY_user_imap_settings_PRIMARY"), arrayOf(JUserImapSettings.USER_IMAP_SETTINGS.USER_ID), true)
+val KEY_USER_MAILS_PRIMARY: UniqueKey<JUserMailsRecord> = Internal.createUniqueKey(JUserMails.USER_MAILS, DSL.name("KEY_user_mails_PRIMARY"), arrayOf(JUserMails.USER_MAILS.USER_MAIL_ID), true)
+val KEY_USER_PASSWORD_EXTEND_DATA_PRIMARY: UniqueKey<JUserPasswordExtendDataRecord> = Internal.createUniqueKey(
+    JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA,
+    DSL.name("KEY_user_password_extend_data_PRIMARY"),
+    arrayOf(JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA.USER_ID),
+    true,
+)
 val KEY_USER_PASSWORDS_PRIMARY: UniqueKey<JUserPasswordsRecord> = Internal.createUniqueKey(JUserPasswords.USER_PASSWORDS, DSL.name("KEY_user_passwords_PRIMARY"), arrayOf(JUserPasswords.USER_PASSWORDS.USER_ID), true)
 val KEY_USER_SESSIONS_PRIMARY: UniqueKey<JUserSessionsRecord> = Internal.createUniqueKey(JUserSessions.USER_SESSIONS, DSL.name("KEY_user_sessions_PRIMARY"), arrayOf(JUserSessions.USER_SESSIONS.SESSION_ID), true)
 val KEY_USERS_PRIMARY: UniqueKey<JUsersRecord> = Internal.createUniqueKey(JUsers.USERS, DSL.name("KEY_users_PRIMARY"), arrayOf(JUsers.USERS.USER_ID), true)

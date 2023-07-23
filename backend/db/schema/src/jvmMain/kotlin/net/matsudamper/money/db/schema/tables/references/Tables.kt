@@ -6,11 +6,11 @@ package net.matsudamper.money.db.schema.tables.references
 
 import net.matsudamper.money.db.schema.tables.JAdminSessions
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
+import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
 import net.matsudamper.money.db.schema.tables.JUserPasswords
 import net.matsudamper.money.db.schema.tables.JUserSessions
 import net.matsudamper.money.db.schema.tables.JUsers
-
 
 
 /**
@@ -22,6 +22,11 @@ val ADMIN_SESSIONS: JAdminSessions = JAdminSessions.ADMIN_SESSIONS
  * The table <code>money.user_imap_settings</code>.
  */
 val USER_IMAP_SETTINGS: JUserImapSettings = JUserImapSettings.USER_IMAP_SETTINGS
+
+/**
+ * The table <code>money.user_mails</code>.
+ */
+val USER_MAILS: JUserMails = JUserMails.USER_MAILS
 
 /**
  * The table <code>money.user_password_extend_data</code>.
