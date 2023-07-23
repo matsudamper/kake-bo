@@ -1,9 +1,7 @@
 package net.matsudamper.money.backend.mail
 
-import jakarta.mail.BodyPart
 import jakarta.mail.Part
 import jakarta.mail.internet.MimeMultipart
-import org.eclipse.angus.mail.imap.IMAPMessage
 
 internal object MultipartParser {
     fun parseMultipart(multipart: MimeMultipart): List<ParseResult.Content> {
