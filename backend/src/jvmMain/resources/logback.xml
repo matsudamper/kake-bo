@@ -10,7 +10,13 @@
     <logger name="com.zaxxer.hikari.pool.HikariPool" level="WARN">
         <appender-ref ref="STDOUT"/>
     </logger>
+    <logger name="com.zaxxer.hikari.HikariConfig" level="trace" additivity="false">
+    </logger>
     <logger name="io.ktor.routing.Routing" level="trace" additivity="false">
+    </logger>
+    <logger name="org.mariadb.jdbc" level="trace" additivity="false">
+    </logger>
+    <logger name="org.jooq.tools.LoggerListener" level="trace" additivity="false">
     </logger>
     <root level="trace">
         <appender-ref ref="STDOUT"/>
