@@ -2,10 +2,12 @@ package net.matsudamper.money.frontend.common.viewmodel.root
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import MailScreenUiState
@@ -34,6 +36,7 @@ public class MailImportViewModel(
             isLoading = true,
             htmlDialog = null,
             mails = immutableListOf(),
+            showLoadMore = false,
             event = object : MailScreenUiState.Event {
                 override fun htmlDismissRequest() {
                     viewModelStateFlow.update {
@@ -42,7 +45,11 @@ public class MailImportViewModel(
                 }
 
                 override fun onViewInitialized() {
-                    fetch()
+                    coroutineScope.launch {
+                        val result = loginCheckUseCase.check()
+                        if (result.not()) return@launch
+                        fetch()
+                    }
                 }
 
                 override fun onClickImport() {
@@ -54,6 +61,10 @@ public class MailImportViewModel(
                         viewModelEventSender.send { it.backRequest() }
                     }
                 }
+
+                override fun onClickLoadMore() {
+                    fetch()
+                }
             },
         ),
     ).also {
@@ -62,6 +73,7 @@ public class MailImportViewModel(
                 it.update {
                     it.copy(
                         isLoading = viewModelState.isLoading,
+                        showLoadMore = viewModelState.finishLoadingToEnd == false,
                         mails = viewModelState.usrMails.map { mail ->
                             MailScreenUiState.Mail(
                                 subject = mail.subject.replace("\n", ""),
@@ -103,21 +115,42 @@ public class MailImportViewModel(
         }
     }
 
+    private var fetchJob = Job()
     private fun fetch() {
-        coroutineScope.launch {
-            val result = loginCheckUseCase.check()
-            if (result.not()) return@launch
-
-            val mails = runCatching {
-                withContext(ioDispatcher) {
-                    graphqlApi.getMail()
-                }
-            }.getOrNull() ?: return@launch
-
+        if (viewModelStateFlow.value.finishLoadingToEnd == true) return
+        fetchJob.cancel()
+        coroutineScope.launch(
+            Job().also { fetchJob = it },
+        ) {
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
-                    usrMails = mails.data?.user?.userMailAttributes?.mail?.usrMails.orEmpty(),
-                    checked = mails.data?.user?.userMailAttributes?.mail?.usrMails.orEmpty().map { it.id },
+                    isLoading = true,
+                )
+            }
+
+            val mails = try {
+                runCatching {
+                    withContext(ioDispatcher) {
+                        graphqlApi.getMail(viewModelStateFlow.value.cursor)
+                    }
+                }.getOrNull() ?: return@launch
+            } finally {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        isLoading = false,
+                    )
+                }
+            }
+
+            val mail = mails.data?.user?.userMailAttributes?.mail ?: return@launch
+
+            if (isActive.not()) return@launch
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    usrMails = viewModelState.usrMails + mail.usrMails,
+                    checked = viewModelState.checked + mail.usrMails.map { it.id },
+                    cursor = mail.cursor,
+                    finishLoadingToEnd = mail.cursor == null,
                     isLoading = false,
                 )
             }
@@ -135,7 +168,9 @@ public class MailImportViewModel(
     private data class ViewModelState(
         val isLoading: Boolean = true,
         val usrMails: List<GetMailQuery.UsrMail> = listOf(),
+        val cursor: String? = null,
         val checked: List<MailId> = listOf(),
+        val finishLoadingToEnd: Boolean? = null,
         val html: String? = null,
     )
 }

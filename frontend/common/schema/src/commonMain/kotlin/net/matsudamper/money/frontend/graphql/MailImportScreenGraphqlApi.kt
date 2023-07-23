@@ -8,13 +8,15 @@ import net.matsudamper.money.frontend.graphql.type.MailQuery
 class MailImportScreenGraphqlApi(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
-    suspend fun getMail(): ApolloResponse<GetMailQuery.Data>? {
+    suspend fun getMail(
+        cursor: String?,
+    ): ApolloResponse<GetMailQuery.Data>? {
         return runCatching {
             apolloClient
                 .query(
                     GetMailQuery(
                         MailQuery(
-                            cursor = Optional.present(null),
+                            cursor = Optional.present(cursor),
                             size = 10,
                         ),
                     ),

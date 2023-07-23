@@ -38,6 +38,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -70,6 +71,11 @@ public fun MailImportScreen(
             },
         )
     }
+
+    val firstLoadingFinished = remember(uiState.isLoading, uiState.mails) {
+        uiState.mails.isNotEmpty() || uiState.isLoading.not()
+    }
+
     Scaffold(
         contentColor = MaterialTheme.colorScheme.onSurface,
         topBar = {
@@ -92,7 +98,7 @@ public fun MailImportScreen(
             )
         },
         bottomBar = {
-            if (uiState.isLoading.not()) {
+            if (firstLoadingFinished) {
                 Box(
                     modifier = Modifier.fillMaxWidth()
                         .padding(end = scrollButtonSize + scrollButtonHorizontalPadding),
@@ -119,7 +125,7 @@ public fun MailImportScreen(
             }
         },
     ) { paddingValues ->
-        if (uiState.isLoading) {
+        if (firstLoadingFinished.not()) {
             Box(
                 modifier = Modifier.fillMaxSize()
                     .padding(paddingValues),
@@ -153,6 +159,32 @@ public fun MailImportScreen(
                                     .padding(start = scrollButtonHorizontalPadding),
                                 uiState = item,
                             )
+                        }
+                        if (uiState.isLoading) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(12.dp)
+                                ) {
+                                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                                }
+                            }
+                        } else {
+                            if (uiState.showLoadMore) {
+                                item {
+                                    OutlinedButton(
+                                        modifier = Modifier.fillMaxWidth()
+                                            .padding(start = scrollButtonHorizontalPadding),
+                                        onClick = { uiState.event.onClickLoadMore() },
+                                    ) {
+                                        Text(
+                                            text = "もっと読み込む",
+                                            fontFamily = rememberCustomFontFamily(),
+                                        )
+                                    }
+                                }
+                            }
                         }
                         item {
                             Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))

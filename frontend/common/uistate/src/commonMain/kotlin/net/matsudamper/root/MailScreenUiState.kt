@@ -3,6 +3,7 @@ import net.matsudamper.money.frontend.common.base.ImmutableList
 
 public data class MailScreenUiState(
     val isLoading: Boolean,
+    val showLoadMore: Boolean,
     val mails: ImmutableList<Mail>,
     val htmlDialog: String?,
     val event: Event,
@@ -27,5 +28,6 @@ public data class MailScreenUiState(
         public fun htmlDismissRequest()
         public fun onClickImport()
         public fun onClickBackButton()
+        public fun onClickLoadMore()
     }
 }
