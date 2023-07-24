@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend.graphql.resolver
 
 import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import java.util.Base64
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
@@ -69,7 +70,7 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
                         id = MailId(mail.messageID),
                         plain = text.getOrNull(0)?.text,
                         html = html.getOrNull(0)?.html,
-                        time = OffsetDateTime.now(), // TODO
+                        time = OffsetDateTime.ofInstant(mail.sendDate, ZoneOffset.UTC),
                         subject = mail.subject,
                         sender = mail.sender,
                         from = mail.from,
