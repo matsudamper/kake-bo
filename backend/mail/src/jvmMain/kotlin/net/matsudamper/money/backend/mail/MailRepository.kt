@@ -42,7 +42,7 @@ class MailRepository(
             imap4.getFolder("INBOX").let { folder ->
                 folder.open(Folder.READ_ONLY)
                 folder.use {
-                    folder.getMessages(offset + 1, offset + size + 1)
+                    folder.getMessages(offset + 1, (offset + size + 1).coerceAtMost(folder.messageCount))
                         .map { it as IMAPMessage }
                         .map { message ->
                             imapMessageToResponse(message = message)
