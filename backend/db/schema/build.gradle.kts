@@ -47,7 +47,10 @@ kotlin {
 tasks.create("generateDbCode") {
     doLast {
         val localProperties = Properties().also {
-            it.load(File("${rootDir}/local.properties").inputStream())
+            val propertiesFile = File("${rootDir}/local.properties")
+            if (propertiesFile.exists()) {
+                it.load(propertiesFile.inputStream())
+            }
         }
         GenerationTool.generate(
             Configuration()
