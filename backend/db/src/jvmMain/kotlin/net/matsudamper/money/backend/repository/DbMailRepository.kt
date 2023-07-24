@@ -12,8 +12,8 @@ class DbMailRepository {
 
     fun addMail(
         userId: UserId,
-        plainText: String,
-        html: String,
+        plainText: String?,
+        html: String?,
         dateTime: LocalDateTime,
     ): AddUserResult {
         runCatching {
