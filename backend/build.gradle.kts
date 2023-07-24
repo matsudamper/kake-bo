@@ -24,6 +24,7 @@ kotlin {
                 implementation(kotlin("stdlib"))
                 implementation("com.graphql-java:graphql-java-extended-scalars:20.2")
                 implementation(libs.kotlin.serialization.json)
+                implementation(libs.kotlin.coroutines.core)
                 implementation(libs.logback.classic)
 
                 implementation(libs.ktor.server.core)

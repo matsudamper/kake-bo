@@ -17,6 +17,7 @@ kotlin {
 
                 implementation(kotlin("stdlib"))
                 implementation(kotlin("reflect"))
+                implementation(libs.kotlin.coroutines.core)
                 implementation(libs.kotlin.serialization.json)
                 implementation("jakarta.mail:jakarta.mail-api:2.1.2")
                 implementation("org.eclipse.angus:jakarta.mail:2.0.2")

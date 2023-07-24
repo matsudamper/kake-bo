@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.mail
 
+import java.time.Instant
 import java.util.Properties
 import jakarta.mail.Authenticator
 import jakarta.mail.Flags
@@ -44,51 +45,36 @@ class MailRepository(
                     folder.getMessages(offset + 1, offset + size + 1)
                         .map { it as IMAPMessage }
                         .map { message ->
-                            val contents = when (val content = message.dataHandler.content) {
-                                is String,
-                                is MimeMultipart,
-                                -> {
-                                    when (content) {
-                                        is String -> {
-                                            MultipartParser.parse(message)
-                                        }
-
-                                        is MimeMultipart -> {
-                                            MultipartParser.parseMultipart(content)
-                                        }
-
-                                        else -> throw IllegalStateException("")
-                                    }.map {
-                                        when (it) {
-                                            is MultipartParser.ParseResult.Content.Html -> MailResult.Content.Html(it.html)
-                                            is MultipartParser.ParseResult.Content.Text -> MailResult.Content.Text(it.text)
-                                            is MultipartParser.ParseResult.Content.Other -> MailResult.Content.Other(it.contentType)
-                                        }
-                                    }
-                                }
-
-                                else -> {
-                                    listOf(MailResult.Content.Other(message.contentType.orEmpty()))
-                                }
-                            }
-
-                            MailResult(
-                                subject = message.subject,
-                                messageID = message.messageID,
-                                content = contents,
-                                flags = message.flags,
-                                sender = (message.sender as InternetAddress).address,
-                                from = message.from
-                                    .map { it as InternetAddress }
-                                    .mapNotNull { it.address },
-                                forwardedFor = message.getHeader("X-Forwarded-For")
-                                    .orEmpty()
-                                    .flatMap { it.split(" ") },
-                                forwardedTo = message.getHeader("X-Forwarded-To")
-                                    .orEmpty()
-                                    .flatMap { it.split(" ") },
-                            )
+                            imapMessageToResponse(message = message)
                         }
+                }
+            }
+        }
+    }
+
+    fun getMails(
+        mailIds: List<MailId>,
+    ): Sequence<MailResult> = sequence {
+        val session = getSession()
+
+        val store = session.getStore("imap").also {
+            it.connect()
+        }
+        val reamingRawMailIds = mailIds.map { it.id }.toMutableList()
+        store.use { imap4 ->
+            imap4.getFolder("INBOX").let { folder ->
+                folder.open(Folder.READ_ONLY)
+                folder.use {
+                    for (item in folder.messages.asSequence().map { it as IMAPMessage }) {
+                        if (item.messageID !in reamingRawMailIds) {
+                            continue
+                        } else {
+                            yield(imapMessageToResponse(message = item))
+                            reamingRawMailIds.remove(item.messageID)
+                        }
+
+                        if (reamingRawMailIds.isEmpty()) break
+                    }
                 }
             }
         }
@@ -130,6 +116,54 @@ class MailRepository(
         )
     }
 
+    private fun imapMessageToResponse(message: IMAPMessage): MailResult {
+        val contents = when (val content = message.dataHandler.content) {
+            is String,
+            is MimeMultipart,
+            -> {
+                when (content) {
+                    is String -> {
+                        MultipartParser.parse(message)
+                    }
+
+                    is MimeMultipart -> {
+                        MultipartParser.parseMultipart(content)
+                    }
+
+                    else -> throw IllegalStateException("")
+                }.map {
+                    when (it) {
+                        is MultipartParser.ParseResult.Content.Html -> MailResult.Content.Html(it.html)
+                        is MultipartParser.ParseResult.Content.Text -> MailResult.Content.Text(it.text)
+                        is MultipartParser.ParseResult.Content.Other -> MailResult.Content.Other(it.contentType)
+                    }
+                }
+            }
+
+            else -> {
+                listOf(MailResult.Content.Other(message.contentType.orEmpty()))
+            }
+        }
+
+        return MailResult(
+            subject = message.subject,
+            messageID = message.messageID,
+            content = contents,
+            flags = message.flags,
+            sendDate = Instant.ofEpochMilli(message.sentDate.time),
+            sender = (message.sender as InternetAddress).address,
+            from = message.from
+                .map { it as InternetAddress }
+                .mapNotNull { it.address },
+            forwardedFor = message.getHeader("X-Forwarded-For")
+                .orEmpty()
+                .flatMap { it.split(" ") },
+            forwardedTo = message.getHeader("X-Forwarded-To")
+                .orEmpty()
+                .flatMap { it.split(" ") },
+        )
+    }
+
     data class MailResult(
         val subject: String,
         val messageID: String,
@@ -139,6 +173,7 @@ class MailRepository(
         val from: List<String>,
         val forwardedFor: List<String>,
         val forwardedTo: List<String>,
+        val sendDate: Instant,
     ) {
         sealed interface Content {
             data class Text(val text: String) : Content
