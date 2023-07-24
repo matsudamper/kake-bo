@@ -18,7 +18,7 @@ type SettingsMutation {
 
 input UpdateUserImapConfigInput {
     host: String
-    port  :   Int
+    port: Int
     userName: String
     password: String
 }
