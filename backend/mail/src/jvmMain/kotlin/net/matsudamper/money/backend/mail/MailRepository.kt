@@ -147,7 +147,7 @@ class MailRepository(
 
         return MailResult(
             subject = message.subject,
-            messageID = message.messageID,
+            messageID = MailId(message.messageID),
             content = contents,
             flags = message.flags,
             sendDate = Instant.ofEpochMilli(message.sentDate.time),
@@ -166,7 +166,7 @@ class MailRepository(
 
     data class MailResult(
         val subject: String,
-        val messageID: String,
+        val messageID: MailId,
         val content: List<Content>,
         val flags: Flags,
         val sender: String?,

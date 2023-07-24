@@ -11,7 +11,6 @@ import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.mail.MailRepository
 import net.matsudamper.money.backend.repository.UserConfigRepository
-import net.matsudamper.money.element.MailId
 import net.matsudamper.money.graphql.model.QlMailQuery
 import net.matsudamper.money.graphql.model.QlUserMail
 import net.matsudamper.money.graphql.model.QlUserMailAttributes
@@ -67,7 +66,7 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
 
                     // TODO: mail.forwardedForの先頭を見て、許可されているメールだけを取り込むようにする
                     QlUserMail(
-                        id = MailId(mail.messageID),
+                        id = mail.messageID,
                         plain = text.getOrNull(0)?.text,
                         html = html.getOrNull(0)?.html,
                         time = OffsetDateTime.ofInstant(mail.sendDate, ZoneOffset.UTC),
