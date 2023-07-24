@@ -3,6 +3,8 @@ package net.matsudamper.money.frontend.graphql
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo3.cache.normalized.FetchPolicy
+import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.frontend.graphql.type.MailQuery
 
@@ -22,6 +24,7 @@ class MailImportScreenGraphqlApi(
                         ),
                     ),
                 )
+                .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
         }.getOrNull()
     }
