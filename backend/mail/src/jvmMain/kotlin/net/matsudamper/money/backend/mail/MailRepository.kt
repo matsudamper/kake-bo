@@ -80,7 +80,7 @@ class MailRepository(
         }
     }
 
-    fun deleteMessage(deleteMessageIDs: List<MailId>): Boolean {
+    fun deleteMessage(deleteMessageIDs: List<MailId>) : Boolean {
         val session = getSession()
 
         val store = session.getStore("imap").also {
@@ -91,14 +91,17 @@ class MailRepository(
                 folder.open(Folder.READ_WRITE)
             }
             val deleteRawIds = deleteMessageIDs.map { it.id }
-            val deleteMessage = folder.messages
+            val deleteMessages = folder.messages
                 .map { it as IMAPMessage }
-                .firstOrNull { it.messageID in deleteRawIds }
-                ?: return false
+                .filter { it.messageID in deleteRawIds }
 
-            deleteMessage.setFlag(Flags.Flag.DELETED, true)
-            return true
+            deleteMessages.forEach { deleteMessage ->
+                deleteMessage.setFlag(Flags.Flag.DELETED, true)
+            }
+            folder.expunge()
+            folder.close(false)
         }
+        return true
     }
 
     private fun getSession(): Session {
