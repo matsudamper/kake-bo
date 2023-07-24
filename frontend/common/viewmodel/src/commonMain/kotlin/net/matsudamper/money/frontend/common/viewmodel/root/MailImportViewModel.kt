@@ -159,21 +159,32 @@ public class MailImportViewModel(
 
     private fun import() {
         coroutineScope.launch {
-            runCatching {
+            val result = runCatching {
                 graphqlApi.mailImport(viewModelStateFlow.value.checked)
-            }.onSuccess {
-                viewModelStateFlow.update {
-                    it.copy(
-                        usrMails = listOf(),
-                        cursor = null,
-                        checked = listOf(),
-                        finishLoadingToEnd = null,
-                    )
-                }
-                fetch()
-            }.onFailure {
+            }.getOrNull()
+            val onError = suspend {
                 viewModelEventSender.send { it.globalToast("Importに失敗しました") }
             }
+
+            if (result == null) {
+                onError()
+                return@launch
+            }
+
+            if (result.data?.userMutation?.importMail?.isSuccess != true) {
+                onError()
+                return@launch
+            }
+
+            viewModelStateFlow.update {
+                it.copy(
+                    usrMails = listOf(),
+                    cursor = null,
+                    checked = listOf(),
+                    finishLoadingToEnd = null,
+                )
+            }
+            fetch()
         }
     }
 

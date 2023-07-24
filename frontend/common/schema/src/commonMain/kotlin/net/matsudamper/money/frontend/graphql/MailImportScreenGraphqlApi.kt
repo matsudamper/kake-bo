@@ -28,8 +28,8 @@ class MailImportScreenGraphqlApi(
 
     suspend fun mailImport(
         mailIds: List<MailId>,
-    ) {
-        runCatching {
+    ): ApolloResponse<ImportMailMutation.Data>? {
+        return runCatching {
             apolloClient
                 .mutation(
                     ImportMailMutation(
