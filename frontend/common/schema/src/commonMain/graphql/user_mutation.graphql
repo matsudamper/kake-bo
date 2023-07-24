@@ -15,3 +15,11 @@ mutation SetImapConfig($config: UpdateUserImapConfigInput!) {
         }
     }
 }
+
+mutation ImportMail($mailIds: [MailId!]!) {
+    userMutation {
+        importMail(mailIds: $mailIds) {
+            isSuccess
+        }
+    }
+}

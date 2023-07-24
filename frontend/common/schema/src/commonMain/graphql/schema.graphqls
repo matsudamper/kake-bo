@@ -20,6 +20,10 @@ type AdminMutation {
     adminLogin(password: String!): AdminLoginResult!
 }
 
+type ImportMailResult {
+    isSuccess: Boolean!
+}
+
 type Mutation {
     adminMutation: AdminMutation!
     userMutation: UserMutation!
@@ -72,6 +76,7 @@ type UserMailConnection {
 }
 
 type UserMutation {
+    importMail(mailIds: [MailId!]!): ImportMailResult!
     settingsMutation: SettingsMutation
     userLogin(name: String!, password: String!): UserLoginResult!
 }
