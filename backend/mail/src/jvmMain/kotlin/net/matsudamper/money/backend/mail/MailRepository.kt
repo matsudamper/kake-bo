@@ -1,6 +1,5 @@
 package net.matsudamper.money.backend.mail
 
-import java.lang.IllegalStateException
 import java.util.Properties
 import jakarta.mail.Authenticator
 import jakarta.mail.Flags
@@ -9,6 +8,7 @@ import jakarta.mail.PasswordAuthentication
 import jakarta.mail.Session
 import jakarta.mail.internet.InternetAddress
 import jakarta.mail.internet.MimeMultipart
+import net.matsudamper.money.element.MailId
 import org.eclipse.angus.mail.imap.IMAPMessage
 
 class MailRepository(
@@ -94,7 +94,7 @@ class MailRepository(
         }
     }
 
-    fun deleteMessage(deleteMessageID: String): Boolean {
+    fun deleteMessage(deleteMessageIDs: List<MailId>): Boolean {
         val session = getSession()
 
         val store = session.getStore("imap").also {
@@ -104,9 +104,10 @@ class MailRepository(
             val folder = imap4.getFolder("INBOX").also { folder ->
                 folder.open(Folder.READ_WRITE)
             }
+            val deleteRawIds = deleteMessageIDs.map { it.id }
             val deleteMessage = folder.messages
                 .map { it as IMAPMessage }
-                .firstOrNull { it.messageID == deleteMessageID }
+                .firstOrNull { it.messageID in deleteRawIds }
                 ?: return false
 
             deleteMessage.setFlag(Flags.Flag.DELETED, true)
