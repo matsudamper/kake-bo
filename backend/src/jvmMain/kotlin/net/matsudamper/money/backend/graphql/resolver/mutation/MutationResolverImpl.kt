@@ -1,12 +1,12 @@
-package net.matsudamper.money.backend.graphql.resolver
+package net.matsudamper.money.backend.graphql.resolver.mutation
 
-import graphql.schema.DataFetchingEnvironment
-import net.matsudamper.money.graphql.model.MutationResolver
-import net.matsudamper.money.graphql.model.QlAdminMutation
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
+import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.graphql.toDataFetcher
+import net.matsudamper.money.graphql.model.MutationResolver
+import net.matsudamper.money.graphql.model.QlAdminMutation
 import net.matsudamper.money.graphql.model.QlUserMutation
 
 class MutationResolverImpl : MutationResolver {

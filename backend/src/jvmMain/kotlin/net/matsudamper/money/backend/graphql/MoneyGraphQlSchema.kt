@@ -12,13 +12,14 @@ import graphql.language.Value
 import graphql.scalars.ExtendedScalars
 import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
-import net.matsudamper.money.backend.graphql.resolver.MutationResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.QueryResolverImpl
-import net.matsudamper.money.backend.graphql.resolver.SettingsMutationResolverResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserMailAttributesResolverImpl
-import net.matsudamper.money.backend.graphql.resolver.UserMutationResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserSettingsResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.mutation.AdminMutationResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.mutation.MutationResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.mutation.SettingsMutationResolverResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.mutation.UserMutationResolverImpl
 import net.matsudamper.money.backend.graphql.schema.GraphqlSchemaModule
 import net.matsudamper.money.element.MailId
 

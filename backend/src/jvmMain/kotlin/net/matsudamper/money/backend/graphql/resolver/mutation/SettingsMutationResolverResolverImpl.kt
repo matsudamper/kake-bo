@@ -1,4 +1,4 @@
-package net.matsudamper.money.backend.graphql.resolver
+package net.matsudamper.money.backend.graphql.resolver.mutation
 
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage

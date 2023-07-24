@@ -1,4 +1,4 @@
-package net.matsudamper.money.backend.graphql.resolver
+package net.matsudamper.money.backend.graphql.resolver.mutation
 
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
@@ -6,15 +6,13 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
-import net.matsudamper.money.backend.repository.UserLoginRepository
-import net.matsudamper.money.backend.repository.UserSessionRepository
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
-import net.matsudamper.money.backend.repository.UserConfigRepository
+import net.matsudamper.money.backend.repository.UserLoginRepository
+import net.matsudamper.money.backend.repository.UserSessionRepository
 import net.matsudamper.money.graphql.model.QlSettingsMutation
 import net.matsudamper.money.graphql.model.QlUserLoginResult
 import net.matsudamper.money.graphql.model.QlUserMutation
-import net.matsudamper.money.graphql.model.SettingsMutationResolver
 import net.matsudamper.money.graphql.model.UserMutationResolver
 
 class UserMutationResolverImpl : UserMutationResolver {
