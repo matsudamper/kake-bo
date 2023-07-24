@@ -46,10 +46,14 @@ class ImportMailUseCase(
                 }
             }.fold(
                 onSuccess = {
-                    runBlocking {
-                        it.toList().map { it.await() }
+                    val allDeleteSuccess = runBlocking {
+                        it.toList().all { it.await() }
                     }
-                    Result.Success
+                    if (allDeleteSuccess) {
+                        Result.Success
+                    } else {
+                        Result.Failure(IllegalStateException("delete failed"))
+                    }
                 },
                 onFailure = {
                     it.printStackTrace()

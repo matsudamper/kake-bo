@@ -134,6 +134,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                     val viewModelEventHandlers = remember(navController) {
                         ViewModelEventHandlers(
                             navController = navController,
+                            globalEventSender = globalEventSender,
                         )
                     }
 
