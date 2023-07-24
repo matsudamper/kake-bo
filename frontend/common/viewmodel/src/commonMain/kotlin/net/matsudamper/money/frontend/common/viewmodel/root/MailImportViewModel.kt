@@ -148,7 +148,6 @@ public class MailImportViewModel(
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     usrMails = viewModelState.usrMails + mail.usrMails,
-                    checked = viewModelState.checked + mail.usrMails.map { it.id },
                     cursor = mail.cursor,
                     finishLoadingToEnd = mail.cursor == null,
                     isLoading = false,
