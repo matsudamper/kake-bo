@@ -53,7 +53,7 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
                 port = port,
                 userName = userName,
                 password = password,
-            ).getMail(
+            ).getMails(
                 size = mailQuery.size,
                 offset = cursor?.offset ?: 0,
             )

@@ -29,7 +29,7 @@ class MailRepository(
         }
     }
 
-    fun getMail(
+    fun getMails(
         size: Int,
         offset: Int,
     ): List<MailResult> {
