@@ -8,8 +8,11 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
+import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
 import net.matsudamper.money.backend.repository.UserLoginRepository
 import net.matsudamper.money.backend.repository.UserSessionRepository
+import net.matsudamper.money.element.MailId
+import net.matsudamper.money.graphql.model.QlImportMailResult
 import net.matsudamper.money.graphql.model.QlSettingsMutation
 import net.matsudamper.money.graphql.model.QlUserLoginResult
 import net.matsudamper.money.graphql.model.QlUserMutation
@@ -54,6 +57,27 @@ class UserMutationResolverImpl : UserMutationResolver {
     override fun settingsMutation(userMutation: QlUserMutation, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlSettingsMutation?>> {
         return CompletableFuture.supplyAsync {
             QlSettingsMutation()
+        }.toDataFetcher()
+    }
+
+    override fun importMail(userMutation: QlUserMutation, mailIds: List<MailId>, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlImportMailResult>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+        return CompletableFuture.supplyAsync {
+
+            val result = ImportMailUseCase(context.repositoryFactory).insertMail(
+                userId = userId,
+                mailIds = mailIds,
+            )
+
+            QlImportMailResult(
+                isSuccess = when (result) {
+                    is ImportMailUseCase.Result.Success -> true
+                    is ImportMailUseCase.Result.Failure,
+                    is ImportMailUseCase.Result.ImapConfigNotFound,
+                    -> false
+                },
+            )
         }.toDataFetcher()
     }
 }

@@ -2,7 +2,6 @@ package net.matsudamper.money.backend
 
 import java.io.File
 import java.lang.reflect.UndeclaredThrowableException
-import kotlinx.coroutines.launch
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import graphql.ExceptionWhileDataFetching
@@ -33,9 +32,9 @@ import io.ktor.server.routing.accept
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
-import net.matsudamper.money.backend.base.CustomLogger
 import net.matsudamper.money.backend.base.ObjectMapper
 import net.matsudamper.money.backend.base.ServerEnv
+import net.matsudamper.money.backend.di.RepositoryFactoryImpl
 import net.matsudamper.money.backend.exception.GraphQlMultiException
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.GraphqlMoneyException
@@ -102,7 +101,10 @@ fun Application.myApplicationModule() {
                     val executionInputBuilder = ExecutionInput.newExecutionInput()
                         .graphQLContext(
                             mapOf(
-                                GraphQlContext::class.java.name to GraphQlContext(call),
+                                GraphQlContext::class.java.name to GraphQlContext(
+                                    call = call,
+                                    repositoryFactory = RepositoryFactoryImpl(),
+                                ),
                             ),
                         )
                         .query(request.query)

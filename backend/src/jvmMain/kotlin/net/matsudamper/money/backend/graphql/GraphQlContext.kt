@@ -5,16 +5,18 @@ import java.time.ZoneOffset
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.request.host
 import io.ktor.util.date.GMTDate
-import net.matsudamper.money.backend.repository.AdminSessionRepository
 import net.matsudamper.money.backend.CookieKeys
-import net.matsudamper.money.backend.repository.UserSessionRepository
 import net.matsudamper.money.backend.base.ServerEnv
+import net.matsudamper.money.backend.di.RepositoryFactory
 import net.matsudamper.money.backend.element.AdminSession
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.backend.element.UserSession
+import net.matsudamper.money.backend.repository.AdminSessionRepository
+import net.matsudamper.money.backend.repository.UserSessionRepository
 
 class GraphQlContext(
     private val call: ApplicationCall,
+    public val repositoryFactory: RepositoryFactory,
 ) {
     private var adminSession: AdminSession? = null
     private var verifyUserSessionResult: UserSessionRepository.VerifySessionResult.Success? = null
