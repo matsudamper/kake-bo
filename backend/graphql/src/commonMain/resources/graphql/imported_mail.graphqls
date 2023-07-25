@@ -25,4 +25,6 @@ type ImportedMail {
     plain: String
     html: String
     time: DateTime!
+
+    suggestUsage: SuggestMoneyUsage @lazy
 }

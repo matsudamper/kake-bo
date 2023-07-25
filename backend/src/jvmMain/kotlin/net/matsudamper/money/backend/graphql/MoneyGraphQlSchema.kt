@@ -13,6 +13,7 @@ import graphql.scalars.ExtendedScalars
 import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
 import net.matsudamper.money.backend.graphql.resolver.ImportedMailAttributesResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.ImportedMailResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.QueryResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserMailAttributesResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserResolverImpl
@@ -24,6 +25,8 @@ import net.matsudamper.money.backend.graphql.resolver.mutation.UserMutationResol
 import net.matsudamper.money.backend.graphql.schema.GraphqlSchemaModule
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MailId
+import net.matsudamper.money.element.MoneyUsageServiceId
+import net.matsudamper.money.element.MoneyUsageTypeId
 
 
 object MoneyGraphQlSchema {
@@ -90,6 +93,26 @@ object MoneyGraphQlSchema {
                         @Suppress("UNCHECKED_CAST")
                         ValueClassCoercing(
                             coercing = Scalars.GraphQLInt.coercing as Coercing<Int, Int>,
+                            converter = { MoneyUsageServiceId(it) },
+                        ),
+                    )
+                    .name("MoneyUsageServiceId")
+                    .build(),
+                GraphQLScalarType.newScalar()
+                    .coercing(
+                        @Suppress("UNCHECKED_CAST")
+                        ValueClassCoercing(
+                            coercing = Scalars.GraphQLInt.coercing as Coercing<Int, Int>,
+                            converter = { MoneyUsageTypeId(it) },
+                        ),
+                    )
+                    .name("MoneyUsageTypeId")
+                    .build(),
+                GraphQLScalarType.newScalar()
+                    .coercing(
+                        @Suppress("UNCHECKED_CAST")
+                        ValueClassCoercing(
+                            coercing = Scalars.GraphQLInt.coercing as Coercing<Int, Int>,
                             converter = { ImportedMailId(it) },
                         ),
                     )
@@ -112,6 +135,7 @@ object MoneyGraphQlSchema {
                 SettingsMutationResolverResolverImpl(),
                 UserMailAttributesResolverImpl(),
                 ImportedMailAttributesResolverImpl(),
+                ImportedMailResolverImpl(),
             )
             .build()
             .makeExecutableSchema()

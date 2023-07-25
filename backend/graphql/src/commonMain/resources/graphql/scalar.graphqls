@@ -1,5 +1,7 @@
 scalar UserId
 scalar MailId
 scalar ImportedMailId
+scalar MoneyUsageServiceId
+scalar MoneyUsageTypeId
 scalar DateTime
 scalar LocalDate

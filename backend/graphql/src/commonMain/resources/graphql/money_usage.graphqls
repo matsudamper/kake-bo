@@ -1,0 +1,16 @@
+type SuggestMoneyUsage {
+    title: String!
+    price: Int!
+    type: MoneyUsageType
+    service: MoneyUsageService
+}
+
+type MoneyUsageType {
+    id: MoneyUsageTypeId!
+    name: String!
+}
+
+type MoneyUsageService {
+    id: MoneyUsageServiceId!
+    name: String!
+}
