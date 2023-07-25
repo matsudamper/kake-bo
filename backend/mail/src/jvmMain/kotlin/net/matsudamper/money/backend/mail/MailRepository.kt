@@ -79,14 +79,20 @@ class MailRepository(
             it.connect()
         }
         store.use { imap4 ->
-            val folder = imap4.getFolder("INBOX").also { folder ->
+            val inbox = imap4.getFolder("INBOX").also { folder ->
                 folder.open(Folder.READ_WRITE)
             }
-            for (mail in getMailSequence(folder = folder, mailIds = deleteMessageIDs)) {
+            val trashFolder = imap4.getFolder("Trash").also { folder ->
+                folder.open(Folder.READ_WRITE)
+            }
+            for (mail in getMailSequence(folder = inbox, mailIds = deleteMessageIDs)) {
+                trashFolder.appendMessages(arrayOf(mail))
                 mail.setFlag(Flags.Flag.DELETED, true)
             }
-            folder.expunge()
-            folder.close(false)
+            trashFolder.expunge()
+            trashFolder.close(false)
+            inbox.expunge()
+            inbox.close(false)
         }
     }
 
