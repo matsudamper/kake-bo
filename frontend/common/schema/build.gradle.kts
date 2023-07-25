@@ -14,6 +14,8 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(project(":shared"))
+                implementation(project(":frontend:common:base"))
+
                 api(libs.apollo.runtime)
                 implementation(libs.apollo.normalizedCache)
                 implementation(libs.apollo.adapters)

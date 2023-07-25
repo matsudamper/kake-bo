@@ -5,6 +5,7 @@ import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
+import net.matsudamper.money.frontend.common.base.lib.getNestedMessage
 import net.matsudamper.money.frontend.graphql.type.ImportedMailQuery
 
 class MailLinkScreenGraphqlApi(
@@ -25,6 +26,8 @@ class MailLinkScreenGraphqlApi(
                 )
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
+        }.onFailure {
+            println("error: ${it.getNestedMessage()}")
         }.getOrNull()
     }
 }
