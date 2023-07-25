@@ -20,6 +20,7 @@ kotlin {
                 implementation(project(":backend:graphql"))
                 implementation(project(":backend:db"))
                 implementation(project(":backend:mail"))
+                implementation(project(":backend:mail_parser"))
 
                 implementation(kotlin("stdlib"))
                 implementation("com.graphql-java:graphql-java-extended-scalars:20.2")

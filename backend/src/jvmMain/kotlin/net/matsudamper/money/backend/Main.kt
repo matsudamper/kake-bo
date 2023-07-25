@@ -1,17 +1,6 @@
 package net.matsudamper.money.backend
 
 import java.io.File
-import java.lang.reflect.UndeclaredThrowableException
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import graphql.ExceptionWhileDataFetching
-import graphql.ExecutionInput
-import graphql.ExecutionResult
-import graphql.GraphQLError
-import graphql.InvalidSyntaxError
-import graphql.execution.NonNullableFieldWasNullError
-import graphql.execution.NonNullableValueCoercedAsNullException
-import graphql.validation.ValidationError
 import io.ktor.http.ContentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -25,7 +14,6 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.forwardedheaders.ForwardedHeaders
 import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import io.ktor.server.request.path
-import io.ktor.server.request.receiveStream
 import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.accept
@@ -34,10 +22,6 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import net.matsudamper.money.backend.base.ObjectMapper
 import net.matsudamper.money.backend.base.ServerEnv
-import net.matsudamper.money.backend.di.RepositoryFactoryImpl
-import net.matsudamper.money.backend.exception.GraphQlMultiException
-import net.matsudamper.money.backend.graphql.GraphQlContext
-import net.matsudamper.money.backend.graphql.GraphqlMoneyException
 import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
 import org.slf4j.event.Level
 
@@ -94,43 +78,7 @@ fun Application.myApplicationModule() {
                 call.respondText(
                     contentType = ContentType.Application.Json,
                 ) {
-                    println("/query/query/query")
-                    val requestText = call.receiveStream().bufferedReader().readText()
-                    val request = jacksonObjectMapper().readValue<GraphQlRequest>(requestText)
-
-                    val executionInputBuilder = ExecutionInput.newExecutionInput()
-                        .graphQLContext(
-                            mapOf(
-                                GraphQlContext::class.java.name to GraphQlContext(
-                                    call = call,
-                                    repositoryFactory = RepositoryFactoryImpl(),
-                                ),
-                            ),
-                        )
-                        .query(request.query)
-                        .variables(request.variables)
-
-                    val result = MoneyGraphQlSchema.graphql
-                        .execute(executionInputBuilder)
-
-                    val handleError = handleError(result.errors)
-
-                    val responseResult = ExecutionResult.newExecutionResult()
-                        .data(result.getData())
-                        .extensions(
-                            mapOf(
-                                "errors" to handleError.map { e ->
-                                    when (e) {
-                                        is GraphqlMoneyException.SessionNotVerify -> {
-                                            "SessionNotVerify"
-                                        }
-                                    }
-                                },
-                            ),
-                        )
-                        .build()
-
-                    ObjectMapper.jackson.writeValueAsString(responseResult)
+                    return@respondText GraphqlHandler(call = call).handle()
                 }
             }
         }
@@ -151,71 +99,6 @@ fun Application.myApplicationModule() {
     }
 }
 
-private fun handleError(errors: MutableList<GraphQLError>): List<GraphqlMoneyException> {
-    val graphqlMoneyExceptions = mutableListOf<GraphqlMoneyException>()
-    val exceptions = errors.mapNotNull {
-        when (it) {
-            is ExceptionWhileDataFetching -> {
-                runCatching {
-                    when (val e = it.exception) {
-                        is UndeclaredThrowableException -> {
-                            when (val undeclaredThrowable = e.undeclaredThrowable) {
-                                is GraphqlMoneyException -> {
-                                    graphqlMoneyExceptions.add(undeclaredThrowable)
-                                    return@runCatching null
-                                }
-
-                                else -> Unit
-                            }
-                        }
-
-                        else -> Unit
-                    }
-
-                    throw IllegalStateException(
-                        it.message,
-                        it.exception,
-                    )
-                }.fold(
-                    onSuccess = { null },
-                    onFailure = { it },
-                )
-            }
-
-            is ValidationError -> {
-                IllegalStateException(it.message)
-            }
-
-            is InvalidSyntaxError -> {
-                IllegalStateException(it.message)
-            }
-
-            is NonNullableFieldWasNullError -> {
-                IllegalStateException(
-                    "NonNullableFieldWasNullError: message=${it.message}, path=${it.path}",
-                )
-            }
-
-            is NonNullableValueCoercedAsNullException -> {
-                IllegalStateException(
-                    "NonNullableValueCoercedAsNullException: message=${it.message}, path=${it.path}",
-                )
-            }
-
-            else -> {
-                IllegalStateException(
-                    "NotHandleError:$it message=${it.message}, path=${it.path}",
-                )
-            }
-        }
-    }
-
-    if (exceptions.isNotEmpty()) {
-        throw GraphQlMultiException(exceptions)
-    }
-
-    return graphqlMoneyExceptions
-}
 
 private fun File.allFiles(): List<File> {
     return if (isDirectory) {

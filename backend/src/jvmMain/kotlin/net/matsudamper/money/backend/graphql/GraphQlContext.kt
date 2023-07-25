@@ -17,6 +17,7 @@ import net.matsudamper.money.backend.repository.UserSessionRepository
 class GraphQlContext(
     private val call: ApplicationCall,
     public val repositoryFactory: RepositoryFactory,
+    public val dataLoaders: DataLoaders,
 ) {
     private var adminSession: AdminSession? = null
     private var verifyUserSessionResult: UserSessionRepository.VerifySessionResult.Success? = null

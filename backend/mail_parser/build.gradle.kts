@@ -14,10 +14,12 @@ kotlin {
                 implementation(kotlin("reflect"))
 
                 implementation(project(":shared"))
+                implementation(project(":backend:base"))
 
                 implementation(libs.kotlin.serialization.json)
                 implementation(libs.jackson.databind)
                 implementation(libs.jackson.kotlin)
+                implementation(libs.jsoup)
                 implementation(libs.log4j.api)
             }
         }
@@ -29,7 +31,3 @@ kotlin {
     }
     explicitApi()
 }
-
-//tasks.test {
-//    useJUnitPlatform()
-//}

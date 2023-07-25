@@ -35,6 +35,7 @@ type ImportedMail {
     id: ImportedMailId!
     plain: String
     subject: String!
+    suggestUsage: SuggestMoneyUsage
     time: DateTime!
 }
 
@@ -48,6 +49,16 @@ type ImportedMailConnection {
     mails: [ImportedMail!]!
 }
 
+type MoneyUsageService {
+    id: MoneyUsageServiceId!
+    name: String!
+}
+
+type MoneyUsageType {
+    id: MoneyUsageTypeId!
+    name: String!
+}
+
 type Mutation {
     adminMutation: AdminMutation!
     userMutation: UserMutation!
@@ -59,6 +70,13 @@ type Query {
 
 type SettingsMutation {
     updateImapConfig(config: UpdateUserImapConfigInput!): UserImapConfig
+}
+
+type SuggestMoneyUsage {
+    price: Int!
+    service: MoneyUsageService
+    title: String!
+    type: MoneyUsageType
 }
 
 type User {
@@ -138,6 +156,10 @@ scalar DateTime
 scalar ImportedMailId
 
 scalar MailId
+
+scalar MoneyUsageServiceId
+
+scalar MoneyUsageTypeId
 
 input ImportedMailQuery {
     cursor: String
