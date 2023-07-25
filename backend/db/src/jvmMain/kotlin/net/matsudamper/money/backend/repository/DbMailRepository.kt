@@ -14,6 +14,7 @@ class DbMailRepository {
         userId: UserId,
         plainText: String?,
         html: String?,
+        from: String,
         dateTime: LocalDateTime,
     ): AddUserResult {
         runCatching {
@@ -26,6 +27,7 @@ class DbMailRepository {
                             plain = plainText,
                             html = html,
                             datetime = dateTime,
+                            fromMail = from,
                         ),
                     )
                     .execute()

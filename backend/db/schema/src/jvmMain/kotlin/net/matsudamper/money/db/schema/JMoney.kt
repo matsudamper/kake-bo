@@ -4,6 +4,8 @@
 package net.matsudamper.money.db.schema
 
 
+import kotlin.collections.List
+
 import net.matsudamper.money.db.schema.tables.JAdminSessions
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
 import net.matsudamper.money.db.schema.tables.JUserMails
@@ -11,6 +13,7 @@ import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
 import net.matsudamper.money.db.schema.tables.JUserPasswords
 import net.matsudamper.money.db.schema.tables.JUserSessions
 import net.matsudamper.money.db.schema.tables.JUsers
+
 import org.jooq.Catalog
 import org.jooq.Table
 import org.jooq.impl.SchemaImpl
@@ -73,6 +76,6 @@ open class JMoney : SchemaImpl("money", DefaultCatalog.DEFAULT_CATALOG) {
         JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA,
         JUserPasswords.USER_PASSWORDS,
         JUserSessions.USER_SESSIONS,
-        JUsers.USERS,
+        JUsers.USERS
     )
 }

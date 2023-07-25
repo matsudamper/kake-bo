@@ -40,6 +40,7 @@ class ImportMailUseCase(
                         plainText = text.firstOrNull()?.text,
                         html = html.firstOrNull()?.html,
                         dateTime = LocalDateTime.ofInstant(mail.sendDate, ZoneOffset.UTC),
+                        from = mail.from.firstOrNull().orEmpty(),
                     )
 
                     async { mailRepository.deleteMessage(listOf(mail.messageID)) }

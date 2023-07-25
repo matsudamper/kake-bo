@@ -13,6 +13,7 @@ import net.matsudamper.money.db.schema.tables.JUserSessions
 import net.matsudamper.money.db.schema.tables.JUsers
 
 
+
 /**
  * The table <code>money.admin_sessions</code>.
  */

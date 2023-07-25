@@ -5,16 +5,19 @@ package net.matsudamper.money.db.schema.tables
 
 
 import java.time.LocalDateTime
+import java.util.function.Function
+
 import net.matsudamper.money.db.schema.JMoney
 import net.matsudamper.money.db.schema.keys.KEY_USER_MAILS_PRIMARY
 import net.matsudamper.money.db.schema.tables.records.JUserMailsRecord
+
 import org.jooq.Field
 import org.jooq.ForeignKey
 import org.jooq.Identity
 import org.jooq.Name
 import org.jooq.Record
 import org.jooq.Records
-import org.jooq.Row6
+import org.jooq.Row7
 import org.jooq.Schema
 import org.jooq.SelectField
 import org.jooq.Table
@@ -36,8 +39,8 @@ open class JUserMails(
     child: Table<out Record>?,
     path: ForeignKey<out Record, JUserMailsRecord>?,
     aliased: Table<JUserMailsRecord>?,
-    parameters: Array<Field<*>?>?,
-) : TableImpl<JUserMailsRecord>(
+    parameters: Array<Field<*>?>?
+): TableImpl<JUserMailsRecord>(
     alias,
     JMoney.MONEY,
     child,
@@ -45,7 +48,7 @@ open class JUserMails(
     aliased,
     parameters,
     DSL.comment(""),
-    TableOptions.table(),
+    TableOptions.table()
 ) {
     companion object {
 
@@ -88,29 +91,32 @@ open class JUserMails(
     /**
      * The column <code>money.user_mails.created_datetime</code>.
      */
-    val CREATED_DATETIME: TableField<JUserMailsRecord, LocalDateTime?> =
-        createField(DSL.name("created_datetime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field(DSL.raw("current_timestamp()"), SQLDataType.LOCALDATETIME)), this, "")
+    val CREATED_DATETIME: TableField<JUserMailsRecord, LocalDateTime?> = createField(DSL.name("created_datetime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field(DSL.raw("current_timestamp()"), SQLDataType.LOCALDATETIME)), this, "")
 
-    private constructor(alias: Name, aliased: Table<JUserMailsRecord>?) : this(alias, null, null, aliased, null)
-    private constructor(alias: Name, aliased: Table<JUserMailsRecord>?, parameters: Array<Field<*>?>?) : this(alias, null, null, aliased, parameters)
+    /**
+     * The column <code>money.user_mails.from_mail</code>.
+     */
+    val FROM_MAIL: TableField<JUserMailsRecord, String?> = createField(DSL.name("from_mail"), SQLDataType.VARCHAR(500).nullable(false), this, "")
+
+    private constructor(alias: Name, aliased: Table<JUserMailsRecord>?): this(alias, null, null, aliased, null)
+    private constructor(alias: Name, aliased: Table<JUserMailsRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, aliased, parameters)
 
     /**
      * Create an aliased <code>money.user_mails</code> table reference
      */
-    constructor(alias: String) : this(DSL.name(alias))
+    constructor(alias: String): this(DSL.name(alias))
 
     /**
      * Create an aliased <code>money.user_mails</code> table reference
      */
-    constructor(alias: Name) : this(alias, null)
+    constructor(alias: Name): this(alias, null)
 
     /**
      * Create a <code>money.user_mails</code> table reference
      */
-    constructor() : this(DSL.name("user_mails"), null)
+    constructor(): this(DSL.name("user_mails"), null)
 
-    constructor(child: Table<out Record>, key: ForeignKey<out Record, JUserMailsRecord>) : this(Internal.createPathAlias(child, key), child, key, USER_MAILS, null)
-
+    constructor(child: Table<out Record>, key: ForeignKey<out Record, JUserMailsRecord>): this(Internal.createPathAlias(child, key), child, key, USER_MAILS, null)
     override fun getSchema(): Schema? = if (aliased()) null else JMoney.MONEY
     override fun getIdentity(): Identity<JUserMailsRecord, Int?> = super.getIdentity() as Identity<JUserMailsRecord, Int?>
     override fun getPrimaryKey(): UniqueKey<JUserMailsRecord> = KEY_USER_MAILS_PRIMARY
@@ -134,18 +140,18 @@ open class JUserMails(
     override fun rename(name: Table<*>): JUserMails = JUserMails(name.getQualifiedName(), null)
 
     // -------------------------------------------------------------------------
-    // Row6 type methods
+    // Row7 type methods
     // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row6<Int?, Int?, String?, String?, LocalDateTime?, LocalDateTime?> = super.fieldsRow() as Row6<Int?, Int?, String?, String?, LocalDateTime?, LocalDateTime?>
+    override fun fieldsRow(): Row7<Int?, Int?, String?, String?, LocalDateTime?, LocalDateTime?, String?> = super.fieldsRow() as Row7<Int?, Int?, String?, String?, LocalDateTime?, LocalDateTime?, String?>
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
      */
-    fun <U> mapping(from: (Int?, Int?, String?, String?, LocalDateTime?, LocalDateTime?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
+    fun <U> mapping(from: (Int?, Int?, String?, String?, LocalDateTime?, LocalDateTime?, String?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Class,
      * Function)}.
      */
-    fun <U> mapping(toType: Class<U>, from: (Int?, Int?, String?, String?, LocalDateTime?, LocalDateTime?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
+    fun <U> mapping(toType: Class<U>, from: (Int?, Int?, String?, String?, LocalDateTime?, LocalDateTime?, String?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
 }
