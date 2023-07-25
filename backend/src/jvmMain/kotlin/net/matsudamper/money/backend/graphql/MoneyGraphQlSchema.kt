@@ -78,46 +78,18 @@ object MoneyGraphQlSchema {
                 GraphQLScalarType.newScalar(ExtendedScalars.GraphQLLong)
                     .name("UserId")
                     .build(),
-                GraphQLScalarType.newScalar()
-                    .coercing(
-                        @Suppress("UNCHECKED_CAST")
-                        ValueClassCoercing(
-                            coercing = Scalars.GraphQLString.coercing as Coercing<String, String>,
-                            converter = { MailId(it) },
-                        ),
-                    )
-                    .name("MailId")
-                    .build(),
-                GraphQLScalarType.newScalar()
-                    .coercing(
-                        @Suppress("UNCHECKED_CAST")
-                        ValueClassCoercing(
-                            coercing = Scalars.GraphQLInt.coercing as Coercing<Int, Int>,
-                            converter = { MoneyUsageServiceId(it) },
-                        ),
-                    )
-                    .name("MoneyUsageServiceId")
-                    .build(),
-                GraphQLScalarType.newScalar()
-                    .coercing(
-                        @Suppress("UNCHECKED_CAST")
-                        ValueClassCoercing(
-                            coercing = Scalars.GraphQLInt.coercing as Coercing<Int, Int>,
-                            converter = { MoneyUsageTypeId(it) },
-                        ),
-                    )
-                    .name("MoneyUsageTypeId")
-                    .build(),
-                GraphQLScalarType.newScalar()
-                    .coercing(
-                        @Suppress("UNCHECKED_CAST")
-                        ValueClassCoercing(
-                            coercing = Scalars.GraphQLInt.coercing as Coercing<Int, Int>,
-                            converter = { ImportedMailId(it) },
-                        ),
-                    )
-                    .name("ImportedMailId")
-                    .build(),
+                createStringScalarType("MailId") {
+                    MailId(it)
+                },
+                createIntScalarType("MoneyUsageServiceId") {
+                    MoneyUsageServiceId(it)
+                },
+                createIntScalarType("MoneyUsageTypeId") {
+                    MoneyUsageTypeId(it)
+                },
+                createIntScalarType("ImportedMailId") {
+                    ImportedMailId(it)
+                },
                 GraphQLScalarType.newScalar(ExtendedScalars.DateTime)
                     .name("DateTime")
                     .build(),
@@ -144,6 +116,38 @@ object MoneyGraphQlSchema {
     internal val graphql = GraphQL.newGraphQL(schema)
         .queryExecutionStrategy(AsyncExecutionStrategy())
         .build()
+
+    private fun createStringScalarType(
+        name: String,
+        converter: (String) -> Any,
+    ): GraphQLScalarType {
+        return GraphQLScalarType.newScalar()
+            .coercing(
+                @Suppress("UNCHECKED_CAST")
+                ValueClassCoercing(
+                    coercing = Scalars.GraphQLString.coercing as Coercing<String, String>,
+                    converter = converter,
+                ),
+            )
+            .name(name)
+            .build()
+    }
+
+    private fun createIntScalarType(
+        name: String,
+        converter: (Int) -> Any,
+    ): GraphQLScalarType {
+        return GraphQLScalarType.newScalar()
+            .coercing(
+                @Suppress("UNCHECKED_CAST")
+                ValueClassCoercing(
+                    coercing = Scalars.GraphQLInt.coercing as Coercing<Int, Int>,
+                    converter = converter,
+                ),
+            )
+            .name(name)
+            .build()
+    }
 }
 
 class ValueClassCoercing<T, R>(
