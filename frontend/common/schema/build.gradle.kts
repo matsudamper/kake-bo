@@ -24,12 +24,6 @@ kotlin {
 apollo {
     service("money") {
         packageName.set("net.matsudamper.money.frontend.graphql")
-        schemaFiles.setFrom(
-            file("$rootDir/backend/graphql/src/commonMain/resources/graphql")
-                .listFiles()
-                .orEmpty()
-                .filter { it.endsWith(".graphqls") },
-        )
         mapScalar("MailId", "net.matsudamper.money.element.MailId")
         mapScalar("ImportedMailId", "net.matsudamper.money.element.ImportedMailId")
     }
