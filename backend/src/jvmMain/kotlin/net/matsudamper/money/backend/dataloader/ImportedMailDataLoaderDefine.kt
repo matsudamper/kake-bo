@@ -8,10 +8,10 @@ import net.matsudamper.money.element.ImportedMailId
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
 
-class ImportedMailDataLoaderProvider(
+class ImportedMailDataLoaderDefine(
     private val repositoryFactory: RepositoryFactory,
-) : DataLoaderProvider<ImportedMailDataLoaderProvider.Key, DbMailRepository.Mail> {
-    override val displayName: String = this::class.java.name
+) : DataLoaderDefine<ImportedMailDataLoaderDefine.Key, DbMailRepository.Mail> {
+    override val key: String = this::class.java.name
 
     override fun getDataLoader(): DataLoader<Key, DbMailRepository.Mail> {
         return DataLoaderFactory.newMappedDataLoader { keys, _ ->

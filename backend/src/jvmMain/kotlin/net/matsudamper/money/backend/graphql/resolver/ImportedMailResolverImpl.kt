@@ -4,7 +4,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
-import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderProvider
+import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.mail.parser.MailMoneyUsageParser
@@ -18,8 +18,8 @@ class ImportedMailResolverImpl : ImportedMailResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
 
-        val mailLoader = context.dataLoaders.importedMailDataLoader.load(
-            ImportedMailDataLoaderProvider.Key(
+        val mailLoader = context.dataLoaders.importedMailDataLoader.get(env).load(
+            ImportedMailDataLoaderDefine.Key(
                 userId = userId,
                 importedMailId = importedMail.id,
             )
