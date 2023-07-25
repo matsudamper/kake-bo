@@ -2,6 +2,18 @@ type UserMutation {
     userLogin(name: String!, password: String!): UserLoginResult!
     settingsMutation: SettingsMutation @lazy
     importMail(mailIds: [MailId!]!): ImportMailResult!
+    deleteMail(mailIds: [MailId!]!): DeleteMailResult!
+}
+
+type DeleteMailResult {
+    error: DeleteMailResultError
+    isSuccess: Boolean!
+}
+
+enum DeleteMailResultError {
+    InternalServerError,
+    MailConfigNotFound,
+    MailServerNotConnected,
 }
 
 type ImportMailResult {

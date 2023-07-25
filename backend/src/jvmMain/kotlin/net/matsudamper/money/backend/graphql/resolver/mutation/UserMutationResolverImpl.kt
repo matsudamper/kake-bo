@@ -8,10 +8,13 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
+import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
 import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
 import net.matsudamper.money.backend.repository.UserLoginRepository
 import net.matsudamper.money.backend.repository.UserSessionRepository
 import net.matsudamper.money.element.MailId
+import net.matsudamper.money.graphql.model.QlDeleteMailResult
+import net.matsudamper.money.graphql.model.QlDeleteMailResultError
 import net.matsudamper.money.graphql.model.QlImportMailResult
 import net.matsudamper.money.graphql.model.QlSettingsMutation
 import net.matsudamper.money.graphql.model.QlUserLoginResult
@@ -77,6 +80,45 @@ class UserMutationResolverImpl : UserMutationResolver {
                     is ImportMailUseCase.Result.ImapConfigNotFound,
                     -> false
                 },
+            )
+        }.toDataFetcher()
+    }
+
+    override fun deleteMail(userMutation: QlUserMutation, mailIds: List<MailId>, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlDeleteMailResult>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+
+        return CompletableFuture.supplyAsync {
+            val result = DeleteMailUseCase(
+                repositoryFactory = context.repositoryFactory,
+            ).delete(userId = userId, mailIds = mailIds)
+
+            val error: QlDeleteMailResultError?
+            val isSuccess: Boolean
+            when (result) {
+                is DeleteMailUseCase.Result.Exception -> {
+                    isSuccess = false
+                    error = QlDeleteMailResultError.InternalServerError
+                }
+
+                is DeleteMailUseCase.Result.Failure -> {
+                    isSuccess = false
+                    error = QlDeleteMailResultError.InternalServerError
+                }
+
+                is DeleteMailUseCase.Result.ImapConfigNotFound -> {
+                    isSuccess = false
+                    error = QlDeleteMailResultError.MailConfigNotFound
+                }
+
+                is DeleteMailUseCase.Result.Success -> {
+                    isSuccess = true
+                    error = null
+                }
+            }
+            QlDeleteMailResult(
+                error = error,
+                isSuccess = isSuccess,
             )
         }.toDataFetcher()
     }
