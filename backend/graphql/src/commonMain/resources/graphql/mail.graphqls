@@ -27,5 +27,5 @@ type UserMail {
     sender: String
     plain: String
     html: String
-    time: DateTime!
+    time: OffsetDateTime!
 }

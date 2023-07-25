@@ -30,8 +30,7 @@ apollo {
         mapScalar("ImportedMailId", "net.matsudamper.money.element.ImportedMailId")
         mapScalar("MoneyUsageServiceId", "net.matsudamper.money.element.MoneyUsageServiceId")
         mapScalar("MoneyUsageTypeId", "net.matsudamper.money.element.MoneyUsageTypeId")
-        mapScalar("LocalDate", "kotlinx.datetime.LocalDate", "com.apollographql.apollo3.adapter.KotlinxLocalDateAdapter")
-        mapScalar("DateTime", "kotlinx.datetime.LocalDateTime", "com.apollographql.apollo3.adapter.KotlinxLocalDateTimeAdapter")
+        mapScalar("LocalDateTime", "kotlinx.datetime.LocalDateTime", "com.apollographql.apollo3.adapter.KotlinxLocalDateTimeAdapter")
     }
 }
 

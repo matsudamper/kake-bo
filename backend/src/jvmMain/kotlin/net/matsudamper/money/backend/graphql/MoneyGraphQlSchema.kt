@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.graphql
 
+import java.time.LocalDateTime
 import java.util.Locale
 import java.util.jar.JarFile
 import graphql.GraphQL
@@ -91,10 +92,11 @@ object MoneyGraphQlSchema {
                     ImportedMailId(it)
                 },
                 GraphQLScalarType.newScalar(ExtendedScalars.DateTime)
-                    .name("DateTime")
+                    .name("OffsetDateTime")
                     .build(),
-                GraphQLScalarType.newScalar(ExtendedScalars.Date)
-                    .name("LocalDate")
+                GraphQLScalarType.newScalar()
+                    .coercing(LocalDateTimeCoercing)
+                    .name("LocalDateTime")
                     .build(),
             )
             .resolvers(
@@ -147,6 +149,32 @@ object MoneyGraphQlSchema {
             )
             .name(name)
             .build()
+    }
+
+    object LocalDateTimeCoercing: Coercing<LocalDateTime, String> {
+        @Suppress("UNCHECKED_CAST")
+        private val coercing = Scalars.GraphQLString.coercing as Coercing<String, String>
+        override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): String? {
+            return coercing.serialize(dataFetcherResult, graphQLContext, locale)?.let {
+                it
+            }
+        }
+
+        override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): LocalDateTime? {
+            return coercing.parseValue(input, graphQLContext, locale)?.let {
+                LocalDateTime.parse(it)
+            }
+        }
+
+        override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): LocalDateTime? {
+            return coercing.parseLiteral(input, variables, graphQLContext, locale)?.let {
+                LocalDateTime.parse(it)
+            }
+        }
+
+        override fun valueToLiteral(input: Any, graphQLContext: GraphQLContext, locale: Locale): Value<*> {
+            return coercing.valueToLiteral(input, graphQLContext, locale)
+        }
     }
 }
 

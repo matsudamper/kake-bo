@@ -24,7 +24,7 @@ type ImportedMail {
     from: String!
     plain: String
     html: String
-    time: DateTime!
+    time: LocalDateTime!
 
     suggestUsage: SuggestMoneyUsage @lazy
 }

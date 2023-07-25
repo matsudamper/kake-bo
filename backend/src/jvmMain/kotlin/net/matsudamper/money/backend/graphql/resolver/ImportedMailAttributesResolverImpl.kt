@@ -47,7 +47,7 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
                         html = it.html,
                         from = it.from,
                         subject = it.subject,
-                        time = it.dateTime.atOffset(ZoneOffset.UTC),
+                        time = it.dateTime,
                     )
                 },
             )

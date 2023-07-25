@@ -8,7 +8,11 @@ import com.apollographql.apollo3.api.json.JsonReader
 import com.apollographql.apollo3.api.json.JsonWriter
 import com.apollographql.apollo3.cache.normalized.api.MemoryCacheFactory
 import com.apollographql.apollo3.cache.normalized.normalizedCache
+import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MailId
+import net.matsudamper.money.frontend.graphql.type.ImportedMailId as ApolloImportedMailId
+import net.matsudamper.money.frontend.graphql.type.MoneyUsageServiceId as ApolloMoneyUsageServiceId
+import net.matsudamper.money.element.MoneyUsageServiceId
 
 object GraphqlClient {
     private val cacheFactory = MemoryCacheFactory(maxSizeBytes = 10 * 1024 * 1024)
@@ -17,20 +21,53 @@ object GraphqlClient {
         .normalizedCache(cacheFactory)
         .addCustomScalarAdapter(
             ApolloMailId.type,
-            object : Adapter<MailId?> {
-                override fun fromJson(reader: JsonReader, customScalarAdapters: CustomScalarAdapters): MailId? {
-                    return reader.nextString()?.let { MailId(it) }
-                }
-
-                override fun toJson(writer: JsonWriter, customScalarAdapters: CustomScalarAdapters, value: MailId?) {
-                    val id = value?.id
-                    if (id != null) {
-                        writer.value(id)
-                    } else {
-                        writer.nullValue()
-                    }
-                }
-            },
+            CustomAdapter(
+                serialize = {
+                    it.id
+                },
+                deserialize = {
+                    MailId(it)
+                },
+            ),
+        )
+        .addCustomScalarAdapter(
+            ApolloImportedMailId.type,
+            CustomAdapter(
+                serialize = {
+                    it.id.toString()
+                },
+                deserialize = { value ->
+                    value.toIntOrNull()?.let { ImportedMailId(it) }
+                },
+            ),
+        )
+        .addCustomScalarAdapter(
+            ApolloMoneyUsageServiceId.type,
+            CustomAdapter(
+                serialize = {
+                    it.id.toString()
+                },
+                deserialize = { value ->
+                    value.toIntOrNull()?.let { MoneyUsageServiceId(it) }
+                },
+            ),
         )
         .build()
+}
+
+private class CustomAdapter<T>(
+    val deserialize: (String) -> T?,
+    val serialize: (T) -> String,
+) : Adapter<T?> {
+    override fun fromJson(reader: JsonReader, customScalarAdapters: CustomScalarAdapters): T? {
+        return reader.nextString()?.let { deserialize(it) }
+    }
+
+    override fun toJson(writer: JsonWriter, customScalarAdapters: CustomScalarAdapters, value: T?) {
+        if (value != null) {
+            writer.value(serialize(value))
+        } else {
+            writer.nullValue()
+        }
+    }
 }

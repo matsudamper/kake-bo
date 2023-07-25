@@ -36,7 +36,7 @@ type ImportedMail {
     plain: String
     subject: String!
     suggestUsage: SuggestMoneyUsage
-    time: DateTime!
+    time: LocalDateTime!
 }
 
 type ImportedMailAttributes {
@@ -73,7 +73,7 @@ type SettingsMutation {
 }
 
 type SuggestMoneyUsage {
-    date: LocalDate
+    date: LocalDateTime
     description: String!
     price: Int
     service: MoneyUsageService
@@ -106,7 +106,7 @@ type UserMail {
     plain: String
     sender: String
     subject: String!
-    time: DateTime!
+    time: OffsetDateTime!
 }
 
 type UserMailAttributes {
@@ -152,19 +152,18 @@ enum UserMailError {
     MailServerNotConnected
 }
 
-"A slightly refined version of RFC-3339 compliant DateTime Scalar"
-scalar DateTime
-
 scalar ImportedMailId
 
-"An RFC-3339 compliant Full Date Scalar"
-scalar LocalDate
+"A slightly refined version of RFC-3339 compliant DateTime Scalar"
+scalar LocalDateTime
 
 scalar MailId
 
 scalar MoneyUsageServiceId
 
 scalar MoneyUsageTypeId
+
+scalar OffsetDateTime
 
 input ImportedMailQuery {
     cursor: String
