@@ -29,11 +29,7 @@ class DeleteMailUseCase(
                 mailRepository.deleteMessage(mailIds)
             }.fold(
                 onSuccess = { result ->
-                    if (result) {
-                        Result.Success
-                    } else {
-                        Result.Failure
-                    }
+                    Result.Success
                 },
                 onFailure = {
                     it.printStackTrace()
