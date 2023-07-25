@@ -154,7 +154,6 @@ enum UserMailError {
 
 scalar ImportedMailId
 
-"A slightly refined version of RFC-3339 compliant DateTime Scalar"
 scalar LocalDateTime
 
 scalar MailId
@@ -163,6 +162,7 @@ scalar MoneyUsageServiceId
 
 scalar MoneyUsageTypeId
 
+"A slightly refined version of RFC-3339 compliant DateTime Scalar"
 scalar OffsetDateTime
 
 input ImportedMailQuery {
