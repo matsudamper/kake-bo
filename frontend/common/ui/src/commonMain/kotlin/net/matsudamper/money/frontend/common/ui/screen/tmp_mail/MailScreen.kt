@@ -2,6 +2,9 @@ package net.matsudamper.money.frontend.common.ui.screen.tmp_mail
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -36,11 +39,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -54,7 +59,6 @@ import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
 private val scrollButtonSize = 42.dp
 private val scrollButtonHorizontalPadding = 12.dp
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun MailImportScreen(
     uiState: MailScreenUiState,
@@ -71,11 +75,25 @@ public fun MailImportScreen(
             },
         )
     }
+    Box(modifier = Modifier.fillMaxSize()) {
+        MailContent(
+            uiState = uiState,
+        )
 
+        uiState.mailDeleteDialog?.let { mailDeleteDialog ->
+            MailDeleteConfirmDialog(
+                uiState = mailDeleteDialog,
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MailContent(uiState: MailScreenUiState) {
     val firstLoadingFinished = remember(uiState.isLoading, uiState.mails) {
         uiState.mails.isNotEmpty() || uiState.isLoading.not()
     }
-
     Scaffold(
         contentColor = MaterialTheme.colorScheme.onSurface,
         topBar = {
@@ -165,7 +183,7 @@ public fun MailImportScreen(
                                 Box(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(12.dp)
+                                        .padding(12.dp),
                                 ) {
                                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                                 }
@@ -210,9 +228,76 @@ public fun MailImportScreen(
     }
 }
 
+@Composable
+private fun MailDeleteConfirmDialog(
+    uiState: MailScreenUiState.MailDeleteDialog,
+) {
+    Box(
+        modifier = Modifier.fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.8f))
+            .clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) {
+                uiState.event.onDismiss()
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        Card {
+            Column(
+                modifier = Modifier
+                    .padding(24.dp)
+                    .width(IntrinsicSize.Max)
+                    .widthIn(max = 500.dp),
+            ) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = "選択したメールを削除しますか？",
+                    fontFamily = rememberCustomFontFamily(),
+                    style = MaterialTheme.typography.headlineLarge,
+                )
+                Spacer(Modifier.height(24.dp))
+                uiState.errorText?.let { errorText ->
+                    Text(
+                        text = errorText,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                    Spacer(Modifier.height(24.dp))
+                }
+                Row(
+                    modifier = Modifier.align(Alignment.End)
+                        .height(intrinsicSize = IntrinsicSize.Min),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (uiState.isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.fillMaxHeight(),
+                        )
+                    }
+                    TextButton(
+                        onClick = { uiState.event.onClickCancel() },
+                    ) {
+                        Text(
+                            text = "キャンセル",
+                            maxLines = 1,
+                            fontFamily = rememberCustomFontFamily(),
+                        )
+                    }
+                    TextButton(
+                        onClick = { uiState.event.onClickDelete() },
+                    ) {
+                        Text(
+                            text = "削除",
+                            maxLines = 1,
+                            fontFamily = rememberCustomFontFamily(),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-public fun MailContent(
+private fun MailContent(
     modifier: Modifier = Modifier,
     uiState: MailScreenUiState.Mail,
 ) {
@@ -262,6 +347,17 @@ public fun MailContent(
                     onCheckedChange = null,
                 )
                 Spacer(modifier = Modifier.weight(1f))
+                OutlinedButton(
+                    modifier = Modifier,
+                    onClick = { uiState.event.onClickDelete() },
+                ) {
+                    Text(
+                        modifier = Modifier,
+                        text = "削除",
+                        color = MaterialTheme.colorScheme.error,
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                }
                 OutlinedButton(
                     modifier = Modifier,
                     onClick = { uiState.event.onClickDetail() },

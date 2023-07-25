@@ -23,3 +23,12 @@ mutation ImportMail($mailIds: [MailId!]!) {
         }
     }
 }
+
+mutation DeleteMail($mailIds: [MailId!]!) {
+    userMutation {
+        deleteMail(mailIds: $mailIds) {
+            error
+            isSuccess
+        }
+    }
+}

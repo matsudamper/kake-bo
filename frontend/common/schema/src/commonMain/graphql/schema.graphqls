@@ -20,6 +20,11 @@ type AdminMutation {
     adminLogin(password: String!): AdminLoginResult!
 }
 
+type DeleteMailResult {
+    error: DeleteMailResultError
+    isSuccess: Boolean!
+}
+
 type ImportMailResult {
     isSuccess: Boolean!
 }
@@ -76,6 +81,7 @@ type UserMailConnection {
 }
 
 type UserMutation {
+    deleteMail(mailIds: [MailId!]!): DeleteMailResult!
     importMail(mailIds: [MailId!]!): ImportMailResult!
     settingsMutation: SettingsMutation
     userLogin(name: String!, password: String!): UserLoginResult!
@@ -92,6 +98,12 @@ enum AdminAddUserErrorType {
     UserNameAlreadyExists
     UserNameInvalidChar
     UserNameLength
+}
+
+enum DeleteMailResultError {
+    InternalServerError
+    MailConfigNotFound
+    MailServerNotConnected
 }
 
 enum UserMailError {

@@ -19,6 +19,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.GetMailQuery
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
+import net.matsudamper.money.frontend.graphql.type.DeleteMailResultError
 
 public class MailImportViewModel(
     private val coroutineScope: CoroutineScope,
@@ -37,6 +38,7 @@ public class MailImportViewModel(
             htmlDialog = null,
             mails = immutableListOf(),
             showLoadMore = false,
+            mailDeleteDialog = null,
             event = object : MailScreenUiState.Event {
                 override fun htmlDismissRequest() {
                     viewModelStateFlow.update {
@@ -84,11 +86,80 @@ public class MailImportViewModel(
                             )
                         }.toImmutableList(),
                         htmlDialog = viewModelState.html,
+                        mailDeleteDialog = run {
+                            val dialogState = viewModelState.mailDeleteDialogState
+                            if (dialogState == null) {
+                                null
+                            } else {
+                                MailScreenUiState.MailDeleteDialog(
+                                    errorText = dialogState.errorText,
+                                    event = createMailDeleteDialogEvent(dialogState.mail),
+                                    isLoading = dialogState.isLoading,
+                                )
+                            }
+                        },
                     )
                 }
             }
         }
     }.asStateFlow()
+
+    private fun createMailDeleteDialogEvent(mailDeleteDialog: GetMailQuery.UsrMail): MailScreenUiState.MailDeleteDialog.Event {
+        return object : MailScreenUiState.MailDeleteDialog.Event {
+            override fun onClickDelete() {
+                coroutineScope.launch {
+                    viewModelStateFlow.update {
+                        it.copy(
+                            mailDeleteDialogState = it.mailDeleteDialogState?.copy(
+                                isLoading = true,
+                            ),
+                        )
+                    }
+
+                    val result = graphqlApi.deleteMail(listOf(mailDeleteDialog.id))
+
+                    if (result?.data?.userMutation?.deleteMail?.isSuccess == true) {
+                        viewModelStateFlow.update {
+                            it.copy(
+                                mailDeleteDialogState = null,
+                                isLoading = false
+                            )
+                        }
+                    } else {
+                        val errorText = when (result?.data?.userMutation?.deleteMail?.error) {
+                            DeleteMailResultError.InternalServerError,
+                            DeleteMailResultError.UNKNOWN__,
+                            null,
+                            -> "サーバーエラーが発生しました"
+
+                            DeleteMailResultError.MailConfigNotFound -> "メール設定がされていません"
+                            DeleteMailResultError.MailServerNotConnected -> "メールサーバーに接続できませんでした"
+                        }
+                        viewModelStateFlow.update {
+                            it.copy(
+                                mailDeleteDialogState = it.mailDeleteDialogState?.copy(
+                                    errorText = errorText,
+                                    isLoading = false,
+                                ),
+                            )
+                        }
+                    }
+                }
+            }
+
+            override fun onClickCancel() {
+                onDismiss()
+            }
+
+            override fun onDismiss() {
+                viewModelStateFlow.update {
+                    it.copy(
+                        mailDeleteDialogState = null,
+                    )
+                }
+            }
+        }
+    }
 
     private fun createMailItemEvent(mail: GetMailQuery.UsrMail): MailScreenUiState.Mail.Event {
         return object : MailScreenUiState.Mail.Event {
@@ -110,6 +181,18 @@ public class MailImportViewModel(
             override fun onClickDetail() {
                 viewModelStateFlow.update {
                     it.copy(html = mail.html)
+                }
+            }
+
+            override fun onClickDelete() {
+                viewModelStateFlow.update {
+                    it.copy(
+                        mailDeleteDialogState = ViewModelState.MailDelete(
+                            mail = mail,
+                            errorText = null,
+                            isLoading = false,
+                        ),
+                    )
                 }
             }
         }
@@ -199,5 +282,12 @@ public class MailImportViewModel(
         val checked: List<MailId> = listOf(),
         val finishLoadingToEnd: Boolean? = null,
         val html: String? = null,
-    )
+        val mailDeleteDialogState: MailDelete? = null,
+    ) {
+        data class MailDelete(
+            val mail: GetMailQuery.UsrMail,
+            val errorText: String?,
+            val isLoading: Boolean,
+        )
+    }
 }

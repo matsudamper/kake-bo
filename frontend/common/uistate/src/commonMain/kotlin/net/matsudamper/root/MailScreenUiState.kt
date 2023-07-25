@@ -6,8 +6,21 @@ public data class MailScreenUiState(
     val showLoadMore: Boolean,
     val mails: ImmutableList<Mail>,
     val htmlDialog: String?,
+    val mailDeleteDialog: MailDeleteDialog?,
     val event: Event,
 ) {
+    public data class MailDeleteDialog(
+        val event: Event,
+        val errorText: String?,
+        val isLoading: Boolean,
+    ) {
+        @Immutable
+        public interface Event {
+            public fun onClickDelete()
+            public fun onClickCancel()
+            public fun onDismiss()
+        }
+    }
     public data class Mail(
         val isSelected: Boolean,
         val from: String,
@@ -19,6 +32,7 @@ public data class MailScreenUiState(
         public interface Event {
             public fun onClickDetail()
             public fun onClick()
+            public fun onClickDelete()
         }
     }
 

@@ -42,4 +42,17 @@ class MailImportScreenGraphqlApi(
                 .execute()
         }.getOrNull()
     }
+    suspend fun deleteMail(
+        mailIds: List<MailId>,
+    ): ApolloResponse<DeleteMailMutation.Data>? {
+        return runCatching {
+            apolloClient
+                .mutation(
+                    DeleteMailMutation(
+                        mailIds = mailIds,
+                    ),
+                )
+                .execute()
+        }.getOrNull()
+    }
 }

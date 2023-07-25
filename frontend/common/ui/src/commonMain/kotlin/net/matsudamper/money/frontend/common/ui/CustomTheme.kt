@@ -23,6 +23,7 @@ public fun CustomTheme(content: @Composable () -> Unit) {
             onSurfaceVariant = Color.White, // Card->Text, Button->Icon/Text
             outlineVariant = Color.DarkGray, // Divider
             surfaceVariant = CustomColors.surfaceColor, // Card
+            error = Color(0xffFF6075),
         ),
     ) {
         CompositionLocalProvider(
