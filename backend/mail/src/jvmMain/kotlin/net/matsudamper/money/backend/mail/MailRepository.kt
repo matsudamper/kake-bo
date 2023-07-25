@@ -60,27 +60,19 @@ class MailRepository(
         val store = session.getStore("imap").also {
             it.connect()
         }
-        val reamingRawMailIds = mailIds.map { it.id }.toMutableList()
         store.use { imap4 ->
             imap4.getFolder("INBOX").let { folder ->
                 folder.open(Folder.READ_ONLY)
                 folder.use {
-                    for (item in folder.messages.asSequence().map { it as IMAPMessage }) {
-                        if (item.messageID !in reamingRawMailIds) {
-                            continue
-                        } else {
-                            yield(imapMessageToResponse(message = item))
-                            reamingRawMailIds.remove(item.messageID)
-                        }
-
-                        if (reamingRawMailIds.isEmpty()) break
+                    for (item in getMailSequence(folder = it, mailIds)) {
+                        yield(imapMessageToResponse(message = item))
                     }
                 }
             }
         }
     }
 
-    fun deleteMessage(deleteMessageIDs: List<MailId>): Boolean {
+    fun deleteMessage(deleteMessageIDs: List<MailId>) {
         val session = getSession()
 
         val store = session.getStore("imap").also {
@@ -90,18 +82,28 @@ class MailRepository(
             val folder = imap4.getFolder("INBOX").also { folder ->
                 folder.open(Folder.READ_WRITE)
             }
-            val deleteRawIds = deleteMessageIDs.map { it.id }
-            val deleteMessages = folder.messages
-                .map { it as IMAPMessage }
-                .filter { it.messageID in deleteRawIds }
-            val deleteMessageIds = deleteMessages.map { MailId(it.messageID) }
-
-            deleteMessages.forEach { deleteMessage ->
-                deleteMessage.setFlag(Flags.Flag.DELETED, true)
+            folder.use {
+                getMailSequence(folder = folder, mailIds = deleteMessageIDs)
+                    .onEach { it.setFlag(Flags.Flag.DELETED, true) }
+                folder.expunge()
+                folder.close(false)
             }
-            folder.expunge()
-            folder.close(false)
-            return deleteMessageIds.sortedBy { it.id } == deleteMessageIDs.sortedBy { it.id }
+        }
+    }
+
+    private fun getMailSequence(folder: Folder, mailIds: List<MailId>): Sequence<IMAPMessage> {
+        val reamingRawMailIds = mailIds.map { it.id }.toMutableList()
+        return sequence {
+            for (item in folder.messages.asSequence().map { it as IMAPMessage }) {
+                if (item.messageID !in reamingRawMailIds) {
+                    continue
+                } else {
+                    yield(item)
+                    reamingRawMailIds.remove(item.messageID)
+                }
+
+                if (reamingRawMailIds.isEmpty()) break
+            }
         }
     }
 

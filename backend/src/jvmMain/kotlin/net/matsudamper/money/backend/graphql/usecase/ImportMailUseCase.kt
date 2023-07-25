@@ -47,7 +47,9 @@ class ImportMailUseCase(
             }.fold(
                 onSuccess = {
                     val allDeleteSuccess = runBlocking {
-                        it.toList().all { it.await() }
+                        it.toList().all {
+                            runCatching { it.await() }.getOrNull() != null
+                        }
                     }
                     if (allDeleteSuccess) {
                         Result.Success
