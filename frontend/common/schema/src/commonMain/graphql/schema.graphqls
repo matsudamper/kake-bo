@@ -29,6 +29,25 @@ type ImportMailResult {
     isSuccess: Boolean!
 }
 
+type ImportedMail {
+    from: String!
+    html: String
+    id: ImportedMailId!
+    plain: String
+    subject: String!
+    time: DateTime!
+}
+
+type ImportedMailAttributes {
+    count(query: ImportedMailQueryFilter!): Int
+    mails(mailQuery: ImportedMailQuery!): ImportedMailConnection!
+}
+
+type ImportedMailConnection {
+    cursor: String
+    mails: [ImportedMail!]!
+}
+
 type Mutation {
     adminMutation: AdminMutation!
     userMutation: UserMutation!
@@ -43,6 +62,7 @@ type SettingsMutation {
 }
 
 type User {
+    importedMailAttributes: ImportedMailAttributes!
     isLoggedIn: Boolean!
     settings: UserSettings!
     userMailAttributes: UserMailAttributes!
@@ -115,7 +135,19 @@ enum UserMailError {
 "A slightly refined version of RFC-3339 compliant DateTime Scalar"
 scalar DateTime
 
+scalar ImportedMailId
+
 scalar MailId
+
+input ImportedMailQuery {
+    cursor: String
+    filter: ImportedMailQueryFilter
+    size: Int!
+}
+
+input ImportedMailQueryFilter {
+    isLinked: Boolean!
+}
 
 input MailQuery {
     cursor: String
