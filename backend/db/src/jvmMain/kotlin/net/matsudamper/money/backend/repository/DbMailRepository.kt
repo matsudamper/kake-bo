@@ -5,6 +5,7 @@ import net.matsudamper.money.backend.DbConnection
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.records.JUserMailsRecord
+import net.matsudamper.money.element.ImportedMailId
 import org.jooq.impl.DSL
 
 class DbMailRepository {
@@ -29,7 +30,7 @@ class DbMailRepository {
                             html = html,
                             datetime = dateTime,
                             fromMail = from,
-                            subject = subject
+                            subject = subject,
                         ),
                     )
                     .execute()
@@ -43,6 +44,49 @@ class DbMailRepository {
 
         return AddUserResult.Success
     }
+
+    fun getMails(userId: UserId, size: Int): List<Mail> {
+        return DbConnection.use { connection ->
+            val result = DSL.using(connection)
+                .select(
+                    userMails.USER_MAIL_ID,
+                    userMails.PLAIN,
+                    userMails.HTML,
+                    userMails.FROM_MAIL,
+                    userMails.SUBJECT,
+                    userMails.DATETIME,
+                )
+                .from(userMails)
+                .where(userMails.USER_ID.eq(userId.id))
+                .limit(size)
+                .fetch()
+
+            result.map {
+                it.get(userMails.USER_MAIL_ID)
+                it.get(userMails.PLAIN)
+                it.get(userMails.HTML)
+                it.get(userMails.FROM_MAIL)
+                Mail(
+                    id = ImportedMailId(it.get(userMails.USER_MAIL_ID)!!),
+                    plain = it.get(userMails.PLAIN),
+                    html = it.get(userMails.HTML),
+                    from = it.get(userMails.FROM_MAIL)!!,
+                    subject = it.get(userMails.SUBJECT)!!,
+                    dateTime = it.get(userMails.DATETIME)!!,
+                )
+            }
+        }
+    }
+
+    public data class Mail(
+        val id: ImportedMailId,
+        val plain: String?,
+        val html: String?,
+        val from: String,
+        val subject: String,
+        val dateTime: LocalDateTime,
+    )
+
 
     sealed interface AddUserResult {
         object Success : AddUserResult

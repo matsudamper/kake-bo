@@ -12,6 +12,7 @@ import graphql.language.Value
 import graphql.scalars.ExtendedScalars
 import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
+import net.matsudamper.money.backend.graphql.resolver.ImportedMailAttributesResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.QueryResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserMailAttributesResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserResolverImpl
@@ -21,6 +22,7 @@ import net.matsudamper.money.backend.graphql.resolver.mutation.MutationResolverI
 import net.matsudamper.money.backend.graphql.resolver.mutation.SettingsMutationResolverResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.mutation.UserMutationResolverImpl
 import net.matsudamper.money.backend.graphql.schema.GraphqlSchemaModule
+import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MailId
 
 
@@ -83,6 +85,16 @@ object MoneyGraphQlSchema {
                     )
                     .name("MailId")
                     .build(),
+                GraphQLScalarType.newScalar()
+                    .coercing(
+                        @Suppress("UNCHECKED_CAST")
+                        ValueClassCoercing(
+                            coercing = Scalars.GraphQLInt.coercing as Coercing<Int, Int>,
+                            converter = { ImportedMailId(it) },
+                        ),
+                    )
+                    .name("ImportedMailId")
+                    .build(),
                 GraphQLScalarType.newScalar(ExtendedScalars.DateTime)
                     .name("DateTime")
                     .build(),
@@ -99,6 +111,7 @@ object MoneyGraphQlSchema {
                 UserSettingsResolverImpl(),
                 SettingsMutationResolverResolverImpl(),
                 UserMailAttributesResolverImpl(),
+                ImportedMailAttributesResolverImpl(),
             )
             .build()
             .makeExecutableSchema()

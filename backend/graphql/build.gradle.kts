@@ -73,6 +73,7 @@ val graphqlCodegen = tasks.named<io.github.kobylynskyi.graphql.codegen.gradle.Gr
     customTypesMapping = mutableMapOf(
         "UserId" to "Int",
         "MailId" to "net.matsudamper.money.element.MailId",
+        "ImportedMailId" to "net.matsudamper.money.element.ImportedMailId",
         "DateTime" to "java.time.OffsetDateTime",
         "LocalDate" to "java.time.LocalDateTime",
     )

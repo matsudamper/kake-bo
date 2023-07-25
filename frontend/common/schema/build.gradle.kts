@@ -31,6 +31,7 @@ apollo {
                 .filter { it.endsWith(".graphqls") },
         )
         mapScalar("MailId", "net.matsudamper.money.element.MailId")
+        mapScalar("ImportedMailId", "net.matsudamper.money.element.ImportedMailId")
     }
 }
 

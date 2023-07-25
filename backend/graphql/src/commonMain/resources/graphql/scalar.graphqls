@@ -1,4 +1,5 @@
 scalar UserId
 scalar MailId
+scalar ImportedMailId
 scalar DateTime
 scalar LocalDate
