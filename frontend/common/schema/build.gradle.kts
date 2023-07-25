@@ -16,6 +16,8 @@ kotlin {
                 api(project(":shared"))
                 api(libs.apollo.runtime)
                 implementation(libs.apollo.normalizedCache)
+                implementation(libs.apollo.adapters)
+                implementation(libs.kotlin.datetime)
             }
         }
     }
@@ -28,6 +30,8 @@ apollo {
         mapScalar("ImportedMailId", "net.matsudamper.money.element.ImportedMailId")
         mapScalar("MoneyUsageServiceId", "net.matsudamper.money.element.MoneyUsageServiceId")
         mapScalar("MoneyUsageTypeId", "net.matsudamper.money.element.MoneyUsageTypeId")
+        mapScalar("LocalDate", "kotlinx.datetime.LocalDate", "com.apollographql.apollo3.adapter.KotlinxLocalDateAdapter")
+        mapScalar("DateTime", "kotlinx.datetime.LocalDateTime", "com.apollographql.apollo3.adapter.KotlinxLocalDateTimeAdapter")
     }
 }
 

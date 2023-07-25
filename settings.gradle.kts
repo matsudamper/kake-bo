@@ -46,6 +46,7 @@ dependencyResolutionManagement {
             plugin("kotlin.multiplatform", "org.jetbrains.kotlin.multiplatform").version(kotlinVersion)
             plugin("kotlin.serialization", "org.jetbrains.kotlin.plugin.serialization").version(kotlinVersion)
             library("kotlin.coroutines.core", "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
+            library("kotlin.datetime", "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
             plugin("compose", "org.jetbrains.compose").version(extra["compose.version"] as String)
             library("compose.material3", "org.jetbrains.compose.material3:material3:1.4.0")
@@ -75,6 +76,7 @@ dependencyResolutionManagement {
             plugin("apollo.plugin", "com.apollographql.apollo3").version(apolloVersion)
             library("apollo.runtime", "com.apollographql.apollo3:apollo-runtime:$apolloVersion")
             library("apollo.normalizedCache", "com.apollographql.apollo3:apollo-normalized-cache:$apolloVersion")
+            library("apollo.adapters","com.apollographql.apollo3:apollo-adapters:$apolloVersion")
 
             val jacksonVersion = "2.15.2"
             library("jackson.databind","com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
