@@ -119,10 +119,13 @@ public class MailImportViewModel(
                     val result = graphqlApi.deleteMail(listOf(mailDeleteDialog.id))
 
                     if (result?.data?.userMutation?.deleteMail?.isSuccess == true) {
-                        viewModelStateFlow.update {
-                            it.copy(
+                        viewModelStateFlow.update { viewModelState ->
+                            viewModelState.copy(
                                 mailDeleteDialogState = null,
-                                isLoading = false
+                                isLoading = false,
+                                usrMails = viewModelState.usrMails.filterNot { mail ->
+                                    mail.id == mailDeleteDialog.id
+                                },
                             )
                         }
                     } else {
