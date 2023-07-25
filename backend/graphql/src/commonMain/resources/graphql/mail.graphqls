@@ -1,0 +1,31 @@
+type UserMailAttributes {
+    mailCount: Int @lazy
+    mail(mailQuery : MailQuery!):UserMailConnection! @lazy
+}
+
+type UserMailConnection {
+    error: UserMailError
+    usrMails: [UserMail!]!
+    cursor: String
+}
+
+enum UserMailError {
+    InternalServerError,
+    MailConfigNotFound,
+    MailServerNotConnected,
+}
+
+input MailQuery {
+    size: Int!
+    cursor: String
+}
+
+type UserMail {
+    id: MailId!
+    subject: String!
+    from: [String!]!
+    sender: String
+    plain: String
+    html: String
+    time: DateTime!
+}

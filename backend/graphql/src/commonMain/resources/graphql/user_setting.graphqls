@@ -1,0 +1,10 @@
+type UserSettings {
+    imapConfig: UserImapConfig @lazy
+}
+
+type UserImapConfig {
+    host: String
+    port     :Int
+    userName :String
+    hasPassword :Boolean
+}
