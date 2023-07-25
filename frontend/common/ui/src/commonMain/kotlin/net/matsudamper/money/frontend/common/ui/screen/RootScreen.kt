@@ -2,7 +2,6 @@ package net.matsudamper.money.frontend.common.ui.screen
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
@@ -10,9 +9,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
@@ -23,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.Screen
@@ -84,8 +82,8 @@ private fun LoadedContent(
                             Card(
                                 modifier = Modifier
                                     .padding(start = 24.dp)
-                                    .padding(vertical = 24.dp),
-                                onClick = { uiState.event.onClickMailImport() },
+                                    .padding(vertical = 12.dp),
+                                onClick = { uiState.event.onClickMailImportButton() },
                             ) {
                                 Row(
                                     modifier = Modifier.fillMaxWidth()
@@ -95,7 +93,21 @@ private fun LoadedContent(
                                     Spacer(modifier = Modifier.weight(1f))
                                     Text(uiState.notImportMailCount.toString())
                                 }
-
+                            }
+                            Card(
+                                modifier = Modifier
+                                    .padding(start = 24.dp)
+                                    .padding(vertical = 12.dp),
+                                onClick = { uiState.event.onClickNotLinkedMailButton() },
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth()
+                                        .padding(24.dp),
+                                ) {
+                                    Text("未登録のメール")
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Text(uiState.importedAndNotLinkedMailCount.toString())
+                                }
                             }
                         }
                     }

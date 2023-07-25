@@ -43,5 +43,43 @@ query HomeScreen {
         userMailAttributes {
             mailCount
         }
+        importedMailAttributes {
+            count(query: {
+                isLinked: false
+            })
+        }
+    }
+}
+
+query MailLinkScreenGetMails(
+    $query: ImportedMailQuery!
+) {
+    user {
+        importedMailAttributes {
+            mails(query: $query) {
+                cursor
+                nodes {
+                    from
+                    subject
+                    plain
+                    html
+                    time
+                    suggestUsage {
+                        title
+                        description
+                        date
+                        price
+                        service {
+                            id
+                            name
+                        }
+                        type {
+                            id
+                            name
+                        }
+                    }
+                }
+            }
+        }
     }
 }

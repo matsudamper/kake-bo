@@ -10,12 +10,14 @@ public data class HomeScreenUiState(
         public object Loading: ScreenState
         public data class Loaded(
             val notImportMailCount: Int?,
+            val importedAndNotLinkedMailCount: Int?,
             val event: LoadedEvent,
         ): ScreenState
     }
     @Immutable
     public interface LoadedEvent {
-        public fun onClickMailImport()
+        public fun onClickMailImportButton()
+        public fun onClickNotLinkedMailButton()
     }
     @Immutable
     public interface Event {

@@ -1,6 +1,6 @@
 type ImportedMailAttributes {
     count(query: ImportedMailQueryFilter!): Int @lazy
-    mails(mailQuery : ImportedMailQuery!): ImportedMailConnection! @lazy
+    mails(query : ImportedMailQuery!): ImportedMailConnection! @lazy
 }
 
 input ImportedMailQuery {
@@ -15,7 +15,7 @@ input ImportedMailQueryFilter {
 
 type ImportedMailConnection {
     cursor: String
-    mails: [ImportedMail!]!
+    nodes: [ImportedMail!]!
 }
 
 type ImportedMail {

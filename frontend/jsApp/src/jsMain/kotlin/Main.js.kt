@@ -47,6 +47,7 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.RootSettingScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
 import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailImportScreen
+import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailLinkScreen
 import net.matsudamper.money.frontend.common.uistate.LoginScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.LoginScreenViewModel
@@ -56,12 +57,14 @@ import net.matsudamper.money.frontend.common.viewmodel.admin.AdminRootScreenView
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.MailImportViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.MailLinkViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeGraphqlApi
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.GraphqlUserConfigQuery
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
+import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
 import org.jetbrains.skiko.wasm.onWasmReady
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
@@ -282,6 +285,24 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
 
                                     MailImportScreen(
                                         uiState = mailImportViewModel.rootUiStateFlow.collectAsState().value,
+                                    )
+                                }
+
+                                Screen.MailLink -> {
+                                    val mailLinkViewModel = remember {
+                                        MailLinkViewModel(
+                                            coroutineScope = rootCoroutineScope,
+                                            ioDispatcher = Dispatchers.Unconfined,
+                                            graphqlApi = MailLinkScreenGraphqlApi(),
+                                        )
+                                    }
+
+                                    LaunchedEffect(mailLinkViewModel.eventHandler) {
+                                        viewModelEventHandlers.handle(mailLinkViewModel.eventHandler)
+                                    }
+
+                                    MailLinkScreen(
+                                        uiState = mailLinkViewModel.rootUiStateFlow.collectAsState().value,
                                     )
                                 }
                             }

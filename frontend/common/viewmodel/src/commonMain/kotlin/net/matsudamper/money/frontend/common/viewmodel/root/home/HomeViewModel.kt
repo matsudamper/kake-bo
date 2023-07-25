@@ -25,9 +25,15 @@ public class HomeViewModel(
         }
     }
     private val uiStateLoadedEvent = object : HomeScreenUiState.LoadedEvent {
-        override fun onClickMailImport() {
+        override fun onClickMailImportButton() {
             coroutineScope.launch {
                 viewModelEventSender.send { it.navigateToMailImport() }
+            }
+        }
+
+        override fun onClickNotLinkedMailButton() {
+            coroutineScope.launch {
+                viewModelEventSender.send { it.navigateToMailLink() }
             }
         }
     }
@@ -45,6 +51,7 @@ public class HomeViewModel(
                         screenState = run screenState@{
                             HomeScreenUiState.ScreenState.Loaded(
                                 notImportMailCount = it.data?.user?.userMailAttributes?.mailCount,
+                                importedAndNotLinkedMailCount = it.data?.user?.importedMailAttributes?.count,
                                 event = uiStateLoadedEvent
                             )
                         },
@@ -62,5 +69,6 @@ public class HomeViewModel(
 
     public interface Event {
         public fun navigateToMailImport()
+        public fun navigateToMailLink()
     }
 }

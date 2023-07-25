@@ -41,12 +41,12 @@ type ImportedMail {
 
 type ImportedMailAttributes {
     count(query: ImportedMailQueryFilter!): Int
-    mails(mailQuery: ImportedMailQuery!): ImportedMailConnection!
+    mails(query: ImportedMailQuery!): ImportedMailConnection!
 }
 
 type ImportedMailConnection {
     cursor: String
-    mails: [ImportedMail!]!
+    nodes: [ImportedMail!]!
 }
 
 type MoneyUsageService {
@@ -73,7 +73,9 @@ type SettingsMutation {
 }
 
 type SuggestMoneyUsage {
-    price: Int!
+    date: LocalDate
+    description: String!
+    price: Int
     service: MoneyUsageService
     title: String!
     type: MoneyUsageType
@@ -154,6 +156,9 @@ enum UserMailError {
 scalar DateTime
 
 scalar ImportedMailId
+
+"An RFC-3339 compliant Full Date Scalar"
+scalar LocalDate
 
 scalar MailId
 

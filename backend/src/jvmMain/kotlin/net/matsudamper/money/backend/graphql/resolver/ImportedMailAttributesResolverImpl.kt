@@ -40,7 +40,7 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
                 )
             QlImportedMailConnection(
                 cursor = null, // TODO
-                mails = mails.map {
+                nodes = mails.map {
                     QlImportedMail(
                         id = it.id,
                         plain = it.plain,
