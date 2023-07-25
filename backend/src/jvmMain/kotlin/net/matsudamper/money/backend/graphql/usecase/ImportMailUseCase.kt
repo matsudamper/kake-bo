@@ -37,6 +37,7 @@ class ImportMailUseCase(
 
                     dbMailRepository.addMail(
                         userId = userId,
+                        subject = mail.subject,
                         plainText = text.firstOrNull()?.text,
                         html = html.firstOrNull()?.html,
                         dateTime = LocalDateTime.ofInstant(mail.sendDate, ZoneOffset.UTC),

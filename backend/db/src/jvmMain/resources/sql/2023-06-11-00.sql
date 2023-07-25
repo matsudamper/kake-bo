@@ -63,3 +63,6 @@ CREATE TABLE user_mails
 
 ALTER TABLE user_mails
     ADD COLUMN from_mail VARCHAR(500) not null;
+
+ALTER TABLE user_mails
+    ADD COLUMN subject VARCHAR(500) not null;
