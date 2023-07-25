@@ -45,6 +45,18 @@ class DbMailRepository {
         return AddUserResult.Success
     }
 
+    fun getCount(userId: UserId): Int? {
+        return DbConnection.use { connection ->
+            val result = DSL.using(connection)
+                .select(DSL.count())
+                .from(userMails)
+                .where(userMails.USER_ID.eq(userId.id))
+                .fetchOne()
+
+            result?.get(DSL.count())
+        }
+    }
+
     fun getMails(userId: UserId, size: Int): List<Mail> {
         return DbConnection.use { connection ->
             val result = DSL.using(connection)

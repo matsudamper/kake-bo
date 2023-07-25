@@ -20,8 +20,11 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
         val userId = context.verifyUserSession()
 
         return CompletableFuture.supplyAsync {
-
-            0
+            // TODO filter
+            context.repositoryFactory.createDbMailRepository()
+                .getCount(
+                    userId = userId,
+                )
         }.toDataFetcher()
     }
 
