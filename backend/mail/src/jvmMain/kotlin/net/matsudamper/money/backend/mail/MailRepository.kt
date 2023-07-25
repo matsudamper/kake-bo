@@ -82,8 +82,9 @@ class MailRepository(
             val folder = imap4.getFolder("INBOX").also { folder ->
                 folder.open(Folder.READ_WRITE)
             }
-            getMailSequence(folder = folder, mailIds = deleteMessageIDs)
-                .onEach { it.setFlag(Flags.Flag.DELETED, true) }
+            for (mail in getMailSequence(folder = folder, mailIds = deleteMessageIDs)) {
+                mail.setFlag(Flags.Flag.DELETED, true)
+            }
             folder.expunge()
             folder.close(false)
         }
