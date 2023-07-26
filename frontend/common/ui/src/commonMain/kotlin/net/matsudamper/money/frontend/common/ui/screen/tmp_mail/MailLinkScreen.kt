@@ -218,50 +218,54 @@ private fun SuggestUsageItem(
                     .height(1.dp),
                 color = Color.White,
             )
-            when (importItem.usages.size) {
-                0 -> {
-                    Text(
-                        modifier = Modifier.padding(horizontal = textHorizontalPadding),
-                        text = "解析できませんでした。",
-                        fontFamily = rememberCustomFontFamily(),
-                    )
-                }
+            Column(
+                modifier = Modifier.padding(horizontal = textHorizontalPadding),
+            ) {
+                when (importItem.usages.size) {
+                    0 -> {
+                        Text(
+                            text = "解析できませんでした。",
+                            fontFamily = rememberCustomFontFamily(),
+                        )
+                    }
 
-                else -> {
-                    var page by remember { mutableStateOf(0) }
-                    if (importItem.usages.size > 1) {
-                        Row {
-                            repeat(importItem.usages.size) { index ->
-                                OutlinedButton(
-                                    onClick = {
-                                        page = index
-                                    },
-                                ) {
-                                    Text(
-                                        text = (index + 1).toString(),
-                                        fontFamily = rememberCustomFontFamily(),
-                                    )
+                    else -> {
+                        var page by remember { mutableStateOf(0) }
+                        if (importItem.usages.size > 1) {
+                            Row {
+                                repeat(importItem.usages.size) { index ->
+                                    OutlinedButton(
+                                        onClick = {
+                                            page = index
+                                        },
+                                    ) {
+                                        Text(
+                                            text = (index + 1).toString(),
+                                            fontFamily = rememberCustomFontFamily(),
+                                        )
+                                    }
+                                    Spacer(Modifier.width(4.dp))
                                 }
                             }
+                            Spacer(Modifier.height(4.dp))
                         }
-                    }
-                    val suggestUsage by remember(importItem.usages, page) {
-                        mutableStateOf(importItem.usages[page])
-                    }
+                        val suggestUsage by remember(importItem.usages, page) {
+                            mutableStateOf(importItem.usages[page])
+                        }
 
-                    SuggestUsageItem(
-                        modifier = Modifier.fillMaxWidth(),
-                        textHorizontalPadding = textHorizontalPadding,
-                        title = suggestUsage.title,
-                        service = suggestUsage.service,
-                        description = suggestUsage.description,
-                        date = suggestUsage.date,
-                        price = suggestUsage.price,
-                        textSpaceHeight = textSpacerModifier,
-                        onClickDetail = {
+                        SuggestUsageItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            title = suggestUsage.title,
+                            service = suggestUsage.service,
+                            description = suggestUsage.description,
+                            date = suggestUsage.date,
+                            price = suggestUsage.price,
+                            textSpaceHeight = textSpacerModifier,
+                            onClickDetail = {
 //                            importItem.event.onClickImportSuggestDetailButton()
-                        },
-                    )
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -271,7 +275,6 @@ private fun SuggestUsageItem(
 @Composable
 private fun SuggestUsageItem(
     modifier: Modifier = Modifier,
-    textHorizontalPadding: Dp,
     title: String,
     service: String,
     description: String,
@@ -296,7 +299,6 @@ private fun SuggestUsageItem(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 MailItemCell(
-                    modifier = Modifier.padding(horizontal = textHorizontalPadding),
                     title = {
                         Text(
                             modifier = Modifier.then(minSizeModifier),
@@ -314,7 +316,6 @@ private fun SuggestUsageItem(
                 )
                 Spacer(Modifier.height(textSpaceHeight))
                 MailItemCell(
-                    modifier = Modifier.padding(horizontal = textHorizontalPadding),
                     title = {
                         Text(
                             modifier = Modifier.then(minSizeModifier),
@@ -332,7 +333,6 @@ private fun SuggestUsageItem(
                 )
                 Spacer(Modifier.height(textSpaceHeight))
                 MailItemCell(
-                    modifier = Modifier.padding(horizontal = textHorizontalPadding),
                     title = {
                         Text(
                             modifier = Modifier.then(minSizeModifier),
@@ -349,7 +349,6 @@ private fun SuggestUsageItem(
                 )
                 Spacer(Modifier.height(textSpaceHeight))
                 MailItemCell(
-                    modifier = Modifier.padding(horizontal = textHorizontalPadding),
                     title = {
                         Text(
                             modifier = Modifier.then(minSizeModifier),
@@ -366,7 +365,6 @@ private fun SuggestUsageItem(
                 )
                 Spacer(Modifier.height(textSpaceHeight))
                 MailItemCell(
-                    modifier = Modifier.padding(horizontal = textHorizontalPadding),
                     title = {
                         Text(
                             modifier = Modifier.then(minSizeModifier),
