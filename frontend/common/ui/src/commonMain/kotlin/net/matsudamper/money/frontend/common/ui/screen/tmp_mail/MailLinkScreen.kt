@@ -64,6 +64,7 @@ public data class MailLinkScreenUiState(
         val mailFrom: String,
         val mailSubject: String,
         val title: String,
+        val service: String,
         val description: String,
         val price: String,
         val date: String,
@@ -198,6 +199,7 @@ private fun ImportItem(
                 modifier = Modifier.fillMaxWidth(),
                 textHorizontalPadding = textHorizontalPadding,
                 title = mail.title,
+                service = mail.service,
                 description = mail.description,
                 date = mail.date,
                 price = mail.price,
@@ -213,6 +215,7 @@ private fun ImportItem(
     modifier: Modifier = Modifier,
     textHorizontalPadding: Dp,
     title: String,
+    service: String,
     description: String,
     date: String,
     price: String,
@@ -260,6 +263,24 @@ private fun ImportItem(
                         Text(
                             modifier = Modifier.widthIn(min = titleMaxWidth),
                             text = title,
+                            fontFamily = rememberCustomFontFamily(),
+                        )
+                    },
+                )
+                Spacer(Modifier.height(textSpaceHeight))
+                MailItemCell(
+                    modifier = Modifier.padding(horizontal = textHorizontalPadding),
+                    title = {
+                        Text(
+                            modifier = Modifier.then(minSizeModifier),
+                            text = "サービス",
+                            fontFamily = rememberCustomFontFamily(),
+                        )
+                    },
+                    description = {
+                        Text(
+                            modifier = Modifier.widthIn(min = titleMaxWidth),
+                            text = service,
                             fontFamily = rememberCustomFontFamily(),
                         )
                     },

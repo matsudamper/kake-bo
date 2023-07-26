@@ -68,6 +68,7 @@ public class MailLinkViewModel(
                                     mailSubject = mail.subject,
                                     title = mail.suggestUsage?.title.orEmpty(),
                                     description = mail.suggestUsage?.description.orEmpty(),
+                                    service = mail.suggestUsage?.service?.name.orEmpty(),
                                     price = run price@{
                                         val price = mail.suggestUsage?.price ?: return@price ""
                                         "${price}円"
