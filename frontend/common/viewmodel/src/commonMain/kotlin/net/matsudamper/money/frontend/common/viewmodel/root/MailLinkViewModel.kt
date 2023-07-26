@@ -11,7 +11,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
-import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailLinkScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -42,35 +41,66 @@ public class MailLinkViewModel(
                         fetch()
                     }
                 }
+
+                override fun dismissFullScreenHtml() {
+                    coroutineScope.launch {
+                        viewModelStateFlow.update {
+                            it.copy(
+                                fullScreenHtml = null,
+                            )
+                        }
+                    }
+                }
             },
-            mails = immutableListOf(),
+            fullScreenHtml = null,
+            loadingState = MailLinkScreenUiState.LoadingState.Loading,
         ),
     ).also {
         coroutineScope.launch {
             viewModelStateFlow.collect { viewModelState ->
                 it.update {
                     it.copy(
-                        mails = viewModelState.mails.map { mail ->
-                            MailLinkScreenUiState.Mail(
-                                from = mail.from,
-                                title = mail.subject,
-                                price = mail.suggestUsage?.price,
-                                event = object : MailLinkScreenUiState.MailEvent {
-                                    override fun onClickDetail() {
-                                        coroutineScope.launch {
-                                            viewModelEventSender.send {
-                                                it.globalToast("Not implemented yet")
-                                            }
-                                        }
-                                    }
-                                },
-                            )
-                        }.toImmutableList()
+                        fullScreenHtml = viewModelState.fullScreenHtml,
+                        loadingState = MailLinkScreenUiState.LoadingState.Loaded(
+                            mails = viewModelState.mails.map { mail ->
+                                MailLinkScreenUiState.Mail(
+                                    mailFrom = mail.from,
+                                    mailSubject = mail.subject,
+                                    title = mail.suggestUsage?.title.orEmpty(),
+                                    description = mail.suggestUsage?.description.orEmpty(),
+                                    price = mail.suggestUsage?.price,
+                                    date = mail.suggestUsage?.date?.toString().orEmpty(),
+                                    event = createMailEvent(mail = mail),
+                                )
+                            }.toImmutableList(),
+                        ),
                     )
                 }
             }
         }
     }.asStateFlow()
+
+    private fun createMailEvent(mail: MailLinkScreenGetMailsQuery.Node): MailLinkScreenUiState.MailEvent {
+        return object : MailLinkScreenUiState.MailEvent {
+            override fun onClickMailDetail() {
+                coroutineScope.launch {
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(
+                            fullScreenHtml = mail.html ?: mail.plain
+                                ?.replace("\r\n", "<br>")
+                                ?.replace("\n", "<br>"),
+                        )
+                    }
+                }
+            }
+
+            override fun onClickImportSuggestDetailButton() {
+                coroutineScope.launch {
+                    viewModelEventSender.send { it.globalToast("未実装") }
+                }
+            }
+        }
+    }
 
     private var fetchJob = Job()
     private fun fetch() {
@@ -124,5 +154,6 @@ public class MailLinkViewModel(
         val cursor: String? = null,
         val finishLoadingToEnd: Boolean? = null,
         val mails: List<MailLinkScreenGetMailsQuery.Node> = listOf(),
+        val fullScreenHtml: String? = null,
     )
 }
