@@ -34,6 +34,10 @@ public enum class MoneyUsageServiceType(
         dbValue = 8,
         displayName = "YouTube",
     ),
+    ESekiReserve(
+        dbValue = 9,
+        displayName = "e席リザーブ",
+    ),
     ;
 
     public fun toId(): MoneyUsageServiceId = MoneyUsageServiceId(dbValue)
