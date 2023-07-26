@@ -19,19 +19,39 @@ internal object AmazonCoJpUsageServices : MoneyUsageServices {
         }
         if (canHandle.any { it }.not()) return null
 
-        val total = plain
-            .split("\r\n")
-            .flatMap { it.split("\n") }
-            .firstOrNull { it.contains("注文合計：") }
-            ?: return null
+        val isGiftCard = plain.contains("ギフトカードの送信先")
 
-        val price = "注文合計：".let { targetText ->
-            total.substring(total.indexOf(targetText) + targetText.length)
-        }
-            .toList()
-            .mapNotNull { it.toString().toIntOrNull() }
-            .joinToString("")
-            .toIntOrNull() ?: return null
+        val price = sequence {
+            yield(
+                run price@{
+                    val total = plain
+                        .split("\r\n")
+                        .flatMap { it.split("\n") }
+                        .firstOrNull { it.contains("注文合計：") }
+                        ?: return@price null
+
+                    "注文合計：".let { targetText ->
+                        total.substring(total.indexOf(targetText) + targetText.length)
+                    }
+                        .toList()
+                        .mapNotNull { it.toString().toIntOrNull() }
+                        .joinToString("")
+                        .toIntOrNull()
+                },
+            )
+            yield(
+                run price@{
+                    val startIndex = plain.indexOf("注文合計:").takeIf { it >= 0 } ?: return@price null
+
+                    "￥(.+?)$".toRegex(RegexOption.MULTILINE)
+                        .find(startIndex = startIndex, input = plain)
+                        ?.groupValues?.getOrNull(1)
+                        ?.mapNotNull { it.toString().toIntOrNull() }
+                        ?.joinToString("")
+                        ?.toIntOrNull()
+                },
+            )
+        }.filterNotNull().firstOrNull()
 
         val url = Jsoup.parse(html).getElementsByClass("buttonComponentLink").attr("href")
             .takeIf { it.isNotBlank() }
@@ -46,7 +66,7 @@ internal object AmazonCoJpUsageServices : MoneyUsageServices {
         }
 
         return MoneyUsage(
-            title = "Amazon",
+            title = if (isGiftCard) "Amazonギフトカード" else "Amazon購入",
             price = price,
             description = url.orEmpty(),
             service = MoneyUsageServiceType.Amazon,
