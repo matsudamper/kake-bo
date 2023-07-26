@@ -55,15 +55,16 @@ public data class MailLinkScreenUiState(
     @Immutable
     public sealed interface LoadingState {
         public data class Loaded(
-            val importItems: ImmutableList<ImportItem>,
+            val listItems: ImmutableList<ListItem>,
         ) : LoadingState
 
         public object Loading : LoadingState
     }
 
-    public data class ImportItem(
+    public data class ListItem(
         val mail: ImportedMail,
         val usages: ImmutableList<UsageItem>,
+        val event: ListItemEvent,
     )
 
     public data class UsageItem(
@@ -77,14 +78,14 @@ public data class MailLinkScreenUiState(
     public data class ImportedMail(
         val mailFrom: String,
         val mailSubject: String,
-        val event: MailEvent,
     )
 
     @Immutable
-    public interface MailEvent {
+    public interface ListItemEvent {
         public fun onClickMailDetail()
-        public fun onClickImportSuggestDetailButton()
+        public fun onClickRegisterButton()
     }
+
 
     @Immutable
     public interface Event {
@@ -167,14 +168,14 @@ public fun MainContent(
     LazyColumn(
         modifier = modifier,
     ) {
-        items(uiState.importItems) { mail ->
+        items(uiState.listItems) { mail ->
             SuggestUsageItem(
                 modifier = Modifier.fillMaxWidth()
                     .padding(
                         horizontal = 12.dp,
                         vertical = 6.dp,
                     ),
-                importItem = mail,
+                listItem = mail,
             )
         }
     }
@@ -183,7 +184,7 @@ public fun MainContent(
 @Composable
 private fun SuggestUsageItem(
     modifier: Modifier = Modifier,
-    importItem: MailLinkScreenUiState.ImportItem,
+    listItem: MailLinkScreenUiState.ListItem,
 ) {
     Card(
         modifier = modifier,
@@ -205,10 +206,10 @@ private fun SuggestUsageItem(
                 content = {
                     MailItem(
                         modifier = Modifier.fillMaxWidth(),
-                        from = importItem.mail.mailFrom,
-                        subject = importItem.mail.mailSubject,
+                        from = listItem.mail.mailFrom,
+                        subject = listItem.mail.mailSubject,
                         onClickDetail = {
-                            importItem.mail.event.onClickMailDetail()
+                            listItem.event.onClickMailDetail()
                         },
                         textSpaceHeight = textSpaceHeight,
                     )
@@ -224,7 +225,7 @@ private fun SuggestUsageItem(
                     )
                 },
                 content = {
-                    when (importItem.usages.size) {
+                    when (listItem.usages.size) {
                         0 -> {
                             Text(
                                 text = "解析できませんでした。",
@@ -234,9 +235,9 @@ private fun SuggestUsageItem(
 
                         else -> {
                             var page by remember { mutableStateOf(0) }
-                            if (importItem.usages.size > 1) {
+                            if (listItem.usages.size > 1) {
                                 Row {
-                                    repeat(importItem.usages.size) { index ->
+                                    repeat(listItem.usages.size) { index ->
                                         OutlinedButton(
                                             onClick = {
                                                 page = index
@@ -252,22 +253,39 @@ private fun SuggestUsageItem(
                                 }
                                 Spacer(Modifier.height(4.dp))
                             }
-                            val suggestUsage by remember(importItem.usages, page) {
-                                mutableStateOf(importItem.usages[page])
+                            val suggestUsage by remember(listItem.usages, page) {
+                                mutableStateOf(listItem.usages[page])
                             }
+                            Row(
+                                modifier = Modifier.fillMaxWidth()
+                                    .height(IntrinsicSize.Max),
+                            ) {
+                                SuggestUsageItem(
+                                    modifier = Modifier.weight(1f),
+                                    title = suggestUsage.title,
+                                    service = suggestUsage.service,
+                                    description = suggestUsage.description,
+                                    date = suggestUsage.date,
+                                    price = suggestUsage.price,
+                                    textSpaceHeight = textSpaceHeight,
+                                )
 
-                            SuggestUsageItem(
-                                modifier = Modifier.fillMaxWidth(),
-                                title = suggestUsage.title,
-                                service = suggestUsage.service,
-                                description = suggestUsage.description,
-                                date = suggestUsage.date,
-                                price = suggestUsage.price,
-                                textSpaceHeight = textSpaceHeight,
-                                onClickDetail = {
-//                            importItem.event.onClickImportSuggestDetailButton()
-                                },
-                            )
+                                Column(
+                                    modifier = Modifier.fillMaxHeight(),
+                                ) {
+                                    Spacer(Modifier.weight(1f))
+                                    OutlinedButton(
+                                        onClick = {
+                                            listItem.event.onClickRegisterButton()
+                                        },
+                                    ) {
+                                        Text(
+                                            text = "登録",
+                                            fontFamily = rememberCustomFontFamily(),
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 },
@@ -311,7 +329,6 @@ private fun SuggestUsageItem(
     description: String,
     date: String,
     price: String,
-    onClickDetail: () -> Unit,
     textSpaceHeight: Dp,
 ) {
     val density = LocalDensity.current
@@ -324,106 +341,88 @@ private fun SuggestUsageItem(
             .onSizeChanged {
                 titleMaxWidth = max(titleMaxWidth, with(density) { it.width.toDp() })
             }
-        Row(
-            modifier = Modifier.fillMaxWidth()
-                .height(IntrinsicSize.Max),
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                MailItemCell(
-                    title = {
-                        Text(
-                            modifier = Modifier.then(minSizeModifier),
-                            text = "タイトル",
-                            fontFamily = rememberCustomFontFamily(),
-                        )
-                    },
-                    description = {
-                        Text(
-                            modifier = Modifier.widthIn(min = titleMaxWidth),
-                            text = title,
-                            fontFamily = rememberCustomFontFamily(),
-                        )
-                    },
-                )
-                Spacer(Modifier.height(textSpaceHeight))
-                MailItemCell(
-                    title = {
-                        Text(
-                            modifier = Modifier.then(minSizeModifier),
-                            text = "サービス",
-                            fontFamily = rememberCustomFontFamily(),
-                        )
-                    },
-                    description = {
-                        Text(
-                            modifier = Modifier.widthIn(min = titleMaxWidth),
-                            text = service,
-                            fontFamily = rememberCustomFontFamily(),
-                        )
-                    },
-                )
-                Spacer(Modifier.height(textSpaceHeight))
-                MailItemCell(
-                    title = {
-                        Text(
-                            modifier = Modifier.then(minSizeModifier),
-                            text = "日時",
-                            fontFamily = rememberCustomFontFamily(),
-                        )
-                    },
-                    description = {
-                        Text(
-                            text = date,
-                            fontFamily = rememberCustomFontFamily(),
-                        )
-                    },
-                )
-                Spacer(Modifier.height(textSpaceHeight))
-                MailItemCell(
-                    title = {
-                        Text(
-                            modifier = Modifier.then(minSizeModifier),
-                            text = "説明",
-                            fontFamily = rememberCustomFontFamily(),
-                        )
-                    },
-                    description = {
-                        Text(
-                            text = description,
-                            fontFamily = rememberCustomFontFamily(),
-                        )
-                    },
-                )
-                Spacer(Modifier.height(textSpaceHeight))
-                MailItemCell(
-                    title = {
-                        Text(
-                            modifier = Modifier.then(minSizeModifier),
-                            text = "金額",
-                            fontFamily = rememberCustomFontFamily(),
-                        )
-                    },
-                    description = {
-                        Text(
-                            text = price,
-                            fontFamily = rememberCustomFontFamily(),
-                        )
-                    },
-                )
-            }
-            Column(
-                modifier = Modifier.fillMaxHeight(),
-            ) {
-                Spacer(Modifier.weight(1f))
-                OutlinedButton(
-                    onClick = { onClickDetail() },
-                ) {
+        Column(modifier = Modifier.weight(1f)) {
+            MailItemCell(
+                title = {
                     Text(
-                        text = "詳細",
+                        modifier = Modifier.then(minSizeModifier),
+                        text = "タイトル",
                         fontFamily = rememberCustomFontFamily(),
                     )
-                }
-            }
+                },
+                description = {
+                    Text(
+                        modifier = Modifier.widthIn(min = titleMaxWidth),
+                        text = title,
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                },
+            )
+            Spacer(Modifier.height(textSpaceHeight))
+            MailItemCell(
+                title = {
+                    Text(
+                        modifier = Modifier.then(minSizeModifier),
+                        text = "サービス",
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                },
+                description = {
+                    Text(
+                        modifier = Modifier.widthIn(min = titleMaxWidth),
+                        text = service,
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                },
+            )
+            Spacer(Modifier.height(textSpaceHeight))
+            MailItemCell(
+                title = {
+                    Text(
+                        modifier = Modifier.then(minSizeModifier),
+                        text = "日時",
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                },
+                description = {
+                    Text(
+                        text = date,
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                },
+            )
+            Spacer(Modifier.height(textSpaceHeight))
+            MailItemCell(
+                title = {
+                    Text(
+                        modifier = Modifier.then(minSizeModifier),
+                        text = "説明",
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                },
+                description = {
+                    Text(
+                        text = description,
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                },
+            )
+            Spacer(Modifier.height(textSpaceHeight))
+            MailItemCell(
+                title = {
+                    Text(
+                        modifier = Modifier.then(minSizeModifier),
+                        text = "金額",
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                },
+                description = {
+                    Text(
+                        text = price,
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                },
+            )
         }
     }
 }

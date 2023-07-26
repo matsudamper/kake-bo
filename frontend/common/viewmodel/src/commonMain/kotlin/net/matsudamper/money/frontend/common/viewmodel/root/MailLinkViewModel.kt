@@ -62,12 +62,11 @@ public class MailLinkViewModel(
                     it.copy(
                         fullScreenHtml = viewModelState.fullScreenHtml,
                         loadingState = MailLinkScreenUiState.LoadingState.Loaded(
-                            importItems = viewModelState.mails.map { mail ->
-                                MailLinkScreenUiState.ImportItem(
+                            listItems = viewModelState.mails.map { mail ->
+                                MailLinkScreenUiState.ListItem(
                                     mail = MailLinkScreenUiState.ImportedMail(
                                         mailFrom = mail.from,
                                         mailSubject = mail.subject,
-                                        event = createMailEvent(mail = mail),
                                     ),
                                     usages = mail.suggestUsages.map { usage ->
                                         MailLinkScreenUiState.UsageItem(
@@ -81,6 +80,7 @@ public class MailLinkViewModel(
                                             date = usage.date?.toString().orEmpty(),
                                         )
                                     }.toImmutableList(),
+                                    event = createMailEvent(mail = mail),
                                 )
                             }.toImmutableList(),
                         ),
@@ -90,8 +90,8 @@ public class MailLinkViewModel(
         }
     }.asStateFlow()
 
-    private fun createMailEvent(mail: MailLinkScreenGetMailsQuery.Node): MailLinkScreenUiState.MailEvent {
-        return object : MailLinkScreenUiState.MailEvent {
+    private fun createMailEvent(mail: MailLinkScreenGetMailsQuery.Node): MailLinkScreenUiState.ListItemEvent {
+        return object : MailLinkScreenUiState.ListItemEvent {
             override fun onClickMailDetail() {
                 coroutineScope.launch {
                     viewModelStateFlow.update { viewModelState ->
@@ -104,7 +104,7 @@ public class MailLinkViewModel(
                 }
             }
 
-            override fun onClickImportSuggestDetailButton() {
+            override fun onClickRegisterButton() {
                 coroutineScope.launch {
                     viewModelEventSender.send { it.globalToast("未実装") }
                 }
