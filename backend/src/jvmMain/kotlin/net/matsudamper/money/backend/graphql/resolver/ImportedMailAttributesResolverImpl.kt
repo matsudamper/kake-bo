@@ -36,7 +36,7 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
             val mails = context.repositoryFactory.createDbMailRepository()
                 .getMails(
                     userId = userId,
-                    size = 10,
+                    size = mailQuery.size,
                 )
             QlImportedMailConnection(
                 cursor = null, // TODO
