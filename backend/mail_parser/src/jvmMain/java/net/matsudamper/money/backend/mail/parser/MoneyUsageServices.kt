@@ -1,5 +1,7 @@
 package net.matsudamper.money.backend.mail.parser
 
+import java.time.LocalDateTime
+
 public interface MoneyUsageServices {
     public val displayName: String
 
@@ -8,5 +10,6 @@ public interface MoneyUsageServices {
         from: String,
         html: String,
         plain: String,
+        date: LocalDateTime,
     ): MoneyUsage?
 }

@@ -32,6 +32,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                 from = targetMail.from,
                 html = targetMail.html.orEmpty(),
                 plain = targetMail.plain.orEmpty(),
+                date = targetMail.dateTime,
             ) ?: return@supplyAsync null
 
             QlSuggestMoneyUsage(

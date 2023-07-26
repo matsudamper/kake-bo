@@ -11,7 +11,7 @@ import org.jsoup.Jsoup
 internal object AmazonCoJpUsageServices : MoneyUsageServices {
     override val displayName: String = "Amazon"
 
-    override fun parse(subject: String, from: String, html: String, plain: String): MoneyUsage? {
+    override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): MoneyUsage? {
         val canHandle = sequence {
             yield(canHandledWithFrom(from))
             yield(canHandledWithSubject(subject))
@@ -35,22 +35,28 @@ internal object AmazonCoJpUsageServices : MoneyUsageServices {
 
         val url = Jsoup.parse(html).getElementsByClass("buttonComponentLink").attr("href")
             .takeIf { it.isNotBlank() }
-        
-        val date = run {
+
+        val mailDateTime = run {
             val result = """注文日： (\d{4})/(\d{2})/(\d{2})""".toRegex().find(plain) ?: return@run null
             val year = result.groupValues.getOrNull(1)?.toIntOrNull() ?: return@run null
             val month = result.groupValues.getOrNull(2)?.toIntOrNull() ?: return@run null
             val day = result.groupValues.getOrNull(3)?.toIntOrNull() ?: return@run null
-            
+
             LocalDate.of(year, month, day)
         }
-        
+
         return MoneyUsage(
             title = "Amazon",
             price = price,
             description = url.orEmpty(),
             service = MoneyUsageServiceType.Amazon,
-            dateTime = LocalDateTime.of(date, LocalTime.MIN)
+            dateTime = run {
+                if (mailDateTime != null) {
+                    LocalDateTime.of(mailDateTime, LocalTime.MIN)
+                } else {
+                    date
+                }
+            },
         )
     }
 
