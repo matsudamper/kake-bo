@@ -1,5 +1,20 @@
 # 家計簿
+決済メールを中心とした家計簿ソフト。購入履歴を取得するためにパスワードを外部サービスに登録したくない為に作成された。
 
+# 使用技術
+- フロント
+  - Jetbrains Compose Multiplatform Web
+  - Jetbrains Compose HTML
+- バックエンド
+  - Ktor
+- インターフェース
+  - GraphQL
+ 
+# 準備するもの
+- メールサーバー
+  - ここに購入メールを転送する
+
+# 動作手順
 まずはフロントをビルドする。その後にバックエンドを起動する。
 ```shell
  ./gradlew :frontend:jsApp:jsBrowserDevelopmentWebpack
