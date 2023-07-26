@@ -2,8 +2,6 @@ package net.matsudamper.money.frontend.graphql
 
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
-import com.apollographql.apollo3.api.Optional
-import net.matsudamper.money.frontend.graphql.type.MailQuery
 
 class GraphqlUserLoginQuery(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
