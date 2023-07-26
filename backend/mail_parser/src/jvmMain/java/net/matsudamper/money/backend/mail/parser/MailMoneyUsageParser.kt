@@ -19,7 +19,7 @@ public class MailMoneyUsageParser {
         html: String,
         plain: String,
         date: LocalDateTime,
-    ): MoneyUsage? {
+    ): List<MoneyUsage> {
         return sequenceOf(
             AmazonCoJpUsageServices,
             YodobashiUsageService,
@@ -40,11 +40,12 @@ public class MailMoneyUsageParser {
                         html = html,
                         plain = plain,
                         date = date,
-                    )
+                    ).takeIf { it.isNotEmpty() }
                 }.onFailure {
                     it.printStackTrace()
                 }.getOrNull()
             }
             .firstOrNull()
+            .orEmpty()
     }
 }

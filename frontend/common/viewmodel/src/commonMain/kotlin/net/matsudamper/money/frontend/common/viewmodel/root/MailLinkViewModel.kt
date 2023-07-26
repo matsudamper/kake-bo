@@ -62,19 +62,25 @@ public class MailLinkViewModel(
                     it.copy(
                         fullScreenHtml = viewModelState.fullScreenHtml,
                         loadingState = MailLinkScreenUiState.LoadingState.Loaded(
-                            mails = viewModelState.mails.map { mail ->
-                                MailLinkScreenUiState.Mail(
-                                    mailFrom = mail.from,
-                                    mailSubject = mail.subject,
-                                    title = mail.suggestUsage?.title.orEmpty(),
-                                    description = mail.suggestUsage?.description.orEmpty(),
-                                    service = mail.suggestUsage?.service?.name.orEmpty(),
-                                    price = run price@{
-                                        val price = mail.suggestUsage?.price ?: return@price ""
-                                        "${price}円"
-                                    },
-                                    date = mail.suggestUsage?.date?.toString().orEmpty(),
-                                    event = createMailEvent(mail = mail),
+                            importItems = viewModelState.mails.map { mail ->
+                                MailLinkScreenUiState.ImportItem(
+                                    mail = MailLinkScreenUiState.ImportedMail(
+                                        mailFrom = mail.from,
+                                        mailSubject = mail.subject,
+                                        event = createMailEvent(mail = mail),
+                                    ),
+                                    usages = mail.suggestUsages.map { usage ->
+                                        MailLinkScreenUiState.UsageItem(
+                                            title = usage.title,
+                                            description = usage.description,
+                                            service = usage.service?.name.orEmpty(),
+                                            price = run price@{
+                                                val price = usage.price ?: return@price ""
+                                                "${price}円"
+                                            },
+                                            date = usage.date?.toString().orEmpty(),
+                                        )
+                                    }.toImmutableList(),
                                 )
                             }.toImmutableList(),
                         ),

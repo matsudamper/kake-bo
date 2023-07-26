@@ -35,7 +35,7 @@ type ImportedMail {
     id: ImportedMailId!
     plain: String
     subject: String!
-    suggestUsage: SuggestMoneyUsage
+    suggestUsages: [SuggestMoneyUsage!]!
     time: LocalDateTime!
 }
 

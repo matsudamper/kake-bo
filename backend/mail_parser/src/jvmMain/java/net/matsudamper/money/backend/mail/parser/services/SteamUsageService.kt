@@ -9,13 +9,13 @@ import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
 public object SteamUsageService : MoneyUsageServices {
     override val displayName: String = "Steam"
 
-    override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): MoneyUsage? {
+    override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): List<MoneyUsage> {
         val canHandle = sequence {
             yield(canHandledWithFrom(from))
             yield(canHandledWithSubject(subject))
             yield(canHandledWithPlain(plain))
         }
-        if (canHandle.any { it }.not()) return null
+        if (canHandle.any { it }.not()) return listOf()
 
         val title = run {
             val first = plain.indexOf("ポイントショップへ移動").takeIf { it >= 0 } ?: return@run null
@@ -53,12 +53,14 @@ public object SteamUsageService : MoneyUsageServices {
             )
         }
 
-        return MoneyUsage(
-            title = title ?: displayName,
-            price = price,
-            description = "",
-            service = MoneyUsageServiceType.Steam,
-            dateTime = parsedDate ?: date,
+        return listOf(
+            MoneyUsage(
+                title = title ?: displayName,
+                price = price,
+                description = "",
+                service = MoneyUsageServiceType.Steam,
+                dateTime = parsedDate ?: date,
+            )
         )
     }
 

@@ -10,12 +10,12 @@ import org.jsoup.nodes.Element
 internal object PayPalUsageService : MoneyUsageServices {
     override val displayName: String = "PayPal"
 
-    override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): MoneyUsage? {
+    override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): List<MoneyUsage> {
         val canHandle = sequence {
             yield(canHandledWithFrom(from))
             yield(canHandledWithHtml(plain))
         }
-        if (canHandle.any { it }.not()) return null
+        if (canHandle.any { it }.not()) return listOf()
 
         val priceRawText: String?
         val price = run price@{
@@ -56,16 +56,18 @@ internal object PayPalUsageService : MoneyUsageServices {
                 ?.toIntOrNull()
         }
 
-        return MoneyUsage(
-            title = title ?: displayName,
-            price = price ?: price2,
-            description = buildString {
-                if (priceRawText != null) {
-                    appendLine(priceRawText)
-                }
-            },
-            service = MoneyUsageServiceType.PayPal,
-            dateTime = date,
+        return listOf(
+            MoneyUsage(
+                title = title ?: displayName,
+                price = price ?: price2,
+                description = buildString {
+                    if (priceRawText != null) {
+                        appendLine(priceRawText)
+                    }
+                },
+                service = MoneyUsageServiceType.PayPal,
+                dateTime = date,
+            )
         )
     }
 

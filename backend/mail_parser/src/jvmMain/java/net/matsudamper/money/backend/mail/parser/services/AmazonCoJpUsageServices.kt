@@ -11,13 +11,13 @@ import org.jsoup.Jsoup
 internal object AmazonCoJpUsageServices : MoneyUsageServices {
     override val displayName: String = "Amazon"
 
-    override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): MoneyUsage? {
+    override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): List<MoneyUsage> {
         val canHandle = sequence {
             yield(canHandledWithFrom(from))
             yield(canHandledWithSubject(subject))
             yield(canHandledWithPlain(plain))
         }
-        if (canHandle.any { it }.not()) return null
+        if (canHandle.any { it }.not()) return listOf()
 
         val isGiftCard = plain.contains("ギフトカードの送信先")
 
@@ -65,18 +65,20 @@ internal object AmazonCoJpUsageServices : MoneyUsageServices {
             LocalDate.of(year, month, day)
         }
 
-        return MoneyUsage(
-            title = if (isGiftCard) "Amazonギフトカード" else "Amazon購入",
-            price = price,
-            description = url.orEmpty(),
-            service = MoneyUsageServiceType.Amazon,
-            dateTime = run {
-                if (mailDateTime != null) {
-                    LocalDateTime.of(mailDateTime, LocalTime.MIN)
-                } else {
-                    date
-                }
-            },
+        return listOf(
+            MoneyUsage(
+                title = if (isGiftCard) "Amazonギフトカード" else "Amazon購入",
+                price = price,
+                description = url.orEmpty(),
+                service = MoneyUsageServiceType.Amazon,
+                dateTime = run {
+                    if (mailDateTime != null) {
+                        LocalDateTime.of(mailDateTime, LocalTime.MIN)
+                    } else {
+                        date
+                    }
+                },
+            )
         )
     }
 

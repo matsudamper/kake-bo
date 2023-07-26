@@ -14,7 +14,7 @@ import net.matsudamper.money.graphql.model.QlMoneyUsageService
 import net.matsudamper.money.graphql.model.QlSuggestMoneyUsage
 
 class ImportedMailResolverImpl : ImportedMailResolver {
-    override fun suggestUsage(importedMail: QlImportedMail, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlSuggestMoneyUsage?>> {
+    override fun suggestUsages(importedMail: QlImportedMail, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<List<QlSuggestMoneyUsage>>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
 
@@ -22,32 +22,34 @@ class ImportedMailResolverImpl : ImportedMailResolver {
             ImportedMailDataLoaderDefine.Key(
                 userId = userId,
                 importedMailId = importedMail.id,
-            )
+            ),
         )
         return CompletableFuture.supplyAsync {
-            val targetMail = mailLoader.get() ?: return@supplyAsync null
+            val targetMail = mailLoader.get() ?: return@supplyAsync listOf()
 
-            val result = MailMoneyUsageParser().parse(
+            val results = MailMoneyUsageParser().parse(
                 subject = targetMail.subject,
                 from = targetMail.from,
                 html = targetMail.html.orEmpty(),
                 plain = targetMail.plain.orEmpty(),
                 date = targetMail.dateTime,
-            ) ?: return@supplyAsync null
-
-            QlSuggestMoneyUsage(
-                title = result.title,
-                price = result.price,
-                description = result.description,
-                date = result.dateTime,
-                service = result.service.let {
-                    QlMoneyUsageService(
-                        id = it.toId(),
-                        name = it.displayName,
-                    )
-                },
-                type = null, // TODO
             )
+
+            results.map { result ->
+                QlSuggestMoneyUsage(
+                    title = result.title,
+                    price = result.price,
+                    description = result.description,
+                    date = result.dateTime,
+                    service = result.service.let {
+                        QlMoneyUsageService(
+                            id = it.toId(),
+                            name = it.displayName,
+                        )
+                    },
+                    type = null, // TODO
+                )
+            }
         }.toDataFetcher()
     }
 }

@@ -8,13 +8,13 @@ import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
 internal object UberEatsUsageService : MoneyUsageServices {
     override val displayName: String = "UberEats"
 
-    override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): MoneyUsage? {
+    override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): List<MoneyUsage> {
         val canHandle = sequence {
             yield(canHandledWithFrom(from))
             yield(canHandledWithSubject(subject))
             yield(canHandledWithPlain(plain))
         }
-        if (canHandle.any { it }.not()) return null
+        if (canHandle.any { it }.not()) return listOf()
 
         val price = run price@{
             "合計 ￥(.+?)$".toRegex(RegexOption.MULTILINE)
@@ -33,12 +33,14 @@ internal object UberEatsUsageService : MoneyUsageServices {
                 ?.trimEnd()
         }
 
-        return MoneyUsage(
-            title = "[$displayName]$title",
-            price = price,
-            description = "",
-            service = MoneyUsageServiceType.UberEats,
-            dateTime = date,
+        return listOf(
+            MoneyUsage(
+                title = "[$displayName]$title",
+                price = price,
+                description = "",
+                service = MoneyUsageServiceType.UberEats,
+                dateTime = date,
+            )
         )
     }
 

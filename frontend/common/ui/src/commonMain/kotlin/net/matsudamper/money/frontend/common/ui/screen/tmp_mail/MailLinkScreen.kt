@@ -54,20 +54,28 @@ public data class MailLinkScreenUiState(
     @Immutable
     public sealed interface LoadingState {
         public data class Loaded(
-            val mails: ImmutableList<Mail>,
+            val importItems: ImmutableList<ImportItem>,
         ) : LoadingState
 
         public object Loading : LoadingState
     }
 
-    public data class Mail(
-        val mailFrom: String,
-        val mailSubject: String,
+    public data class ImportItem(
+        val mail: ImportedMail,
+        val usages: ImmutableList<UsageItem>,
+    )
+
+    public data class UsageItem(
         val title: String,
         val service: String,
         val description: String,
         val price: String,
         val date: String,
+    )
+
+    public data class ImportedMail(
+        val mailFrom: String,
+        val mailSubject: String,
         val event: MailEvent,
     )
 
@@ -158,23 +166,23 @@ public fun MainContent(
     LazyColumn(
         modifier = modifier,
     ) {
-        items(uiState.mails) { mail ->
-            ImportItem(
+        items(uiState.importItems) { mail ->
+            SuggestUsageItem(
                 modifier = Modifier.fillMaxWidth()
                     .padding(
                         horizontal = 12.dp,
                         vertical = 6.dp,
                     ),
-                mail = mail,
+                importItem = mail,
             )
         }
     }
 }
 
 @Composable
-private fun ImportItem(
+private fun SuggestUsageItem(
     modifier: Modifier = Modifier,
-    mail: MailLinkScreenUiState.Mail,
+    importItem: MailLinkScreenUiState.ImportItem,
 ) {
     Card(
         modifier = modifier,
@@ -189,29 +197,79 @@ private fun ImportItem(
             MailItem(
                 modifier = Modifier.fillMaxWidth(),
                 textHorizontalPadding = textHorizontalPadding,
-                from = mail.mailFrom,
-                subject = mail.mailSubject,
-                onClickDetail = mail.event::onClickMailDetail,
+                from = importItem.mail.mailFrom,
+                subject = importItem.mail.mailSubject,
+                onClickDetail = {
+                    importItem.mail.event.onClickMailDetail()
+                },
                 textSpaceHeight = textSpacerModifier,
             )
             Spacer(Modifier.height(12.dp))
-            ImportItem(
-                modifier = Modifier.fillMaxWidth(),
-                textHorizontalPadding = textHorizontalPadding,
-                title = mail.title,
-                service = mail.service,
-                description = mail.description,
-                date = mail.date,
-                price = mail.price,
-                textSpaceHeight = textSpacerModifier,
-                onClickDetail = { mail.event.onClickImportSuggestDetailButton() },
+            Text(
+                modifier = Modifier.padding(horizontal = textHorizontalPadding),
+                text = "解析結果",
+                style = MaterialTheme.typography.headlineSmall,
+                fontFamily = rememberCustomFontFamily(),
             )
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp)
+                    .height(1.dp),
+                color = Color.White,
+            )
+            when (importItem.usages.size) {
+                0 -> {
+                    Text(
+                        modifier = Modifier.padding(horizontal = textHorizontalPadding),
+                        text = "解析できませんでした。",
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                }
+
+                else -> {
+                    var page by remember { mutableStateOf(0) }
+                    if (importItem.usages.size > 1) {
+                        Row {
+                            repeat(importItem.usages.size) { index ->
+                                OutlinedButton(
+                                    onClick = {
+                                        page = index
+                                    },
+                                ) {
+                                    Text(
+                                        text = (index + 1).toString(),
+                                        fontFamily = rememberCustomFontFamily(),
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    val suggestUsage by remember(importItem.usages, page) {
+                        mutableStateOf(importItem.usages[page])
+                    }
+
+                    SuggestUsageItem(
+                        modifier = Modifier.fillMaxWidth(),
+                        textHorizontalPadding = textHorizontalPadding,
+                        title = suggestUsage.title,
+                        service = suggestUsage.service,
+                        description = suggestUsage.description,
+                        date = suggestUsage.date,
+                        price = suggestUsage.price,
+                        textSpaceHeight = textSpacerModifier,
+                        onClickDetail = {
+//                            importItem.event.onClickImportSuggestDetailButton()
+                        },
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun ImportItem(
+private fun SuggestUsageItem(
     modifier: Modifier = Modifier,
     textHorizontalPadding: Dp,
     title: String,
@@ -232,19 +290,6 @@ private fun ImportItem(
             .onSizeChanged {
                 titleMaxWidth = max(titleMaxWidth, with(density) { it.width.toDp() })
             }
-        Text(
-            modifier = Modifier.padding(horizontal = textHorizontalPadding),
-            text = "解析結果",
-            style = MaterialTheme.typography.headlineSmall,
-            fontFamily = rememberCustomFontFamily(),
-        )
-        Divider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .height(1.dp),
-            color = Color.White,
-        )
         Row(
             modifier = Modifier.fillMaxWidth()
                 .height(IntrinsicSize.Max),

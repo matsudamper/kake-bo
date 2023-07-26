@@ -64,7 +64,7 @@ query MailLinkScreenGetMails(
                     plain
                     html
                     time
-                    suggestUsage {
+                    suggestUsages {
                         title
                         description
                         date

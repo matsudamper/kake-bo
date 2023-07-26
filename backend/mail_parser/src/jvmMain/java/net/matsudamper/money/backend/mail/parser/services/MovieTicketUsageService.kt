@@ -10,13 +10,13 @@ import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
 public object MovieTicketUsageService: MoneyUsageServices {
     override val displayName: String = "ムビチケ"
 
-    override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): MoneyUsage? {
+    override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): List<MoneyUsage> {
         val canHandle = sequence {
             yield(canHandledWithFrom(from))
             yield(canHandledWithSubject(subject))
             yield(canHandledWithPlain(plain))
         }
-        if (canHandle.any { it }.not()) return null
+        if (canHandle.any { it }.not()) return listOf()
 
         val title = run {
             val regex = "・作品名：「(.+?)」".toRegex()
@@ -48,12 +48,14 @@ public object MovieTicketUsageService: MoneyUsageServices {
             )
         }
 
-        return MoneyUsage(
-            title = title ?: displayName,
-            price = price,
-            description = "",
-            service = MoneyUsageServiceType.MovieTicket,
-            dateTime = parsedDate ?: date,
+        return listOf(
+            MoneyUsage(
+                title = title ?: displayName,
+                price = price,
+                description = "",
+                service = MoneyUsageServiceType.MovieTicket,
+                dateTime = parsedDate ?: date,
+            )
         )
     }
 

@@ -11,5 +11,5 @@ public interface MoneyUsageServices {
         html: String,
         plain: String,
         date: LocalDateTime,
-    ): MoneyUsage?
+    ): List<MoneyUsage>
 }
