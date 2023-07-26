@@ -7,7 +7,7 @@ import net.matsudamper.money.backend.base.element.MoneyUsageServiceType
 import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
 
-internal object ESekiUsegeReserve : MoneyUsageServices {
+internal object ESekiReserveUsegeService : MoneyUsageServices {
     override val displayName: String = "e席リザーブ"
 
     override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): MoneyUsage? {
