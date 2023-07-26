@@ -18,7 +18,11 @@ internal object YodobashiUsageService : MoneyUsageServices {
         }
         if (canHandle.any { it }.not()) return listOf()
 
-        val price = run price@{
+        val lines = plain
+            .split("\r\n")
+            .flatMap { it.split("\n") }
+
+        val totalPrice = run price@{
             "【ご注文金額】今回のお買い物合計金額(.+?)$".toRegex(RegexOption.MULTILINE).find(plain)
                 ?.groupValues
                 ?.getOrNull(1)
@@ -39,15 +43,50 @@ internal object YodobashiUsageService : MoneyUsageServices {
             )
         }
 
-        return listOf(
-            MoneyUsage(
-                title = displayName,
-                dateTime = parsedDate ?: date,
-                price = price,
-                service = MoneyUsageServiceType.Yodobashi,
-                description = "",
-            )
-        )    
+        return buildList prices@{
+            val firstIndex = lines.indexOfFirst { it.contains("【ご注文商品】") }.takeIf { it >= 0 } ?: return@prices
+            val endIndex = lines.indexOfFirst { it.contains("ご注文・出荷状況については下記をご確認ください。") }.takeIf { it >= 0 } ?: return@prices
+
+            val targetLines = lines.subList(firstIndex, endIndex)
+            val titleRegex = "^・「(.+)」$".toRegex()
+            val priceRegex = "合計.+?点(.+?)円".toRegex()
+
+            var beforeTitle: String? = null
+            targetLines.forEach { line ->
+                val titleResult = titleRegex.find(line)?.groupValues?.getOrNull(1)
+                val priceResult = priceRegex.find(line)?.groupValues?.getOrNull(1)
+                    ?.mapNotNull { it.toString().toIntOrNull() }
+                    ?.joinToString("")
+                    ?.toIntOrNull()
+
+                if (titleResult != null) {
+                    val capturedBeforeTitle = beforeTitle
+                    if (capturedBeforeTitle != null) {
+                        add(
+                            MoneyUsage(
+                                title = capturedBeforeTitle,
+                                dateTime = parsedDate ?: date,
+                                price = null,
+                                service = MoneyUsageServiceType.Yodobashi,
+                                description = "",
+                            ),
+                        )
+                    }
+                    beforeTitle = titleResult
+                } else if (priceResult != null) {
+                    add(
+                        MoneyUsage(
+                            title = beforeTitle.orEmpty(),
+                            dateTime = parsedDate ?: date,
+                            price = priceResult,
+                            service = MoneyUsageServiceType.Yodobashi,
+                            description = "",
+                        )
+                    )
+                    beforeTitle = null
+                }
+            }
+        }
     }
 
     private fun canHandledWithFrom(from: String): Boolean {
