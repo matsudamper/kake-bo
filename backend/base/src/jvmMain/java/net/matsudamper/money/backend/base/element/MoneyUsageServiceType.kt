@@ -26,6 +26,14 @@ public enum class MoneyUsageServiceType(
         dbValue = 5,
         displayName = "Movie Ticket",
     ),
+    GooglePlay(
+        dbValue = 7,
+        displayName = "Google Play",
+    ),
+    YouTube(
+        dbValue = 8,
+        displayName = "YouTube",
+    ),
     ;
 
     public fun toId(): MoneyUsageServiceId = MoneyUsageServiceId(dbValue)
