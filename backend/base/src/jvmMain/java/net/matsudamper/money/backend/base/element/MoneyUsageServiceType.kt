@@ -46,6 +46,10 @@ public enum class MoneyUsageServiceType(
         dbValue = 11,
         displayName = "PayPal",
     ),
+    Yodobashi(
+        dbValue = 12,
+        displayName = "ヨドバシカメラ",
+    ),
     ;
 
     public fun toId(): MoneyUsageServiceId = MoneyUsageServiceId(dbValue)

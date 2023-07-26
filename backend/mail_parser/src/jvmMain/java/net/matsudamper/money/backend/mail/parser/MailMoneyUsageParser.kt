@@ -4,11 +4,13 @@ import java.time.LocalDateTime
 import net.matsudamper.money.backend.mail.parser.services.AmazonCoJpUsageServices
 import net.matsudamper.money.backend.mail.parser.services.ESekiReserveUsegeService
 import net.matsudamper.money.backend.mail.parser.services.GooglePlayUsageService
+import net.matsudamper.money.backend.mail.parser.services.MacdonaldsMobileOrderUsageService
 import net.matsudamper.money.backend.mail.parser.services.MovieTicketUsageService
 import net.matsudamper.money.backend.mail.parser.services.PayPalUsageService
 import net.matsudamper.money.backend.mail.parser.services.RakutenUsageService
 import net.matsudamper.money.backend.mail.parser.services.SteamUsageService
 import net.matsudamper.money.backend.mail.parser.services.UberEatsUsageService
+import net.matsudamper.money.backend.mail.parser.services.YodobashiUsageService
 
 public class MailMoneyUsageParser {
     public fun parse(
@@ -20,10 +22,12 @@ public class MailMoneyUsageParser {
     ): MoneyUsage? {
         return sequenceOf(
             AmazonCoJpUsageServices,
+            YodobashiUsageService,
             MovieTicketUsageService,
             SteamUsageService,
             RakutenUsageService,
             PayPalUsageService,
+            MacdonaldsMobileOrderUsageService,
             GooglePlayUsageService,
             ESekiReserveUsegeService,
             UberEatsUsageService,
