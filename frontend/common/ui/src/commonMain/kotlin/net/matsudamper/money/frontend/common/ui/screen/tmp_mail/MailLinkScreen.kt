@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.ui.screen.tmp_mail
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -191,83 +192,113 @@ private fun SuggestUsageItem(
             modifier = Modifier.fillMaxWidth()
                 .padding(12.dp),
         ) {
-            val textHorizontalPadding = 8.dp
-            val textSpacerModifier = 4.dp
+            val textSpaceHeight = 4.dp
 
-            MailItem(
-                modifier = Modifier.fillMaxWidth(),
-                textHorizontalPadding = textHorizontalPadding,
-                from = importItem.mail.mailFrom,
-                subject = importItem.mail.mailSubject,
-                onClickDetail = {
-                    importItem.mail.event.onClickMailDetail()
+            CardSection(
+                title = {
+                    Text(
+                        text = "メール",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontFamily = rememberCustomFontFamily(),
+                    )
                 },
-                textSpaceHeight = textSpacerModifier,
+                content = {
+                    MailItem(
+                        modifier = Modifier.fillMaxWidth(),
+                        from = importItem.mail.mailFrom,
+                        subject = importItem.mail.mailSubject,
+                        onClickDetail = {
+                            importItem.mail.event.onClickMailDetail()
+                        },
+                        textSpaceHeight = textSpaceHeight,
+                    )
+                },
             )
             Spacer(Modifier.height(12.dp))
-            Text(
-                modifier = Modifier.padding(horizontal = textHorizontalPadding),
-                text = "解析結果",
-                style = MaterialTheme.typography.headlineSmall,
-                fontFamily = rememberCustomFontFamily(),
-            )
-            Divider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-                    .height(1.dp),
-                color = Color.White,
-            )
-            Column(
-                modifier = Modifier.padding(horizontal = textHorizontalPadding),
-            ) {
-                when (importItem.usages.size) {
-                    0 -> {
-                        Text(
-                            text = "解析できませんでした。",
-                            fontFamily = rememberCustomFontFamily(),
-                        )
-                    }
+            CardSection(
+                title = {
+                    Text(
+                        text = "解析結果",
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                },
+                content = {
+                    when (importItem.usages.size) {
+                        0 -> {
+                            Text(
+                                text = "解析できませんでした。",
+                                fontFamily = rememberCustomFontFamily(),
+                            )
+                        }
 
-                    else -> {
-                        var page by remember { mutableStateOf(0) }
-                        if (importItem.usages.size > 1) {
-                            Row {
-                                repeat(importItem.usages.size) { index ->
-                                    OutlinedButton(
-                                        onClick = {
-                                            page = index
-                                        },
-                                    ) {
-                                        Text(
-                                            text = (index + 1).toString(),
-                                            fontFamily = rememberCustomFontFamily(),
-                                        )
+                        else -> {
+                            var page by remember { mutableStateOf(0) }
+                            if (importItem.usages.size > 1) {
+                                Row {
+                                    repeat(importItem.usages.size) { index ->
+                                        OutlinedButton(
+                                            onClick = {
+                                                page = index
+                                            },
+                                        ) {
+                                            Text(
+                                                text = (index + 1).toString(),
+                                                fontFamily = rememberCustomFontFamily(),
+                                            )
+                                        }
+                                        Spacer(Modifier.width(4.dp))
                                     }
-                                    Spacer(Modifier.width(4.dp))
                                 }
+                                Spacer(Modifier.height(4.dp))
                             }
-                            Spacer(Modifier.height(4.dp))
-                        }
-                        val suggestUsage by remember(importItem.usages, page) {
-                            mutableStateOf(importItem.usages[page])
-                        }
+                            val suggestUsage by remember(importItem.usages, page) {
+                                mutableStateOf(importItem.usages[page])
+                            }
 
-                        SuggestUsageItem(
-                            modifier = Modifier.fillMaxWidth(),
-                            title = suggestUsage.title,
-                            service = suggestUsage.service,
-                            description = suggestUsage.description,
-                            date = suggestUsage.date,
-                            price = suggestUsage.price,
-                            textSpaceHeight = textSpacerModifier,
-                            onClickDetail = {
+                            SuggestUsageItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                title = suggestUsage.title,
+                                service = suggestUsage.service,
+                                description = suggestUsage.description,
+                                date = suggestUsage.date,
+                                price = suggestUsage.price,
+                                textSpaceHeight = textSpaceHeight,
+                                onClickDetail = {
 //                            importItem.event.onClickImportSuggestDetailButton()
-                            },
-                        )
+                                },
+                            )
+                        }
                     }
-                }
-            }
+                },
+            )
+        }
+    }
+}
+
+@Composable
+private fun CardSection(
+    title: @Composable () -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val textHorizontalPadding = 8.dp
+    Column {
+        Box(
+            modifier = Modifier.padding(horizontal = textHorizontalPadding),
+        ) {
+            title()
+        }
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+                .height(1.dp),
+            color = Color.White,
+        )
+        Column(
+            modifier = Modifier.padding(horizontal = textHorizontalPadding),
+        ) {
+            content()
         }
     }
 }
@@ -400,7 +431,6 @@ private fun SuggestUsageItem(
 @Composable
 private fun MailItem(
     modifier: Modifier = Modifier,
-    textHorizontalPadding: Dp,
     from: String,
     subject: String,
     onClickDetail: () -> Unit,
@@ -418,26 +448,12 @@ private fun MailItem(
             .onSizeChanged {
                 titleMaxWidth = max(titleMaxWidth, with(density) { it.width.toDp() })
             }
-        Text(
-            modifier = Modifier.padding(horizontal = textHorizontalPadding),
-            text = "メール",
-            style = MaterialTheme.typography.headlineSmall,
-            fontFamily = rememberCustomFontFamily(),
-        )
-        Divider(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp)
-                .height(1.dp),
-            color = Color.White,
-        )
         Row(
             modifier = Modifier.fillMaxWidth()
                 .height(IntrinsicSize.Max),
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 MailItemCell(
-                    modifier = Modifier.padding(horizontal = textHorizontalPadding),
                     title = {
                         Text(
                             modifier = Modifier.then(minSizeModifier),
@@ -454,7 +470,6 @@ private fun MailItem(
                 )
                 Spacer(Modifier.height(textSpaceHeight))
                 MailItemCell(
-                    modifier = Modifier.padding(horizontal = textHorizontalPadding),
                     title = {
                         Text(
                             modifier = Modifier.then(minSizeModifier),
