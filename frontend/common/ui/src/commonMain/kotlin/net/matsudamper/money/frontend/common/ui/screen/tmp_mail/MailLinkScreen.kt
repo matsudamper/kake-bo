@@ -65,7 +65,7 @@ public data class MailLinkScreenUiState(
         val mailSubject: String,
         val title: String,
         val description: String,
-        val price: Int?,
+        val price: String,
         val date: String,
         val event: MailEvent,
     )
@@ -215,7 +215,7 @@ private fun ImportItem(
     title: String,
     description: String,
     date: String,
-    price: Int?,
+    price: String,
     onClickDetail: () -> Unit,
     textSpaceHeight: Dp,
 ) {
@@ -310,7 +310,7 @@ private fun ImportItem(
                     },
                     description = {
                         Text(
-                            text = "${price}円",
+                            text = price,
                             fontFamily = rememberCustomFontFamily(),
                         )
                     },
