@@ -38,6 +38,10 @@ public enum class MoneyUsageServiceType(
         dbValue = 9,
         displayName = "e席リザーブ",
     ),
+    UberEats(
+        dbValue = 10,
+        displayName = "UberEats",
+    ),
     ;
 
     public fun toId(): MoneyUsageServiceId = MoneyUsageServiceId(dbValue)

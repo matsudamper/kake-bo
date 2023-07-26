@@ -2,10 +2,11 @@ package net.matsudamper.money.backend.mail.parser
 
 import java.time.LocalDateTime
 import net.matsudamper.money.backend.mail.parser.services.AmazonCoJpUsageServices
-import net.matsudamper.money.backend.mail.parser.services.ESekiUsegeReserve
+import net.matsudamper.money.backend.mail.parser.services.ESekiReserveUsegeService
 import net.matsudamper.money.backend.mail.parser.services.GooglePlayUsageService
 import net.matsudamper.money.backend.mail.parser.services.MovieTicketUsageService
 import net.matsudamper.money.backend.mail.parser.services.SteamUsageService
+import net.matsudamper.money.backend.mail.parser.services.UberEatsUsageService
 
 public class MailMoneyUsageParser {
     public fun parse(
@@ -20,7 +21,8 @@ public class MailMoneyUsageParser {
             MovieTicketUsageService,
             SteamUsageService,
             GooglePlayUsageService,
-            ESekiUsegeReserve,
+            ESekiReserveUsegeService,
+            UberEatsUsageService,
         )
             .mapNotNull {
                 runCatching {
