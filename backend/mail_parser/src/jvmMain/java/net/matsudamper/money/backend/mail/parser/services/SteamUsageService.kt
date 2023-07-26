@@ -6,7 +6,6 @@ import java.time.LocalTime
 import net.matsudamper.money.backend.base.element.MoneyUsageServiceType
 import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
-
 public object SteamUsageService : MoneyUsageServices {
     override val displayName: String = "Steam"
 
