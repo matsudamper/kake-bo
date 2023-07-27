@@ -3,10 +3,32 @@ type UserMutation {
     settingsMutation: SettingsMutation @lazy
     importMail(mailIds: [MailId!]!): ImportMailResult!
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
-    addUsage(usage: AddUsage!): MoneyUsage!
+    addUsage(usage: AddUsageInput!): MoneyUsage!
+    addCategory(input: AddCategoryInput!) : AddCategoryResult!
+    addSubCategory(input: AddSubCategoryInput!) : AddSubCategoryResult!
 }
 
-input AddUsage {
+input AddSubCategoryInput {
+    name: String!
+    categoryId: MoneyUsageCategoryId!
+}
+type AddSubCategoryResult {
+    subCategory: MoneyUsageSubCategory
+    error: AddSubCategoryError
+}
+enum AddSubCategoryError {
+    CATEGORY_NOT_FOUND,
+}
+
+input AddCategoryInput {
+    name: String!
+}
+
+type AddCategoryResult {
+    category: MoneyUsageCategory
+}
+
+input AddUsageInput {
     title: String!
     description: String!
     service: MoneyUsageServiceId

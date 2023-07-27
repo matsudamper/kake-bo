@@ -13,7 +13,11 @@ import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
 import net.matsudamper.money.backend.repository.UserLoginRepository
 import net.matsudamper.money.backend.repository.UserSessionRepository
 import net.matsudamper.money.element.MailId
-import net.matsudamper.money.graphql.model.QlAddUsage
+import net.matsudamper.money.graphql.model.QlAddCategoryInput
+import net.matsudamper.money.graphql.model.QlAddCategoryResult
+import net.matsudamper.money.graphql.model.QlAddSubCategoryInput
+import net.matsudamper.money.graphql.model.QlAddSubCategoryResult
+import net.matsudamper.money.graphql.model.QlAddUsageInput
 import net.matsudamper.money.graphql.model.QlDeleteMailResult
 import net.matsudamper.money.graphql.model.QlDeleteMailResultError
 import net.matsudamper.money.graphql.model.QlImportMailResult
@@ -125,7 +129,15 @@ class UserMutationResolverImpl : UserMutationResolver {
         }.toDataFetcher()
     }
 
-    override fun addUsage(userMutation: QlUserMutation, usage: QlAddUsage, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlMoneyUsage>> {
+    override fun addCategory(userMutation: QlUserMutation, input: QlAddCategoryInput, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlAddCategoryResult>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun addSubCategory(userMutation: QlUserMutation, input: QlAddSubCategoryInput, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlAddSubCategoryResult>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun addUsage(userMutation: QlUserMutation, usage: QlAddUsageInput, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlMoneyUsage>> {
         TODO("Not yet implemented")
     }
 }
