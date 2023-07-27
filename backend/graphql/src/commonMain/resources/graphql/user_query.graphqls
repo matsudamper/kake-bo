@@ -3,6 +3,17 @@ type User {
     settings: UserSettings! @lazy
     userMailAttributes: UserMailAttributes!
     importedMailAttributes: ImportedMailAttributes!
+    moneyUsageCategories(input: moneyUsageCategoriesInput!):MoneyUsageCategoriesConnection @lazy
+}
+
+input moneyUsageCategoriesInput {
+    size: Int!
+    cursor: String
+}
+
+type MoneyUsageCategoriesConnection {
+    nodes: [MoneyUsageCategory!]!
+    cursor: String
 }
 
 type MoneyUsage {

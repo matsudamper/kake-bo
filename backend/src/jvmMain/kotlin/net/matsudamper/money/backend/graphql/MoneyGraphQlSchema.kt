@@ -15,6 +15,8 @@ import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
 import net.matsudamper.money.backend.graphql.resolver.ImportedMailAttributesResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.ImportedMailResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.MoneyUsageCategoryResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.MoneyUsageSubCategoryResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.QueryResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserMailAttributesResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserResolverImpl
@@ -116,6 +118,8 @@ object MoneyGraphQlSchema {
                 MutationResolverImpl(),
                 AdminMutationResolverImpl(),
                 UserMutationResolverImpl(),
+                MoneyUsageSubCategoryResolverImpl(),
+                MoneyUsageCategoryResolverImpl(),
                 UserResolverImpl(),
                 UserSettingsResolverImpl(),
                 SettingsMutationResolverResolverImpl(),

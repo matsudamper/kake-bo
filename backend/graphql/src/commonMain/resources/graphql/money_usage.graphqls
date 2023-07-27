@@ -9,13 +9,25 @@ type SuggestMoneyUsage {
 
 type MoneyUsageCategory {
     id: MoneyUsageCategoryId!
-    name: String!
+    name: String! @lazy
+
+    subCategories(query: MoneyUsageSubCategoryQuery!): subCategoriesConnection @lazy
+}
+
+input MoneyUsageSubCategoryQuery {
+    size: Int!
+    cursor: String
+}
+
+type subCategoriesConnection {
+    nodes: [MoneyUsageSubCategory!]!
+    cursor: String
 }
 
 type MoneyUsageSubCategory {
     id: MoneyUsageSubCategoryId!
-    name: String!
-    largeCategory: MoneyUsageCategory!
+    name: String! @lazy
+    category: MoneyUsageCategory! @lazy
 }
 
 type MoneyUsageService {

@@ -8,6 +8,7 @@ import net.matsudamper.money.db.schema.tables.records.JMoneyUsageCategoriesRecor
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import org.jooq.impl.DSL
+import org.jooq.kotlin.and
 
 
 class MoneyUsageSubCategoryRepository {
@@ -64,31 +65,75 @@ class MoneyUsageSubCategoryRepository {
             )
     }
 
-    fun getCategory(
+    fun getSubCategory(
         userId: UserId,
-        moneyUsageCategoryId: MoneyUsageSubCategoryId,
+        categoryId: MoneyUsageCategoryId,
     ): GetSubCategoryResult {
         return runCatching {
             DbConnection.use {
-                val record = DSL.selectFrom(SUB_CATEGORIES)
+                val records = DSL.select(
+                    SUB_CATEGORIES.USER_ID,
+                    SUB_CATEGORIES.MONEY_USAGE_SUB_CATEGORY_ID,
+                    SUB_CATEGORIES.MONEY_USAGE_CATEGORY_ID,
+                    SUB_CATEGORIES.NAME,
+                )
+                    .from(SUB_CATEGORIES)
+                    .join(CATEGORIES).using(CATEGORIES.MONEY_USAGE_CATEGORY_ID)
+                    .where(
+                        DSL.value(true)
+                            .and(CATEGORIES.USER_ID.eq(userId.id))
+                            .and(SUB_CATEGORIES.USER_ID.eq(userId.id))
+                            .add(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.id)),
+                    )
+                    .fetch()
+
+                records.map { record ->
+                    SubCategoryResult(
+                        userId = UserId(record.get(SUB_CATEGORIES.USER_ID)!!),
+                        moneyUsageCategoryId = MoneyUsageCategoryId(
+                            record.get(SUB_CATEGORIES.MONEY_USAGE_CATEGORY_ID)!!
+                        ),
+                        moneyUsageSubCategoryId = MoneyUsageSubCategoryId(
+                            record.get(SUB_CATEGORIES.MONEY_USAGE_SUB_CATEGORY_ID)!!
+                        ),
+                        name = record.get(SUB_CATEGORIES.NAME)!!,
+                    )
+                }
+            }
+        }.fold(
+            onSuccess = { GetSubCategoryResult.Success(it) },
+            onFailure = { GetSubCategoryResult.Failed(it) },
+        )
+    }
+
+    fun getSubCategory(
+        userId: UserId,
+        moneyUsageSubCategoryIds: List<MoneyUsageSubCategoryId>,
+    ): GetSubCategoryResult {
+        return runCatching {
+            DbConnection.use {
+                val records = DSL.selectFrom(SUB_CATEGORIES)
                     .where(
                         SUB_CATEGORIES.USER_ID.eq(userId.id)
-                            .and(SUB_CATEGORIES.MONEY_USAGE_SUB_CATEGORY_ID.eq(moneyUsageCategoryId.id)),
+                            .and(
+                                SUB_CATEGORIES.MONEY_USAGE_SUB_CATEGORY_ID
+                                    .`in`(moneyUsageSubCategoryIds.map { it.id }),
+                            ),
                     )
-                    .fetchOne() ?: return@use null
+                    .fetch()
 
-                GetSubCategoryResult.Success(
+                records.map { record ->
                     SubCategoryResult(
                         userId = UserId(record.userId!!),
                         moneyUsageCategoryId = MoneyUsageCategoryId(record.moneyUsageCategoryId!!),
                         moneyUsageSubCategoryId = MoneyUsageSubCategoryId(record.moneyUsageSubCategoryId!!),
                         name = record.name!!,
-                    ),
-                )
+                    )
+                }
             }
         }.fold(
-            onSuccess = { it ?: GetSubCategoryResult.Failed.NotFound },
-            onFailure = { GetSubCategoryResult.Failed.Error(it) },
+            onSuccess = { GetSubCategoryResult.Success(it) },
+            onFailure = { GetSubCategoryResult.Failed(it) },
         )
     }
 
@@ -108,10 +153,7 @@ class MoneyUsageSubCategoryRepository {
     }
 
     sealed interface GetSubCategoryResult {
-        data class Success(val result: SubCategoryResult) : GetSubCategoryResult
-        sealed interface Failed : GetSubCategoryResult {
-            object NotFound : Failed
-            data class Error(val error: Throwable) : Failed
-        }
+        data class Success(val results: List<SubCategoryResult>) : GetSubCategoryResult
+        data class Failed(val e: Throwable) : GetSubCategoryResult
     }
 }

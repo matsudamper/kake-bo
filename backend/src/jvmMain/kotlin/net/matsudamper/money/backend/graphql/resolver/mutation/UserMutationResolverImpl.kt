@@ -10,11 +10,14 @@ import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
 import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
+import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
+import net.matsudamper.money.backend.repository.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.repository.UserLoginRepository
 import net.matsudamper.money.backend.repository.UserSessionRepository
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.graphql.model.QlAddCategoryInput
 import net.matsudamper.money.graphql.model.QlAddCategoryResult
+import net.matsudamper.money.graphql.model.QlAddSubCategoryError
 import net.matsudamper.money.graphql.model.QlAddSubCategoryInput
 import net.matsudamper.money.graphql.model.QlAddSubCategoryResult
 import net.matsudamper.money.graphql.model.QlAddUsageInput
@@ -22,6 +25,8 @@ import net.matsudamper.money.graphql.model.QlDeleteMailResult
 import net.matsudamper.money.graphql.model.QlDeleteMailResultError
 import net.matsudamper.money.graphql.model.QlImportMailResult
 import net.matsudamper.money.graphql.model.QlMoneyUsage
+import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
+import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
 import net.matsudamper.money.graphql.model.QlSettingsMutation
 import net.matsudamper.money.graphql.model.QlUserLoginResult
 import net.matsudamper.money.graphql.model.QlUserMutation
@@ -130,11 +135,62 @@ class UserMutationResolverImpl : UserMutationResolver {
     }
 
     override fun addCategory(userMutation: QlUserMutation, input: QlAddCategoryInput, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlAddCategoryResult>> {
-        TODO("Not yet implemented")
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+        return CompletableFuture.supplyAsync {
+            val addResult = context.repositoryFactory.createAddMoneyUsageCategoryRepository()
+                .addCategory(
+                    userId = userId,
+                    name = input.name,
+                )
+            when (addResult) {
+                is MoneyUsageCategoryRepository.AddCategoryResult.Failed -> {
+                    throw addResult.error
+                }
+
+                is MoneyUsageCategoryRepository.AddCategoryResult.Success -> {
+                    return@supplyAsync QlAddCategoryResult(
+                        QlMoneyUsageCategory(
+                            id = addResult.result.moneyUsageCategoryId,
+                        ),
+                    )
+                }
+            }
+        }.toDataFetcher()
     }
 
     override fun addSubCategory(userMutation: QlUserMutation, input: QlAddSubCategoryInput, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlAddSubCategoryResult>> {
-        TODO("Not yet implemented")
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+        return CompletableFuture.supplyAsync {
+            val addResult = context.repositoryFactory.createAddMoneyUsageSubCategoryRepository()
+                .addSubCategory(
+                    userId = userId,
+                    name = input.name,
+                    categoryId = input.categoryId,
+                )
+            when (addResult) {
+                is MoneyUsageSubCategoryRepository.AddSubCategoryResult.Failed.CategoryNotFound -> {
+                    QlAddSubCategoryResult(
+                        subCategory = null,
+                        error = QlAddSubCategoryError.CATEGORY_NOT_FOUND,
+                    )
+                }
+
+                is MoneyUsageSubCategoryRepository.AddSubCategoryResult.Failed.Error -> {
+                    throw addResult.error
+                }
+
+                is MoneyUsageSubCategoryRepository.AddSubCategoryResult.Success -> {
+                    QlAddSubCategoryResult(
+                        subCategory = QlMoneyUsageSubCategory(
+                            id = addResult.result.moneyUsageSubCategoryId,
+                        ),
+                        error = null,
+                    )
+                }
+            }
+        }.toDataFetcher()
     }
 
     override fun addUsage(userMutation: QlUserMutation, usage: QlAddUsageInput, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlMoneyUsage>> {

@@ -8,9 +8,13 @@ import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.mail.MailRepository
+import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.repository.UserConfigRepository
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.graphql.model.QlMailQuery
+import net.matsudamper.money.graphql.model.QlMoneyUsageCategoriesConnection
+import net.matsudamper.money.graphql.model.QlMoneyUsageCategoriesInput
+import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
 import net.matsudamper.money.graphql.model.QlUser
 import net.matsudamper.money.graphql.model.QlUserMail
 import net.matsudamper.money.graphql.model.QlUserMailConnection
@@ -22,5 +26,38 @@ import net.matsudamper.money.graphql.model.UserResolver
 class UserResolverImpl : UserResolver {
     override fun settings(user: QlUser, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlUserSettings>> {
         return CompletableFuture.completedFuture(QlUserSettings()).toDataFetcher()
+    }
+
+    /**
+     * TODO: Paging
+     */
+    override fun moneyUsageCategories(
+        user: QlUser,
+        input: QlMoneyUsageCategoriesInput,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlMoneyUsageCategoriesConnection?>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+
+        return CompletableFuture.supplyAsync {
+            val result = context.repositoryFactory.createAddMoneyUsageCategoryRepository()
+                .getCategory(userId = userId)
+
+            return@supplyAsync when (result) {
+                is MoneyUsageCategoryRepository.GetCategoryResult.Failed -> {
+                    null
+                }
+                is MoneyUsageCategoryRepository.GetCategoryResult.Success -> {
+                    QlMoneyUsageCategoriesConnection(
+                        nodes = result.results.map {
+                            QlMoneyUsageCategory(
+                                id = it.moneyUsageCategoryId,
+                            )
+                        },
+                        cursor = null, // TODO
+                    )
+                }
+            }
+        }.toDataFetcher()
     }
 }

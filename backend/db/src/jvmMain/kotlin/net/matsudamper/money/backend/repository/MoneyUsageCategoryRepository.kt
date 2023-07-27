@@ -42,28 +42,56 @@ class MoneyUsageCategoryRepository {
 
     fun getCategory(
         userId: UserId,
-        moneyUsageCategoryId: MoneyUsageCategoryId,
-    ): GetCategoryResult {
+        moneyUsageCategoryIds: List<MoneyUsageCategoryId>,
+    ) : GetCategoryResult {
         return runCatching {
             DbConnection.use {
-                val record = DSL.selectFrom(CATEGORIES)
+                val records = DSL.selectFrom(CATEGORIES)
                     .where(
                         CATEGORIES.USER_ID.eq(userId.id)
-                            .and(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(moneyUsageCategoryId.id)),
+                            .and(
+                                CATEGORIES.MONEY_USAGE_CATEGORY_ID
+                                    .`in`(moneyUsageCategoryIds.map { it.id }),
+                            ),
                     )
-                    .fetchOne() ?: return@use null
+                    .fetch()
 
-                GetCategoryResult.Success(
+                records.map { record ->
                     CategoryResult(
                         userId = UserId(record.userId!!),
                         moneyUsageCategoryId = MoneyUsageCategoryId(record.moneyUsageCategoryId!!),
                         name = record.name!!,
-                    ),
-                )
+                    )
+                }
             }
         }.fold(
-            onSuccess = { it ?: GetCategoryResult.Failed.NotFound },
-            onFailure = { GetCategoryResult.Failed.Error(it) },
+            onSuccess = { GetCategoryResult.Success(it) },
+            onFailure = { GetCategoryResult.Failed(it) },
+        )
+    }
+
+    fun getCategory(
+        userId: UserId,
+    ) : GetCategoryResult {
+        return runCatching {
+            DbConnection.use {
+                val records = DSL.selectFrom(CATEGORIES)
+                    .where(
+                        CATEGORIES.USER_ID.eq(userId.id),
+                    )
+                    .fetch()
+
+                records.map { record ->
+                    CategoryResult(
+                        userId = UserId(record.userId!!),
+                        moneyUsageCategoryId = MoneyUsageCategoryId(record.moneyUsageCategoryId!!),
+                        name = record.name!!,
+                    )
+                }
+            }
+        }.fold(
+            onSuccess = { GetCategoryResult.Success(it) },
+            onFailure = { GetCategoryResult.Failed(it) },
         )
     }
 
@@ -79,10 +107,7 @@ class MoneyUsageCategoryRepository {
     }
 
     sealed interface GetCategoryResult {
-        data class Success(val result: CategoryResult) : GetCategoryResult
-        sealed interface Failed : GetCategoryResult {
-            object NotFound : Failed
-            data class Error(val error: Throwable) : Failed
-        }
+        data class Success(val results: List<CategoryResult>) : GetCategoryResult
+        data class Failed(val e: Throwable) : GetCategoryResult
     }
 }
