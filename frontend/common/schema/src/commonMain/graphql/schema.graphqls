@@ -7,6 +7,15 @@ schema {
 
 directive @lazy on FIELD_DEFINITION
 
+type AddCategoryResult {
+    category: MoneyUsageCategory
+}
+
+type AddSubCategoryResult {
+    error: AddSubCategoryError
+    subCategory: MoneyUsageSubCategory
+}
+
 type AdminAddUserResult {
     errorType: [AdminAddUserErrorType!]!
 }
@@ -49,13 +58,34 @@ type ImportedMailConnection {
     nodes: [ImportedMail!]!
 }
 
+type MoneyUsage {
+    date: LocalDateTime!
+    description: String!
+    id: MoneyUsageId!
+    moneyUsageService: MoneyUsageService
+    moneyUsageSubCategory: MoneyUsageSubCategory
+    title: String!
+}
+
+type MoneyUsageCategoriesConnection {
+    cursor: String
+    nodes: [MoneyUsageCategory!]!
+}
+
+type MoneyUsageCategory {
+    id: MoneyUsageCategoryId!
+    name: String!
+    subCategories(query: MoneyUsageSubCategoryQuery!): subCategoriesConnection
+}
+
 type MoneyUsageService {
     id: MoneyUsageServiceId!
     name: String!
 }
 
-type MoneyUsageType {
-    id: MoneyUsageTypeId!
+type MoneyUsageSubCategory {
+    category: MoneyUsageCategory!
+    id: MoneyUsageSubCategoryId!
     name: String!
 }
 
@@ -78,12 +108,13 @@ type SuggestMoneyUsage {
     price: Int
     service: MoneyUsageService
     title: String!
-    type: MoneyUsageType
+    type: MoneyUsageCategory
 }
 
 type User {
     importedMailAttributes: ImportedMailAttributes!
     isLoggedIn: Boolean!
+    moneyUsageCategories(input: moneyUsageCategoriesInput!): MoneyUsageCategoriesConnection
     settings: UserSettings!
     userMailAttributes: UserMailAttributes!
 }
@@ -121,6 +152,9 @@ type UserMailConnection {
 }
 
 type UserMutation {
+    addCategory(input: AddCategoryInput!): AddCategoryResult!
+    addSubCategory(input: AddSubCategoryInput!): AddSubCategoryResult!
+    addUsage(usage: AddUsageInput!): MoneyUsage!
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
     importMail(mailIds: [MailId!]!): ImportMailResult!
     settingsMutation: SettingsMutation
@@ -129,6 +163,15 @@ type UserMutation {
 
 type UserSettings {
     imapConfig: UserImapConfig
+}
+
+type subCategoriesConnection {
+    cursor: String
+    nodes: [MoneyUsageSubCategory!]!
+}
+
+enum AddSubCategoryError {
+    CATEGORY_NOT_FOUND
 }
 
 enum AdminAddUserErrorType {
@@ -158,12 +201,33 @@ scalar LocalDateTime
 
 scalar MailId
 
+scalar MoneyUsageCategoryId
+
+scalar MoneyUsageId
+
 scalar MoneyUsageServiceId
 
-scalar MoneyUsageTypeId
+scalar MoneyUsageSubCategoryId
 
 "A slightly refined version of RFC-3339 compliant DateTime Scalar"
 scalar OffsetDateTime
+
+input AddCategoryInput {
+    name: String!
+}
+
+input AddSubCategoryInput {
+    categoryId: MoneyUsageCategoryId!
+    name: String!
+}
+
+input AddUsageInput {
+    date: LocalDateTime!
+    description: String!
+    service: MoneyUsageServiceId
+    title: String!
+    type: MoneyUsageCategoryId
+}
 
 input ImportedMailQuery {
     cursor: String
@@ -180,9 +244,19 @@ input MailQuery {
     size: Int!
 }
 
+input MoneyUsageSubCategoryQuery {
+    cursor: String
+    size: Int!
+}
+
 input UpdateUserImapConfigInput {
     host: String
     password: String
     port: Int
     userName: String
+}
+
+input moneyUsageCategoriesInput {
+    cursor: String
+    size: Int!
 }
