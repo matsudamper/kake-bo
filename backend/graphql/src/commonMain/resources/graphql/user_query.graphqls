@@ -5,3 +5,13 @@ type User {
     importedMailAttributes: ImportedMailAttributes!
 }
 
+type MoneyUsage {
+    id: MoneyUsageId!
+    title: String!
+    description: String!
+    date: LocalDateTime!
+
+    moneyUsageService: MoneyUsageService
+    moneyUsageSubCategory: MoneyUsageSubCategory
+}
+

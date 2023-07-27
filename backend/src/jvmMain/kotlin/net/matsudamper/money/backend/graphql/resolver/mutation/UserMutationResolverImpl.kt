@@ -13,9 +13,11 @@ import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
 import net.matsudamper.money.backend.repository.UserLoginRepository
 import net.matsudamper.money.backend.repository.UserSessionRepository
 import net.matsudamper.money.element.MailId
+import net.matsudamper.money.graphql.model.QlAddUsage
 import net.matsudamper.money.graphql.model.QlDeleteMailResult
 import net.matsudamper.money.graphql.model.QlDeleteMailResultError
 import net.matsudamper.money.graphql.model.QlImportMailResult
+import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlSettingsMutation
 import net.matsudamper.money.graphql.model.QlUserLoginResult
 import net.matsudamper.money.graphql.model.QlUserMutation
@@ -121,6 +123,10 @@ class UserMutationResolverImpl : UserMutationResolver {
                 isSuccess = isSuccess,
             )
         }.toDataFetcher()
+    }
+
+    override fun addUsage(userMutation: QlUserMutation, usage: QlAddUsage, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlMoneyUsage>> {
+        TODO("Not yet implemented")
     }
 }
 

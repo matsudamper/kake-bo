@@ -3,6 +3,15 @@ type UserMutation {
     settingsMutation: SettingsMutation @lazy
     importMail(mailIds: [MailId!]!): ImportMailResult!
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
+    addUsage(usage: AddUsage!): MoneyUsage!
+}
+
+input AddUsage {
+    title: String!
+    description: String!
+    service: MoneyUsageServiceId
+    type: MoneyUsageCategoryId
+    date: LocalDateTime!
 }
 
 type DeleteMailResult {

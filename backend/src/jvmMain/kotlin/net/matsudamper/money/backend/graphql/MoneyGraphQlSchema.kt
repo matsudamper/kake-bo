@@ -26,7 +26,10 @@ import net.matsudamper.money.backend.graphql.resolver.mutation.UserMutationResol
 import net.matsudamper.money.backend.graphql.schema.GraphqlSchemaModule
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MailId
+import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageServiceId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.MoneyUsageTypeId
 
 
@@ -90,6 +93,15 @@ object MoneyGraphQlSchema {
                 },
                 createIntScalarType("ImportedMailId") {
                     ImportedMailId(it)
+                },
+                createIntScalarType("MoneyUsageCategoryId") {
+                    MoneyUsageCategoryId(it)
+                },
+                createIntScalarType("MoneyUsageSubCategoryId") {
+                    MoneyUsageSubCategoryId(it)
+                },
+                createIntScalarType("MoneyUsageId") {
+                    MoneyUsageId(it)
                 },
                 GraphQLScalarType.newScalar(ExtendedScalars.DateTime)
                     .name("OffsetDateTime")

@@ -3,13 +3,19 @@ type SuggestMoneyUsage {
     description: String!
     date: LocalDateTime
     price: Int
-    type: MoneyUsageType
+    type: MoneyUsageCategory
     service: MoneyUsageService
 }
 
-type MoneyUsageType {
-    id: MoneyUsageTypeId!
+type MoneyUsageCategory {
+    id: MoneyUsageCategoryId!
     name: String!
+}
+
+type MoneyUsageSubCategory {
+    id: MoneyUsageSubCategoryId!
+    name: String!
+    largeCategory: MoneyUsageCategory!
 }
 
 type MoneyUsageService {
