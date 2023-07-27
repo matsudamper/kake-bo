@@ -305,6 +305,27 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                         uiState = mailLinkViewModel.rootUiStateFlow.collectAsState().value,
                                     )
                                 }
+
+                                // TODO
+                                Screen.Settings.Category -> {
+                                    Text(current.url)
+                                }
+
+                                Screen.Settings.CategoryId -> {
+                                    Text(current.url)
+                                }
+
+                                Screen.Settings.Imap -> {
+                                    Text(current.url)
+                                }
+
+                                Screen.Settings.SubCategory -> {
+                                    Text(current.url)
+                                }
+
+                                Screen.Settings.SubCategoryId -> {
+                                    Text(current.url)
+                                }
                             }
                         }
                     }
