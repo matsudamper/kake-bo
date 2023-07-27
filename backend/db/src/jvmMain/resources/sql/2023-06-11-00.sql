@@ -34,7 +34,7 @@ CREATE TABLE admin_sessions
 CREATE TABLE user_password_extend_data
 (
     user_id          INT                                not null PRIMARY KEY,
-    salt             BINARY(32) not null,
+    salt             BINARY(32)                         not null,
     iteration_count  INT                                not null,
     algorithm        VARCHAR(255)                       not null,
     key_length       INT                                not null,
@@ -57,12 +57,28 @@ CREATE TABLE user_mails
     user_id          INT                                not null,
     plain            TEXT,
     html             TEXT,
+    from_mail        VARCHAR(500)                       not null,
+    subject          VARCHAR(500)                       not null,
     datetime         DATETIME                           not null,
     created_datetime DATETIME DEFAULT CURRENT_TIMESTAMP not null
 );
 
-ALTER TABLE user_mails
-    ADD COLUMN from_mail VARCHAR(500) not null;
 
-ALTER TABLE user_mails
-    ADD COLUMN subject VARCHAR(500) not null;
+CREATE TABLE money_usage_categories
+(
+    money_usage_category_id INT                                not null PRIMARY KEY AUTO_INCREMENT,
+    user_id                 INT                                not null,
+    name                    VARCHAR(500)                       not null,
+    created_datetime        DATETIME DEFAULT CURRENT_TIMESTAMP not null,
+    update_datetime         DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE money_usage_sub_categories
+(
+    money_usage_sub_category_id INT                                not null PRIMARY KEY AUTO_INCREMENT,
+    user_id                     INT                                not null,
+    money_usage_category_id     INT                                not null,
+    name                        VARCHAR(500)                       not null,
+    created_datetime            DATETIME DEFAULT CURRENT_TIMESTAMP not null,
+    update_datetime             DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP
+);

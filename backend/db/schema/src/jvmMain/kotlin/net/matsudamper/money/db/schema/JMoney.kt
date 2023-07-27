@@ -7,6 +7,8 @@ package net.matsudamper.money.db.schema
 import kotlin.collections.List
 
 import net.matsudamper.money.db.schema.tables.JAdminSessions
+import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
+import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
 import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
@@ -36,6 +38,16 @@ open class JMoney : SchemaImpl("money", DefaultCatalog.DEFAULT_CATALOG) {
      * The table <code>money.admin_sessions</code>.
      */
     val ADMIN_SESSIONS: JAdminSessions get() = JAdminSessions.ADMIN_SESSIONS
+
+    /**
+     * The table <code>money.money_usage_categories</code>.
+     */
+    val MONEY_USAGE_CATEGORIES: JMoneyUsageCategories get() = JMoneyUsageCategories.MONEY_USAGE_CATEGORIES
+
+    /**
+     * The table <code>money.money_usage_sub_categories</code>.
+     */
+    val MONEY_USAGE_SUB_CATEGORIES: JMoneyUsageSubCategories get() = JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES
 
     /**
      * The table <code>money.user_imap_settings</code>.
@@ -71,6 +83,8 @@ open class JMoney : SchemaImpl("money", DefaultCatalog.DEFAULT_CATALOG) {
 
     override fun getTables(): List<Table<*>> = listOf(
         JAdminSessions.ADMIN_SESSIONS,
+        JMoneyUsageCategories.MONEY_USAGE_CATEGORIES,
+        JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES,
         JUserImapSettings.USER_IMAP_SETTINGS,
         JUserMails.USER_MAILS,
         JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA,
