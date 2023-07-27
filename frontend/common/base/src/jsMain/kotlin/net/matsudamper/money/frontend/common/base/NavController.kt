@@ -9,19 +9,21 @@ import kotlinx.browser.window
 @Immutable
 public class ScreenNavControllerImpl(
     initial: Screen,
-    directions: List<Screen>,
+    private val directions: List<Screen>,
 ) : ScreenNavController {
     override var currentNavigation: Screen by mutableStateOf<Screen>(initial)
 
     init {
-        currentNavigation = directions.first { it.url == window.location.pathname }
+        updateNavigation()
 
         window.addEventListener(
             "popstate",
-            callback = {
-                currentNavigation = directions.first { it.url == window.location.pathname }
-            },
+            callback = { updateNavigation() },
         )
+    }
+
+    private fun updateNavigation() {
+        currentNavigation = directions.first { it.url == window.location.pathname }
     }
 
     override fun navigate(navigation: Screen) {
