@@ -87,7 +87,10 @@ public class ScreenNavControllerImpl(
                 screen = result.screen,
             )
         } else {
-            throw IllegalStateException("404")
+            screenState = ScreenState(
+                url = Screen.NotFound.url,
+                screen = Screen.NotFound,
+            )
         }
     }
 

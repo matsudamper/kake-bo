@@ -22,6 +22,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
@@ -325,6 +326,18 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
 
                                 Screen.Settings.SubCategoryId -> {
                                     Text(current.url)
+                                }
+
+                                // TODO: move file
+                                Screen.NotFound -> {
+                                    Scaffold { paddingValues1 ->
+                                        Box(Modifier.padding(paddingValues1)) {
+                                            Text(
+                                                modifier = Modifier.align(Alignment.Center),
+                                                text = "Page Not Found",
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }

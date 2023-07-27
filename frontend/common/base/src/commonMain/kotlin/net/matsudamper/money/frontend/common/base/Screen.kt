@@ -57,6 +57,11 @@ public sealed interface Screen : Direction {
         }
     }
 
+    public object NotFound : Settings {
+        override val title: String = "404"
+        override val url: String = "/status/404"
+    }
+
     public object Login : Screen {
         override val title: String = "ログイン"
         override val url: String = "/login"
