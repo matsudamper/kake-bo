@@ -21,7 +21,7 @@ kotlin {
                 api(compose.runtime)
                 api(compose.ui)
 
-                api("io.ktor:ktor-client-logging-js:2.2.4")
+                api("io.ktor:ktor-client-logging-js:2.3.2")
                 api(libs.ktor.client.core)
                 api(libs.ktor.client.js)
             }
