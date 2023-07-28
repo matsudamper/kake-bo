@@ -164,7 +164,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                             when (val current = navController.currentNavigation) {
                                 is Screen.Root -> {
                                     val tabHolder = rememberSaveableStateHolder()
-                                    RootContent(
+                                    RootNavContent(
                                         tabHolder = tabHolder,
                                         current = current,
                                         rootScreenScaffoldListener = rootScreenScaffoldListener,
@@ -270,24 +270,10 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                 }
 
                                 // TODO
-                                Screen.Settings.Category -> {
-                                    Text(current.url)
-                                }
-
-                                Screen.Settings.CategoryId -> {
-                                    Text(current.url)
-                                }
-
-                                Screen.Settings.Imap -> {
-                                    Text(current.url)
-                                }
-
-                                Screen.Settings.SubCategory -> {
-                                    Text(current.url)
-                                }
-
-                                Screen.Settings.SubCategoryId -> {
-                                    Text(current.url)
+                                is Screen.Settings -> {
+                                    SettingNavContent(
+                                        state = current,
+                                    )
                                 }
 
                                 // TODO: move file
@@ -311,7 +297,32 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
 }
 
 @Composable
-private fun RootContent(
+private fun SettingNavContent(state: Screen.Settings) {
+    when (state) {
+        Screen.Settings.Category -> {
+            Text(state.url)
+        }
+
+        Screen.Settings.CategoryId -> {
+            Text(state.url)
+        }
+
+        Screen.Settings.Imap -> {
+            Text(state.url)
+        }
+
+        Screen.Settings.SubCategory -> {
+            Text(state.url)
+        }
+
+        Screen.Settings.SubCategoryId -> {
+            Text(state.url)
+        }
+    }
+}
+
+@Composable
+private fun RootNavContent(
     tabHolder: SaveableStateHolder,
     current: Screen.Root,
     rootScreenScaffoldListener: RootScreenScaffoldListener,
