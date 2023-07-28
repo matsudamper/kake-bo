@@ -21,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.CanvasBasedWindow
 import kotlinx.browser.window
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -162,55 +164,15 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                             when (val current = navController.currentNavigation) {
                                 is Screen.Root -> {
                                     val tabHolder = rememberSaveableStateHolder()
-                                    when (current) {
-                                        Screen.Root.Home -> {
-                                            tabHolder.SaveableStateProvider(Screen.Root.Home) {
-                                                val viewModel = remember {
-                                                    HomeViewModel(
-                                                        coroutineScope = rootCoroutineScope,
-                                                        homeGraphqlApi = HomeGraphqlApi(),
-                                                        loginCheckUseCase = loginCheckUseCase,
-                                                    )
-                                                }
-                                                LaunchedEffect(viewModel.viewModelEventHandler) {
-                                                    viewModelEventHandlers.handle(
-                                                        handler = viewModel.viewModelEventHandler,
-                                                    )
-                                                }
-                                                RootScreen(
-                                                    uiState = viewModel.uiStateFlow.collectAsState().value,
-                                                    scaffoldListener = rootScreenScaffoldListener,
-                                                )
-                                            }
-                                        }
-
-                                        Screen.Root.Register -> {
-                                            tabHolder.SaveableStateProvider(Screen.Root.Register) {
-                                                RootRegisterScreen(
-                                                    modifier = Modifier.fillMaxSize(),
-                                                    listener = rootScreenScaffoldListener,
-                                                )
-                                            }
-                                        }
-
-                                        Screen.Root.Settings -> {
-                                            tabHolder.SaveableStateProvider(Screen.Root.Settings) {
-                                                val settingViewModel = remember {
-                                                    SettingViewModel(
-                                                        coroutineScope = rootCoroutineScope,
-                                                        graphqlQuery = GraphqlUserConfigQuery(),
-                                                        globalEventSender = globalEventSender,
-                                                        ioDispatchers = Dispatchers.Unconfined,
-                                                    )
-                                                }
-                                                RootSettingScreen(
-                                                    modifier = Modifier.fillMaxSize(),
-                                                    uiState = settingViewModel.uiState.collectAsState().value,
-                                                    listener = rootScreenScaffoldListener,
-                                                )
-                                            }
-                                        }
-                                    }
+                                    RootContent(
+                                        tabHolder = tabHolder,
+                                        current = current,
+                                        rootScreenScaffoldListener = rootScreenScaffoldListener,
+                                        viewModelEventHandlers = viewModelEventHandlers,
+                                        rootCoroutineScope = rootCoroutineScope,
+                                        globalEventSender = globalEventSender,
+                                        loginCheckUseCase = loginCheckUseCase,
+                                    )
                                 }
 
                                 Screen.Login -> {
@@ -343,6 +305,67 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RootContent(
+    tabHolder: SaveableStateHolder,
+    current: Screen.Root,
+    rootScreenScaffoldListener: RootScreenScaffoldListener,
+    viewModelEventHandlers: ViewModelEventHandlers,
+    rootCoroutineScope: CoroutineScope,
+    globalEventSender: EventSender<GlobalEvent>,
+    loginCheckUseCase: LoginCheckUseCase,
+) {
+    when (current) {
+        Screen.Root.Home -> {
+            tabHolder.SaveableStateProvider(Screen.Root.Home) {
+                val viewModel = remember {
+                    HomeViewModel(
+                        coroutineScope = rootCoroutineScope,
+                        homeGraphqlApi = HomeGraphqlApi(),
+                        loginCheckUseCase = loginCheckUseCase,
+                    )
+                }
+                LaunchedEffect(viewModel.viewModelEventHandler) {
+                    viewModelEventHandlers.handle(
+                        handler = viewModel.viewModelEventHandler,
+                    )
+                }
+                RootScreen(
+                    uiState = viewModel.uiStateFlow.collectAsState().value,
+                    scaffoldListener = rootScreenScaffoldListener,
+                )
+            }
+        }
+
+        Screen.Root.Register -> {
+            tabHolder.SaveableStateProvider(Screen.Root.Register) {
+                RootRegisterScreen(
+                    modifier = Modifier.fillMaxSize(),
+                    listener = rootScreenScaffoldListener,
+                )
+            }
+        }
+
+        Screen.Root.Settings -> {
+            tabHolder.SaveableStateProvider(Screen.Root.Settings) {
+                val settingViewModel = remember {
+                    SettingViewModel(
+                        coroutineScope = rootCoroutineScope,
+                        graphqlQuery = GraphqlUserConfigQuery(),
+                        globalEventSender = globalEventSender,
+                        ioDispatchers = Dispatchers.Unconfined,
+                    )
+                }
+                RootSettingScreen(
+                    modifier = Modifier.fillMaxSize(),
+                    uiState = settingViewModel.uiState.collectAsState().value,
+                    listener = rootScreenScaffoldListener,
+                )
             }
         }
     }
