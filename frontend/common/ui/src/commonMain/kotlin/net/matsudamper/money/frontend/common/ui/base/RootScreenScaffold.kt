@@ -76,7 +76,7 @@ internal fun RootScreenScaffold(
                             selected = currentScreen is Screen.Root.Home,
                             onClick = { listener.onClickHome() },
                             icon = {
-                                Icon(Icons.Default.Settings, "")
+                                Icon(Icons.Default.Home, "")
                             },
                             label = {
                                 Text(
