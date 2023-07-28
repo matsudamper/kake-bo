@@ -28,17 +28,16 @@ kotlin {
     sourceSets {
         val jvmMain by getting {
             dependencies {
-                implementation(kotlin("stdlib"))
-                implementation(kotlin("reflect"))
+                api(kotlin("stdlib"))
+                api(kotlin("reflect"))
 
                 val jooqVersion = "3.18.5"
-                implementation("org.jooq:jooq:$jooqVersion")
-//                implementation("org.jooq:jooq-kotlin:$jooqVersion")
+                api("org.jooq:jooq:$jooqVersion")
             }
         }
         val jvmTest by getting {
             dependencies {
-                implementation(kotlin("test"))
+                api(kotlin("test"))
             }
         }
     }

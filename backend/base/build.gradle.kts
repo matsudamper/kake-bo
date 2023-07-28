@@ -10,20 +10,20 @@ kotlin {
         jvmToolchain(17)
         val jvmMain by getting {
             dependencies {
-                implementation(kotlin("stdlib"))
-                implementation(kotlin("reflect"))
+                api(kotlin("stdlib"))
+                api(kotlin("reflect"))
 
-                implementation(project(":shared"))
+                api(project(":shared"))
 
-                implementation(libs.kotlin.serialization.json)
-                implementation(libs.jackson.databind)
-                implementation(libs.jackson.kotlin)
-                implementation(libs.log4j.api)
+                api(libs.kotlin.serialization.json)
+                api(libs.jackson.databind)
+                api(libs.jackson.kotlin)
+                api(libs.log4j.api)
             }
         }
         val jvmTest by getting {
             dependencies {
-                implementation(kotlin("test"))
+                api(kotlin("test"))
             }
         }
     }

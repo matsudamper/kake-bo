@@ -12,15 +12,18 @@ kotlin {
     sourceSets {
         val jsMain by getting {
             dependencies {
-                implementation(kotlin("stdlib"))
+                api(kotlin("stdlib"))
 
-                implementation(project(":shared"))
-                implementation(project(":frontend:common:ui"))
-                implementation(project(":frontend:common:viewmodel"))
+                api(project(":shared"))
+                api(project(":frontend:common:base"))
+                api(project(":frontend:common:ui"))
+                api(project(":frontend:common:viewmodel"))
+                api(project(":frontend:common:schema"))
+                api(project(":frontend:common:uistate"))
 
-                implementation(kotlin("stdlib"))
-                implementation(libs.kotlin.serialization.json)
-                implementation(compose.html.core)
+                api(kotlin("stdlib"))
+                api(libs.kotlin.serialization.json)
+                api(compose.html.core)
             }
         }
     }

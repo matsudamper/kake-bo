@@ -15,13 +15,13 @@ kotlin {
         jvmToolchain(17)
         val jvmMain by getting {
             dependencies {
-                implementation(project(":backend:base"))
-                implementation(project(":shared"))
+                api(project(":backend:base"))
+                api(project(":shared"))
 
-                implementation(kotlin("stdlib"))
-                implementation(libs.kotlin.serialization.json)
-                implementation(libs.logback.classic)
-                implementation("com.graphql-java:graphql-java-extended-scalars:20.2")
+                api(kotlin("stdlib"))
+                api(libs.kotlin.serialization.json)
+                api(libs.logback.classic)
+                api("com.graphql-java:graphql-java-extended-scalars:20.2")
 
                 api("com.graphql-java-kickstart:graphql-java-tools:13.0.2")
             }
@@ -29,7 +29,7 @@ kotlin {
         }
         val jvmTest by getting {
             dependencies {
-                implementation(kotlin("test"))
+                api(kotlin("test"))
             }
         }
     }

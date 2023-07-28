@@ -13,7 +13,7 @@ kotlin {
             dependencies {
                 api(compose.runtime)
                 api(compose.ui)
-                implementation(libs.kotlin.coroutines.core)
+                api(libs.kotlin.coroutines.core)
             }
         }
         val jsMain by getting {
@@ -21,14 +21,14 @@ kotlin {
                 api(compose.runtime)
                 api(compose.ui)
 
-                implementation("io.ktor:ktor-client-logging-js:2.2.4")
-                implementation(libs.ktor.client.core)
-                implementation(libs.ktor.client.js)
+                api("io.ktor:ktor-client-logging-js:2.2.4")
+                api(libs.ktor.client.core)
+                api(libs.ktor.client.js)
             }
         }
         val jsTest by getting {
             dependencies {
-                implementation(kotlin("test"))
+                api(kotlin("test"))
             }
         }
     }

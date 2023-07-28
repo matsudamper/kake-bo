@@ -14,12 +14,12 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(project(":shared"))
-                implementation(project(":frontend:common:base"))
+                api(project(":frontend:common:base"))
 
                 api(libs.apollo.runtime)
-                implementation(libs.apollo.normalizedCache)
-                implementation(libs.apollo.adapters)
-                implementation(libs.kotlin.datetime)
+                api(libs.kotlin.datetime)
+                api(libs.apollo.normalizedCache)
+                api(libs.apollo.adapters)
             }
         }
     }
