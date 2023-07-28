@@ -23,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
@@ -49,6 +48,7 @@ import net.matsudamper.money.frontend.common.ui.screen.RootScreen
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.RootSettingScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
+import net.matsudamper.money.frontend.common.ui.screen.status.NotFoundScreen
 import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailImportScreen
 import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailLinkScreen
 import net.matsudamper.money.frontend.common.uistate.LoginScreenUiState
@@ -276,16 +276,10 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                     )
                                 }
 
-                                // TODO: move file
                                 Screen.NotFound -> {
-                                    Scaffold { paddingValues1 ->
-                                        Box(Modifier.padding(paddingValues1)) {
-                                            Text(
-                                                modifier = Modifier.align(Alignment.Center),
-                                                text = "Page Not Found",
-                                            )
-                                        }
-                                    }
+                                    NotFoundScreen(
+                                        paddingValues = paddingValues,
+                                    )
                                 }
                             }
                         }
