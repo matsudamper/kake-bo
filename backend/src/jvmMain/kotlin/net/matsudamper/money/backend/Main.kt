@@ -8,7 +8,7 @@ import io.ktor.server.application.call
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
-import io.ktor.server.http.content.file
+import io.ktor.server.http.content.*
 import io.ktor.server.plugins.callloging.CallLogging
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.forwardedheaders.ForwardedHeaders
@@ -88,7 +88,10 @@ fun Application.myApplicationModule() {
             .forEach {
                 val accessPath = it.path.replace("\\", "/")
                     .removePrefix(ServerEnv.frontPath.replace("\\", "/"))
-                file(accessPath, it.path)
+                staticFiles(
+                    remotePath = accessPath,
+                    dir = File(it.path),
+                )
             }
         accept(ContentType.Text.Html) {
             get("{...}") {
