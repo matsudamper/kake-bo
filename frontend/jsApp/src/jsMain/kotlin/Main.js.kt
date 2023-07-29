@@ -38,7 +38,6 @@ import lib.js.NormalizeInputKeyCapture
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.ScreenNavControllerImpl
 import net.matsudamper.money.frontend.common.base.nav.admin.rememberAdminScreenController
-import net.matsudamper.money.frontend.common.base.nav.user.RootTab
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.CustomTheme
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
