@@ -19,10 +19,9 @@ kotlin {
                 api(kotlin("reflect"))
                 api(libs.kotlin.coroutines.core)
                 api(libs.kotlin.serialization.json)
-                api("jakarta.mail:jakarta.mail-api:2.1.2")
-                api("org.eclipse.angus:jakarta.mail:2.0.2")
-
-
+                api(libs.jakarta.mail.api)
+                api(libs.jakarta.mail)
+                api(libs.angus.mail)
             }
         }
         val jvmTest by getting {

@@ -72,6 +72,11 @@ dependencyResolutionManagement {
             library("ktor.client.cio", "io.ktor:ktor-client-cio:$ktorVersion")
             library("ktor.client.js", "io.ktor:ktor-client-js:$ktorVersion")
 
+            library("jakarta.mail.api","jakarta.mail:jakarta.mail-api:2.1.2")
+            library("jakarta.mail","org.eclipse.angus:jakarta.mail:2.0.2")
+            library("angus.mail","org.eclipse.angus:angus-mail:2.0.2")
+
+
             val apolloVersion = "3.8.2"
             plugin("apollo.plugin", "com.apollographql.apollo3").version(apolloVersion)
             library("apollo.runtime", "com.apollographql.apollo3:apollo-runtime:$apolloVersion")
