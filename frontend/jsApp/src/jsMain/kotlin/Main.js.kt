@@ -95,15 +95,15 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                     val rootScreenScaffoldListener: RootScreenScaffoldListener = remember(navController) {
                         object : RootScreenScaffoldListener {
                             override fun onClickHome() {
-                                navController.changeTab(RootTab.Home)
+                                navController.navigate(ScreenStructure.Root.Home())
                             }
 
                             override fun onClickRegister() {
-                                navController.changeTab(RootTab.Register)
+                                navController.navigate(ScreenStructure.Root.Register())
                             }
 
                             override fun onClickSettings() {
-                                navController.changeTab(RootTab.Settings)
+                                navController.navigate(ScreenStructure.Root.Settings.Root)
                             }
                         }
                     }

@@ -5,7 +5,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.browser.window
-import net.matsudamper.money.frontend.common.base.nav.user.RootTab
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.Screens
@@ -53,39 +52,10 @@ public class ScreenNavControllerImpl(
         updateScreenState(navigation)
     }
 
-    override fun changeTab(tab: RootTab) {
-        val state = when (tab) {
-            RootTab.Home -> screenState.home ?: ScreenStructure.Root.Home()
-            RootTab.Register -> screenState.register ?: ScreenStructure.Root.Register()
-            RootTab.Settings -> screenState.settings ?: ScreenStructure.Root.Settings.Root
-        }
-        if (screenState.current == state) return
-
-        val url = state.createUrl()
-        window.history.pushState(
-            data = null,
-            title = state.direction.title,
-            url = url,
-        )
-        updateScreenState(state)
-    }
-
     private fun updateScreenState(screenStructure: ScreenStructure) {
         println("updateScreenState: $screenStructure, ${screenStructure.createUrl()}")
         screenState = screenState.copy(
             current = screenStructure,
-            home = when (screenStructure) {
-                is ScreenStructure.Root.Home -> screenStructure
-                else -> screenState.home
-            },
-            settings = when (screenStructure) {
-                is ScreenStructure.Root.Settings -> screenStructure
-                else -> screenState.settings
-            },
-            register = when (screenStructure) {
-                is ScreenStructure.Root.Register -> screenStructure
-                else -> screenState.register
-            },
         )
     }
 
@@ -118,9 +88,6 @@ public class ScreenNavControllerImpl(
 
     public data class ScreenState(
         val current: ScreenStructure,
-        val home: ScreenStructure? = null,
-        val settings: ScreenStructure? = null,
-        val register: ScreenStructure? = null,
     )
 }
 
