@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen
+package net.matsudamper.money.frontend.common.ui.screen.settings
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -185,7 +185,7 @@ private fun SettingElementContent(
             )
         },
     ) {
-        ChangeTextSection(
+        SettingsChangeTextSection(
             title = {
                 Text("Host")
             },
@@ -198,7 +198,7 @@ private fun SettingElementContent(
             onClickChange = { uiState.event.onClickChangeHost() },
         )
         Spacer(Modifier.height(14.dp))
-        ChangeTextSection(
+        SettingsChangeTextSection(
             title = {
                 Text("User Name")
             },
@@ -211,7 +211,7 @@ private fun SettingElementContent(
             onClickChange = { uiState.event.onClickChangeUserName() },
         )
         Spacer(Modifier.height(14.dp))
-        ChangeTextSection(
+        SettingsChangeTextSection(
             title = {
                 Text("Port")
             },
@@ -224,7 +224,7 @@ private fun SettingElementContent(
             onClickChange = { uiState.event.onClickChangePort() },
         )
         Spacer(Modifier.height(14.dp))
-        ChangeTextSection(
+        SettingsChangeTextSection(
             title = {
                 Text("Password")
             },

@@ -10,11 +10,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
-import net.matsudamper.money.frontend.common.ui.screen.ImapSettingScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.settings.ImapSettingScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.GraphqlUserConfigQuery
 import net.matsudamper.money.frontend.graphql.fragment.DisplayImapConfig
-import net.matsudamper.root.RootSettingScreenUiState
 
 public class ImapSettingViewModel(
     private val coroutineScope: CoroutineScope,
