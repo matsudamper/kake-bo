@@ -8,7 +8,8 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.MailImportViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.MailLinkViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.MailImportViewModelEvent
+import net.matsudamper.money.frontend.common.viewmodel.root.MailLinkViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
 
@@ -32,11 +33,11 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<MailImportViewModel.Event>) {
+    suspend fun handle(handler: EventHandler<MailImportViewModelEvent>) {
         coroutineScope {
             val scope = this
             handler.collect(
-                object : MailImportViewModel.Event {
+                object : MailImportViewModelEvent {
                     override fun backRequest() {
                         navController.back()
                     }
@@ -53,11 +54,11 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<MailLinkViewModel.Event>) {
+    suspend fun handle(handler: EventHandler<MailLinkViewModelEvent>) {
         coroutineScope {
             val scope = this
             handler.collect(
-                object : MailLinkViewModel.Event {
+                object : MailLinkViewModelEvent {
                     override fun backRequest() {
                         navController.back()
                     }

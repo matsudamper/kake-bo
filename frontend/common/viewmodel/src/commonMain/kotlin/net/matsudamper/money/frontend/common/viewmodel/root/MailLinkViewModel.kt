@@ -22,8 +22,8 @@ public class MailLinkViewModel(
     private val ioDispatcher: CoroutineDispatcher,
     private val graphqlApi: MailLinkScreenGraphqlApi,
 ) {
-    private val viewModelEventSender = EventSender<Event>()
-    public val eventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
+    private val viewModelEventSender = EventSender<MailLinkViewModelEvent>()
+    public val eventHandler: EventHandler<MailLinkViewModelEvent> = viewModelEventSender.asHandler()
 
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
@@ -154,11 +154,6 @@ public class MailLinkViewModel(
         }
     }
 
-    public interface Event {
-        public fun backRequest()
-        public fun globalToast(message: String)
-    }
-
     private data class ViewModelState(
         val isLoading: Boolean = true,
         val cursor: String? = null,
@@ -166,4 +161,10 @@ public class MailLinkViewModel(
         val mails: List<MailLinkScreenGetMailsQuery.Node> = listOf(),
         val fullScreenHtml: String? = null,
     )
+}
+
+// inner classだとis not functionが出るので外に出している
+public interface MailLinkViewModelEvent {
+    public fun backRequest()
+    public fun globalToast(message: String)
 }

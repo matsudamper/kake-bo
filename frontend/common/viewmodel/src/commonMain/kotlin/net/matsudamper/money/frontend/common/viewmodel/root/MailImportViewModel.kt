@@ -27,8 +27,8 @@ public class MailImportViewModel(
     private val graphqlApi: MailImportScreenGraphqlApi,
     private val loginCheckUseCase: LoginCheckUseCase,
 ) {
-    private val viewModelEventSender = EventSender<Event>()
-    public val eventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
+    private val viewModelEventSender = EventSender<MailImportViewModelEvent>()
+    public val eventHandler: EventHandler<MailImportViewModelEvent> = viewModelEventSender.asHandler()
 
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
@@ -273,11 +273,6 @@ public class MailImportViewModel(
         }
     }
 
-    public interface Event {
-        public fun backRequest()
-        public fun globalToast(message: String)
-    }
-
     private data class ViewModelState(
         val isLoading: Boolean = true,
         val usrMails: List<GetMailQuery.UsrMail> = listOf(),
@@ -293,4 +288,10 @@ public class MailImportViewModel(
             val isLoading: Boolean,
         )
     }
+}
+
+
+public interface MailImportViewModelEvent {
+    public fun backRequest()
+    public fun globalToast(message: String)
 }
