@@ -46,7 +46,7 @@ kotlin {
 tasks.create("generateDbCode") {
     doLast {
         val localProperties = Properties().also {
-            val propertiesFile = File("${rootDir}/local.properties")
+            val propertiesFile = File("$rootDir/local.properties")
             if (propertiesFile.exists()) {
                 it.load(propertiesFile.inputStream())
             }

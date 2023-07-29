@@ -62,7 +62,7 @@ internal object RakutenUsageService : MoneyUsageServices {
                 description = "",
                 service = MoneyUsageServiceType.RakutenPay,
                 dateTime = parsedDate ?: date,
-            )
+            ),
         )
     }
 

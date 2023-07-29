@@ -40,7 +40,7 @@ internal object UberEatsUsageService : MoneyUsageServices {
                 description = "",
                 service = MoneyUsageServiceType.UberEats,
                 dateTime = date,
-            )
+            ),
         )
     }
 

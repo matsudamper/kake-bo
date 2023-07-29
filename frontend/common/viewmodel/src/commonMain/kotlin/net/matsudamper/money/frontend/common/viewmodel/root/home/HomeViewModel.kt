@@ -21,7 +21,6 @@ public class HomeViewModel(
 
     private val uiStateEvent = object : HomeScreenUiState.Event {
         override fun onViewInitialized() {
-
         }
     }
     private val uiStateLoadedEvent = object : HomeScreenUiState.LoadedEvent {
@@ -52,7 +51,7 @@ public class HomeViewModel(
                             HomeScreenUiState.ScreenState.Loaded(
                                 notImportMailCount = it.data?.user?.userMailAttributes?.mailCount,
                                 importedAndNotLinkedMailCount = it.data?.user?.importedMailAttributes?.count,
-                                event = uiStateLoadedEvent
+                                event = uiStateLoadedEvent,
                             )
                         },
                     )

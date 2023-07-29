@@ -20,7 +20,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import kotlin.random.Random
 import kotlin.random.nextULong
 
-
 @Composable
 public fun HtmlTextInput(
     modifier: Modifier = Modifier,

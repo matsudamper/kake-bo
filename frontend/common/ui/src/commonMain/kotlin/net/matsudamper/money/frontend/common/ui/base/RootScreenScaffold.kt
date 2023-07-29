@@ -67,7 +67,7 @@ internal fun RootScreenScaffold(
                             text = "家計簿",
                             fontFamily = rememberCustomFontFamily(),
                         )
-                    }
+                    },
                 )
             },
             bottomBar = {

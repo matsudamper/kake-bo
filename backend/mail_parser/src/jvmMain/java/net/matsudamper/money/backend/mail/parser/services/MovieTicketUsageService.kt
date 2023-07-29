@@ -7,7 +7,7 @@ import net.matsudamper.money.backend.base.element.MoneyUsageServiceType
 import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
 
-public object MovieTicketUsageService: MoneyUsageServices {
+public object MovieTicketUsageService : MoneyUsageServices {
     override val displayName: String = "ムビチケ"
 
     override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): List<MoneyUsage> {
@@ -31,20 +31,20 @@ public object MovieTicketUsageService: MoneyUsageServices {
                 ?.joinToString("")
                 ?.toIntOrNull()
         }
-        
+
         val parsedDate = run {
             val regex = """ご購入日時　(\d{4})/(\d{2})/(\d{2}) (\d{2}):(\d{2})""".toRegex()
             val result = regex.find(plain) ?: return@run null
-            
-            val year = result.groupValues.getOrNull(1)?.toIntOrNull()  ?: return@run null
-            val month = result.groupValues.getOrNull(2)?.toIntOrNull()  ?: return@run null
-            val day = result.groupValues.getOrNull(3)?.toIntOrNull()  ?: return@run null
-            val hour = result.groupValues.getOrNull(4)?.toIntOrNull()  ?: return@run null
+
+            val year = result.groupValues.getOrNull(1)?.toIntOrNull() ?: return@run null
+            val month = result.groupValues.getOrNull(2)?.toIntOrNull() ?: return@run null
+            val day = result.groupValues.getOrNull(3)?.toIntOrNull() ?: return@run null
+            val hour = result.groupValues.getOrNull(4)?.toIntOrNull() ?: return@run null
             val minute = result.groupValues.getOrNull(5)?.toIntOrNull() ?: return@run null
-            
+
             LocalDateTime.of(
                 LocalDate.of(year, month, day),
-                LocalTime.of(hour, minute)
+                LocalTime.of(hour, minute),
             )
         }
 
@@ -55,7 +55,7 @@ public object MovieTicketUsageService: MoneyUsageServices {
                 description = "",
                 service = MoneyUsageServiceType.MovieTicket,
                 dateTime = parsedDate ?: date,
-            )
+            ),
         )
     }
 

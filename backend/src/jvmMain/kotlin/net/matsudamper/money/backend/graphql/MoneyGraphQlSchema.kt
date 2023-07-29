@@ -34,7 +34,6 @@ import net.matsudamper.money.element.MoneyUsageServiceId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.MoneyUsageTypeId
 
-
 object MoneyGraphQlSchema {
     private fun getDebugSchemaFiles(): List<String> {
         return ClassLoader.getSystemClassLoader()
@@ -167,7 +166,7 @@ object MoneyGraphQlSchema {
             .build()
     }
 
-    object LocalDateTimeCoercing: Coercing<LocalDateTime, String> {
+    object LocalDateTimeCoercing : Coercing<LocalDateTime, String> {
         @Suppress("UNCHECKED_CAST")
         private val coercing = Scalars.GraphQLString.coercing as Coercing<String, String>
         override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): String? {

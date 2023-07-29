@@ -22,7 +22,6 @@ import net.matsudamper.money.frontend.common.viewmodel.root.ImapSettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlUserConfigQuery
 
-
 @Composable
 internal fun SettingNavContent(
     state: ScreenStructure.Root.Settings,

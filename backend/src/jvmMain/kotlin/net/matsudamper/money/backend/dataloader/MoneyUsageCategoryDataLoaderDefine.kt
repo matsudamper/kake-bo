@@ -24,23 +24,23 @@ class MoneyUsageCategoryDataLoaderDefine(
                         val result = repository
                             .getCategory(
                                 userId = userId,
-                                moneyUsageCategoryIds = key.map { it.categoryId }
+                                moneyUsageCategoryIds = key.map { it.categoryId },
                             )
 
-                            when(result) {
-                                is MoneyUsageCategoryRepository.GetCategoryResult.Failed -> {
-                                    result.e.printStackTrace()
-                                    null
-                                }
-                                is MoneyUsageCategoryRepository.GetCategoryResult.Success -> {
-                                    result.results.associateBy {
-                                        Key(
-                                            userId = userId,
-                                            categoryId = it.moneyUsageCategoryId,
-                                        )
-                                    }
+                        when (result) {
+                            is MoneyUsageCategoryRepository.GetCategoryResult.Failed -> {
+                                result.e.printStackTrace()
+                                null
+                            }
+                            is MoneyUsageCategoryRepository.GetCategoryResult.Success -> {
+                                result.results.associateBy {
+                                    Key(
+                                        userId = userId,
+                                        categoryId = it.moneyUsageCategoryId,
+                                    )
                                 }
                             }
+                        }
                     }.flatten()
 
                 keys.associateWith { key ->

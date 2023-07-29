@@ -67,7 +67,7 @@ internal object PayPalUsageService : MoneyUsageServices {
                 },
                 service = MoneyUsageServiceType.PayPal,
                 dateTime = date,
-            )
+            ),
         )
     }
 

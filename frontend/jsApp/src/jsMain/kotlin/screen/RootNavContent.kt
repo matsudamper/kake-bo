@@ -19,7 +19,6 @@ import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
 
-
 @Composable
 internal fun RootNavContent(
     tabHolder: SaveableStateHolder,

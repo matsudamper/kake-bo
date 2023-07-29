@@ -25,23 +25,23 @@ class MoneyUsageSubCategoryDataLoaderDefine(
                         val result = repository
                             .getSubCategory(
                                 userId = userId,
-                                moneyUsageSubCategoryIds = key.map { it.subCategoryId }
+                                moneyUsageSubCategoryIds = key.map { it.subCategoryId },
                             )
 
-                            when(result) {
-                                is MoneyUsageSubCategoryRepository.GetSubCategoryResult.Failed -> {
-                                    result.e.printStackTrace()
-                                    null
-                                }
-                                is MoneyUsageSubCategoryRepository.GetSubCategoryResult.Success -> {
-                                    result.results.associateBy {
-                                        Key(
-                                            userId = userId,
-                                            subCategoryId = it.moneyUsageSubCategoryId,
-                                        )
-                                    }
+                        when (result) {
+                            is MoneyUsageSubCategoryRepository.GetSubCategoryResult.Failed -> {
+                                result.e.printStackTrace()
+                                null
+                            }
+                            is MoneyUsageSubCategoryRepository.GetSubCategoryResult.Success -> {
+                                result.results.associateBy {
+                                    Key(
+                                        userId = userId,
+                                        subCategoryId = it.moneyUsageSubCategoryId,
+                                    )
                                 }
                             }
+                        }
                     }.flatten()
 
                 keys.associateWith { key ->

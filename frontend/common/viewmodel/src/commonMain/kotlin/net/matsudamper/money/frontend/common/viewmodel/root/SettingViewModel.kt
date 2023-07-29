@@ -10,7 +10,6 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.root.RootSettingScreenUiState
 
-
 public class SettingViewModel(
     private val coroutineScope: CoroutineScope,
     private val globalEventSender: EventSender<GlobalEvent>,

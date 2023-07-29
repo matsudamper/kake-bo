@@ -81,7 +81,7 @@ internal object YodobashiUsageService : MoneyUsageServices {
                             price = priceResult,
                             service = MoneyUsageServiceType.Yodobashi,
                             description = "",
-                        )
+                        ),
                     )
                     beforeTitle = null
                 }

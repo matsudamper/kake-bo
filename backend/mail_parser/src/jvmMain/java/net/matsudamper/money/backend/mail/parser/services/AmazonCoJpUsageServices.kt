@@ -78,7 +78,7 @@ internal object AmazonCoJpUsageServices : MoneyUsageServices {
                         date
                     }
                 },
-            )
+            ),
         )
     }
 

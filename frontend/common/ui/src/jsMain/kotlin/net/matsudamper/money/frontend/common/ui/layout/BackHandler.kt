@@ -18,8 +18,8 @@ internal actual fun BackHandler(enable: Boolean, block: () -> Unit) {
         val eventListener = remember {
             EventListener {
                 val capturedBeforeClick = beforeClick
-                if (capturedBeforeClick == null
-                    || capturedBeforeClick + 100.milliseconds < window.performance.now().milliseconds
+                if (capturedBeforeClick == null ||
+                    capturedBeforeClick + 100.milliseconds < window.performance.now().milliseconds
                 ) {
                     beforeClick = window.performance.now().milliseconds
                     block()

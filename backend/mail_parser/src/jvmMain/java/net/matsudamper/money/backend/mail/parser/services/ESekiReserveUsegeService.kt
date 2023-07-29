@@ -73,7 +73,7 @@ internal object ESekiReserveUsegeService : MoneyUsageServices {
                 description = "",
                 service = MoneyUsageServiceType.ESekiReserve,
                 dateTime = parsedDate ?: date,
-            )
+            ),
         )
     }
 

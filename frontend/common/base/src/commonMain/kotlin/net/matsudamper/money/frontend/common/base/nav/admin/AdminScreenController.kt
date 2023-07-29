@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.base.nav.admin
 
-
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.flow.MutableStateFlow

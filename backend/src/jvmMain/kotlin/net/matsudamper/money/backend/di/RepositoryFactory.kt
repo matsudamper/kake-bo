@@ -1,9 +1,9 @@
 package net.matsudamper.money.backend.di
 
 import net.matsudamper.money.backend.mail.MailRepository
+import net.matsudamper.money.backend.repository.DbMailRepository
 import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.repository.MoneyUsageSubCategoryRepository
-import net.matsudamper.money.backend.repository.DbMailRepository
 import net.matsudamper.money.backend.repository.UserConfigRepository
 
 interface RepositoryFactory {

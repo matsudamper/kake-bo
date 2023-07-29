@@ -39,7 +39,6 @@ class GraphQlContext(
         )
     }
 
-
     fun verifyUserSession(): UserId {
         val verifyUserSessionResult = verifyUserSessionResult
         if (verifyUserSessionResult != null) return verifyUserSessionResult.userId
@@ -65,7 +64,6 @@ class GraphQlContext(
         }
     }
 
-
     fun setAdminSessionCookie(value: String, expires: LocalDateTime) {
         setCookie(
             key = CookieKeys.adminSessionId,
@@ -73,7 +71,6 @@ class GraphQlContext(
             expires = GMTDate(expires.toEpochSecond(ZoneOffset.UTC) * 1000),
         )
     }
-
 
     fun setUserSessionCookie(value: String, expires: LocalDateTime) {
         setCookie(

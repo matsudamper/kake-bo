@@ -15,7 +15,6 @@ import net.matsudamper.money.graphql.model.QlAdminAddUserResult
 import net.matsudamper.money.graphql.model.QlAdminLoginResult
 import net.matsudamper.money.graphql.model.QlAdminMutation
 
-
 class AdminMutationResolverImpl : AdminMutationResolver {
     override fun addUser(
         adminMutation: QlAdminMutation,

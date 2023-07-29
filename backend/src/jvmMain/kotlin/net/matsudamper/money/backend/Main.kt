@@ -39,7 +39,6 @@ class Main {
                 port = ServerEnv.port,
                 module = Application::myApplicationModule,
                 configure = {
-
                 },
             ).start(wait = true)
         }
@@ -102,7 +101,6 @@ fun Application.myApplicationModule() {
         }
     }
 }
-
 
 private fun File.allFiles(): List<File> {
     return if (isDirectory) {

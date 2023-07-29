@@ -128,7 +128,6 @@ internal fun HtmlFullScreenTextInputContent(
                 )
                 Button(
                     attrs = {
-
                         onClick {
                             value.textComplete(text)
                         }

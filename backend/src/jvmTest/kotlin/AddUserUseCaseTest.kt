@@ -2,8 +2,8 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.matsudamper.money.backend.usecase.AddUserUseCase
 import net.matsudamper.money.backend.repository.AdminRepository
+import net.matsudamper.money.backend.usecase.AddUserUseCase
 
 class AddUserUseCaseTest : DescribeSpec(
     {
@@ -23,11 +23,12 @@ class AddUserUseCaseTest : DescribeSpec(
                     when (result) {
                         is AddUserUseCase.Result.Failure -> {
                             val errorText = result.errors.joinToString {
-                                when(it) {
+                                when (it) {
                                     AddUserUseCase.Result.Errors.InternalServerError,
                                     AddUserUseCase.Result.Errors.PasswordLength,
                                     AddUserUseCase.Result.Errors.UserNameLength,
-                                    AddUserUseCase.Result.Errors.UserNameValidation -> it::class.java.name
+                                    AddUserUseCase.Result.Errors.UserNameValidation,
+                                    -> it::class.java.name
                                     is AddUserUseCase.Result.Errors.PasswordValidation -> {
                                         "error char: ${it.errorChar.joinToString(",")}"
                                     }

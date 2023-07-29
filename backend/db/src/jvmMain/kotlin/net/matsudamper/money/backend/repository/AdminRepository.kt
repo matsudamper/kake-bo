@@ -12,7 +12,6 @@ import net.matsudamper.money.db.schema.tables.JUserPasswords
 import net.matsudamper.money.db.schema.tables.JUsers
 import org.jooq.impl.DSL
 
-
 class AdminRepository {
     private val users = JUsers.USERS
     private val userPasswords = JUserPasswords.USER_PASSWORDS

@@ -46,7 +46,7 @@ internal object MacdonaldsMobileOrderUsageService : MoneyUsageServices {
                 price = price,
                 service = MoneyUsageServiceType.Macdonalds,
                 description = description.orEmpty(),
-            )
+            ),
         )
     }
 

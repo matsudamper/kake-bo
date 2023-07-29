@@ -290,7 +290,6 @@ public class MailImportViewModel(
     }
 }
 
-
 public interface MailImportViewModelEvent {
     public fun backRequest()
     public fun globalToast(message: String)

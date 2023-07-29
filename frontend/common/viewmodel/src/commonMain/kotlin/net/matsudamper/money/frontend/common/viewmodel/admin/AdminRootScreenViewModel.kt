@@ -4,9 +4,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenController
 import net.matsudamper.money.frontend.common.uistate.AdminRootScreenUiState
+import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 
 public class AdminRootScreenViewModel(
     private val coroutineScope: CoroutineScope,
@@ -24,11 +24,9 @@ public class AdminRootScreenViewModel(
             },
         ),
     ).also { uiStateFlow ->
-
     }.asStateFlow()
 
     private data class ViewModelState(
         val any: Any? = null,
     )
 }
-

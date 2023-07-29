@@ -74,7 +74,6 @@ public data class ImapSettingScreenUiState(
     }
 }
 
-
 @Composable
 public fun ImapConfigScreen(
     modifier: Modifier = Modifier,

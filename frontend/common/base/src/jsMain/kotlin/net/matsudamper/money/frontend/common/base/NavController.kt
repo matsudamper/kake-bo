@@ -90,4 +90,3 @@ public class ScreenNavControllerImpl(
         val current: ScreenStructure,
     )
 }
-

@@ -27,7 +27,7 @@ public object GooglePlayUsageService : MoneyUsageServices {
                         ?.trimStart()
                         ?.trimEnd()
                         ?: return@target null
-                }
+                },
             )
             yield(
                 run target@{
@@ -37,7 +37,7 @@ public object GooglePlayUsageService : MoneyUsageServices {
                         ?.trimStart()
                         ?.trimEnd()
                         ?: return@target null
-                }
+                },
             )
         }.filterNotNull().firstOrNull()
 
@@ -77,7 +77,7 @@ public object GooglePlayUsageService : MoneyUsageServices {
 
             LocalDateTime.of(
                 LocalDate.of(year, month, day),
-                LocalTime.of(hour, minute, seconds)
+                LocalTime.of(hour, minute, seconds),
             )
         }
 
@@ -88,7 +88,7 @@ public object GooglePlayUsageService : MoneyUsageServices {
                 description = "seller: $seller",
                 service = MoneyUsageServiceType.GooglePlay,
                 dateTime = parsedDate ?: date,
-            )
+            ),
         )
     }
 

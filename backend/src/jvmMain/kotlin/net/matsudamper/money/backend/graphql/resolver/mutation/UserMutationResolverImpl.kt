@@ -78,7 +78,6 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
         return CompletableFuture.supplyAsync {
-
             val result = ImportMailUseCase(context.repositoryFactory).insertMail(
                 userId = userId,
                 mailIds = mailIds,

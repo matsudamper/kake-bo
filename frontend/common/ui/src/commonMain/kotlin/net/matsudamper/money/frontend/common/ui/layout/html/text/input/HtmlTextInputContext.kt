@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-
 public val LocalHtmlTextInputContext: ProvidableCompositionLocal<HtmlTextInputContext> = staticCompositionLocalOf {
     HtmlTextInputContext()
 }
@@ -28,10 +27,12 @@ public class HtmlTextInputContext {
 
     public fun setSize(key: Any, width: Int? = null, maxHeight: Int? = null) {
         _mutableStateFlow.update { map ->
-            map + (key to map.getOrElse(key) { TextState() }.copy(
-                width = width,
-                maxHeight = maxHeight,
-            ))
+            map + (
+                key to map.getOrElse(key) { TextState() }.copy(
+                    width = width,
+                    maxHeight = maxHeight,
+                )
+                )
         }
     }
 
@@ -67,14 +68,16 @@ public class HtmlTextInputContext {
 
     public fun setType(id: Any, type: KeyboardType) {
         _mutableStateFlow.update { map ->
-            map + (id to map.getOrElse(id) { TextState() }.copy(
-                type = when (type) {
-                    KeyboardType.Text -> "text"
-                    KeyboardType.Password -> "password"
-                    KeyboardType.Number -> "number"
-                    else -> TODO()
-                },
-            ))
+            map + (
+                id to map.getOrElse(id) { TextState() }.copy(
+                    type = when (type) {
+                        KeyboardType.Text -> "text"
+                        KeyboardType.Password -> "password"
+                        KeyboardType.Number -> "number"
+                        else -> TODO()
+                    },
+                )
+                )
         }
     }
 

@@ -60,7 +60,7 @@ public object SteamUsageService : MoneyUsageServices {
                 description = "",
                 service = MoneyUsageServiceType.Steam,
                 dateTime = parsedDate ?: date,
-            )
+            ),
         )
     }
 

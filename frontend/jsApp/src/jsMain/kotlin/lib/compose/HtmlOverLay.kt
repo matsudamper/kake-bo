@@ -12,8 +12,8 @@ import kotlinx.browser.document
 import kotlinx.coroutines.flow.StateFlow
 import lib.js.ResizeObserver
 import net.matsudamper.money.frontend.common.ui.layout.html.html.LocalHtmlRenderContext
-import net.matsudamper.money.frontend.common.ui.layout.html.text.input.LocalHtmlTextInputContext
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.LocalHtmlFullScreenTextInputContext
+import net.matsudamper.money.frontend.common.ui.layout.html.text.input.LocalHtmlTextInputContext
 import org.jetbrains.compose.web.css.Color
 import org.jetbrains.compose.web.css.DisplayStyle
 import org.jetbrains.compose.web.css.FlexDirection
@@ -22,7 +22,6 @@ import org.jetbrains.compose.web.css.backgroundColor
 import org.jetbrains.compose.web.css.color
 import org.jetbrains.compose.web.css.display
 import org.jetbrains.compose.web.css.em
-import org.jetbrains.compose.web.css.flexBasis
 import org.jetbrains.compose.web.css.flexDirection
 import org.jetbrains.compose.web.css.flexGrow
 import org.jetbrains.compose.web.css.height
@@ -31,8 +30,6 @@ import org.jetbrains.compose.web.css.overflow
 import org.jetbrains.compose.web.css.padding
 import org.jetbrains.compose.web.css.percent
 import org.jetbrains.compose.web.css.position
-import org.jetbrains.compose.web.css.rgba
-import org.jetbrains.compose.web.css.vw
 import org.jetbrains.compose.web.css.width
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Canvas
@@ -51,8 +48,8 @@ internal fun JsCompose(
 
         val hasFullScreenOverlay by remember {
             derivedStateOf {
-                htmlRenderContextState.isNotEmpty()
-                        || htmlFullScreenTextInputContextState.isNotEmpty()
+                htmlRenderContextState.isNotEmpty() ||
+                    htmlFullScreenTextInputContextState.isNotEmpty()
             }
         }
 

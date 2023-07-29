@@ -13,7 +13,6 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 
-
 @Composable
 public fun RootRegisterScreen(
     modifier: Modifier = Modifier,

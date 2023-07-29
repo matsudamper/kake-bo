@@ -118,9 +118,9 @@ class MailRepository(
     private fun getSession(): Session {
         return Session.getDefaultInstance(
             Properties().also {
-                it.setProperty("mail.imap.ssl.enable", "true");
-                it.setProperty("mail.imap.host", host);
-                it.setProperty("mail.imap.port", port.toString());
+                it.setProperty("mail.imap.ssl.enable", "true")
+                it.setProperty("mail.imap.host", host)
+                it.setProperty("mail.imap.port", port.toString())
             },
             object : Authenticator() {
                 override fun getPasswordAuthentication(): PasswordAuthentication {

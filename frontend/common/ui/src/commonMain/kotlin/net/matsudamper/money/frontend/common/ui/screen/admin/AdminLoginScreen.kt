@@ -48,7 +48,7 @@ public fun AdminLoginScreen(
                     modifier = Modifier
                         .fillMaxWidth(),
                     text = "管理画面",
-                    fontFamily = rememberCustomFontFamily()
+                    fontFamily = rememberCustomFontFamily(),
                 )
                 Spacer(Modifier.height(24.dp))
                 HtmlTextInput(

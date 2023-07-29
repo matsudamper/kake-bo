@@ -7,7 +7,6 @@ import net.matsudamper.money.db.schema.tables.records.JMoneyUsageCategoriesRecor
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import org.jooq.impl.DSL
 
-
 class MoneyUsageCategoryRepository {
     private val CATEGORIES = JMoneyUsageCategories.MONEY_USAGE_CATEGORIES
 
@@ -43,7 +42,7 @@ class MoneyUsageCategoryRepository {
     fun getCategory(
         userId: UserId,
         moneyUsageCategoryIds: List<MoneyUsageCategoryId>,
-    ) : GetCategoryResult {
+    ): GetCategoryResult {
         return runCatching {
             DbConnection.use {
                 val records = DSL.selectFrom(CATEGORIES)
@@ -72,7 +71,7 @@ class MoneyUsageCategoryRepository {
 
     fun getCategory(
         userId: UserId,
-    ) : GetCategoryResult {
+    ): GetCategoryResult {
         return runCatching {
             DbConnection.use {
                 val records = DSL.selectFrom(CATEGORIES)

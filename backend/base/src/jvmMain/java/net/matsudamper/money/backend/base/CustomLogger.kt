@@ -1,7 +1,7 @@
 package net.matsudamper.money.backend.base
 
-import org.slf4j.LoggerFactory
 import kotlin.reflect.KClass
+import org.slf4j.LoggerFactory
 
 public object CustomLogger {
     public object ParseFail {

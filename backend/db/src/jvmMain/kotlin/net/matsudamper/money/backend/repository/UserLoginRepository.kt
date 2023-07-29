@@ -1,6 +1,11 @@
 package net.matsudamper.money.backend.repository
 
+import java.security.spec.KeySpec
+import java.util.*
+import javax.crypto.SecretKeyFactory
+import javax.crypto.spec.PBEKeySpec
 import net.matsudamper.money.backend.DbConnection
+import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
 import net.matsudamper.money.db.schema.tables.JUserPasswords
@@ -8,11 +13,6 @@ import net.matsudamper.money.db.schema.tables.JUsers
 import net.matsudamper.money.db.schema.tables.records.JUserPasswordExtendDataRecord
 import net.matsudamper.money.db.schema.tables.records.JUserPasswordsRecord
 import org.jooq.impl.DSL
-import java.security.spec.KeySpec
-import java.util.*
-import javax.crypto.SecretKeyFactory
-import javax.crypto.spec.PBEKeySpec
-import net.matsudamper.money.backend.base.ServerEnv
 
 class UserLoginRepository {
     private val user = JUsers.USERS
@@ -25,13 +25,10 @@ class UserLoginRepository {
             DSL.using(it)
                 .select(userPasswords, userPasswordExtendData)
                 .from(user)
-
                 .join(userPasswords)
                 .on(userPasswords.USER_ID.eq(user.USER_ID))
-
                 .join(userPasswordExtendData)
                 .on(userPasswordExtendData.USER_ID.eq(userPasswords.USER_ID))
-
                 .where(
                     user.USER_NAME.eq(userName),
                 )
@@ -40,7 +37,6 @@ class UserLoginRepository {
 
         val userPasswordRecord: JUserPasswordsRecord = result.value1()
         val userPasswordExtendDataRecord: JUserPasswordExtendDataRecord = result.value2()
-
 
         val spec: KeySpec = PBEKeySpec(
             passwords.plus(ServerEnv.userPasswordPepper).toCharArray(),

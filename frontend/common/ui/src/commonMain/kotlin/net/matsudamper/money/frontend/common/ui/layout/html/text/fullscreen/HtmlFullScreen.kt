@@ -7,7 +7,6 @@ import androidx.compose.runtime.remember
 import kotlin.random.Random
 import kotlin.random.nextULong
 
-
 @Composable
 public fun HtmlFullScreenTextInput(
     title: String,

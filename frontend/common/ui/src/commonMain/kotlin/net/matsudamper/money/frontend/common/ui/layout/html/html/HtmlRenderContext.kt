@@ -33,7 +33,7 @@ public class HtmlRenderContext {
     }
 
     public fun remove(
-        id: String
+        id: String,
     ) {
         _mutableStateFlow.update {
             it.minus(id)

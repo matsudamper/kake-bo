@@ -134,7 +134,6 @@ class DbMailRepository {
         val dateTime: LocalDateTime,
     )
 
-
     sealed interface AddUserResult {
         object Success : AddUserResult
         data class Failed(val error: ErrorType) : AddUserResult

@@ -86,7 +86,6 @@ public data class MailLinkScreenUiState(
         public fun onClickRegisterButton()
     }
 
-
     @Immutable
     public interface Event {
         public fun onClickBackButton()

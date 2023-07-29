@@ -1,6 +1,5 @@
 package net.matsudamper.money.backend.graphql.resolver
 
-import java.time.ZoneOffset
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult

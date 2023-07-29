@@ -10,7 +10,6 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import org.jooq.impl.DSL
 import org.jooq.kotlin.and
 
-
 class MoneyUsageSubCategoryRepository {
     private val SUB_CATEGORIES = JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES
     private val CATEGORIES = JMoneyUsageCategories.MONEY_USAGE_CATEGORIES
@@ -91,10 +90,10 @@ class MoneyUsageSubCategoryRepository {
                     SubCategoryResult(
                         userId = UserId(record.get(SUB_CATEGORIES.USER_ID)!!),
                         moneyUsageCategoryId = MoneyUsageCategoryId(
-                            record.get(SUB_CATEGORIES.MONEY_USAGE_CATEGORY_ID)!!
+                            record.get(SUB_CATEGORIES.MONEY_USAGE_CATEGORY_ID)!!,
                         ),
                         moneyUsageSubCategoryId = MoneyUsageSubCategoryId(
-                            record.get(SUB_CATEGORIES.MONEY_USAGE_SUB_CATEGORY_ID)!!
+                            record.get(SUB_CATEGORIES.MONEY_USAGE_SUB_CATEGORY_ID)!!,
                         ),
                         name = record.get(SUB_CATEGORIES.NAME)!!,
                     )

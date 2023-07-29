@@ -75,7 +75,6 @@ public class ImapSettingViewModel(
                     }
                 }
         }
-
     }.asStateFlow()
 
     private val imapConfigEvent = object : ImapSettingScreenUiState.ImapConfig.Event {
@@ -266,7 +265,6 @@ public class ImapSettingViewModel(
                 runCatching {
                     graphqlQuery.getConfig()
                 }.onFailure {
-
                 }.getOrNull()
             } ?: return@launch
             val displayImapConfig = configFLow.data?.user?.settings?.imapConfig?.displayImapConfig
@@ -278,7 +276,6 @@ public class ImapSettingViewModel(
             }
         }
     }
-
 
     private data class ViewModelState(
         val imapConfig: DisplayImapConfig? = null,
