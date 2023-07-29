@@ -86,7 +86,8 @@ fun Application.myApplicationModule() {
         File(ServerEnv.frontPath).allFiles()
             .filterNot { "index.html" == it.name }
             .forEach {
-                val accessPath = it.path.replace("\\", "/").removePrefix(ServerEnv.frontPath)
+                val accessPath = it.path.replace("\\", "/")
+                    .removePrefix(ServerEnv.frontPath.replace("\\", "/"))
                 file(accessPath, it.path)
             }
         accept(ContentType.Text.Html) {
