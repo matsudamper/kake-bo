@@ -3,9 +3,9 @@ package net.matsudamper.money.frontend.common.ui.screen.admin
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import net.matsudamper.money.frontend.common.base.AdminScreenController
-import net.matsudamper.money.frontend.common.base.AdminScreenControllerImpl
-import net.matsudamper.money.frontend.common.base.AdminScreenType
+import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenController
+import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenControllerImpl
+import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenType
 import net.matsudamper.money.frontend.common.ui.layout.BackHandler
 import net.matsudamper.money.frontend.common.uistate.AdminAddUserUiState
 import net.matsudamper.money.frontend.common.uistate.AdminLoginScreenUiState

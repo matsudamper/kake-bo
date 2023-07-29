@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
-import net.matsudamper.money.frontend.common.base.Screen
-import net.matsudamper.money.frontend.common.base.ScreenNavController
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.uistate.LoginScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
@@ -50,7 +50,7 @@ public class LoginScreenViewModel(
                         }.getOrNull()
 
                         if (result?.data?.userMutation?.userLogin?.isSuccess == true) {
-                            navController.navigate(Screen.Root.Home)
+                            navController.navigate(ScreenStructure.Root.Home())
                             globalEventSender.send {
                                 it.showSnackBar("ログインしました")
                             }
@@ -63,7 +63,7 @@ public class LoginScreenViewModel(
                 }
 
                 override fun onClickNavigateAdmin() {
-                    navController.navigate(Screen.Admin)
+                    navController.navigate(ScreenStructure.Admin)
                 }
             },
         ),
@@ -84,7 +84,7 @@ public class LoginScreenViewModel(
         coroutineScope.launch {
             val isLoggedIn = graphqlQuery.isLoggedIn()
             if (isLoggedIn) {
-                navController.navigate(Screen.Root.Home)
+                navController.navigate(ScreenStructure.Root.Home())
             }
         }
     }

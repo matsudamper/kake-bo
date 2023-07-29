@@ -5,153 +5,80 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.browser.window
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.base.nav.user.Screens
+import net.matsudamper.money.frontend.common.base.nav.user.UrlPlaceHolderParser
 
 @Immutable
 @Suppress("RegExpRedundantEscape")
 public class ScreenNavControllerImpl(
-    initial: Screen,
-    private val directions: List<Screen>,
+    initial: ScreenStructure,
 ) : ScreenNavController {
-    private var screenState: ScreenState by mutableStateOf(
-        ScreenState(
-            url = initial.url,
-            screen = initial,
-        ),
-    )
-    override val currentNavigation: Screen get() = screenState.screen
+    private val directions = Screens.values().toList()
+    private val parser = UrlPlaceHolderParser(directions)
+    private var screenState: ScreenStructure by mutableStateOf(initial)
+    override val currentNavigation: ScreenStructure
+        get() {
+            return screenState
+        }
 
     init {
-        updateNavigation()
+        screenState = parser.parse(pathname = window.location.pathname)
+            .toScreenStructure()
 
         window.addEventListener(
             "popstate",
-            callback = { updateNavigation() },
+            callback = {
+                screenState = parser.parse(pathname = window.location.pathname)
+                    .toScreenStructure()
+            },
         )
     }
 
-    private fun updateNavigation() {
-        val result = directions.map { screen ->
-            var pathname = window.location.pathname
-
-            val keyValues = mutableListOf<Pair<String, String?>>()
-            val placeholderRegex = """^\{(.+?)\}$""".toRegex()
-            val result = splitUrl(screen.url)
-                .map { phrase ->
-                    val placeholderValue = placeholderRegex.find(phrase)
-                        ?.groupValues?.getOrNull(1)
-
-                    if (placeholderValue != null) {
-                        keyValues.add(placeholderValue to null)
-                        return@map true
-                    } else {
-                        val index = pathname.indexOf(phrase)
-                            .takeIf { it >= 0 } ?: return@map false
-                        println("$pathname $phrase -> $index")
-
-                        if (index == 0) {
-                            val lastKeyValue = keyValues.lastOrNull()
-                            if (lastKeyValue != null && lastKeyValue.second == null) {
-                                // placeholderを飛ばした
-                                return@map false
-                            }
-
-                            pathname = pathname.drop(phrase.length)
-                        } else {
-                            val value = pathname.substring(0, index)
-                            val key = keyValues.dropLast(1).getOrNull(0)?.first ?: return@map false
-
-                            keyValues.add(key to value)
-                            pathname = pathname.drop(index)
-                        }
-                        return@map true
-                    }
-                }.all { it }
-
-            val last = keyValues.lastOrNull()
-            if (pathname.isNotEmpty() && last != null) {
-                keyValues.add(last.first to pathname)
-                pathname = ""
-            }
-            ParseResult(
-                success = result,
-                keyValues = keyValues,
-                screen = screen,
-                reamingPath = pathname,
-            )
-        }.firstOrNull { it.success && it.reamingPath.isEmpty() }
-
-        if (result != null) {
-            println(JSON.stringify(result.toString()))
-            screenState = ScreenState(
-                url = result.screen.url,
-                screen = result.screen,
-            )
-        } else {
-            screenState = ScreenState(
-                url = Screen.NotFound.url,
-                screen = Screen.NotFound,
-            )
-        }
-    }
-
-    public data class ParseResult(
-        val success: Boolean,
-        val keyValues: List<Pair<String, String?>>,
-        val screen: Screen,
-        val reamingPath: String,
-    )
-
-    override fun <T : Screen> navigate(
+    override fun <T : ScreenStructure> navigate(
         navigation: T,
         urlBuilder: (T) -> String,
     ) {
         val url = urlBuilder(navigation)
         window.history.pushState(
             data = TAG,
-            title = navigation.title,
+            title = navigation.direction.title,
             url = url,
         )
         println("navigate: $navigation, $url")
-        screenState = ScreenState(
-            url = url,
-            screen = navigation,
-        )
+        screenState = navigation
     }
 
     override fun back() {
         window.history.back()
     }
 
-    private fun splitUrl(url: String): List<String> {
-        val results = """\{(.+?)\}""".toRegex()
-            .findAll(url)
-
-        return results.fold(listOf<Int>()) { result, matchResult ->
-            result
-                .plus(matchResult.range.first)
-                .plus(matchResult.range.last + 1)
-        }
-            .let {
-                buildList {
-                    add(0)
-                    addAll(it)
-                    add(url.length)
-                }
-            }.distinct()
-            .let {
-                it.zipWithNext()
-                    .map { (start, end) ->
-                        url.substring(start, end)
-                    }
+    private fun UrlPlaceHolderParser.ScreenState.toScreenStructure(): ScreenStructure {
+        return when (this.screen) {
+            Screens.Home -> ScreenStructure.Root.Home()
+            Screens.Settings -> ScreenStructure.Root.Settings.Root
+            Screens.SettingsImap -> ScreenStructure.Root.Settings.Imap
+            Screens.SettingsCategory -> ScreenStructure.Root.Settings.Category
+            Screens.SettingsCategoryId -> ScreenStructure.Root.Settings.CategoryId
+            Screens.SettingsSubCategory -> ScreenStructure.Root.Settings.SubCategory
+            Screens.SettingsSubCategoryId -> {
+                ScreenStructure.Root.Settings.SubCategoryId(
+                    id = this.params["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound,
+                )
             }
-    }
 
-    private class ScreenState(
-        val url: String,
-        val screen: Screen,
-    )
+            Screens.Register -> ScreenStructure.Root.Register()
+            Screens.NotFound -> ScreenStructure.NotFound
+            Screens.Login -> ScreenStructure.Login
+            Screens.Admin -> ScreenStructure.Admin
+            Screens.MailImport -> ScreenStructure.MailImport
+            Screens.MailLink -> ScreenStructure.MailLink
+        }
+    }
 
     public companion object {
         private const val TAG = "FHAOHWO!!O@&*DAOH(GA&&(DA&("
     }
 }
+

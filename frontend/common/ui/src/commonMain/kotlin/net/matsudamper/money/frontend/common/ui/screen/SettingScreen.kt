@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.ui.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -26,12 +26,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import net.matsudamper.money.frontend.common.base.Screen
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.root.RootSettingScreenUiState
+
 
 @Composable
 public fun RootSettingScreen(
@@ -43,51 +43,23 @@ public fun RootSettingScreen(
         uiState.event.onResume()
     }
 
-    val lastEvent = uiState.textInputEvents.lastOrNull()
-    if (lastEvent != null) {
-        HtmlFullScreenTextInput(
-            title = lastEvent.title,
-            default = lastEvent.default,
-            onComplete = {
-                lastEvent.event.complete(
-                    text = it,
-                    event = lastEvent,
-                )
-            },
-            canceled = {
-                lastEvent.event.cancel(lastEvent)
-            },
-        )
-    }
     RootScreenScaffold(
         modifier = modifier.fillMaxSize(),
-        currentScreen = Screen.Root.Settings,
+        currentScreen = RootScreenTab.Settings,
         listener = listener,
         content = {
-            when (val loadingState = uiState.loadingState) {
-                is RootSettingScreenUiState.LoadingState.Loaded -> {
-                    LoadedContent(
-                        modifier = Modifier.fillMaxSize(),
-                        uiState = loadingState,
-                    )
-                }
-
-                is RootSettingScreenUiState.LoadingState.Loading -> {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-            }
+            MainContent(
+                modifier = Modifier.fillMaxSize(),
+                uiState = uiState,
+            )
         },
     )
 }
 
 @Composable
-private fun LoadedContent(
+private fun MainContent(
     modifier: Modifier = Modifier,
-    uiState: RootSettingScreenUiState.LoadingState.Loaded,
+    uiState: RootSettingScreenUiState,
 ) {
     Column(
         modifier = modifier,
@@ -121,17 +93,32 @@ private fun LoadedContent(
             Column(
                 modifier = Modifier.widthIn(max = 700.dp),
             ) {
-                SettingElementContent(
-                    modifier = Modifier.fillMaxWidth(),
-                    uiState = uiState.imapConfig,
-                )
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            uiState.event.onClickImapButton()
+                        },
+                ) {
+                    Text("IMAP")
+                }
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            uiState.event.onClickCategoryButton()
+                        },
+                ) {
+                    Text("カテゴリ編集")
+                }
             }
         }
     }
 }
 
+// TODO move to common
 @Composable
-private fun SettingSection(
+internal fun SettingSection(
     modifier: Modifier = Modifier,
     title: @Composable () -> Unit,
     content: @Composable ColumnScope.() -> Unit,
@@ -157,76 +144,9 @@ private fun SettingSection(
     }
 }
 
+// TODO move to common
 @Composable
-private fun SettingElementContent(
-    modifier: Modifier = Modifier,
-    uiState: RootSettingScreenUiState.ImapConfig,
-) {
-    SettingSection(
-        modifier = modifier,
-        title = {
-            Text(
-                text = "IMAP設定",
-                fontFamily = rememberCustomFontFamily(),
-            )
-        },
-    ) {
-        ChangeTextSection(
-            title = {
-                Text("Host")
-            },
-            text = {
-                Text(
-                    text = uiState.host,
-                    fontFamily = rememberCustomFontFamily(),
-                )
-            },
-            onClickChange = { uiState.event.onClickChangeHost() },
-        )
-        Spacer(Modifier.height(14.dp))
-        ChangeTextSection(
-            title = {
-                Text("User Name")
-            },
-            text = {
-                Text(
-                    text = uiState.userName,
-                    fontFamily = rememberCustomFontFamily(),
-                )
-            },
-            onClickChange = { uiState.event.onClickChangeUserName() },
-        )
-        Spacer(Modifier.height(14.dp))
-        ChangeTextSection(
-            title = {
-                Text("Port")
-            },
-            text = {
-                Text(
-                    text = uiState.port,
-                    fontFamily = rememberCustomFontFamily(),
-                )
-            },
-            onClickChange = { uiState.event.onClickChangePort() },
-        )
-        Spacer(Modifier.height(14.dp))
-        ChangeTextSection(
-            title = {
-                Text("Password")
-            },
-            text = {
-                Text(
-                    text = uiState.password,
-                    fontFamily = rememberCustomFontFamily(),
-                )
-            },
-            onClickChange = { uiState.event.onClickChangePassword() },
-        )
-    }
-}
-
-@Composable
-private fun ChangeTextSection(
+internal fun ChangeTextSection(
     modifier: Modifier = Modifier,
     title: @Composable () -> Unit,
     text: @Composable () -> Unit,
@@ -240,7 +160,7 @@ private fun ChangeTextSection(
             CompositionLocalProvider(
                 LocalTextStyle provides LocalTextStyle.current.copy(
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 ),
             ) {
                 title()

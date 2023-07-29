@@ -8,10 +8,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import net.matsudamper.money.frontend.common.base.Screen
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 
 
 @Composable
@@ -21,7 +21,7 @@ public fun RootRegisterScreen(
 ) {
     RootScreenScaffold(
         modifier = modifier.fillMaxSize(),
-        currentScreen = Screen.Root.Register,
+        currentScreen = RootScreenTab.Register,
         listener = listener,
         content = {
             Column(Modifier.fillMaxSize()) {

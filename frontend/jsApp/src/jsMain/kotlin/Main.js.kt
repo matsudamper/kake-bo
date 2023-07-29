@@ -21,7 +21,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -30,23 +29,19 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.CanvasBasedWindow
 import kotlinx.browser.window
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import event.ViewModelEventHandlers
 import lib.compose.JsCompose
 import lib.js.NormalizeInputKeyCapture
-import net.matsudamper.money.frontend.common.base.Screen
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.ScreenNavControllerImpl
-import net.matsudamper.money.frontend.common.base.rememberAdminScreenController
+import net.matsudamper.money.frontend.common.base.nav.admin.rememberAdminScreenController
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.CustomTheme
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
-import net.matsudamper.money.frontend.common.ui.screen.RootRegisterScreen
-import net.matsudamper.money.frontend.common.ui.screen.RootScreen
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.screen.RootSettingScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
 import net.matsudamper.money.frontend.common.ui.screen.status.NotFoundScreen
 import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailImportScreen
@@ -61,14 +56,11 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.MailImportViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.MailLinkViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeGraphqlApi
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
-import net.matsudamper.money.frontend.graphql.GraphqlUserConfigQuery
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
 import org.jetbrains.skiko.wasm.onWasmReady
+import screen.RootNavContent
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
@@ -88,8 +80,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                     val hostState = remember { SnackbarHostState() }
                     val navController = remember {
                         ScreenNavControllerImpl(
-                            initial = Screen.Root.Home,
-                            directions = Screen.subClass,
+                            initial = ScreenStructure.Root.Home(),
                         )
                     }
                     val loginCheckUseCase = remember {
@@ -103,15 +94,15 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                     val rootScreenScaffoldListener: RootScreenScaffoldListener = remember(navController) {
                         object : RootScreenScaffoldListener {
                             override fun onClickHome() {
-                                navController.navigate(Screen.Root.Home)
+                                navController.navigate(ScreenStructure.Root.Home())
                             }
 
                             override fun onClickRegister() {
-                                navController.navigate(Screen.Root.Register)
+                                navController.navigate(ScreenStructure.Root.Register())
                             }
 
                             override fun onClickSettings() {
-                                navController.navigate(Screen.Root.Settings)
+                                navController.navigate(ScreenStructure.Root.Settings.Root)
                             }
                         }
                     }
@@ -162,7 +153,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                         ) {
                             val rootCoroutineScope = rememberCoroutineScope()
                             when (val current = navController.currentNavigation) {
-                                is Screen.Root -> {
+                                is ScreenStructure.Root -> {
                                     val tabHolder = rememberSaveableStateHolder()
                                     RootNavContent(
                                         tabHolder = tabHolder,
@@ -175,7 +166,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                     )
                                 }
 
-                                Screen.Login -> {
+                                ScreenStructure.Login -> {
                                     val coroutineScope = rememberCoroutineScope()
                                     val viewModel = remember {
                                         LoginScreenViewModel(
@@ -191,7 +182,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                     )
                                 }
 
-                                Screen.Admin -> {
+                                ScreenStructure.Admin -> {
                                     val coroutineScope = rememberCoroutineScope()
                                     val controller = rememberAdminScreenController()
 
@@ -232,7 +223,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                     )
                                 }
 
-                                Screen.MailImport -> {
+                                ScreenStructure.MailImport -> {
                                     val mailImportViewModel = remember {
                                         MailImportViewModel(
                                             coroutineScope = rootCoroutineScope,
@@ -251,7 +242,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                     )
                                 }
 
-                                Screen.MailLink -> {
+                                ScreenStructure.MailLink -> {
                                     val mailLinkViewModel = remember {
                                         MailLinkViewModel(
                                             coroutineScope = rootCoroutineScope,
@@ -269,14 +260,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                     )
                                 }
 
-                                // TODO
-                                is Screen.Settings -> {
-                                    SettingNavContent(
-                                        state = current,
-                                    )
-                                }
-
-                                Screen.NotFound -> {
+                                ScreenStructure.NotFound -> {
                                     NotFoundScreen(
                                         paddingValues = paddingValues,
                                     )
@@ -285,92 +269,6 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                         }
                     }
                 }
-            }
-        }
-    }
-}
-
-@Composable
-private fun SettingNavContent(state: Screen.Settings) {
-    when (state) {
-        Screen.Settings.Category -> {
-            Text(state.url)
-        }
-
-        Screen.Settings.CategoryId -> {
-            Text(state.url)
-        }
-
-        Screen.Settings.Imap -> {
-            Text(state.url)
-        }
-
-        Screen.Settings.SubCategory -> {
-            Text(state.url)
-        }
-
-        Screen.Settings.SubCategoryId -> {
-            Text(state.url)
-        }
-    }
-}
-
-@Composable
-private fun RootNavContent(
-    tabHolder: SaveableStateHolder,
-    current: Screen.Root,
-    rootScreenScaffoldListener: RootScreenScaffoldListener,
-    viewModelEventHandlers: ViewModelEventHandlers,
-    rootCoroutineScope: CoroutineScope,
-    globalEventSender: EventSender<GlobalEvent>,
-    loginCheckUseCase: LoginCheckUseCase,
-) {
-    when (current) {
-        Screen.Root.Home -> {
-            tabHolder.SaveableStateProvider(Screen.Root.Home) {
-                val viewModel = remember {
-                    HomeViewModel(
-                        coroutineScope = rootCoroutineScope,
-                        homeGraphqlApi = HomeGraphqlApi(),
-                        loginCheckUseCase = loginCheckUseCase,
-                    )
-                }
-                LaunchedEffect(viewModel.viewModelEventHandler) {
-                    viewModelEventHandlers.handle(
-                        handler = viewModel.viewModelEventHandler,
-                    )
-                }
-                RootScreen(
-                    uiState = viewModel.uiStateFlow.collectAsState().value,
-                    scaffoldListener = rootScreenScaffoldListener,
-                )
-            }
-        }
-
-        Screen.Root.Register -> {
-            tabHolder.SaveableStateProvider(Screen.Root.Register) {
-                RootRegisterScreen(
-                    modifier = Modifier.fillMaxSize(),
-                    listener = rootScreenScaffoldListener,
-                )
-            }
-        }
-
-        Screen.Root.Settings -> {
-            tabHolder.SaveableStateProvider(Screen.Root.Settings) {
-                val settingViewModel = remember {
-                    SettingViewModel(
-                        coroutineScope = rootCoroutineScope,
-                        graphqlQuery = GraphqlUserConfigQuery(),
-                        globalEventSender = globalEventSender,
-                        ioDispatchers = Dispatchers.Unconfined,
-                    )
-                }
-                RootSettingScreen(
-                    modifier = Modifier.fillMaxSize(),
-                    uiState = settingViewModel.uiState.collectAsState().value,
-                    listener = rootScreenScaffoldListener,
-                )
             }
         }
     }

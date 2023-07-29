@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,9 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import net.matsudamper.money.frontend.common.base.Screen
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.money.frontend.common.ui.layout.ScrollButton
 import net.matsudamper.root.HomeScreenUiState
 
@@ -48,7 +47,7 @@ public fun RootScreen(
         }
 
         is HomeScreenUiState.ScreenState.Loaded -> {
-            LoadedContent(
+            MainContent(
                 uiState = screenState,
                 scaffoldListener = scaffoldListener,
             )
@@ -58,13 +57,13 @@ public fun RootScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LoadedContent(
+private fun MainContent(
     uiState: HomeScreenUiState.ScreenState.Loaded,
     scaffoldListener: RootScreenScaffoldListener,
 ) {
     RootScreenScaffold(
         modifier = Modifier.fillMaxSize(),
-        currentScreen = Screen.Root.Home,
+        currentScreen = RootScreenTab.Home,
         listener = scaffoldListener,
         content = {
             BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
