@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.ui.screen.settings
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,18 +13,20 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.root.RootSettingScreenUiState
-
 
 @Composable
 public fun RootSettingScreen(
@@ -85,25 +88,42 @@ private fun MainContent(
             Column(
                 modifier = Modifier.widthIn(max = 700.dp),
             ) {
-                Column(
-                    Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            uiState.event.onClickImapButton()
-                        },
+                ChildSettingButton(
+                    onClick = { uiState.event.onClickImapButton() },
                 ) {
                     Text("IMAP接続設定")
                 }
-                Column(
-                    Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            uiState.event.onClickCategoryButton()
-                        },
+                ChildSettingButton(
+                    onClick = { uiState.event.onClickCategoryButton() },
                 ) {
                     Text("カテゴリ編集")
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun ChildSettingButton(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
+    text: @Composable () -> Unit,
+) {
+    Box(
+        modifier = modifier.fillMaxWidth()
+            .clip(MaterialTheme.shapes.medium)
+            .clickable { onClick() }
+            .padding(horizontal = 8.dp)
+            .padding(vertical = 16.dp),
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        ProvideTextStyle(
+            titleStyle.copy(
+                fontFamily = rememberCustomFontFamily(),
+            ),
+        ) {
+            text()
         }
     }
 }
