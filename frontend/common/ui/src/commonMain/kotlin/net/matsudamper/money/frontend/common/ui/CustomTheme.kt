@@ -2,11 +2,13 @@ package net.matsudamper.money.frontend.common.ui
 
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFontFamilyResolver
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 
@@ -15,7 +17,7 @@ public fun CustomTheme(content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = MaterialTheme.colorScheme.copy(
             primary = Color(0xff8BC34A),
-            onPrimary = Color.White,//Color(0xff444654),
+            onPrimary = Color.White, // Color(0xff444654),
             background = CustomColors.backgroundColor,
             surface = CustomColors.backgroundColor,
             onSurface = Color.White,
@@ -24,6 +26,23 @@ public fun CustomTheme(content: @Composable () -> Unit) {
             outlineVariant = Color.DarkGray, // Divider
             surfaceVariant = CustomColors.surfaceColor, // Card
             error = Color(0xffFF6075),
+        ),
+        typography = Typography(
+            displayLarge = MaterialTheme.typography.displayLarge.applyCustomFontFamily(),
+            displayMedium = MaterialTheme.typography.displayMedium.applyCustomFontFamily(),
+            displaySmall = MaterialTheme.typography.displaySmall.applyCustomFontFamily(),
+            headlineLarge = MaterialTheme.typography.headlineLarge.applyCustomFontFamily(),
+            headlineMedium = MaterialTheme.typography.headlineMedium.applyCustomFontFamily(),
+            headlineSmall = MaterialTheme.typography.headlineSmall.applyCustomFontFamily(),
+            titleLarge = MaterialTheme.typography.titleLarge.applyCustomFontFamily(),
+            titleMedium = MaterialTheme.typography.titleMedium.applyCustomFontFamily(),
+            titleSmall = MaterialTheme.typography.titleSmall.applyCustomFontFamily(),
+            bodyLarge = MaterialTheme.typography.bodyLarge.applyCustomFontFamily(),
+            bodyMedium = MaterialTheme.typography.bodyMedium.applyCustomFontFamily(),
+            bodySmall = MaterialTheme.typography.bodySmall.applyCustomFontFamily(),
+            labelLarge = MaterialTheme.typography.labelLarge.applyCustomFontFamily(),
+            labelMedium = MaterialTheme.typography.labelMedium.applyCustomFontFamily(),
+            labelSmall = MaterialTheme.typography.labelSmall.applyCustomFontFamily(),
         ),
     ) {
         CompositionLocalProvider(
@@ -37,4 +56,11 @@ public fun CustomTheme(content: @Composable () -> Unit) {
             content()
         }
     }
+}
+
+@Composable
+private fun TextStyle.applyCustomFontFamily(): TextStyle {
+    return copy(
+        fontFamily = rememberCustomFontFamily(),
+    )
 }
