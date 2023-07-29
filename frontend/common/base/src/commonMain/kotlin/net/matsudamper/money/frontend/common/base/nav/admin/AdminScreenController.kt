@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.base
+package net.matsudamper.money.frontend.common.base.nav.admin
 
 
 import androidx.compose.runtime.Composable
