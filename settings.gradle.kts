@@ -45,7 +45,7 @@ dependencyResolutionManagement {
             val kotlinVersion = extra["kotlin.version"] as String
             plugin("kotlin.multiplatform", "org.jetbrains.kotlin.multiplatform").version(kotlinVersion)
             plugin("kotlin.serialization", "org.jetbrains.kotlin.plugin.serialization").version(kotlinVersion)
-            library("kotlin.coroutines.core", "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
+            library("kotlin.coroutines.core", "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
             library("kotlin.datetime", "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
             plugin("compose", "org.jetbrains.compose").version(extra["compose.version"] as String)
@@ -59,7 +59,7 @@ dependencyResolutionManagement {
 
             plugin("ktlint", "org.jlleitschuh.gradle.ktlint").version("11.3.1")
 
-            val ktorVersion = "2.2.4"
+            val ktorVersion = "2.3.2"
             library("ktor.server.core", "io.ktor:ktor-server-core:$ktorVersion")
             library("ktor.server.engine", "io.ktor:ktor-server-cio:$ktorVersion")
             library("ktor.server.statusPages", "io.ktor:ktor-server-status-pages:$ktorVersion")
