@@ -22,6 +22,7 @@ kotlin {
                 api(libs.jakarta.mail.api)
                 api(libs.jakarta.mail)
                 api(libs.angus.mail)
+                api(libs.jakarta.activation.api)
             }
         }
         val jvmTest by getting {
