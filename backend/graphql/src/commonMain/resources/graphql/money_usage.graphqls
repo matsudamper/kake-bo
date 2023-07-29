@@ -11,7 +11,7 @@ type MoneyUsageCategory {
     id: MoneyUsageCategoryId!
     name: String! @lazy
 
-    subCategories(query: MoneyUsageSubCategoryQuery!): subCategoriesConnection @lazy
+    subCategories(query: MoneyUsageSubCategoryQuery!): SubCategoriesConnection @lazy
 }
 
 input MoneyUsageSubCategoryQuery {
@@ -19,7 +19,7 @@ input MoneyUsageSubCategoryQuery {
     cursor: String
 }
 
-type subCategoriesConnection {
+type SubCategoriesConnection {
     nodes: [MoneyUsageSubCategory!]!
     cursor: String
 }

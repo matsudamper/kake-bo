@@ -75,7 +75,7 @@ type MoneyUsageCategoriesConnection {
 type MoneyUsageCategory {
     id: MoneyUsageCategoryId!
     name: String!
-    subCategories(query: MoneyUsageSubCategoryQuery!): subCategoriesConnection
+    subCategories(query: MoneyUsageSubCategoryQuery!): SubCategoriesConnection
 }
 
 type MoneyUsageService {
@@ -100,6 +100,11 @@ type Query {
 
 type SettingsMutation {
     updateImapConfig(config: UpdateUserImapConfigInput!): UserImapConfig
+}
+
+type SubCategoriesConnection {
+    cursor: String
+    nodes: [MoneyUsageSubCategory!]!
 }
 
 type SuggestMoneyUsage {
@@ -163,11 +168,6 @@ type UserMutation {
 
 type UserSettings {
     imapConfig: UserImapConfig
-}
-
-type subCategoriesConnection {
-    cursor: String
-    nodes: [MoneyUsageSubCategory!]!
 }
 
 enum AddSubCategoryError {
