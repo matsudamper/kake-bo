@@ -15,7 +15,7 @@ import event.ViewModelEventHandlers
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.settings.ImapConfigScreen
-import net.matsudamper.money.frontend.common.ui.screen.settings.RootSettingScreen
+import net.matsudamper.money.frontend.common.ui.screen.settings.SettingRootScreen
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.ImapSettingViewModel
@@ -43,7 +43,7 @@ internal fun SettingNavContent(
             LaunchedEffect(settingViewModel.eventHandler) {
                 viewModelEventHandlers.handle(settingViewModel.eventHandler)
             }
-            RootSettingScreen(
+            SettingRootScreen(
                 modifier = Modifier.fillMaxSize(),
                 uiState = settingViewModel.uiState.collectAsState().value,
                 listener = rootScreenScaffoldListener,

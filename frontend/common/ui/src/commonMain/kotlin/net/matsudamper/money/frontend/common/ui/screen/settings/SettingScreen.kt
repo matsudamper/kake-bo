@@ -29,7 +29,7 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.root.RootSettingScreenUiState
 
 @Composable
-public fun RootSettingScreen(
+public fun SettingRootScreen(
     modifier: Modifier = Modifier,
     uiState: RootSettingScreenUiState,
     listener: RootScreenScaffoldListener,
