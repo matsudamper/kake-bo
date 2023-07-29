@@ -11,7 +11,7 @@ public enum class Screens : Direction {
     },
     SettingsImap {
         override val title: String = "IMAP設定"
-        override val placeholderUrl: String = "/settings/map"
+        override val placeholderUrl: String = "/settings/imap"
     },
     SettingsCategory {
         override val title: String = "カテゴリ設定"
