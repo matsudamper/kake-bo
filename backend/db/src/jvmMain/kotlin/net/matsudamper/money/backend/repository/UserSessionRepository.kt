@@ -31,7 +31,8 @@ class UserSessionRepository {
     fun verifySession(sessionId: UserSession): VerifySessionResult {
         // UserIdを取得し、全ての古いSessionを削除する
         DbConnection.use {
-            val userId = DSL.select(userSessions.USER_ID)
+            val userId = DSL.using(it)
+                .select(userSessions.USER_ID)
                 .from(userSessions)
                 .where(userSessions.SESSION_ID.eq(sessionId.id))
                 .execute()
