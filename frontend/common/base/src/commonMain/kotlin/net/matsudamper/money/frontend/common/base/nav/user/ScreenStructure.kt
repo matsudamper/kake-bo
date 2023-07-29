@@ -3,6 +3,10 @@ package net.matsudamper.money.frontend.common.base.nav.user
 public sealed interface ScreenStructure {
     public val direction: Screens
 
+    public fun createUrl(): String {
+        return direction.placeholderUrl
+    }
+
     public sealed interface Root : ScreenStructure {
         public class Home : Root {
             override val direction: Screens = Screens.Home
@@ -33,6 +37,10 @@ public sealed interface ScreenStructure {
                 public val id: Int,
             ) : Settings {
                 override val direction: Screens = Screens.SettingsSubCategoryId
+
+                override fun createUrl(): String {
+                    return direction.placeholderUrl.replace("{id}", id.toString())
+                }
             }
         }
 

@@ -38,9 +38,8 @@ public class ScreenNavControllerImpl(
 
     override fun <T : ScreenStructure> navigate(
         navigation: T,
-        urlBuilder: (T) -> String,
     ) {
-        val url = urlBuilder(navigation)
+        val url = navigation.createUrl()
         window.history.pushState(
             data = TAG,
             title = navigation.direction.title,

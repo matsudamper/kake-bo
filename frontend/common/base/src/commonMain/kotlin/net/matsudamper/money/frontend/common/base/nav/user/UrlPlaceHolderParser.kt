@@ -13,7 +13,7 @@ internal class UrlPlaceHolderParser(
 
             val keyValues = mutableListOf<Pair<String, String?>>()
             val placeholderRegex = """^\{(.+?)\}$""".toRegex()
-            val result = splitUrl(screen.url)
+            val result = splitUrl(screen.placeholderUrl)
                 .map { phrase ->
                     val placeholderValue = placeholderRegex.find(phrase)
                         ?.groupValues?.getOrNull(1)

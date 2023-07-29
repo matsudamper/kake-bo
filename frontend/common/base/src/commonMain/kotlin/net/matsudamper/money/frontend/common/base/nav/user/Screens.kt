@@ -2,66 +2,58 @@ package net.matsudamper.money.frontend.common.base.nav.user
 public enum class Screens : Direction {
     Home {
         override val title: String = "ホーム"
-        override val url: String = "/"
+        override val placeholderUrl: String = "/"
     },
 
     Settings {
         override val title: String = "設定"
-        override val url: String = "/settings"
+        override val placeholderUrl: String = "/settings"
     },
     SettingsImap {
         override val title: String = "IMAP設定"
-        override val url: String = "/settings/map"
+        override val placeholderUrl: String = "/settings/map"
     },
     SettingsCategory {
         override val title: String = "カテゴリ設定"
-        override val url: String = "/settings/category"
+        override val placeholderUrl: String = "/settings/category"
     },
     SettingsCategoryId {
         override val title: String = "カテゴリ設定"
-        override val url: String = "/settings/category/{id}"
+        override val placeholderUrl: String = "/settings/category/{id}"
     },
     SettingsSubCategory {
         override val title: String = "サブカテゴリ設定"
-        override val url: String = "/settings/sub-category"
+        override val placeholderUrl: String = "/settings/sub-category"
     },
     SettingsSubCategoryId {
         override val title: String = "サブカテゴリ設定"
-        override val url: String = "/settings/sub-category/{id}"
-
-        override fun createUrl(param: Map<String, String>): String {
-            return super.createUrl(param)
-        }
-
-        override fun parseArgument(path: String): Map<String, String> {
-            return super.parseArgument(path)
-        }
+        override val placeholderUrl: String = "/settings/sub-category/{id}"
     },
 
     Register {
         override val title: String = "リスト"
-        override val url: String = "/list"
+        override val placeholderUrl: String = "/list"
     },
 
     NotFound {
         override val title: String = "404"
-        override val url: String = "/status/404"
+        override val placeholderUrl: String = "/status/404"
     },
     Login {
         override val title: String = "ログイン"
-        override val url: String = "/login"
+        override val placeholderUrl: String = "/login"
     },
     Admin {
         override val title: String = "ログイン"
-        override val url: String = "/admin"
+        override val placeholderUrl: String = "/admin"
     },
     MailImport {
         override val title: String = "メールインポート"
-        override val url: String = "/mail/import"
+        override val placeholderUrl: String = "/mail/import"
     },
     MailLink {
         override val title: String = "メールの登録"
-        override val url: String = "/mail/link"
+        override val placeholderUrl: String = "/mail/link"
     },
     ;
 }

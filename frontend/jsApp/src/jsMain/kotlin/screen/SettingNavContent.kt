@@ -52,11 +52,11 @@ internal fun SettingNavContent(
         }
 
         ScreenStructure.Root.Settings.Category -> {
-            Text(state.direction.url)
+            Text(state.direction.placeholderUrl)
         }
 
         ScreenStructure.Root.Settings.CategoryId -> {
-            Text(state.direction.url)
+            Text(state.direction.placeholderUrl)
         }
 
         ScreenStructure.Root.Settings.Imap -> {
@@ -76,12 +76,12 @@ internal fun SettingNavContent(
         }
 
         ScreenStructure.Root.Settings.SubCategory -> {
-            Text(state.direction.url)
+            Text(state.direction.placeholderUrl)
         }
 
         is ScreenStructure.Root.Settings.SubCategoryId -> {
             Column {
-                Text(state.direction.url)
+                Text(state.direction.placeholderUrl)
                 Text("id=${state.id}")
             }
         }
