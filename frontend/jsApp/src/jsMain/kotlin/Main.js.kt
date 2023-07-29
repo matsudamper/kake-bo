@@ -38,6 +38,7 @@ import lib.js.NormalizeInputKeyCapture
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.ScreenNavControllerImpl
 import net.matsudamper.money.frontend.common.base.nav.admin.rememberAdminScreenController
+import net.matsudamper.money.frontend.common.base.nav.user.RootTab
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.CustomTheme
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
@@ -94,15 +95,15 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                     val rootScreenScaffoldListener: RootScreenScaffoldListener = remember(navController) {
                         object : RootScreenScaffoldListener {
                             override fun onClickHome() {
-                                navController.navigate(ScreenStructure.Root.Home())
+                                navController.changeTab(RootTab.Home)
                             }
 
                             override fun onClickRegister() {
-                                navController.navigate(ScreenStructure.Root.Register())
+                                navController.changeTab(RootTab.Register)
                             }
 
                             override fun onClickSettings() {
-                                navController.navigate(ScreenStructure.Root.Settings.Root)
+                                navController.changeTab(RootTab.Settings)
                             }
                         }
                     }

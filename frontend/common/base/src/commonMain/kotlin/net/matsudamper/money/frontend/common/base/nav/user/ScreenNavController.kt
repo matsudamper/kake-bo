@@ -9,6 +9,13 @@ public interface ScreenNavController {
     public fun <T : ScreenStructure> navigate(
         navigation: T,
     )
+    public fun changeTab(tab: RootTab)
+}
+
+public enum class RootTab {
+    Home,
+    Register,
+    Settings,
 }
 
 public interface Direction {

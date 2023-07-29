@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.browser.window
+import net.matsudamper.money.frontend.common.base.nav.user.RootTab
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.Screens
@@ -17,21 +18,25 @@ public class ScreenNavControllerImpl(
 ) : ScreenNavController {
     private val directions = Screens.values().toList()
     private val parser = UrlPlaceHolderParser(directions)
-    private var screenState: ScreenStructure by mutableStateOf(initial)
+    private var screenState: ScreenState by mutableStateOf(ScreenState(current = initial))
     override val currentNavigation: ScreenStructure
         get() {
-            return screenState
+            return screenState.current
         }
 
     init {
-        screenState = parser.parse(pathname = window.location.pathname)
-            .toScreenStructure()
+        updateScreenState(
+            parser.parse(pathname = window.location.pathname)
+                .toScreenStructure(),
+        )
 
         window.addEventListener(
             "popstate",
             callback = {
-                screenState = parser.parse(pathname = window.location.pathname)
-                    .toScreenStructure()
+                updateScreenState(
+                    parser.parse(pathname = window.location.pathname)
+                        .toScreenStructure(),
+                )
             },
         )
     }
@@ -41,12 +46,47 @@ public class ScreenNavControllerImpl(
     ) {
         val url = navigation.createUrl()
         window.history.pushState(
-            data = TAG,
+            data = null,
             title = navigation.direction.title,
             url = url,
         )
-        println("navigate: $navigation, $url")
-        screenState = navigation
+        updateScreenState(navigation)
+    }
+
+    override fun changeTab(tab: RootTab) {
+        val state = when (tab) {
+            RootTab.Home -> screenState.home ?: ScreenStructure.Root.Home()
+            RootTab.Register -> screenState.register ?: ScreenStructure.Root.Register()
+            RootTab.Settings -> screenState.settings ?: ScreenStructure.Root.Settings.Root
+        }
+        if (screenState.current == state) return
+
+        val url = state.createUrl()
+        window.history.pushState(
+            data = null,
+            title = state.direction.title,
+            url = url,
+        )
+        updateScreenState(state)
+    }
+
+    private fun updateScreenState(screenStructure: ScreenStructure) {
+        println("updateScreenState: $screenStructure, ${screenStructure.createUrl()}")
+        screenState = screenState.copy(
+            current = screenStructure,
+            home = when (screenStructure) {
+                is ScreenStructure.Root.Home -> screenStructure
+                else -> screenState.home
+            },
+            settings = when (screenStructure) {
+                is ScreenStructure.Root.Settings -> screenStructure
+                else -> screenState.settings
+            },
+            register = when (screenStructure) {
+                is ScreenStructure.Root.Register -> screenStructure
+                else -> screenState.register
+            },
+        )
     }
 
     override fun back() {
@@ -76,8 +116,11 @@ public class ScreenNavControllerImpl(
         }
     }
 
-    public companion object {
-        private const val TAG = "FHAOHWO!!O@&*DAOH(GA&&(DA&("
-    }
+    public data class ScreenState(
+        val current: ScreenStructure,
+        val home: ScreenStructure? = null,
+        val settings: ScreenStructure? = null,
+        val register: ScreenStructure? = null,
+    )
 }
 
