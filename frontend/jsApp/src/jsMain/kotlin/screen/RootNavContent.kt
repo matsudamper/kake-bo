@@ -18,6 +18,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.list.RootListViewModel
 
 @Composable
 internal fun RootNavContent(
@@ -53,9 +54,20 @@ internal fun RootNavContent(
         }
 
         is ScreenStructure.Root.List -> {
+            val viewModel = remember {
+                RootListViewModel(
+                    coroutineScope = rootCoroutineScope,
+                )
+            }
+            LaunchedEffect(viewModel.viewModelEventHandler) {
+                viewModelEventHandlers.handle(
+                    handler = viewModel.viewModelEventHandler,
+                )
+            }
             tabHolder.SaveableStateProvider(current::class.toString()) {
                 RootListScreen(
                     modifier = Modifier.fillMaxSize(),
+                    uiState = viewModel.uiStateFlow.collectAsState().value,
                     listener = rootScreenScaffoldListener,
                 )
             }

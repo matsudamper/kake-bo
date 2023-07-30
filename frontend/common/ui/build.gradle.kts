@@ -13,6 +13,7 @@ kotlin {
             dependencies {
                 api(project(":frontend:common:base"))
                 api(project(":frontend:common:uistate"))
+                api(libs.kotlin.datetime)
                 api(compose.runtime)
                 api(compose.foundation)
                 api(libs.compose.material3)

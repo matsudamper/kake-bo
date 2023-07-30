@@ -1,0 +1,245 @@
+package net.matsudamper.money.frontend.common.ui.screen.add_money_usage
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
+import kotlinx.datetime.LocalDate
+import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.layout.Calendar
+import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
+
+public data class AddMoneyUsageScreenUiState(
+    val calendarDialog: CalendarDialog?,
+    val fullScreenTextInputDialog: FullScreenTextInputDialog?,
+    val date: String,
+    val title: String,
+    val description: String,
+    val event: Event,
+) {
+    public data class FullScreenTextInputDialog(
+        val title: String,
+        val default: String,
+        val onComplete: (String) -> Unit,
+        val canceled: () -> Unit,
+        val isMultiline: Boolean
+    )
+
+    public data class CalendarDialog(
+        val selectedDate: LocalDate,
+    )
+
+    public interface Event {
+        public fun onClickAdd()
+        public fun selectedCalendar(date: LocalDate)
+        public fun dismissCalendar()
+        public fun onClickDateChange()
+        public fun onClickTitleChange()
+        public fun onClickDescriptionChange()
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+public fun AddMoneyUsageScreen(
+    modifier: Modifier = Modifier,
+    uiState: AddMoneyUsageScreenUiState,
+) {
+    if (uiState.fullScreenTextInputDialog != null) {
+        HtmlFullScreenTextInput(
+            title = uiState.fullScreenTextInputDialog.title,
+            onComplete = { text ->
+                uiState.fullScreenTextInputDialog.onComplete(text)
+            },
+            canceled = { uiState.fullScreenTextInputDialog.canceled() },
+            default = uiState.fullScreenTextInputDialog.default,
+            isMultiline = uiState.fullScreenTextInputDialog.isMultiline,
+        )
+    }
+
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            KakeBoTopAppBar(
+                modifier = Modifier.fillMaxWidth(),
+                title = {
+                    Text("追加")
+                },
+            )
+        },
+        bottomBar = {
+            Button(
+                modifier = Modifier
+                    .widthIn(max = 700.dp)
+                    .fillMaxWidth(),
+                onClick = { uiState.event.onClickAdd() },
+            ) {
+                Text("追加")
+            }
+        },
+        contentColor = MaterialTheme.colorScheme.onSurface,
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+            contentAlignment = Alignment.TopCenter,
+        ) {
+            Column(
+                Modifier
+                    .padding(paddingValues)
+                    .widthIn(max = 500.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Spacer(Modifier.height(24.dp))
+                Section(
+                    title = {
+                        Text("日付")
+                    },
+                    description = {
+                        Text(uiState.date)
+                    },
+                    clickChange = {
+                        uiState.event.onClickDateChange()
+                    }
+                )
+                Divider(Modifier.fillMaxWidth().height(1.dp))
+                Section(
+                    title = {
+                        Text("タイトル")
+                    },
+                    description = {
+                        Text(uiState.title)
+                    },
+                    clickChange = {
+                        uiState.event.onClickTitleChange()
+                    }
+                )
+                Divider(Modifier.fillMaxWidth().height(1.dp))
+                Section(
+                    title = {
+                        Text("説明")
+                    },
+                    description = {
+                        Text(uiState.description)
+                    },
+                    clickChange = {
+                        uiState.event.onClickDescriptionChange()
+                    }
+                )
+                Spacer(Modifier.height(24.dp))
+            }
+        }
+    }
+    if (uiState.calendarDialog != null) {
+        CalendarDialog(
+            initialCalendar = uiState.calendarDialog.selectedDate,
+            dismissRequest = {
+                uiState.event.dismissCalendar()
+            },
+            selectedCalendar = {
+                uiState.event.selectedCalendar(it)
+            },
+        )
+    }
+}
+
+@Composable
+private fun Section(
+    modifier: Modifier = Modifier,
+    clickChange: () -> Unit,
+    title: @Composable () -> Unit,
+    titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
+    description: @Composable () -> Unit,
+    descriptionStyle: TextStyle = MaterialTheme.typography.bodyLarge,
+) {
+    Row(modifier.padding(vertical = 12.dp)) {
+        Column {
+            ProvideTextStyle(titleStyle) {
+                title()
+            }
+            Spacer(Modifier.height(4.dp))
+            ProvideTextStyle(descriptionStyle) {
+                description()
+            }
+        }
+        Spacer(Modifier.weight(1f))
+        TextButton(onClick = { clickChange() }) {
+            ProvideTextStyle(MaterialTheme.typography.labelMedium) {
+                Text("変更")
+            }
+        }
+    }
+}
+
+@Composable
+private fun CalendarDialog(
+    modifier: Modifier = Modifier,
+    dismissRequest: () -> Unit,
+    selectedCalendar: (LocalDate) -> Unit,
+    initialCalendar: LocalDate,
+) {
+    Box(
+        modifier = modifier.fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.8f))
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+            ) {
+                dismissRequest()
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        val density = LocalDensity.current
+        Card(
+            modifier = Modifier,
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(24.dp),
+            ) {
+                var height by remember { mutableStateOf(0) }
+                var selectedDate by remember { mutableStateOf(initialCalendar) }
+                Calendar(
+                    modifier = Modifier
+                        .widthIn(max = 500.dp)
+                        .heightIn(min = with(density) { height.toDp() })
+                        .onSizeChanged {
+                            height = it.height
+                        },
+                    selectedDate = selectedDate,
+                    changeSelectedDate = {
+                        selectedDate = it
+                    }
+                )
+                Spacer(Modifier.height(24.dp))
+                Row(
+                    modifier = Modifier
+                        .align(Alignment.End),
+                ) {
+                    TextButton(onClick = {
+                        dismissRequest()
+                    }) {
+                        Text(text = "キャンセル")
+                    }
+                    TextButton(onClick = {
+                        selectedCalendar(selectedDate)
+                    }) {
+                        Text(text = "決定")
+                    }
+                }
+            }
+        }
+    }
+}

@@ -86,6 +86,7 @@ public class ScreenNavControllerImpl(
             Screens.Admin -> ScreenStructure.Admin
             Screens.MailImport -> ScreenStructure.MailImport
             Screens.MailLink -> ScreenStructure.MailLink
+            Screens.AddMoneyUsage -> ScreenStructure.AddMoneyUsage
         }
     }
 

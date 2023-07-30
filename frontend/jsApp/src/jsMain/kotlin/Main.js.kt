@@ -41,6 +41,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.CustomTheme
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.screen.add_money_usage.AddMoneyUsageScreen
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
 import net.matsudamper.money.frontend.common.ui.screen.status.NotFoundScreen
@@ -49,6 +50,7 @@ import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailLinkScreen
 import net.matsudamper.money.frontend.common.uistate.LoginScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.LoginScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.add_money_usage.AddMoneyUsageViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminAddUserScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminLoginScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminRootScreenViewModel
@@ -267,6 +269,18 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                 ScreenStructure.NotFound -> {
                                     NotFoundScreen(
                                         paddingValues = paddingValues,
+                                    )
+                                }
+
+                                ScreenStructure.AddMoneyUsage -> {
+                                    val viewModel = remember {
+                                        AddMoneyUsageViewModel(
+                                            coroutineScope = rootCoroutineScope,
+                                        )
+                                    }
+                                    AddMoneyUsageScreen(
+                                        modifier = Modifier.fillMaxSize(),
+                                        uiState = viewModel.uiStateFlow.collectAsState().value,
                                     )
                                 }
                             }

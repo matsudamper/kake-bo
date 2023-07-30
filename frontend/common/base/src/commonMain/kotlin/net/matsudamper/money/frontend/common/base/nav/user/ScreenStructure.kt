@@ -76,4 +76,8 @@ public sealed interface ScreenStructure {
     public object MailLink : ScreenStructure {
         override val direction: Screens = Screens.MailLink
     }
+
+    public object AddMoneyUsage: ScreenStructure {
+        override val direction: Screens = Screens.AddMoneyUsage
+    }
 }
