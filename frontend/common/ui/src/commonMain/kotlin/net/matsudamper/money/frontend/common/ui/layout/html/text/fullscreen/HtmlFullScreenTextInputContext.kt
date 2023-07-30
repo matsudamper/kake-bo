@@ -32,5 +32,6 @@ public class HtmlFullScreenTextInputContext {
         val textComplete: (String) -> Unit,
         val canceled: () -> Unit,
         val default: String,
+        val isMultiline: Boolean,
     )
 }

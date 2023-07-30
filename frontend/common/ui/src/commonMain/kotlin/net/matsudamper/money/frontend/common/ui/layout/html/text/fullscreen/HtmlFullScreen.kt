@@ -13,6 +13,7 @@ public fun HtmlFullScreenTextInput(
     onComplete: (String) -> Unit,
     canceled: () -> Unit,
     default: String,
+    isMultiline: Boolean = false,
 ) {
     val context = LocalHtmlFullScreenTextInputContext.current
     val id = remember { Random.nextULong().toString() }
@@ -34,6 +35,7 @@ public fun HtmlFullScreenTextInput(
                 canceled = {
                     canceled()
                 },
+                isMultiline = isMultiline,
             ),
         )
     }

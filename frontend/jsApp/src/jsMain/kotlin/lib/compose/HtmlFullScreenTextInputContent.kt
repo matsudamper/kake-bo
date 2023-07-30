@@ -33,10 +33,7 @@ import org.jetbrains.compose.web.css.times
 import org.jetbrains.compose.web.css.vh
 import org.jetbrains.compose.web.css.vw
 import org.jetbrains.compose.web.css.width
-import org.jetbrains.compose.web.dom.Button
-import org.jetbrains.compose.web.dom.Div
-import org.jetbrains.compose.web.dom.Input
-import org.jetbrains.compose.web.dom.Text
+import org.jetbrains.compose.web.dom.*
 
 @Composable
 internal fun HtmlFullScreenTextInputContent(
@@ -80,19 +77,35 @@ internal fun HtmlFullScreenTextInputContent(
                 Text(value.title)
             }
             val inputId = "id_$id"
-            Input(
-                type = InputType.Text,
-                attrs = {
-                    id(inputId)
-                    style {
-                        width(100.percent)
+            if (value.isMultiline) {
+                TextArea(
+                    attrs = {
+                        id(inputId)
+                        style {
+                            width(100.percent)
+                            height(10.em)
+                        }
+                        placeholder(value.title)
+                        onChange {
+                            text = it.value
+                        }
                     }
-                    placeholder(value.title)
-                    onChange {
-                        text = it.value
-                    }
-                },
-            )
+                )
+            } else {
+                Input(
+                    type = InputType.Text,
+                    attrs = {
+                        id(inputId)
+                        style {
+                            width(100.percent)
+                        }
+                        placeholder(value.title)
+                        onChange {
+                            text = it.value
+                        }
+                    },
+                )
+            }
             LaunchedEffect(value.default) {
                 val input = document.querySelector("#$inputId")!!
                 text = value.default
