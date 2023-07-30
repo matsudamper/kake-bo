@@ -64,3 +64,13 @@ mutation UpdateCategory($id: MoneyUsageCategoryId!, $query: UpdateCategoryQuery!
         }
     }
 }
+
+
+mutation UpdateSubCategory($id: MoneyUsageSubCategoryId!, $query: UpdateSubCategoryQuery!) {
+    userMutation {
+        updateSubCategory(id: $id, query: $query) {
+            id
+            name
+        }
+    }
+}

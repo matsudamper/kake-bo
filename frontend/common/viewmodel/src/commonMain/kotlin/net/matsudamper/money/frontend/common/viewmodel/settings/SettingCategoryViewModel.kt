@@ -109,6 +109,7 @@ public class SettingCategoryViewModel(
             loadingState = SettingCategoryScreenUiState.LoadingState.Loading,
             showCategoryNameInput = false,
             showCategoryNameChangeDialog = null,
+            showSubCategoryNameChangeDialog = null,
             categoryName = "",
         ),
     ).also { uiStateFlow ->
@@ -132,6 +133,7 @@ public class SettingCategoryViewModel(
                         loadingState = loadingState,
                         showCategoryNameInput = viewModelState.showAddSubCategoryNameInput,
                         showCategoryNameChangeDialog = viewModelState.showCategoryNameChangeInput,
+                        showSubCategoryNameChangeDialog = viewModelState.showSubCategoryNameChangeInput,
                         categoryName = viewModelState.categoryInfo?.name.orEmpty(),
                     )
                 }
@@ -186,13 +188,61 @@ public class SettingCategoryViewModel(
             name = item.name,
             event = object : SettingCategoryScreenUiState.SubCategoryItem.Event {
                 override fun onClick() {
-//                                            coroutineScope.launch {
-//                                                viewModelEventSender.send {
-//                                                    it.navigateToCategoryDetail(
-//                                                        id = item.id,
-//                                                    )
-//                                                }
-//                                            }
+
+                }
+
+                override fun onClickChangeName() {
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(
+                            showSubCategoryNameChangeInput = SettingCategoryScreenUiState.FullScreenInputDialog(
+                                initText = item.name,
+                                event = createEvent(),
+                            ),
+                        )
+                    }
+                }
+
+                override fun onClickDelete() {
+                    TODO("Not yet implemented")
+                }
+
+                private fun createEvent(): SettingCategoryScreenUiState.FullScreenInputDialog.Event {
+                    return object : SettingCategoryScreenUiState.FullScreenInputDialog.Event {
+                        override fun onDismiss() {
+                            dismiss()
+                        }
+
+                        override fun onTextInputCompleted(text: String) {
+                            coroutineScope.launch {
+                                val result = api.updateSubCategory(
+                                    id = item.id,
+                                    name = text,
+                                )?.data?.userMutation?.updateSubCategory
+                                if (result == null) {
+                                    launch {
+                                        globalEventSender.send {
+                                            it.showNativeNotification("サブカテゴリ名の変更に失敗しました")
+                                        }
+                                    }
+                                } else {
+                                    launch {
+                                        globalEventSender.send {
+                                            it.showSnackBar("サブカテゴリ名を変更しました")
+                                        }
+                                    }
+                                }
+                                dismiss()
+                            }
+                        }
+
+                        private fun dismiss() {
+                            viewModelStateFlow.update { viewModelState ->
+                                viewModelState.copy(
+                                    showSubCategoryNameChangeInput = null,
+                                )
+                            }
+                        }
+                    }
                 }
             },
         )
@@ -246,6 +296,7 @@ public class SettingCategoryViewModel(
         val categoryInfo: CategorySettingScreenQuery.MoneyUsageCategory? = null,
         val showAddSubCategoryNameInput: Boolean = false,
         val showCategoryNameChangeInput: SettingCategoryScreenUiState.FullScreenInputDialog? = null,
+        val showSubCategoryNameChangeInput: SettingCategoryScreenUiState.FullScreenInputDialog? = null,
     )
 
     public interface Event

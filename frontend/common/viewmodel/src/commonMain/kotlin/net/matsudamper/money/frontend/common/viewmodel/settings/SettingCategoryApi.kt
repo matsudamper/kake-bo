@@ -9,6 +9,7 @@ import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import com.apollographql.apollo3.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.graphql.AddCategoryMutation
 import net.matsudamper.money.frontend.graphql.AddSubCategoryMutation
 import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenQuery
@@ -16,11 +17,13 @@ import net.matsudamper.money.frontend.graphql.CategorySettingScreenQuery
 import net.matsudamper.money.frontend.graphql.CategorySettingScreenSubCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.UpdateCategoryMutation
+import net.matsudamper.money.frontend.graphql.UpdateSubCategoryMutation
 import net.matsudamper.money.frontend.graphql.type.AddCategoryInput
 import net.matsudamper.money.frontend.graphql.type.AddSubCategoryInput
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoriesInput
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryQuery
 import net.matsudamper.money.frontend.graphql.type.UpdateCategoryQuery
+import net.matsudamper.money.frontend.graphql.type.UpdateSubCategoryQuery
 
 public class SettingCategoryApi(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
@@ -128,5 +131,20 @@ public class SettingCategoryApi(
             .catch {
                 it.printStackTrace()
             }
+    }
+
+    public suspend fun updateSubCategory(id: MoneyUsageSubCategoryId, name: String): ApolloResponse<UpdateSubCategoryMutation.Data>? {
+        return runCatching {
+            apolloClient
+                .mutation(
+                    UpdateSubCategoryMutation(
+                        id = id,
+                        query = UpdateSubCategoryQuery(
+                            name = Optional.present(name),
+                        ),
+                    ),
+                )
+                .execute()
+        }.getOrNull()
     }
 }

@@ -78,7 +78,7 @@ class MoneyUsageSubCategoryRepository {
                     .where(
                         DSL.value(true)
                             .and(CATEGORIES.USER_ID.eq(userId.id))
-                            .and(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.id))
+                            .and(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.id)),
                     )
                     .fetchOne() != null
             }
@@ -154,6 +154,25 @@ class MoneyUsageSubCategoryRepository {
             onSuccess = { GetSubCategoryResult.Success(it) },
             onFailure = { GetSubCategoryResult.Failed(it) },
         )
+    }
+
+    fun updateSubCategory(userId: UserId, subCategoryId: MoneyUsageSubCategoryId, name: String?): Boolean {
+        return DbConnection.use { connection ->
+            if (name == null) {
+                0
+            } else {
+                DSL.using(connection)
+                    .update(SUB_CATEGORIES)
+                    .set(SUB_CATEGORIES.NAME, name)
+                    .where(
+                        DSL.value(true)
+                            .and(SUB_CATEGORIES.USER_ID.eq(userId.id))
+                            .and(SUB_CATEGORIES.MONEY_USAGE_SUB_CATEGORY_ID.eq(subCategoryId.id)),
+                    )
+                    .limit(1)
+                    .execute()
+            } >= 1
+        }
     }
 
     data class SubCategoryResult(

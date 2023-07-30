@@ -1,9 +1,12 @@
 package net.matsudamper.money.frontend.common.ui.screen.settings
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,20 +21,29 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
@@ -44,6 +56,7 @@ public data class SettingCategoryScreenUiState(
     val showCategoryNameInput: Boolean,
     val categoryName: String,
     val showCategoryNameChangeDialog: FullScreenInputDialog?,
+    val showSubCategoryNameChangeDialog: FullScreenInputDialog?,
 ) {
     public data class FullScreenInputDialog(
         val initText: String,
@@ -69,6 +82,8 @@ public data class SettingCategoryScreenUiState(
     ) {
         public interface Event {
             public fun onClick()
+            public fun onClickDelete()
+            public fun onClickChangeName()
         }
     }
 
@@ -116,6 +131,18 @@ public fun SettingCategoryScreen(
             default = uiState.showCategoryNameChangeDialog.initText,
         )
     }
+    if (uiState.showSubCategoryNameChangeDialog != null) {
+        HtmlFullScreenTextInput(
+            title = "サブカテゴリー名変更",
+            onComplete = { text ->
+                uiState.showSubCategoryNameChangeDialog.event.onTextInputCompleted(text)
+            },
+            canceled = {
+                uiState.showSubCategoryNameChangeDialog.event.onDismiss()
+            },
+            default = uiState.showSubCategoryNameChangeDialog.initText,
+        )
+    }
 
     RootScreenScaffold(
         modifier = modifier.fillMaxSize(),
@@ -157,32 +184,16 @@ public fun MainContent(
                         Spacer(Modifier.height(24.dp))
                     }
                     stickyHeader {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = uiState.categoryName,
-                                style = MaterialTheme.typography.titleMedium,
-                            )
-                            Spacer(modifier = Modifier.weight(1f))
-                            FlowRow {
-                                Spacer(modifier = Modifier.weight(1f))
-                                OutlinedButton(
-                                    onClick = { uiState.event.onClickChangeCategoryName() },
-                                    modifier = Modifier,
-                                ) {
-                                    Text(text = "カテゴリー名変更")
-                                }
-                                Spacer(modifier = Modifier.width(12.dp))
-                                OutlinedButton(
-                                    onClick = { uiState.event.onClickAddSubCategoryButton() },
-                                    modifier = Modifier,
-                                ) {
-                                    Icon(Icons.Default.Add, contentDescription = null)
-                                    Text(text = "サブカテゴリーを追加")
-                                }
-                            }
-                        }
+                        HeaderSection(
+                            modifier = Modifier.fillMaxWidth(),
+                            categoryName = uiState.categoryName,
+                            onClickChangeCategoryNameButton = {
+                                uiState.event.onClickChangeCategoryName()
+                            },
+                            oonClickSubCategoryButton = {
+                                uiState.event.onClickAddSubCategoryButton()
+                            },
+                        )
                     }
                     item {
                         Spacer(Modifier.height(12.dp))
@@ -190,23 +201,12 @@ public fun MainContent(
                     items(
                         items = state.item,
                     ) { item ->
-                        Card(
+                        SubCategoryItem(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(
-                                    vertical = 4.dp,
-                                ),
-                            onClick = { item.event.onClick() },
-                        ) {
-                            Text(
-                                modifier = Modifier
-                                    .padding(
-                                        horizontal = 24.dp,
-                                        vertical = 24.dp,
-                                    ),
-                                text = item.name,
-                            )
-                        }
+                                .padding(vertical = 4.dp),
+                            item = item,
+                        )
                     }
                     item {
                         Spacer(Modifier.height(24.dp))
@@ -222,6 +222,114 @@ public fun MainContent(
                 ) {
                     CircularProgressIndicator()
                 }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SubCategoryItem(
+    modifier: Modifier = Modifier,
+    item: SettingCategoryScreenUiState.SubCategoryItem,
+) {
+    Card(
+        modifier = modifier,
+        onClick = { item.event.onClick() },
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                modifier = Modifier
+                    .padding(
+                        horizontal = 24.dp,
+                        vertical = 24.dp,
+                    ),
+                text = item.name,
+            )
+            Spacer(Modifier.weight(1f))
+            var showMenu by remember { mutableStateOf(false) }
+            IconButton(
+                onClick = {
+                    showMenu = true
+                },
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "open menu",
+                )
+            }
+            if (showMenu) {
+                Popup(
+                    alignment = Alignment.CenterEnd,
+                    focusable = true,
+                    onDismissRequest = {
+                        showMenu = false
+                    },
+                ) {
+                    Card(
+                        elevation = CardDefaults.cardElevation(
+                            defaultElevation = 8.dp,
+                        ),
+                    ) {
+                        Column(
+                            modifier = Modifier.width(IntrinsicSize.Min),
+                        ) {
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { item.event.onClickChangeName() }
+                                    .padding(12.dp),
+                                text = "名前変更",
+                            )
+                            Text(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { item.event.onClickDelete() }
+                                    .padding(12.dp),
+                                text = "削除",
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun HeaderSection(
+    modifier: Modifier,
+    categoryName: String,
+    onClickChangeCategoryNameButton: () -> Unit,
+    oonClickSubCategoryButton: () -> Unit,
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = categoryName,
+            style = MaterialTheme.typography.titleMedium,
+        )
+        Spacer(modifier = Modifier.weight(1f))
+        FlowRow {
+            Spacer(modifier = Modifier.weight(1f))
+            OutlinedButton(
+                onClick = { onClickChangeCategoryNameButton() },
+                modifier = Modifier,
+            ) {
+                Text(text = "カテゴリー名変更")
+            }
+            Spacer(modifier = Modifier.width(12.dp))
+            OutlinedButton(
+                onClick = { oonClickSubCategoryButton() },
+                modifier = Modifier,
+            ) {
+                Icon(Icons.Default.Add, contentDescription = null)
+                Text(text = "サブカテゴリーを追加")
             }
         }
     }

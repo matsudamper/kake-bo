@@ -58,12 +58,12 @@ object GraphqlClient {
         )
         .addCustomScalarAdapter(
             ApolloMoneyUsageSubCategoryId.type,
-            CustomStringAdapter(
+            CustomIntAdapter(
                 serialize = {
-                    it.id.toString()
+                    it.id
                 },
                 deserialize = { value ->
-                    value.toIntOrNull()?.let { MoneyUsageSubCategoryId(it) }
+                    MoneyUsageSubCategoryId(value)
                 },
             ),
         )

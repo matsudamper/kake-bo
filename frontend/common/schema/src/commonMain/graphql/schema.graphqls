@@ -166,6 +166,7 @@ type UserMutation {
     importMail(mailIds: [MailId!]!): ImportMailResult!
     settingsMutation: SettingsMutation
     updateCategory(id: MoneyUsageCategoryId!, query: UpdateCategoryQuery!): MoneyUsageCategory!
+    updateSubCategory(id: MoneyUsageSubCategoryId!, query: UpdateSubCategoryQuery!): MoneyUsageSubCategory!
     userLogin(name: String!, password: String!): UserLoginResult!
 }
 
@@ -262,6 +263,10 @@ input MoneyUsageSubCategoryQuery {
 }
 
 input UpdateCategoryQuery {
+    name: String
+}
+
+input UpdateSubCategoryQuery {
     name: String
 }
 
