@@ -1,6 +1,3 @@
 package net.matsudamper.money.element
 
-import kotlin.jvm.JvmInline
-
-@JvmInline
-value class MailId(val id: String)
+data class MailId(val id: String)
