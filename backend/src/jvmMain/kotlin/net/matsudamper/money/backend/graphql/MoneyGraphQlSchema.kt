@@ -1,10 +1,10 @@
 package net.matsudamper.money.backend.graphql
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.time.LocalDateTime
 import java.util.Locale
 import java.util.jar.JarFile
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.GraphQL
 import graphql.GraphQLContext
 import graphql.Scalars
@@ -96,7 +96,7 @@ object MoneyGraphQlSchema {
                 createIntScalarType(
                     name = "MoneyUsageServiceId",
                     serialize = { it.id },
-                    deserialize = { MoneyUsageServiceId(it) }
+                    deserialize = { MoneyUsageServiceId(it) },
                 ),
                 createIntScalarType(
                     name = "MoneyUsageTypeId",
@@ -151,8 +151,8 @@ object MoneyGraphQlSchema {
                         override fun provide(fieldDefinition: FieldDefinition): ObjectMapper {
                             return jacksonObjectMapper()
                         }
-                    }
-                )
+                    },
+                ),
             )
             .build()
             .makeExecutableSchema()
@@ -213,7 +213,7 @@ object MoneyGraphQlSchema {
             input: Value<*>,
             variables: CoercedVariables,
             graphQLContext: GraphQLContext,
-            locale: Locale
+            locale: Locale,
         ): LocalDateTime? {
             return coercing.parseLiteral(input, variables, graphQLContext, locale)?.let {
                 LocalDateTime.parse(it)
@@ -246,7 +246,7 @@ class ValueClassCoercing<Inner, Outer>(
         input: Value<*>,
         variables: CoercedVariables,
         graphQLContext: GraphQLContext,
-        locale: Locale
+        locale: Locale,
     ): Inner? {
         throw NotImplementedError("parseLiteral.input -> $input")
     }

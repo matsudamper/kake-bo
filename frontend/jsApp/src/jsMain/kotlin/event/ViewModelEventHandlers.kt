@@ -12,7 +12,6 @@ import net.matsudamper.money.frontend.common.viewmodel.root.MailImportViewModelE
 import net.matsudamper.money.frontend.common.viewmodel.root.MailLinkViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
-import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
 
@@ -112,7 +111,6 @@ data class ViewModelEventHandlers(
         coroutineScope {
             handler.collect(
                 object : SettingCategoryViewModel.Event {
-
                 },
             )
         }

@@ -36,7 +36,6 @@ public class SettingCategoriesViewModel(
         SettingCategoriesScreenUiState(
             event = object : SettingCategoriesScreenUiState.Event {
                 override suspend fun onResume() {
-
                 }
 
                 override fun dismissCategoryInput() {
@@ -153,7 +152,6 @@ public class SettingCategoriesViewModel(
         val responseList: List<CategorySettingScreenQuery.Data>,
         val showCategoryNameInput: Boolean,
     )
-
 }
 
 public interface SettingCategoriesViewModelEvent {

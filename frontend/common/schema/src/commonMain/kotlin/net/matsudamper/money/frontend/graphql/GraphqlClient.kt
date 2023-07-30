@@ -98,7 +98,6 @@ private class CustomStringAdapter<T>(
     }
 }
 
-
 private class CustomIntAdapter<T>(
     val deserialize: (Int) -> T?,
     val serialize: (T) -> Int,

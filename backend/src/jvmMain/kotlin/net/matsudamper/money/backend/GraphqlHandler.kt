@@ -9,7 +9,6 @@ import graphql.ExecutionResult
 import graphql.GraphQLError
 import graphql.InvalidSyntaxError
 import graphql.execution.NonNullableFieldWasNullError
-import graphql.execution.NonNullableValueCoercedAsNullException
 import graphql.validation.ValidationError
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.request.receiveStream
