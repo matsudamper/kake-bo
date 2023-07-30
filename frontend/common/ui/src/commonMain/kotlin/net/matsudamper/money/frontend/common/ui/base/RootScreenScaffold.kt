@@ -25,6 +25,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
@@ -53,6 +54,7 @@ internal fun RootScreenScaffold(
     BoxWithConstraints(
         modifier = modifier,
     ) {
+        val maxWidth by rememberUpdatedState(maxWidth)
         val isLargeScreen by remember {
             derivedStateOf {
                 maxWidth > 800.dp
