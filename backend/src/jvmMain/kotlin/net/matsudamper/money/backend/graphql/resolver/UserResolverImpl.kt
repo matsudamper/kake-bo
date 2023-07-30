@@ -7,13 +7,10 @@ import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
-import net.matsudamper.money.backend.repository.MoneyUsageSubCategoryRepository
+import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategoriesConnection
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategoriesInput
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
-import net.matsudamper.money.graphql.model.QlMoneyUsageCategoryInput
-import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategoriesFromCategoryIdConnection
-import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategoriesFromCategoryIdQuery
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategoryInput
 import net.matsudamper.money.graphql.model.QlUser
@@ -59,12 +56,12 @@ class UserResolverImpl : UserResolver {
         }.toDataFetcher()
     }
 
-    override fun moneyUsageCategory(user: QlUser, input: QlMoneyUsageCategoryInput, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlMoneyUsageCategory?>> {
+    override fun moneyUsageCategory(user: QlUser, id: MoneyUsageCategoryId, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlMoneyUsageCategory?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         context.verifyUserSession()
 
         return CompletableFuture.completedFuture(
-            QlMoneyUsageCategory(id = input.id),
+            QlMoneyUsageCategory(id = id),
         ).toDataFetcher()
     }
 
@@ -75,33 +72,5 @@ class UserResolverImpl : UserResolver {
         return CompletableFuture.completedFuture(
             QlMoneyUsageSubCategory(id = input.id),
         ).toDataFetcher()
-    }
-
-    override fun moneyUsageSubCategoriesFromCategoryId(
-        user: QlUser,
-        input: QlMoneyUsageSubCategoriesFromCategoryIdQuery,
-        env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<QlMoneyUsageSubCategoriesFromCategoryIdConnection?>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
-
-        return CompletableFuture.supplyAsync {
-            val result = context.repositoryFactory.createMoneyUsageSubCategoryRepository()
-                .getSubCategory(userId = userId, categoryId = input.id)
-
-            QlMoneyUsageSubCategoriesFromCategoryIdConnection(
-                nodes = when (result) {
-                    is MoneyUsageSubCategoryRepository.GetSubCategoryResult.Failed -> {
-                        result.e.printStackTrace()
-                        return@supplyAsync null
-                    }
-
-                    is MoneyUsageSubCategoryRepository.GetSubCategoryResult.Success -> {
-                        result.results.map { QlMoneyUsageSubCategory(it.moneyUsageSubCategoryId) }
-                    }
-                },
-                cursor = null,
-            )
-        }.toDataFetcher()
     }
 }

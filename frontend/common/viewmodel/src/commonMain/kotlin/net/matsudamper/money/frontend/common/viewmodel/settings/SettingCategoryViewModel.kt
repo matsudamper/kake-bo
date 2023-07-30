@@ -12,7 +12,8 @@ import net.matsudamper.money.frontend.common.ui.screen.settings.SettingCategoryS
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
-import net.matsudamper.money.frontend.graphql.SubCategorySettingScreenQuery
+import net.matsudamper.money.frontend.graphql.CategorySettingScreenQuery
+import net.matsudamper.money.frontend.graphql.CategorySettingScreenSubCategoriesPagingQuery
 
 public class SettingCategoryViewModel(
     private val categoryId: MoneyUsageCategoryId,
@@ -23,7 +24,6 @@ public class SettingCategoryViewModel(
         ViewModelState(
             responseList = listOf(),
             isFirstLoading = true,
-            showCategoryNameInput = false,
         ),
     )
 
@@ -43,7 +43,7 @@ public class SettingCategoryViewModel(
                     coroutineScope.launch {
                         viewModelStateFlow.update {
                             it.copy(
-                                showCategoryNameInput = false,
+                                showAddSubCategoryNameInput = false,
                             )
                         }
                     }
@@ -53,7 +53,7 @@ public class SettingCategoryViewModel(
                     coroutineScope.launch {
                         viewModelStateFlow.update {
                             it.copy(
-                                showCategoryNameInput = true,
+                                showAddSubCategoryNameInput = true,
                             )
                         }
                     }
@@ -83,16 +83,32 @@ public class SettingCategoryViewModel(
 
                         viewModelStateFlow.update {
                             it.copy(
-                                showCategoryNameInput = false,
+                                showAddSubCategoryNameInput = false,
                             )
                         }
 
-                        initialFetch()
+                        initialFetchSubCategories()
+                    }
+                }
+
+                override fun onClickChangeCategoryName() {
+                    val categoryInfo = viewModelStateFlow.value.categoryInfo ?: return
+                    coroutineScope.launch {
+                        viewModelStateFlow.update {
+                            it.copy(
+                                showCategoryNameChangeInput = SettingCategoryScreenUiState.FullScreenInputDialog(
+                                    initText = categoryInfo.name,
+                                    event = categoryNameChangeUiEvent,
+                                ),
+                            )
+                        }
                     }
                 }
             },
             loadingState = SettingCategoryScreenUiState.LoadingState.Loading,
             showCategoryNameInput = false,
+            showCategoryNameChangeDialog = null,
+            categoryName = "",
         ),
     ).also { uiStateFlow ->
         coroutineScope.launch {
@@ -106,10 +122,51 @@ public class SettingCategoryViewModel(
                         }.flatten()
                         SettingCategoryScreenUiState.LoadingState.Loaded(
                             item = items.map { item ->
-                                SettingCategoryScreenUiState.SubCategoryItem(
-                                    name = item.name,
-                                    event = object : SettingCategoryScreenUiState.SubCategoryItem.Event {
-                                        override fun onClick() {
+                                createItemUiState(item)
+                            }.toImmutableList(),
+                        )
+                    }
+
+                    uiState.copy(
+                        loadingState = loadingState,
+                        showCategoryNameInput = viewModelState.showAddSubCategoryNameInput,
+                        showCategoryNameChangeDialog = viewModelState.showCategoryNameChangeInput,
+                        categoryName = viewModelState.categoryInfo?.name.orEmpty(),
+                    )
+                }
+            }
+        }
+    }.asStateFlow()
+
+    private val categoryNameChangeUiEvent = object : SettingCategoryScreenUiState.FullScreenInputDialog.Event {
+        override fun onDismiss() {
+            dismiss()
+        }
+
+        override fun onTextInputCompleted(text: String) {
+            // TODO
+            dismiss()
+        }
+
+        private fun dismiss() {
+            viewModelStateFlow.update {
+                it.copy(
+                    showCategoryNameChangeInput = null,
+                )
+            }
+        }
+    }
+
+    init {
+        initialFetchSubCategories()
+        fetchCategoryInfo()
+    }
+
+    private fun createItemUiState(item: CategorySettingScreenSubCategoriesPagingQuery.Node): SettingCategoryScreenUiState.SubCategoryItem {
+        return SettingCategoryScreenUiState.SubCategoryItem(
+            name = item.name,
+            event = object : SettingCategoryScreenUiState.SubCategoryItem.Event {
+                override fun onClick() {
 //                                            coroutineScope.launch {
 //                                                viewModelEventSender.send {
 //                                                    it.navigateToCategoryDetail(
@@ -117,29 +174,34 @@ public class SettingCategoryViewModel(
 //                                                    )
 //                                                }
 //                                            }
-                                        }
-                                    },
-                                )
-                            }.toImmutableList(),
-                        )
-                    }
-
-                    uiState.copy(
-                        loadingState = loadingState,
-                        showCategoryNameInput = viewModelState.showCategoryNameInput,
-                    )
                 }
-            }
-        }
-    }.asStateFlow()
-
-    init {
-        initialFetch()
+            },
+        )
     }
 
-    private fun initialFetch() {
+    private fun fetchCategoryInfo() {
         coroutineScope.launch {
-            val data = api.getSubCategory(id = categoryId)?.data?.user?.moneyUsageSubCategoriesFromCategoryId
+            val categoryInfo = api.getCategoryInfo(id = categoryId)?.data?.user?.moneyUsageCategory
+
+            if (categoryInfo == null) {
+                globalEventSender.send {
+                    it.showSnackBar("データの取得に失敗しました")
+                }
+                return@launch
+            }
+
+            viewModelStateFlow.update {
+                it.copy(
+                    isFirstLoading = false,
+                    categoryInfo = categoryInfo,
+                )
+            }
+        }
+    }
+
+    private fun initialFetchSubCategories() {
+        coroutineScope.launch {
+            val data = api.getSubCategoriesPaging(id = categoryId)?.data?.user?.moneyUsageCategory?.subCategories
 
             if (data == null) {
                 globalEventSender.send {
@@ -159,8 +221,10 @@ public class SettingCategoryViewModel(
 
     private data class ViewModelState(
         val isFirstLoading: Boolean,
-        val responseList: List<SubCategorySettingScreenQuery.MoneyUsageSubCategoriesFromCategoryId>,
-        val showCategoryNameInput: Boolean,
+        val responseList: List<CategorySettingScreenSubCategoriesPagingQuery.SubCategories>,
+        val categoryInfo: CategorySettingScreenQuery.MoneyUsageCategory? = null,
+        val showAddSubCategoryNameInput: Boolean = false,
+        val showCategoryNameChangeInput: SettingCategoryScreenUiState.FullScreenInputDialog? = null,
     )
 
     public interface Event

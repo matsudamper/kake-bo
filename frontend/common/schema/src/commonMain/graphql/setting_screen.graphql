@@ -15,7 +15,7 @@ fragment DisplayImapConfig on UserImapConfig {
     host
 }
 
-query CategorySettingScreen($input: MoneyUsageCategoriesInput!) {
+query CategoriesSettingScreen($input: MoneyUsageCategoriesInput!) {
     user {
         moneyUsageCategories(input: $input) {
             cursor
@@ -27,14 +27,28 @@ query CategorySettingScreen($input: MoneyUsageCategoriesInput!) {
     }
 }
 
-query SubCategorySettingScreen($input: MoneyUsageSubCategoriesFromCategoryIdQuery!) {
+query CategorySettingScreenSubCategoriesPaging(
+    $categoryId: MoneyUsageCategoryId!,
+    $query: MoneyUsageSubCategoryQuery!,
+) {
     user {
-        moneyUsageSubCategoriesFromCategoryId(input: $input) {
-            cursor
-            nodes {
-                id
-                name
+        moneyUsageCategory(id: $categoryId) {
+            subCategories(query: $query) {
+                nodes {
+                    id
+                    name
+                }
+                cursor
             }
+        }
+    }
+}
+
+query CategorySettingScreen($categoryId: MoneyUsageCategoryId!) {
+    user {
+        moneyUsageCategory(id: $categoryId) {
+            id
+            name
         }
     }
 }

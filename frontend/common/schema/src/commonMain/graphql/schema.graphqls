@@ -83,11 +83,6 @@ type MoneyUsageService {
     name: String!
 }
 
-type MoneyUsageSubCategoriesFromCategoryIdConnection {
-    cursor: String
-    nodes: [MoneyUsageSubCategory!]!
-}
-
 type MoneyUsageSubCategory {
     category: MoneyUsageCategory!
     id: MoneyUsageSubCategoryId!
@@ -125,8 +120,7 @@ type User {
     importedMailAttributes: ImportedMailAttributes!
     isLoggedIn: Boolean!
     moneyUsageCategories(input: MoneyUsageCategoriesInput!): MoneyUsageCategoriesConnection
-    moneyUsageCategory(input: MoneyUsageCategoryInput!): MoneyUsageCategory
-    moneyUsageSubCategoriesFromCategoryId(input: MoneyUsageSubCategoriesFromCategoryIdQuery!): MoneyUsageSubCategoriesFromCategoryIdConnection
+    moneyUsageCategory(id: MoneyUsageCategoryId!): MoneyUsageCategory
     moneyUsageSubCategory(input: MoneyUsageSubCategoryInput!): MoneyUsageSubCategory
     settings: UserSettings!
     userMailAttributes: UserMailAttributes!
@@ -254,16 +248,6 @@ input MailQuery {
 
 input MoneyUsageCategoriesInput {
     cursor: String
-    size: Int!
-}
-
-input MoneyUsageCategoryInput {
-    id: MoneyUsageCategoryId!
-}
-
-input MoneyUsageSubCategoriesFromCategoryIdQuery {
-    cursor: String
-    id: MoneyUsageCategoryId!
     size: Int!
 }
 

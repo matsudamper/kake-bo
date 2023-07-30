@@ -108,7 +108,7 @@ public fun MainContent(
         modifier = modifier.fillMaxSize(),
         title = {
             Text(
-                text = "カテゴリー設定",
+                text = "カテゴリー一覧",
             )
         },
     ) { paddingValues ->

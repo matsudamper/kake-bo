@@ -4,20 +4,8 @@ type User {
     userMailAttributes: UserMailAttributes!
     importedMailAttributes: ImportedMailAttributes!
     moneyUsageCategories(input: MoneyUsageCategoriesInput!):MoneyUsageCategoriesConnection @lazy
-    moneyUsageCategory(input: MoneyUsageCategoryInput!): MoneyUsageCategory @lazy
+    moneyUsageCategory(id: MoneyUsageCategoryId!): MoneyUsageCategory @lazy
     moneyUsageSubCategory(input: MoneyUsageSubCategoryInput!): MoneyUsageSubCategory @lazy
-    moneyUsageSubCategoriesFromCategoryId(input: MoneyUsageSubCategoriesFromCategoryIdQuery!): MoneyUsageSubCategoriesFromCategoryIdConnection @lazy
-}
-
-input MoneyUsageSubCategoriesFromCategoryIdQuery {
-    id: MoneyUsageCategoryId!
-    size: Int!
-    cursor: String
-}
-
-type MoneyUsageSubCategoriesFromCategoryIdConnection {
-    nodes: [MoneyUsageSubCategory!]!
-    cursor: String
 }
 
 input MoneyUsageCategoryInput {

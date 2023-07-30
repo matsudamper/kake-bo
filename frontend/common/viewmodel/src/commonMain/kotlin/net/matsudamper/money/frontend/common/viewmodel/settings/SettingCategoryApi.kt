@@ -8,22 +8,23 @@ import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.graphql.AddCategoryMutation
 import net.matsudamper.money.frontend.graphql.AddSubCategoryMutation
+import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenQuery
 import net.matsudamper.money.frontend.graphql.CategorySettingScreenQuery
+import net.matsudamper.money.frontend.graphql.CategorySettingScreenSubCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.GraphqlClient
-import net.matsudamper.money.frontend.graphql.SubCategorySettingScreenQuery
 import net.matsudamper.money.frontend.graphql.type.AddCategoryInput
 import net.matsudamper.money.frontend.graphql.type.AddSubCategoryInput
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoriesInput
-import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoriesFromCategoryIdQuery
+import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryQuery
 
 public class SettingCategoryApi(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
-    public suspend fun getCategory(): ApolloResponse<CategorySettingScreenQuery.Data>? {
+    public suspend fun getCategories(): ApolloResponse<CategoriesSettingScreenQuery.Data>? {
         return runCatching {
             apolloClient
                 .query(
-                    CategorySettingScreenQuery(
+                    CategoriesSettingScreenQuery(
                         MoneyUsageCategoriesInput(
                             cursor = Optional.present(null),
                             size = 100,
@@ -71,21 +72,36 @@ public class SettingCategoryApi(
         }.getOrNull()
     }
 
-    public suspend fun getSubCategory(
+    public suspend fun getSubCategoriesPaging(
         id: MoneyUsageCategoryId,
-    ): ApolloResponse<SubCategorySettingScreenQuery.Data>? {
+    ): ApolloResponse<CategorySettingScreenSubCategoriesPagingQuery.Data>? {
         return runCatching {
             apolloClient
                 .query(
-                    SubCategorySettingScreenQuery(
-                        MoneyUsageSubCategoriesFromCategoryIdQuery(
-                            id = id,
+                    CategorySettingScreenSubCategoriesPagingQuery(
+                        categoryId = id,
+                        query = MoneyUsageSubCategoryQuery(
                             cursor = Optional.present(null),
                             size = 100,
                         ),
                     ),
                 )
                 .fetchPolicy(FetchPolicy.NetworkOnly)
+                .execute()
+        }.onFailure {
+            it.printStackTrace()
+        }.getOrNull()
+    }
+
+    public suspend fun getCategoryInfo(id: MoneyUsageCategoryId): ApolloResponse<CategorySettingScreenQuery.Data>? {
+        return runCatching {
+            apolloClient
+                .query(
+                    CategorySettingScreenQuery(
+                        categoryId = id,
+                    ),
+                )
+                .fetchPolicy(FetchPolicy.CacheAndNetwork)
                 .execute()
         }.onFailure {
             it.printStackTrace()

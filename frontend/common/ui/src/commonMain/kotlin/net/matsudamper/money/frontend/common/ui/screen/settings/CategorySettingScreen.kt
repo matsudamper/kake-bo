@@ -2,6 +2,8 @@ package net.matsudamper.money.frontend.common.ui.screen.settings
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -19,9 +22,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,7 +42,20 @@ public data class SettingCategoryScreenUiState(
     val event: Event,
     val loadingState: LoadingState,
     val showCategoryNameInput: Boolean,
+    val categoryName: String,
+    val showCategoryNameChangeDialog: FullScreenInputDialog?,
 ) {
+    public data class FullScreenInputDialog(
+        val initText: String,
+        val event: Event,
+    ) {
+        @Immutable
+        public interface Event {
+            public fun onDismiss()
+            public fun onTextInputCompleted(text: String)
+        }
+    }
+
     public sealed interface LoadingState {
         public object Loading : LoadingState
         public data class Loaded(
@@ -59,6 +77,7 @@ public data class SettingCategoryScreenUiState(
         public fun onClickAddSubCategoryButton()
         public fun subCategoryNameInputCompleted(text: String)
         public fun dismissCategoryInput()
+        public fun onClickChangeCategoryName()
     }
 }
 
@@ -85,6 +104,19 @@ public fun SettingCategoryScreen(
         )
     }
 
+    if (uiState.showCategoryNameChangeDialog != null) {
+        HtmlFullScreenTextInput(
+            title = "カテゴリー名変更",
+            onComplete = { text ->
+                uiState.showCategoryNameChangeDialog.event.onTextInputCompleted(text)
+            },
+            canceled = {
+                uiState.showCategoryNameChangeDialog.event.onDismiss()
+            },
+            default = uiState.showCategoryNameChangeDialog.initText,
+        )
+    }
+
     RootScreenScaffold(
         modifier = modifier.fillMaxSize(),
         currentScreen = RootScreenTab.Settings,
@@ -98,7 +130,7 @@ public fun SettingCategoryScreen(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 public fun MainContent(
     modifier: Modifier,
@@ -108,7 +140,7 @@ public fun MainContent(
         modifier = modifier.fillMaxSize(),
         title = {
             Text(
-                text = "サブカテゴリー設定",
+                text = "カテゴリー設定",
             )
         },
     ) { paddingValues ->
@@ -125,21 +157,45 @@ public fun MainContent(
                         Spacer(Modifier.height(24.dp))
                     }
                     stickyHeader {
-                        Row {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = uiState.categoryName,
+                                style = MaterialTheme.typography.titleMedium,
+                            )
                             Spacer(modifier = Modifier.weight(1f))
-                            OutlinedButton(
-                                onClick = { uiState.event.onClickAddSubCategoryButton() },
-                                modifier = Modifier.padding(horizontal = 24.dp),
-                            ) {
-                                Icon(Icons.Default.Add, contentDescription = null)
-                                Text(text = "サブカテゴリーを追加")
+                            FlowRow {
+                                Spacer(modifier = Modifier.weight(1f))
+                                OutlinedButton(
+                                    onClick = { uiState.event.onClickChangeCategoryName() },
+                                    modifier = Modifier,
+                                ) {
+                                    Text(text = "カテゴリー名変更")
+                                }
+                                Spacer(modifier = Modifier.width(12.dp))
+                                OutlinedButton(
+                                    onClick = { uiState.event.onClickAddSubCategoryButton() },
+                                    modifier = Modifier,
+                                ) {
+                                    Icon(Icons.Default.Add, contentDescription = null)
+                                    Text(text = "サブカテゴリーを追加")
+                                }
                             }
                         }
                     }
-                    items(state.item) { item ->
+                    item {
+                        Spacer(Modifier.height(12.dp))
+                    }
+                    items(
+                        items = state.item,
+                    ) { item ->
                         Card(
                             modifier = Modifier
-                                .fillMaxWidth(),
+                                .fillMaxWidth()
+                                .padding(
+                                    vertical = 4.dp,
+                                ),
                             onClick = { item.event.onClick() },
                         ) {
                             Text(
