@@ -15,8 +15,9 @@ class MoneyUsageCategoryRepository {
         name: String,
     ): AddCategoryResult {
         return runCatching {
-            DbConnection.use {
-                val result = DSL.insertInto(CATEGORIES)
+            DbConnection.use { connection ->
+                val result = DSL.using(connection)
+                    .insertInto(CATEGORIES)
                     .set(
                         JMoneyUsageCategoriesRecord(
                             userId = userId.id,
@@ -44,8 +45,9 @@ class MoneyUsageCategoryRepository {
         moneyUsageCategoryIds: List<MoneyUsageCategoryId>,
     ): GetCategoryResult {
         return runCatching {
-            DbConnection.use {
-                val records = DSL.selectFrom(CATEGORIES)
+            DbConnection.use { connection ->
+                val records = DSL.using(connection)
+                    .selectFrom(CATEGORIES)
                     .where(
                         CATEGORIES.USER_ID.eq(userId.id)
                             .and(
@@ -73,8 +75,9 @@ class MoneyUsageCategoryRepository {
         userId: UserId,
     ): GetCategoryResult {
         return runCatching {
-            DbConnection.use {
-                val records = DSL.selectFrom(CATEGORIES)
+            DbConnection.use { connection ->
+                val records = DSL.using(connection)
+                    .selectFrom(CATEGORIES)
                     .where(
                         CATEGORIES.USER_ID.eq(userId.id),
                     )
