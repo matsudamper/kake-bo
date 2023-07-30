@@ -114,11 +114,7 @@ class GraphqlHandler(
                     )
                 }
 
-                is NonNullableValueCoercedAsNullException -> {
-                    IllegalStateException(
-                        "NonNullableValueCoercedAsNullException: message=${it.message}, path=${it.path}",
-                    )
-                }
+                is Throwable -> it
 
                 else -> {
                     IllegalStateException(
