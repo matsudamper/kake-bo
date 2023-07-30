@@ -72,6 +72,9 @@ class MoneyUsageSubCategoryRepository {
     ): GetSubCategoryResult {
         return runCatching {
             DbConnection.use { connection ->
+
+                // TODO: 自分のものでない時はエラーにする
+
                 val records = DSL.using(connection)
                     .select(
                         SUB_CATEGORIES.USER_ID,
