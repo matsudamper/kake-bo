@@ -6,6 +6,7 @@ import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsageCategoriesRecord
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import org.jooq.impl.DSL
+import org.jooq.kotlin.and
 
 class MoneyUsageCategoryRepository {
     private val CATEGORIES = JMoneyUsageCategories.MONEY_USAGE_CATEGORIES
@@ -95,6 +96,29 @@ class MoneyUsageCategoryRepository {
             onSuccess = { GetCategoryResult.Success(it) },
             onFailure = { GetCategoryResult.Failed(it) },
         )
+    }
+
+    fun updateCategory(
+        userId: UserId,
+        categoryId: MoneyUsageCategoryId,
+        name: String?,
+    ) : Boolean {
+        return DbConnection.use { connection ->
+            if (name != null) {
+                DSL.using(connection)
+                    .update(CATEGORIES)
+                    .set(CATEGORIES.NAME, name)
+                    .where(
+                        DSL.value(true)
+                            .and(CATEGORIES.USER_ID.eq(userId.id))
+                            .and(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.id)),
+                    )
+                    .limit(1)
+                    .execute()
+            } else {
+                0
+            } >= 1
+        }
     }
 
     data class CategoryResult(

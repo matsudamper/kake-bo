@@ -165,6 +165,7 @@ type UserMutation {
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
     importMail(mailIds: [MailId!]!): ImportMailResult!
     settingsMutation: SettingsMutation
+    updateCategory(id: MoneyUsageCategoryId!, query: UpdateCategoryQuery!): MoneyUsageCategory!
     userLogin(name: String!, password: String!): UserLoginResult!
 }
 
@@ -258,6 +259,10 @@ input MoneyUsageSubCategoryInput {
 input MoneyUsageSubCategoryQuery {
     cursor: String
     size: Int!
+}
+
+input UpdateCategoryQuery {
+    name: String
 }
 
 input UpdateUserImapConfigInput {

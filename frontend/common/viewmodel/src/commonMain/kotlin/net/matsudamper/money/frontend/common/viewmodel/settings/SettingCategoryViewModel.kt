@@ -144,8 +144,26 @@ public class SettingCategoryViewModel(
         }
 
         override fun onTextInputCompleted(text: String) {
-            // TODO
-            dismiss()
+            coroutineScope.launch {
+                val result = api.updateCategory(
+                    id = categoryId,
+                    name = text,
+                )?.data?.userMutation?.updateCategory
+                if (result == null) {
+                    launch {
+                        globalEventSender.send {
+                            it.showNativeNotification("カテゴリ名の変更に失敗しました")
+                        }
+                    }
+                } else {
+                    launch {
+                        globalEventSender.send {
+                            it.showSnackBar("カテゴリ名を変更しました")
+                        }
+                    }
+                }
+                dismiss()
+            }
         }
 
         private fun dismiss() {

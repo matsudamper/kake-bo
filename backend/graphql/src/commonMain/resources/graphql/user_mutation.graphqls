@@ -5,7 +5,12 @@ type UserMutation {
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
     addUsage(usage: AddUsageInput!): MoneyUsage!
     addCategory(input: AddCategoryInput!) : AddCategoryResult!
+    updateCategory(id: MoneyUsageCategoryId!, query: UpdateCategoryQuery!): MoneyUsageCategory!
     addSubCategory(input: AddSubCategoryInput!) : AddSubCategoryResult!
+}
+
+input UpdateCategoryQuery {
+    name: String
 }
 
 input AddSubCategoryInput {

@@ -55,3 +55,12 @@ mutation AddSubCategory($category: AddSubCategoryInput!) {
         }
     }
 }
+
+mutation UpdateCategory($id: MoneyUsageCategoryId!, $query: UpdateCategoryQuery!) {
+    userMutation {
+        updateCategory(id: $id, query: $query) {
+            id
+            name
+        }
+    }
+}

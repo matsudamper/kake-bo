@@ -12,10 +12,12 @@ import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenQuery
 import net.matsudamper.money.frontend.graphql.CategorySettingScreenQuery
 import net.matsudamper.money.frontend.graphql.CategorySettingScreenSubCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.GraphqlClient
+import net.matsudamper.money.frontend.graphql.UpdateCategoryMutation
 import net.matsudamper.money.frontend.graphql.type.AddCategoryInput
 import net.matsudamper.money.frontend.graphql.type.AddSubCategoryInput
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoriesInput
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryQuery
+import net.matsudamper.money.frontend.graphql.type.UpdateCategoryQuery
 
 public class SettingCategoryApi(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
@@ -90,6 +92,24 @@ public class SettingCategoryApi(
                 .execute()
         }.onFailure {
             it.printStackTrace()
+        }.getOrNull()
+    }
+
+    public suspend fun updateCategory(
+        id: MoneyUsageCategoryId,
+        name: String,
+    ): ApolloResponse<UpdateCategoryMutation.Data>? {
+        return runCatching {
+            apolloClient
+                .mutation(
+                    UpdateCategoryMutation(
+                        id = id,
+                        query = UpdateCategoryQuery(
+                            name = Optional.present(name),
+                        ),
+                    ),
+                )
+                .execute()
         }.getOrNull()
     }
 

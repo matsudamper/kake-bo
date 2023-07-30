@@ -15,6 +15,7 @@ import net.matsudamper.money.backend.repository.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.repository.UserLoginRepository
 import net.matsudamper.money.backend.repository.UserSessionRepository
 import net.matsudamper.money.element.MailId
+import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.graphql.model.QlAddCategoryInput
 import net.matsudamper.money.graphql.model.QlAddCategoryResult
 import net.matsudamper.money.graphql.model.QlAddSubCategoryError
@@ -28,6 +29,7 @@ import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
 import net.matsudamper.money.graphql.model.QlSettingsMutation
+import net.matsudamper.money.graphql.model.QlUpdateCategoryQuery
 import net.matsudamper.money.graphql.model.QlUserLoginResult
 import net.matsudamper.money.graphql.model.QlUserMutation
 import net.matsudamper.money.graphql.model.UserMutationResolver
@@ -188,6 +190,31 @@ class UserMutationResolverImpl : UserMutationResolver {
                         error = null,
                     )
                 }
+            }
+        }.toDataFetcher()
+    }
+
+    override fun updateCategory(
+        userMutation: QlUserMutation,
+        id: MoneyUsageCategoryId,
+        query: QlUpdateCategoryQuery,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlMoneyUsageCategory>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+        return CompletableFuture.supplyAsync {
+            val result = context.repositoryFactory.createMoneyUsageCategoryRepository()
+                .updateCategory(
+                    userId = userId,
+                    categoryId = id,
+                    name = query.name,
+                )
+            if (result) {
+                QlMoneyUsageCategory(
+                    id = id,
+                )
+            } else {
+                throw IllegalStateException("update category failed")
             }
         }.toDataFetcher()
     }
