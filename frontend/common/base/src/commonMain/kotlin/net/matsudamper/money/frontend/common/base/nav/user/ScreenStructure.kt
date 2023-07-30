@@ -1,5 +1,7 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
+import net.matsudamper.money.element.MoneyUsageCategoryId
+
 public sealed interface ScreenStructure {
     public val direction: Screens
 
@@ -21,12 +23,18 @@ public sealed interface ScreenStructure {
                 override val direction: Screens = Screens.SettingsImap
             }
 
-            public object Category : Settings {
+            public object Categories : Settings {
                 override val direction: Screens = Screens.SettingsCategory
             }
 
-            public object CategoryId : Settings {
+            public class Category(
+                public val id: MoneyUsageCategoryId,
+            ) : Settings {
                 override val direction: Screens = Screens.SettingsCategoryId
+
+                override fun createUrl(): String {
+                    return direction.placeholderUrl.replace("{id}", id.id.toString())
+                }
             }
 
             public object SubCategory : Settings {

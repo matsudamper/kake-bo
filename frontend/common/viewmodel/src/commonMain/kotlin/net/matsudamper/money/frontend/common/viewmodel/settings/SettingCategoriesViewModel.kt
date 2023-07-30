@@ -6,15 +6,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
-import net.matsudamper.money.frontend.common.base.immutableListOf
-import net.matsudamper.money.frontend.common.ui.screen.settings.CategorySettingScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.settings.SettingCategoriesScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.graphql.CategorySettingScreenQuery
 
-public class CategorySettingViewModel(
+public class SettingCategoriesViewModel(
     private val coroutineScope: CoroutineScope,
     private val api: SettingCategoryApi,
 ) {
@@ -25,12 +25,16 @@ public class CategorySettingViewModel(
             showCategoryNameInput = false,
         ),
     )
+
+    private val viewModelEventSender = EventSender<SettingCategoriesViewModelEvent>()
+    public val viewModelEventHandler: EventHandler<SettingCategoriesViewModelEvent> = viewModelEventSender.asHandler()
+
     private val globalEventSender = EventSender<GlobalEvent>()
     public val globalEventHandler: EventHandler<GlobalEvent> = globalEventSender.asHandler()
 
-    public val uiState: StateFlow<CategorySettingScreenUiState> = MutableStateFlow(
-        CategorySettingScreenUiState(
-            event = object : CategorySettingScreenUiState.Event {
+    public val uiState: StateFlow<SettingCategoriesScreenUiState> = MutableStateFlow(
+        SettingCategoriesScreenUiState(
+            event = object : SettingCategoriesScreenUiState.Event {
                 override suspend fun onResume() {
 
                 }
@@ -78,7 +82,7 @@ public class CategorySettingViewModel(
                     }
                 }
             },
-            loadingState = CategorySettingScreenUiState.LoadingState.Loading,
+            loadingState = SettingCategoriesScreenUiState.LoadingState.Loading,
             showCategoryNameInput = false,
         ),
     ).also { uiStateFlow ->
@@ -86,15 +90,26 @@ public class CategorySettingViewModel(
             viewModelStateFlow.collect { viewModelState ->
                 uiStateFlow.update { uiState ->
                     val loadingState = if (viewModelState.isFirstLoading) {
-                        CategorySettingScreenUiState.LoadingState.Loading
+                        SettingCategoriesScreenUiState.LoadingState.Loading
                     } else {
                         val items = viewModelState.responseList.mapNotNull {
                             it.user?.moneyUsageCategories?.nodes
                         }.flatten()
-                        CategorySettingScreenUiState.LoadingState.Loaded(
-                            item = items.map {
-                                CategorySettingScreenUiState.CategoryItem(
-                                    name = it.name,
+                        SettingCategoriesScreenUiState.LoadingState.Loaded(
+                            item = items.map { item ->
+                                SettingCategoriesScreenUiState.CategoryItem(
+                                    name = item.name,
+                                    event = object : SettingCategoriesScreenUiState.CategoryItem.Event {
+                                        override fun onClick() {
+                                            coroutineScope.launch {
+                                                viewModelEventSender.send {
+                                                    it.navigateToCategoryDetail(
+                                                        id = item.id,
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    },
                                 )
                             }.toImmutableList(),
                         )
@@ -138,4 +153,9 @@ public class CategorySettingViewModel(
         val responseList: List<CategorySettingScreenQuery.Data>,
         val showCategoryNameInput: Boolean,
     )
+
+}
+
+public interface SettingCategoriesViewModelEvent {
+    public fun navigateToCategoryDetail(id: MoneyUsageCategoryId)
 }

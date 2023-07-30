@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import kotlinx.browser.window
+import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.Screens
@@ -68,8 +69,10 @@ public class ScreenNavControllerImpl(
             Screens.Home -> ScreenStructure.Root.Home()
             Screens.Settings -> ScreenStructure.Root.Settings.Root
             Screens.SettingsImap -> ScreenStructure.Root.Settings.Imap
-            Screens.SettingsCategory -> ScreenStructure.Root.Settings.Category
-            Screens.SettingsCategoryId -> ScreenStructure.Root.Settings.CategoryId
+            Screens.SettingsCategory -> ScreenStructure.Root.Settings.Categories
+            Screens.SettingsCategoryId -> ScreenStructure.Root.Settings.Category(
+                id = this.params["id"]?.toIntOrNull()?.let { MoneyUsageCategoryId(it) } ?: return ScreenStructure.NotFound,
+            )
             Screens.SettingsSubCategory -> ScreenStructure.Root.Settings.SubCategory
             Screens.SettingsSubCategoryId -> {
                 ScreenStructure.Root.Settings.SubCategoryId(

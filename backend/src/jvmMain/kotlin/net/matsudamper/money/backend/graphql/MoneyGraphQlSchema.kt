@@ -1,5 +1,7 @@
 package net.matsudamper.money.backend.graphql
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.time.LocalDateTime
 import java.util.Locale
 import java.util.jar.JarFile
@@ -8,7 +10,10 @@ import graphql.GraphQLContext
 import graphql.Scalars
 import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.CoercedVariables
+import graphql.kickstart.tools.PerFieldObjectMapperProvider
 import graphql.kickstart.tools.SchemaParser
+import graphql.kickstart.tools.SchemaParserOptions
+import graphql.language.FieldDefinition
 import graphql.language.Value
 import graphql.scalars.ExtendedScalars
 import graphql.schema.Coercing
@@ -83,27 +88,41 @@ object MoneyGraphQlSchema {
                 GraphQLScalarType.newScalar(ExtendedScalars.GraphQLLong)
                     .name("UserId")
                     .build(),
-                createStringScalarType("MailId") {
-                    MailId(it)
-                },
-                createIntScalarType("MoneyUsageServiceId") {
-                    MoneyUsageServiceId(it)
-                },
-                createIntScalarType("MoneyUsageTypeId") {
-                    MoneyUsageTypeId(it)
-                },
-                createIntScalarType("ImportedMailId") {
-                    ImportedMailId(it)
-                },
-                createIntScalarType("MoneyUsageCategoryId") {
-                    MoneyUsageCategoryId(it)
-                },
-                createIntScalarType("MoneyUsageSubCategoryId") {
-                    MoneyUsageSubCategoryId(it)
-                },
-                createIntScalarType("MoneyUsageId") {
-                    MoneyUsageId(it)
-                },
+                createStringScalarType(
+                    name = "MailId",
+                    deserialize = { MailId(it) },
+                    serialize = { it.id },
+                ),
+                createIntScalarType(
+                    name = "MoneyUsageServiceId",
+                    serialize = { it.id },
+                    deserialize = { MoneyUsageServiceId(it) }
+                ),
+                createIntScalarType(
+                    name = "MoneyUsageTypeId",
+                    deserialize = { MoneyUsageTypeId(it) },
+                    serialize = { it.id },
+                ),
+                createIntScalarType(
+                    name = "ImportedMailId",
+                    deserialize = { ImportedMailId(it) },
+                    serialize = { it.id },
+                ),
+                createIntScalarType(
+                    name = "MoneyUsageCategoryId",
+                    deserialize = { MoneyUsageCategoryId(it) },
+                    serialize = { it.id },
+                ),
+                createIntScalarType(
+                    name = "MoneyUsageSubCategoryId",
+                    deserialize = { MoneyUsageSubCategoryId(it) },
+                    serialize = { it.id },
+                ),
+                createIntScalarType(
+                    name = "MoneyUsageId",
+                    deserialize = { MoneyUsageId(it) },
+                    serialize = { it.id },
+                ),
                 GraphQLScalarType.newScalar(ExtendedScalars.DateTime)
                     .name("OffsetDateTime")
                     .build(),
@@ -126,6 +145,15 @@ object MoneyGraphQlSchema {
                 ImportedMailAttributesResolverImpl(),
                 ImportedMailResolverImpl(),
             )
+            .options(
+                SchemaParserOptions.defaultOptions().copy(
+                    objectMapperProvider = object : PerFieldObjectMapperProvider {
+                        override fun provide(fieldDefinition: FieldDefinition): ObjectMapper {
+                            return jacksonObjectMapper()
+                        }
+                    }
+                )
+            )
             .build()
             .makeExecutableSchema()
     }
@@ -134,32 +162,32 @@ object MoneyGraphQlSchema {
         .queryExecutionStrategy(AsyncExecutionStrategy())
         .build()
 
-    private fun createStringScalarType(
+    private fun <T> createStringScalarType(
         name: String,
-        converter: (String) -> Any,
+        serialize: (T) -> String,
+        deserialize: (String) -> T,
     ): GraphQLScalarType {
         return GraphQLScalarType.newScalar()
             .coercing(
-                @Suppress("UNCHECKED_CAST")
                 ValueClassCoercing(
-                    coercing = Scalars.GraphQLString.coercing as Coercing<String, String>,
-                    converter = converter,
+                    serialize = serialize,
+                    deserialize = deserialize,
                 ),
             )
             .name(name)
             .build()
     }
 
-    private fun createIntScalarType(
+    private fun <T> createIntScalarType(
         name: String,
-        converter: (Int) -> Any,
+        serialize: (T) -> Int,
+        deserialize: (Int) -> T,
     ): GraphQLScalarType {
         return GraphQLScalarType.newScalar()
             .coercing(
-                @Suppress("UNCHECKED_CAST")
                 ValueClassCoercing(
-                    coercing = Scalars.GraphQLInt.coercing as Coercing<Int, Int>,
-                    converter = converter,
+                    serialize = serialize,
+                    deserialize = deserialize,
                 ),
             )
             .name(name)
@@ -181,7 +209,12 @@ object MoneyGraphQlSchema {
             }
         }
 
-        override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): LocalDateTime? {
+        override fun parseLiteral(
+            input: Value<*>,
+            variables: CoercedVariables,
+            graphQLContext: GraphQLContext,
+            locale: Locale
+        ): LocalDateTime? {
             return coercing.parseLiteral(input, variables, graphQLContext, locale)?.let {
                 LocalDateTime.parse(it)
             }
@@ -193,29 +226,32 @@ object MoneyGraphQlSchema {
     }
 }
 
-class ValueClassCoercing<T, R>(
-    private val coercing: Coercing<T, T>,
-    private val converter: (T) -> R,
-) : Coercing<R, R> {
-    override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): R? {
-        return coercing.serialize(dataFetcherResult, graphQLContext, locale)?.let {
-            converter(it)
-        }
+class ValueClassCoercing<Inner, Outer>(
+    private val serialize: (Inner) -> Outer,
+    private val deserialize: (Outer) -> Inner,
+) : Coercing<Inner, Outer> {
+    @Suppress("UNCHECKED_CAST")
+    override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): Outer? {
+        val inner = dataFetcherResult as? Inner
+        return inner?.let(serialize)
     }
 
-    override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): R? {
-        return coercing.parseValue(input, graphQLContext, locale)?.let {
-            converter(it)
-        }
+    @Suppress("UNCHECKED_CAST")
+    override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): Inner? {
+        val outer = input as? Outer
+        return outer?.let(deserialize)
     }
 
-    override fun parseLiteral(input: Value<*>, variables: CoercedVariables, graphQLContext: GraphQLContext, locale: Locale): R? {
-        return coercing.parseLiteral(input, variables, graphQLContext, locale)?.let {
-            converter(it)
-        }
+    override fun parseLiteral(
+        input: Value<*>,
+        variables: CoercedVariables,
+        graphQLContext: GraphQLContext,
+        locale: Locale
+    ): Inner? {
+        throw NotImplementedError("parseLiteral.input -> $input")
     }
 
     override fun valueToLiteral(input: Any, graphQLContext: GraphQLContext, locale: Locale): Value<*> {
-        return coercing.valueToLiteral(input, graphQLContext, locale)
+        throw NotImplementedError("valueToLiteral.input -> $input")
     }
 }

@@ -25,7 +25,7 @@ object GraphqlClient {
         .normalizedCache(cacheFactory)
         .addCustomScalarAdapter(
             ApolloMailId.type,
-            CustomAdapter(
+            CustomStringAdapter(
                 serialize = {
                     it.id
                 },
@@ -36,7 +36,7 @@ object GraphqlClient {
         )
         .addCustomScalarAdapter(
             ApolloImportedMailId.type,
-            CustomAdapter(
+            CustomStringAdapter(
                 serialize = {
                     it.id.toString()
                 },
@@ -47,7 +47,7 @@ object GraphqlClient {
         )
         .addCustomScalarAdapter(
             ApolloMoneyUsageServiceId.type,
-            CustomAdapter(
+            CustomStringAdapter(
                 serialize = {
                     it.id.toString()
                 },
@@ -58,7 +58,7 @@ object GraphqlClient {
         )
         .addCustomScalarAdapter(
             ApolloMoneyUsageSubCategoryId.type,
-            CustomAdapter(
+            CustomStringAdapter(
                 serialize = {
                     it.id.toString()
                 },
@@ -69,24 +69,42 @@ object GraphqlClient {
         )
         .addCustomScalarAdapter(
             ApolloMoneyUsageCategoryId.type,
-            CustomAdapter(
+            CustomIntAdapter(
                 serialize = {
-                    it.id.toString()
+                    it.id
                 },
                 deserialize = { value ->
-                    value.toIntOrNull()?.let { MoneyUsageCategoryId(it) }
+                    MoneyUsageCategoryId(value)
                 },
             ),
         )
         .build()
 }
 
-private class CustomAdapter<T>(
+private class CustomStringAdapter<T>(
     val deserialize: (String) -> T?,
     val serialize: (T) -> String,
 ) : Adapter<T?> {
     override fun fromJson(reader: JsonReader, customScalarAdapters: CustomScalarAdapters): T? {
         return reader.nextString()?.let { deserialize(it) }
+    }
+
+    override fun toJson(writer: JsonWriter, customScalarAdapters: CustomScalarAdapters, value: T?) {
+        if (value != null) {
+            writer.value(serialize(value))
+        } else {
+            writer.nullValue()
+        }
+    }
+}
+
+
+private class CustomIntAdapter<T>(
+    val deserialize: (Int) -> T?,
+    val serialize: (T) -> Int,
+) : Adapter<T?> {
+    override fun fromJson(reader: JsonReader, customScalarAdapters: CustomScalarAdapters): T? {
+        return deserialize(reader.nextInt())
     }
 
     override fun toJson(writer: JsonWriter, customScalarAdapters: CustomScalarAdapters, value: T?) {

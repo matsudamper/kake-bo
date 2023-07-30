@@ -2,6 +2,7 @@ package event
 
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -11,6 +12,9 @@ import net.matsudamper.money.frontend.common.viewmodel.root.MailImportViewModelE
 import net.matsudamper.money.frontend.common.viewmodel.root.MailLinkViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
+import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModel
+import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModelEvent
+import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
 
 data class ViewModelEventHandlers(
     private val navController: ScreenNavController,
@@ -83,8 +87,32 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun navigateToCategoriesConfig() {
-                        navController.navigate(ScreenStructure.Root.Settings.Category)
+                        navController.navigate(ScreenStructure.Root.Settings.Categories)
                     }
+                },
+            )
+        }
+    }
+
+    suspend fun handle(handler: EventHandler<SettingCategoriesViewModelEvent>) {
+        coroutineScope {
+            handler.collect(
+                object : SettingCategoriesViewModelEvent {
+                    override fun navigateToCategoryDetail(id: MoneyUsageCategoryId) {
+                        navController.navigate(
+                            ScreenStructure.Root.Settings.Category(id = id),
+                        )
+                    }
+                },
+            )
+        }
+    }
+
+    suspend fun handle(handler: EventHandler<SettingCategoryViewModel.Event>) {
+        coroutineScope {
+            handler.collect(
+                object : SettingCategoryViewModel.Event {
+
                 },
             )
         }

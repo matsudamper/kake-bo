@@ -18,6 +18,7 @@ kotlin {
         }
         val jsMain by getting {
             dependencies {
+                api(project(":shared"))
                 api(compose.runtime)
                 api(compose.ui)
 

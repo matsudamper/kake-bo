@@ -33,7 +33,7 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
 
-public data class SettingCategoryScreenUiState(
+public data class SettingCategoriesScreenUiState(
     val event: Event,
     val loadingState: LoadingState,
     val showCategoryNameInput: Boolean,
@@ -41,11 +41,11 @@ public data class SettingCategoryScreenUiState(
     public sealed interface LoadingState {
         public object Loading : LoadingState
         public data class Loaded(
-            val item: ImmutableList<SubCategoryItem>,
+            val item: ImmutableList<CategoryItem>,
         ) : LoadingState
     }
 
-    public data class SubCategoryItem(
+    public data class CategoryItem(
         val name: String,
         val event: Event,
     ) {
@@ -56,16 +56,16 @@ public data class SettingCategoryScreenUiState(
 
     public interface Event {
         public suspend fun onResume()
-        public fun onClickAddSubCategoryButton()
-        public fun subCategoryNameInputCompleted(text: String)
+        public fun onClickAddCategoryButton()
+        public fun categoryInputCompleted(text: String)
         public fun dismissCategoryInput()
     }
 }
 
 @Composable
-public fun SettingCategoryScreen(
+public fun SettingCategoriesScreen(
     modifier: Modifier = Modifier,
-    uiState: SettingCategoryScreenUiState,
+    uiState: SettingCategoriesScreenUiState,
     rootScreenScaffoldListener: RootScreenScaffoldListener,
 ) {
     LaunchedEffect(Unit) {
@@ -74,9 +74,9 @@ public fun SettingCategoryScreen(
 
     if (uiState.showCategoryNameInput) {
         HtmlFullScreenTextInput(
-            title = "サブカテゴリー名",
+            title = "カテゴリー名",
             onComplete = { text ->
-                uiState.event.subCategoryNameInputCompleted(text)
+                uiState.event.categoryInputCompleted(text)
             },
             canceled = {
                 uiState.event.dismissCategoryInput()
@@ -102,18 +102,18 @@ public fun SettingCategoryScreen(
 @Composable
 public fun MainContent(
     modifier: Modifier,
-    uiState: SettingCategoryScreenUiState,
+    uiState: SettingCategoriesScreenUiState,
 ) {
     SettingScaffold(
         modifier = modifier.fillMaxSize(),
         title = {
             Text(
-                text = "サブカテゴリー設定",
+                text = "カテゴリー設定",
             )
         },
     ) { paddingValues ->
         when (val state = uiState.loadingState) {
-            is SettingCategoryScreenUiState.LoadingState.Loaded -> {
+            is SettingCategoriesScreenUiState.LoadingState.Loaded -> {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(
@@ -128,11 +128,11 @@ public fun MainContent(
                         Row {
                             Spacer(modifier = Modifier.weight(1f))
                             OutlinedButton(
-                                onClick = { uiState.event.onClickAddSubCategoryButton() },
+                                onClick = { uiState.event.onClickAddCategoryButton() },
                                 modifier = Modifier.padding(horizontal = 24.dp),
                             ) {
                                 Icon(Icons.Default.Add, contentDescription = null)
-                                Text(text = "サブカテゴリーを追加")
+                                Text(text = "カテゴリーを追加")
                             }
                         }
                     }
@@ -158,7 +158,7 @@ public fun MainContent(
                 }
             }
 
-            is SettingCategoryScreenUiState.LoadingState.Loading -> {
+            is SettingCategoriesScreenUiState.LoadingState.Loading -> {
                 Box(
                     modifier = Modifier.fillMaxSize()
                         .padding(paddingValues),

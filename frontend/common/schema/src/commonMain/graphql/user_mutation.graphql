@@ -43,3 +43,15 @@ mutation AddCategory($category: AddCategoryInput!) {
         }
     }
 }
+
+
+mutation AddSubCategory($category: AddSubCategoryInput!) {
+    userMutation {
+        addSubCategory(input: $category) {
+            subCategory {
+                id
+                name
+            }
+        }
+    }
+}
