@@ -1,10 +1,13 @@
 package net.matsudamper.money.frontend.common.viewmodel.settings
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
+import com.apollographql.apollo3.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.graphql.AddCategoryMutation
 import net.matsudamper.money.frontend.graphql.AddSubCategoryMutation
@@ -113,18 +116,17 @@ public class SettingCategoryApi(
         }.getOrNull()
     }
 
-    public suspend fun getCategoryInfo(id: MoneyUsageCategoryId): ApolloResponse<CategorySettingScreenQuery.Data>? {
-        return runCatching {
-            apolloClient
-                .query(
-                    CategorySettingScreenQuery(
-                        categoryId = id,
-                    ),
-                )
-                .fetchPolicy(FetchPolicy.CacheAndNetwork)
-                .execute()
-        }.onFailure {
-            it.printStackTrace()
-        }.getOrNull()
+    public fun getCategoryInfo(id: MoneyUsageCategoryId): Flow<ApolloResponse<CategorySettingScreenQuery.Data>> {
+        return apolloClient
+            .query(
+                CategorySettingScreenQuery(
+                    categoryId = id,
+                ),
+            )
+            .fetchPolicy(FetchPolicy.CacheAndNetwork)
+            .watch(fetchThrows = true)
+            .catch {
+                it.printStackTrace()
+            }
     }
 }

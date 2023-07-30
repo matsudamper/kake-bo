@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.element.MoneyUsageCategoryId
@@ -199,21 +200,23 @@ public class SettingCategoryViewModel(
 
     private fun fetchCategoryInfo() {
         coroutineScope.launch {
-            val categoryInfo = api.getCategoryInfo(id = categoryId)?.data?.user?.moneyUsageCategory
+            val flowResult = api.getCategoryInfo(id = categoryId)
 
-            if (categoryInfo == null) {
-                globalEventSender.send {
-                    it.showSnackBar("データの取得に失敗しました")
+            flowResult
+                .catch {
+                    globalEventSender.send {
+                        it.showSnackBar("データの取得に失敗しました")
+                    }
                 }
-                return@launch
-            }
-
-            viewModelStateFlow.update {
-                it.copy(
-                    isFirstLoading = false,
-                    categoryInfo = categoryInfo,
-                )
-            }
+                .collect { response ->
+                    val categoryInfo = response.data?.user?.moneyUsageCategory ?: return@collect
+                    viewModelStateFlow.update {
+                        it.copy(
+                            isFirstLoading = false,
+                            categoryInfo = categoryInfo,
+                        )
+                    }
+                }
         }
     }
 
