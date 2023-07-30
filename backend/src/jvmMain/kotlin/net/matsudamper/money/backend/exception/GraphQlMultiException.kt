@@ -18,6 +18,7 @@ class GraphQlMultiException(
                             PrintStream(outputStream).use { printStream ->
                                 e.printStackTrace(stream = printStream)
                             }
+                            outputStream.toString(Charsets.UTF_8)
                         },
                     )
                 },
