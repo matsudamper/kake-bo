@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -37,7 +38,7 @@ public interface RootScreenScaffoldListener {
 
 public enum class RootScreenTab {
     Home,
-    Register,
+    List,
     Settings,
 }
 
@@ -87,14 +88,14 @@ internal fun RootScreenScaffold(
                             },
                         )
                         NavigationBarItem(
-                            selected = currentScreen == RootScreenTab.Register,
+                            selected = currentScreen == RootScreenTab.List,
                             onClick = { listener.onClickRegister() },
                             icon = {
-                                Icon(Icons.Default.Add, "")
+                                Icon(Icons.Default.List, "")
                             },
                             label = {
                                 Text(
-                                    "登録",
+                                    "リスト",
                                     fontFamily = rememberCustomFontFamily(),
                                 )
                             },
@@ -137,14 +138,14 @@ internal fun RootScreenScaffold(
                             },
                         )
                         NavigationRailItem(
-                            selected = currentScreen == RootScreenTab.Register,
+                            selected = currentScreen == RootScreenTab.List,
                             onClick = { listener.onClickRegister() },
                             icon = {
-                                Icon(Icons.Default.Add, "")
+                                Icon(Icons.Default.List, "")
                             },
                             label = {
                                 Text(
-                                    "登録",
+                                    "リスト",
                                     fontFamily = rememberCustomFontFamily(),
                                 )
                             },

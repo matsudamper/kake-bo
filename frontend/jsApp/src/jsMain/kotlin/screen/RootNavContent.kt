@@ -11,7 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import event.ViewModelEventHandlers
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.screen.RootRegisterScreen
+import net.matsudamper.money.frontend.common.ui.screen.RootListScreen
 import net.matsudamper.money.frontend.common.ui.screen.RootScreen
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -52,9 +52,9 @@ internal fun RootNavContent(
             }
         }
 
-        is ScreenStructure.Root.Register -> {
+        is ScreenStructure.Root.List -> {
             tabHolder.SaveableStateProvider(current::class.toString()) {
-                RootRegisterScreen(
+                RootListScreen(
                     modifier = Modifier.fillMaxSize(),
                     listener = rootScreenScaffoldListener,
                 )

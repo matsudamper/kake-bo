@@ -14,13 +14,13 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 
 @Composable
-public fun RootRegisterScreen(
+public fun RootListScreen(
     modifier: Modifier = Modifier,
     listener: RootScreenScaffoldListener,
 ) {
     RootScreenScaffold(
         modifier = modifier.fillMaxSize(),
-        currentScreen = RootScreenTab.Register,
+        currentScreen = RootScreenTab.List,
         listener = listener,
         content = {
             Column(Modifier.fillMaxSize()) {
@@ -28,7 +28,7 @@ public fun RootRegisterScreen(
                     Card(modifier = Modifier.padding(32.dp)) {
                         Text(
                             modifier = Modifier.padding(32.dp),
-                            text = "Register",
+                            text = "List",
                             fontFamily = rememberCustomFontFamily(),
                         )
                     }

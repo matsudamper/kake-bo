@@ -52,8 +52,8 @@ public sealed interface ScreenStructure {
             }
         }
 
-        public class Register : Root {
-            override val direction: Screens = Screens.Register
+        public class List : Root {
+            override val direction: Screens = Screens.List
         }
     }
 

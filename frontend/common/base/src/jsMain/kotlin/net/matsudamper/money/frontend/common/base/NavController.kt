@@ -80,7 +80,7 @@ public class ScreenNavControllerImpl(
                 )
             }
 
-            Screens.Register -> ScreenStructure.Root.Register()
+            Screens.List -> ScreenStructure.Root.List()
             Screens.NotFound -> ScreenStructure.NotFound
             Screens.Login -> ScreenStructure.Login
             Screens.Admin -> ScreenStructure.Admin

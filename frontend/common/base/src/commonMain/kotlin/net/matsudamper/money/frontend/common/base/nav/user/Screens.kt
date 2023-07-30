@@ -30,7 +30,7 @@ public enum class Screens : Direction {
         override val placeholderUrl: String = "/settings/sub-category/{id}"
     },
 
-    Register {
+    List {
         override val title: String = "リスト"
         override val placeholderUrl: String = "/list"
     },
