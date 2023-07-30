@@ -157,7 +157,7 @@ public fun SettingCategoryScreen(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 public fun MainContent(
     modifier: Modifier,
