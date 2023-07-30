@@ -85,7 +85,7 @@ class MoneyUsageSubCategoryRepository {
                         DSL.value(true)
                             .and(CATEGORIES.USER_ID.eq(userId.id))
                             .and(SUB_CATEGORIES.USER_ID.eq(userId.id))
-                            .add(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.id)),
+                            .and(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.id)),
                     )
                     .fetch()
 
