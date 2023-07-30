@@ -3,11 +3,32 @@ package net.matsudamper.money.frontend.common.ui.screen.add_money_usage
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,11 +44,14 @@ import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.Html
 public data class AddMoneyUsageScreenUiState(
     val calendarDialog: CalendarDialog?,
     val fullScreenTextInputDialog: FullScreenTextInputDialog?,
+    val categorySelectDialog: AddMoneyUsageScreenCategorySelectDialogUiState?,
     val date: String,
     val title: String,
     val description: String,
+    val category: String,
     val event: Event,
 ) {
+
     public data class FullScreenTextInputDialog(
         val title: String,
         val default: String,
@@ -47,6 +71,7 @@ public data class AddMoneyUsageScreenUiState(
         public fun onClickDateChange()
         public fun onClickTitleChange()
         public fun onClickDescriptionChange()
+        public fun onClickCategoryChange()
     }
 }
 
@@ -79,13 +104,19 @@ public fun AddMoneyUsageScreen(
             )
         },
         bottomBar = {
-            Button(
-                modifier = Modifier
-                    .widthIn(max = 700.dp)
-                    .fillMaxWidth(),
-                onClick = { uiState.event.onClickAdd() },
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
             ) {
-                Text("追加")
+                Button(
+                    modifier = Modifier
+                        .padding(12.dp)
+                        .widthIn(max = 700.dp)
+                        .fillMaxWidth(),
+                    onClick = { uiState.event.onClickAdd() },
+                ) {
+                    Text("追加")
+                }
             }
         },
         contentColor = MaterialTheme.colorScheme.onSurface,
@@ -129,6 +160,18 @@ public fun AddMoneyUsageScreen(
                 Divider(Modifier.fillMaxWidth().height(1.dp))
                 Section(
                     title = {
+                        Text("カテゴリ")
+                    },
+                    description = {
+                        Text(uiState.category)
+                    },
+                    clickChange = {
+                        uiState.event.onClickCategoryChange()
+                    }
+                )
+                Divider(Modifier.fillMaxWidth().height(1.dp))
+                Section(
+                    title = {
                         Text("説明")
                     },
                     description = {
@@ -151,6 +194,12 @@ public fun AddMoneyUsageScreen(
             selectedCalendar = {
                 uiState.event.selectedCalendar(it)
             },
+        )
+    }
+
+    if (uiState.categorySelectDialog != null) {
+        CategorySelectDialog(
+            uiState = uiState.categorySelectDialog,
         )
     }
 }

@@ -58,6 +58,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.MailImportViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.MailLinkViewModel
+import net.matsudamper.money.frontend.common.viewmodel.settings.SettingScreenCategoryApi
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
@@ -276,6 +277,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                     val viewModel = remember {
                                         AddMoneyUsageViewModel(
                                             coroutineScope = rootCoroutineScope,
+                                            settingScreenCategoryApi = SettingScreenCategoryApi(),
                                         )
                                     }
                                     AddMoneyUsageScreen(

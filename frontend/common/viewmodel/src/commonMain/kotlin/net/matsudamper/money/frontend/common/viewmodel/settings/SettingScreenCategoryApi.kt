@@ -26,7 +26,7 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryQuery
 import net.matsudamper.money.frontend.graphql.type.UpdateCategoryQuery
 import net.matsudamper.money.frontend.graphql.type.UpdateSubCategoryQuery
 
-public class SettingCategoryApi(
+public class SettingScreenCategoryApi(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
     public suspend fun getCategories(): ApolloResponse<CategoriesSettingScreenQuery.Data>? {

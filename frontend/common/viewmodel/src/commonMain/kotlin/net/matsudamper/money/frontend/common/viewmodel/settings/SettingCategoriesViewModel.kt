@@ -16,7 +16,7 @@ import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenQuery
 
 public class SettingCategoriesViewModel(
     private val coroutineScope: CoroutineScope,
-    private val api: SettingCategoryApi,
+    private val api: SettingScreenCategoryApi,
 ) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
         ViewModelState(
