@@ -8,6 +8,7 @@ type UserMutation {
     updateCategory(id: MoneyUsageCategoryId!, query: UpdateCategoryQuery!): MoneyUsageCategory!
     addSubCategory(input: AddSubCategoryInput!) : AddSubCategoryResult!
     updateSubCategory(id: MoneyUsageSubCategoryId!, query: UpdateSubCategoryQuery!): MoneyUsageSubCategory!
+    deleteSubCategory(id: MoneyUsageSubCategoryId!): Boolean!
 }
 
 input UpdateSubCategoryQuery {

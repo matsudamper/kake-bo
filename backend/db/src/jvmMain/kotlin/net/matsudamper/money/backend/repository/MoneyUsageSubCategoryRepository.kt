@@ -175,6 +175,23 @@ class MoneyUsageSubCategoryRepository {
         }
     }
 
+    fun deleteSubCategory(
+        userId: UserId,
+        subCategoryId: MoneyUsageSubCategoryId,
+    ): Boolean {
+        return DbConnection.use { connection ->
+            DSL.using(connection)
+                .deleteFrom(SUB_CATEGORIES)
+                .where(
+                    DSL.value(true)
+                        .and(SUB_CATEGORIES.USER_ID.eq(userId.id))
+                        .and(SUB_CATEGORIES.MONEY_USAGE_SUB_CATEGORY_ID.eq(subCategoryId.id)),
+                )
+                .limit(1)
+                .execute()
+        } >= 1
+    }
+
     data class SubCategoryResult(
         val userId: UserId,
         val moneyUsageCategoryId: MoneyUsageCategoryId,

@@ -221,6 +221,24 @@ class UserMutationResolverImpl : UserMutationResolver {
         }.toDataFetcher()
     }
 
+    override fun deleteSubCategory(userMutation: QlUserMutation, id: MoneyUsageSubCategoryId, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+
+        return CompletableFuture.supplyAsync {
+            val result = context.repositoryFactory.createMoneyUsageSubCategoryRepository()
+                .deleteSubCategory(
+                    userId = userId,
+                    subCategoryId = id,
+                )
+            if (result) {
+                true
+            } else {
+                throw IllegalStateException("delete sub category failed")
+            }
+        }.toDataFetcher()
+    }
+
     override fun updateCategory(
         userMutation: QlUserMutation,
         id: MoneyUsageCategoryId,

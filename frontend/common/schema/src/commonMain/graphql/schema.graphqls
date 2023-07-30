@@ -163,6 +163,7 @@ type UserMutation {
     addSubCategory(input: AddSubCategoryInput!): AddSubCategoryResult!
     addUsage(usage: AddUsageInput!): MoneyUsage!
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
+    deleteSubCategory(id: MoneyUsageSubCategoryId!): Boolean!
     importMail(mailIds: [MailId!]!): ImportMailResult!
     settingsMutation: SettingsMutation
     updateCategory(id: MoneyUsageCategoryId!, query: UpdateCategoryQuery!): MoneyUsageCategory!

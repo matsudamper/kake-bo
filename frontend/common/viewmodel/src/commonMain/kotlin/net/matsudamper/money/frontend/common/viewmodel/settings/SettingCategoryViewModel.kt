@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.screen.settings.SettingCategoryScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -122,6 +123,7 @@ public class SettingCategoryViewModel(
                         val items = viewModelState.responseList.map {
                             it.nodes
                         }.flatten()
+                            .filterNot { it.id in viewModelState.deletedSubCategoryIds }
                         SettingCategoryScreenUiState.LoadingState.Loaded(
                             item = items.map { item ->
                                 createItemUiState(item)
@@ -203,7 +205,31 @@ public class SettingCategoryViewModel(
                 }
 
                 override fun onClickDelete() {
-                    TODO("Not yet implemented")
+                    coroutineScope.launch {
+                        val isSuccess = api.deleteSubCategory(
+                            id = item.id,
+                        )
+
+                        if (isSuccess.not()) {
+                            launch {
+                                globalEventSender.send {
+                                    it.showNativeNotification("削除に失敗しました")
+                                }
+                            }
+                        } else {
+                            launch {
+                                globalEventSender.send {
+                                    it.showSnackBar("削除しました")
+                                }
+                            }
+                            viewModelStateFlow.update { viewModelState ->
+                                viewModelState.copy(
+                                    deletedSubCategoryIds = viewModelState.deletedSubCategoryIds
+                                        .plus(item.id),
+                                )
+                            }
+                        }
+                    }
                 }
 
                 private fun createEvent(): SettingCategoryScreenUiState.FullScreenInputDialog.Event {
@@ -285,6 +311,7 @@ public class SettingCategoryViewModel(
                 it.copy(
                     isFirstLoading = false,
                     responseList = listOf(data),
+                    deletedSubCategoryIds = listOf(),
                 )
             }
         }
@@ -297,6 +324,7 @@ public class SettingCategoryViewModel(
         val showAddSubCategoryNameInput: Boolean = false,
         val showCategoryNameChangeInput: SettingCategoryScreenUiState.FullScreenInputDialog? = null,
         val showSubCategoryNameChangeInput: SettingCategoryScreenUiState.FullScreenInputDialog? = null,
+        val deletedSubCategoryIds: List<MoneyUsageSubCategoryId> = listOf(),
     )
 
     public interface Event
