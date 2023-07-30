@@ -88,6 +88,9 @@ internal fun SettingNavContent(
             LaunchedEffect(viewModel.viewModelEventHandler) {
                 viewModelEventHandlers.handle(viewModel.viewModelEventHandler)
             }
+            LaunchedEffect(viewModel.globalEventHandler) {
+                viewModel.globalEventHandler.collect(globalEvent)
+            }
             SettingCategoryScreen(
                 rootScreenScaffoldListener = rootScreenScaffoldListener,
                 uiState = viewModel.uiState.collectAsState().value,
