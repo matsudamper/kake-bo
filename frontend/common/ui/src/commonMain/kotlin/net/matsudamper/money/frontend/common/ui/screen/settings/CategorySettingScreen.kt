@@ -310,26 +310,27 @@ private fun HeaderSection(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            text = categoryName,
-            style = MaterialTheme.typography.titleMedium,
-        )
-        Spacer(modifier = Modifier.weight(1f))
         FlowRow {
-            Spacer(modifier = Modifier.weight(1f))
-            OutlinedButton(
-                onClick = { onClickChangeCategoryNameButton() },
-                modifier = Modifier,
-            ) {
-                Text(text = "カテゴリー名変更")
-            }
-            Spacer(modifier = Modifier.width(12.dp))
-            OutlinedButton(
-                onClick = { oonClickSubCategoryButton() },
-                modifier = Modifier,
-            ) {
-                Icon(Icons.Default.Add, contentDescription = null)
-                Text(text = "サブカテゴリーを追加")
+            Text(
+                text = categoryName,
+                style = MaterialTheme.typography.titleMedium,
+            )
+            FlowRow {
+                Spacer(modifier = Modifier.weight(1f))
+                OutlinedButton(
+                    modifier = Modifier,
+                    onClick = { onClickChangeCategoryNameButton() },
+                ) {
+                    Text(text = "カテゴリー名変更")
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                OutlinedButton(
+                    modifier = Modifier,
+                    onClick = { oonClickSubCategoryButton() },
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null)
+                    Text(text = "サブカテゴリーを追加")
+                }
             }
         }
     }
