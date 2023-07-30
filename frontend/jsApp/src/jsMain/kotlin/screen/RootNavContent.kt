@@ -32,7 +32,7 @@ internal fun RootNavContent(
 ) {
     when (current) {
         is ScreenStructure.Root.Home -> {
-            tabHolder.SaveableStateProvider(ScreenStructure.Root.Home::class.toString()) {
+            tabHolder.SaveableStateProvider(current::class.toString()) {
                 val viewModel = remember {
                     HomeViewModel(
                         coroutineScope = rootCoroutineScope,
@@ -53,7 +53,7 @@ internal fun RootNavContent(
         }
 
         is ScreenStructure.Root.Register -> {
-            tabHolder.SaveableStateProvider(ScreenStructure.Root.Register::class.toString()) {
+            tabHolder.SaveableStateProvider(current::class.toString()) {
                 RootRegisterScreen(
                     modifier = Modifier.fillMaxSize(),
                     listener = rootScreenScaffoldListener,
@@ -62,7 +62,7 @@ internal fun RootNavContent(
         }
 
         is ScreenStructure.Root.Settings -> {
-            tabHolder.SaveableStateProvider("ScreenStructure.Root.Settings") {
+            tabHolder.SaveableStateProvider(current::class.toString()) {
                 SettingNavContent(
                     state = current,
                     globalEventSender = globalEventSender,
