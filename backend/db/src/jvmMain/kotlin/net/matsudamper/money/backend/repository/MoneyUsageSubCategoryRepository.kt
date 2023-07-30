@@ -71,23 +71,20 @@ class MoneyUsageSubCategoryRepository {
         categoryId: MoneyUsageCategoryId,
     ): GetSubCategoryResult {
         return runCatching {
-            @Suppress("FoldInitializerAndIfToElvis")
-            run {
-                val isOwner = DbConnection.use { connection ->
-                    DSL.using(connection)
-                        .select()
-                        .from(CATEGORIES)
-                        .where(
-                            DSL.value(true)
-                                .and(CATEGORIES.USER_ID.eq(userId.id))
-                                .and(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.id))
-                        )
-                        .fetchOne()
-                }
+            val isOwner = DbConnection.use { connection ->
+                DSL.using(connection)
+                    .select()
+                    .from(CATEGORIES)
+                    .where(
+                        DSL.value(true)
+                            .and(CATEGORIES.USER_ID.eq(userId.id))
+                            .and(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.id))
+                    )
+                    .fetchOne() != null
+            }
 
-                if (isOwner == null) {
-                    return GetSubCategoryResult.Failed(IllegalArgumentException("categoryId=$categoryId is Not owner."))
-                }
+            if (isOwner.not()) {
+                return GetSubCategoryResult.Failed(IllegalArgumentException("categoryId=$categoryId is Not owner."))
             }
 
             DbConnection.use { connection ->
