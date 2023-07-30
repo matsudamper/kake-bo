@@ -65,16 +65,22 @@ public class SettingCategoryViewModel(
                             categoryId = categoryId,
                             name = text,
                         )?.data?.userMutation?.addSubCategory?.subCategory
+
                         if (result == null) {
-                            globalEventSender.send {
-                                it.showNativeNotification("追加に失敗しました")
+                            launch {
+                                globalEventSender.send {
+                                    it.showNativeNotification("追加に失敗しました")
+                                }
                             }
                             return@launch
+                        } else {
+                            launch {
+                                globalEventSender.send {
+                                    it.showSnackBar("${result.name}を追加しました")
+                                }
+                            }
                         }
 
-                        globalEventSender.send {
-                            it.showSnackBar("${result.name}を追加しました")
-                        }
                         viewModelStateFlow.update {
                             it.copy(
                                 showCategoryNameInput = false,

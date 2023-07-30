@@ -3,6 +3,8 @@ package net.matsudamper.money.frontend.common.viewmodel.settings
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo3.cache.normalized.FetchPolicy
+import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.graphql.AddCategoryMutation
 import net.matsudamper.money.frontend.graphql.AddSubCategoryMutation
@@ -28,6 +30,7 @@ public class SettingCategoryApi(
                         ),
                     ),
                 )
+                .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
         }.onFailure {
             it.printStackTrace()
@@ -82,6 +85,7 @@ public class SettingCategoryApi(
                         ),
                     ),
                 )
+                .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
         }.onFailure {
             it.printStackTrace()
