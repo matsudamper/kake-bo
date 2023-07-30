@@ -25,6 +25,7 @@ internal fun RootNavContent(
     current: ScreenStructure.Root,
     rootScreenScaffoldListener: RootScreenScaffoldListener,
     viewModelEventHandlers: ViewModelEventHandlers,
+    globalEvent: GlobalEvent,
     rootCoroutineScope: CoroutineScope,
     globalEventSender: EventSender<GlobalEvent>,
     loginCheckUseCase: LoginCheckUseCase,
@@ -65,6 +66,7 @@ internal fun RootNavContent(
                 SettingNavContent(
                     state = current,
                     globalEventSender = globalEventSender,
+                    globalEvent = globalEvent,
                     rootScreenScaffoldListener = rootScreenScaffoldListener,
                     viewModelEventHandlers = viewModelEventHandlers,
                     rootCoroutineScope = rootCoroutineScope,

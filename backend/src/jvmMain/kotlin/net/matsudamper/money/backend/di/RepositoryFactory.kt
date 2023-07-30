@@ -16,8 +16,8 @@ interface RepositoryFactory {
 
     fun createUserConfigRepository(): UserConfigRepository
     fun createDbMailRepository(): DbMailRepository
-    fun createAddMoneyUsageCategoryRepository(): MoneyUsageCategoryRepository
-    fun createAddMoneyUsageSubCategoryRepository(): MoneyUsageSubCategoryRepository
+    fun createMoneyUsageCategoryRepository(): MoneyUsageCategoryRepository
+    fun createMoneyUsageSubCategoryRepository(): MoneyUsageSubCategoryRepository
 }
 
 class RepositoryFactoryImpl : RepositoryFactory {
@@ -46,12 +46,12 @@ class RepositoryFactoryImpl : RepositoryFactory {
     }
 
     private val moneyUsageCategoryRepository = MoneyUsageCategoryRepository()
-    override fun createAddMoneyUsageCategoryRepository(): MoneyUsageCategoryRepository {
+    override fun createMoneyUsageCategoryRepository(): MoneyUsageCategoryRepository {
         return moneyUsageCategoryRepository
     }
 
     private val moneyUsageSubCategoryRepository = MoneyUsageSubCategoryRepository()
-    override fun createAddMoneyUsageSubCategoryRepository(): MoneyUsageSubCategoryRepository {
+    override fun createMoneyUsageSubCategoryRepository(): MoneyUsageSubCategoryRepository {
         return moneyUsageSubCategoryRepository
     }
 }

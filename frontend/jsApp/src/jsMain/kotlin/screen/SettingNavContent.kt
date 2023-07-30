@@ -14,12 +14,15 @@ import kotlinx.coroutines.Dispatchers
 import event.ViewModelEventHandlers
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.screen.settings.CategorySettingScreen
 import net.matsudamper.money.frontend.common.ui.screen.settings.ImapConfigScreen
 import net.matsudamper.money.frontend.common.ui.screen.settings.SettingRootScreen
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.ImapSettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
+import net.matsudamper.money.frontend.common.viewmodel.settings.CategorySettingViewModel
+import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryApi
 import net.matsudamper.money.frontend.graphql.GraphqlUserConfigQuery
 
 @Composable
@@ -27,6 +30,7 @@ internal fun SettingNavContent(
     state: ScreenStructure.Root.Settings,
     rootCoroutineScope: CoroutineScope,
     globalEventSender: EventSender<GlobalEvent>,
+    globalEvent: GlobalEvent,
     viewModelEventHandlers: ViewModelEventHandlers,
     rootScreenScaffoldListener: RootScreenScaffoldListener,
 ) {
@@ -51,7 +55,21 @@ internal fun SettingNavContent(
         }
 
         ScreenStructure.Root.Settings.Category -> {
-            Text(state.direction.placeholderUrl)
+            val viewModel = remember {
+                CategorySettingViewModel(
+                    coroutineScope = coroutineScope,
+                    api = SettingCategoryApi(),
+                )
+            }
+
+            LaunchedEffect(globalEvent, viewModel.globalEventHandler) {
+                viewModel.globalEventHandler.collect(globalEvent)
+            }
+
+            CategorySettingScreen(
+                rootScreenScaffoldListener = rootScreenScaffoldListener,
+                uiState = viewModel.uiState.collectAsState().value,
+            )
         }
 
         ScreenStructure.Root.Settings.CategoryId -> {

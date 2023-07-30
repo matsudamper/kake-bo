@@ -17,7 +17,7 @@ class MoneyUsageCategoryDataLoaderDefine(
     override fun getDataLoader(): DataLoader<Key, Result> {
         return DataLoaderFactory.newMappedDataLoader { keys, _ ->
             CompletableFuture.supplyAsync {
-                val repository = repositoryFactory.createAddMoneyUsageCategoryRepository()
+                val repository = repositoryFactory.createMoneyUsageCategoryRepository()
 
                 val results = keys.groupBy { it.userId }
                     .mapNotNull { (userId, key) ->

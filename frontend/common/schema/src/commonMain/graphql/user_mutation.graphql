@@ -32,3 +32,14 @@ mutation DeleteMail($mailIds: [MailId!]!) {
         }
     }
 }
+
+mutation AddCategory($category: AddCategoryInput!) {
+    userMutation {
+        addCategory(input: $category) {
+            category {
+                id
+                name
+            }
+        }
+    }
+}

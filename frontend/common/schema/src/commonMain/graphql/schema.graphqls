@@ -83,6 +83,11 @@ type MoneyUsageService {
     name: String!
 }
 
+type MoneyUsageSubCategoriesFromCategoryIdConnection {
+    cursor: String
+    nodes: [MoneyUsageSubCategory!]!
+}
+
 type MoneyUsageSubCategory {
     category: MoneyUsageCategory!
     id: MoneyUsageSubCategoryId!
@@ -119,7 +124,10 @@ type SuggestMoneyUsage {
 type User {
     importedMailAttributes: ImportedMailAttributes!
     isLoggedIn: Boolean!
-    moneyUsageCategories(input: moneyUsageCategoriesInput!): MoneyUsageCategoriesConnection
+    moneyUsageCategories(input: MoneyUsageCategoriesInput!): MoneyUsageCategoriesConnection
+    moneyUsageCategory(input: MoneyUsageCategoryInput!): MoneyUsageCategory
+    moneyUsageSubCategoriesFromCategoryId(input: MoneyUsageSubCategoriesFromCategoryIdQuery!): MoneyUsageSubCategoriesFromCategoryIdConnection
+    moneyUsageSubCategory(input: MoneyUsageSubCategoryInput!): MoneyUsageSubCategory
     settings: UserSettings!
     userMailAttributes: UserMailAttributes!
 }
@@ -244,6 +252,25 @@ input MailQuery {
     size: Int!
 }
 
+input MoneyUsageCategoriesInput {
+    cursor: String
+    size: Int!
+}
+
+input MoneyUsageCategoryInput {
+    id: MoneyUsageCategoryId!
+}
+
+input MoneyUsageSubCategoriesFromCategoryIdQuery {
+    cursor: String
+    id: MoneyUsageCategoryId!
+    size: Int!
+}
+
+input MoneyUsageSubCategoryInput {
+    id: MoneyUsageSubCategoryId!
+}
+
 input MoneyUsageSubCategoryQuery {
     cursor: String
     size: Int!
@@ -254,9 +281,4 @@ input UpdateUserImapConfigInput {
     password: String
     port: Int
     userName: String
-}
-
-input moneyUsageCategoriesInput {
-    cursor: String
-    size: Int!
 }

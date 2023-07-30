@@ -137,7 +137,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
         return CompletableFuture.supplyAsync {
-            val addResult = context.repositoryFactory.createAddMoneyUsageCategoryRepository()
+            val addResult = context.repositoryFactory.createMoneyUsageCategoryRepository()
                 .addCategory(
                     userId = userId,
                     name = input.name,
@@ -162,7 +162,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
         return CompletableFuture.supplyAsync {
-            val addResult = context.repositoryFactory.createAddMoneyUsageSubCategoryRepository()
+            val addResult = context.repositoryFactory.createMoneyUsageSubCategoryRepository()
                 .addSubCategory(
                     userId = userId,
                     name = input.name,

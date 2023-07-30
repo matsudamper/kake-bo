@@ -1,0 +1,141 @@
+package net.matsudamper.money.frontend.common.viewmodel.settings
+
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.immutableListOf
+import net.matsudamper.money.frontend.common.ui.screen.settings.CategorySettingScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
+import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
+import net.matsudamper.money.frontend.graphql.CategorySettingScreenQuery
+
+public class CategorySettingViewModel(
+    private val coroutineScope: CoroutineScope,
+    private val api: SettingCategoryApi,
+) {
+    private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
+        ViewModelState(
+            responseList = listOf(),
+            isFirstLoading = true,
+            showCategoryNameInput = false,
+        ),
+    )
+    private val globalEventSender = EventSender<GlobalEvent>()
+    public val globalEventHandler: EventHandler<GlobalEvent> = globalEventSender.asHandler()
+
+    public val uiState: StateFlow<CategorySettingScreenUiState> = MutableStateFlow(
+        CategorySettingScreenUiState(
+            event = object : CategorySettingScreenUiState.Event {
+                override suspend fun onResume() {
+
+                }
+
+                override fun dismissCategoryInput() {
+                    coroutineScope.launch {
+                        viewModelStateFlow.update {
+                            it.copy(
+                                showCategoryNameInput = false,
+                            )
+                        }
+                    }
+                }
+
+                override fun onClickAddCategoryButton() {
+                    coroutineScope.launch {
+                        viewModelStateFlow.update {
+                            it.copy(
+                                showCategoryNameInput = true,
+                            )
+                        }
+                    }
+                }
+
+                override fun categoryInputCompleted(text: String) {
+                    coroutineScope.launch {
+                        val result = api.addCategory(text)?.data?.userMutation?.addCategory?.category
+                        if (result == null) {
+                            globalEventSender.send {
+                                it.showNativeNotification("追加に失敗しました")
+                            }
+                            return@launch
+                        }
+
+                        globalEventSender.send {
+                            it.showSnackBar("${result.name}を追加しました")
+                        }
+                        viewModelStateFlow.update {
+                            it.copy(
+                                showCategoryNameInput = false,
+                            )
+                        }
+
+                        initialFetch()
+                    }
+                }
+            },
+            loadingState = CategorySettingScreenUiState.LoadingState.Loading,
+            showCategoryNameInput = false,
+        ),
+    ).also { uiStateFlow ->
+        coroutineScope.launch {
+            viewModelStateFlow.collect { viewModelState ->
+                uiStateFlow.update { uiState ->
+                    val loadingState = if (viewModelState.isFirstLoading) {
+                        CategorySettingScreenUiState.LoadingState.Loading
+                    } else {
+                        val items = viewModelState.responseList.mapNotNull {
+                            it.user?.moneyUsageCategories?.nodes
+                        }.flatten()
+                        CategorySettingScreenUiState.LoadingState.Loaded(
+                            item = items.map {
+                                CategorySettingScreenUiState.CategoryItem(
+                                    name = it.name,
+                                )
+                            }.toImmutableList(),
+                        )
+                    }
+
+                    uiState.copy(
+                        loadingState = loadingState,
+                        showCategoryNameInput = viewModelState.showCategoryNameInput,
+                    )
+                }
+            }
+        }
+    }.asStateFlow()
+
+    init {
+        initialFetch()
+    }
+
+    private fun initialFetch() {
+        coroutineScope.launch {
+            val data = api.getCategory()?.data
+
+            if (data == null) {
+                globalEventSender.send {
+                    it.showSnackBar("データの取得に失敗しました")
+                }
+                return@launch
+            }
+
+            viewModelStateFlow.update {
+                it.copy(
+                    isFirstLoading = false,
+                    responseList = listOf(data),
+                )
+            }
+        }
+    }
+
+    private data class ViewModelState(
+        val isFirstLoading: Boolean,
+        val responseList: List<CategorySettingScreenQuery.Data>,
+        val showCategoryNameInput: Boolean,
+    )
+}

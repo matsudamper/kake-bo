@@ -1,0 +1,155 @@
+package net.matsudamper.money.frontend.common.ui.screen.settings
+
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
+import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
+import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
+
+public data class CategorySettingScreenUiState(
+    val event: Event,
+    val loadingState: LoadingState,
+    val showCategoryNameInput: Boolean,
+) {
+    public sealed interface LoadingState {
+        public object Loading : LoadingState
+        public data class Loaded(
+            val item: ImmutableList<CategoryItem>,
+        ) : LoadingState
+    }
+
+    public data class CategoryItem(
+        val name: String,
+    )
+
+    public interface Event {
+        public suspend fun onResume()
+        public fun onClickAddCategoryButton()
+        public fun categoryInputCompleted(text: String)
+        public fun dismissCategoryInput()
+    }
+}
+
+@Composable
+public fun CategorySettingScreen(
+    modifier: Modifier = Modifier,
+    uiState: CategorySettingScreenUiState,
+    rootScreenScaffoldListener: RootScreenScaffoldListener,
+) {
+    LaunchedEffect(Unit) {
+        uiState.event.onResume()
+    }
+
+    if (uiState.showCategoryNameInput) {
+        HtmlFullScreenTextInput(
+            title = "カテゴリー名",
+            onComplete = { text ->
+                uiState.event.categoryInputCompleted(text)
+            },
+            canceled = {
+                uiState.event.dismissCategoryInput()
+            },
+            default = "",
+        )
+    }
+
+    RootScreenScaffold(
+        modifier = modifier.fillMaxSize(),
+        currentScreen = RootScreenTab.Settings,
+        listener = rootScreenScaffoldListener,
+        content = {
+            MainContent(
+                modifier = Modifier.fillMaxSize(),
+                uiState = uiState,
+            )
+        },
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+public fun MainContent(
+    modifier: Modifier,
+    uiState: CategorySettingScreenUiState,
+) {
+    SettingScaffold(
+        modifier = modifier.fillMaxSize(),
+        title = {
+            Text(
+                text = "カテゴリー設定",
+            )
+        },
+    ) { paddingValues ->
+        when (val state = uiState.loadingState) {
+            is CategorySettingScreenUiState.LoadingState.Loaded -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(
+                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                    ),
+                ) {
+                    item {
+                        Spacer(Modifier.height(24.dp))
+                    }
+                    stickyHeader {
+                        Row {
+                            Spacer(modifier = Modifier.weight(1f))
+                            OutlinedButton(
+                                onClick = { uiState.event.onClickAddCategoryButton() },
+                                modifier = Modifier.padding(horizontal = 24.dp),
+                            ) {
+                                Icon(Icons.Default.Add, contentDescription = null)
+                                Text(text = "カテゴリーを追加")
+                            }
+                        }
+                    }
+                    items(state.item) { item ->
+                        Box(
+                            modifier = Modifier.padding(vertical = 8.dp),
+                        ) {
+                            Text(text = item.name)
+                        }
+                    }
+                    item {
+                        Spacer(Modifier.height(24.dp))
+                    }
+                }
+            }
+
+            is CategorySettingScreenUiState.LoadingState.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+        }
+    }
+}

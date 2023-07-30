@@ -4,22 +4,6 @@ query UserIsLoggedIn {
     }
 }
 
-query GetConfig {
-    user {
-        settings {
-            imapConfig {
-                ... DisplayImapConfig
-            }
-        }
-    }
-}
-
-fragment DisplayImapConfig on UserImapConfig {
-    hasPassword
-    userName
-    port
-    host
-}
 
 query GetMail($mailQuery: MailQuery!) {
     user {

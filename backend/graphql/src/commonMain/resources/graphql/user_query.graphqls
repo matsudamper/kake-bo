@@ -3,10 +3,32 @@ type User {
     settings: UserSettings! @lazy
     userMailAttributes: UserMailAttributes!
     importedMailAttributes: ImportedMailAttributes!
-    moneyUsageCategories(input: moneyUsageCategoriesInput!):MoneyUsageCategoriesConnection @lazy
+    moneyUsageCategories(input: MoneyUsageCategoriesInput!):MoneyUsageCategoriesConnection @lazy
+    moneyUsageCategory(input: MoneyUsageCategoryInput!): MoneyUsageCategory @lazy
+    moneyUsageSubCategory(input: MoneyUsageSubCategoryInput!): MoneyUsageSubCategory @lazy
+    moneyUsageSubCategoriesFromCategoryId(input: MoneyUsageSubCategoriesFromCategoryIdQuery!): MoneyUsageSubCategoriesFromCategoryIdConnection @lazy
 }
 
-input moneyUsageCategoriesInput {
+input MoneyUsageSubCategoriesFromCategoryIdQuery {
+    id: MoneyUsageCategoryId!
+    size: Int!
+    cursor: String
+}
+
+type MoneyUsageSubCategoriesFromCategoryIdConnection {
+    nodes: [MoneyUsageSubCategory!]!
+    cursor: String
+}
+
+input MoneyUsageCategoryInput {
+    id: MoneyUsageCategoryId!
+}
+
+input MoneyUsageSubCategoryInput {
+    id: MoneyUsageSubCategoryId!
+}
+
+input MoneyUsageCategoriesInput {
     size: Int!
     cursor: String
 }

@@ -1,0 +1,40 @@
+query GetConfig {
+    user {
+        settings {
+            imapConfig {
+                ... DisplayImapConfig
+            }
+        }
+    }
+}
+
+fragment DisplayImapConfig on UserImapConfig {
+    hasPassword
+    userName
+    port
+    host
+}
+
+query CategorySettingScreen($input: MoneyUsageCategoriesInput!) {
+    user {
+        moneyUsageCategories(input: $input) {
+            cursor
+            nodes {
+                id
+                name
+            }
+        }
+    }
+}
+
+query SubCategorySettingScreen($input: MoneyUsageSubCategoriesFromCategoryIdQuery!) {
+    user {
+        moneyUsageSubCategoriesFromCategoryId(input: $input) {
+            cursor
+            nodes {
+                id
+                name
+            }
+        }
+    }
+}

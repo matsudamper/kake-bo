@@ -65,7 +65,6 @@ import screen.RootNavContent
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
     val composeSize = MutableStateFlow(IntSize.Zero)
-
     JsCompose(
         composeSize = composeSize,
     )
@@ -75,9 +74,29 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
         CanvasBasedWindow(
             title = "家計簿",
         ) {
+            val rootCoroutineScope = rememberCoroutineScope()
+
             NormalizeInputKeyCapture {
                 CustomTheme {
                     val hostState = remember { SnackbarHostState() }
+                    val globalEvent: GlobalEvent = remember(hostState, rootCoroutineScope) {
+                        object : GlobalEvent {
+                            override fun showSnackBar(message: String) {
+                                console.error("show: $message")
+                                rootCoroutineScope.launch {
+                                    hostState.showSnackbar(
+                                        message = message,
+                                        duration = SnackbarDuration.Short,
+                                    )
+                                }
+                            }
+
+                            override fun showNativeNotification(message: String) {
+                                window.alert(message)
+                            }
+                        }
+                    }
+
                     val navController = remember {
                         ScreenNavControllerImpl(
                             initial = ScreenStructure.Root.Home(),
@@ -108,23 +127,8 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                     }
 
                     LaunchedEffect(globalEventSender) {
-                        val coroutineScope = this
                         globalEventSender.asHandler().collect(
-                            object : GlobalEvent {
-                                override fun showSnackBar(message: String) {
-                                    console.error("show: $message")
-                                    coroutineScope.launch {
-                                        hostState.showSnackbar(
-                                            message = message,
-                                            duration = SnackbarDuration.Short,
-                                        )
-                                    }
-                                }
-
-                                override fun showNativeNotification(message: String) {
-                                    window.alert(message)
-                                }
-                            },
+                            globalEvent,
                         )
                     }
 
@@ -151,7 +155,6 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                             modifier = Modifier.fillMaxSize()
                                 .padding(paddingValues),
                         ) {
-                            val rootCoroutineScope = rememberCoroutineScope()
                             when (val current = navController.currentNavigation) {
                                 is ScreenStructure.Root -> {
                                     val tabHolder = rememberSaveableStateHolder()
@@ -163,6 +166,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                         rootCoroutineScope = rootCoroutineScope,
                                         globalEventSender = globalEventSender,
                                         loginCheckUseCase = loginCheckUseCase,
+                                        globalEvent = globalEvent,
                                     )
                                 }
 

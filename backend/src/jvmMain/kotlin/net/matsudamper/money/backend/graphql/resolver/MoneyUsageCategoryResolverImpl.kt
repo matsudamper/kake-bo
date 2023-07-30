@@ -45,7 +45,7 @@ class MoneyUsageCategoryResolverImpl : MoneyUsageCategoryResolver {
         val userId = context.verifyUserSession()
 
         return CompletableFuture.supplyAsync {
-            val result = context.repositoryFactory.createAddMoneyUsageSubCategoryRepository()
+            val result = context.repositoryFactory.createMoneyUsageSubCategoryRepository()
                 .getSubCategory(
                     userId = userId,
                     categoryId = moneyUsageCategory.id,

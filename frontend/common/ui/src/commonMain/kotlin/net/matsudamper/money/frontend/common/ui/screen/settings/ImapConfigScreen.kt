@@ -129,44 +129,20 @@ private fun MainContent(
     modifier: Modifier = Modifier,
     uiState: ImapSettingScreenUiState.LoadingState.Loaded,
 ) {
-    Column(
-        modifier = modifier,
-    ) {
-        val settingPaddingModifier = Modifier.padding(horizontal = 24.dp)
-        Column(
-            modifier = Modifier.then(settingPaddingModifier),
-        ) {
+    SettingScaffold(
+        modifier = modifier.verticalScroll(rememberScrollState()),
+        title = {
             Text(
-                modifier = Modifier.padding(
-                    horizontal = 18.dp,
-                    vertical = 24.dp,
-                ),
-                text = "設定",
-                fontFamily = rememberCustomFontFamily(),
+                text = "IMAP設定",
             )
-            Divider(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-            )
-        }
-        Spacer(modifier = Modifier.height(32.dp))
-        Column(
-            Modifier
-                .then(settingPaddingModifier)
-                .padding(horizontal = 8.dp)
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Column(
-                modifier = Modifier.widthIn(max = 700.dp),
-            ) {
-                SettingElementContent(
-                    modifier = Modifier.fillMaxWidth(),
-                    uiState = uiState.imapConfig,
-                )
-            }
-        }
+        },
+    ) { paddingValues ->
+        SettingElementContent(
+            modifier = Modifier.fillMaxWidth()
+                .padding(paddingValues)
+                .padding(vertical = 24.dp),
+            uiState = uiState.imapConfig,
+        )
     }
 }
 
@@ -175,15 +151,7 @@ private fun SettingElementContent(
     modifier: Modifier = Modifier,
     uiState: ImapSettingScreenUiState.ImapConfig,
 ) {
-    SettingSection(
-        modifier = modifier,
-        title = {
-            Text(
-                text = "IMAP設定",
-                fontFamily = rememberCustomFontFamily(),
-            )
-        },
-    ) {
+    Column(modifier = modifier) {
         SettingsChangeTextSection(
             title = {
                 Text("Host")
