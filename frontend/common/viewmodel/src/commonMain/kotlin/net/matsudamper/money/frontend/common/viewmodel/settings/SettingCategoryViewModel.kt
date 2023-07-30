@@ -101,8 +101,8 @@ public class SettingCategoryViewModel(
                     val loadingState = if (viewModelState.isFirstLoading) {
                         SettingCategoryScreenUiState.LoadingState.Loading
                     } else {
-                        val items = viewModelState.responseList.mapNotNull {
-                            it.user?.moneyUsageSubCategoriesFromCategoryId?.nodes
+                        val items = viewModelState.responseList.map {
+                            it.nodes
                         }.flatten()
                         SettingCategoryScreenUiState.LoadingState.Loaded(
                             item = items.map { item ->
@@ -139,7 +139,7 @@ public class SettingCategoryViewModel(
 
     private fun initialFetch() {
         coroutineScope.launch {
-            val data = api.getSubCategory(id = categoryId)?.data
+            val data = api.getSubCategory(id = categoryId)?.data?.user?.moneyUsageSubCategoriesFromCategoryId
 
             if (data == null) {
                 globalEventSender.send {
@@ -159,7 +159,7 @@ public class SettingCategoryViewModel(
 
     private data class ViewModelState(
         val isFirstLoading: Boolean,
-        val responseList: List<SubCategorySettingScreenQuery.Data>,
+        val responseList: List<SubCategorySettingScreenQuery.MoneyUsageSubCategoriesFromCategoryId>,
         val showCategoryNameInput: Boolean,
     )
 
