@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
-import net.matsudamper.money.frontend.common.base.nav.user.Screens.*
 
 internal class UrlPlaceHolderParser(
     private val directions: List<Screens>,
@@ -66,7 +65,7 @@ internal class UrlPlaceHolderParser(
             )
         } else {
             ScreenState(
-                screen = NotFound,
+                screen = Screens.NotFound,
                 params = mapOf(),
             )
         }
