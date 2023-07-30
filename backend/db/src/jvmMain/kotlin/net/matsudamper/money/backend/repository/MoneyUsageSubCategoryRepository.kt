@@ -20,8 +20,9 @@ class MoneyUsageSubCategoryRepository {
         categoryId: MoneyUsageCategoryId,
     ): AddSubCategoryResult {
         runCatching {
-            DbConnection.use {
-                DSL.select(CATEGORIES.MONEY_USAGE_CATEGORY_ID)
+            DbConnection.use { connection ->
+                DSL.using(connection)
+                    .select(CATEGORIES.MONEY_USAGE_CATEGORY_ID)
                     .from(CATEGORIES)
                     .where(
                         CATEGORIES.USER_ID.eq(userId.id)
@@ -38,8 +39,9 @@ class MoneyUsageSubCategoryRepository {
         }
 
         return runCatching {
-            DbConnection.use {
-                val record = DSL.insertInto(SUB_CATEGORIES)
+            DbConnection.use { connection ->
+                val record = DSL.using(connection)
+                    .insertInto(SUB_CATEGORIES)
                     .set(
                         JMoneyUsageCategoriesRecord(
                             userId = userId.id,
@@ -69,13 +71,14 @@ class MoneyUsageSubCategoryRepository {
         categoryId: MoneyUsageCategoryId,
     ): GetSubCategoryResult {
         return runCatching {
-            DbConnection.use {
-                val records = DSL.select(
-                    SUB_CATEGORIES.USER_ID,
-                    SUB_CATEGORIES.MONEY_USAGE_SUB_CATEGORY_ID,
-                    SUB_CATEGORIES.MONEY_USAGE_CATEGORY_ID,
-                    SUB_CATEGORIES.NAME,
-                )
+            DbConnection.use { connection ->
+                val records = DSL.using(connection)
+                    .select(
+                        SUB_CATEGORIES.USER_ID,
+                        SUB_CATEGORIES.MONEY_USAGE_SUB_CATEGORY_ID,
+                        SUB_CATEGORIES.MONEY_USAGE_CATEGORY_ID,
+                        SUB_CATEGORIES.NAME,
+                    )
                     .from(SUB_CATEGORIES)
                     .join(CATEGORIES).using(CATEGORIES.MONEY_USAGE_CATEGORY_ID)
                     .where(
@@ -110,8 +113,9 @@ class MoneyUsageSubCategoryRepository {
         moneyUsageSubCategoryIds: List<MoneyUsageSubCategoryId>,
     ): GetSubCategoryResult {
         return runCatching {
-            DbConnection.use {
-                val records = DSL.selectFrom(SUB_CATEGORIES)
+            DbConnection.use { connection ->
+                val records = DSL.using(connection)
+                    .selectFrom(SUB_CATEGORIES)
                     .where(
                         SUB_CATEGORIES.USER_ID.eq(userId.id)
                             .and(
