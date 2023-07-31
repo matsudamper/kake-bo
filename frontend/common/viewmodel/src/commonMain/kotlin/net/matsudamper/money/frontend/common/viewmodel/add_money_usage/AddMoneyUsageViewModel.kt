@@ -156,7 +156,7 @@ public class AddMoneyUsageViewModel(
         val date = viewModelStateFlow.value.usageDate
 
         coroutineScope.launch {
-            graphqlApi.addMoneyUsage(
+            val result = graphqlApi.addMoneyUsage(
                 title = viewModelStateFlow.value.usageTitle,
                 description = viewModelStateFlow.value.usageDescription,
                 datetime = LocalDateTime(
@@ -171,6 +171,14 @@ public class AddMoneyUsageViewModel(
                 amount = viewModelStateFlow.value.usageAmount,
                 subCategoryId = viewModelStateFlow.value.usageCategorySet.subCategory?.id,
             )
+
+            // TODO Toast
+            if (result?.data?.userMutation?.addUsage == null) {
+                // TODO
+            } else {
+                // TODO
+            }
+
             viewModelStateFlow.update {
                 ViewModelState()
             }
