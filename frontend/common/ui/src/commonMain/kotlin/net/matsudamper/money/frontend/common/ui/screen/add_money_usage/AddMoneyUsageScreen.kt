@@ -252,7 +252,13 @@ private fun CalendarDialog(
     ) {
         val density = LocalDensity.current
         Card(
-            modifier = Modifier,
+            modifier = Modifier
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                ) {
+                    // カード内をタップしても閉じないようにする
+                },
         ) {
             Column(
                 modifier = Modifier
