@@ -3,7 +3,7 @@ type UserMutation {
     settingsMutation: SettingsMutation @lazy
     importMail(mailIds: [MailId!]!): ImportMailResult!
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
-    addUsage(usage: AddUsageInput!): MoneyUsage!
+    addUsage(usage: AddUsageQuery!): MoneyUsage!
     addCategory(input: AddCategoryInput!) : AddCategoryResult!
     updateCategory(id: MoneyUsageCategoryId!, query: UpdateCategoryQuery!): MoneyUsageCategory!
     addSubCategory(input: AddSubCategoryInput!) : AddSubCategoryResult!
@@ -39,11 +39,11 @@ type AddCategoryResult {
     category: MoneyUsageCategory
 }
 
-input AddUsageInput {
+input AddUsageQuery {
     title: String!
     description: String!
-    service: MoneyUsageServiceId
-    type: MoneyUsageCategoryId
+    subCategoryId: MoneyUsageSubCategoryId
+    amount: Int!
     date: LocalDateTime!
 }
 

@@ -59,10 +59,10 @@ type ImportedMailConnection {
 }
 
 type MoneyUsage {
+    amount: Int!
     date: LocalDateTime!
     description: String!
     id: MoneyUsageId!
-    moneyUsageService: MoneyUsageService
     moneyUsageSubCategory: MoneyUsageSubCategory
     title: String!
 }
@@ -161,7 +161,7 @@ type UserMailConnection {
 type UserMutation {
     addCategory(input: AddCategoryInput!): AddCategoryResult!
     addSubCategory(input: AddSubCategoryInput!): AddSubCategoryResult!
-    addUsage(usage: AddUsageInput!): MoneyUsage!
+    addUsage(usage: AddUsageQuery!): MoneyUsage!
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
     deleteSubCategory(id: MoneyUsageSubCategoryId!): Boolean!
     importMail(mailIds: [MailId!]!): ImportMailResult!
@@ -226,12 +226,12 @@ input AddSubCategoryInput {
     name: String!
 }
 
-input AddUsageInput {
+input AddUsageQuery {
+    amount: Int!
     date: LocalDateTime!
     description: String!
-    service: MoneyUsageServiceId
+    subCategoryId: MoneyUsageSubCategoryId
     title: String!
-    type: MoneyUsageCategoryId
 }
 
 input ImportedMailQuery {

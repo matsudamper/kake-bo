@@ -11,6 +11,7 @@ import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
 import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
 import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
+import net.matsudamper.money.backend.repository.MoneyUsageRepository
 import net.matsudamper.money.backend.repository.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.repository.UserLoginRepository
 import net.matsudamper.money.backend.repository.UserSessionRepository
@@ -22,7 +23,7 @@ import net.matsudamper.money.graphql.model.QlAddCategoryResult
 import net.matsudamper.money.graphql.model.QlAddSubCategoryError
 import net.matsudamper.money.graphql.model.QlAddSubCategoryInput
 import net.matsudamper.money.graphql.model.QlAddSubCategoryResult
-import net.matsudamper.money.graphql.model.QlAddUsageInput
+import net.matsudamper.money.graphql.model.QlAddUsageQuery
 import net.matsudamper.money.graphql.model.QlDeleteMailResult
 import net.matsudamper.money.graphql.model.QlDeleteMailResultError
 import net.matsudamper.money.graphql.model.QlImportMailResult
@@ -264,8 +265,34 @@ class UserMutationResolverImpl : UserMutationResolver {
         }.toDataFetcher()
     }
 
-    override fun addUsage(userMutation: QlUserMutation, usage: QlAddUsageInput, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlMoneyUsage>> {
-        TODO("Not yet implemented")
+    override fun addUsage(
+        userMutation: QlUserMutation,
+        usage: QlAddUsageQuery,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<QlMoneyUsage>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+        return CompletableFuture.supplyAsync {
+            val result = context.repositoryFactory.createMoneyUsageRepository()
+                .addUsage(
+                    userId = userId,
+                    title = usage.title,
+                    description = usage.description,
+                    subCategoryId = usage.subCategoryId,
+                    amount = usage.amount,
+                    date = usage.date,
+                )
+            when(result) {
+                is MoneyUsageRepository.AddResult.Failed -> {
+                    throw result.error
+                }
+                is MoneyUsageRepository.AddResult.Success -> {
+                    return@supplyAsync QlMoneyUsage(
+                        id = result.result.id,
+                    )
+                }
+            }
+        }.toDataFetcher()
     }
 }
 

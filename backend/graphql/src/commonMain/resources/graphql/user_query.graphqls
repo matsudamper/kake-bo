@@ -28,11 +28,11 @@ type MoneyUsageCategoriesConnection {
 
 type MoneyUsage {
     id: MoneyUsageId!
-    title: String!
-    description: String!
-    date: LocalDateTime!
-
-    moneyUsageService: MoneyUsageService
-    moneyUsageSubCategory: MoneyUsageSubCategory
+    title: String! @lazy
+    description: String! @lazy
+    date: LocalDateTime! @lazy
+    amount: Int! @lazy
+    
+    moneyUsageSubCategory: MoneyUsageSubCategory @lazy
 }
 

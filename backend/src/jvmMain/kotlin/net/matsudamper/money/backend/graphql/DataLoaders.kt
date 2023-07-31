@@ -6,6 +6,7 @@ import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.DataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageCategoryDataLoaderDefine
+import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageSubCategoryDataLoaderDefine
 import net.matsudamper.money.backend.di.RepositoryFactory
 import org.dataloader.DataLoader
@@ -26,6 +27,10 @@ class DataLoaders(
 
     val moneyUsageCategoryDataLoaderDefine by register {
         MoneyUsageCategoryDataLoaderDefine(repositoryFactory)
+    }
+
+    val moneyUsageDataLoader by register {
+        MoneyUsageDataLoaderDefine(repositoryFactory)
     }
 
     private fun <K, V> register(
