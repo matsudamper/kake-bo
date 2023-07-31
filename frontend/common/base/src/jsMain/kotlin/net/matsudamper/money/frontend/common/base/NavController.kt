@@ -48,11 +48,19 @@ public class ScreenNavControllerImpl(
         navigation: T,
     ) {
         val url = navigation.createUrl()
-        window.history.pushState(
-            data = null,
-            title = navigation.direction.title,
-            url = url,
-        )
+        if (screenState.current.equalScreen(navigation)) {
+            window.history.replaceState(
+                data = null,
+                title = navigation.direction.title,
+                url = url,
+            )
+        } else {
+            window.history.pushState(
+                data = null,
+                title = navigation.direction.title,
+                url = url,
+            )
+        }
         updateScreenState(navigation)
     }
 
