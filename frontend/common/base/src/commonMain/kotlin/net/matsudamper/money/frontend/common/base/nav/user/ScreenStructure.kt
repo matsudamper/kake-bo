@@ -58,52 +58,58 @@ public sealed interface ScreenStructure {
                 }
             }
         }
-        public class MailList(
-            public val isLinked: Boolean?,
-        ) : Root {
-            override val direction: Screens = Screens.MailList
 
-            override fun createUrl(): String {
-                val urlParam = ParametersBuilder()
-                    .apply {
-                        if (isLinked != null) {
-                            append(KEY_IS_LINKED, isLinked.toString())
+        public sealed interface Mail : Root {
+            public class Imported(
+                public val isLinked: Boolean?,
+            ) : Mail {
+                override val direction: Screens = Screens.MailList
+
+                override fun createUrl(): String {
+                    val urlParam = ParametersBuilder()
+                        .apply {
+                            if (isLinked != null) {
+                                append(KEY_IS_LINKED, isLinked.toString())
+                            }
                         }
-                    }
-                    .build()
-                    .formUrlEncode()
-                    .let {
-                        if (it.isEmpty()) {
-                            it
-                        } else {
-                            "?$it"
+                        .build()
+                        .formUrlEncode()
+                        .let {
+                            if (it.isEmpty()) {
+                                it
+                            } else {
+                                "?$it"
+                            }
                         }
+
+                    return direction.placeholderUrl.plus(urlParam)
+                }
+
+                override fun equalScreen(other: ScreenStructure): Boolean {
+                    return other is Imported
+                }
+
+                public companion object {
+                    private const val KEY_IS_LINKED = "is_linked"
+
+                    @Suppress("UNUSED_PARAMETER")
+                    public fun create(
+                        pathParams: Map<String, String>,
+                        queryParams: Map<String, kotlin.collections.List<String>>,
+                    ): Imported {
+                        return Imported(
+                            isLinked = queryParams[KEY_IS_LINKED]
+                                ?.firstOrNull()
+                                ?.toBooleanStrictOrNull(),
+                        )
                     }
-
-                return direction.placeholderUrl.plus(urlParam)
-            }
-
-            override fun equalScreen(other: ScreenStructure): Boolean {
-                return other is MailList
-            }
-
-            public companion object {
-                private const val KEY_IS_LINKED = "is_linked"
-
-                @Suppress("UNUSED_PARAMETER")
-                public fun create(
-                    pathParams: Map<String, String>,
-                    queryParams: Map<String, kotlin.collections.List<String>>,
-                ): MailList {
-                    return MailList(
-                        isLinked = queryParams[KEY_IS_LINKED]
-                            ?.firstOrNull()
-                            ?.toBooleanStrictOrNull(),
-                    )
                 }
             }
-        }
 
+            public object Import : Mail {
+                override val direction: Screens = Screens.MailImport
+            }
+        }
 
         public class List : Root {
             override val direction: Screens = Screens.List
@@ -120,10 +126,6 @@ public sealed interface ScreenStructure {
 
     public object Admin : ScreenStructure {
         override val direction: Screens = Screens.Admin
-    }
-
-    public object MailImport : ScreenStructure {
-        override val direction: Screens = Screens.MailImport
     }
 
     public object AddMoneyUsage : ScreenStructure {

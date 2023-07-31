@@ -116,8 +116,8 @@ public class ScreenNavControllerImpl(
             Screens.NotFound -> ScreenStructure.NotFound
             Screens.Login -> ScreenStructure.Login
             Screens.Admin -> ScreenStructure.Admin
-            Screens.MailImport -> ScreenStructure.MailImport
-            Screens.MailList -> ScreenStructure.Root.MailList.create(
+            Screens.MailImport -> ScreenStructure.Root.Mail.Import
+            Screens.MailList -> ScreenStructure.Root.Mail.Imported.create(
                 pathParams = pathParams,
                 queryParams = queryParams,
             )

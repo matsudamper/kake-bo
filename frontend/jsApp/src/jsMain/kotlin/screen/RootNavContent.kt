@@ -8,23 +8,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import ImportMailScreenUiState
 import event.ViewModelEventHandlers
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.RootListScreen
 import net.matsudamper.money.frontend.common.ui.screen.RootListScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.RootScreen
-import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailLinkScreen
-import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailLinkScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.mail.ImportedMailListScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.mail.MailScreen
+import net.matsudamper.money.frontend.common.ui.screen.mail.MailScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
-import net.matsudamper.money.frontend.common.viewmodel.root.MailLinkViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.list.RootListViewModel
-import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
 
 @Composable
 internal fun RootNavContent(
@@ -36,8 +34,10 @@ internal fun RootNavContent(
     rootCoroutineScope: CoroutineScope,
     globalEventSender: EventSender<GlobalEvent>,
     loginCheckUseCase: LoginCheckUseCase,
+    mailScreenUiStateProvider: @Composable () -> MailScreenUiState,
     listUiStateProvider: @Composable (ScreenStructure.Root.List) -> RootListScreenUiState,
-    mailListUiStateProvider: @Composable (ScreenStructure.Root.MailList) -> MailLinkScreenUiState,
+    importMailScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Imported) -> ImportedMailListScreenUiState,
+    importMailLinkScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Import) -> ImportMailScreenUiState,
 ) {
     when (current) {
         is ScreenStructure.Root.Home -> {
@@ -72,10 +72,17 @@ internal fun RootNavContent(
             }
         }
 
-        is ScreenStructure.Root.MailList -> {
+        is ScreenStructure.Root.Mail -> {
             tabHolder.SaveableStateProvider(current::class.toString()) {
-                MailLinkScreen(
-                    uiState = mailListUiStateProvider(current),
+                MailScreen(
+                    screenStructure = current,
+                    uiState = mailScreenUiStateProvider(),
+                    importMailScreenUiStateProvider = {
+                        importMailLinkScreenUiStateProvider(it)
+                    },
+                    importedImportMailScreenUiStateProvider = {
+                        importMailScreenUiStateProvider(it)
+                    },
                     rootScreenScaffoldListener = rootScreenScaffoldListener,
                 )
             }

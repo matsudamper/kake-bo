@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.viewmodel.root
+package net.matsudamper.money.frontend.common.viewmodel.root.mail
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -12,14 +12,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailLinkScreenUiState
-import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailLinkScreenUiState.Filters.LinkStatus.*
+import net.matsudamper.money.frontend.common.ui.screen.mail.ImportedMailListScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.mail.ImportedMailListScreenUiState.Filters.LinkStatus.*
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGetMailsQuery
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
 
-public class MailLinkViewModel(
+public class ImportedMailListViewModel(
     private val coroutineScope: CoroutineScope,
     private val ioDispatcher: CoroutineDispatcher,
     private val graphqlApi: MailLinkScreenGraphqlApi,
@@ -35,15 +35,15 @@ public class MailLinkViewModel(
         ),
     )
 
-    public val rootUiStateFlow: StateFlow<MailLinkScreenUiState> = MutableStateFlow(
-        MailLinkScreenUiState(
-            filters = MailLinkScreenUiState.Filters(
-                link = MailLinkScreenUiState.Filters.Link(
+    public val rootUiStateFlow: StateFlow<ImportedMailListScreenUiState> = MutableStateFlow(
+        ImportedMailListScreenUiState(
+            filters = ImportedMailListScreenUiState.Filters(
+                link = ImportedMailListScreenUiState.Filters.Link(
                     status = Undefined,
                     updateState = { updateLinkStatus(it) },
                 ),
             ),
-            event = object : MailLinkScreenUiState.Event {
+            event = object : ImportedMailListScreenUiState.Event {
                 override fun onViewInitialized() {
                     if (viewModelStateFlow.value.mails.isEmpty()) {
                         fetch()
@@ -59,7 +59,7 @@ public class MailLinkViewModel(
                 }
             },
             fullScreenHtml = null,
-            loadingState = MailLinkScreenUiState.LoadingState.Loading,
+            loadingState = ImportedMailListScreenUiState.LoadingState.Loading,
         ),
     ).also { uiStateFlow ->
         coroutineScope.launch {
@@ -67,15 +67,15 @@ public class MailLinkViewModel(
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         fullScreenHtml = viewModelState.fullScreenHtml,
-                        loadingState = MailLinkScreenUiState.LoadingState.Loaded(
+                        loadingState = ImportedMailListScreenUiState.LoadingState.Loaded(
                             listItems = viewModelState.mails.map { mail ->
-                                MailLinkScreenUiState.ListItem(
-                                    mail = MailLinkScreenUiState.ImportedMail(
+                                ImportedMailListScreenUiState.ListItem(
+                                    mail = ImportedMailListScreenUiState.ImportedMail(
                                         mailFrom = mail.from,
                                         mailSubject = mail.subject,
                                     ),
                                     usages = mail.suggestUsages.map { usage ->
-                                        MailLinkScreenUiState.UsageItem(
+                                        ImportedMailListScreenUiState.UsageItem(
                                             title = usage.title,
                                             description = usage.description,
                                             service = usage.service?.name.orEmpty(),
@@ -106,7 +106,7 @@ public class MailLinkViewModel(
     }.asStateFlow()
 
     public fun updateQuery(
-        screen: ScreenStructure.Root.MailList,
+        screen: ScreenStructure.Root.Mail.Imported,
     ) {
         viewModelStateFlow.update {
             it.copy(
@@ -117,7 +117,7 @@ public class MailLinkViewModel(
         }
     }
 
-    private fun updateLinkStatus(newState: MailLinkScreenUiState.Filters.LinkStatus) {
+    private fun updateLinkStatus(newState: ImportedMailListScreenUiState.Filters.LinkStatus) {
         val isLinked = when (newState) {
             Undefined -> null
             Linked -> true
@@ -137,8 +137,8 @@ public class MailLinkViewModel(
         }
     }
 
-    private fun createMailEvent(mail: MailLinkScreenGetMailsQuery.Node): MailLinkScreenUiState.ListItemEvent {
-        return object : MailLinkScreenUiState.ListItemEvent {
+    private fun createMailEvent(mail: MailLinkScreenGetMailsQuery.Node): ImportedMailListScreenUiState.ListItemEvent {
+        return object : ImportedMailListScreenUiState.ListItemEvent {
             override fun onClickMailDetail() {
                 coroutineScope.launch {
                     viewModelStateFlow.update { viewModelState ->

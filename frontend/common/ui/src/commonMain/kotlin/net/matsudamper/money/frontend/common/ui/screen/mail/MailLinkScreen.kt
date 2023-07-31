@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.tmp_mail
+package net.matsudamper.money.frontend.common.ui.screen.mail
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -54,7 +54,7 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
 
-public data class MailLinkScreenUiState(
+public data class ImportedMailListScreenUiState(
     val event: Event,
     val filters: Filters,
     val loadingState: LoadingState,
@@ -117,9 +117,9 @@ public data class MailLinkScreenUiState(
 }
 
 @Composable
-public fun MailLinkScreen(
+public fun ImportedMailListScreen(
     modifier: Modifier = Modifier,
-    uiState: MailLinkScreenUiState,
+    uiState: ImportedMailListScreenUiState,
     rootScreenScaffoldListener: RootScreenScaffoldListener,
 ) {
     if (uiState.fullScreenHtml != null) {
@@ -139,7 +139,7 @@ public fun MailLinkScreen(
         listener = rootScreenScaffoldListener,
     ) {
         when (val loadingState = uiState.loadingState) {
-            is MailLinkScreenUiState.LoadingState.Loaded -> {
+            is ImportedMailListScreenUiState.LoadingState.Loaded -> {
                 MainContent(
                     modifier = Modifier.fillMaxSize(),
                     uiState = loadingState,
@@ -147,7 +147,7 @@ public fun MailLinkScreen(
                 )
             }
 
-            is MailLinkScreenUiState.LoadingState.Loading -> {
+            is ImportedMailListScreenUiState.LoadingState.Loading -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                 ) {
@@ -163,8 +163,8 @@ public fun MailLinkScreen(
 @Composable
 public fun MainContent(
     modifier: Modifier,
-    filterUiState: MailLinkScreenUiState.Filters,
-    uiState: MailLinkScreenUiState.LoadingState.Loaded,
+    filterUiState: ImportedMailListScreenUiState.Filters,
+    uiState: ImportedMailListScreenUiState.LoadingState.Loaded,
 ) {
     Column(modifier = modifier) {
         Filter(
@@ -198,7 +198,7 @@ public fun MainContent(
 @Composable
 private fun Filter(
     modifier: Modifier = Modifier,
-    uiState: MailLinkScreenUiState.Filters,
+    uiState: ImportedMailListScreenUiState.Filters,
     contentPadding: PaddingValues,
 ) {
     Row(
@@ -215,30 +215,30 @@ private fun Filter(
             var visiblePopup by remember { mutableStateOf(false) }
             FilterChip(
                 selected = when (uiState.link.status) {
-                    MailLinkScreenUiState.Filters.LinkStatus.Undefined -> false
-                    MailLinkScreenUiState.Filters.LinkStatus.Linked,
-                    MailLinkScreenUiState.Filters.LinkStatus.NotLinked,
+                    ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> false
+                    ImportedMailListScreenUiState.Filters.LinkStatus.Linked,
+                    ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked,
                     -> true
                 },
                 onClick = {
                     when (uiState.link.status) {
-                        MailLinkScreenUiState.Filters.LinkStatus.Undefined -> {
+                        ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> {
                             visiblePopup = true
                         }
 
-                        MailLinkScreenUiState.Filters.LinkStatus.Linked,
-                        MailLinkScreenUiState.Filters.LinkStatus.NotLinked,
+                        ImportedMailListScreenUiState.Filters.LinkStatus.Linked,
+                        ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked,
                         -> {
-                            uiState.link.updateState(MailLinkScreenUiState.Filters.LinkStatus.Undefined)
+                            uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.Undefined)
                         }
                     }
                 },
                 label = {
                     Text(
                         text = "連携状態:" + when (uiState.link.status) {
-                            MailLinkScreenUiState.Filters.LinkStatus.Undefined -> "全て"
-                            MailLinkScreenUiState.Filters.LinkStatus.Linked -> "連携済み"
-                            MailLinkScreenUiState.Filters.LinkStatus.NotLinked -> "未連携"
+                            ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> "全て"
+                            ImportedMailListScreenUiState.Filters.LinkStatus.Linked -> "連携済み"
+                            ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked -> "未連携"
                         },
                         style = MaterialTheme.typography.labelMedium,
                     )
@@ -264,7 +264,7 @@ private fun Filter(
                                 modifier = Modifier.fillMaxWidth()
                                     .clickable {
                                         visiblePopup = false
-                                        uiState.link.updateState(MailLinkScreenUiState.Filters.LinkStatus.Linked)
+                                        uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.Linked)
                                     }
                                     .padding(12.dp),
                                 text = "連携済み",
@@ -273,7 +273,7 @@ private fun Filter(
                                 modifier = Modifier.fillMaxWidth()
                                     .clickable {
                                         visiblePopup = false
-                                        uiState.link.updateState(MailLinkScreenUiState.Filters.LinkStatus.NotLinked)
+                                        uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked)
                                     }
                                     .padding(12.dp),
                                 text = "未連携",
@@ -290,7 +290,7 @@ private fun Filter(
 @Composable
 private fun SuggestUsageItem(
     modifier: Modifier = Modifier,
-    listItem: MailLinkScreenUiState.ListItem,
+    listItem: ImportedMailListScreenUiState.ListItem,
 ) {
     Card(
         modifier = modifier,

@@ -1,7 +1,7 @@
 import androidx.compose.runtime.Immutable
 import net.matsudamper.money.frontend.common.base.ImmutableList
 
-public data class MailScreenUiState(
+public data class ImportMailScreenUiState(
     val isLoading: Boolean,
     val showLoadMore: Boolean,
     val mails: ImmutableList<Mail>,

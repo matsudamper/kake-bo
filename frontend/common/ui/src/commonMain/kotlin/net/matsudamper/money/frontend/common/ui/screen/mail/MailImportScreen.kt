@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.tmp_mail
+package net.matsudamper.money.frontend.common.ui.screen.mail
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
@@ -50,9 +50,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import MailScreenUiState
+import ImportMailScreenUiState
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.layout.ScrollButton
 import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
 
@@ -61,7 +62,8 @@ private val scrollButtonHorizontalPadding = 12.dp
 
 @Composable
 public fun MailImportScreen(
-    uiState: MailScreenUiState,
+    uiState: ImportMailScreenUiState,
+    rootScreenScaffoldListener: RootScreenScaffoldListener,
 ) {
     LaunchedEffect(uiState.event) {
         uiState.event.onViewInitialized()
@@ -90,7 +92,7 @@ public fun MailImportScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun MailContent(uiState: MailScreenUiState) {
+private fun MailContent(uiState: ImportMailScreenUiState) {
     val firstLoadingFinished = remember(uiState.isLoading, uiState.mails) {
         uiState.mails.isNotEmpty() || uiState.isLoading.not()
     }
@@ -230,7 +232,7 @@ private fun MailContent(uiState: MailScreenUiState) {
 
 @Composable
 private fun MailDeleteConfirmDialog(
-    uiState: MailScreenUiState.MailDeleteDialog,
+    uiState: ImportMailScreenUiState.MailDeleteDialog,
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
@@ -299,7 +301,7 @@ private fun MailDeleteConfirmDialog(
 @Composable
 private fun MailContent(
     modifier: Modifier = Modifier,
-    uiState: MailScreenUiState.Mail,
+    uiState: ImportMailScreenUiState.Mail,
 ) {
     Card(
         modifier = modifier,

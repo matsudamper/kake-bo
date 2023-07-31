@@ -45,7 +45,6 @@ import net.matsudamper.money.frontend.common.ui.screen.add_money_usage.AddMoneyU
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
 import net.matsudamper.money.frontend.common.ui.screen.status.NotFoundScreen
-import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailImportScreen
 import net.matsudamper.money.frontend.common.uistate.LoginScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.LoginScreenViewModel
@@ -55,10 +54,11 @@ import net.matsudamper.money.frontend.common.viewmodel.admin.AdminLoginScreenVie
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminRootScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
-import net.matsudamper.money.frontend.common.viewmodel.root.MailImportViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.MailLinkViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.mail.ImportedMailListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.add_money_usage.AddMoneyUsageScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.root.list.RootListViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailScreenViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
@@ -128,7 +128,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                             }
 
                             override fun onClickMail() {
-                                navController.navigate(ScreenStructure.Root.MailList(isLinked = false)) // TODO
+                                navController.navigate(ScreenStructure.Root.Mail.Imported(isLinked = false)) // TODO
                             }
                         }
                     }
@@ -159,15 +159,29 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                         },
                     ) { paddingValues ->
                         val tabHolder = rememberSaveableStateHolder()
-                        val mailLinkViewModel = remember {
-                            MailLinkViewModel(
+                        val importedMailListViewModel = remember {
+                            ImportedMailListViewModel(
                                 coroutineScope = rootCoroutineScope,
                                 ioDispatcher = Dispatchers.Unconfined,
                                 graphqlApi = MailLinkScreenGraphqlApi(),
                             )
                         }
+                        val mailImportViewModel = remember {
+                            MailImportViewModel(
+                                coroutineScope = rootCoroutineScope,
+                                ioDispatcher = Dispatchers.Unconfined,
+                                graphqlApi = MailImportScreenGraphqlApi(),
+                                loginCheckUseCase = loginCheckUseCase,
+                            )
+                        }
+
                         val rootListViewModel = remember {
                             RootListViewModel(
+                                coroutineScope = rootCoroutineScope,
+                            )
+                        }
+                        val mailScreenViewModel = remember {
+                            MailScreenViewModel(
                                 coroutineScope = rootCoroutineScope,
                             )
                         }
@@ -180,6 +194,12 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                     RootNavContent(
                                         tabHolder = tabHolder,
                                         current = current,
+                                        mailScreenUiStateProvider = {
+                                            LaunchedEffect(mailScreenViewModel) {
+                                                viewModelEventHandlers.handle(mailScreenViewModel.eventHandler)
+                                            }
+                                            mailScreenViewModel.uiStateFlow.collectAsState().value
+                                        },
                                         rootScreenScaffoldListener = rootScreenScaffoldListener,
                                         viewModelEventHandlers = viewModelEventHandlers,
                                         rootCoroutineScope = rootCoroutineScope,
@@ -194,14 +214,22 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                             }
                                             rootListViewModel.uiStateFlow.collectAsState().value
                                         },
-                                        mailListUiStateProvider = { screenStructure ->
+                                        importMailLinkScreenUiStateProvider = {
+                                            LaunchedEffect(mailImportViewModel.eventHandler) {
+                                                viewModelEventHandlers.handle(mailImportViewModel.eventHandler)
+                                            }
+
+                                            mailImportViewModel.rootUiStateFlow.collectAsState().value
+                                        },
+                                        importMailScreenUiStateProvider = { screenStructure ->
                                             LaunchedEffect(screenStructure) {
-                                                mailLinkViewModel.updateQuery(screenStructure)
+                                                importedMailListViewModel.updateQuery(screenStructure)
                                             }
-                                            LaunchedEffect(mailLinkViewModel.eventHandler) {
-                                                viewModelEventHandlers.handle(mailLinkViewModel.eventHandler)
+                                            LaunchedEffect(importedMailListViewModel.eventHandler) {
+                                                viewModelEventHandlers.handle(importedMailListViewModel.eventHandler)
                                             }
-                                            mailLinkViewModel.rootUiStateFlow.collectAsState().value
+                                            importedMailListViewModel.rootUiStateFlow.collectAsState().value
+
                                         },
                                     )
                                 }
@@ -260,25 +288,6 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                             }
                                             adminAddUserScreenViewModel.uiStateFlow.collectAsState().value
                                         },
-                                    )
-                                }
-
-                                ScreenStructure.MailImport -> {
-                                    val mailImportViewModel = remember {
-                                        MailImportViewModel(
-                                            coroutineScope = rootCoroutineScope,
-                                            ioDispatcher = Dispatchers.Unconfined,
-                                            graphqlApi = MailImportScreenGraphqlApi(),
-                                            loginCheckUseCase = loginCheckUseCase,
-                                        )
-                                    }
-
-                                    LaunchedEffect(mailImportViewModel.eventHandler) {
-                                        viewModelEventHandlers.handle(mailImportViewModel.eventHandler)
-                                    }
-
-                                    MailImportScreen(
-                                        uiState = mailImportViewModel.rootUiStateFlow.collectAsState().value,
                                     )
                                 }
 

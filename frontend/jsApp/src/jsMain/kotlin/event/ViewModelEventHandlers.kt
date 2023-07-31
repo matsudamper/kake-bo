@@ -8,11 +8,12 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
-import net.matsudamper.money.frontend.common.viewmodel.root.MailImportViewModelEvent
-import net.matsudamper.money.frontend.common.viewmodel.root.MailLinkViewModelEvent
+import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModelEvent
+import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailLinkViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.list.RootListViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
 
@@ -25,11 +26,11 @@ data class ViewModelEventHandlers(
             handler.collect(
                 object : HomeViewModel.Event {
                     override fun navigateToMailImport() {
-                        navController.navigate(ScreenStructure.MailImport)
+                        navController.navigate(ScreenStructure.Root.Mail.Import)
                     }
 
                     override fun navigateToMailLink() {
-                        navController.navigate(ScreenStructure.Root.MailList(isLinked = false))
+                        navController.navigate(ScreenStructure.Root.Mail.Imported(isLinked = false))
                     }
                 },
             )
@@ -71,7 +72,7 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun changeQuery(isLinked: Boolean?) {
-                        navController.navigate(ScreenStructure.Root.MailList(isLinked = isLinked))
+                        navController.navigate(ScreenStructure.Root.Mail.Imported(isLinked = isLinked))
                     }
                 },
             )
@@ -123,6 +124,26 @@ data class ViewModelEventHandlers(
                 object : RootListViewModel.Event {
                     override fun navigateToAddMoneyUsage() {
                         navController.navigate(ScreenStructure.AddMoneyUsage)
+                    }
+                },
+            )
+        }
+    }
+
+    suspend fun handle(
+        handler: EventHandler<MailScreenViewModel.Event>,
+    ) {
+        coroutineScope {
+            handler.collect(
+                object : MailScreenViewModel.Event {
+                    override fun navigateToImportMail() {
+                        navController.navigate(ScreenStructure.Root.Mail.Import)
+                    }
+
+                    override fun navigateToImportedMail() {
+                        navController.navigate(
+                            ScreenStructure.Root.Mail.Imported(isLinked = false) // TODO
+                        )
                     }
                 },
             )

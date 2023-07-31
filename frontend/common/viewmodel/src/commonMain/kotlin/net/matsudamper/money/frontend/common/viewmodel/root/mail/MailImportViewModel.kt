@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.viewmodel.root
+package net.matsudamper.money.frontend.common.viewmodel.root.mail
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import MailScreenUiState
+import ImportMailScreenUiState
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
@@ -32,14 +32,14 @@ public class MailImportViewModel(
 
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
-    public val rootUiStateFlow: StateFlow<MailScreenUiState> = MutableStateFlow(
-        MailScreenUiState(
+    public val rootUiStateFlow: StateFlow<ImportMailScreenUiState> = MutableStateFlow(
+        ImportMailScreenUiState(
             isLoading = true,
             htmlDialog = null,
             mails = immutableListOf(),
             showLoadMore = false,
             mailDeleteDialog = null,
-            event = object : MailScreenUiState.Event {
+            event = object : ImportMailScreenUiState.Event {
                 override fun htmlDismissRequest() {
                     viewModelStateFlow.update {
                         it.copy(html = null)
@@ -77,7 +77,7 @@ public class MailImportViewModel(
                         isLoading = viewModelState.isLoading,
                         showLoadMore = viewModelState.finishLoadingToEnd == false,
                         mails = viewModelState.usrMails.map { mail ->
-                            MailScreenUiState.Mail(
+                            ImportMailScreenUiState.Mail(
                                 subject = mail.subject.replace("\n", ""),
                                 isSelected = mail.id in viewModelState.checked,
                                 sender = mail.sender,
@@ -91,7 +91,7 @@ public class MailImportViewModel(
                             if (dialogState == null) {
                                 null
                             } else {
-                                MailScreenUiState.MailDeleteDialog(
+                                ImportMailScreenUiState.MailDeleteDialog(
                                     errorText = dialogState.errorText,
                                     event = createMailDeleteDialogEvent(dialogState.mail),
                                     isLoading = dialogState.isLoading,
@@ -104,8 +104,8 @@ public class MailImportViewModel(
         }
     }.asStateFlow()
 
-    private fun createMailDeleteDialogEvent(mailDeleteDialog: GetMailQuery.UsrMail): MailScreenUiState.MailDeleteDialog.Event {
-        return object : MailScreenUiState.MailDeleteDialog.Event {
+    private fun createMailDeleteDialogEvent(mailDeleteDialog: GetMailQuery.UsrMail): ImportMailScreenUiState.MailDeleteDialog.Event {
+        return object : ImportMailScreenUiState.MailDeleteDialog.Event {
             override fun onClickDelete() {
                 coroutineScope.launch {
                     viewModelStateFlow.update {
@@ -164,8 +164,8 @@ public class MailImportViewModel(
         }
     }
 
-    private fun createMailItemEvent(mail: GetMailQuery.UsrMail): MailScreenUiState.Mail.Event {
-        return object : MailScreenUiState.Mail.Event {
+    private fun createMailItemEvent(mail: GetMailQuery.UsrMail): ImportMailScreenUiState.Mail.Event {
+        return object : ImportMailScreenUiState.Mail.Event {
             override fun onClick() {
                 viewModelStateFlow.update { viewModelState ->
                     val isChecked = mail.id in viewModelState.checked
