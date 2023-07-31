@@ -46,7 +46,6 @@ import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
 import net.matsudamper.money.frontend.common.ui.screen.status.NotFoundScreen
 import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailImportScreen
-import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailLinkScreen
 import net.matsudamper.money.frontend.common.uistate.LoginScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.LoginScreenViewModel
@@ -59,6 +58,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.MailImportViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.MailLinkViewModel
 import net.matsudamper.money.frontend.common.viewmodel.add_money_usage.AddMoneyUsageScreenApi
+import net.matsudamper.money.frontend.common.viewmodel.root.list.RootListViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
@@ -166,6 +166,11 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                 graphqlApi = MailLinkScreenGraphqlApi(),
                             )
                         }
+                        val rootListViewModel = remember {
+                            RootListViewModel(
+                                coroutineScope = rootCoroutineScope,
+                            )
+                        }
                         Box(
                             modifier = Modifier.fillMaxSize()
                                 .padding(paddingValues),
@@ -181,6 +186,14 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                         globalEventSender = globalEventSender,
                                         loginCheckUseCase = loginCheckUseCase,
                                         globalEvent = globalEvent,
+                                        listUiStateProvider = {
+                                            LaunchedEffect(rootListViewModel.viewModelEventHandler) {
+                                                viewModelEventHandlers.handle(
+                                                    handler = rootListViewModel.viewModelEventHandler,
+                                                )
+                                            }
+                                            rootListViewModel.uiStateFlow.collectAsState().value
+                                        },
                                         mailListUiStateProvider = { screenStructure ->
                                             LaunchedEffect(screenStructure) {
                                                 mailLinkViewModel.updateQuery(screenStructure)

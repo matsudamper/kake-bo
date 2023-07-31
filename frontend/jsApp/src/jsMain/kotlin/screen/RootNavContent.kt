@@ -13,6 +13,7 @@ import event.ViewModelEventHandlers
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.RootListScreen
+import net.matsudamper.money.frontend.common.ui.screen.RootListScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.RootScreen
 import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailLinkScreen
 import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailLinkScreenUiState
@@ -35,6 +36,7 @@ internal fun RootNavContent(
     rootCoroutineScope: CoroutineScope,
     globalEventSender: EventSender<GlobalEvent>,
     loginCheckUseCase: LoginCheckUseCase,
+    listUiStateProvider: @Composable (ScreenStructure.Root.List) -> RootListScreenUiState,
     mailListUiStateProvider: @Composable (ScreenStructure.Root.MailList) -> MailLinkScreenUiState,
 ) {
     when (current) {
@@ -61,19 +63,10 @@ internal fun RootNavContent(
 
         is ScreenStructure.Root.List -> {
             tabHolder.SaveableStateProvider(current::class.toString()) {
-                val viewModel = remember {
-                    RootListViewModel(
-                        coroutineScope = rootCoroutineScope,
-                    )
-                }
-                LaunchedEffect(viewModel.viewModelEventHandler) {
-                    viewModelEventHandlers.handle(
-                        handler = viewModel.viewModelEventHandler,
-                    )
-                }
+                val uiState = listUiStateProvider(current)
                 RootListScreen(
                     modifier = Modifier.fillMaxSize(),
-                    uiState = viewModel.uiStateFlow.collectAsState().value,
+                    uiState = uiState,
                     listener = rootScreenScaffoldListener,
                 )
             }
