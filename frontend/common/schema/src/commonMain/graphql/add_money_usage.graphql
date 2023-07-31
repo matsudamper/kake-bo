@@ -1,0 +1,28 @@
+query AddMoneyUsageScreenCategoriesPaging($input: MoneyUsageCategoriesInput!) {
+    user {
+        moneyUsageCategories(input: $input) {
+            cursor
+            nodes {
+                id
+                name
+            }
+        }
+    }
+}
+
+query AddMoneyUsageScreenSubCategoriesPaging(
+    $categoryId: MoneyUsageCategoryId!,
+    $query: MoneyUsageSubCategoryQuery!,
+) {
+    user {
+        moneyUsageCategory(id: $categoryId) {
+            subCategories(query: $query) {
+                nodes {
+                    id
+                    name
+                }
+                cursor
+            }
+        }
+    }
+}

@@ -6,14 +6,17 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.todayIn
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.screen.add_money_usage.AddMoneyUsageScreenCategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.screen.add_money_usage.AddMoneyUsageScreenUiState
-import net.matsudamper.money.frontend.common.viewmodel.settings.AddMoneyUsageScreenApi
-import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenCategoriesPagingQuery
-import net.matsudamper.money.frontend.graphql.CategorySettingScreenSubCategoriesPagingQuery
+import net.matsudamper.money.frontend.graphql.AddMoneyUsageScreenCategoriesPagingQuery
+import net.matsudamper.money.frontend.graphql.AddMoneyUsageScreenSubCategoriesPagingQuery
 
 public class AddMoneyUsageViewModel(
     private val coroutineScope: CoroutineScope,
@@ -177,8 +180,8 @@ public class AddMoneyUsageViewModel(
     }.asStateFlow()
 
     private fun createCategorySelectDialogUiState(
-        categories: List<CategoriesSettingScreenCategoriesPagingQuery.Node>,
-        subCategories: Map<MoneyUsageCategoryId, List<CategorySettingScreenSubCategoriesPagingQuery.Node>>,
+        categories: List<AddMoneyUsageScreenCategoriesPagingQuery.Node>,
+        subCategories: Map<MoneyUsageCategoryId, List<AddMoneyUsageScreenSubCategoriesPagingQuery.Node>>,
         categoryDialogViewModelState: ViewModelState.CategorySelectDialog,
     ): AddMoneyUsageScreenCategorySelectDialogUiState {
         val categorySet = categoryDialogViewModelState.categorySet
@@ -326,14 +329,14 @@ public class AddMoneyUsageViewModel(
         val usageDescription: String = "",
         val usageCategorySet: CategorySet = CategorySet(),
         val categorySelectDialog: CategorySelectDialog? = null,
-        val categories: List<CategoriesSettingScreenCategoriesPagingQuery.Node> = listOf(),
-        val subCategories: Map<MoneyUsageCategoryId, List<CategorySettingScreenSubCategoriesPagingQuery.Node>> = mapOf(),
+        val categories: List<AddMoneyUsageScreenCategoriesPagingQuery.Node> = listOf(),
+        val subCategories: Map<MoneyUsageCategoryId, List<AddMoneyUsageScreenSubCategoriesPagingQuery.Node>> = mapOf(),
         val showCalendarDialog: Boolean = false,
         val textInputDialog: AddMoneyUsageScreenUiState.FullScreenTextInputDialog? = null,
     ) {
         data class CategorySet(
-            val category: CategoriesSettingScreenCategoriesPagingQuery.Node? = null,
-            val subCategory: CategorySettingScreenSubCategoriesPagingQuery.Node? = null,
+            val category: AddMoneyUsageScreenCategoriesPagingQuery.Node? = null,
+            val subCategory: AddMoneyUsageScreenSubCategoriesPagingQuery.Node? = null,
         )
 
         data class CategorySelectDialog(
