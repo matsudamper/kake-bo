@@ -31,7 +31,6 @@ apollo {
         mapScalar("MailId", "net.matsudamper.money.element.MailId")
         mapScalar("ImportedMailId", "net.matsudamper.money.element.ImportedMailId")
         mapScalar("MoneyUsageServiceId", "net.matsudamper.money.element.MoneyUsageServiceId")
-//        mapScalar("MoneyUsageTypeId", "net.matsudamper.money.element.MoneyUsageTypeId")
         mapScalar("MoneyUsageCategoryId", "net.matsudamper.money.element.MoneyUsageCategoryId")
         mapScalar("MoneyUsageSubCategoryId", "net.matsudamper.money.element.MoneyUsageSubCategoryId")
         mapScalar("MoneyUsageId", "net.matsudamper.money.element.MoneyUsageId")
