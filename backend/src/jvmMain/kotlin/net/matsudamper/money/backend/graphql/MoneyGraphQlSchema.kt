@@ -4,12 +4,14 @@ import java.time.LocalDateTime
 import java.util.Locale
 import java.util.jar.JarFile
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.GraphQL
 import graphql.GraphQLContext
 import graphql.Scalars
 import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.CoercedVariables
+import graphql.kickstart.tools.PerFieldConfiguringObjectMapperProvider
 import graphql.kickstart.tools.PerFieldObjectMapperProvider
 import graphql.kickstart.tools.SchemaParser
 import graphql.kickstart.tools.SchemaParserOptions
@@ -142,12 +144,13 @@ object MoneyGraphQlSchema {
                 ImportedMailResolverImpl(),
             )
             .options(
+                @Suppress("OPT_IN_USAGE")
                 SchemaParserOptions.defaultOptions().copy(
-                    objectMapperProvider = object : PerFieldObjectMapperProvider {
-                        override fun provide(fieldDefinition: FieldDefinition): ObjectMapper {
-                            return jacksonObjectMapper()
-                        }
-                    },
+                    objectMapperProvider = PerFieldConfiguringObjectMapperProvider { mapper, _ ->
+                        mapper.registerModule(
+                            JavaTimeModule()
+                        )
+                    }
                 ),
             )
             .build()

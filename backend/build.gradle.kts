@@ -24,6 +24,7 @@ kotlin {
 
                 api(kotlin("stdlib"))
                 api("com.graphql-java:graphql-java-extended-scalars:20.2")
+                api(libs.jackson.jsr310)
                 api(libs.kotlin.serialization.json)
                 api(libs.kotlin.coroutines.core)
                 api(libs.logback.classic)
