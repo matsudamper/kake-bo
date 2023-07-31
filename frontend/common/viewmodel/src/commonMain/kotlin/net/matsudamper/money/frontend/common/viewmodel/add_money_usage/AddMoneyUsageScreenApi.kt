@@ -5,12 +5,14 @@ import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
+import kotlinx.datetime.LocalDateTime
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.frontend.graphql.AddMoneyUsageMutation
 import net.matsudamper.money.frontend.graphql.AddMoneyUsageScreenCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.AddMoneyUsageScreenSubCategoriesPagingQuery
-import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenCategoriesPagingQuery
-import net.matsudamper.money.frontend.graphql.CategorySettingScreenSubCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.GraphqlClient
+import net.matsudamper.money.frontend.graphql.type.AddUsageQuery
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoriesInput
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryQuery
 
@@ -53,6 +55,30 @@ public class AddMoneyUsageScreenApi(
                 .execute()
         }.onFailure {
             it.printStackTrace()
+        }.getOrNull()
+    }
+
+    public suspend fun addMoneyUsage(
+        title: String,
+        description: String,
+        amount: Int,
+        datetime: LocalDateTime,
+        subCategoryId: MoneyUsageSubCategoryId?,
+    ): ApolloResponse<AddMoneyUsageMutation.Data>? {
+        return runCatching {
+            apolloClient
+                .mutation(
+                    AddMoneyUsageMutation(
+                        AddUsageQuery(
+                            subCategoryId = Optional.present(subCategoryId),
+                            title = title,
+                            description = description,
+                            amount = amount,
+                            date = datetime,
+                        )
+                    )
+                )
+                .execute()
         }.getOrNull()
     }
 }

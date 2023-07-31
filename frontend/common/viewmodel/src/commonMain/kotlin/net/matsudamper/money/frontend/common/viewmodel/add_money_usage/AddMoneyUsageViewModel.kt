@@ -9,6 +9,8 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import net.matsudamper.money.element.MoneyUsageCategoryId
@@ -30,7 +32,7 @@ public class AddMoneyUsageViewModel(
 
     private val uiEvent = object : AddMoneyUsageScreenUiState.Event {
         override fun onClickAdd() {
-            // TODO Implement Graphql
+            addMoneyUsage()
         }
 
         override fun dismissCalendar() {
@@ -120,6 +122,28 @@ public class AddMoneyUsageViewModel(
                     textInputDialog = null,
                 )
             }
+        }
+    }
+
+    private fun addMoneyUsage() {
+        val date = viewModelStateFlow.value.usageDate
+
+        coroutineScope.launch {
+            graphqlApi.addMoneyUsage(
+                title = viewModelStateFlow.value.usageTitle,
+                description = viewModelStateFlow.value.usageDescription,
+                datetime = LocalDateTime(
+                    date = date,
+                    time = LocalTime(
+                        hour = 0,
+                        minute = 0,
+                        second = 0,
+                        nanosecond = 0,
+                    ), // TODO
+                ),
+                amount = 0, // TODO
+                subCategoryId = viewModelStateFlow.value.usageCategorySet.subCategory?.id,
+            )
         }
     }
 

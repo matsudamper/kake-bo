@@ -18,6 +18,7 @@ kotlin {
                 api(compose.runtime)
                 api(compose.foundation)
                 api(libs.compose.material3)
+                api(libs.kotlin.datetime)
             }
         }
         val commonTest by getting {
