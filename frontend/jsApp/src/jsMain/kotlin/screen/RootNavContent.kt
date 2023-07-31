@@ -71,13 +71,11 @@ internal fun RootNavContent(
                         handler = viewModel.viewModelEventHandler,
                     )
                 }
-                tabHolder.SaveableStateProvider(current::class.toString()) {
-                    RootListScreen(
-                        modifier = Modifier.fillMaxSize(),
-                        uiState = viewModel.uiStateFlow.collectAsState().value,
-                        listener = rootScreenScaffoldListener,
-                    )
-                }
+                RootListScreen(
+                    modifier = Modifier.fillMaxSize(),
+                    uiState = viewModel.uiStateFlow.collectAsState().value,
+                    listener = rootScreenScaffoldListener,
+                )
             }
         }
 
