@@ -7,6 +7,7 @@ package net.matsudamper.money.db.schema.tables.references
 import net.matsudamper.money.db.schema.tables.JAdminSessions
 import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
+import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
 import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
@@ -30,6 +31,11 @@ val MONEY_USAGE_CATEGORIES: JMoneyUsageCategories = JMoneyUsageCategories.MONEY_
  * The table <code>money.money_usage_sub_categories</code>.
  */
 val MONEY_USAGE_SUB_CATEGORIES: JMoneyUsageSubCategories = JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES
+
+/**
+ * The table <code>money.money_usages</code>.
+ */
+val MONEY_USAGES: JMoneyUsages = JMoneyUsages.MONEY_USAGES
 
 /**
  * The table <code>money.user_imap_settings</code>.

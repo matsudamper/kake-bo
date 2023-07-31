@@ -62,7 +62,8 @@ CREATE TABLE user_mails
     datetime         DATETIME                           not null,
     created_datetime DATETIME DEFAULT CURRENT_TIMESTAMP not null
 );
-
+CREATE INDEX user_id ON user_mails (user_id);
+CREATE INDEX user_index ON user_mails (user_mail_id, user_id);
 
 CREATE TABLE money_usage_categories
 (
@@ -72,6 +73,8 @@ CREATE TABLE money_usage_categories
     created_datetime        DATETIME DEFAULT CURRENT_TIMESTAMP not null,
     update_datetime         DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP
 );
+CREATE INDEX user_id ON money_usage_categories (user_id);
+CREATE INDEX user_index ON money_usage_categories (money_usage_category_id, user_id);
 
 CREATE TABLE money_usage_sub_categories
 (
@@ -82,3 +85,21 @@ CREATE TABLE money_usage_sub_categories
     created_datetime            DATETIME DEFAULT CURRENT_TIMESTAMP not null,
     update_datetime             DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP
 );
+CREATE INDEX user_id ON money_usage_sub_categories (user_id);
+CREATE INDEX user_index ON money_usage_sub_categories (money_usage_sub_category_id, user_id);
+
+CREATE TABLE money_usages
+(
+    money_usage_id              INT                                not null PRIMARY KEY AUTO_INCREMENT,
+    user_id                     INT                                not null,
+    user_mail_id                INT,
+    title                       VARCHAR(500)                       not null,
+    description                 VARCHAR(1000)                      not null,
+    amount                      int                                not null,
+    money_usage_sub_category_id INT,
+    datetime                    DATETIME                           not null,
+    created_datetime            DATETIME DEFAULT CURRENT_TIMESTAMP not null,
+    update_datetime             DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP
+);
+CREATE INDEX user_id ON money_usages (user_id);
+CREATE INDEX user_index ON money_usages (money_usage_id, user_id);

@@ -9,6 +9,7 @@ import kotlin.collections.List
 import net.matsudamper.money.db.schema.tables.JAdminSessions
 import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
+import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
 import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
@@ -50,6 +51,11 @@ open class JMoney : SchemaImpl("money", DefaultCatalog.DEFAULT_CATALOG) {
     val MONEY_USAGE_SUB_CATEGORIES: JMoneyUsageSubCategories get() = JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES
 
     /**
+     * The table <code>money.money_usages</code>.
+     */
+    val MONEY_USAGES: JMoneyUsages get() = JMoneyUsages.MONEY_USAGES
+
+    /**
      * The table <code>money.user_imap_settings</code>.
      */
     val USER_IMAP_SETTINGS: JUserImapSettings get() = JUserImapSettings.USER_IMAP_SETTINGS
@@ -85,6 +91,7 @@ open class JMoney : SchemaImpl("money", DefaultCatalog.DEFAULT_CATALOG) {
         JAdminSessions.ADMIN_SESSIONS,
         JMoneyUsageCategories.MONEY_USAGE_CATEGORIES,
         JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES,
+        JMoneyUsages.MONEY_USAGES,
         JUserImapSettings.USER_IMAP_SETTINGS,
         JUserMails.USER_MAILS,
         JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA,

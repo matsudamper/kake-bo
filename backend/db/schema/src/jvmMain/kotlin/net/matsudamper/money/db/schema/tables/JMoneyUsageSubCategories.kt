@@ -7,13 +7,18 @@ package net.matsudamper.money.db.schema.tables
 import java.time.LocalDateTime
 import java.util.function.Function
 
+import kotlin.collections.List
+
 import net.matsudamper.money.db.schema.JMoney
+import net.matsudamper.money.db.schema.indexes.MONEY_USAGE_SUB_CATEGORIES_USER_ID
+import net.matsudamper.money.db.schema.indexes.MONEY_USAGE_SUB_CATEGORIES_USER_INDEX
 import net.matsudamper.money.db.schema.keys.KEY_MONEY_USAGE_SUB_CATEGORIES_PRIMARY
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsageSubCategoriesRecord
 
 import org.jooq.Field
 import org.jooq.ForeignKey
 import org.jooq.Identity
+import org.jooq.Index
 import org.jooq.Name
 import org.jooq.Record
 import org.jooq.Records
@@ -119,6 +124,7 @@ open class JMoneyUsageSubCategories(
 
     constructor(child: Table<out Record>, key: ForeignKey<out Record, JMoneyUsageSubCategoriesRecord>): this(Internal.createPathAlias(child, key), child, key, MONEY_USAGE_SUB_CATEGORIES, null)
     override fun getSchema(): Schema? = if (aliased()) null else JMoney.MONEY
+    override fun getIndexes(): List<Index> = listOf(MONEY_USAGE_SUB_CATEGORIES_USER_ID, MONEY_USAGE_SUB_CATEGORIES_USER_INDEX)
     override fun getIdentity(): Identity<JMoneyUsageSubCategoriesRecord, Int?> = super.getIdentity() as Identity<JMoneyUsageSubCategoriesRecord, Int?>
     override fun getPrimaryKey(): UniqueKey<JMoneyUsageSubCategoriesRecord> = KEY_MONEY_USAGE_SUB_CATEGORIES_PRIMARY
     override fun `as`(alias: String): JMoneyUsageSubCategories = JMoneyUsageSubCategories(DSL.name(alias), this)

@@ -7,13 +7,18 @@ package net.matsudamper.money.db.schema.tables
 import java.time.LocalDateTime
 import java.util.function.Function
 
+import kotlin.collections.List
+
 import net.matsudamper.money.db.schema.JMoney
+import net.matsudamper.money.db.schema.indexes.USER_MAILS_USER_ID
+import net.matsudamper.money.db.schema.indexes.USER_MAILS_USER_INDEX
 import net.matsudamper.money.db.schema.keys.KEY_USER_MAILS_PRIMARY
 import net.matsudamper.money.db.schema.tables.records.JUserMailsRecord
 
 import org.jooq.Field
 import org.jooq.ForeignKey
 import org.jooq.Identity
+import org.jooq.Index
 import org.jooq.Name
 import org.jooq.Record
 import org.jooq.Records
@@ -123,6 +128,7 @@ open class JUserMails(
 
     constructor(child: Table<out Record>, key: ForeignKey<out Record, JUserMailsRecord>): this(Internal.createPathAlias(child, key), child, key, USER_MAILS, null)
     override fun getSchema(): Schema? = if (aliased()) null else JMoney.MONEY
+    override fun getIndexes(): List<Index> = listOf(USER_MAILS_USER_ID, USER_MAILS_USER_INDEX)
     override fun getIdentity(): Identity<JUserMailsRecord, Int?> = super.getIdentity() as Identity<JUserMailsRecord, Int?>
     override fun getPrimaryKey(): UniqueKey<JUserMailsRecord> = KEY_USER_MAILS_PRIMARY
     override fun `as`(alias: String): JUserMails = JUserMails(DSL.name(alias), this)
