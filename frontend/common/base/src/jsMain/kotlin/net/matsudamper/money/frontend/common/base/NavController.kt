@@ -4,6 +4,9 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import io.ktor.http.ParametersBuilder
+import io.ktor.util.StringValues
+import io.ktor.util.toMap
 import kotlinx.browser.window
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
@@ -27,7 +30,7 @@ public class ScreenNavControllerImpl(
     init {
         updateScreenState(
             parser.parse(pathname = window.location.pathname)
-                .toScreenStructure(),
+                .toScreenStructure(parseQueryParams(window.location.search)),
         )
 
         window.addEventListener(
@@ -35,7 +38,7 @@ public class ScreenNavControllerImpl(
             callback = {
                 updateScreenState(
                     parser.parse(pathname = window.location.pathname)
-                        .toScreenStructure(),
+                        .toScreenStructure(parseQueryParams(window.location.search)),
                 )
             },
         )
@@ -53,6 +56,23 @@ public class ScreenNavControllerImpl(
         updateScreenState(navigation)
     }
 
+    private fun parseQueryParams(query: String): Map<String, List<String>> {
+        return ParametersBuilder().apply {
+            appendAll(StringValues.build {
+                query.removePrefix("?")
+                    .split("&")
+                    .forEach { keyValue ->
+                        keyValue.split("=").let {
+                            val key = it.getOrNull(0) ?: return@forEach
+                            val value = it.getOrNull(1).orEmpty()
+
+                            append(key, value)
+                        }
+                    }
+            })
+        }.build().toMap()
+    }
+
     private fun updateScreenState(screenStructure: ScreenStructure) {
         println("updateScreenState: $screenStructure, ${screenStructure.createUrl()}")
         screenState = screenState.copy(
@@ -64,19 +84,23 @@ public class ScreenNavControllerImpl(
         window.history.back()
     }
 
-    private fun UrlPlaceHolderParser.ScreenState.toScreenStructure(): ScreenStructure {
+    private fun UrlPlaceHolderParser.ScreenState.toScreenStructure(
+        queryParams: Map<String, List<String>>,
+    ): ScreenStructure {
         return when (this.screen) {
             Screens.Home -> ScreenStructure.Root.Home()
             Screens.Settings -> ScreenStructure.Root.Settings.Root
             Screens.SettingsImap -> ScreenStructure.Root.Settings.Imap
             Screens.SettingsCategory -> ScreenStructure.Root.Settings.Categories
             Screens.SettingsCategoryId -> ScreenStructure.Root.Settings.Category(
-                id = this.params["id"]?.toIntOrNull()?.let { MoneyUsageCategoryId(it) } ?: return ScreenStructure.NotFound,
+                id = this.pathParams["id"]?.toIntOrNull()?.let { MoneyUsageCategoryId(it) }
+                    ?: return ScreenStructure.NotFound,
             )
+
             Screens.SettingsSubCategory -> ScreenStructure.Root.Settings.SubCategory
             Screens.SettingsSubCategoryId -> {
                 ScreenStructure.Root.Settings.SubCategoryId(
-                    id = this.params["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound,
+                    id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound,
                 )
             }
 
@@ -85,7 +109,11 @@ public class ScreenNavControllerImpl(
             Screens.Login -> ScreenStructure.Login
             Screens.Admin -> ScreenStructure.Admin
             Screens.MailImport -> ScreenStructure.MailImport
-            Screens.MailLink -> ScreenStructure.MailLink
+            Screens.MailList -> ScreenStructure.MailList.create(
+                pathParams = pathParams,
+                queryParams = queryParams,
+            )
+
             Screens.AddMoneyUsage -> ScreenStructure.AddMoneyUsage
         }
     }

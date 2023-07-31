@@ -249,12 +249,13 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                     )
                                 }
 
-                                ScreenStructure.MailLink -> {
-                                    val mailLinkViewModel = remember {
+                                is ScreenStructure.MailList -> {
+                                    val mailLinkViewModel = remember(current) {
                                         MailLinkViewModel(
                                             coroutineScope = rootCoroutineScope,
                                             ioDispatcher = Dispatchers.Unconfined,
                                             graphqlApi = MailLinkScreenGraphqlApi(),
+                                            screen = current
                                         )
                                     }
 

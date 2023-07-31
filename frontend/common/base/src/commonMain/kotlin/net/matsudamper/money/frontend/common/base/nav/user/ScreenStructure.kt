@@ -1,5 +1,7 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
+import io.ktor.http.ParametersBuilder
+import io.ktor.http.formUrlEncode
 import net.matsudamper.money.element.MoneyUsageCategoryId
 
 public sealed interface ScreenStructure {
@@ -73,11 +75,49 @@ public sealed interface ScreenStructure {
         override val direction: Screens = Screens.MailImport
     }
 
-    public object MailLink : ScreenStructure {
-        override val direction: Screens = Screens.MailLink
+    public class MailList(
+        public val isLinked: Boolean?,
+    ) : ScreenStructure {
+        override val direction: Screens = Screens.MailList
+
+        override fun createUrl(): String {
+            val urlParam = ParametersBuilder()
+                .apply {
+                    if (isLinked != null) {
+                        append(KEY_IS_LINKED, isLinked.toString())
+                    }
+                }
+                .build()
+                .formUrlEncode()
+                .let {
+                    if (it.isEmpty()) {
+                        it
+                    } else {
+                        "?$it"
+                    }
+                }
+
+            return direction.placeholderUrl.plus(urlParam)
+        }
+
+        public companion object {
+            private const val KEY_IS_LINKED = "is_linked"
+
+            @Suppress("UNUSED_PARAMETER")
+            public fun create(
+                pathParams: Map<String, String>,
+                queryParams: Map<String, List<String>>,
+            ): MailList {
+                return MailList(
+                    isLinked = queryParams[KEY_IS_LINKED]
+                        ?.firstOrNull()
+                        ?.toBooleanStrictOrNull(),
+                )
+            }
+        }
     }
 
-    public object AddMoneyUsage: ScreenStructure {
+    public object AddMoneyUsage : ScreenStructure {
         override val direction: Screens = Screens.AddMoneyUsage
     }
 }

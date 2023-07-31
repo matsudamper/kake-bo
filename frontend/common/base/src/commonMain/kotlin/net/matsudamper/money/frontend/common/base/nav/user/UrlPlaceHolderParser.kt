@@ -58,7 +58,7 @@ internal class UrlPlaceHolderParser(
         return if (result != null) {
             ScreenState(
                 screen = result.screen,
-                params = result.keyValues
+                pathParams = result.keyValues
                     .reversed()
                     .distinctBy { it.first }
                     .associate { (key, value) -> key to value.orEmpty() },
@@ -66,7 +66,7 @@ internal class UrlPlaceHolderParser(
         } else {
             ScreenState(
                 screen = Screens.NotFound,
-                params = mapOf(),
+                pathParams = mapOf(),
             )
         }
     }
@@ -102,7 +102,7 @@ internal class UrlPlaceHolderParser(
 
     data class ScreenState(
         public val screen: Screens,
-        public val params: Map<String, String>,
+        public val pathParams: Map<String, String>,
     )
 
     private data class ParseResult(

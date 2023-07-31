@@ -29,7 +29,7 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun navigateToMailLink() {
-                        navController.navigate(ScreenStructure.MailLink)
+                        navController.navigate(ScreenStructure.MailList(isLinked = false))
                     }
                 },
             )

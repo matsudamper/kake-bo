@@ -11,6 +11,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailLinkScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -21,11 +22,18 @@ public class MailLinkViewModel(
     private val coroutineScope: CoroutineScope,
     private val ioDispatcher: CoroutineDispatcher,
     private val graphqlApi: MailLinkScreenGraphqlApi,
+    screen: ScreenStructure.MailList,
 ) {
     private val viewModelEventSender = EventSender<MailLinkViewModelEvent>()
     public val eventHandler: EventHandler<MailLinkViewModelEvent> = viewModelEventSender.asHandler()
 
-    private val viewModelStateFlow = MutableStateFlow(ViewModelState())
+    private val viewModelStateFlow = MutableStateFlow(
+        ViewModelState(
+            query = ViewModelState.Query(
+                isLinked = screen.isLinked,
+            )
+        )
+    )
 
     public val rootUiStateFlow: StateFlow<MailLinkScreenUiState> = MutableStateFlow(
         MailLinkScreenUiState(
@@ -96,6 +104,7 @@ public class MailLinkViewModel(
                 coroutineScope.launch {
                     viewModelStateFlow.update { viewModelState ->
                         viewModelState.copy(
+                            // TODO 表示する時にデータを取得するようにする
                             fullScreenHtml = mail.html ?: mail.plain
                                 ?.replace("\r\n", "<br>")
                                 ?.replace("\n", "<br>"),
@@ -160,7 +169,12 @@ public class MailLinkViewModel(
         val finishLoadingToEnd: Boolean? = null,
         val mails: List<MailLinkScreenGetMailsQuery.Node> = listOf(),
         val fullScreenHtml: String? = null,
-    )
+        val query: Query,
+    ) {
+        public data class Query(
+            val isLinked: Boolean?,
+        )
+    }
 }
 
 // inner classだとis not functionが出るので外に出している

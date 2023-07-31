@@ -51,9 +51,9 @@ public enum class Screens : Direction {
         override val title: String = "メールインポート"
         override val placeholderUrl: String = "/mail/import"
     },
-    MailLink {
-        override val title: String = "メールの登録"
-        override val placeholderUrl: String = "/mail/link"
+    MailList {
+        override val title: String = "メール一覧"
+        override val placeholderUrl: String = "/mail"
     },
     AddMoneyUsage {
         override val title: String = "追加"
