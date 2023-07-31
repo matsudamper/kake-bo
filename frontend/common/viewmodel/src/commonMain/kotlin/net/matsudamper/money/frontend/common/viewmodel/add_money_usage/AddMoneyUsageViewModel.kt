@@ -199,6 +199,7 @@ public class AddMoneyUsageViewModel(
                     AddMoneyUsageScreenCategorySelectDialogUiState.Screen.Root(
                         category = categorySet.category?.name ?: "未選択",
                         subCategory = categorySet.subCategory?.name ?: "未選択",
+                        enableSubCategory = categorySet.category != null,
                         onClickCategory = {
                             viewModelStateFlow.update {
                                 it.copy(
@@ -209,9 +210,6 @@ public class AddMoneyUsageViewModel(
                             }
                         },
                         onClickSubCategory = {
-                            if (categoryDialogViewModelState.categorySet.category == null) {
-                                // TODO カテゴリを先に選択するように促す
-                            }
                             viewModelStateFlow.update {
                                 it.copy(
                                     categorySelectDialog = categoryDialogViewModelState.copy(

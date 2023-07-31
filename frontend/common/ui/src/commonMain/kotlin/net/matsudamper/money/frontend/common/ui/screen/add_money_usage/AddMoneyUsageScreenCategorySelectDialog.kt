@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 
@@ -46,6 +47,7 @@ public data class AddMoneyUsageScreenCategorySelectDialogUiState(
             val subCategory: String,
             val onClickCategory: () -> Unit,
             val onClickSubCategory: () -> Unit,
+            val enableSubCategory: Boolean,
         ) : Screen
 
         public data class Category(
@@ -105,6 +107,7 @@ internal fun CategorySelectDialog(
                     is AddMoneyUsageScreenCategorySelectDialogUiState.Screen.Root -> {
                         SelectedSection(
                             onClick = { screenTypeState.onClickCategory() },
+                            enabled = true,
                             title = {
                                 Text(text = "カテゴリ")
                             },
@@ -115,6 +118,7 @@ internal fun CategorySelectDialog(
                         Spacer(Modifier.height(12.dp))
                         SelectedSection(
                             onClick = { screenTypeState.onClickSubCategory() },
+                            enabled = screenTypeState.enableSubCategory,
                             title = {
                                 Text(text = "サブカテゴリ")
                             },
@@ -169,30 +173,32 @@ private fun CategoryPage(
     title: @Composable () -> Unit,
     onBackRequest: () -> Unit,
 ) {
-    if (items == null) {
-        Box(
-            modifier = Modifier.fillMaxWidth()
-                .heightIn(min = 200.dp),
-            contentAlignment = Alignment.Center,
+    Column(modifier = modifier) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            CircularProgressIndicator()
-        }
-    } else {
-        Column(modifier = modifier) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
+            IconButton(
+                onClick = { onBackRequest() },
             ) {
-                IconButton(
-                    onClick = { onBackRequest() },
-                ) {
-                    Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "戻る")
-                }
-                ProvideTextStyle(MaterialTheme.typography.titleLarge) {
-                    title()
-                }
+                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "戻る")
             }
-            Spacer(Modifier.height(12.dp))
-            Divider(Modifier.fillMaxWidth().height(1.dp))
+            ProvideTextStyle(MaterialTheme.typography.titleLarge) {
+                title()
+            }
+        }
+        Spacer(Modifier.height(12.dp))
+        Divider(Modifier.fillMaxWidth().height(1.dp))
+
+        if (items == null) {
+            Box(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(vertical = 24.dp)
+                    .heightIn(min = 200.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 items(items) { item ->
                     CategoryItem(
@@ -213,21 +219,32 @@ private fun SelectedSection(
     title: @Composable () -> Unit,
     description: @Composable () -> Unit,
     onClick: () -> Unit,
+    enabled: Boolean,
 ) {
     Row(
         modifier = Modifier
-            .clickable { onClick() }
+            .clickable(enabled) { onClick() }
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(
             modifier = Modifier.weight(1f)
         ) {
-            ProvideTextStyle(MaterialTheme.typography.titleMedium) {
-                title()
-            }
-            ProvideTextStyle(MaterialTheme.typography.bodyMedium) {
-                description()
+            ProvideTextStyle(
+                TextStyle(
+                    color = if (enabled) {
+                        Color.Unspecified
+                    } else {
+                        Color.Gray
+                    }
+                )
+            ) {
+                ProvideTextStyle(MaterialTheme.typography.titleMedium) {
+                    title()
+                }
+                ProvideTextStyle(MaterialTheme.typography.bodyMedium) {
+                    description()
+                }
             }
         }
         Icon(
