@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
@@ -35,11 +36,13 @@ public interface RootScreenScaffoldListener {
     public fun onClickHome()
     public fun onClickRegister()
     public fun onClickSettings()
+    public fun onClickMail()
 }
 
 public enum class RootScreenTab {
     Home,
     List,
+    Mail,
     Settings,
 }
 
@@ -103,6 +106,19 @@ internal fun RootScreenScaffold(
                             },
                         )
                         NavigationBarItem(
+                            selected = currentScreen == RootScreenTab.Mail,
+                            onClick = { listener.onClickMail() },
+                            icon = {
+                                Icon(Icons.Default.Email, "")
+                            },
+                            label = {
+                                Text(
+                                    "メール",
+                                    fontFamily = rememberCustomFontFamily(),
+                                )
+                            },
+                        )
+                        NavigationBarItem(
                             selected = currentScreen == RootScreenTab.Settings,
                             onClick = { listener.onClickSettings() },
                             icon = {
@@ -148,6 +164,19 @@ internal fun RootScreenScaffold(
                             label = {
                                 Text(
                                     "リスト",
+                                    fontFamily = rememberCustomFontFamily(),
+                                )
+                            },
+                        )
+                        NavigationRailItem(
+                            selected = currentScreen == RootScreenTab.Mail,
+                            onClick = { listener.onClickMail() },
+                            icon = {
+                                Icon(Icons.Default.Email, "")
+                            },
+                            label = {
+                                Text(
+                                    "メール",
                                     fontFamily = rememberCustomFontFamily(),
                                 )
                             },

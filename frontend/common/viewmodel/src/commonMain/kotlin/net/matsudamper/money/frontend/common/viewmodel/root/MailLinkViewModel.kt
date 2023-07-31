@@ -114,7 +114,7 @@ public class MailLinkViewModel(
     }.asStateFlow()
 
     public fun updateQuery(
-        screen: ScreenStructure.MailList,
+        screen: ScreenStructure.Root.MailList,
     ) {
         viewModelStateFlow.update {
             it.copy(

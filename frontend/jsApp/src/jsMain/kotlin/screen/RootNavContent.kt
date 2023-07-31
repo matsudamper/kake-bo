@@ -8,17 +8,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import event.ViewModelEventHandlers
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.RootListScreen
 import net.matsudamper.money.frontend.common.ui.screen.RootScreen
+import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailLinkScreen
+import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailLinkScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
+import net.matsudamper.money.frontend.common.viewmodel.root.MailLinkViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.list.RootListViewModel
+import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
 
 @Composable
 internal fun RootNavContent(
@@ -30,6 +35,7 @@ internal fun RootNavContent(
     rootCoroutineScope: CoroutineScope,
     globalEventSender: EventSender<GlobalEvent>,
     loginCheckUseCase: LoginCheckUseCase,
+    mailListUiStateProvider: @Composable (ScreenStructure.Root.MailList) -> MailLinkScreenUiState,
 ) {
     when (current) {
         is ScreenStructure.Root.Home -> {
@@ -69,6 +75,15 @@ internal fun RootNavContent(
                     modifier = Modifier.fillMaxSize(),
                     uiState = viewModel.uiStateFlow.collectAsState().value,
                     listener = rootScreenScaffoldListener,
+                )
+            }
+        }
+
+        is ScreenStructure.Root.MailList -> {
+            tabHolder.SaveableStateProvider(current::class.toString()) {
+                MailLinkScreen(
+                    uiState = mailListUiStateProvider(current),
+                    rootScreenScaffoldListener = rootScreenScaffoldListener,
                 )
             }
         }

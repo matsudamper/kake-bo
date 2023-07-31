@@ -55,6 +55,9 @@ import androidx.compose.ui.window.Popup
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
+import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
 
 public data class MailLinkScreenUiState(
@@ -120,11 +123,11 @@ public data class MailLinkScreenUiState(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun MailLinkScreen(
     modifier: Modifier = Modifier,
     uiState: MailLinkScreenUiState,
+    rootScreenScaffoldListener: RootScreenScaffoldListener,
 ) {
     if (uiState.fullScreenHtml != null) {
         Html(
@@ -137,36 +140,15 @@ public fun MailLinkScreen(
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
     }
-    Scaffold(
+    RootScreenScaffold(
         modifier = modifier,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-        topBar = {
-            KakeBoTopAppBar(
-                modifier = Modifier.fillMaxWidth(),
-                navigationIcon = {
-                    IconButton(onClick = { uiState.event.onClickBackButton() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "back",
-                        )
-                    }
-                },
-                title = {
-                    Text(
-                        text = "メール一覧",
-                        fontFamily = rememberCustomFontFamily(),
-                    )
-                },
-            )
-        },
-        bottomBar = {
-        },
-    ) { paddingValues ->
+        currentScreen = RootScreenTab.Mail,
+        listener = rootScreenScaffoldListener,
+    ) {
         when (val loadingState = uiState.loadingState) {
             is MailLinkScreenUiState.LoadingState.Loaded -> {
                 MainContent(
-                    modifier = Modifier.fillMaxSize()
-                        .padding(paddingValues),
+                    modifier = Modifier.fillMaxSize(),
                     uiState = loadingState,
                     filterUiState = uiState.filters,
                 )
@@ -174,8 +156,7 @@ public fun MailLinkScreen(
 
             is MailLinkScreenUiState.LoadingState.Loading -> {
                 Box(
-                    modifier = Modifier.fillMaxSize()
-                        .padding(paddingValues),
+                    modifier = Modifier.fillMaxSize(),
                 ) {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),

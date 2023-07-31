@@ -29,7 +29,7 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun navigateToMailLink() {
-                        navController.navigate(ScreenStructure.MailList(isLinked = false))
+                        navController.navigate(ScreenStructure.Root.MailList(isLinked = false))
                     }
                 },
             )
@@ -75,7 +75,7 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun changeQuery(isLinked: Boolean?) {
-                        navController.navigate(ScreenStructure.MailList(isLinked = isLinked))
+                        navController.navigate(ScreenStructure.Root.MailList(isLinked = isLinked))
                     }
                 },
             )

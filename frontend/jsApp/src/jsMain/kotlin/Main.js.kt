@@ -126,6 +126,10 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                             override fun onClickSettings() {
                                 navController.navigate(ScreenStructure.Root.Settings.Root)
                             }
+
+                            override fun onClickMail() {
+                                navController.navigate(ScreenStructure.Root.MailList(isLinked = false)) // TODO
+                            }
                         }
                     }
 
@@ -154,13 +158,20 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                             )
                         },
                     ) { paddingValues ->
+                        val tabHolder = rememberSaveableStateHolder()
+                        val mailLinkViewModel = remember {
+                            MailLinkViewModel(
+                                coroutineScope = rootCoroutineScope,
+                                ioDispatcher = Dispatchers.Unconfined,
+                                graphqlApi = MailLinkScreenGraphqlApi(),
+                            )
+                        }
                         Box(
                             modifier = Modifier.fillMaxSize()
                                 .padding(paddingValues),
                         ) {
                             when (val current = navController.currentNavigation) {
                                 is ScreenStructure.Root -> {
-                                    val tabHolder = rememberSaveableStateHolder()
                                     RootNavContent(
                                         tabHolder = tabHolder,
                                         current = current,
@@ -170,6 +181,15 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                         globalEventSender = globalEventSender,
                                         loginCheckUseCase = loginCheckUseCase,
                                         globalEvent = globalEvent,
+                                        mailListUiStateProvider = { screenStructure ->
+                                            LaunchedEffect(screenStructure) {
+                                                mailLinkViewModel.updateQuery(screenStructure)
+                                            }
+                                            LaunchedEffect(mailLinkViewModel.eventHandler) {
+                                                viewModelEventHandlers.handle(mailLinkViewModel.eventHandler)
+                                            }
+                                            mailLinkViewModel.rootUiStateFlow.collectAsState().value
+                                        },
                                     )
                                 }
 
@@ -246,27 +266,6 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
 
                                     MailImportScreen(
                                         uiState = mailImportViewModel.rootUiStateFlow.collectAsState().value,
-                                    )
-                                }
-
-                                is ScreenStructure.MailList -> {
-                                    val mailLinkViewModel = remember {
-                                        MailLinkViewModel(
-                                            coroutineScope = rootCoroutineScope,
-                                            ioDispatcher = Dispatchers.Unconfined,
-                                            graphqlApi = MailLinkScreenGraphqlApi(),
-                                        )
-                                    }
-                                    LaunchedEffect(current) {
-                                        mailLinkViewModel.updateQuery(current)
-                                    }
-
-                                    LaunchedEffect(mailLinkViewModel.eventHandler) {
-                                        viewModelEventHandlers.handle(mailLinkViewModel.eventHandler)
-                                    }
-
-                                    MailLinkScreen(
-                                        uiState = mailLinkViewModel.rootUiStateFlow.collectAsState().value,
                                     )
                                 }
 
