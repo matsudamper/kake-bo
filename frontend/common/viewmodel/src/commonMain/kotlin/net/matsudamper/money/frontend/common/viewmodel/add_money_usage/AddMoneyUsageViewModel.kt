@@ -25,9 +25,7 @@ public class AddMoneyUsageViewModel(
     private val graphqlApi: AddMoneyUsageScreenApi,
 ) {
     private val viewModelStateFlow = MutableStateFlow(
-        ViewModelState(
-            usageDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
-        ),
+        ViewModelState(),
     )
 
     private val uiEvent = object : AddMoneyUsageScreenUiState.Event {
@@ -173,6 +171,9 @@ public class AddMoneyUsageViewModel(
                 amount = viewModelStateFlow.value.usageAmount,
                 subCategoryId = viewModelStateFlow.value.usageCategorySet.subCategory?.id,
             )
+            viewModelStateFlow.update {
+                ViewModelState()
+            }
         }
     }
 
@@ -381,7 +382,7 @@ public class AddMoneyUsageViewModel(
     }
 
     private data class ViewModelState(
-        val usageDate: LocalDate,
+        val usageDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
         val usageTitle: String = "",
         val usageDescription: String = "",
         val usageCategorySet: CategorySet = CategorySet(),
