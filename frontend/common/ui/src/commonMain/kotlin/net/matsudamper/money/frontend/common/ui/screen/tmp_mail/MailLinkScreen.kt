@@ -111,7 +111,6 @@ public data class MailLinkScreenUiState(
 
     @Immutable
     public interface Event {
-        public fun onClickBackButton()
         public fun onViewInitialized()
         public fun dismissFullScreenHtml()
     }

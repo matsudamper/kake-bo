@@ -44,12 +44,6 @@ public class MailLinkViewModel(
                 ),
             ),
             event = object : MailLinkScreenUiState.Event {
-                override fun onClickBackButton() {
-                    coroutineScope.launch {
-                        viewModelEventSender.send { it.backRequest() }
-                    }
-                }
-
                 override fun onViewInitialized() {
                     if (viewModelStateFlow.value.mails.isEmpty()) {
                         fetch()
@@ -57,12 +51,10 @@ public class MailLinkViewModel(
                 }
 
                 override fun dismissFullScreenHtml() {
-                    coroutineScope.launch {
-                        viewModelStateFlow.update {
-                            it.copy(
-                                fullScreenHtml = null,
-                            )
-                        }
+                    viewModelStateFlow.update {
+                        it.copy(
+                            fullScreenHtml = null,
+                        )
                     }
                 }
             },
@@ -226,7 +218,6 @@ public class MailLinkViewModel(
 
 // inner classだとis not functionが出るので外に出している
 public interface MailLinkViewModelEvent {
-    public fun backRequest()
     public fun globalToast(message: String)
     public fun changeQuery(isLinked: Boolean?)
 }
