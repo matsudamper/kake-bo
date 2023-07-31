@@ -60,22 +60,24 @@ internal fun RootNavContent(
         }
 
         is ScreenStructure.Root.List -> {
-            val viewModel = remember {
-                RootListViewModel(
-                    coroutineScope = rootCoroutineScope,
-                )
-            }
-            LaunchedEffect(viewModel.viewModelEventHandler) {
-                viewModelEventHandlers.handle(
-                    handler = viewModel.viewModelEventHandler,
-                )
-            }
             tabHolder.SaveableStateProvider(current::class.toString()) {
-                RootListScreen(
-                    modifier = Modifier.fillMaxSize(),
-                    uiState = viewModel.uiStateFlow.collectAsState().value,
-                    listener = rootScreenScaffoldListener,
-                )
+                val viewModel = remember {
+                    RootListViewModel(
+                        coroutineScope = rootCoroutineScope,
+                    )
+                }
+                LaunchedEffect(viewModel.viewModelEventHandler) {
+                    viewModelEventHandlers.handle(
+                        handler = viewModel.viewModelEventHandler,
+                    )
+                }
+                tabHolder.SaveableStateProvider(current::class.toString()) {
+                    RootListScreen(
+                        modifier = Modifier.fillMaxSize(),
+                        uiState = viewModel.uiStateFlow.collectAsState().value,
+                        listener = rootScreenScaffoldListener,
+                    )
+                }
             }
         }
 
