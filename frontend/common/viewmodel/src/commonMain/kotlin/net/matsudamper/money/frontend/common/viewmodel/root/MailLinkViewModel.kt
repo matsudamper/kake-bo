@@ -13,6 +13,7 @@ import kotlinx.coroutines.withContext
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailLinkScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.tmp_mail.MailLinkScreenUiState.Filters.LinkStatus.*
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGetMailsQuery
@@ -22,7 +23,6 @@ public class MailLinkViewModel(
     private val coroutineScope: CoroutineScope,
     private val ioDispatcher: CoroutineDispatcher,
     private val graphqlApi: MailLinkScreenGraphqlApi,
-    screen: ScreenStructure.MailList,
 ) {
     private val viewModelEventSender = EventSender<MailLinkViewModelEvent>()
     public val eventHandler: EventHandler<MailLinkViewModelEvent> = viewModelEventSender.asHandler()
@@ -30,13 +30,19 @@ public class MailLinkViewModel(
     private val viewModelStateFlow = MutableStateFlow(
         ViewModelState(
             query = ViewModelState.Query(
-                isLinked = screen.isLinked,
-            )
-        )
+                isLinked = null,
+            ),
+        ),
     )
 
     public val rootUiStateFlow: StateFlow<MailLinkScreenUiState> = MutableStateFlow(
         MailLinkScreenUiState(
+            filters = MailLinkScreenUiState.Filters(
+                link = MailLinkScreenUiState.Filters.Link(
+                    status = Undefined,
+                    updateState = { updateLinkStatus(it) },
+                ),
+            ),
             event = object : MailLinkScreenUiState.Event {
                 override fun onClickBackButton() {
                     coroutineScope.launch {
@@ -63,11 +69,11 @@ public class MailLinkViewModel(
             fullScreenHtml = null,
             loadingState = MailLinkScreenUiState.LoadingState.Loading,
         ),
-    ).also {
+    ).also { uiStateFlow ->
         coroutineScope.launch {
             viewModelStateFlow.collect { viewModelState ->
-                it.update {
-                    it.copy(
+                uiStateFlow.update { uiState ->
+                    uiState.copy(
                         fullScreenHtml = viewModelState.fullScreenHtml,
                         loadingState = MailLinkScreenUiState.LoadingState.Loaded(
                             listItems = viewModelState.mails.map { mail ->
@@ -92,11 +98,52 @@ public class MailLinkViewModel(
                                 )
                             }.toImmutableList(),
                         ),
+                        filters = uiState.filters.copy(
+                            link = uiState.filters.link.copy(
+                                status = when (viewModelState.query.isLinked) {
+                                    null -> Undefined
+                                    true -> Linked
+                                    false -> NotLinked
+                                },
+                            ),
+                        ),
                     )
                 }
             }
         }
     }.asStateFlow()
+
+    public fun updateQuery(
+        screen: ScreenStructure.MailList,
+    ) {
+        viewModelStateFlow.update {
+            it.copy(
+                query = it.query.copy(
+                    isLinked = screen.isLinked,
+                ),
+            )
+        }
+    }
+
+    private fun updateLinkStatus(newState: MailLinkScreenUiState.Filters.LinkStatus) {
+        val isLinked = when (newState) {
+            Undefined -> null
+            Linked -> true
+            NotLinked -> false
+        }
+        coroutineScope.launch {
+            viewModelEventSender.send {
+                it.changeQuery(isLinked = isLinked)
+            }
+        }
+        viewModelStateFlow.update {
+            it.copy(
+                query = it.query.copy(
+                    isLinked = isLinked,
+                ),
+            )
+        }
+    }
 
     private fun createMailEvent(mail: MailLinkScreenGetMailsQuery.Node): MailLinkScreenUiState.ListItemEvent {
         return object : MailLinkScreenUiState.ListItemEvent {
@@ -181,4 +228,5 @@ public class MailLinkViewModel(
 public interface MailLinkViewModelEvent {
     public fun backRequest()
     public fun globalToast(message: String)
+    public fun changeQuery(isLinked: Boolean?)
 }

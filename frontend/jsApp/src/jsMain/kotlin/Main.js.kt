@@ -250,13 +250,15 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                 }
 
                                 is ScreenStructure.MailList -> {
-                                    val mailLinkViewModel = remember(current) {
+                                    val mailLinkViewModel = remember {
                                         MailLinkViewModel(
                                             coroutineScope = rootCoroutineScope,
                                             ioDispatcher = Dispatchers.Unconfined,
                                             graphqlApi = MailLinkScreenGraphqlApi(),
-                                            screen = current
                                         )
+                                    }
+                                    LaunchedEffect(current) {
+                                        mailLinkViewModel.updateQuery(current)
                                     }
 
                                     LaunchedEffect(mailLinkViewModel.eventHandler) {

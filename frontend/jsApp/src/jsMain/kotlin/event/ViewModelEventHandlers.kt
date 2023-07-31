@@ -73,6 +73,10 @@ data class ViewModelEventHandlers(
                             }
                         }
                     }
+
+                    override fun changeQuery(isLinked: Boolean?) {
+                        navController.navigate(ScreenStructure.MailList(isLinked = isLinked))
+                    }
                 },
             )
         }

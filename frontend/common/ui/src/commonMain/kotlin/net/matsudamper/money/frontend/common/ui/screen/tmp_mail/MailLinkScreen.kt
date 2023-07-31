@@ -1,11 +1,16 @@
 package net.matsudamper.money.frontend.common.ui.screen.tmp_mail
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,12 +20,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,8 +48,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
+import androidx.compose.ui.window.Popup
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -49,9 +59,25 @@ import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
 
 public data class MailLinkScreenUiState(
     val event: Event,
+    val filters: Filters,
     val loadingState: LoadingState,
     val fullScreenHtml: String?,
 ) {
+    public data class Filters(
+        val link: Link,
+    ) {
+        public data class Link(
+            val status: LinkStatus,
+            val updateState: (LinkStatus) -> Unit,
+        )
+
+        public enum class LinkStatus {
+            Undefined,
+            Linked,
+            NotLinked,
+        }
+    }
+
     @Immutable
     public sealed interface LoadingState {
         public data class Loaded(
@@ -127,7 +153,7 @@ public fun MailLinkScreen(
                 },
                 title = {
                     Text(
-                        text = "メールの登録",
+                        text = "メール一覧",
                         fontFamily = rememberCustomFontFamily(),
                     )
                 },
@@ -142,6 +168,7 @@ public fun MailLinkScreen(
                     modifier = Modifier.fillMaxSize()
                         .padding(paddingValues),
                     uiState = loadingState,
+                    filterUiState = uiState.filters,
                 )
             }
 
@@ -162,21 +189,127 @@ public fun MailLinkScreen(
 @Composable
 public fun MainContent(
     modifier: Modifier,
+    filterUiState: MailLinkScreenUiState.Filters,
     uiState: MailLinkScreenUiState.LoadingState.Loaded,
 ) {
-    LazyColumn(
-        modifier = modifier,
-    ) {
-        items(uiState.listItems) { mail ->
-            SuggestUsageItem(
-                modifier = Modifier.fillMaxWidth()
-                    .padding(
-                        horizontal = 12.dp,
-                        vertical = 6.dp,
-                    ),
-                listItem = mail,
-            )
+    Column(modifier = modifier) {
+        Filter(
+            modifier = Modifier.fillMaxWidth(),
+            contentPadding = PaddingValues(
+                top = 12.dp,
+                start = 12.dp,
+                end = 12.dp,
+            ),
+            uiState = filterUiState,
+        )
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth()
+                .weight(1f),
+        ) {
+            items(uiState.listItems) { mail ->
+                SuggestUsageItem(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(
+                            horizontal = 12.dp,
+                            vertical = 6.dp,
+                        ),
+                    listItem = mail,
+                )
+            }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun Filter(
+    modifier: Modifier = Modifier,
+    uiState: MailLinkScreenUiState.Filters,
+    contentPadding: PaddingValues,
+) {
+    Row(
+        modifier = modifier
+            .horizontalScroll(rememberScrollState())
+            .padding(
+                top = contentPadding.calculateTopPadding(),
+                bottom = contentPadding.calculateBottomPadding(),
+            ),
+    ) {
+        Spacer(Modifier.width(contentPadding.calculateStartPadding(LayoutDirection.Ltr)))
+
+        Box {
+            var visiblePopup by remember { mutableStateOf(false) }
+            FilterChip(
+                selected = when (uiState.link.status) {
+                    MailLinkScreenUiState.Filters.LinkStatus.Undefined -> false
+                    MailLinkScreenUiState.Filters.LinkStatus.Linked,
+                    MailLinkScreenUiState.Filters.LinkStatus.NotLinked,
+                    -> true
+                },
+                onClick = {
+                    when (uiState.link.status) {
+                        MailLinkScreenUiState.Filters.LinkStatus.Undefined -> {
+                            visiblePopup = true
+                        }
+
+                        MailLinkScreenUiState.Filters.LinkStatus.Linked,
+                        MailLinkScreenUiState.Filters.LinkStatus.NotLinked,
+                        -> {
+                            uiState.link.updateState(MailLinkScreenUiState.Filters.LinkStatus.Undefined)
+                        }
+                    }
+                },
+                label = {
+                    Text(
+                        text = "連携状態:" + when (uiState.link.status) {
+                            MailLinkScreenUiState.Filters.LinkStatus.Undefined -> "全て"
+                            MailLinkScreenUiState.Filters.LinkStatus.Linked -> "連携済み"
+                            MailLinkScreenUiState.Filters.LinkStatus.NotLinked -> "未連携"
+                        },
+                        style = MaterialTheme.typography.labelMedium,
+                    )
+                },
+            )
+            if (visiblePopup) {
+                Popup(
+                    alignment = Alignment.BottomStart,
+                    focusable = true,
+                    onDismissRequest = {
+                        visiblePopup = false
+                    },
+                ) {
+                    Card(
+                        elevation = CardDefaults.cardElevation(
+                            defaultElevation = 8.dp,
+                        ),
+                    ) {
+                        Column(
+                            modifier = Modifier.width(IntrinsicSize.Min),
+                        ) {
+                            Text(
+                                modifier = Modifier.fillMaxWidth()
+                                    .clickable {
+                                        visiblePopup = false
+                                        uiState.link.updateState(MailLinkScreenUiState.Filters.LinkStatus.Linked)
+                                    }
+                                    .padding(12.dp),
+                                text = "連携済み",
+                            )
+                            Text(
+                                modifier = Modifier.fillMaxWidth()
+                                    .clickable {
+                                        visiblePopup = false
+                                        uiState.link.updateState(MailLinkScreenUiState.Filters.LinkStatus.NotLinked)
+                                    }
+                                    .padding(12.dp),
+                                text = "未連携",
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        Spacer(Modifier.width(contentPadding.calculateEndPadding(LayoutDirection.Ltr)))
     }
 }
 
