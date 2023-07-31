@@ -11,13 +11,13 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.screen.add_money_usage.AddMoneyUsageScreenCategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.screen.add_money_usage.AddMoneyUsageScreenUiState
-import net.matsudamper.money.frontend.common.viewmodel.settings.SettingScreenCategoryApi
-import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenQuery
+import net.matsudamper.money.frontend.common.viewmodel.settings.AddMoneyUsageScreenApi
+import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.CategorySettingScreenSubCategoriesPagingQuery
 
 public class AddMoneyUsageViewModel(
     private val coroutineScope: CoroutineScope,
-    private val settingScreenCategoryApi: SettingScreenCategoryApi, // TODO この画面専用のAPIを作る
+    private val graphqlApi: AddMoneyUsageScreenApi,
 ) {
     private val viewModelStateFlow = MutableStateFlow(
         ViewModelState(
@@ -156,7 +156,7 @@ public class AddMoneyUsageViewModel(
                         fullScreenTextInputDialog = viewModelState.textInputDialog,
                         category = run category@{
                             val default = "未選択"
-                            val categorySet = viewModelState.usageCategorySet ?: return@category default
+                            val categorySet = viewModelState.usageCategorySet
                             val category = categorySet.category?.name ?: return@category default
                             val subCategory = categorySet.subCategory?.name ?: return@category default
                             "$category / $subCategory"
@@ -177,7 +177,7 @@ public class AddMoneyUsageViewModel(
     }.asStateFlow()
 
     private fun createCategorySelectDialogUiState(
-        categories: List<CategoriesSettingScreenQuery.Node>,
+        categories: List<CategoriesSettingScreenCategoriesPagingQuery.Node>,
         subCategories: Map<MoneyUsageCategoryId, List<CategorySettingScreenSubCategoriesPagingQuery.Node>>,
         categoryDialogViewModelState: ViewModelState.CategorySelectDialog,
     ): AddMoneyUsageScreenCategorySelectDialogUiState {
@@ -297,7 +297,7 @@ public class AddMoneyUsageViewModel(
     // TODO paging
     // TODO error handling
     private suspend fun fetchCategories() {
-        val categories = settingScreenCategoryApi.getCategories()?.data?.user?.moneyUsageCategories ?: return
+        val categories = graphqlApi.getCategories()?.data?.user?.moneyUsageCategories ?: return
 
         viewModelStateFlow.update {
             it.copy(
@@ -309,7 +309,7 @@ public class AddMoneyUsageViewModel(
     // TODO paging
     // TODO error handling
     private suspend fun fetchSubCategories(id: MoneyUsageCategoryId) {
-        val categories = settingScreenCategoryApi.getSubCategoriesPaging(id = id)?.data?.user?.moneyUsageCategory
+        val categories = graphqlApi.getSubCategoriesPaging(id = id)?.data?.user?.moneyUsageCategory
             ?.subCategories?.nodes ?: return
 
         viewModelStateFlow.update {
@@ -326,13 +326,13 @@ public class AddMoneyUsageViewModel(
         val usageDescription: String = "",
         val usageCategorySet: CategorySet = CategorySet(),
         val categorySelectDialog: CategorySelectDialog? = null,
-        val categories: List<CategoriesSettingScreenQuery.Node> = listOf(),
+        val categories: List<CategoriesSettingScreenCategoriesPagingQuery.Node> = listOf(),
         val subCategories: Map<MoneyUsageCategoryId, List<CategorySettingScreenSubCategoriesPagingQuery.Node>> = mapOf(),
         val showCalendarDialog: Boolean = false,
         val textInputDialog: AddMoneyUsageScreenUiState.FullScreenTextInputDialog? = null,
     ) {
         data class CategorySet(
-            val category: CategoriesSettingScreenQuery.Node? = null,
+            val category: CategoriesSettingScreenCategoriesPagingQuery.Node? = null,
             val subCategory: CategorySettingScreenSubCategoriesPagingQuery.Node? = null,
         )
 

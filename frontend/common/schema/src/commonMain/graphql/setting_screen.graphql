@@ -15,7 +15,7 @@ fragment DisplayImapConfig on UserImapConfig {
     host
 }
 
-query CategoriesSettingScreen($input: MoneyUsageCategoriesInput!) {
+query CategoriesSettingScreenCategoriesPaging($input: MoneyUsageCategoriesInput!) {
     user {
         moneyUsageCategories(input: $input) {
             cursor

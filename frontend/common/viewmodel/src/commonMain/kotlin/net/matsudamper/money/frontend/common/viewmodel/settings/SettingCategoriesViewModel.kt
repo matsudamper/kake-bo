@@ -12,7 +12,7 @@ import net.matsudamper.money.frontend.common.ui.screen.settings.SettingCategorie
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
-import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenQuery
+import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenCategoriesPagingQuery
 
 public class SettingCategoriesViewModel(
     private val coroutineScope: CoroutineScope,
@@ -149,7 +149,7 @@ public class SettingCategoriesViewModel(
 
     private data class ViewModelState(
         val isFirstLoading: Boolean,
-        val responseList: List<CategoriesSettingScreenQuery.Data>,
+        val responseList: List<CategoriesSettingScreenCategoriesPagingQuery.Data>,
         val showCategoryNameInput: Boolean,
     )
 }

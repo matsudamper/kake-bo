@@ -12,7 +12,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.graphql.AddCategoryMutation
 import net.matsudamper.money.frontend.graphql.AddSubCategoryMutation
-import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenQuery
+import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.CategorySettingScreenQuery
 import net.matsudamper.money.frontend.graphql.CategorySettingScreenSubCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.DeleteSubCategoryMutation
@@ -26,14 +26,15 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryQuery
 import net.matsudamper.money.frontend.graphql.type.UpdateCategoryQuery
 import net.matsudamper.money.frontend.graphql.type.UpdateSubCategoryQuery
 
+
 public class SettingScreenCategoryApi(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
-    public suspend fun getCategories(): ApolloResponse<CategoriesSettingScreenQuery.Data>? {
+    public suspend fun getCategories(): ApolloResponse<CategoriesSettingScreenCategoriesPagingQuery.Data>? {
         return runCatching {
             apolloClient
                 .query(
-                    CategoriesSettingScreenQuery(
+                    CategoriesSettingScreenCategoriesPagingQuery(
                         MoneyUsageCategoriesInput(
                             cursor = Optional.present(null),
                             size = 100,
