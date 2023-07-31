@@ -21,7 +21,7 @@ kotlin {
                 api(kotlin("stdlib"))
                 api(libs.kotlin.serialization.json)
                 api(libs.logback.classic)
-                api("com.graphql-java:graphql-java-extended-scalars:20.2")
+                api("com.graphql-java:graphql-java-extended-scalars:2023-01-24T02-11-56-babda5f")
 
                 api("com.graphql-java-kickstart:graphql-java-tools:13.0.2")
             }
