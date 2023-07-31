@@ -95,6 +95,35 @@ public class AddMoneyUsageViewModel(
             }
         }
 
+        override fun onClickAmountChange() {
+            val dismissRequest = {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        numberInputDialog = null,
+                    )
+                }
+            }
+            val onChangeValue: (Int) -> Unit = { amount ->
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        usageAmount = amount,
+                        numberInputDialog = viewModelState.numberInputDialog?.copy(
+                            value = amount,
+                        ),
+                    )
+                }
+            }
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    numberInputDialog = AddMoneyUsageScreenUiState.NumberInputDialog(
+                        value = viewModelState.usageAmount,
+                        dismissRequest = dismissRequest,
+                        onChangeValue = onChangeValue,
+                    ),
+                )
+            }
+        }
+
         override fun onClickTitleChange() {
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
@@ -141,7 +170,7 @@ public class AddMoneyUsageViewModel(
                         nanosecond = 0,
                     ), // TODO
                 ),
-                amount = 0, // TODO
+                amount = viewModelStateFlow.value.usageAmount,
                 subCategoryId = viewModelStateFlow.value.usageCategorySet.subCategory?.id,
             )
         }
@@ -153,8 +182,10 @@ public class AddMoneyUsageViewModel(
             date = "",
             title = "",
             description = "",
+            amount = "",
             fullScreenTextInputDialog = null,
             categorySelectDialog = null,
+            numberInputDialog = null,
             category = "",
             event = uiEvent,
         ),
@@ -181,6 +212,8 @@ public class AddMoneyUsageViewModel(
                         title = viewModelState.usageTitle,
                         description = viewModelState.usageDescription,
                         fullScreenTextInputDialog = viewModelState.textInputDialog,
+                        numberInputDialog = viewModelState.numberInputDialog,
+                        amount = viewModelState.usageAmount.toString(),
                         category = run category@{
                             val default = "未選択"
                             val categorySet = viewModelState.usageCategorySet
@@ -352,6 +385,8 @@ public class AddMoneyUsageViewModel(
         val usageTitle: String = "",
         val usageDescription: String = "",
         val usageCategorySet: CategorySet = CategorySet(),
+        val usageAmount: Int = 0,
+        val numberInputDialog: AddMoneyUsageScreenUiState.NumberInputDialog? = null,
         val categorySelectDialog: CategorySelectDialog? = null,
         val categories: List<AddMoneyUsageScreenCategoriesPagingQuery.Node> = listOf(),
         val subCategories: Map<MoneyUsageCategoryId, List<AddMoneyUsageScreenSubCategoriesPagingQuery.Node>> = mapOf(),

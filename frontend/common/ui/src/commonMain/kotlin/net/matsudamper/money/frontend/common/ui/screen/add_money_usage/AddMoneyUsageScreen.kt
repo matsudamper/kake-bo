@@ -36,9 +36,11 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.max
 import kotlinx.datetime.LocalDate
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.layout.Calendar
+import net.matsudamper.money.frontend.common.ui.layout.NumberInput
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
 
 public data class AddMoneyUsageScreenUiState(
@@ -49,8 +51,15 @@ public data class AddMoneyUsageScreenUiState(
     val title: String,
     val description: String,
     val category: String,
+    val amount: String,
     val event: Event,
+    val numberInputDialog: NumberInputDialog?,
 ) {
+    public data class NumberInputDialog(
+        val value: Int,
+        val onChangeValue: (Int) -> Unit,
+        val dismissRequest: () -> Unit,
+    )
 
     public data class FullScreenTextInputDialog(
         val title: String,
@@ -72,6 +81,7 @@ public data class AddMoneyUsageScreenUiState(
         public fun onClickTitleChange()
         public fun onClickDescriptionChange()
         public fun onClickCategoryChange()
+        public fun onClickAmountChange()
     }
 }
 
@@ -160,6 +170,18 @@ public fun AddMoneyUsageScreen(
                 Divider(Modifier.fillMaxWidth().height(1.dp))
                 Section(
                     title = {
+                        Text("金額")
+                    },
+                    description = {
+                        Text(uiState.amount)
+                    },
+                    clickChange = {
+                        uiState.event.onClickAmountChange()
+                    }
+                )
+                Divider(Modifier.fillMaxWidth().height(1.dp))
+                Section(
+                    title = {
                         Text("カテゴリ")
                     },
                     description = {
@@ -200,6 +222,41 @@ public fun AddMoneyUsageScreen(
     if (uiState.categorySelectDialog != null) {
         CategorySelectDialog(
             uiState = uiState.categorySelectDialog,
+        )
+    }
+
+    if (uiState.numberInputDialog != null) {
+        NumberInputDialog(
+            value = uiState.numberInputDialog.value,
+            onChangeValue = { uiState.numberInputDialog.onChangeValue(it) },
+            dismissRequest = { uiState.numberInputDialog.dismissRequest() },
+        )
+    }
+}
+
+@Composable
+private fun NumberInputDialog(
+    value: Int,
+    onChangeValue: (Int) -> Unit,
+    dismissRequest: () -> Unit
+) {
+    Box(
+        modifier = Modifier.fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.8f))
+            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                dismissRequest()
+            },
+    ) {
+        NumberInput(
+            modifier = Modifier.widthIn(max = 500.dp)
+                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                    // Number Inputのタッチ無効範囲を触ってもダイアログを閉じないようにする
+                },
+            value = value,
+            onChangeValue = { onChangeValue(it) },
+            dismissRequest = {
+
+            },
         )
     }
 }
