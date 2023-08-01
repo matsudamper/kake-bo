@@ -27,13 +27,7 @@ public class ImportedMailListViewModel(
     private val viewModelEventSender = EventSender<MailLinkViewModelEvent>()
     public val eventHandler: EventHandler<MailLinkViewModelEvent> = viewModelEventSender.asHandler()
 
-    private val viewModelStateFlow = MutableStateFlow(
-        ViewModelState(
-            query = ViewModelState.Query(
-                isLinked = null,
-            ),
-        ),
-    )
+    private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     public val rootUiStateFlow: StateFlow<ImportedMailListScreenUiState> = MutableStateFlow(
         ImportedMailListScreenUiState(
@@ -45,7 +39,7 @@ public class ImportedMailListViewModel(
             ),
             event = object : ImportedMailListScreenUiState.Event {
                 override fun onViewInitialized() {
-                    if (viewModelStateFlow.value.mails.isEmpty()) {
+                    if (viewModelStateFlow.value.mailState.mails.isEmpty()) {
                         fetch()
                     }
                 }
@@ -72,8 +66,8 @@ public class ImportedMailListViewModel(
                     uiState.copy(
                         fullScreenHtml = viewModelState.fullScreenHtml,
                         loadingState = ImportedMailListScreenUiState.LoadingState.Loaded(
-                            showLastLoading = viewModelState.pagingCompleted.not(),
-                            listItems = viewModelState.mails.map { mail ->
+                            showLastLoading = viewModelState.mailState.finishLoadingToEnd.not(),
+                            listItems = viewModelState.mailState.mails.map { mail ->
                                 ImportedMailListScreenUiState.ListItem(
                                     mail = ImportedMailListScreenUiState.ImportedMail(
                                         mailFrom = mail.from,
@@ -97,7 +91,7 @@ public class ImportedMailListViewModel(
                         ),
                         filters = uiState.filters.copy(
                             link = uiState.filters.link.copy(
-                                status = when (viewModelState.query.isLinked) {
+                                status = when (viewModelState.mailState.query.isLinked) {
                                     null -> Undefined
                                     true -> Linked
                                     false -> NotLinked
@@ -115,8 +109,10 @@ public class ImportedMailListViewModel(
     ) {
         viewModelStateFlow.update {
             it.copy(
-                query = it.query.copy(
-                    isLinked = screen.isLinked,
+                mailState = it.mailState.copy(
+                    query = it.mailState.query.copy(
+                        isLinked = screen.isLinked,
+                    ),
                 ),
             )
         }
@@ -135,8 +131,10 @@ public class ImportedMailListViewModel(
         }
         viewModelStateFlow.update {
             it.copy(
-                query = it.query.copy(
-                    isLinked = isLinked,
+                mailState = it.mailState.copy(
+                    query = it.mailState.query.copy(
+                        isLinked = isLinked,
+                    ),
                 ),
             )
         }
@@ -167,7 +165,7 @@ public class ImportedMailListViewModel(
 
     private var fetchJob = Job()
     private fun fetch() {
-        if (viewModelStateFlow.value.finishLoadingToEnd == true) return
+        if (viewModelStateFlow.value.mailState.finishLoadingToEnd == true) return
         fetchJob.cancel()
         coroutineScope.launch(
             Job().also { fetchJob = it },
@@ -181,7 +179,7 @@ public class ImportedMailListViewModel(
             val response = try {
                 runCatching {
                     withContext(ioDispatcher) {
-                        graphqlApi.getMail(viewModelStateFlow.value.cursor)
+                        graphqlApi.getMail(viewModelStateFlow.value.mailState.cursor)
                     }
                 }.getOrNull() ?: return@launch
             } finally {
@@ -198,10 +196,11 @@ public class ImportedMailListViewModel(
             if (isActive.not()) return@launch
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
-                    mails = viewModelState.mails + mailConnection.nodes,
-                    pagingCompleted = mailConnection.cursor == null,
-                    cursor = mailConnection.cursor,
-                    finishLoadingToEnd = mailConnection.cursor == null,
+                    mailState = viewModelState.mailState.copy(
+                        mails = viewModelState.mailState.mails + mailConnection.nodes,
+                        cursor = mailConnection.cursor,
+                        finishLoadingToEnd = mailConnection.cursor == null,
+                    ),
                     isLoading = false,
                 )
             }
@@ -210,15 +209,18 @@ public class ImportedMailListViewModel(
 
     private data class ViewModelState(
         val isLoading: Boolean = true,
-        val cursor: String? = null,
-        val pagingCompleted: Boolean = false,
-        val finishLoadingToEnd: Boolean? = null,
-        val mails: List<MailLinkScreenGetMailsQuery.Node> = listOf(),
+        val mailState: MailState = MailState(),
         val fullScreenHtml: String? = null,
-        val query: Query,
     ) {
+        data class MailState(
+            val cursor: String? = null,
+            val finishLoadingToEnd: Boolean = false,
+            val mails: List<MailLinkScreenGetMailsQuery.Node> = listOf(),
+            val query: Query = Query(),
+        )
+
         data class Query(
-            val isLinked: Boolean?,
+            val isLinked: Boolean? = null,
         )
     }
 }
