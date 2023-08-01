@@ -3,10 +3,15 @@ package net.matsudamper.money.backend.repository
 import java.time.LocalDateTime
 import net.matsudamper.money.backend.DbConnection
 import net.matsudamper.money.backend.element.UserId
+import net.matsudamper.money.db.schema.indexes.USER_MAILS_USER_ID
 import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.records.JUserMailsRecord
 import net.matsudamper.money.element.ImportedMailId
+import org.jooq.Condition
+import org.jooq.Record
+import org.jooq.TableField
 import org.jooq.impl.DSL
+import org.jooq.kotlin.and
 
 class DbMailRepository {
     private val userMails = JUserMails.USER_MAILS
@@ -57,7 +62,12 @@ class DbMailRepository {
         }
     }
 
-    fun getMails(userId: UserId, size: Int): List<Mail> {
+    fun getMails(
+        userId: UserId,
+        size: Int,
+        lastMailId: ImportedMailId?,
+        isAsc: Boolean,
+    ): List<Mail> {
         return DbConnection.use { connection ->
             val result = DSL.using(connection)
                 .select(
@@ -69,7 +79,30 @@ class DbMailRepository {
                     userMails.DATETIME,
                 )
                 .from(userMails)
-                .where(userMails.USER_ID.eq(userId.id))
+                .where(
+                    DSL.value(true)
+                        .and(userMails.USER_ID.eq(userId.id))
+                        .and(
+                            if (lastMailId == null) {
+                                DSL.value(true)
+                            } else {
+                                if (isAsc) {
+                                    DSL.and(userMails.USER_MAIL_ID.greaterThan(lastMailId.id))
+                                } else {
+                                    DSL.and(userMails.USER_MAIL_ID.lessThan(lastMailId.id))
+                                }
+                            }
+                        ),
+                )
+                .orderBy(
+                    userMails.USER_MAIL_ID.run {
+                        if (isAsc) {
+                            asc()
+                        } else {
+                            desc()
+                        }
+                    }
+                )
                 .limit(size)
                 .fetch()
 
