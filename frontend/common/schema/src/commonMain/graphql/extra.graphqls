@@ -1,3 +1,4 @@
 extend type UserMail @typePolicy(keyFields: "id")
 extend type MoneyUsageCategory @typePolicy(keyFields: "id")
 extend type MoneyUsageSubCategory @typePolicy(keyFields: "id")
+extend type MoneyUsage @typePolicy(keyFields: "id")
