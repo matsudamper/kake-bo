@@ -83,11 +83,11 @@ class DbMailRepository {
                     DSL.value(true)
                         .and(userMails.USER_ID.eq(userId.id))
                         .and(
-                            when(isLinked) {
+                            when (isLinked) {
                                 true -> relation.MONEY_USAGE_ID.isNotNull
                                 false -> relation.MONEY_USAGE_ID.isNull
                                 null -> DSL.value(true)
-                            }
+                            },
                         )
                         .and(
                             if (lastMailId == null) {
@@ -98,7 +98,7 @@ class DbMailRepository {
                                 } else {
                                     DSL.and(userMails.USER_MAIL_ID.lessThan(lastMailId.id))
                                 }
-                            }
+                            },
                         ),
                 )
                 .orderBy(
@@ -108,7 +108,7 @@ class DbMailRepository {
                         } else {
                             desc()
                         }
-                    }
+                    },
                 )
                 .limit(size)
                 .fetch()
