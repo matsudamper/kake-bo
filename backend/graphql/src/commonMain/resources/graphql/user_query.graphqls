@@ -6,6 +6,17 @@ type User {
     moneyUsageCategories(input: MoneyUsageCategoriesInput!):MoneyUsageCategoriesConnection @lazy
     moneyUsageCategory(id: MoneyUsageCategoryId!): MoneyUsageCategory @lazy
     moneyUsageSubCategory(input: MoneyUsageSubCategoryInput!): MoneyUsageSubCategory @lazy
+    moneyUsages(query: MoneyUsagesQuery!): MoneyUsagesConnection @lazy
+}
+
+type MoneyUsagesConnection {
+    nodes : [MoneyUsage!]!
+    cursor: String
+}
+
+input MoneyUsagesQuery {
+    size: Int!
+    cursor: String
 }
 
 input MoneyUsageCategoryInput {

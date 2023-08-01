@@ -50,6 +50,48 @@ class MoneyUsageRepository {
             )
     }
 
+    fun getMoneyUsageByQuery(
+        userId: UserId,
+        size: Int,
+        lastId: MoneyUsageId?,
+        isAsc: Boolean,
+    ): Result<MutableList<MoneyUsageId>> {
+        return runCatching {
+            DbConnection.use { connection ->
+                val results = DSL.using(connection)
+                    .select(usage.MONEY_USAGE_ID)
+                    .from(usage)
+                    .where(
+                        DSL.value(true)
+                            .and(usage.USER_ID.eq(userId.id))
+                            .and(
+                                when (lastId) {
+                                    null -> DSL.value(true)
+                                    else -> if (isAsc) {
+                                        usage.MONEY_USAGE_ID.greaterThan(lastId.id)
+                                    } else {
+                                        usage.MONEY_USAGE_ID.lessThan(lastId.id)
+                                    }
+                                },
+                            ),
+                    )
+                    .orderBy(
+                        if (isAsc) {
+                            usage.MONEY_USAGE_ID.asc()
+                        } else {
+                            usage.MONEY_USAGE_ID.desc()
+                        },
+                    )
+                    .limit(size)
+                    .fetch()
+
+                results.map { result ->
+                    MoneyUsageId(result.get(usage.MONEY_USAGE_ID)!!)
+                }
+            }
+        }
+    }
+
     fun getMoneyUsage(userId: UserId, ids: List<MoneyUsageId>): Result<List<Usage>> {
         return runCatching {
             DbConnection.use { connection ->
@@ -58,7 +100,7 @@ class MoneyUsageRepository {
                     .where(
                         DSL.value(true)
                             .and(usage.USER_ID.eq(userId.id))
-                            .and(usage.MONEY_USAGE_ID.`in`(ids.map { it.id }))
+                            .and(usage.MONEY_USAGE_ID.`in`(ids.map { it.id })),
                     )
                     .fetch()
 

@@ -8,11 +8,14 @@ import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategoriesConnection
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategoriesInput
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategoryInput
+import net.matsudamper.money.graphql.model.QlMoneyUsagesConnection
+import net.matsudamper.money.graphql.model.QlMoneyUsagesQuery
 import net.matsudamper.money.graphql.model.QlUser
 import net.matsudamper.money.graphql.model.QlUserSettings
 import net.matsudamper.money.graphql.model.UserResolver
@@ -72,5 +75,32 @@ class UserResolverImpl : UserResolver {
         return CompletableFuture.completedFuture(
             QlMoneyUsageSubCategory(id = input.id),
         ).toDataFetcher()
+    }
+
+    override fun moneyUsages(
+        user: QlUser,
+        query: QlMoneyUsagesQuery,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlMoneyUsagesConnection?>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+
+        return CompletableFuture.supplyAsync {
+            val results = context.repositoryFactory.createMoneyUsageRepository()
+                .getMoneyUsageByQuery(
+                    userId = userId,
+                    size = query.size,
+                    isAsc = false,
+                    lastId = null,
+                )
+            QlMoneyUsagesConnection(
+                nodes = results.getOrThrow().map { id ->
+                    QlMoneyUsage(
+                        id = id,
+                    )
+                },
+                cursor = null,
+            )
+        }.toDataFetcher()
     }
 }

@@ -89,6 +89,11 @@ type MoneyUsageSubCategory {
     name: String!
 }
 
+type MoneyUsagesConnection {
+    cursor: String
+    nodes: [MoneyUsage!]!
+}
+
 type Mutation {
     adminMutation: AdminMutation!
     userMutation: UserMutation!
@@ -122,6 +127,7 @@ type User {
     moneyUsageCategories(input: MoneyUsageCategoriesInput!): MoneyUsageCategoriesConnection
     moneyUsageCategory(id: MoneyUsageCategoryId!): MoneyUsageCategory
     moneyUsageSubCategory(input: MoneyUsageSubCategoryInput!): MoneyUsageSubCategory
+    moneyUsages(query: MoneyUsagesQuery!): MoneyUsagesConnection
     settings: UserSettings!
     userMailAttributes: UserMailAttributes!
 }
@@ -259,6 +265,11 @@ input MoneyUsageSubCategoryInput {
 }
 
 input MoneyUsageSubCategoryQuery {
+    cursor: String
+    size: Int!
+}
+
+input MoneyUsagesQuery {
     cursor: String
     size: Int!
 }
