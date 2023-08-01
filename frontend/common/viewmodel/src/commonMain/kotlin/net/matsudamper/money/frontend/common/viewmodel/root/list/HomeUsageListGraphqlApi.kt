@@ -16,7 +16,7 @@ public class HomeUsageListGraphqlApi(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
     public fun getHomeScreen(
-        cursor: Cursor? = null,
+        cursor: Cursor?,
     ): Flow<ApolloResponse<UsageListScreenPagingQuery.Data>> {
         return apolloClient
             .query(

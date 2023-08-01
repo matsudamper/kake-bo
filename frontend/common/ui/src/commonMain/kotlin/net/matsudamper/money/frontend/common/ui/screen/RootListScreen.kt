@@ -18,9 +18,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
@@ -34,6 +37,7 @@ public data class RootListScreenUiState(
     public sealed interface LoadingState {
         public object Loading : LoadingState
         public data class Loaded(
+            val loadToEnd: Boolean,
             val items: List<Item>,
         ) : LoadingState
     }
@@ -49,6 +53,7 @@ public data class RootListScreenUiState(
     @Immutable
     public interface Event {
         public fun onClickAdd()
+        public fun loadMore()
     }
 }
 
@@ -70,24 +75,32 @@ public fun RootListScreen(
                             modifier = Modifier.fillMaxSize(),
                         ) {
                             items(uiState.loadingState.items) { item ->
-                                Card(
+                                ListItem(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(
                                             horizontal = 12.dp,
                                             vertical = 6.dp,
+                                        ),
+                                    item = item,
+                                )
+                            }
+                            if (uiState.loadingState.loadToEnd.not()) {
+                                item {
+                                    LaunchedEffect(Unit) {
+                                        uiState.event.loadMore()
+                                        while (isActive) {
+                                            delay(500)
+                                            uiState.event.loadMore()
+                                        }
+                                    }
+                                    Box(
+                                        modifier = Modifier.fillMaxWidth()
+                                            .padding(vertical = 12.dp)
+                                    ) {
+                                        CircularProgressIndicator(
+                                            modifier = Modifier.align(Alignment.Center),
                                         )
-                                ) {
-                                    Column(modifier = Modifier.padding(12.dp)) {
-                                        Text(text = item.title)
-                                        Spacer(modifier = Modifier.heightIn(4.dp))
-                                        Text(text = item.description)
-                                        Spacer(modifier = Modifier.heightIn(4.dp))
-                                        Text(text = item.date)
-                                        Spacer(modifier = Modifier.heightIn(4.dp))
-                                        Text(text = item.amount)
-                                        Spacer(modifier = Modifier.heightIn(4.dp))
-                                        Text(text = item.description)
                                     }
                                 }
                             }
@@ -114,4 +127,26 @@ public fun RootListScreen(
             }
         },
     )
+}
+
+@Composable
+private fun ListItem(
+    modifier: Modifier = Modifier,
+    item: RootListScreenUiState.Item,
+) {
+    Card(
+        modifier = modifier
+    ) {
+        Column(modifier = Modifier.padding(12.dp)) {
+            Text(text = item.title)
+            Spacer(modifier = Modifier.heightIn(4.dp))
+            Text(text = item.description)
+            Spacer(modifier = Modifier.heightIn(4.dp))
+            Text(text = item.date)
+            Spacer(modifier = Modifier.heightIn(4.dp))
+            Text(text = item.amount)
+            Spacer(modifier = Modifier.heightIn(4.dp))
+            Text(text = item.description)
+        }
+    }
 }

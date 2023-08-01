@@ -9,7 +9,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.lastOrNull
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -38,6 +40,10 @@ public class RootListViewModel(
                         }
                     }
                 }
+
+                override fun loadMore() {
+                    fetch()
+                }
             },
         ),
     ).also { uiStateFlow ->
@@ -48,12 +54,10 @@ public class RootListViewModel(
                         .forEach { emitAll(it) }
                 }.toList()
 
-                results.flatMap { it.data?.user?.moneyUsages?.nodes.orEmpty() }
-
-
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         loadingState = RootListScreenUiState.LoadingState.Loaded(
+                            loadToEnd = viewModelState.loadToEnd,
                             items = results.flatMap { it.data?.user?.moneyUsages?.nodes.orEmpty() }.map {
                                 RootListScreenUiState.Item(
                                     title = it.title,
@@ -75,38 +79,48 @@ public class RootListViewModel(
     }.asStateFlow()
 
     init {
-        coroutineScope.launch {
-            val result = api.getHomeScreen()
-            viewModelStateFlow.update { viewModelState ->
-                viewModelState.copy(
-                    results = viewModelState.results.plus(result),
-                )
-            }
-
-
-//            api.getHomeScreen()
-//                .catch { /* TODO */ }
-//                .collect { response ->
-////                    val moneyUsages = response.data?.user?.moneyUsages
-////                    if (moneyUsages == null) {
-////                        // TODO Error
-////                        return@collect
-////                    }
-////                    viewModelStateFlow.update { viewState ->
-////                        viewState.copy(
-////                            listLoadingStatus = viewState.listLoadingStatus.copy(
-////                                cursor = moneyUsages.cursor,
-////                                nodes = viewState.listLoadingStatus.nodes + moneyUsages.nodes,
-////                                finishLoading = moneyUsages.nodes.isEmpty(),
-////                            ),
-////                        )
-////                    }
-//                }
-        }
+        fetch()
     }
 
     private fun fetch() {
+        coroutineScope.launch {
+            if (viewModelStateFlow.value.isLoading) return@launch
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    isLoading = true,
+                )
+            }
+            val beforeResults = viewModelStateFlow.value.results.lastOrNull()
+            val cursor = if (beforeResults == null) {
+                null
+            } else {
+                val tmp = beforeResults.lastOrNull()
+                tmp?.data?.user?.moneyUsages?.cursor
+                    ?: return@launch
+            }
 
+            val result = api.getHomeScreen(
+                cursor = cursor,
+            )
+            val loadToEnd = result.first().data?.user?.moneyUsages?.let { moneyUsages ->
+                moneyUsages.cursor == null
+            }
+            if (loadToEnd == null) {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        isLoading = false,
+                    )
+                }
+                return@launch
+            }
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    results = viewModelState.results.plus(result),
+                    isLoading = false,
+                    loadToEnd = loadToEnd,
+                )
+            }
+        }
     }
 
     public interface Event {
@@ -114,14 +128,8 @@ public class RootListViewModel(
     }
 
     private data class ViewModelState(
-//        val listLoadingStatus: ListLoadingStatus = ListLoadingStatus(),
         val results: List<Flow<ApolloResponse<UsageListScreenPagingQuery.Data>>> = listOf(),
-    ) {
-//        data class ListLoadingStatus(
-//            val isLoading: Boolean = false,
-//            val cursor: String? = null,
-//            val nodes: List<UsageListScreenPagingQuery.Node> = emptyList(),
-//            val finishLoading: Boolean = false,
-//        )
-    }
+        val isLoading: Boolean = false,
+        val loadToEnd: Boolean = false,
+    )
 }
