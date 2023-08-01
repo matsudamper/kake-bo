@@ -10,6 +10,7 @@ import net.matsudamper.money.db.schema.tables.JAdminSessions
 import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
+import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
 import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
@@ -56,6 +57,11 @@ open class JMoney : SchemaImpl("money", DefaultCatalog.DEFAULT_CATALOG) {
     val MONEY_USAGES: JMoneyUsages get() = JMoneyUsages.MONEY_USAGES
 
     /**
+     * The table <code>money.money_usages_mails_relation</code>.
+     */
+    val MONEY_USAGES_MAILS_RELATION: JMoneyUsagesMailsRelation get() = JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION
+
+    /**
      * The table <code>money.user_imap_settings</code>.
      */
     val USER_IMAP_SETTINGS: JUserImapSettings get() = JUserImapSettings.USER_IMAP_SETTINGS
@@ -92,6 +98,7 @@ open class JMoney : SchemaImpl("money", DefaultCatalog.DEFAULT_CATALOG) {
         JMoneyUsageCategories.MONEY_USAGE_CATEGORIES,
         JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES,
         JMoneyUsages.MONEY_USAGES,
+        JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION,
         JUserImapSettings.USER_IMAP_SETTINGS,
         JUserMails.USER_MAILS,
         JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA,

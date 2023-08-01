@@ -103,3 +103,15 @@ CREATE TABLE money_usages
 );
 CREATE INDEX user_id ON money_usages (user_id);
 CREATE INDEX user_index ON money_usages (money_usage_id, user_id);
+
+CREATE TABLE money_usages_mails_relation
+(
+    user_id          INT                                not null,
+    money_usage_id   INT                                not null,
+    user_mail_id     INT                                not null,
+    PRIMARY KEY (money_usage_id, user_mail_id),
+    index user_id (user_id),
+    index money_usage_id (user_id, money_usage_id),
+    index user_mail_id (user_id, user_mail_id),
+    created_datetime DATETIME DEFAULT CURRENT_TIMESTAMP not null
+)

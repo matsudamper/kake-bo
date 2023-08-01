@@ -7,6 +7,7 @@ package net.matsudamper.money.db.schema.indexes
 import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
+import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
 import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.JUserSessions
 import net.matsudamper.money.db.schema.tables.JUsers
@@ -21,7 +22,9 @@ import org.jooq.impl.Internal
 // INDEX definitions
 // -------------------------------------------------------------------------
 
+val MONEY_USAGES_MAILS_RELATION_MONEY_USAGE_ID: Index = Internal.createIndex(DSL.name("money_usage_id"), JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION, arrayOf(JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION.USER_ID, JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION.MONEY_USAGE_ID), false)
 val MONEY_USAGES_USER_ID: Index = Internal.createIndex(DSL.name("user_id"), JMoneyUsages.MONEY_USAGES, arrayOf(JMoneyUsages.MONEY_USAGES.USER_ID), false)
+val MONEY_USAGES_MAILS_RELATION_USER_ID: Index = Internal.createIndex(DSL.name("user_id"), JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION, arrayOf(JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION.USER_ID), false)
 val MONEY_USAGE_CATEGORIES_USER_ID: Index = Internal.createIndex(DSL.name("user_id"), JMoneyUsageCategories.MONEY_USAGE_CATEGORIES, arrayOf(JMoneyUsageCategories.MONEY_USAGE_CATEGORIES.USER_ID), false)
 val MONEY_USAGE_SUB_CATEGORIES_USER_ID: Index = Internal.createIndex(DSL.name("user_id"), JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES, arrayOf(JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES.USER_ID), false)
 val USER_MAILS_USER_ID: Index = Internal.createIndex(DSL.name("user_id"), JUserMails.USER_MAILS, arrayOf(JUserMails.USER_MAILS.USER_ID), false)
@@ -30,4 +33,5 @@ val MONEY_USAGES_USER_INDEX: Index = Internal.createIndex(DSL.name("user_index")
 val MONEY_USAGE_CATEGORIES_USER_INDEX: Index = Internal.createIndex(DSL.name("user_index"), JMoneyUsageCategories.MONEY_USAGE_CATEGORIES, arrayOf(JMoneyUsageCategories.MONEY_USAGE_CATEGORIES.MONEY_USAGE_CATEGORY_ID, JMoneyUsageCategories.MONEY_USAGE_CATEGORIES.USER_ID), false)
 val MONEY_USAGE_SUB_CATEGORIES_USER_INDEX: Index = Internal.createIndex(DSL.name("user_index"), JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES, arrayOf(JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES.MONEY_USAGE_SUB_CATEGORY_ID, JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES.USER_ID), false)
 val USER_MAILS_USER_INDEX: Index = Internal.createIndex(DSL.name("user_index"), JUserMails.USER_MAILS, arrayOf(JUserMails.USER_MAILS.USER_MAIL_ID, JUserMails.USER_MAILS.USER_ID), false)
+val MONEY_USAGES_MAILS_RELATION_USER_MAIL_ID: Index = Internal.createIndex(DSL.name("user_mail_id"), JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION, arrayOf(JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION.USER_ID, JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION.USER_MAIL_ID), false)
 val USERS_USER_NAME: Index = Internal.createIndex(DSL.name("user_name"), JUsers.USERS, arrayOf(JUsers.USERS.USER_NAME), false)
