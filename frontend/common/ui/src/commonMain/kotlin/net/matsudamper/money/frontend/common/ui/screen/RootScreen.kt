@@ -37,95 +37,93 @@ public fun RootScreen(
     LaunchedEffect(uiState.event) {
         uiState.event.onViewInitialized()
     }
-    when (val screenState = uiState.screenState) {
-        is HomeScreenUiState.ScreenState.Loading -> {
-            Box(modifier = Modifier.fillMaxSize()) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center),
-                )
+    RootScreenScaffold(
+        modifier = Modifier.fillMaxSize(),
+        currentScreen = RootScreenTab.Home,
+        listener = scaffoldListener,
+        content = {
+            when (val screenState = uiState.screenState) {
+                is HomeScreenUiState.ScreenState.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center),
+                        )
+                    }
+                }
+
+                is HomeScreenUiState.ScreenState.Loaded -> {
+                    MainContent(
+                        uiState = screenState,
+                    )
+                }
             }
         }
-
-        is HomeScreenUiState.ScreenState.Loaded -> {
-            MainContent(
-                uiState = screenState,
-                scaffoldListener = scaffoldListener,
-            )
-        }
-    }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainContent(
     uiState: HomeScreenUiState.ScreenState.Loaded,
-    scaffoldListener: RootScreenScaffoldListener,
 ) {
-    RootScreenScaffold(
-        modifier = Modifier.fillMaxSize(),
-        currentScreen = RootScreenTab.Home,
-        listener = scaffoldListener,
-        content = {
-            BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-                val height = this.maxHeight
-                val lazyListState = rememberLazyListState()
-                val density = LocalDensity.current
-                Row(modifier = Modifier.fillMaxSize()) {
-                    LazyColumn(
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val height = this.maxHeight
+        val lazyListState = rememberLazyListState()
+        val density = LocalDensity.current
+        Row(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(1f),
+                state = lazyListState,
+            ) {
+                item {
+                    Card(
                         modifier = Modifier
-                            .fillMaxHeight()
-                            .weight(1f),
-                        state = lazyListState,
+                            .padding(start = 24.dp)
+                            .padding(vertical = 12.dp),
+                        onClick = { uiState.event.onClickMailImportButton() },
                     ) {
-                        item {
-                            Card(
-                                modifier = Modifier
-                                    .padding(start = 24.dp)
-                                    .padding(vertical = 12.dp),
-                                onClick = { uiState.event.onClickMailImportButton() },
-                            ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth()
-                                        .padding(24.dp),
-                                ) {
-                                    Text("未インポートのメール")
-                                    Spacer(modifier = Modifier.weight(1f))
-                                    Text(uiState.notImportMailCount.toString())
-                                }
-                            }
-                            Card(
-                                modifier = Modifier
-                                    .padding(start = 24.dp)
-                                    .padding(vertical = 12.dp),
-                                onClick = { uiState.event.onClickNotLinkedMailButton() },
-                            ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth()
-                                        .padding(24.dp),
-                                ) {
-                                    Text("未登録のメール")
-                                    Spacer(modifier = Modifier.weight(1f))
-                                    Text(uiState.importedAndNotLinkedMailCount.toString())
-                                }
-                            }
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                                .padding(24.dp),
+                        ) {
+                            Text("未インポートのメール")
+                            Spacer(modifier = Modifier.weight(1f))
+                            Text(uiState.notImportMailCount.toString())
                         }
                     }
-
-                    ScrollButton(
+                    Card(
                         modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(12.dp)
-                            .width(42.dp),
-                        scrollState = lazyListState,
-                        scrollSize = with(density) {
-                            height.toPx() * 0.7f
-                        },
-                        animationSpec = spring(
-                            stiffness = Spring.StiffnessLow,
-                        ),
-                    )
+                            .padding(start = 24.dp)
+                            .padding(vertical = 12.dp),
+                        onClick = { uiState.event.onClickNotLinkedMailButton() },
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth()
+                                .padding(24.dp),
+                        ) {
+                            Text("未登録のメール")
+                            Spacer(modifier = Modifier.weight(1f))
+                            Text(uiState.importedAndNotLinkedMailCount.toString())
+                        }
+                    }
                 }
             }
-        },
-    )
+
+            ScrollButton(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(12.dp)
+                    .width(42.dp),
+                scrollState = lazyListState,
+                scrollSize = with(density) {
+                    height.toPx() * 0.7f
+                },
+                animationSpec = spring(
+                    stiffness = Spring.StiffnessLow,
+                ),
+            )
+        }
+    }
 }
