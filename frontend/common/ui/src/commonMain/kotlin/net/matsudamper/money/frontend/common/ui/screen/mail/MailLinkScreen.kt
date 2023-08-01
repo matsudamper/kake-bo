@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.window.Popup
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
@@ -188,7 +189,7 @@ public fun MainContent(
                 item {
                     LaunchedEffect(Unit) {
                         moreLoading()
-                        while (true) {
+                        while (isActive) {
                             delay(500)
                             moreLoading()
                         }
