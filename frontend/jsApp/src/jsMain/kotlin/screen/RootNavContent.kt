@@ -34,7 +34,7 @@ internal fun RootNavContent(
     rootCoroutineScope: CoroutineScope,
     globalEventSender: EventSender<GlobalEvent>,
     loginCheckUseCase: LoginCheckUseCase,
-    mailScreenUiStateProvider: @Composable () -> MailScreenUiState,
+    mailScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail) -> MailScreenUiState,
     listUiStateProvider: @Composable (ScreenStructure.Root.List) -> RootListScreenUiState,
     importMailScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Imported) -> ImportedMailListScreenUiState,
     importMailLinkScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Import) -> ImportMailScreenUiState,
@@ -74,9 +74,10 @@ internal fun RootNavContent(
 
         is ScreenStructure.Root.Mail -> {
             tabHolder.SaveableStateProvider(current::class.toString()) {
+                val uiState = mailScreenUiStateProvider(current)
                 MailScreen(
                     screenStructure = current,
-                    uiState = mailScreenUiStateProvider(),
+                    uiState = uiState,
                     importMailScreenUiStateProvider = {
                         importMailLinkScreenUiStateProvider(it)
                     },

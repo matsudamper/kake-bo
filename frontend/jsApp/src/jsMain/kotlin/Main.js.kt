@@ -113,6 +113,33 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                             graphqlQuery = GraphqlUserLoginQuery(),
                         )
                     }
+
+                    val importedMailListViewModel = remember {
+                        ImportedMailListViewModel(
+                            coroutineScope = rootCoroutineScope,
+                            ioDispatcher = Dispatchers.Unconfined,
+                            graphqlApi = MailLinkScreenGraphqlApi(),
+                        )
+                    }
+                    val mailImportViewModel = remember {
+                        MailImportViewModel(
+                            coroutineScope = rootCoroutineScope,
+                            ioDispatcher = Dispatchers.Unconfined,
+                            graphqlApi = MailImportScreenGraphqlApi(),
+                            loginCheckUseCase = loginCheckUseCase,
+                        )
+                    }
+
+                    val rootListViewModel = remember {
+                        RootListViewModel(
+                            coroutineScope = rootCoroutineScope,
+                        )
+                    }
+                    val mailScreenViewModel = remember {
+                        MailScreenViewModel(
+                            coroutineScope = rootCoroutineScope,
+                        )
+                    }
                     val rootScreenScaffoldListener: RootScreenScaffoldListener = remember(navController) {
                         object : RootScreenScaffoldListener {
                             override fun onClickHome() {
@@ -128,7 +155,10 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                             }
 
                             override fun onClickMail() {
-                                navController.navigate(ScreenStructure.Root.Mail.Imported(isLinked = false)) // TODO
+                                navController.navigate(
+                                    mailScreenViewModel.viewModelStateFlow.value.screenStructure
+                                        ?: ScreenStructure.Root.Mail.Imported(isLinked = false),
+                                )
                             }
                         }
                     }
@@ -139,10 +169,17 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                         )
                     }
 
-                    val viewModelEventHandlers = remember(navController) {
+                    val viewModelEventHandlers = remember(
+                        navController,
+                        globalEventSender,
+                        rootScreenScaffoldListener,
+                        mailScreenViewModel.viewModelStateFlow
+                    ) {
                         ViewModelEventHandlers(
                             navController = navController,
                             globalEventSender = globalEventSender,
+                            rootScreenScaffoldListener = rootScreenScaffoldListener,
+                            mailViewModelStateFlow = mailScreenViewModel.viewModelStateFlow,
                         )
                     }
 
@@ -159,32 +196,6 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                         },
                     ) { paddingValues ->
                         val tabHolder = rememberSaveableStateHolder()
-                        val importedMailListViewModel = remember {
-                            ImportedMailListViewModel(
-                                coroutineScope = rootCoroutineScope,
-                                ioDispatcher = Dispatchers.Unconfined,
-                                graphqlApi = MailLinkScreenGraphqlApi(),
-                            )
-                        }
-                        val mailImportViewModel = remember {
-                            MailImportViewModel(
-                                coroutineScope = rootCoroutineScope,
-                                ioDispatcher = Dispatchers.Unconfined,
-                                graphqlApi = MailImportScreenGraphqlApi(),
-                                loginCheckUseCase = loginCheckUseCase,
-                            )
-                        }
-
-                        val rootListViewModel = remember {
-                            RootListViewModel(
-                                coroutineScope = rootCoroutineScope,
-                            )
-                        }
-                        val mailScreenViewModel = remember {
-                            MailScreenViewModel(
-                                coroutineScope = rootCoroutineScope,
-                            )
-                        }
                         Box(
                             modifier = Modifier.fillMaxSize()
                                 .padding(paddingValues),
@@ -195,8 +206,11 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                         tabHolder = tabHolder,
                                         current = current,
                                         mailScreenUiStateProvider = {
+                                            mailScreenViewModel.updateScreenStructure(it)
                                             LaunchedEffect(mailScreenViewModel) {
-                                                viewModelEventHandlers.handle(mailScreenViewModel.eventHandler)
+                                                viewModelEventHandlers.handle(
+                                                    mailScreenViewModel.eventHandler,
+                                                )
                                             }
                                             mailScreenViewModel.uiStateFlow.collectAsState().value
                                         },
