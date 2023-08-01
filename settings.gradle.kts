@@ -67,6 +67,7 @@ dependencyResolutionManagement {
             library("ktor.server.statusPages", "io.ktor:ktor-server-status-pages:$ktorVersion")
             library("ktor.server.defaultHeaders", "io.ktor:ktor-server-default-headers:$ktorVersion")
             library("ktor.server.fowardedHeader", "io.ktor:ktor-server-forwarded-header:$ktorVersion")
+            library("ktor.server.compression","io.ktor:ktor-server-compression:$ktorVersion")
             library("ktor.serialization.json", "io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
             library("ktor.server.contentNegotiation", "io.ktor:ktor-server-content-negotiation:$ktorVersion")
             library("ktor.server.callLogging", "io.ktor:ktor-server-call-logging:$ktorVersion")

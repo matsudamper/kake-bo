@@ -11,6 +11,7 @@ import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.http.content.*
 import io.ktor.server.plugins.callloging.CallLogging
+import io.ktor.server.plugins.compression.Compression
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.forwardedheaders.ForwardedHeaders
 import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
@@ -49,6 +50,7 @@ class Main {
 fun Application.myApplicationModule() {
     install(ForwardedHeaders)
     install(XForwardedHeaders)
+    install(Compression)
     install(ContentNegotiation) {
         json(
             json = ObjectMapper.kotlinxSerialization,

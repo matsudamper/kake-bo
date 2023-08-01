@@ -39,6 +39,7 @@ kotlin {
                 implementation(libs.ktor.serialization.json)
                 implementation(libs.ktor.server.contentNegotiation)
                 implementation(libs.ktor.server.callLogging)
+                implementation(libs.ktor.server.compression)
             }
         }
         val jvmTest by getting {
