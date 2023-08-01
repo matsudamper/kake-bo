@@ -131,7 +131,7 @@ private class MoneyUsagesCursor(
     }
 
     companion object {
-        private val LAST_ID_KEY = "lastId"
+        private const val LAST_ID_KEY = "lastId"
         fun fromString(cursorString: String): MoneyUsagesCursor {
             return MoneyUsagesCursor(
                 lastId = MoneyUsageId(
