@@ -107,15 +107,20 @@ public class ImportedMailListViewModel(
     public fun updateQuery(
         screen: ScreenStructure.Root.Mail.Imported,
     ) {
+        val newQuery = ViewModelState.Query(
+            isLinked = screen.isLinked,
+        )
+        if (newQuery == viewModelStateFlow.value.mailState.query) {
+            return
+        }
         viewModelStateFlow.update {
             it.copy(
-                mailState = it.mailState.copy(
-                    query = it.mailState.query.copy(
-                        isLinked = screen.isLinked,
-                    ),
+                mailState = ViewModelState.MailState(
+                    query = newQuery,
                 ),
             )
         }
+        fetch()
     }
 
     private fun updateLinkStatus(newState: ImportedMailListScreenUiState.Filters.LinkStatus) {
@@ -124,20 +129,25 @@ public class ImportedMailListViewModel(
             Linked -> true
             NotLinked -> false
         }
+        val newQuery = viewModelStateFlow.value.mailState.query.copy(
+            isLinked = isLinked,
+        )
         coroutineScope.launch {
             viewModelEventSender.send {
                 it.changeQuery(isLinked = isLinked)
             }
         }
+        if (newQuery == viewModelStateFlow.value.mailState.query) {
+            return
+        }
         viewModelStateFlow.update {
             it.copy(
-                mailState = it.mailState.copy(
-                    query = it.mailState.query.copy(
-                        isLinked = isLinked,
-                    ),
+                mailState = ViewModelState.MailState(
+                    query = newQuery,
                 ),
             )
         }
+        fetch()
     }
 
     private fun createMailEvent(mail: MailLinkScreenGetMailsQuery.Node): ImportedMailListScreenUiState.ListItemEvent {
@@ -165,7 +175,8 @@ public class ImportedMailListViewModel(
 
     private var fetchJob = Job()
     private fun fetch() {
-        if (viewModelStateFlow.value.mailState.finishLoadingToEnd == true) return
+        val mailState = viewModelStateFlow.value.mailState
+        if (mailState.finishLoadingToEnd == true) return
         fetchJob.cancel()
         coroutineScope.launch(
             Job().also { fetchJob = it },
@@ -176,10 +187,14 @@ public class ImportedMailListViewModel(
                 )
             }
 
+            // TODO Errorhandling
             val response = try {
                 runCatching {
                     withContext(ioDispatcher) {
-                        graphqlApi.getMail(viewModelStateFlow.value.mailState.cursor)
+                        graphqlApi.getMail(
+                            cursor = mailState.cursor,
+                            isLinked = mailState.query.isLinked,
+                        )
                     }
                 }.getOrNull() ?: return@launch
             } finally {

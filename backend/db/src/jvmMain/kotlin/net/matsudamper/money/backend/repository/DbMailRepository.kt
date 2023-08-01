@@ -78,7 +78,7 @@ class DbMailRepository {
                     userMails.DATETIME,
                 )
                 .from(userMails)
-                .leftJoin(relation).using(userMails.USER_MAIL_ID)
+                .leftJoin(relation).using(relation.USER_MAIL_ID)
                 .where(
                     DSL.value(true)
                         .and(userMails.USER_ID.eq(userId.id))

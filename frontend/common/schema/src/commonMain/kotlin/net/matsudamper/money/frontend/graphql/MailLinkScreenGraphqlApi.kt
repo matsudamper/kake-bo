@@ -7,12 +7,14 @@ import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import net.matsudamper.money.frontend.common.base.lib.getNestedMessage
 import net.matsudamper.money.frontend.graphql.type.ImportedMailQuery
+import net.matsudamper.money.frontend.graphql.type.ImportedMailQueryFilter
 
 class MailLinkScreenGraphqlApi(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
     suspend fun getMail(
         cursor: String?,
+        isLinked: Boolean?,
     ): ApolloResponse<MailLinkScreenGetMailsQuery.Data>? {
         return runCatching {
             apolloClient
@@ -20,6 +22,9 @@ class MailLinkScreenGraphqlApi(
                     MailLinkScreenGetMailsQuery(
                         query = ImportedMailQuery(
                             cursor = Optional.present(cursor),
+                            filter = ImportedMailQueryFilter(
+                                isLinked = Optional.present(isLinked),
+                            ),
                             size = 10,
                         ),
                     ),

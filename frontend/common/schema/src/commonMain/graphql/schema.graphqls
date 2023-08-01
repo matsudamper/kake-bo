@@ -236,12 +236,12 @@ input AddUsageQuery {
 
 input ImportedMailQuery {
     cursor: String
-    filter: ImportedMailQueryFilter
+    filter: ImportedMailQueryFilter!
     size: Int!
 }
 
 input ImportedMailQueryFilter {
-    isLinked: Boolean!
+    isLinked: Boolean
 }
 
 input MailQuery {
