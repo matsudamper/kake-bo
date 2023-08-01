@@ -17,7 +17,7 @@ import java.util.concurrent.CompletionStage
 class MoneyUsageResolverImpl : MoneyUsageResolver {
     override fun title(
         moneyUsage: QlMoneyUsage,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<String>> {
         val context = getContext(env)
         val userId = context.verifyUserSession()
@@ -34,7 +34,7 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
 
     override fun description(
         moneyUsage: QlMoneyUsage,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<String>> {
         val context = getContext(env)
         val userId = context.verifyUserSession()
@@ -51,7 +51,7 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
 
     override fun date(
         moneyUsage: QlMoneyUsage,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<LocalDateTime>> {
         val context = getContext(env)
         val userId = context.verifyUserSession()
@@ -68,7 +68,7 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
 
     override fun amount(
         moneyUsage: QlMoneyUsage,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Int>> {
         val context = getContext(env)
         val userId = context.verifyUserSession()
@@ -85,7 +85,7 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
 
     override fun moneyUsageSubCategory(
         moneyUsage: QlMoneyUsage,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsageSubCategory?>> {
         val context = getContext(env)
         val userId = context.verifyUserSession()
@@ -117,7 +117,7 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
             MoneyUsageDataLoaderDefine.Key(
                 userId = userId,
                 moneyUsageId = moneyUsageId,
-            )
+            ),
         )
     }
 }
