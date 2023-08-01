@@ -6,16 +6,16 @@ import io.ktor.util.encodeBase64
 object CursorParser {
     fun createToString(keyValues: Map<String, String>): String {
         return keyValues.map { (key, value) ->
-            val key64 = key.decodeBase64String().replace("=", "")
-            val value64 = value.decodeBase64String().replace("=", "")
+            val key64 = key.encodeBase64().replace("=", "")
+            val value64 = value.encodeBase64().replace("=", "")
             "$key64=$value64"
         }.joinToString("&")
     }
 
     fun parseFromString(value: String): Map<String, String> {
-        return value.decodeBase64String().split("&").associate {
+        return value.split("&").associate {
             val (key, value) = it.split("=")
-            key.encodeBase64() to value.encodeBase64()
+            key.decodeBase64String() to value.decodeBase64String()
         }
     }
 }
