@@ -270,7 +270,7 @@ private fun Filter(
                         ),
                     ) {
                         Column(
-                            modifier = Modifier.width(IntrinsicSize.Min),
+                            modifier = Modifier.width(IntrinsicSize.Max),
                         ) {
                             Text(
                                 modifier = Modifier.fillMaxWidth()
