@@ -6,8 +6,10 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
+import net.matsudamper.money.backend.lib.CursorParser
 import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategoriesConnection
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategoriesInput
@@ -91,16 +93,40 @@ class UserResolverImpl : UserResolver {
                     userId = userId,
                     size = query.size,
                     isAsc = false,
-                    lastId = null,
+                    lastId = query.cursor?.let { MoneyUsagesCursor.fromString(it) }?.lastId,
                 )
+            val resultIds = results.getOrThrow()
             QlMoneyUsagesConnection(
-                nodes = results.getOrThrow().map { id ->
+                nodes = resultIds.map { id ->
                     QlMoneyUsage(
                         id = id,
                     )
                 },
-                cursor = null,
+                cursor = resultIds.lastOrNull()?.let { MoneyUsagesCursor(it).toCursorString() },
             )
         }.toDataFetcher()
+    }
+}
+
+private class MoneyUsagesCursor(
+    val lastId: MoneyUsageId,
+) {
+    fun toCursorString(): String {
+        return CursorParser.createToString(
+            mapOf(
+                LAST_ID_KEY to lastId.id.toString(),
+            )
+        )
+    }
+
+    companion object {
+        private val LAST_ID_KEY = "lastId"
+        fun fromString(cursorString: String): MoneyUsagesCursor {
+            return MoneyUsagesCursor(
+                lastId = MoneyUsageId(
+                    CursorParser.parseFromString(cursorString)[LAST_ID_KEY]!!.toInt()
+                ),
+            )
+        }
     }
 }
