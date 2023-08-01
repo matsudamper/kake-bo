@@ -63,6 +63,7 @@ type MoneyUsage {
     date: LocalDateTime!
     description: String!
     id: MoneyUsageId!
+    linkedMail: [ImportedMail!]
     moneyUsageSubCategory: MoneyUsageSubCategory
     title: String!
 }
