@@ -6,11 +6,11 @@ type ImportedMailAttributes {
 input ImportedMailQuery {
     size: Int!
     cursor: String
-    filter: ImportedMailQueryFilter
+    filter: ImportedMailQueryFilter!
 }
 
 input ImportedMailQueryFilter {
-    isLinked: Boolean!
+    isLinked: Boolean
 }
 
 type ImportedMailConnection {

@@ -39,6 +39,7 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
                 .getMails(
                     userId = userId,
                     size = query.size,
+                    isLinked = query.filter.isLinked,
                     lastMailId = cursor?.lastMailId,
                     isAsc = true,
                 )

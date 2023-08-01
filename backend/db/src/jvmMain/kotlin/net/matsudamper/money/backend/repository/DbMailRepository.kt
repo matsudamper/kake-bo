@@ -3,18 +3,16 @@ package net.matsudamper.money.backend.repository
 import java.time.LocalDateTime
 import net.matsudamper.money.backend.DbConnection
 import net.matsudamper.money.backend.element.UserId
-import net.matsudamper.money.db.schema.indexes.USER_MAILS_USER_ID
+import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
 import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.records.JUserMailsRecord
 import net.matsudamper.money.element.ImportedMailId
-import org.jooq.Condition
-import org.jooq.Record
-import org.jooq.TableField
 import org.jooq.impl.DSL
 import org.jooq.kotlin.and
 
 class DbMailRepository {
     private val userMails = JUserMails.USER_MAILS
+    private val relation = JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION
 
     fun addMail(
         userId: UserId,
@@ -67,6 +65,7 @@ class DbMailRepository {
         size: Int,
         lastMailId: ImportedMailId?,
         isAsc: Boolean,
+        isLinked: Boolean?,
     ): List<Mail> {
         return DbConnection.use { connection ->
             val result = DSL.using(connection)
@@ -79,9 +78,17 @@ class DbMailRepository {
                     userMails.DATETIME,
                 )
                 .from(userMails)
+                .leftJoin(relation).using(userMails.USER_MAIL_ID)
                 .where(
                     DSL.value(true)
                         .and(userMails.USER_ID.eq(userId.id))
+                        .and(
+                            when(isLinked) {
+                                true -> relation.MONEY_USAGE_ID.isNotNull
+                                false -> relation.MONEY_USAGE_ID.isNull
+                                null -> DSL.value(true)
+                            }
+                        )
                         .and(
                             if (lastMailId == null) {
                                 DSL.value(true)
