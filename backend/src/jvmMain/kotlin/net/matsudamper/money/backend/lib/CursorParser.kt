@@ -12,8 +12,8 @@ object CursorParser {
         }.joinToString("&")
     }
 
-    fun parseFromString(value: String): Map<String, String> {
-        return value.split("&").associate {
+    fun parseFromString(cursorString: String): Map<String, String> {
+        return cursorString.split("&").associate {
             val (key, value) = it.split("=")
             key.decodeBase64String() to value.decodeBase64String()
         }
