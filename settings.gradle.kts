@@ -47,11 +47,14 @@ dependencyResolutionManagement {
             plugin("kotlin.serialization", "org.jetbrains.kotlin.plugin.serialization").version(kotlinVersion)
             library("kotlin.coroutines.core", "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
             library("kotlin.datetime", "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+            library("kotlin.serialization.json", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
 
             plugin("compose", "org.jetbrains.compose").version(extra["compose.version"] as String)
             library("compose.material3", "org.jetbrains.compose.material3:material3:1.4.0")
 
-            library("kotlin.serialization.json", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+            library("graphqlJava.extendedScalars","com.graphql-java:graphql-java-extended-scalars:20.2")
+            library("graphqlJavaKickstart.javaTools", "com.graphql-java-kickstart:graphql-java-tools:13.0.2")
+            plugin("kobylynskyi.graphqlCodegen","io.github.kobylynskyi.graphql.codegen").version("5.8.0")
 
             library("log4j.api", "org.slf4j:slf4j-api:2.0.6")
             library("logback.classic", "ch.qos.logback:logback-classic:1.4.8")

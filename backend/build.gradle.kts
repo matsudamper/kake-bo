@@ -23,7 +23,7 @@ kotlin {
                 implementation(project(":backend:mail_parser"))
 
                 implementation(kotlin("stdlib"))
-                implementation("com.graphql-java:graphql-java-extended-scalars:20.2")
+                implementation(libs.graphqlJava.extendedScalars)
                 implementation(libs.jackson.jsr310)
                 implementation(libs.kotlin.serialization.json)
                 implementation(libs.kotlin.coroutines.core)

@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("multiplatform")
-    id("io.github.kobylynskyi.graphql.codegen") version "5.8.0"
+    alias(libs.plugins.kobylynskyi.graphqlCodegen)
 }
 
 val generatedPath = "$buildDir/generated/codegen"
@@ -21,8 +21,8 @@ kotlin {
                 implementation(kotlin("stdlib"))
                 implementation(libs.kotlin.serialization.json)
                 implementation(libs.logback.classic)
-                implementation("com.graphql-java:graphql-java-extended-scalars:20.2")
-                api("com.graphql-java-kickstart:graphql-java-tools:13.0.2")
+                implementation(libs.graphqlJava.extendedScalars)
+                api(libs.graphqlJavaKickstart.javaTools)
             }
         }
         val jvmTest by getting {
