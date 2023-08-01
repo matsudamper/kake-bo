@@ -68,16 +68,11 @@ class DbMailRepository {
         lastMailId: ImportedMailId?,
         isAsc: Boolean,
         isLinked: Boolean?,
-    ): List<Mail> {
+    ): List<ImportedMailId> {
         return DbConnection.use { connection ->
             val result = DSL.using(connection)
                 .select(
                     userMails.USER_MAIL_ID,
-                    userMails.PLAIN,
-                    userMails.HTML,
-                    userMails.FROM_MAIL,
-                    userMails.SUBJECT,
-                    userMails.DATETIME,
                 )
                 .from(userMails)
                 .leftJoin(relation).using(relation.USER_MAIL_ID)
@@ -116,18 +111,7 @@ class DbMailRepository {
                 .fetch()
 
             result.map {
-                it.get(userMails.USER_MAIL_ID)
-                it.get(userMails.PLAIN)
-                it.get(userMails.HTML)
-                it.get(userMails.FROM_MAIL)
-                Mail(
-                    id = ImportedMailId(it.get(userMails.USER_MAIL_ID)!!),
-                    plain = it.get(userMails.PLAIN),
-                    html = it.get(userMails.HTML),
-                    from = it.get(userMails.FROM_MAIL)!!,
-                    subject = it.get(userMails.SUBJECT)!!,
-                    dateTime = it.get(userMails.DATETIME)!!,
-                )
+                ImportedMailId(it.get(userMails.USER_MAIL_ID)!!)
             }
         }
     }

@@ -20,11 +20,11 @@ type ImportedMailConnection {
 
 type ImportedMail {
     id: ImportedMailId!
-    subject: String!
-    from: String!
-    plain: String
-    html: String
-    time: LocalDateTime!
+    subject: String! @lazy
+    from: String! @lazy
+    plain: String @lazy
+    html: String @lazy
+    time: LocalDateTime! @lazy
 
     suggestUsages: [SuggestMoneyUsage!]! @lazy
 }

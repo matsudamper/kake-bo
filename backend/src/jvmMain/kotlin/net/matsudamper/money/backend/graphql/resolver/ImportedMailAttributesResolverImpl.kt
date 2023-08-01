@@ -45,19 +45,14 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
                 )
 
             QlImportedMailConnection(
-                cursor = mails.lastOrNull()?.id?.let {
+                cursor = mails.lastOrNull()?.let {
                     ImportedMailAttributesMailsQueryCursor(
                         lastMailId = it,
                     ).toCursorString()
                 },
                 nodes = mails.map {
                     QlImportedMail(
-                        id = it.id,
-                        plain = it.plain,
-                        html = it.html,
-                        from = it.from,
-                        subject = it.subject,
-                        time = it.dateTime,
+                        id = it,
                     )
                 },
             )
