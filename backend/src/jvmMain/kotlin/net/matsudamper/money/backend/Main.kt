@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend
 
+import io.ktor.http.CacheControl
 import java.io.File
 import io.ktor.http.ContentType
 import io.ktor.serialization.kotlinx.json.json
@@ -90,7 +91,15 @@ fun Application.myApplicationModule() {
                 staticFiles(
                     remotePath = accessPath,
                     dir = File(it.path),
-                )
+                ) {
+                    if (accessPath.endsWith(".ttf")) {
+                        cacheControl {
+                            listOf(
+                                CacheControl.MaxAge(maxAgeSeconds = 60 * 60 * 24 * 30),
+                            )
+                        }
+                    }
+                }
             }
         accept(ContentType.Text.Html) {
             get("{...}") {
