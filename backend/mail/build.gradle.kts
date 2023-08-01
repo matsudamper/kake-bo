@@ -11,23 +11,23 @@ kotlin {
     sourceSets {
         val jvmMain by getting {
             dependencies {
-                api(project(":shared"))
-                api(project(":backend:base"))
-                api(project(":backend:db:schema"))
+                implementation(project(":shared"))
+                implementation(project(":backend:base"))
+                implementation(project(":backend:db:schema"))
 
-                api(kotlin("stdlib"))
-                api(kotlin("reflect"))
-                api(libs.kotlin.coroutines.core)
-                api(libs.kotlin.serialization.json)
-                api(libs.jakarta.mail.api)
-                api(libs.jakarta.mail)
-                api(libs.angus.mail)
-                api(libs.jakarta.activation.api)
+                implementation(kotlin("stdlib"))
+                implementation(kotlin("reflect"))
+                implementation(libs.kotlin.coroutines.core)
+                implementation(libs.kotlin.serialization.json)
+                implementation(libs.jakarta.mail.api)
+                implementation(libs.jakarta.mail)
+                implementation(libs.angus.mail)
+                implementation(libs.jakarta.activation.api)
             }
         }
         val jvmTest by getting {
             dependencies {
-                api(kotlin("test"))
+                implementation(kotlin("test"))
             }
         }
     }

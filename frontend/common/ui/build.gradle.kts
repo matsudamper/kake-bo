@@ -11,17 +11,17 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(project(":frontend:common:base"))
-                api(project(":frontend:common:uistate"))
-                api(libs.kotlin.datetime)
-                api(compose.runtime)
-                api(compose.foundation)
-                api(libs.compose.material3)
+                implementation(project(":frontend:common:base"))
+                implementation(project(":frontend:common:uistate"))
+                implementation(libs.kotlin.datetime)
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(libs.compose.material3)
             }
         }
         val commonTest by getting {
             dependencies {
-                api(kotlin("test"))
+                implementation(kotlin("test"))
             }
         }
     }

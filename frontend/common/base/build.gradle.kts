@@ -11,25 +11,25 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                api(compose.runtime)
-                api(compose.ui)
-                api(libs.kotlin.coroutines.core)
+                implementation(compose.runtime)
+                implementation(compose.ui)
+                implementation(libs.kotlin.coroutines.core)
             }
         }
         val jsMain by getting {
             dependencies {
-                api(project(":shared"))
-                api(compose.runtime)
-                api(compose.ui)
+                implementation(project(":shared"))
+                implementation(compose.runtime)
+                implementation(compose.ui)
 
-                api("io.ktor:ktor-client-logging-js:2.3.2")
-                api(libs.ktor.client.core)
-                api(libs.ktor.client.js)
+                implementation("io.ktor:ktor-client-logging-js:2.3.2")
+                implementation(libs.ktor.client.core)
+                implementation(libs.ktor.client.js)
             }
         }
         val jsTest by getting {
             dependencies {
-                api(kotlin("test"))
+                implementation(kotlin("test"))
             }
         }
     }

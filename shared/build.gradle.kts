@@ -14,8 +14,8 @@ kotlin {
         jvmToolchain(17)
         val commonMain by getting {
             dependencies {
-                api(kotlin("stdlib"))
-                api(libs.kotlin.serialization.json)
+                implementation(kotlin("stdlib"))
+                implementation(libs.kotlin.serialization.json)
             }
         }
     }
