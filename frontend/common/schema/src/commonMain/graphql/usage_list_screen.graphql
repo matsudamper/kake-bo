@@ -1,0 +1,26 @@
+query UsageListScreenPaging($query: MoneyUsagesQuery!) {
+    user {
+        moneyUsages(query: $query) {
+            cursor
+            nodes {
+                id
+                description
+                amount
+                date
+                title
+                linkedMail {
+                    id
+                    subject
+                }
+                moneyUsageSubCategory {
+                    id
+                    name
+                    category {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+    }
+}
