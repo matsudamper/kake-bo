@@ -7,6 +7,8 @@ import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
 import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.records.JUserMailsRecord
 import net.matsudamper.money.element.ImportedMailId
+import net.matsudamper.money.element.MailId
+import net.matsudamper.money.element.MoneyUsageId
 import org.jooq.impl.DSL
 import org.jooq.kotlin.and
 
@@ -161,6 +163,38 @@ class DbMailRepository {
                     subject = it.get(userMails.SUBJECT)!!,
                     dateTime = it.get(userMails.DATETIME)!!,
                 )
+            }
+        }
+    }
+
+    fun getMails(
+        userId: UserId,
+        moneyUsageIdList: List<MoneyUsageId>,
+    ): Result<Map<MoneyUsageId, List<ImportedMailId>>> {
+        return runCatching {
+            DbConnection.use { connection ->
+                val result = DSL.using(connection)
+                    .select(relation.MONEY_USAGE_ID, userMails.USER_MAIL_ID)
+                    .from(userMails)
+                    .leftJoin(relation).using(relation.USER_MAIL_ID)
+                    .where(
+                        DSL.value(true)
+                            .and(userMails.USER_ID.eq(userId.id))
+                            .and(relation.MONEY_USAGE_ID.`in`(moneyUsageIdList.map { it.id })),
+                    )
+                    .fetch()
+
+                result.map {
+                    MoneyUsageId(
+                        it.get(relation.MONEY_USAGE_ID)!!
+                    ) to ImportedMailId(
+                        it.get(userMails.USER_MAIL_ID)!!,
+                    )
+                }
+                    .groupBy(
+                        keySelector = { it.first },
+                        valueTransform = { it.second },
+                    )
             }
         }
     }

@@ -2,6 +2,7 @@ package net.matsudamper.money.backend.graphql.resolver
 
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.dataloader.MoneyUsageAssociateByImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.backend.graphql.GraphQlContext
@@ -13,6 +14,7 @@ import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
 import java.time.LocalDateTime
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
+import net.matsudamper.money.graphql.model.QlImportedMail
 
 class MoneyUsageResolverImpl : MoneyUsageResolver {
     override fun title(
@@ -100,6 +102,27 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
             QlMoneyUsageSubCategory(
                 id = subCategoryId,
             )
+        }.toDataFetcher()
+    }
+
+    override fun linkedMail(
+        moneyUsage: QlMoneyUsage,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<List<QlImportedMail>?>> {
+        val context = getContext(env)
+        val userId = context.verifyUserSession()
+        val relationFuture = context.dataLoaders.moneyUsageAssociateByImportedMailDataLoader.get(env)
+            .load(
+                MoneyUsageAssociateByImportedMailDataLoaderDefine.Key(
+                    userId = userId,
+                    moneyUsageId = moneyUsage.id,
+                ),
+            )
+        return CompletableFuture.supplyAsync {
+            val hoge = relationFuture.get() ?: return@supplyAsync null
+            hoge.mailIdList.map { id ->
+                QlImportedMail(id = id)
+            }
         }.toDataFetcher()
     }
 

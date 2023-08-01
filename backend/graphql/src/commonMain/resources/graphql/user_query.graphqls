@@ -43,7 +43,7 @@ type MoneyUsage {
     description: String! @lazy
     date: LocalDateTime! @lazy
     amount: Int! @lazy
-    
+
+    linkedMail: [ImportedMail!] @lazy
     moneyUsageSubCategory: MoneyUsageSubCategory @lazy
 }
-
