@@ -23,7 +23,10 @@ import net.matsudamper.money.graphql.model.QlUserSettings
 import net.matsudamper.money.graphql.model.UserResolver
 
 class UserResolverImpl : UserResolver {
-    override fun settings(user: QlUser, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlUserSettings>> {
+    override fun settings(
+        user: QlUser,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<QlUserSettings>> {
         return CompletableFuture.completedFuture(QlUserSettings()).toDataFetcher()
     }
 
@@ -61,7 +64,11 @@ class UserResolverImpl : UserResolver {
         }.toDataFetcher()
     }
 
-    override fun moneyUsageCategory(user: QlUser, id: MoneyUsageCategoryId, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlMoneyUsageCategory?>> {
+    override fun moneyUsageCategory(
+        user: QlUser,
+        id: MoneyUsageCategoryId,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<QlMoneyUsageCategory?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         context.verifyUserSession()
 
@@ -70,7 +77,11 @@ class UserResolverImpl : UserResolver {
         ).toDataFetcher()
     }
 
-    override fun moneyUsageSubCategory(user: QlUser, input: QlMoneyUsageSubCategoryInput, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlMoneyUsageSubCategory?>> {
+    override fun moneyUsageSubCategory(
+        user: QlUser,
+        input: QlMoneyUsageSubCategoryInput,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<QlMoneyUsageSubCategory?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         context.verifyUserSession()
 
