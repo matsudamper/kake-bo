@@ -26,6 +26,7 @@ import net.matsudamper.money.backend.base.ObjectMapper
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
 import org.slf4j.event.Level
+import kotlin.time.Duration.Companion.days
 
 class Main {
     companion object {
@@ -97,7 +98,7 @@ fun Application.myApplicationModule() {
                     if (accessPath.endsWith(".ttf")) {
                         cacheControl {
                             listOf(
-                                CacheControl.MaxAge(maxAgeSeconds = 60 * 60 * 24 * 30),
+                                CacheControl.MaxAge(maxAgeSeconds = 30.days.inWholeSeconds.toInt()),
                             )
                         }
                     }
