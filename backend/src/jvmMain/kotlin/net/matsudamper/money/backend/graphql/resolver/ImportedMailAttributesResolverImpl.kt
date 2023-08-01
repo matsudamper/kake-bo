@@ -16,7 +16,11 @@ import net.matsudamper.money.graphql.model.QlImportedMailQuery
 import net.matsudamper.money.graphql.model.QlImportedMailQueryFilter
 
 public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver {
-    override fun count(importedMailAttributes: QlImportedMailAttributes, query: QlImportedMailQueryFilter, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<Int?>> {
+    override fun count(
+        importedMailAttributes: QlImportedMailAttributes,
+        query: QlImportedMailQueryFilter,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<Int?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
 
@@ -29,7 +33,11 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
         }.toDataFetcher()
     }
 
-    override fun mails(importedMailAttributes: QlImportedMailAttributes, query: QlImportedMailQuery, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlImportedMailConnection>> {
+    override fun mails(
+        importedMailAttributes: QlImportedMailAttributes,
+        query: QlImportedMailQuery,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<QlImportedMailConnection>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
 
