@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.window.Popup
+import kotlinx.coroutines.delay
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
@@ -75,6 +76,7 @@ public data class ImportedMailListScreenUiState(
     public sealed interface LoadingState {
         public data class Loaded(
             val listItems: ImmutableList<ListItem>,
+            val showLastLoading: Boolean,
         ) : LoadingState
 
         public object Loading : LoadingState
@@ -109,6 +111,7 @@ public data class ImportedMailListScreenUiState(
     public interface Event {
         public fun onViewInitialized()
         public fun dismissFullScreenHtml()
+        public fun moreLoading()
     }
 }
 
@@ -134,6 +137,7 @@ public fun ImportedMailListScreen(
                 modifier = modifier,
                 uiState = loadingState,
                 filterUiState = uiState.filters,
+                moreLoading = uiState.event::moreLoading,
             )
         }
 
@@ -154,6 +158,7 @@ public fun MainContent(
     modifier: Modifier,
     filterUiState: ImportedMailListScreenUiState.Filters,
     uiState: ImportedMailListScreenUiState.LoadingState.Loaded,
+    moreLoading: () -> Unit,
 ) {
     Column(modifier = modifier) {
         Filter(
@@ -178,6 +183,24 @@ public fun MainContent(
                         ),
                     listItem = mail,
                 )
+            }
+            if (uiState.showLastLoading) {
+                item {
+                    LaunchedEffect(Unit) {
+                        moreLoading()
+                        while (true) {
+                            delay(500)
+                            moreLoading()
+                        }
+                    }
+                    Box(
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(vertical = 24.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
             }
         }
     }

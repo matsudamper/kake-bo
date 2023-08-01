@@ -50,6 +50,10 @@ public class ImportedMailListViewModel(
                     }
                 }
 
+                override fun moreLoading() {
+                    fetch()
+                }
+
                 override fun dismissFullScreenHtml() {
                     viewModelStateFlow.update {
                         it.copy(
@@ -68,6 +72,7 @@ public class ImportedMailListViewModel(
                     uiState.copy(
                         fullScreenHtml = viewModelState.fullScreenHtml,
                         loadingState = ImportedMailListScreenUiState.LoadingState.Loaded(
+                            showLastLoading = viewModelState.pagingCompleted.not(),
                             listItems = viewModelState.mails.map { mail ->
                                 ImportedMailListScreenUiState.ListItem(
                                     mail = ImportedMailListScreenUiState.ImportedMail(
@@ -194,6 +199,7 @@ public class ImportedMailListViewModel(
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     mails = viewModelState.mails + mailConnection.nodes,
+                    pagingCompleted = mailConnection.cursor == null,
                     cursor = mailConnection.cursor,
                     finishLoadingToEnd = mailConnection.cursor == null,
                     isLoading = false,
@@ -205,12 +211,13 @@ public class ImportedMailListViewModel(
     private data class ViewModelState(
         val isLoading: Boolean = true,
         val cursor: String? = null,
+        val pagingCompleted: Boolean = false,
         val finishLoadingToEnd: Boolean? = null,
         val mails: List<MailLinkScreenGetMailsQuery.Node> = listOf(),
         val fullScreenHtml: String? = null,
         val query: Query,
     ) {
-        public data class Query(
+        data class Query(
             val isLinked: Boolean?,
         )
     }
