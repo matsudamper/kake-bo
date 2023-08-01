@@ -11,7 +11,9 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import ImportMailScreenUiState
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 
 public data class MailScreenUiState(
     val event: Event,
@@ -34,49 +36,53 @@ public fun MailScreen(
 ) {
     val holder = rememberSaveableStateHolder()
 
-    Column(modifier = modifier) {
-        TabRow(
-            modifier = Modifier.fillMaxWidth(),
-            selectedTabIndex = when (screenStructure) {
-                is ScreenStructure.Root.Mail.Import -> 0
-                is ScreenStructure.Root.Mail.Imported -> 1
-            },
-        ) {
-            Tab(
-                selected = true,
-                onClick = { uiState.event.onClickImportTabButton() },
-                text = {
-                    Text(
-                        text = "インポート",
-                    )
+    RootScreenScaffold(
+        modifier = modifier,
+        currentScreen = RootScreenTab.Mail,
+        listener = rootScreenScaffoldListener,
+    ) {
+        Column(modifier = modifier) {
+            TabRow(
+                modifier = Modifier.fillMaxWidth(),
+                selectedTabIndex = when (screenStructure) {
+                    is ScreenStructure.Root.Mail.Import -> 0
+                    is ScreenStructure.Root.Mail.Imported -> 1
                 },
-            )
-            Tab(
-                selected = false,
-                onClick = { uiState.event.onClickImportedTabButton() },
-                text = {
-                    Text(
-                        text = "インポート済み",
-                    )
-                },
-            )
-        }
-        when (screenStructure) {
-            is ScreenStructure.Root.Mail.Import -> {
-                holder.SaveableStateProvider(screenStructure.toString()) {
-                    MailImportScreen(
-                        uiState = importMailScreenUiStateProvider(screenStructure),
-                        rootScreenScaffoldListener = rootScreenScaffoldListener,
-                    )
-                }
+            ) {
+                Tab(
+                    selected = true,
+                    onClick = { uiState.event.onClickImportTabButton() },
+                    text = {
+                        Text(
+                            text = "インポート",
+                        )
+                    },
+                )
+                Tab(
+                    selected = false,
+                    onClick = { uiState.event.onClickImportedTabButton() },
+                    text = {
+                        Text(
+                            text = "インポート済み",
+                        )
+                    },
+                )
             }
+            when (screenStructure) {
+                is ScreenStructure.Root.Mail.Import -> {
+                    holder.SaveableStateProvider(screenStructure.toString()) {
+                        MailImportScreen(
+                            uiState = importMailScreenUiStateProvider(screenStructure),
+                        )
+                    }
+                }
 
-            is ScreenStructure.Root.Mail.Imported -> {
-                holder.SaveableStateProvider(screenStructure.toString()) {
-                    ImportedMailListScreen(
-                        uiState = importedImportMailScreenUiStateProvider(screenStructure),
-                        rootScreenScaffoldListener = rootScreenScaffoldListener,
-                    )
+                is ScreenStructure.Root.Mail.Imported -> {
+                    holder.SaveableStateProvider(screenStructure.toString()) {
+                        ImportedMailListScreen(
+                            uiState = importedImportMailScreenUiStateProvider(screenStructure),
+                        )
+                    }
                 }
             }
         }

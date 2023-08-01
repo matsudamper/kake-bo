@@ -58,12 +58,6 @@ public class MailImportViewModel(
                     import()
                 }
 
-                override fun onClickBackButton() {
-                    coroutineScope.launch {
-                        viewModelEventSender.send { it.backRequest() }
-                    }
-                }
-
                 override fun onClickLoadMore() {
                     fetch()
                 }
@@ -291,6 +285,5 @@ public class MailImportViewModel(
 }
 
 public interface MailImportViewModelEvent {
-    public fun backRequest()
     public fun globalToast(message: String)
 }

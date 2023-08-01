@@ -63,7 +63,6 @@ private val scrollButtonHorizontalPadding = 12.dp
 @Composable
 public fun MailImportScreen(
     uiState: ImportMailScreenUiState,
-    rootScreenScaffoldListener: RootScreenScaffoldListener,
 ) {
     LaunchedEffect(uiState.event) {
         uiState.event.onViewInitialized()
@@ -98,25 +97,6 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
     }
     Scaffold(
         contentColor = MaterialTheme.colorScheme.onSurface,
-        topBar = {
-            KakeBoTopAppBar(
-                modifier = Modifier.fillMaxWidth(),
-                navigationIcon = {
-                    IconButton(onClick = { uiState.event.onClickBackButton() }) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "back",
-                        )
-                    }
-                },
-                title = {
-                    Text(
-                        text = "メール インポート",
-                        fontFamily = rememberCustomFontFamily(),
-                    )
-                },
-            )
-        },
         bottomBar = {
             if (firstLoadingFinished) {
                 Box(

@@ -229,7 +229,6 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                                 viewModelEventHandlers.handle(importedMailListViewModel.eventHandler)
                                             }
                                             importedMailListViewModel.rootUiStateFlow.collectAsState().value
-
                                         },
                                     )
                                 }

@@ -120,7 +120,6 @@ public data class ImportedMailListScreenUiState(
 public fun ImportedMailListScreen(
     modifier: Modifier = Modifier,
     uiState: ImportedMailListScreenUiState,
-    rootScreenScaffoldListener: RootScreenScaffoldListener,
 ) {
     if (uiState.fullScreenHtml != null) {
         Html(
@@ -133,28 +132,22 @@ public fun ImportedMailListScreen(
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
     }
-    RootScreenScaffold(
-        modifier = modifier,
-        currentScreen = RootScreenTab.Mail,
-        listener = rootScreenScaffoldListener,
-    ) {
-        when (val loadingState = uiState.loadingState) {
-            is ImportedMailListScreenUiState.LoadingState.Loaded -> {
-                MainContent(
-                    modifier = Modifier.fillMaxSize(),
-                    uiState = loadingState,
-                    filterUiState = uiState.filters,
-                )
-            }
+    when (val loadingState = uiState.loadingState) {
+        is ImportedMailListScreenUiState.LoadingState.Loaded -> {
+            MainContent(
+                modifier = modifier,
+                uiState = loadingState,
+                filterUiState = uiState.filters,
+            )
+        }
 
-            is ImportedMailListScreenUiState.LoadingState.Loading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.Center),
-                    )
-                }
+        is ImportedMailListScreenUiState.LoadingState.Loading -> {
+            Box(
+                modifier = modifier,
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                )
             }
         }
     }

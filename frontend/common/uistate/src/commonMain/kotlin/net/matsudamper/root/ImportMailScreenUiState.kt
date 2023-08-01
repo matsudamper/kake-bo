@@ -41,7 +41,6 @@ public data class ImportMailScreenUiState(
         public fun onViewInitialized()
         public fun htmlDismissRequest()
         public fun onClickImport()
-        public fun onClickBackButton()
         public fun onClickLoadMore()
     }
 }

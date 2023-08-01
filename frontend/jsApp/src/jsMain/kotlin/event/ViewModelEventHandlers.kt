@@ -42,10 +42,6 @@ data class ViewModelEventHandlers(
             val scope = this
             handler.collect(
                 object : MailImportViewModelEvent {
-                    override fun backRequest() {
-                        navController.back()
-                    }
-
                     override fun globalToast(message: String) {
                         scope.launch {
                             globalEventSender.send {
