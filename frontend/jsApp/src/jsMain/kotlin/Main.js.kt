@@ -59,6 +59,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.ImportedMailListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.add_money_usage.AddMoneyUsageScreenApi
+import net.matsudamper.money.frontend.common.viewmodel.mail.MailScreenGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.mail.MailScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.list.HomeUsageListGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.root.list.RootListViewModel
@@ -336,6 +337,8 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                     ) {
                                         MailScreenViewModel(
                                             coroutineScope = coroutineScope,
+                                            api = MailScreenGraphqlApi(),
+                                            importedMailId = current.id,
                                         )
                                     }
 

@@ -1,0 +1,27 @@
+query MailScreen($id: ImportedMailId!) {
+    user {
+        importedMailAttributes {
+            mail(id: $id) {
+                id
+                from
+                plain
+                subject
+                dateTime
+                suggestUsages {
+                    title
+                    description
+                    date
+                    amount
+                    subCategory {
+                        id
+                        name
+                        category {
+                            id
+                            name
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

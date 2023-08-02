@@ -38,12 +38,12 @@ object GraphqlClient {
         )
         .addCustomScalarAdapter(
             ApolloImportedMailId.type,
-            CustomStringAdapter(
+            CustomIntAdapter(
                 serialize = {
-                    it.id.toString()
+                    it.id
                 },
                 deserialize = { value ->
-                    value.toIntOrNull()?.let { ImportedMailId(it) }
+                    ImportedMailId(value)
                 },
             ),
         )

@@ -428,7 +428,7 @@ private fun SuggestUsageItem(
     GridColumn(
         modifier = modifier,
         horizontalPadding = 8.dp,
-        verticalPadding = 4.dp
+        verticalPadding = 4.dp,
     ) {
         row {
             item {
