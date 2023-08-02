@@ -48,7 +48,7 @@ query MailLinkScreenGetMails(
                     subject
                     plain
                     html
-                    time
+                    dateTime
                     suggestUsages {
                         title
                         description
@@ -58,9 +58,13 @@ query MailLinkScreenGetMails(
                             id
                             name
                         }
-                        type {
+                        subCategory {
                             id
                             name
+                            category {
+                                id
+                                name
+                            }
                         }
                     }
                 }

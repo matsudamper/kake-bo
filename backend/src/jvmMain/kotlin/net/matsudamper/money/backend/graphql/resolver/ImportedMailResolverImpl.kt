@@ -1,7 +1,5 @@
 package net.matsudamper.money.backend.graphql.resolver
 
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
@@ -11,8 +9,10 @@ import net.matsudamper.money.backend.mail.parser.MailMoneyUsageParser
 import net.matsudamper.money.graphql.model.ImportedMailResolver
 import net.matsudamper.money.graphql.model.QlImportedMail
 import net.matsudamper.money.graphql.model.QlMoneyUsageService
-import net.matsudamper.money.graphql.model.QlSuggestMoneyUsage
+import net.matsudamper.money.graphql.model.QlMoneyUsageSuggest
 import java.time.LocalDateTime
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionStage
 
 class ImportedMailResolverImpl : ImportedMailResolver {
     override fun subject(
@@ -87,7 +87,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
         }.toDataFetcher()
     }
 
-    override fun time(
+    override fun dateTime(
         importedMail: QlImportedMail,
         env: DataFetchingEnvironment
     ): CompletionStage<DataFetcherResult<LocalDateTime>> {
@@ -108,7 +108,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
     override fun suggestUsages(
         importedMail: QlImportedMail,
         env: DataFetchingEnvironment
-    ): CompletionStage<DataFetcherResult<List<QlSuggestMoneyUsage>>> {
+    ): CompletionStage<DataFetcherResult<List<QlMoneyUsageSuggest>>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
 
@@ -128,9 +128,8 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                 plain = targetMail.plain.orEmpty(),
                 date = targetMail.dateTime,
             )
-
             results.map { result ->
-                QlSuggestMoneyUsage(
+                QlMoneyUsageSuggest(
                     title = result.title,
                     price = result.price,
                     description = result.description,
@@ -141,7 +140,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                             name = it.displayName,
                         )
                     },
-                    type = null, // TODO
+                    subCategory = null, // todo
                 )
             }
         }.toDataFetcher()

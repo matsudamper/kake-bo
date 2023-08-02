@@ -39,17 +39,18 @@ type ImportMailResult {
 }
 
 type ImportedMail {
+    dateTime: LocalDateTime!
     from: String!
     html: String
     id: ImportedMailId!
     plain: String
     subject: String!
-    suggestUsages: [SuggestMoneyUsage!]!
-    time: LocalDateTime!
+    suggestUsages: [MoneyUsageSuggest!]!
 }
 
 type ImportedMailAttributes {
     count(query: ImportedMailQueryFilter!): Int
+    mail(id: ImportedMailId!): ImportedMail
     mails(query: ImportedMailQuery!): ImportedMailConnection!
 }
 
@@ -90,6 +91,15 @@ type MoneyUsageSubCategory {
     name: String!
 }
 
+type MoneyUsageSuggest {
+    date: LocalDateTime
+    description: String!
+    price: Int
+    service: MoneyUsageService
+    subCategory: MoneyUsageSubCategory
+    title: String!
+}
+
 type MoneyUsagesConnection {
     cursor: String
     nodes: [MoneyUsage!]!
@@ -111,15 +121,6 @@ type SettingsMutation {
 type SubCategoriesConnection {
     cursor: String
     nodes: [MoneyUsageSubCategory!]!
-}
-
-type SuggestMoneyUsage {
-    date: LocalDateTime
-    description: String!
-    price: Int
-    service: MoneyUsageService
-    title: String!
-    type: MoneyUsageCategory
 }
 
 type User {
@@ -155,8 +156,8 @@ type UserMail {
 }
 
 type UserMailAttributes {
-    mails(mailQuery: MailQuery!): UserMailConnection!
     mailCount: Int
+    mails(mailQuery: MailQuery!): UserMailConnection!
 }
 
 type UserMailConnection {

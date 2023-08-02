@@ -1,9 +1,9 @@
-type SuggestMoneyUsage {
+type MoneyUsageSuggest {
     title: String!
     description: String!
     date: LocalDateTime
     price: Int
-    type: MoneyUsageCategory
+    subCategory: MoneyUsageSubCategory
     service: MoneyUsageService
 }
 
