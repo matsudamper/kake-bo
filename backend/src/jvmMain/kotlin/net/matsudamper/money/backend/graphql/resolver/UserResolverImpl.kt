@@ -25,7 +25,7 @@ import net.matsudamper.money.graphql.model.UserResolver
 class UserResolverImpl : UserResolver {
     override fun settings(
         user: QlUser,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlUserSettings>> {
         return CompletableFuture.completedFuture(QlUserSettings()).toDataFetcher()
     }
@@ -67,7 +67,7 @@ class UserResolverImpl : UserResolver {
     override fun moneyUsageCategory(
         user: QlUser,
         id: MoneyUsageCategoryId,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsageCategory?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         context.verifyUserSession()
@@ -80,7 +80,7 @@ class UserResolverImpl : UserResolver {
     override fun moneyUsageSubCategory(
         user: QlUser,
         input: QlMoneyUsageSubCategoryInput,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsageSubCategory?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         context.verifyUserSession()
@@ -126,7 +126,7 @@ private class MoneyUsagesCursor(
         return CursorParser.createToString(
             mapOf(
                 LAST_ID_KEY to lastId.id.toString(),
-            )
+            ),
         )
     }
 
@@ -135,7 +135,7 @@ private class MoneyUsagesCursor(
         fun fromString(cursorString: String): MoneyUsagesCursor {
             return MoneyUsagesCursor(
                 lastId = MoneyUsageId(
-                    CursorParser.parseFromString(cursorString)[LAST_ID_KEY]!!.toInt()
+                    CursorParser.parseFromString(cursorString)[LAST_ID_KEY]!!.toInt(),
                 ),
             )
         }

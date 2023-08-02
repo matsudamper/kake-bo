@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -34,7 +33,7 @@ public fun LoadingErrorContent(
             )
             Spacer(Modifier.height(8.dp))
             OutlinedButton(
-                onClick = onClickRetry
+                onClick = onClickRetry,
             ) {
                 Text(text = "再読み込み")
             }

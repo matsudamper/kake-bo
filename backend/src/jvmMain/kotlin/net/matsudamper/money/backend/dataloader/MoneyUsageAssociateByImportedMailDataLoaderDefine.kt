@@ -3,11 +3,8 @@ package net.matsudamper.money.backend.dataloader
 import java.util.concurrent.CompletableFuture
 import net.matsudamper.money.backend.di.RepositoryFactory
 import net.matsudamper.money.backend.element.UserId
-import net.matsudamper.money.backend.repository.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.element.ImportedMailId
-import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
-import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.lib.flatten
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
@@ -39,7 +36,6 @@ class MoneyUsageAssociateByImportedMailDataLoaderDefine(
                             ) to mailId
                         }.toMap()
                     }.flatten()
-
 
                 keys.associateWith { key ->
                     val result = results[key] ?: return@associateWith null

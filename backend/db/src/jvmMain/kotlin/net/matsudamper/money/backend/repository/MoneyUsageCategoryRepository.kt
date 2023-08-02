@@ -102,7 +102,7 @@ class MoneyUsageCategoryRepository {
         userId: UserId,
         categoryId: MoneyUsageCategoryId,
         name: String?,
-    ) : Boolean {
+    ): Boolean {
         return DbConnection.use { connection ->
             if (name != null) {
                 DSL.using(connection)

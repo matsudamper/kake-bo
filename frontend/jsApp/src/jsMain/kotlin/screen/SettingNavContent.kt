@@ -23,8 +23,8 @@ import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.ImapSettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModel
-import net.matsudamper.money.frontend.common.viewmodel.settings.SettingScreenCategoryApi
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
+import net.matsudamper.money.frontend.common.viewmodel.settings.SettingScreenCategoryApi
 import net.matsudamper.money.frontend.graphql.GraphqlUserConfigQuery
 
 @Composable

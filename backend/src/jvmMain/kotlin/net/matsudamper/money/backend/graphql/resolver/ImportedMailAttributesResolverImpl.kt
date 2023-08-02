@@ -4,7 +4,6 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
-import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.lib.CursorParser
@@ -20,7 +19,7 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
     override fun count(
         importedMailAttributes: QlImportedMailAttributes,
         query: QlImportedMailQueryFilter,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Int?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
@@ -37,7 +36,7 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
     override fun mails(
         importedMailAttributes: QlImportedMailAttributes,
         query: QlImportedMailQuery,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportedMailConnection>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
@@ -71,7 +70,7 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
     override fun mail(
         importedMailAttributes: QlImportedMailAttributes,
         id: ImportedMailId,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportedMail?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         context.verifyUserSession()

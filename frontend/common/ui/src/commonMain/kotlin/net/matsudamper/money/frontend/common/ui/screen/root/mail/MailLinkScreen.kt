@@ -304,7 +304,7 @@ private fun SuggestUsageItem(
 ) {
     Card(
         modifier = modifier,
-        onClick = { listItem.event.onClick() }
+        onClick = { listItem.event.onClick() },
     ) {
         Column(
             modifier = Modifier.fillMaxWidth()

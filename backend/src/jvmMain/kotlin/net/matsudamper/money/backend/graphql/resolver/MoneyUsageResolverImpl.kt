@@ -1,5 +1,8 @@
 package net.matsudamper.money.backend.graphql.resolver
 
+import java.time.LocalDateTime
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.MoneyUsageAssociateByImportedMailDataLoaderDefine
@@ -9,12 +12,9 @@ import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.graphql.model.MoneyUsageResolver
+import net.matsudamper.money.graphql.model.QlImportedMail
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
-import java.time.LocalDateTime
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletionStage
-import net.matsudamper.money.graphql.model.QlImportedMail
 
 class MoneyUsageResolverImpl : MoneyUsageResolver {
     override fun title(
@@ -107,7 +107,7 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
 
     override fun linkedMail(
         moneyUsage: QlMoneyUsage,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<List<QlImportedMail>?>> {
         val context = getContext(env)
         val userId = context.verifyUserSession()

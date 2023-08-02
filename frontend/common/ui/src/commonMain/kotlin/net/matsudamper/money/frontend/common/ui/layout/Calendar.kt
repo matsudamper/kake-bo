@@ -66,7 +66,7 @@ public fun Calendar(
         ) {
             IconButton(onClick = {
                 visibleCalendarDate = visibleCalendarDate.minus(1, DateTimeUnit.MONTH)
-            }) {
+            },) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowLeft,
                     contentDescription = "前の月",
@@ -82,7 +82,7 @@ public fun Calendar(
             )
             IconButton(onClick = {
                 visibleCalendarDate = visibleCalendarDate.plus(1, DateTimeUnit.MONTH)
-            }) {
+            },) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowRight,
                     contentDescription = "後の月",
@@ -92,7 +92,7 @@ public fun Calendar(
         }
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
-            modifier = Modifier
+            modifier = Modifier,
         ) {
             items(7) {
                 Text(
@@ -122,7 +122,7 @@ public fun Calendar(
                                 MaterialTheme.colorScheme.onPrimaryContainer
                             } else {
                                 Color.Transparent
-                            }
+                            },
                         ),
                 ) {
                     if (date != null) {

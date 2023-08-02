@@ -95,7 +95,7 @@ public fun RootListScreen(
                                     }
                                     Box(
                                         modifier = Modifier.fillMaxWidth()
-                                            .padding(vertical = 12.dp)
+                                            .padding(vertical = 12.dp),
                                     ) {
                                         CircularProgressIndicator(
                                             modifier = Modifier.align(Alignment.Center),
@@ -134,7 +134,7 @@ private fun ListItem(
     item: RootListScreenUiState.Item,
 ) {
     Card(
-        modifier = modifier
+        modifier = modifier,
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(text = item.title)

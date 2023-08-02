@@ -257,7 +257,7 @@ public class AddMoneyUsageViewModel(
                 it.copy(
                     categorySelectDialog = categoryDialogViewModelState.copy(
                         screenType = ViewModelState.CategorySelectDialog.ScreenType.Root,
-                    )
+                    ),
                 )
             }
         }
@@ -274,7 +274,7 @@ public class AddMoneyUsageViewModel(
                                 it.copy(
                                     categorySelectDialog = categoryDialogViewModelState.copy(
                                         screenType = ViewModelState.CategorySelectDialog.ScreenType.Category,
-                                    )
+                                    ),
                                 )
                             }
                         },
@@ -283,7 +283,7 @@ public class AddMoneyUsageViewModel(
                                 it.copy(
                                     categorySelectDialog = categoryDialogViewModelState.copy(
                                         screenType = ViewModelState.CategorySelectDialog.ScreenType.SubCategory,
-                                    )
+                                    ),
                                 )
                             }
                         },
@@ -308,10 +308,10 @@ public class AddMoneyUsageViewModel(
                                                     category = item,
                                                     subCategory = null,
                                                 ),
-                                            )
+                                            ),
                                         )
                                     }
-                                }
+                                },
                             )
                         }.toImmutableList(),
                         onBackRequest = { changeRootScreen() },
@@ -332,10 +332,10 @@ public class AddMoneyUsageViewModel(
                                                 categorySet = categorySet.copy(
                                                     subCategory = item,
                                                 ),
-                                            )
+                                            ),
                                         )
                                     }
-                                }
+                                },
                             )
                         }?.toImmutableList(),
                         onBackRequest = { changeRootScreen() },
@@ -370,7 +370,7 @@ public class AddMoneyUsageViewModel(
 
         viewModelStateFlow.update {
             it.copy(
-                categories = categories.nodes
+                categories = categories.nodes,
             )
         }
     }
@@ -384,7 +384,7 @@ public class AddMoneyUsageViewModel(
         viewModelStateFlow.update {
             it.copy(
                 subCategories = it.subCategories
-                    .plus(id to categories)
+                    .plus(id to categories),
             )
         }
     }

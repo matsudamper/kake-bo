@@ -1,5 +1,8 @@
 package net.matsudamper.money.backend.graphql.resolver
 
+import java.time.LocalDateTime
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
@@ -10,14 +13,11 @@ import net.matsudamper.money.graphql.model.ImportedMailResolver
 import net.matsudamper.money.graphql.model.QlImportedMail
 import net.matsudamper.money.graphql.model.QlMoneyUsageService
 import net.matsudamper.money.graphql.model.QlMoneyUsageSuggest
-import java.time.LocalDateTime
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletionStage
 
 class ImportedMailResolverImpl : ImportedMailResolver {
     override fun subject(
         importedMail: QlImportedMail,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<String>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
@@ -25,8 +25,8 @@ class ImportedMailResolverImpl : ImportedMailResolver {
             .load(
                 ImportedMailDataLoaderDefine.Key(
                     userId = userId,
-                    importedMailId = importedMail.id
-                )
+                    importedMailId = importedMail.id,
+                ),
             )
         return CompletableFuture.supplyAsync {
             importedMailFuture.get().subject
@@ -35,7 +35,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
 
     override fun from(
         importedMail: QlImportedMail,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<String>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
@@ -43,8 +43,8 @@ class ImportedMailResolverImpl : ImportedMailResolver {
             .load(
                 ImportedMailDataLoaderDefine.Key(
                     userId = userId,
-                    importedMailId = importedMail.id
-                )
+                    importedMailId = importedMail.id,
+                ),
             )
         return CompletableFuture.supplyAsync {
             importedMailFuture.get().from
@@ -53,7 +53,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
 
     override fun plain(
         importedMail: QlImportedMail,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<String?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
@@ -61,8 +61,8 @@ class ImportedMailResolverImpl : ImportedMailResolver {
             .load(
                 ImportedMailDataLoaderDefine.Key(
                     userId = userId,
-                    importedMailId = importedMail.id
-                )
+                    importedMailId = importedMail.id,
+                ),
             )
         return CompletableFuture.supplyAsync {
             importedMailFuture.get().plain
@@ -71,7 +71,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
 
     override fun html(
         importedMail: QlImportedMail,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<String?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
@@ -79,8 +79,8 @@ class ImportedMailResolverImpl : ImportedMailResolver {
             .load(
                 ImportedMailDataLoaderDefine.Key(
                     userId = userId,
-                    importedMailId = importedMail.id
-                )
+                    importedMailId = importedMail.id,
+                ),
             )
         return CompletableFuture.supplyAsync {
             importedMailFuture.get().html
@@ -89,7 +89,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
 
     override fun dateTime(
         importedMail: QlImportedMail,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<LocalDateTime>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
@@ -97,8 +97,8 @@ class ImportedMailResolverImpl : ImportedMailResolver {
             .load(
                 ImportedMailDataLoaderDefine.Key(
                     userId = userId,
-                    importedMailId = importedMail.id
-                )
+                    importedMailId = importedMail.id,
+                ),
             )
         return CompletableFuture.supplyAsync {
             importedMailFuture.get().dateTime
@@ -107,7 +107,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
 
     override fun suggestUsages(
         importedMail: QlImportedMail,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<List<QlMoneyUsageSuggest>>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()

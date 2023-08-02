@@ -15,7 +15,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -82,7 +81,7 @@ public fun MailScreen(
             is MailScreenUiState.LoadingState.Loading -> {
                 Box(
                     modifier = Modifier.padding(paddingValues)
-                        .fillMaxSize()
+                        .fillMaxSize(),
                 ) {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
@@ -102,7 +101,7 @@ public fun MailScreen(
                     modifier = Modifier.padding(paddingValues),
                     onClickRetry = {
                         uiState.event.onClickRetry()
-                    } ,
+                    },
                 )
             }
         }

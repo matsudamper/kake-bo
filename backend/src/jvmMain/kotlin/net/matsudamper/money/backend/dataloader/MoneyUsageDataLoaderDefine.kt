@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.dataloader
 
+import java.time.LocalDateTime
 import java.util.concurrent.CompletableFuture
 import net.matsudamper.money.backend.di.RepositoryFactory
 import net.matsudamper.money.backend.element.UserId
@@ -8,7 +9,6 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.lib.flatten
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
-import java.time.LocalDateTime
 
 class MoneyUsageDataLoaderDefine(
     private val repositoryFactory: RepositoryFactory,

@@ -44,25 +44,25 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.add_money_usage.AddMoneyUsageScreen
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
+import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.mail.MailScreen
 import net.matsudamper.money.frontend.common.ui.screen.status.NotFoundScreen
-import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.LoginScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.add_money_usage.AddMoneyUsageScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.add_money_usage.AddMoneyUsageViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminAddUserScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminLoginScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminRootScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
-import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
-import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.mail.ImportedMailListViewModel
-import net.matsudamper.money.frontend.common.viewmodel.add_money_usage.AddMoneyUsageScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.mail.MailScreenGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.mail.MailScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.list.HomeUsageListGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.root.list.RootListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.mail.ImportedMailListViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
@@ -178,7 +178,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                         navController,
                         globalEventSender,
                         rootScreenScaffoldListener,
-                        mailScreenViewModel.viewModelStateFlow
+                        mailScreenViewModel.viewModelStateFlow,
                     ) {
                         ViewModelEventHandlers(
                             navController = navController,

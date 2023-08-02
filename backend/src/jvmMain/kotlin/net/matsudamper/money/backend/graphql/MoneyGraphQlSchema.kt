@@ -1,5 +1,8 @@
 package net.matsudamper.money.backend.graphql
 
+import java.time.LocalDateTime
+import java.util.Locale
+import java.util.jar.JarFile
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import graphql.GraphQL
 import graphql.GraphQLContext
@@ -35,9 +38,6 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageServiceId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
-import java.time.LocalDateTime
-import java.util.Locale
-import java.util.jar.JarFile
 
 object MoneyGraphQlSchema {
     private fun getDebugSchemaFiles(): List<String> {
@@ -146,7 +146,7 @@ object MoneyGraphQlSchema {
                 SchemaParserOptions.defaultOptions().copy(
                     objectMapperProvider = PerFieldConfiguringObjectMapperProvider { mapper, _ ->
                         mapper.registerModule(
-                            JavaTimeModule()
+                            JavaTimeModule(),
                         )
                     },
                     fieldVisibility = if (ServerEnv.isDebug) {

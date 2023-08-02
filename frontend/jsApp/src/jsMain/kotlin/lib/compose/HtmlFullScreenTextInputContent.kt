@@ -89,7 +89,7 @@ internal fun HtmlFullScreenTextInputContent(
                         onChange {
                             text = it.value
                         }
-                    }
+                    },
                 )
             } else {
                 Input(

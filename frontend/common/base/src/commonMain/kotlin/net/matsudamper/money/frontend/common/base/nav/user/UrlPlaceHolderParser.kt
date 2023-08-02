@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
-
 internal class UrlPlaceHolderParser(
     private val directions: List<Screens>,
 ) {

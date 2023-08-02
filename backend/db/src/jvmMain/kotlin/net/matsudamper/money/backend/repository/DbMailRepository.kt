@@ -192,7 +192,7 @@ class DbMailRepository {
 
                 result.map {
                     MoneyUsageId(
-                        it.get(relation.MONEY_USAGE_ID)!!
+                        it.get(relation.MONEY_USAGE_ID)!!,
                     ) to ImportedMailId(
                         it.get(userMails.USER_MAIL_ID)!!,
                     )

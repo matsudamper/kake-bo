@@ -4,10 +4,10 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import kotlinx.browser.window
 import io.ktor.http.ParametersBuilder
 import io.ktor.util.StringValues
 import io.ktor.util.toMap
-import kotlinx.browser.window
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
@@ -67,18 +67,20 @@ public class ScreenNavControllerImpl(
 
     private fun parseQueryParams(query: String): Map<String, List<String>> {
         return ParametersBuilder().apply {
-            appendAll(StringValues.build {
-                query.removePrefix("?")
-                    .split("&")
-                    .forEach { keyValue ->
-                        keyValue.split("=").let {
-                            val key = it.getOrNull(0) ?: return@forEach
-                            val value = it.getOrNull(1).orEmpty()
+            appendAll(
+                StringValues.build {
+                    query.removePrefix("?")
+                        .split("&")
+                        .forEach { keyValue ->
+                            keyValue.split("=").let {
+                                val key = it.getOrNull(0) ?: return@forEach
+                                val value = it.getOrNull(1).orEmpty()
 
-                            append(key, value)
+                                append(key, value)
+                            }
                         }
-                    }
-            })
+                },
+            )
         }.build().toMap()
     }
 

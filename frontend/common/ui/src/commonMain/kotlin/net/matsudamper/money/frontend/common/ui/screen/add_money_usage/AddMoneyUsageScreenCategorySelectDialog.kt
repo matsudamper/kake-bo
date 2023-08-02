@@ -101,7 +101,7 @@ internal fun CategorySelectDialog(
         ) {
             Column(
                 modifier = Modifier
-                    .padding(12.dp)
+                    .padding(12.dp),
             ) {
                 when (val screenTypeState = uiState.screenType) {
                     is AddMoneyUsageScreenCategorySelectDialogUiState.Screen.Root -> {
@@ -113,7 +113,7 @@ internal fun CategorySelectDialog(
                             },
                             description = {
                                 Text(text = screenTypeState.category)
-                            }
+                            },
                         )
                         Spacer(Modifier.height(12.dp))
                         SelectedSection(
@@ -124,7 +124,7 @@ internal fun CategorySelectDialog(
                             },
                             description = {
                                 Text(text = screenTypeState.subCategory)
-                            }
+                            },
                         )
                         Spacer(Modifier.height(12.dp))
                         Row(modifier = Modifier.align(Alignment.End)) {
@@ -228,7 +228,7 @@ private fun SelectedSection(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         ) {
             ProvideTextStyle(
                 TextStyle(
@@ -236,8 +236,8 @@ private fun SelectedSection(
                         Color.Unspecified
                     } else {
                         Color.Gray
-                    }
-                )
+                    },
+                ),
             ) {
                 ProvideTextStyle(MaterialTheme.typography.titleMedium) {
                     title()
@@ -249,7 +249,7 @@ private fun SelectedSection(
         }
         Icon(
             imageVector = Icons.Default.ArrowDropDown,
-            contentDescription = null
+            contentDescription = null,
         )
     }
 }

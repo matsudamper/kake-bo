@@ -16,8 +16,8 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.graphql.type.ImportedMailId as ApolloImportedMailId
 import net.matsudamper.money.frontend.graphql.type.MailId as ApolloMailId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoryId as ApolloMoneyUsageCategoryId
-import net.matsudamper.money.frontend.graphql.type.MoneyUsageServiceId as ApolloMoneyUsageServiceId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageId as ApolloMoneyUsageId
+import net.matsudamper.money.frontend.graphql.type.MoneyUsageServiceId as ApolloMoneyUsageServiceId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryId as ApolloMoneyUsageSubCategoryId
 
 object GraphqlClient {

@@ -11,12 +11,12 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
-import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModelEvent
-import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailLinkViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.list.RootListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModelEvent
+import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailLinkViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
 
@@ -144,14 +144,14 @@ data class ViewModelEventHandlers(
                     override fun navigateToImportMail() {
                         navController.navigate(
                             mailViewModelStateFlow.value.lastImportMailStructure
-                                ?: ScreenStructure.Root.Mail.Import
+                                ?: ScreenStructure.Root.Mail.Import,
                         )
                     }
 
                     override fun navigateToImportedMail() {
                         navController.navigate(
                             mailViewModelStateFlow.value.lastImportedMailStructure
-                                ?: ScreenStructure.Root.Mail.Imported(isLinked = false)
+                                ?: ScreenStructure.Root.Mail.Imported(isLinked = false),
                         )
                     }
                 },

@@ -66,7 +66,7 @@ public data class AddMoneyUsageScreenUiState(
         val default: String,
         val onComplete: (String) -> Unit,
         val canceled: () -> Unit,
-        val isMultiline: Boolean
+        val isMultiline: Boolean,
     )
 
     public data class CalendarDialog(
@@ -116,7 +116,7 @@ public fun AddMoneyUsageScreen(
         bottomBar = {
             Box(
                 modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Button(
                     modifier = Modifier
@@ -153,7 +153,7 @@ public fun AddMoneyUsageScreen(
                     },
                     clickChange = {
                         uiState.event.onClickDateChange()
-                    }
+                    },
                 )
                 Divider(Modifier.fillMaxWidth().height(1.dp))
                 Section(
@@ -165,7 +165,7 @@ public fun AddMoneyUsageScreen(
                     },
                     clickChange = {
                         uiState.event.onClickTitleChange()
-                    }
+                    },
                 )
                 Divider(Modifier.fillMaxWidth().height(1.dp))
                 Section(
@@ -177,7 +177,7 @@ public fun AddMoneyUsageScreen(
                     },
                     clickChange = {
                         uiState.event.onClickAmountChange()
-                    }
+                    },
                 )
                 Divider(Modifier.fillMaxWidth().height(1.dp))
                 Section(
@@ -189,7 +189,7 @@ public fun AddMoneyUsageScreen(
                     },
                     clickChange = {
                         uiState.event.onClickCategoryChange()
-                    }
+                    },
                 )
                 Divider(Modifier.fillMaxWidth().height(1.dp))
                 Section(
@@ -201,7 +201,7 @@ public fun AddMoneyUsageScreen(
                     },
                     clickChange = {
                         uiState.event.onClickDescriptionChange()
-                    }
+                    },
                 )
                 Spacer(Modifier.height(24.dp))
             }
@@ -238,7 +238,7 @@ public fun AddMoneyUsageScreen(
 private fun NumberInputDialog(
     value: Int,
     onChangeValue: (Int) -> Unit,
-    dismissRequest: () -> Unit
+    dismissRequest: () -> Unit,
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
@@ -255,7 +255,6 @@ private fun NumberInputDialog(
             value = value,
             onChangeValue = { onChangeValue(it) },
             dismissRequest = {
-
             },
         )
     }
@@ -333,7 +332,7 @@ private fun CalendarDialog(
                     selectedDate = selectedDate,
                     changeSelectedDate = {
                         selectedDate = it
-                    }
+                    },
                 )
                 Spacer(Modifier.height(24.dp))
                 Row(
@@ -342,12 +341,12 @@ private fun CalendarDialog(
                 ) {
                     TextButton(onClick = {
                         dismissRequest()
-                    }) {
+                    },) {
                         Text(text = "キャンセル")
                     }
                     TextButton(onClick = {
                         selectedCalendar(selectedDate)
-                    }) {
+                    },) {
                         Text(text = "決定")
                     }
                 }

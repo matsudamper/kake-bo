@@ -190,7 +190,6 @@ public class SettingCategoryViewModel(
             name = item.name,
             event = object : SettingCategoryScreenUiState.SubCategoryItem.Event {
                 override fun onClick() {
-
                 }
 
                 override fun onClickChangeName() {

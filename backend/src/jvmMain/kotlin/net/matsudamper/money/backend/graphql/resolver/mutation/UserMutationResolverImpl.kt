@@ -268,7 +268,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     override fun addUsage(
         userMutation: QlUserMutation,
         usage: QlAddUsageQuery,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsage>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
@@ -282,7 +282,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                     amount = usage.amount,
                     date = usage.date,
                 )
-            when(result) {
+            when (result) {
                 is MoneyUsageRepository.AddResult.Failed -> {
                     throw result.error
                 }

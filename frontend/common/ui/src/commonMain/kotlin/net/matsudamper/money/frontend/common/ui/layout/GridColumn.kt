@@ -39,7 +39,7 @@ internal fun GridColumn(
                 columnScope.rowScopes.mapIndexed { rowIndex, rowScope ->
                     maxHeightAssociateByRowIndex[rowIndex] = 0
                     val rowContent = rowScope.rowContents.getOrNull(columnIndex)
-                    val rowGroup = subcompose("${columnIndex}_${rowIndex}") {
+                    val rowGroup = subcompose("${columnIndex}_$rowIndex") {
                         Column {
                             Row {
                                 rowContent?.invoke()
@@ -59,8 +59,8 @@ internal fun GridColumn(
                                 minWidth = 0,
                                 minHeight = 0,
                                 maxWidth = (constraints.maxWidth - currentWidth),
-                                maxHeight = constraints.maxHeight
-                            )
+                                maxHeight = constraints.maxHeight,
+                            ),
                         )
                     }
 
