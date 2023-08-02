@@ -43,6 +43,7 @@ query MailLinkScreenGetMails(
             mails(query: $query) {
                 cursor
                 nodes {
+                    id
                     from
                     subject
                     plain

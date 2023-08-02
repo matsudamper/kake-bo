@@ -126,7 +126,7 @@ public class ScreenNavControllerImpl(
             Screens.AddMoneyUsage -> ScreenStructure.AddMoneyUsage
             Screens.Mail -> {
                 ScreenStructure.Mail(
-                    importedMailId = run id@{
+                    id = run id@{
                         val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
                         ImportedMailId(id)
                     },

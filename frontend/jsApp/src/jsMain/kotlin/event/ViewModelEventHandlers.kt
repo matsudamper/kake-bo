@@ -3,6 +3,7 @@ package event
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -73,6 +74,10 @@ data class ViewModelEventHandlers(
 
                     override fun changeQuery(isLinked: Boolean?) {
                         navController.navigate(ScreenStructure.Root.Mail.Imported(isLinked = isLinked))
+                    }
+
+                    override fun navigateToMailDetail(id: ImportedMailId) {
+                        navController.navigate(ScreenStructure.Mail(id = id))
                     }
                 },
             )

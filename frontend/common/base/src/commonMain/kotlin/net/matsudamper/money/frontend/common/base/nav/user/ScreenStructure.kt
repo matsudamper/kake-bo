@@ -124,28 +124,17 @@ public sealed interface ScreenStructure {
     }
 
     public data class Mail(
-        public val importedMailId: ImportedMailId,
+        public val id: ImportedMailId,
     ) : ScreenStructure {
         override val direction: Screens = Screens.Mail
 
         override fun createUrl(): String {
-            val urlParam = ParametersBuilder()
-                .apply {
-                    append(IMPORTED_MAIL_ID_KEY, importedMailId.toString())
-                }
-                .build()
-                .formUrlEncode()
-                .let { if (it.isEmpty()) it else "?$it" }
-
-            return direction.placeholderUrl.plus(urlParam)
+            return direction.placeholderUrl
+                .replace("{id}", id.id.toString())
         }
 
         override fun equalScreen(other: ScreenStructure): Boolean {
             return this == other
-        }
-
-        public companion object {
-            private const val IMPORTED_MAIL_ID_KEY = "imported_mail_id"
         }
     }
 

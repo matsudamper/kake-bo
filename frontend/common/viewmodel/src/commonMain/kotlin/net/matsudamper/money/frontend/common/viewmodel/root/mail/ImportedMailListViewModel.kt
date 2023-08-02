@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState
@@ -165,9 +166,9 @@ public class ImportedMailListViewModel(
                 }
             }
 
-            override fun onClickRegisterButton() {
+            override fun onClick() {
                 coroutineScope.launch {
-                    viewModelEventSender.send { it.globalToast("未実装") }
+                    viewModelEventSender.send { it.navigateToMailDetail(mail.id) }
                 }
             }
         }
@@ -244,4 +245,5 @@ public class ImportedMailListViewModel(
 public interface MailLinkViewModelEvent {
     public fun globalToast(message: String)
     public fun changeQuery(isLinked: Boolean?)
+    public fun navigateToMailDetail(id: ImportedMailId)
 }
