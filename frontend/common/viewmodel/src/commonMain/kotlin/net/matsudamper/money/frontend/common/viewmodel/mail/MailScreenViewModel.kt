@@ -71,7 +71,9 @@ public class MailScreenViewModel(
                                                             val splitAmount = amount.toString().toList()
                                                                 .reversed()
                                                                 .windowed(3, 3, partialWindows = true)
-                                                                .joinToString(",") { it.toString() }
+                                                                .map { it.reversed() }
+                                                                .reversed()
+                                                                .joinToString(",") { it.joinToString("") }
                                                             "${splitAmount}円"
                                                         },
                                                         category = run category@{
