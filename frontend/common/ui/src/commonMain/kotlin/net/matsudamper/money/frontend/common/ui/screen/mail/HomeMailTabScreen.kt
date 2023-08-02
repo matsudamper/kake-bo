@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
@@ -47,6 +49,7 @@ public data class MailScreenUiState(
         val amount: String?,
         val category: String?,
         val description: String,
+        val dateTime: String?,
     )
 
     @Immutable
@@ -66,13 +69,11 @@ public fun MailScreen(
         topBar = {
             KakeBoTopAppBar {
                 Text(
-                    text = when (uiState.loadingState) {
-                        is MailScreenUiState.LoadingState.Loaded -> uiState.loadingState.mail.title
-                        is MailScreenUiState.LoadingState.Loading -> ""
-                    }
+                    text = "家計簿 - メール",
                 )
             }
         },
+        contentColor = MaterialTheme.colorScheme.onSurface,
     ) { paddingValues ->
         when (uiState.loadingState) {
             is MailScreenUiState.LoadingState.Loading -> {
@@ -101,22 +102,112 @@ private fun MainContent(
     modifier: Modifier,
     uiState: MailScreenUiState.LoadingState.Loaded,
 ) {
-    Column(
+    Box(
         modifier = modifier.fillMaxSize()
-            .padding(24.dp)
+            .padding(horizontal = 24.dp)
             .widthIn(max = 700.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        contentAlignment = Alignment.TopCenter,
     ) {
-        Text(
-            text = "メール",
-            style = MaterialTheme.typography.titleLarge,
-        )
-        Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
-        MailCard(
-            modifier = Modifier.fillMaxWidth(),
-            uiState = uiState.mail,
-        )
-        Spacer(Modifier.height(24.dp))
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Spacer(modifier = Modifier.height(24.dp))
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                    text = "メール",
+                    style = MaterialTheme.typography.titleLarge,
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+                MailCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    uiState = uiState.mail,
+                )
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                    text = "解析結果",
+                    style = MaterialTheme.typography.titleLarge,
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+
+                LazyColumn {
+                    items(uiState.usageSuggest) { item ->
+                        MoneyUsageSuggestCard(
+                            modifier = Modifier.fillMaxWidth()
+                                .padding(bottom = 12.dp),
+                            items = item,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MoneyUsageSuggestCard(
+    modifier: Modifier = Modifier,
+    items: MailScreenUiState.UsageSuggest,
+) {
+    Card(
+        modifier = modifier,
+    ) {
+        Column(
+            modifier = Modifier.fillMaxWidth()
+                .padding(12.dp),
+        ) {
+            GridColumn(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalPadding = 8.dp,
+                verticalPadding = 4.dp,
+            ) {
+                row {
+                    item {
+                        Text("タイトル")
+                    }
+                    item {
+                        Text(text = items.title)
+                    }
+                }
+                row {
+                    item {
+                        Text("日付")
+                    }
+                    item {
+                        Text(text = items.dateTime.orEmpty())
+                    }
+                }
+                row {
+                    item {
+                        Text("金額")
+                    }
+                    item {
+                        Text(text = items.amount.orEmpty())
+                    }
+                }
+                row {
+                    item {
+                        Text("カテゴリ")
+                    }
+                    item {
+                        Text(text = items.category.orEmpty())
+                    }
+                }
+                row {
+                    item {
+                        Text("説明")
+                    }
+                    item {
+                        Text(text = items.description)
+                    }
+                }
+            }
+        }
     }
 }
 
