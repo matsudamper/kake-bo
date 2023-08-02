@@ -12,12 +12,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -40,17 +38,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import androidx.compose.ui.window.Popup
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
+import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
 
 public data class ImportedMailListScreenUiState(
@@ -315,9 +310,8 @@ private fun SuggestUsageItem(
             modifier = Modifier.fillMaxWidth()
                 .padding(12.dp),
         ) {
-            val textSpaceHeight = 4.dp
-
             CardSection(
+                modifier = Modifier.fillMaxWidth(),
                 title = {
                     Text(
                         text = "メール",
@@ -333,12 +327,12 @@ private fun SuggestUsageItem(
                         onClickDetail = {
                             listItem.event.onClickMailDetail()
                         },
-                        textSpaceHeight = textSpaceHeight,
                     )
                 },
             )
             Spacer(Modifier.height(12.dp))
             CardSection(
+                modifier = Modifier.fillMaxWidth(),
                 title = {
                     Text(
                         text = "解析結果",
@@ -385,7 +379,6 @@ private fun SuggestUsageItem(
                                 description = suggestUsage.description,
                                 date = suggestUsage.date,
                                 price = suggestUsage.price,
-                                textSpaceHeight = textSpaceHeight,
                             )
                         }
                     }
@@ -397,11 +390,12 @@ private fun SuggestUsageItem(
 
 @Composable
 private fun CardSection(
+    modifier: Modifier = Modifier,
     title: @Composable () -> Unit,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val textHorizontalPadding = 8.dp
-    Column {
+    Column(modifier = modifier) {
         Box(
             modifier = Modifier.padding(horizontal = textHorizontalPadding),
         ) {
@@ -430,99 +424,82 @@ private fun SuggestUsageItem(
     description: String,
     date: String,
     price: String,
-    textSpaceHeight: Dp,
 ) {
-    val density = LocalDensity.current
-    Column(modifier) {
-        var titleMaxWidth by remember {
-            mutableStateOf(0.dp)
-        }
-        val minSizeModifier = Modifier
-            .widthIn(min = titleMaxWidth)
-            .onSizeChanged {
-                titleMaxWidth = max(titleMaxWidth, with(density) { it.width.toDp() })
-            }
-        MailItemCell(
-            title = {
+    GridColumn(
+        modifier = modifier,
+        horizontalPadding = 8.dp,
+        verticalPadding = 4.dp
+    ) {
+        row {
+            item {
                 Text(
-                    modifier = Modifier.then(minSizeModifier),
                     text = "タイトル",
                     fontFamily = rememberCustomFontFamily(),
                 )
-            },
-            description = {
+            }
+            item {
                 Text(
-                    modifier = Modifier.widthIn(min = titleMaxWidth),
                     text = title,
                     fontFamily = rememberCustomFontFamily(),
                 )
-            },
-        )
-        Spacer(Modifier.height(textSpaceHeight))
-        MailItemCell(
-            title = {
+            }
+        }
+        row {
+            item {
                 Text(
-                    modifier = Modifier.then(minSizeModifier),
                     text = "サービス",
                     fontFamily = rememberCustomFontFamily(),
                 )
-            },
-            description = {
+            }
+            item {
                 Text(
-                    modifier = Modifier.widthIn(min = titleMaxWidth),
                     text = service,
                     fontFamily = rememberCustomFontFamily(),
                 )
-            },
-        )
-        Spacer(Modifier.height(textSpaceHeight))
-        MailItemCell(
-            title = {
+            }
+        }
+        row {
+            item {
                 Text(
-                    modifier = Modifier.then(minSizeModifier),
                     text = "日時",
                     fontFamily = rememberCustomFontFamily(),
                 )
-            },
-            description = {
+            }
+            item {
                 Text(
                     text = date,
                     fontFamily = rememberCustomFontFamily(),
                 )
-            },
-        )
-        Spacer(Modifier.height(textSpaceHeight))
-        MailItemCell(
-            title = {
+            }
+        }
+        row {
+            item {
                 Text(
-                    modifier = Modifier.then(minSizeModifier),
                     text = "説明",
                     fontFamily = rememberCustomFontFamily(),
                 )
-            },
-            description = {
+            }
+            item {
                 Text(
                     text = description,
                     fontFamily = rememberCustomFontFamily(),
                 )
-            },
-        )
-        Spacer(Modifier.height(textSpaceHeight))
-        MailItemCell(
-            title = {
+            }
+        }
+        row {
+            item {
                 Text(
-                    modifier = Modifier.then(minSizeModifier),
                     text = "金額",
                     fontFamily = rememberCustomFontFamily(),
                 )
-            },
-            description = {
+            }
+            item {
                 Text(
                     text = price,
                     fontFamily = rememberCustomFontFamily(),
                 )
-            },
-        )
+            }
+        }
     }
 }
 
@@ -532,83 +509,64 @@ private fun MailItem(
     from: String,
     subject: String,
     onClickDetail: () -> Unit,
-    textSpaceHeight: Dp,
 ) {
-    val density = LocalDensity.current
-    Column(
+    Row(
         modifier = modifier,
     ) {
-        var titleMaxWidth by remember {
-            mutableStateOf(0.dp)
-        }
-        val minSizeModifier = Modifier
-            .widthIn(min = titleMaxWidth)
-            .onSizeChanged {
-                titleMaxWidth = max(titleMaxWidth, with(density) { it.width.toDp() })
-            }
-        Row(
-            modifier = Modifier.fillMaxWidth()
-                .height(IntrinsicSize.Max),
+        GridColumn(
+            modifier = Modifier.weight(1f),
+            horizontalPadding = 8.dp,
+            verticalPadding = 4.dp,
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                MailItemCell(
-                    title = {
+            row {
+                item {
+                    Text(
+                        modifier = Modifier,
+                        text = "From",
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                }
+                item {
+                    Text(
+                        modifier = Modifier,
+                        text = from,
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                }
+            }
+            row {
+                item {
+                    Column(modifier = Modifier.fillMaxHeight()) {
+                        Spacer(Modifier.weight(1f))
                         Text(
-                            modifier = Modifier.then(minSizeModifier),
-                            text = "From",
-                            fontFamily = rememberCustomFontFamily(),
-                        )
-                    },
-                    description = {
-                        Text(
-                            text = from,
-                            fontFamily = rememberCustomFontFamily(),
-                        )
-                    },
-                )
-                Spacer(Modifier.height(textSpaceHeight))
-                MailItemCell(
-                    title = {
-                        Text(
-                            modifier = Modifier.then(minSizeModifier),
+                            modifier = Modifier
+                                .fillMaxHeight(),
                             text = "タイトル",
                             fontFamily = rememberCustomFontFamily(),
                         )
-                    },
-                    description = {
-                        Text(
-                            text = subject,
-                            fontFamily = rememberCustomFontFamily(),
-                        )
-                    },
-                )
-            }
-            Column(
-                modifier = Modifier.fillMaxHeight(),
-            ) {
-                Spacer(Modifier.weight(1f))
-                OutlinedButton(
-                    onClick = { onClickDetail() },
-                ) {
+                    }
+                }
+                item {
                     Text(
-                        text = "詳細",
+                        modifier = Modifier,
+                        text = subject,
                         fontFamily = rememberCustomFontFamily(),
                     )
                 }
             }
         }
-    }
-}
-
-@Composable
-public fun MailItemCell(
-    modifier: Modifier = Modifier,
-    title: @Composable () -> Unit,
-    description: @Composable () -> Unit,
-) {
-    Row(modifier = modifier) {
-        title()
-        Spacer(Modifier.width(12.dp))
-        description()
+        Column(
+            modifier = Modifier.fillMaxHeight(),
+        ) {
+            Spacer(Modifier.weight(1f))
+            OutlinedButton(
+                onClick = { onClickDetail() },
+            ) {
+                Text(
+                    text = "詳細",
+                    fontFamily = rememberCustomFontFamily(),
+                )
+            }
+        }
     }
 }
