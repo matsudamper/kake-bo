@@ -2,7 +2,7 @@ type MoneyUsageSuggest {
     title: String!
     description: String!
     date: LocalDateTime
-    price: Int
+    amount: Int
     subCategory: MoneyUsageSubCategory
     service: MoneyUsageService
 }

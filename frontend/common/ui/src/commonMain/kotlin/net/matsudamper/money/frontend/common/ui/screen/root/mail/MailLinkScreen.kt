@@ -89,7 +89,7 @@ public data class ImportedMailListScreenUiState(
         val title: String,
         val service: String,
         val description: String,
-        val price: String,
+        val amount: String,
         val date: String,
     )
 
@@ -378,7 +378,7 @@ private fun SuggestUsageItem(
                                 service = suggestUsage.service,
                                 description = suggestUsage.description,
                                 date = suggestUsage.date,
-                                price = suggestUsage.price,
+                                price = suggestUsage.amount,
                             )
                         }
                     }

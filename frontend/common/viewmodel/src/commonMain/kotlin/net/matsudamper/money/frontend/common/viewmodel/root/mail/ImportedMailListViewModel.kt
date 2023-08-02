@@ -79,9 +79,9 @@ public class ImportedMailListViewModel(
                                             title = usage.title,
                                             description = usage.description,
                                             service = usage.service?.name.orEmpty(),
-                                            price = run price@{
-                                                val price = usage.price ?: return@price ""
-                                                "${price}円"
+                                            amount = run price@{
+                                                val amount = usage.amount ?: return@price ""
+                                                "${amount}円"
                                             },
                                             date = usage.date?.toString().orEmpty(),
                                         )

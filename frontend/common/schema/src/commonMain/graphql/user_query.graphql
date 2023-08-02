@@ -53,7 +53,7 @@ query MailLinkScreenGetMails(
                         title
                         description
                         date
-                        price
+                        amount
                         service {
                             id
                             name

@@ -131,7 +131,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
             results.map { result ->
                 QlMoneyUsageSuggest(
                     title = result.title,
-                    price = result.price,
+                    amount = result.price,
                     description = result.description,
                     date = result.dateTime,
                     service = result.service.let {

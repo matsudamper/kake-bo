@@ -92,9 +92,9 @@ type MoneyUsageSubCategory {
 }
 
 type MoneyUsageSuggest {
+    amount: Int
     date: LocalDateTime
     description: String!
-    price: Int
     service: MoneyUsageService
     subCategory: MoneyUsageSubCategory
     title: String!
