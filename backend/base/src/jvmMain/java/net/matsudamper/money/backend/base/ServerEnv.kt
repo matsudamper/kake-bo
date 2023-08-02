@@ -6,6 +6,7 @@ public object ServerEnv {
     public val port: Int = System.getenv()["PORT"]!!.toInt()
     public val frontPath: String = System.getenv()["HTML_PATH"] ?: "./frontend/jsApp/build/developmentExecutable"
     public val htmlPath: String = "$frontPath/index.html"
+    public val isDebug: Boolean = System.getenv()["IS_DEBUG"]?.toBooleanStrictOrNull() ?: false
 
     public val dbHost: String = System.getenv()["DB_HOST"]!!
     public val dbSchema: String = System.getenv()["DB_SCHEMA"]!!

@@ -1,25 +1,20 @@
 package net.matsudamper.money.backend.graphql
 
-import java.time.LocalDateTime
-import java.util.Locale
-import java.util.jar.JarFile
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import graphql.GraphQL
 import graphql.GraphQLContext
 import graphql.Scalars
 import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.CoercedVariables
 import graphql.kickstart.tools.PerFieldConfiguringObjectMapperProvider
-import graphql.kickstart.tools.PerFieldObjectMapperProvider
 import graphql.kickstart.tools.SchemaParser
 import graphql.kickstart.tools.SchemaParserOptions
-import graphql.language.FieldDefinition
 import graphql.language.Value
 import graphql.scalars.ExtendedScalars
 import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
+import graphql.schema.visibility.NoIntrospectionGraphqlFieldVisibility
+import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.graphql.resolver.ImportedMailAttributesResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.ImportedMailResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageCategoryResolverImpl
@@ -40,6 +35,9 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageServiceId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import java.time.LocalDateTime
+import java.util.Locale
+import java.util.jar.JarFile
 
 object MoneyGraphQlSchema {
     private fun getDebugSchemaFiles(): List<String> {
@@ -150,7 +148,12 @@ object MoneyGraphQlSchema {
                         mapper.registerModule(
                             JavaTimeModule()
                         )
-                    }
+                    },
+                    fieldVisibility = if (ServerEnv.isDebug) {
+                        null
+                    } else {
+                        NoIntrospectionGraphqlFieldVisibility.NO_INTROSPECTION_FIELD_VISIBILITY
+                    },
                 ),
             )
             .build()
