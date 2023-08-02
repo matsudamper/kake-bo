@@ -7,7 +7,7 @@ internal class UrlPlaceHolderParser(
     fun parse(
         pathname: String,
     ): ScreenState {
-        val result = directions.map { screen ->
+        val result = directions.map direction@{ screen ->
             var reamingPathname = pathname
 
             val keyValues = mutableListOf<Pair<String, String?>>()
