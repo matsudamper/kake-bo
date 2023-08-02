@@ -32,7 +32,6 @@ public class MailScreenViewModel(
     ).also { uiStateFlow ->
         coroutineScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
-                println("viewModelState: $viewModelState")
                 viewModelState.responseFlow.collect { apolloResponse ->
                     val mail = apolloResponse.data?.user?.importedMailAttributes?.mail ?: return@collect
                     uiStateFlow.update { uiState ->
