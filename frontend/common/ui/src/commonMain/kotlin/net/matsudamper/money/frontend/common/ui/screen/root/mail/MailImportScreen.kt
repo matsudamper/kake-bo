@@ -46,7 +46,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ImportMailScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.ImportMailScreenUiState
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.layout.ScrollButton
 import net.matsudamper.money.frontend.common.ui.layout.html.html.Html

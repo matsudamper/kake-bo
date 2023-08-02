@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import ImportMailScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.ImportMailScreenUiState
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf

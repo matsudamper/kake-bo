@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.uistate
+package net.matsudamper.money.frontend.common.ui.screen.login
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.input.TextFieldValue

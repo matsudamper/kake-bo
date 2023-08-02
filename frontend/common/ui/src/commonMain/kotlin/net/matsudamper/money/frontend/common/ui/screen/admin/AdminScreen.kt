@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
-import net.matsudamper.money.frontend.common.uistate.AdminRootScreenUiState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

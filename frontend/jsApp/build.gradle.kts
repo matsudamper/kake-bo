@@ -19,7 +19,6 @@ kotlin {
                 implementation(project(":frontend:common:ui"))
                 implementation(project(":frontend:common:viewmodel"))
                 implementation(project(":frontend:common:schema"))
-                implementation(project(":frontend:common:uistate"))
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.kotlin.serialization.json)

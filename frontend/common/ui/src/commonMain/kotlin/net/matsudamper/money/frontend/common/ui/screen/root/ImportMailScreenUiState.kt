@@ -1,3 +1,5 @@
+package net.matsudamper.money.frontend.common.ui.screen.root
+
 import androidx.compose.runtime.Immutable
 import net.matsudamper.money.frontend.common.base.ImmutableList
 

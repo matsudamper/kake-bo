@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenController
-import net.matsudamper.money.frontend.common.uistate.AdminAddUserUiState
+import net.matsudamper.money.frontend.common.ui.screen.admin.AdminAddUserUiState
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 
 public class AdminAddUserScreenViewModel(

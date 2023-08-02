@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
-import ImportMailScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.ImportMailScreenUiState
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener

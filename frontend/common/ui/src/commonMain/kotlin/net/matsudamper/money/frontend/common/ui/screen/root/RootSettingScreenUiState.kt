@@ -1,4 +1,4 @@
-package net.matsudamper.root
+package net.matsudamper.money.frontend.common.ui.screen.root
 
 public data class RootSettingScreenUiState(
     val event: Event,

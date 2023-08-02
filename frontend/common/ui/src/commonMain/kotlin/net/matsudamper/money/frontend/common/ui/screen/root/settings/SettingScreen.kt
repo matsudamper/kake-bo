@@ -26,7 +26,7 @@ import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
-import net.matsudamper.root.RootSettingScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.RootSettingScreenUiState
 
 @Composable
 public fun SettingRootScreen(

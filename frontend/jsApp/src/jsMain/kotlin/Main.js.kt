@@ -45,9 +45,8 @@ import net.matsudamper.money.frontend.common.ui.screen.add_money_usage.AddMoneyU
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
 import net.matsudamper.money.frontend.common.ui.screen.mail.MailScreen
-import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreen
 import net.matsudamper.money.frontend.common.ui.screen.status.NotFoundScreen
-import net.matsudamper.money.frontend.common.uistate.LoginScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.LoginScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.add_money_usage.AddMoneyUsageViewModel

@@ -8,7 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
-import ImportMailScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.ImportMailScreenUiState
 import event.ViewModelEventHandlers
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener

@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.uistate
+package net.matsudamper.money.frontend.common.ui.screen.admin
 
 import androidx.compose.ui.text.input.TextFieldValue
 

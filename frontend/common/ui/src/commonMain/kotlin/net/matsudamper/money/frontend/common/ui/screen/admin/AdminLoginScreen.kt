@@ -23,7 +23,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.layout.html.text.input.HtmlTextInput
-import net.matsudamper.money.frontend.common.uistate.AdminLoginScreenUiState
 
 @Composable
 public fun AdminLoginScreen(

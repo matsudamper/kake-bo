@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
-import net.matsudamper.root.HomeScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.HomeScreenUiState
 
 public class HomeViewModel(
     private val coroutineScope: CoroutineScope,
