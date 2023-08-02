@@ -10,7 +10,7 @@ import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.di.RepositoryFactory
 import net.matsudamper.money.backend.element.AdminSession
 import net.matsudamper.money.backend.element.UserId
-import net.matsudamper.money.backend.element.UserSession
+import net.matsudamper.money.backend.element.UserSessionId
 import net.matsudamper.money.backend.repository.AdminSessionRepository
 import net.matsudamper.money.backend.repository.UserSessionRepository
 
@@ -45,7 +45,7 @@ class GraphQlContext(
 
         val userSessionString = getCookie(CookieKeys.userSessionId) ?: throw GraphqlMoneyException.SessionNotVerify()
 
-        when (val userSessionResult = UserSessionRepository().verifySession(UserSession(userSessionString))) {
+        when (val userSessionResult = UserSessionRepository().verifySession(UserSessionId(userSessionString))) {
             is UserSessionRepository.VerifySessionResult.Failure -> {
                 throw GraphqlMoneyException.SessionNotVerify()
             }

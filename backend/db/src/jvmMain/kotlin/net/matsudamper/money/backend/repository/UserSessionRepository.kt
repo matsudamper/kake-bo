@@ -4,7 +4,7 @@ import java.time.LocalDateTime
 import java.util.*
 import net.matsudamper.money.backend.DbConnection
 import net.matsudamper.money.backend.element.UserId
-import net.matsudamper.money.backend.element.UserSession
+import net.matsudamper.money.backend.element.UserSessionId
 import net.matsudamper.money.db.schema.tables.JUserSessions
 import org.jooq.impl.DSL
 
@@ -23,12 +23,12 @@ class UserSessionRepository {
         }
 
         return CreateSessionResult(
-            sessionId = UserSession(result!!.value1()!!),
+            sessionId = UserSessionId(result!!.value1()!!),
             expire = result.value2()!!,
         )
     }
 
-    fun verifySession(sessionId: UserSession): VerifySessionResult {
+    fun verifySession(sessionId: UserSessionId): VerifySessionResult {
         // UserIdを取得し、全ての古いSessionを削除する
         DbConnection.use {
             val userId = DSL.using(it)
@@ -60,7 +60,7 @@ class UserSessionRepository {
 
         return VerifySessionResult.Success(
             userId = UserId(userId),
-            sessionId = UserSession(result.value2()!!),
+            sessionId = UserSessionId(result.value2()!!),
             expire = result.value3()!!,
         )
     }
@@ -68,14 +68,14 @@ class UserSessionRepository {
     private fun getNewExpire() = LocalDateTime.now().plusDays(7)
 
     data class CreateSessionResult(
-        val sessionId: UserSession,
+        val sessionId: UserSessionId,
         val expire: LocalDateTime,
     )
 
     sealed interface VerifySessionResult {
         data class Success(
             val userId: UserId,
-            val sessionId: UserSession,
+            val sessionId: UserSessionId,
             val expire: LocalDateTime,
         ) : VerifySessionResult
 
