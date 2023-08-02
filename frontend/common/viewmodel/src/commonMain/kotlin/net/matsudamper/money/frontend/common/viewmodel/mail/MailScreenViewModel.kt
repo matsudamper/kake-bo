@@ -15,6 +15,7 @@ import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.screen.mail.MailScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.MailScreenQuery
 import net.matsudamper.money.lib.ResultWrapper
 
@@ -68,12 +69,7 @@ public class MailScreenViewModel(
                                                         amount = run amount@{
                                                             val amount = suggestUsage.amount ?: return@amount null
 
-                                                            val splitAmount = amount.toString().toList()
-                                                                .reversed()
-                                                                .windowed(3, 3, partialWindows = true)
-                                                                .map { it.reversed() }
-                                                                .reversed()
-                                                                .joinToString(",") { it.joinToString("") }
+                                                            val splitAmount = Formatter.formatMoney(amount)
                                                             "${splitAmount}円"
                                                         },
                                                         category = run category@{
