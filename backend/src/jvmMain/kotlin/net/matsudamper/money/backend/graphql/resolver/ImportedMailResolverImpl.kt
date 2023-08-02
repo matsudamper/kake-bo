@@ -133,7 +133,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                     title = result.title,
                     amount = result.price,
                     description = result.description,
-                    date = result.dateTime,
+                    dateTime = result.dateTime,
                     service = result.service.let {
                         QlMoneyUsageService(
                             id = it.toId(),
