@@ -7,7 +7,6 @@ import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
 import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.records.JUserMailsRecord
 import net.matsudamper.money.element.ImportedMailId
-import net.matsudamper.money.element.MailId
 import net.matsudamper.money.element.MoneyUsageId
 import org.jooq.impl.DSL
 import org.jooq.kotlin.and
@@ -59,6 +58,29 @@ class DbMailRepository {
                 .fetchOne()
 
             result?.get(DSL.count())
+        }
+    }
+
+    fun getMail(
+        userId: UserId,
+        mailIds: List<ImportedMailId>,
+    ): Result<MutableList<ImportedMailId>> {
+        return runCatching {
+            DbConnection.use { connection ->
+                val results = DSL.using(connection)
+                    .select(userMails.USER_MAIL_ID)
+                    .from(userMails)
+                    .where(
+                        DSL.value(true)
+                            .and(userMails.USER_ID.eq(userId.id))
+                            .and(userMails.USER_MAIL_ID.`in`(mailIds.map { it.id })),
+                    )
+                    .fetch()
+
+                results.map { result ->
+                    ImportedMailId(result.get(userMails.USER_MAIL_ID)!!)
+                }
+            }
         }
     }
 
