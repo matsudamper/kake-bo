@@ -23,7 +23,7 @@ public class HomeUsageListGraphqlApi(
                 UsageListScreenPagingQuery(
                     query = MoneyUsagesQuery(
                         cursor = Optional.present(cursor),
-                        size = 10,
+                        size = 1,
                     )
                 )
             )

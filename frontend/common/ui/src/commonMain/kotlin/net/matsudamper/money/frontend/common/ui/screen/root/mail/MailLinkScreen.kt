@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.mail
+package net.matsudamper.money.frontend.common.ui.screen.root.mail
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll

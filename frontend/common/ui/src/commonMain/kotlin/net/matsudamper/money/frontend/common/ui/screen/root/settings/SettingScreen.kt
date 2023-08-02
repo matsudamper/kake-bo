@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.settings
+package net.matsudamper.money.frontend.common.ui.screen.root.settings
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box

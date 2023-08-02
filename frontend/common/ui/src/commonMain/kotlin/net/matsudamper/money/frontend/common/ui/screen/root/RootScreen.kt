@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen
+package net.matsudamper.money.frontend.common.ui.screen.root
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring

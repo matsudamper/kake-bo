@@ -7,11 +7,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.ui.screen.mail.MailScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
-public class MailScreenViewModel(
+public class HomeMailTabScreenViewModel(
     private val coroutineScope: CoroutineScope,
 ) {
     private val _viewModelStateFlow = MutableStateFlow(ViewModelState())
@@ -20,9 +20,9 @@ public class MailScreenViewModel(
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
-    public val uiStateFlow: StateFlow<MailScreenUiState> = MutableStateFlow(
-        MailScreenUiState(
-            event = object : MailScreenUiState.Event {
+    public val uiStateFlow: StateFlow<HomeMailTabScreenUiState> = MutableStateFlow(
+        HomeMailTabScreenUiState(
+            event = object : HomeMailTabScreenUiState.Event {
                 override fun onClickImportTabButton() {
                     coroutineScope.launch {
                         eventSender.send {

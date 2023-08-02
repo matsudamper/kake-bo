@@ -44,6 +44,8 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.add_money_usage.AddMoneyUsageScreen
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
+import net.matsudamper.money.frontend.common.ui.screen.mail.MailScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreen
 import net.matsudamper.money.frontend.common.ui.screen.status.NotFoundScreen
 import net.matsudamper.money.frontend.common.uistate.LoginScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
@@ -57,9 +59,10 @@ import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.ImportedMailListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.add_money_usage.AddMoneyUsageScreenApi
+import net.matsudamper.money.frontend.common.viewmodel.mail.MailScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.list.HomeUsageListGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.root.list.RootListViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
@@ -138,7 +141,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                         )
                     }
                     val mailScreenViewModel = remember {
-                        MailScreenViewModel(
+                        HomeMailTabScreenViewModel(
                             coroutineScope = rootCoroutineScope,
                         )
                     }
@@ -207,7 +210,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                     RootNavContent(
                                         tabHolder = tabHolder,
                                         current = current,
-                                        mailScreenUiStateProvider = {
+                                        homeMailTabScreenUiStateProvider = {
                                             mailScreenViewModel.updateScreenStructure(it)
                                             LaunchedEffect(mailScreenViewModel) {
                                                 viewModelEventHandlers.handle(
@@ -320,6 +323,23 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                         )
                                     }
                                     AddMoneyUsageScreen(
+                                        modifier = Modifier.fillMaxSize(),
+                                        uiState = viewModel.uiStateFlow.collectAsState().value,
+                                    )
+                                }
+
+                                is ScreenStructure.Mail -> {
+                                    val coroutineScope = rememberCoroutineScope()
+                                    val viewModel = remember(
+                                        coroutineScope,
+                                        current,
+                                    ) {
+                                        MailScreenViewModel(
+                                            coroutineScope = coroutineScope,
+                                        )
+                                    }
+
+                                    MailScreen(
                                         modifier = Modifier.fillMaxSize(),
                                         uiState = viewModel.uiStateFlow.collectAsState().value,
                                     )

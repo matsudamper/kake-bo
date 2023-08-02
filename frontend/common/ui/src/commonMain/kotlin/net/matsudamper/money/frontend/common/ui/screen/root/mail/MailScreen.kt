@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.mail
+package net.matsudamper.money.frontend.common.ui.screen.root.mail
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,7 +15,7 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 
-public data class MailScreenUiState(
+public data class HomeMailTabScreenUiState(
     val event: Event,
 ) {
     @Immutable
@@ -26,9 +26,9 @@ public data class MailScreenUiState(
 }
 
 @Composable
-public fun MailScreen(
+public fun HomeMailTabScreen(
     modifier: Modifier = Modifier,
-    uiState: MailScreenUiState,
+    uiState: HomeMailTabScreenUiState,
     screenStructure: ScreenStructure.Root.Mail,
     importMailScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Import) -> ImportMailScreenUiState,
     importedImportMailScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Imported) -> ImportedMailListScreenUiState,

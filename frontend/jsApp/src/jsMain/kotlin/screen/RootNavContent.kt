@@ -12,12 +12,12 @@ import ImportMailScreenUiState
 import event.ViewModelEventHandlers
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.screen.RootListScreen
-import net.matsudamper.money.frontend.common.ui.screen.RootListScreenUiState
-import net.matsudamper.money.frontend.common.ui.screen.RootScreen
-import net.matsudamper.money.frontend.common.ui.screen.mail.ImportedMailListScreenUiState
-import net.matsudamper.money.frontend.common.ui.screen.mail.MailScreen
-import net.matsudamper.money.frontend.common.ui.screen.mail.MailScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.RootListScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.RootListScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.RootScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
@@ -34,7 +34,7 @@ internal fun RootNavContent(
     rootCoroutineScope: CoroutineScope,
     globalEventSender: EventSender<GlobalEvent>,
     loginCheckUseCase: LoginCheckUseCase,
-    mailScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail) -> MailScreenUiState,
+    homeMailTabScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail) -> HomeMailTabScreenUiState,
     listUiStateProvider: @Composable (ScreenStructure.Root.List) -> RootListScreenUiState,
     importMailScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Imported) -> ImportedMailListScreenUiState,
     importMailLinkScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Import) -> ImportMailScreenUiState,
@@ -74,8 +74,8 @@ internal fun RootNavContent(
 
         is ScreenStructure.Root.Mail -> {
             tabHolder.SaveableStateProvider(current::class.toString()) {
-                val uiState = mailScreenUiStateProvider(current)
-                MailScreen(
+                val uiState = homeMailTabScreenUiStateProvider(current)
+                HomeMailTabScreen(
                     screenStructure = current,
                     uiState = uiState,
                     importMailScreenUiStateProvider = {

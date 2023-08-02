@@ -15,7 +15,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailLinkViewMod
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.list.RootListViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
 
@@ -23,7 +23,7 @@ data class ViewModelEventHandlers(
     private val navController: ScreenNavController,
     private val globalEventSender: EventSender<GlobalEvent>,
     private val rootScreenScaffoldListener: RootScreenScaffoldListener,
-    private val mailViewModelStateFlow: StateFlow<MailScreenViewModel.ViewModelState>,
+    private val mailViewModelStateFlow: StateFlow<HomeMailTabScreenViewModel.ViewModelState>,
 ) {
     suspend fun handle(handler: EventHandler<HomeViewModel.Event>) {
         coroutineScope {
@@ -131,11 +131,11 @@ data class ViewModelEventHandlers(
     }
 
     suspend fun handle(
-        handler: EventHandler<MailScreenViewModel.Event>,
+        handler: EventHandler<HomeMailTabScreenViewModel.Event>,
     ) {
         coroutineScope {
             handler.collect(
-                object : MailScreenViewModel.Event {
+                object : HomeMailTabScreenViewModel.Event {
                     override fun navigateToImportMail() {
                         navController.navigate(
                             mailViewModelStateFlow.value.lastImportMailStructure

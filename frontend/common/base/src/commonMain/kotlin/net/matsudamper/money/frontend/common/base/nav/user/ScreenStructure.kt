@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.base.nav.user
 
 import io.ktor.http.ParametersBuilder
 import io.ktor.http.formUrlEncode
+import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 
 public sealed interface ScreenStructure {
@@ -74,13 +75,7 @@ public sealed interface ScreenStructure {
                         }
                         .build()
                         .formUrlEncode()
-                        .let {
-                            if (it.isEmpty()) {
-                                it
-                            } else {
-                                "?$it"
-                            }
-                        }
+                        .let { if (it.isEmpty()) it else "?$it" }
 
                     return direction.placeholderUrl.plus(urlParam)
                 }
@@ -126,6 +121,32 @@ public sealed interface ScreenStructure {
 
     public object Admin : ScreenStructure {
         override val direction: Screens = Screens.Admin
+    }
+
+    public data class Mail(
+        public val importedMailId: ImportedMailId,
+    ) : ScreenStructure {
+        override val direction: Screens = Screens.Mail
+
+        override fun createUrl(): String {
+            val urlParam = ParametersBuilder()
+                .apply {
+                    append(IMPORTED_MAIL_ID_KEY, importedMailId.toString())
+                }
+                .build()
+                .formUrlEncode()
+                .let { if (it.isEmpty()) it else "?$it" }
+
+            return direction.placeholderUrl.plus(urlParam)
+        }
+
+        override fun equalScreen(other: ScreenStructure): Boolean {
+            return this == other
+        }
+
+        public companion object {
+            private const val IMPORTED_MAIL_ID_KEY = "imported_mail_id"
+        }
     }
 
     public object AddMoneyUsage : ScreenStructure {

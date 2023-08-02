@@ -14,10 +14,10 @@ import kotlinx.coroutines.Dispatchers
 import event.ViewModelEventHandlers
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.screen.settings.ImapConfigScreen
-import net.matsudamper.money.frontend.common.ui.screen.settings.SettingCategoriesScreen
-import net.matsudamper.money.frontend.common.ui.screen.settings.SettingCategoryScreen
-import net.matsudamper.money.frontend.common.ui.screen.settings.SettingRootScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImapConfigScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoriesScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoryScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingRootScreen
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.ImapSettingViewModel

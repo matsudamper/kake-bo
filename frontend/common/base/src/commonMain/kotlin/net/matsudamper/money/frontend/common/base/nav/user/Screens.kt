@@ -58,6 +58,10 @@ public enum class Screens : Direction {
     AddMoneyUsage {
         override val title: String = "追加"
         override val placeholderUrl: String = "/add/money-usage"
-    }
+    },
+    Mail {
+        override val title: String = "メール"
+        override val placeholderUrl: String = "/mail/{id}"
+    },
     ;
 }
