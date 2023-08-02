@@ -15,6 +15,8 @@ import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.screen.mail.MailScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.MailScreenQuery
 import net.matsudamper.money.lib.ResultWrapper
@@ -26,12 +28,31 @@ public class MailScreenViewModel(
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
+    private val viewModelEventSender = EventSender<Event>()
+    public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
+
     public val uiStateFlow: StateFlow<MailScreenUiState> = MutableStateFlow(
         MailScreenUiState(
             loadingState = MailScreenUiState.LoadingState.Loading,
             event = object : MailScreenUiState.Event {
                 override fun onClickRetry() {
                     fetch()
+                }
+
+                override fun onClickArrowBackButton() {
+                    coroutineScope.launch {
+                        viewModelEventSender.send {
+                            it.navigateToBack()
+                        }
+                    }
+                }
+
+                override fun onClickTitle() {
+                    coroutineScope.launch {
+                        viewModelEventSender.send {
+                            it.navigateToHome()
+                        }
+                    }
                 }
             },
         ),
@@ -107,6 +128,11 @@ public class MailScreenViewModel(
                 )
             }
         }
+    }
+
+    public interface Event {
+        public fun navigateToBack()
+        public fun navigateToHome()
     }
 
     private data class ViewModelState(

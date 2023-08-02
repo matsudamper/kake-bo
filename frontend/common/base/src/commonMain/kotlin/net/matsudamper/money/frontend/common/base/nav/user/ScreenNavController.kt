@@ -9,6 +9,8 @@ public interface ScreenNavController {
     public fun <T : ScreenStructure> navigate(
         navigation: T,
     )
+
+    public fun navigateToHome()
 }
 
 public interface Direction {

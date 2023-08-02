@@ -340,6 +340,11 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                             importedMailId = current.id,
                                         )
                                     }
+                                    LaunchedEffect(viewModel.viewModelEventHandler) {
+                                        viewModelEventHandlers.handle(
+                                            handler = viewModel.viewModelEventHandler,
+                                        )
+                                    }
 
                                     MailScreen(
                                         modifier = Modifier.fillMaxSize(),

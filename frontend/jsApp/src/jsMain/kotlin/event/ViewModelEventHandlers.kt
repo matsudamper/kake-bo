@@ -10,6 +10,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
+import net.matsudamper.money.frontend.common.viewmodel.mail.MailScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
@@ -153,6 +154,22 @@ data class ViewModelEventHandlers(
                             mailViewModelStateFlow.value.lastImportedMailStructure
                                 ?: ScreenStructure.Root.Mail.Imported(isLinked = false),
                         )
+                    }
+                },
+            )
+        }
+    }
+
+    suspend fun handle(handler: EventHandler<MailScreenViewModel.Event>) {
+        coroutineScope {
+            handler.collect(
+                object : MailScreenViewModel.Event {
+                    override fun navigateToBack() {
+                        navController.back()
+                    }
+
+                    override fun navigateToHome() {
+                        navController.navigateToHome()
                     }
                 },
             )

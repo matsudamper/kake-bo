@@ -22,7 +22,12 @@ public class ScreenNavControllerImpl(
 ) : ScreenNavController {
     private val directions = Screens.values().toList()
     private val parser = UrlPlaceHolderParser(directions)
-    private var screenState: ScreenState by mutableStateOf(ScreenState(current = initial))
+    private var screenState: ScreenState by mutableStateOf(
+        ScreenState(
+            current = initial,
+            lastHome = null,
+        )
+    )
     override val currentNavigation: ScreenStructure
         get() {
             return screenState.current
@@ -65,6 +70,12 @@ public class ScreenNavControllerImpl(
         updateScreenState(navigation)
     }
 
+    override fun navigateToHome() {
+        navigate(
+            screenState.lastHome ?: ScreenStructure.Root.Home(),
+        )
+    }
+
     private fun parseQueryParams(query: String): Map<String, List<String>> {
         return ParametersBuilder().apply {
             appendAll(
@@ -88,6 +99,10 @@ public class ScreenNavControllerImpl(
         println("updateScreenState: $screenStructure, ${screenStructure.createUrl()}")
         screenState = screenState.copy(
             current = screenStructure,
+            lastHome = when (screenStructure) {
+                is ScreenStructure.Root -> screenStructure
+                else -> screenState.lastHome
+            },
         )
     }
 
@@ -139,5 +154,6 @@ public class ScreenNavControllerImpl(
 
     public data class ScreenState(
         val current: ScreenStructure,
+        val lastHome: ScreenStructure.Root?,
     )
 }
