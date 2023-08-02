@@ -2,7 +2,6 @@ package net.matsudamper.money.frontend.common.viewmodel.mail
 
 import com.apollographql.apollo3.api.ApolloResponse
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -75,16 +74,6 @@ public class MailScreenViewModel(
 
     init {
         coroutineScope.launch {
-            while (true) {
-                delay(1000)
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        int = viewModelState.int + 1,
-                    )
-                }
-            }
-        }
-        coroutineScope.launch {
             val responseFlow = api.get(id = importedMailId)
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
@@ -96,6 +85,5 @@ public class MailScreenViewModel(
 
     private data class ViewModelState(
         val responseFlow: Flow<ApolloResponse<MailScreenQuery.Data>> = flowOf(),
-        val int: Int = 0,
     )
 }
