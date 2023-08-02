@@ -83,7 +83,7 @@ public class ImportedMailListViewModel(
                                                 val amount = usage.amount ?: return@price ""
                                                 "${amount}円"
                                             },
-                                            date = usage.date?.toString().orEmpty(),
+                                            date = usage.dateTime?.toString().orEmpty(),
                                         )
                                     }.toImmutableList(),
                                     event = createMailEvent(mail = mail),

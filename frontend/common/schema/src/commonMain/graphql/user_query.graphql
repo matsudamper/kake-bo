@@ -52,7 +52,7 @@ query MailLinkScreenGetMails(
                     suggestUsages {
                         title
                         description
-                        date
+                        dateTime
                         amount
                         service {
                             id

@@ -10,7 +10,7 @@ query MailScreen($id: ImportedMailId!) {
                 suggestUsages {
                     title
                     description
-                    date
+                    dateTime
                     amount
                     subCategory {
                         id

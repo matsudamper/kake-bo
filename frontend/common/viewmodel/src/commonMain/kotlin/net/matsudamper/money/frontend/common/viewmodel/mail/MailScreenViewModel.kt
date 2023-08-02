@@ -82,7 +82,7 @@ public class MailScreenViewModel(
                                                             "${category.name} / ${subCategory.name}"
                                                         },
                                                         description = suggestUsage.description,
-                                                        dateTime = suggestUsage.date.toString(),
+                                                        dateTime = suggestUsage.dateTime.toString(),
                                                     )
                                                 }.toImmutableList(),
                                             )
