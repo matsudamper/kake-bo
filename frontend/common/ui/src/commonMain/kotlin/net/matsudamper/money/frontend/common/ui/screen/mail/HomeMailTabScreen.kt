@@ -15,6 +15,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 
 public data class MailScreenUiState(
@@ -32,6 +34,7 @@ public data class MailScreenUiState(
 ) {
     public sealed interface LoadingState {
         public object Loading : LoadingState
+        public object Error : LoadingState
         public data class Loaded(
             val mail: Mail,
             val usageSuggest: ImmutableList<UsageSuggest>,
@@ -54,7 +57,7 @@ public data class MailScreenUiState(
 
     @Immutable
     public interface Event {
-
+        public fun onClickRetry()
     }
 }
 
@@ -91,6 +94,15 @@ public fun MailScreen(
                 MainContent(
                     modifier = Modifier.padding(paddingValues),
                     uiState = uiState.loadingState,
+                )
+            }
+
+            MailScreenUiState.LoadingState.Error -> {
+                LoadingErrorContent(
+                    modifier = Modifier.padding(paddingValues),
+                    onClickRetry = {
+                        uiState.event.onClickRetry()
+                    } ,
                 )
             }
         }
