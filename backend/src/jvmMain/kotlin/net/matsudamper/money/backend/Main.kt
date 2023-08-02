@@ -27,6 +27,7 @@ import net.matsudamper.money.backend.base.ObjectMapper
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
 import org.slf4j.event.Level
+import kotlin.time.Duration.Companion.hours
 
 class Main {
     companion object {
@@ -95,12 +96,22 @@ fun Application.myApplicationModule() {
                     remotePath = accessPath,
                     dir = File(it.path),
                 ) {
-                    if (accessPath.endsWith(".ttf")) {
-                        cacheControl {
-                            listOf(
-                                CacheControl.MaxAge(maxAgeSeconds = 30.days.inWholeSeconds.toInt()),
-                            )
+                    when {
+                        accessPath.endsWith(".ttf") -> {
+                            cacheControl {
+                                listOf(
+                                    CacheControl.MaxAge(maxAgeSeconds = 30.days.inWholeSeconds.toInt()),
+                                )
+                            }
                         }
+                        accessPath == "/favicon.ico" -> {
+                            cacheControl {
+                                listOf(
+                                    CacheControl.MaxAge(maxAgeSeconds = 1.hours.inWholeSeconds.toInt()),
+                                )
+                            }
+                        }
+                        else -> Unit
                     }
                 }
             }
