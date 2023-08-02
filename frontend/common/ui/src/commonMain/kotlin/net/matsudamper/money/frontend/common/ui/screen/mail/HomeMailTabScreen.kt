@@ -143,7 +143,7 @@ private fun MainContent(
                 Text(
                     modifier = Modifier.padding(horizontal = 12.dp),
                     text = "メール",
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.headlineLarge,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
@@ -158,7 +158,7 @@ private fun MainContent(
                 Text(
                     modifier = Modifier.padding(horizontal = 12.dp),
                     text = "解析結果",
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.headlineLarge,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
