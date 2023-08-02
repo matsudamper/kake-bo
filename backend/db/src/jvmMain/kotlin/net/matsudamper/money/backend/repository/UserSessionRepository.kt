@@ -48,12 +48,17 @@ class UserSessionRepository {
 
         // Sessionを更新する
         val result = DbConnection.use {
-            DSL.using(it)
-                .update(userSessions)
-                .set(userSessions.EXPIRE_DATETIME, getNewExpire())
-                .where(userSessions.SESSION_ID.eq(sessionId.id))
-                .returningResult(userSessions.USER_ID, userSessions.SESSION_ID, userSessions.EXPIRE_DATETIME)
-                .fetchOne()
+            DSL.using(it).transactionResult { config ->
+                DSL.using(config)
+                    .select(userSessions.USER_ID)
+                    .where(userSessions.SESSION_ID.eq(sessionId.id))
+                DSL.using(config)
+                    .update(userSessions)
+                    .set(userSessions.EXPIRE_DATETIME, getNewExpire())
+                    .where(userSessions.SESSION_ID.eq(sessionId.id))
+                    .returningResult(userSessions.USER_ID, userSessions.SESSION_ID, userSessions.EXPIRE_DATETIME)
+                    .fetchOne()
+            }
         }
 
         val userId = result?.value1() ?: return VerifySessionResult.Failure
