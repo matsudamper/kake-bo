@@ -155,7 +155,7 @@ type UserMail {
 }
 
 type UserMailAttributes {
-    mail(mailQuery: MailQuery!): UserMailConnection!
+    mails(mailQuery: MailQuery!): UserMailConnection!
     mailCount: Int
 }
 

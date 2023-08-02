@@ -8,7 +8,7 @@ query UserIsLoggedIn {
 query GetMail($mailQuery: MailQuery!) {
     user {
         userMailAttributes {
-            mail(mailQuery: $mailQuery) {
+            mails(mailQuery: $mailQuery) {
                 cursor
                 error
                 usrMails {

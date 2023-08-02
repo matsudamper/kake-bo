@@ -1,6 +1,6 @@
 type UserMailAttributes {
     mailCount: Int @lazy
-    mail(mailQuery : MailQuery!):UserMailConnection! @lazy
+    mails(mailQuery: MailQuery!): UserMailConnection! @lazy
 }
 
 type UserMailConnection {

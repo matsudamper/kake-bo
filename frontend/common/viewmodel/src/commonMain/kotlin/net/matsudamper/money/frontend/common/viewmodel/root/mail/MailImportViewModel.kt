@@ -222,7 +222,7 @@ public class MailImportViewModel(
                 }
             }
 
-            val mail = mails.data?.user?.userMailAttributes?.mail ?: return@launch
+            val mail = mails.data?.user?.userMailAttributes?.mails ?: return@launch
 
             if (isActive.not()) return@launch
             viewModelStateFlow.update { viewModelState ->

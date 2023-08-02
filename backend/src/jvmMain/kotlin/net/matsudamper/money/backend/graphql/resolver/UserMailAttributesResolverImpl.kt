@@ -20,7 +20,7 @@ import net.matsudamper.money.graphql.model.UserMailAttributesResolver
 
 class UserMailAttributesResolverImpl : UserMailAttributesResolver {
 
-    override fun mail(
+    override fun mails(
         userMailAttributes: QlUserMailAttributes,
         mailQuery: QlMailQuery,
         env: DataFetchingEnvironment,
