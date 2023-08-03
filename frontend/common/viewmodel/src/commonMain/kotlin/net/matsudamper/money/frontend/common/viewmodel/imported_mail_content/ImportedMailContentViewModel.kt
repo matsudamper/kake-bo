@@ -49,11 +49,9 @@ public class ImportedMailContentViewModel(
     ).also { uiStateFlow ->
         coroutineScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
-                println("viewModelStateFlow.collectLatest")
                 viewModelState.resultFlow
-//                    .stateIn(coroutineScope, SharingStarted.Lazily, null)
+                    .stateIn(coroutineScope, SharingStarted.Lazily, null)
                     .collectLatest { resultWrapper ->
-                        println("resultFlow.collectLatest")
                         val loadingState = when (resultWrapper) {
                             is ResultWrapper.Failure -> {
                                 ImportedMailContentScreenUiState.LoadingState.Error
@@ -75,7 +73,6 @@ public class ImportedMailContentViewModel(
                                 ImportedMailContentScreenUiState.LoadingState.Loading
                             }
                         }
-                        println(loadingState.toString())
                         uiStateFlow.update {
                             it.copy(
                                 loadingState = loadingState,
@@ -91,13 +88,11 @@ public class ImportedMailContentViewModel(
     }
 
     private fun fetch() {
-        println("fetch0")
         viewModelStateFlow.update {
             it.copy(
                 resultFlow = api.get(id = id),
             )
         }
-        println("fetch1")
     }
 
     public interface Event {
