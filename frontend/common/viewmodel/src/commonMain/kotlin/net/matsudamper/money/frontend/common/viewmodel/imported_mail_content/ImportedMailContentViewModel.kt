@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.imported_mail_content
 
-import com.apollographql.apollo3.api.ApolloResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -8,6 +7,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.ui.screen.imported_mail_content.ImportedMailContentScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -78,7 +78,6 @@ public class ImportedMailContentViewModel(
                         loadingState = loadingState,
                     )
                 }
-
             }
         }
     }.asStateFlow()
@@ -89,7 +88,7 @@ public class ImportedMailContentViewModel(
             apolloResponseCollector.flow.collectLatest { apolloResponseState ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
-                        apolloResponseState = apolloResponseState
+                        apolloResponseState = apolloResponseState,
                     )
                 }
             }

@@ -1,9 +1,5 @@
 package net.matsudamper.money.frontend.graphql.lib
 
-import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.ApolloResponse
-import com.apollographql.apollo3.api.Query
-import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,6 +8,10 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.ApolloResponse
+import com.apollographql.apollo3.api.Query
+import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 class ApolloPagingResponseCollector<D : Query.Data>(

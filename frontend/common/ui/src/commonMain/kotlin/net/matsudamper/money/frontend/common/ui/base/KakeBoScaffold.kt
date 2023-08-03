@@ -6,8 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.onClick
-import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBar
@@ -31,10 +29,11 @@ public fun KakeBoTopAppBar(
             modifier = Modifier.fillMaxWidth(),
             navigationIcon = navigationIcon,
             title = {
-                Box(modifier = Modifier
-                    .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
-                        onClickTitle()
-                    }
+                Box(
+                    modifier = Modifier
+                        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                            onClickTitle()
+                        },
                 ) {
                     title()
                 }

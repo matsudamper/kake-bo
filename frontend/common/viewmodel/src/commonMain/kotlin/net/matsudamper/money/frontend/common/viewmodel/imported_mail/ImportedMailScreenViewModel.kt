@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.imported_mail
 
-import com.apollographql.apollo3.api.ApolloResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -8,6 +7,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.screen.imported_mail.MailScreenUiState
@@ -81,7 +81,6 @@ public class ImportedMailScreenViewModel(
                         },
                     )
                 }
-
             }
         }
     }.asStateFlow()
@@ -121,7 +120,7 @@ public class ImportedMailScreenViewModel(
                         }
                     }
                 }
-            }
+            },
         )
     }
 

@@ -46,7 +46,6 @@ import kotlinx.coroutines.isActive
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
-import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
 
 public data class ImportedMailListScreenUiState(
     val event: Event,

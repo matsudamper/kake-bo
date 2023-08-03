@@ -1,11 +1,5 @@
 package net.matsudamper.money.frontend.graphql.lib
 
-import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.ApolloResponse
-import com.apollographql.apollo3.api.Query
-import com.apollographql.apollo3.cache.normalized.FetchPolicy
-import com.apollographql.apollo3.cache.normalized.fetchPolicy
-import com.apollographql.apollo3.cache.normalized.watch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,7 +7,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
-
+import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.ApolloResponse
+import com.apollographql.apollo3.api.Query
+import com.apollographql.apollo3.cache.normalized.FetchPolicy
+import com.apollographql.apollo3.cache.normalized.fetchPolicy
+import com.apollographql.apollo3.cache.normalized.watch
 
 public class ApolloResponseCollector<D : Query.Data>(
     private val apolloClient: ApolloClient,
@@ -24,7 +23,7 @@ public class ApolloResponseCollector<D : Query.Data>(
     private val debug: String = "",
 ) {
     private val _flow: MutableStateFlow<ApolloResponseState<ApolloResponse<D>>> = MutableStateFlow(
-        ApolloResponseState.loading()
+        ApolloResponseState.loading(),
     )
     public val flow: StateFlow<ApolloResponseState<ApolloResponse<D>>> = _flow.asStateFlow()
     private var job: Job = Job()

@@ -45,13 +45,13 @@ public fun ImportedMailContentScreen(
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
     }
-    when(uiState.loadingState) {
+    when (uiState.loadingState) {
         is ImportedMailContentScreenUiState.LoadingState.Loaded -> {
             Html(
                 html = uiState.loadingState.html,
                 onDismissRequest = {
                     uiState.event.onClickClose()
-                }
+                },
             )
         }
         is ImportedMailContentScreenUiState.LoadingState.Loading -> {
@@ -62,14 +62,14 @@ public fun ImportedMailContentScreen(
                         navigationIcon = {
                             IconButton(onClick = {
                                 uiState.event.onClickClose()
-                            }) {
+                            },) {
                                 Icon(Icons.Filled.Close, contentDescription = "Close")
                             }
-                        }
+                        },
                     ) {
                         Text("家計簿")
                     }
-                }
+                },
             ) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
@@ -82,7 +82,7 @@ public fun ImportedMailContentScreen(
                 modifier = modifier,
                 onClickRetry = {
                     uiState.event.onClickRetry()
-                }
+                },
             )
         }
     }

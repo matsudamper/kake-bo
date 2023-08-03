@@ -43,10 +43,10 @@ import net.matsudamper.money.frontend.common.ui.CustomTheme
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.add_money_usage.AddMoneyUsageScreen
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
-import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
-import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.imported_mail.ImportedMailScreen
 import net.matsudamper.money.frontend.common.ui.screen.imported_mail_content.ImportedMailContentScreen
+import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
+import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.status.NotFoundScreen
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.LoginScreenViewModel
@@ -55,11 +55,11 @@ import net.matsudamper.money.frontend.common.viewmodel.add_money_usage.AddMoneyU
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminAddUserScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminLoginScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminRootScreenViewModel
-import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.imported_mail.ImportedMailScreenGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.imported_mail.ImportedMailScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.imported_mail_content.ImportedMailContentScreenGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.imported_mail_content.ImportedMailContentViewModel
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.list.HomeUsageListGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.root.list.RootListViewModel
@@ -370,7 +370,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
 
                                     ImportedMailContentScreen(
                                         modifier = Modifier.fillMaxSize(),
-                                        uiState = viewModel.uiStateFlow.collectAsState().value
+                                        uiState = viewModel.uiStateFlow.collectAsState().value,
                                     )
                                 }
                             }

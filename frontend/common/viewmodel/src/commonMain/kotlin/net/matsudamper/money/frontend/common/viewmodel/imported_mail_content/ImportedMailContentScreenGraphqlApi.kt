@@ -17,7 +17,7 @@ public class ImportedMailContentScreenGraphqlApi(
             apolloClient = apolloClient,
             query = ImportedMailContentScreenQuery(
                 id = id,
-            )
+            ),
         )
     }
 }

@@ -94,7 +94,7 @@ public fun ImportedMailScreen(
                 },
                 onClickTitle = {
                     uiState.event.onClickTitle()
-                }
+                },
             ) {
                 Text(
                     text = "家計簿 - メール",
@@ -164,7 +164,7 @@ private fun MainContent(
                 Row {
                     Spacer(modifier = Modifier.weight(1f))
                     OutlinedButton(
-                        onClick = { uiState.event.onClickMailDetail() }
+                        onClick = { uiState.event.onClickMailDetail() },
                     ) {
                         Text("メール本文")
                     }

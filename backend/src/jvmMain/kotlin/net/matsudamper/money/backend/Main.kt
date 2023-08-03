@@ -2,6 +2,7 @@ package net.matsudamper.money.backend
 
 import java.io.File
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.serialization.kotlinx.json.json
@@ -10,7 +11,7 @@ import io.ktor.server.application.call
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
-import io.ktor.server.http.content.*
+import io.ktor.server.http.content.staticFiles
 import io.ktor.server.plugins.callloging.CallLogging
 import io.ktor.server.plugins.compression.Compression
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
@@ -27,7 +28,6 @@ import net.matsudamper.money.backend.base.ObjectMapper
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
 import org.slf4j.event.Level
-import kotlin.time.Duration.Companion.hours
 
 class Main {
     companion object {

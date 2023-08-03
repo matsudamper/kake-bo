@@ -26,7 +26,7 @@ public class ScreenNavControllerImpl(
         ScreenState(
             current = initial,
             lastHome = null,
-        )
+        ),
     )
     override val currentNavigation: ScreenStructure
         get() {
