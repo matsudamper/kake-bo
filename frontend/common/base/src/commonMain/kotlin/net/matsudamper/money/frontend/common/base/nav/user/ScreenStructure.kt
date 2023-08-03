@@ -137,6 +137,20 @@ public sealed interface ScreenStructure {
             return this == other
         }
     }
+    public data class ImportedMailContent(
+        public val id: ImportedMailId,
+    ) : ScreenStructure {
+        override val direction: Screens = Screens.ImportedMailContent
+
+        override fun createUrl(): String {
+            return direction.placeholderUrl
+                .replace("{id}", id.id.toString())
+        }
+
+        override fun equalScreen(other: ScreenStructure): Boolean {
+            return this == other
+        }
+    }
 
     public object AddMoneyUsage : ScreenStructure {
         override val direction: Screens = Screens.AddMoneyUsage

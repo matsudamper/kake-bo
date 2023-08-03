@@ -149,6 +149,15 @@ public class ScreenNavControllerImpl(
                     },
                 )
             }
+
+            Screens.ImportedMailContent -> {
+                ScreenStructure.ImportedMailContent(
+                    id = run id@{
+                        val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
+                        ImportedMailId(id)
+                    },
+                )
+            }
         }
     }
 

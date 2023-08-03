@@ -8,9 +8,11 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.screen.imported_mail_content.ImportedMailContentScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
-import net.matsudamper.money.frontend.common.viewmodel.mail.MailScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.imported_mail.ImportedMailScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.imported_mail_content.ImportedMailContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
@@ -160,16 +162,32 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<MailScreenViewModel.Event>) {
+    suspend fun handle(handler: EventHandler<ImportedMailScreenViewModel.Event>) {
         coroutineScope {
             handler.collect(
-                object : MailScreenViewModel.Event {
+                object : ImportedMailScreenViewModel.Event {
                     override fun navigateToBack() {
                         navController.back()
                     }
 
                     override fun navigateToHome() {
                         navController.navigateToHome()
+                    }
+
+                    override fun navigateToMailContent(id: ImportedMailId) {
+                        navController.navigate(ScreenStructure.ImportedMailContent(id = id))
+                    }
+                },
+            )
+        }
+    }
+
+    suspend fun handle(handler: EventHandler<ImportedMailContentViewModel.Event>) {
+        coroutineScope {
+            handler.collect(
+                object : ImportedMailContentViewModel.Event {
+                    override fun backRequest() {
+                        navController.back()
                     }
                 },
             )

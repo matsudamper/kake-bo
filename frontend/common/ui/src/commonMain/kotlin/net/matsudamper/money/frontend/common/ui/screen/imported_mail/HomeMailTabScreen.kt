@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.ui.screen.imported_mail
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,6 +43,7 @@ public data class MailScreenUiState(
         public data class Loaded(
             val mail: Mail,
             val usageSuggest: ImmutableList<UsageSuggest>,
+            val event: LoadedEvent,
         ) : LoadingState
     }
 
@@ -57,6 +60,11 @@ public data class MailScreenUiState(
         val description: String,
         val dateTime: String?,
     )
+
+    @Immutable
+    public interface LoadedEvent {
+        public fun onClickMailDetail()
+    }
 
     @Immutable
     public interface Event {
@@ -152,6 +160,16 @@ private fun MainContent(
                     modifier = Modifier.fillMaxWidth(),
                     uiState = uiState.mail,
                 )
+                Spacer(modifier = Modifier.height(12.dp))
+                Row {
+                    Spacer(modifier = Modifier.weight(1f))
+                    OutlinedButton(
+                        onClick = { uiState.event.onClickMailDetail() }
+                    ) {
+                        Text("メール本文")
+                    }
+                }
+                Spacer(modifier = Modifier.height(12.dp))
             }
             Spacer(modifier = Modifier.height(24.dp))
             Column(modifier = Modifier.fillMaxWidth()) {

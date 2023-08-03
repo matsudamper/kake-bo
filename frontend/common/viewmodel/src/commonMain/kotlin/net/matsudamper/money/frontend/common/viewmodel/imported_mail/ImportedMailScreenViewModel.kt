@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.viewmodel.mail
+package net.matsudamper.money.frontend.common.viewmodel.imported_mail
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -18,12 +18,12 @@ import net.matsudamper.money.frontend.common.ui.screen.imported_mail.MailScreenU
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
-import net.matsudamper.money.frontend.graphql.MailScreenQuery
+import net.matsudamper.money.frontend.graphql.ImportedMailScreenQuery
 import net.matsudamper.money.lib.ResultWrapper
 
-public class MailScreenViewModel(
+public class ImportedMailScreenViewModel(
     private val coroutineScope: CoroutineScope,
-    private val api: MailScreenGraphqlApi,
+    private val api: ImportedMailScreenGraphqlApi,
     private val importedMailId: ImportedMailId,
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
@@ -78,33 +78,7 @@ public class MailScreenViewModel(
                                         if (mail == null) {
                                             MailScreenUiState.LoadingState.Loading
                                         } else {
-                                            MailScreenUiState.LoadingState.Loaded(
-                                                mail = MailScreenUiState.Mail(
-                                                    title = mail.subject,
-                                                    date = mail.dateTime.toString(),
-                                                    from = mail.from,
-                                                ),
-                                                usageSuggest = mail.suggestUsages.map { suggestUsage ->
-                                                    MailScreenUiState.UsageSuggest(
-                                                        title = suggestUsage.title,
-                                                        amount = run amount@{
-                                                            val amount = suggestUsage.amount ?: return@amount null
-
-                                                            val splitAmount = Formatter.formatMoney(amount)
-                                                            "${splitAmount}円"
-                                                        },
-                                                        category = run category@{
-                                                            val subCategory =
-                                                                suggestUsage.subCategory ?: return@category null
-                                                            val category = subCategory.category
-
-                                                            "${category.name} / ${subCategory.name}"
-                                                        },
-                                                        description = suggestUsage.description,
-                                                        dateTime = suggestUsage.dateTime.toString(),
-                                                    )
-                                                }.toImmutableList(),
-                                            )
+                                            createLoadedUiState(mail = mail)
                                         }
                                     }
                                 },
@@ -114,6 +88,45 @@ public class MailScreenViewModel(
             }
         }
     }.asStateFlow()
+
+    private fun createLoadedUiState(mail: ImportedMailScreenQuery.Mail): MailScreenUiState.LoadingState.Loaded {
+        return MailScreenUiState.LoadingState.Loaded(
+            mail = MailScreenUiState.Mail(
+                title = mail.subject,
+                date = mail.dateTime.toString(),
+                from = mail.from,
+            ),
+            usageSuggest = mail.suggestUsages.map { suggestUsage ->
+                MailScreenUiState.UsageSuggest(
+                    title = suggestUsage.title,
+                    amount = run amount@{
+                        val amount = suggestUsage.amount ?: return@amount null
+
+                        val splitAmount = Formatter.formatMoney(amount)
+                        "${splitAmount}円"
+                    },
+                    category = run category@{
+                        val subCategory =
+                            suggestUsage.subCategory ?: return@category null
+                        val category = subCategory.category
+
+                        "${category.name} / ${subCategory.name}"
+                    },
+                    description = suggestUsage.description,
+                    dateTime = suggestUsage.dateTime.toString(),
+                )
+            }.toImmutableList(),
+            event = object : MailScreenUiState.LoadedEvent {
+                override fun onClickMailDetail() {
+                    coroutineScope.launch {
+                        viewModelEventSender.send {
+                            it.navigateToMailContent(id = importedMailId)
+                        }
+                    }
+                }
+            }
+        )
+    }
 
     init {
         fetch()
@@ -133,10 +146,11 @@ public class MailScreenViewModel(
     public interface Event {
         public fun navigateToBack()
         public fun navigateToHome()
+        public fun navigateToMailContent(id: ImportedMailId)
     }
 
     private data class ViewModelState(
         val isLoading: Boolean = true,
-        val responseFlow: Flow<ResultWrapper<ApolloResponse<MailScreenQuery.Data>>> = flowOf(),
+        val responseFlow: Flow<ResultWrapper<ApolloResponse<ImportedMailScreenQuery.Data>>> = flowOf(),
     )
 }

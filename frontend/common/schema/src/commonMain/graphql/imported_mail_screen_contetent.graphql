@@ -1,0 +1,10 @@
+query ImportedMailContentScreen($id: ImportedMailId!) {
+    user {
+        importedMailAttributes {
+            mail(id: $id) {
+                id
+                html
+            }
+        }
+    }
+}

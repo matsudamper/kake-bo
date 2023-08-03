@@ -1,4 +1,4 @@
-query MailScreen($id: ImportedMailId!) {
+query ImportedMailScreen($id: ImportedMailId!) {
     user {
         importedMailAttributes {
             mail(id: $id) {

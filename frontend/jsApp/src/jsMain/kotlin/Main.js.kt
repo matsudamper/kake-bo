@@ -46,6 +46,7 @@ import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.imported_mail.ImportedMailScreen
+import net.matsudamper.money.frontend.common.ui.screen.imported_mail_content.ImportedMailContentScreen
 import net.matsudamper.money.frontend.common.ui.screen.status.NotFoundScreen
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.LoginScreenViewModel
@@ -55,8 +56,10 @@ import net.matsudamper.money.frontend.common.viewmodel.admin.AdminAddUserScreenV
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminLoginScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminRootScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
-import net.matsudamper.money.frontend.common.viewmodel.mail.MailScreenGraphqlApi
-import net.matsudamper.money.frontend.common.viewmodel.mail.MailScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.imported_mail.ImportedMailScreenGraphqlApi
+import net.matsudamper.money.frontend.common.viewmodel.imported_mail.ImportedMailScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.imported_mail_content.ImportedMailContentScreenGraphqlApi
+import net.matsudamper.money.frontend.common.viewmodel.imported_mail_content.ImportedMailContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.list.HomeUsageListGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.root.list.RootListViewModel
@@ -334,9 +337,9 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                         coroutineScope,
                                         current,
                                     ) {
-                                        MailScreenViewModel(
+                                        ImportedMailScreenViewModel(
                                             coroutineScope = coroutineScope,
-                                            api = MailScreenGraphqlApi(),
+                                            api = ImportedMailScreenGraphqlApi(),
                                             importedMailId = current.id,
                                         )
                                     }
@@ -349,6 +352,25 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                     ImportedMailScreen(
                                         modifier = Modifier.fillMaxSize(),
                                         uiState = viewModel.uiStateFlow.collectAsState().value,
+                                    )
+                                }
+
+                                is ScreenStructure.ImportedMailContent -> {
+                                    val coroutineScope = rememberCoroutineScope()
+                                    val viewModel = remember {
+                                        ImportedMailContentViewModel(
+                                            id = current.id,
+                                            coroutineScope = coroutineScope,
+                                            api = ImportedMailContentScreenGraphqlApi(),
+                                        )
+                                    }
+                                    LaunchedEffect(viewModel.viewModelEventHandler) {
+                                        viewModelEventHandlers.handle(viewModel.viewModelEventHandler)
+                                    }
+
+                                    ImportedMailContentScreen(
+                                        modifier = Modifier.fillMaxSize(),
+                                        uiState = viewModel.uiStateFlow.collectAsState().value
                                     )
                                 }
                             }

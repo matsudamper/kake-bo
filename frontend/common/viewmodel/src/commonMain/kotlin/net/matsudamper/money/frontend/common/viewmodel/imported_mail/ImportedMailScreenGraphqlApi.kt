@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.viewmodel.mail
+package net.matsudamper.money.frontend.common.viewmodel.imported_mail
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -7,20 +7,20 @@ import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.graphql.GraphqlClient
-import net.matsudamper.money.frontend.graphql.MailScreenQuery
+import net.matsudamper.money.frontend.graphql.ImportedMailScreenQuery
 import net.matsudamper.money.lib.ResultWrapper
 
-public class MailScreenGraphqlApi(
+public class ImportedMailScreenGraphqlApi(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
 
     public fun get(
         id: ImportedMailId,
-    ): Flow<ResultWrapper<ApolloResponse<MailScreenQuery.Data>>> {
+    ): Flow<ResultWrapper<ApolloResponse<ImportedMailScreenQuery.Data>>> {
         return flow {
             apolloClient
                 .query(
-                    MailScreenQuery(
+                    ImportedMailScreenQuery(
                         id = id,
                     ),
                 )
