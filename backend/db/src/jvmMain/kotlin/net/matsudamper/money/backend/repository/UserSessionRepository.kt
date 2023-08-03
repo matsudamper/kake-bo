@@ -52,6 +52,8 @@ class UserSessionRepository {
                 DSL.using(config)
                     .select(userSessions.USER_ID)
                     .where(userSessions.SESSION_ID.eq(sessionId.id))
+                    .execute()
+
                 DSL.using(config)
                     .update(userSessions)
                     .set(userSessions.EXPIRE_DATETIME, getNewExpire())
