@@ -1,0 +1,36 @@
+query ImportedMailListScreenMailPaging(
+    $query: ImportedMailQuery!
+) {
+    user {
+        importedMailAttributes {
+            mails(query: $query) {
+                cursor
+                nodes {
+                    id
+                    from
+                    subject
+                    plain
+                    dateTime
+                    suggestUsages {
+                        title
+                        description
+                        dateTime
+                        amount
+                        service {
+                            id
+                            name
+                        }
+                        subCategory {
+                            id
+                            name
+                            category {
+                                id
+                                name
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

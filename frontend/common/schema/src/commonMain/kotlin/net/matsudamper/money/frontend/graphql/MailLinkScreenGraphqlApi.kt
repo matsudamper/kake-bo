@@ -15,11 +15,11 @@ class MailLinkScreenGraphqlApi(
     suspend fun getMail(
         cursor: String?,
         isLinked: Boolean?,
-    ): ApolloResponse<MailLinkScreenGetMailsQuery.Data>? {
+    ): ApolloResponse<ImportedMailListScreenMailPagingQuery.Data>? {
         return runCatching {
             apolloClient
                 .query(
-                    MailLinkScreenGetMailsQuery(
+                    ImportedMailListScreenMailPagingQuery(
                         query = ImportedMailQuery(
                             cursor = Optional.present(cursor),
                             filter = ImportedMailQueryFilter(

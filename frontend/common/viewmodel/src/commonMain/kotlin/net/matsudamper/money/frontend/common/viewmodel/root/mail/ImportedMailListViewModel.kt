@@ -17,7 +17,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailLis
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState.Filters.LinkStatus.*
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
-import net.matsudamper.money.frontend.graphql.MailLinkScreenGetMailsQuery
+import net.matsudamper.money.frontend.graphql.ImportedMailListScreenMailPagingQuery
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
 
 public class ImportedMailListViewModel(
@@ -48,16 +48,7 @@ public class ImportedMailListViewModel(
                 override fun moreLoading() {
                     fetch()
                 }
-
-                override fun dismissFullScreenHtml() {
-                    viewModelStateFlow.update {
-                        it.copy(
-                            fullScreenHtml = null,
-                        )
-                    }
-                }
             },
-            fullScreenHtml = null,
             loadingState = ImportedMailListScreenUiState.LoadingState.Loading,
         ),
     ).also { uiStateFlow ->
@@ -65,7 +56,6 @@ public class ImportedMailListViewModel(
             viewModelStateFlow.collect { viewModelState ->
                 uiStateFlow.update { uiState ->
                     uiState.copy(
-                        fullScreenHtml = viewModelState.fullScreenHtml,
                         loadingState = ImportedMailListScreenUiState.LoadingState.Loaded(
                             showLastLoading = viewModelState.mailState.finishLoadingToEnd.not(),
                             listItems = viewModelState.mailState.mails.map { mail ->
@@ -151,17 +141,12 @@ public class ImportedMailListViewModel(
         fetch()
     }
 
-    private fun createMailEvent(mail: MailLinkScreenGetMailsQuery.Node): ImportedMailListScreenUiState.ListItemEvent {
+    private fun createMailEvent(mail: ImportedMailListScreenMailPagingQuery.Node): ImportedMailListScreenUiState.ListItemEvent {
         return object : ImportedMailListScreenUiState.ListItemEvent {
             override fun onClickMailDetail() {
                 coroutineScope.launch {
-                    viewModelStateFlow.update { viewModelState ->
-                        viewModelState.copy(
-                            // TODO 表示する時にデータを取得するようにする
-                            fullScreenHtml = mail.html ?: mail.plain
-                                ?.replace("\r\n", "<br>")
-                                ?.replace("\n", "<br>"),
-                        )
+                    viewModelEventSender.send {
+                        it.navigateToMailContent(mail.id)
                     }
                 }
             }
@@ -226,12 +211,11 @@ public class ImportedMailListViewModel(
     private data class ViewModelState(
         val isLoading: Boolean = true,
         val mailState: MailState = MailState(),
-        val fullScreenHtml: String? = null,
     ) {
         data class MailState(
             val cursor: String? = null,
             val finishLoadingToEnd: Boolean = false,
-            val mails: List<MailLinkScreenGetMailsQuery.Node> = listOf(),
+            val mails: List<ImportedMailListScreenMailPagingQuery.Node> = listOf(),
             val query: Query = Query(),
         )
 
@@ -246,4 +230,5 @@ public interface MailLinkViewModelEvent {
     public fun globalToast(message: String)
     public fun changeQuery(isLinked: Boolean?)
     public fun navigateToMailDetail(id: ImportedMailId)
+    public fun navigateToMailContent(id: ImportedMailId)
 }

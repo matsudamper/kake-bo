@@ -52,7 +52,6 @@ public data class ImportedMailListScreenUiState(
     val event: Event,
     val filters: Filters,
     val loadingState: LoadingState,
-    val fullScreenHtml: String?,
 ) {
     public data class Filters(
         val link: Link,
@@ -107,7 +106,6 @@ public data class ImportedMailListScreenUiState(
     @Immutable
     public interface Event {
         public fun onViewInitialized()
-        public fun dismissFullScreenHtml()
         public fun moreLoading()
     }
 }
@@ -117,14 +115,6 @@ public fun ImportedMailListScreen(
     modifier: Modifier = Modifier,
     uiState: ImportedMailListScreenUiState,
 ) {
-    if (uiState.fullScreenHtml != null) {
-        Html(
-            html = uiState.fullScreenHtml,
-            onDismissRequest = {
-                uiState.event.dismissFullScreenHtml()
-            },
-        )
-    }
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
     }
