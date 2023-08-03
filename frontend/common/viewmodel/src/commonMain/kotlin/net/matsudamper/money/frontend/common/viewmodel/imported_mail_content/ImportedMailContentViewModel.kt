@@ -51,7 +51,6 @@ public class ImportedMailContentViewModel(
     ).also { uiStateFlow ->
         coroutineScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
-                println("viewModelState")
                 val loadingState = when (val resultWrapper = viewModelState.apolloResponseState) {
                     is ApolloResponseState.Failure -> {
                         ImportedMailContentScreenUiState.LoadingState.Error
