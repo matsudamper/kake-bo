@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
-import net.matsudamper.money.frontend.common.ui.screen.mail.MailScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.imported_mail.MailScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter

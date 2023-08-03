@@ -45,7 +45,7 @@ import net.matsudamper.money.frontend.common.ui.screen.add_money_usage.AddMoneyU
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreenUiState
-import net.matsudamper.money.frontend.common.ui.screen.mail.MailScreen
+import net.matsudamper.money.frontend.common.ui.screen.imported_mail.ImportedMailScreen
 import net.matsudamper.money.frontend.common.ui.screen.status.NotFoundScreen
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.LoginScreenViewModel
@@ -328,7 +328,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                     )
                                 }
 
-                                is ScreenStructure.Mail -> {
+                                is ScreenStructure.ImportedMail -> {
                                     val coroutineScope = rememberCoroutineScope()
                                     val viewModel = remember(
                                         coroutineScope,
@@ -346,7 +346,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                         )
                                     }
 
-                                    MailScreen(
+                                    ImportedMailScreen(
                                         modifier = Modifier.fillMaxSize(),
                                         uiState = viewModel.uiStateFlow.collectAsState().value,
                                     )

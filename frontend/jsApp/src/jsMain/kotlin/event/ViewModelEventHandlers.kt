@@ -78,7 +78,7 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun navigateToMailDetail(id: ImportedMailId) {
-                        navController.navigate(ScreenStructure.Mail(id = id))
+                        navController.navigate(ScreenStructure.ImportedMail(id = id))
                     }
                 },
             )

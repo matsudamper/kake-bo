@@ -123,10 +123,10 @@ public sealed interface ScreenStructure {
         override val direction: Screens = Screens.Admin
     }
 
-    public data class Mail(
+    public data class ImportedMail(
         public val id: ImportedMailId,
     ) : ScreenStructure {
-        override val direction: Screens = Screens.Mail
+        override val direction: Screens = Screens.ImportedMail
 
         override fun createUrl(): String {
             return direction.placeholderUrl

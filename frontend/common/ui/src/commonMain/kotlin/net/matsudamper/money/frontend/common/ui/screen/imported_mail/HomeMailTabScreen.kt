@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.mail
+package net.matsudamper.money.frontend.common.ui.screen.imported_mail
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -68,7 +68,7 @@ public data class MailScreenUiState(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-public fun MailScreen(
+public fun ImportedMailScreen(
     modifier: Modifier = Modifier,
     uiState: MailScreenUiState,
 ) {
