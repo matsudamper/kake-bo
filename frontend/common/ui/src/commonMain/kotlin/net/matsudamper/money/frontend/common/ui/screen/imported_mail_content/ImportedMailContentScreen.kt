@@ -11,6 +11,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -31,6 +32,7 @@ public data class ImportedMailContentScreenUiState(
     public interface Event {
         public fun onClickClose()
         public fun onClickRetry()
+        public fun onViewInitialized()
     }
 }
 
@@ -40,6 +42,9 @@ public fun ImportedMailContentScreen(
     modifier: Modifier = Modifier,
     uiState: ImportedMailContentScreenUiState,
 ) {
+    LaunchedEffect(Unit) {
+        uiState.event.onViewInitialized()
+    }
     when(uiState.loadingState) {
         is ImportedMailContentScreenUiState.LoadingState.Loaded -> {
             Html(

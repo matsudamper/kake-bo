@@ -33,6 +33,10 @@ public class ImportedMailContentViewModel(
         ImportedMailContentScreenUiState(
             loadingState = ImportedMailContentScreenUiState.LoadingState.Loading,
             event = object : ImportedMailContentScreenUiState.Event {
+                override fun onViewInitialized() {
+                    fetch()
+                }
+
                 override fun onClickClose() {
                     coroutineScope.launch {
                         viewModelEventSender.send {
