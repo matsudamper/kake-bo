@@ -52,7 +52,7 @@ public class ImportedMailContentViewModel(
         coroutineScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
                 println("viewModelState")
-                val loadingState = when (val resultWrapper = viewModelState.resultFlow) {
+                val loadingState = when (val resultWrapper = viewModelState.apolloResponseState) {
                     is ApolloResponseState.Failure -> {
                         ImportedMailContentScreenUiState.LoadingState.Error
                     }
@@ -86,10 +86,10 @@ public class ImportedMailContentViewModel(
     private fun fetch() {
         coroutineScope.launch {
             apolloResponseCollector.fetch()
-            apolloResponseCollector.flow.collectLatest { resultWrapper ->
+            apolloResponseCollector.flow.collectLatest { apolloResponseState ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
-                        resultFlow = resultWrapper
+                        apolloResponseState = apolloResponseState
                     )
                 }
             }
@@ -101,6 +101,6 @@ public class ImportedMailContentViewModel(
     }
 
     private data class ViewModelState(
-        val resultFlow: ApolloResponseState<ApolloResponse<ImportedMailContentScreenQuery.Data>> = ApolloResponseState.loading(),
+        val apolloResponseState: ApolloResponseState<ApolloResponse<ImportedMailContentScreenQuery.Data>> = ApolloResponseState.loading(),
     )
 }
