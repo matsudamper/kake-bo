@@ -85,6 +85,7 @@ public class ImportedMailContentViewModel(
 
     private fun fetch() {
         coroutineScope.launch {
+            apolloResponseCollector.fetch()
             apolloResponseCollector.flow.collectLatest { resultWrapper ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
