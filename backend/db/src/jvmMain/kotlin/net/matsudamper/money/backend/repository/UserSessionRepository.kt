@@ -51,6 +51,7 @@ class UserSessionRepository {
             DSL.using(it).transactionResult { config ->
                 DSL.using(config)
                     .select(userSessions.USER_ID)
+                    .from(userSessions)
                     .where(userSessions.SESSION_ID.eq(sessionId.id))
                     .forUpdate()
                     .execute()
