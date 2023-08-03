@@ -53,6 +53,7 @@ public data class RootListScreenUiState(
     public interface Event {
         public fun onClickAdd()
         public fun loadMore()
+        public fun onViewInitialized()
     }
 }
 
@@ -62,6 +63,10 @@ public fun RootListScreen(
     uiState: RootListScreenUiState,
     listener: RootScreenScaffoldListener,
 ) {
+    LaunchedEffect(Unit) {
+        uiState.event.onViewInitialized()
+    }
+
     RootScreenScaffold(
         modifier = modifier.fillMaxSize(),
         currentScreen = RootScreenTab.List,

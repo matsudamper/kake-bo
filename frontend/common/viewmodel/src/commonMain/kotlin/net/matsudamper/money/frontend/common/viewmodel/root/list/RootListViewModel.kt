@@ -33,6 +33,10 @@ public class RootListViewModel(
         RootListScreenUiState(
             loadingState = RootListScreenUiState.LoadingState.Loading,
             event = object : RootListScreenUiState.Event {
+                override fun onViewInitialized() {
+                    fetch()
+                }
+
                 override fun onClickAdd() {
                     coroutineScope.launch {
                         viewModelEventSender.send {
@@ -77,10 +81,6 @@ public class RootListViewModel(
                 }
         }
     }.asStateFlow()
-
-    init {
-        fetch()
-    }
 
     private fun fetch() {
         coroutineScope.launch {
