@@ -10,7 +10,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 
 public class LoginCheckUseCase(
     private val ioDispatcher: CoroutineDispatcher,
-    private val navController: ScreenNavController,
+    private val navController: ScreenNavController<ScreenStructure>,
     private val globalEventSender: EventSender<GlobalEvent>,
     private val graphqlQuery: GraphqlUserLoginQuery,
 ) {

@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.frontend.common.base.nav.user.JsScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
@@ -23,7 +24,7 @@ import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategorie
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
 
 data class ViewModelEventHandlers(
-    private val navController: ScreenNavController,
+    private val navController: JsScreenNavController,
     private val globalEventSender: EventSender<GlobalEvent>,
     private val rootScreenScaffoldListener: RootScreenScaffoldListener,
     private val mailViewModelStateFlow: StateFlow<HomeMailTabScreenViewModel.ViewModelState>,
