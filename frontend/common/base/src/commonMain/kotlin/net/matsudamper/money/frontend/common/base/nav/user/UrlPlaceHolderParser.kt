@@ -42,18 +42,34 @@ internal class UrlPlaceHolderParser<D : DirectionUrl>(
                     }
                 }.all { it }
 
+            val lastIsPlaceholder: Boolean
             val last = keyValues.lastOrNull()
             if (reamingPathname.isNotEmpty() && last != null && last.second == null) {
                 keyValues.add(last.first to reamingPathname)
                 reamingPathname = ""
+                lastIsPlaceholder = true
+            } else {
+                lastIsPlaceholder = false
             }
             ParseResult(
                 success = result,
                 keyValues = keyValues,
                 screen = screen,
                 reamingPath = reamingPathname,
+                lastIsPlaceholder = lastIsPlaceholder,
             )
-        }.firstOrNull { it.success && it.reamingPath.isEmpty() }
+        }.filter {
+            it.success && it.reamingPath.isEmpty()
+        }.minByOrNull {
+            // "/hoge/100/piyo"において、1よりも2を優先する
+            // 1: /hoge/{fuga} -> fuga=100/piyo
+            // 2: /hoge/{fuga}/piyo -> fuga=100
+            if (it.lastIsPlaceholder) {
+                1
+            } else {
+                0
+            }
+        }
 
         return if (result != null) {
             ScreenState(
@@ -110,5 +126,6 @@ internal class UrlPlaceHolderParser<D : DirectionUrl>(
         val keyValues: List<Pair<String, String?>>,
         val screen: D,
         val reamingPath: String,
+        val lastIsPlaceholder: Boolean,
     )
 }
