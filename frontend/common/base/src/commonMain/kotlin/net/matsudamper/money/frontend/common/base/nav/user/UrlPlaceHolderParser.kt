@@ -1,6 +1,6 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
-internal class UrlPlaceHolderParser<D: DirectionUrl>(
+internal class UrlPlaceHolderParser<D : DirectionUrl>(
     private val directions: List<D>,
 ) {
     fun parse(
@@ -32,7 +32,8 @@ internal class UrlPlaceHolderParser<D: DirectionUrl>(
                             reamingPathname = reamingPathname.drop(phrase.length)
                         } else {
                             val value = reamingPathname.substring(0, index)
-                            val key = keyValues.dropLast(0).getOrNull(0)?.first ?: return@map false.apply { println("hoge") }
+                            val key = keyValues.dropLast(0).getOrNull(0)?.first
+                                ?: return@map false
 
                             keyValues.add(key to value)
                             reamingPathname = reamingPathname.drop(index + phrase.length)
@@ -99,12 +100,12 @@ internal class UrlPlaceHolderParser<D: DirectionUrl>(
             }
     }
 
-    data class ScreenState<out D: DirectionUrl>(
+    data class ScreenState<out D : DirectionUrl>(
         public val screen: D?,
         public val pathParams: Map<String, String>,
     )
 
-    private data class ParseResult<D: DirectionUrl>(
+    private data class ParseResult<D : DirectionUrl>(
         val success: Boolean,
         val keyValues: List<Pair<String, String?>>,
         val screen: D,
