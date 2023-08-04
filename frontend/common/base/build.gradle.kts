@@ -8,7 +8,11 @@ kotlin {
         browser()
         binaries.executable()
     }
+    jvm {
+        withJava()
+    }
     sourceSets {
+        jvmToolchain(17)
         val commonMain by getting {
             dependencies {
                 implementation(compose.runtime)
@@ -32,6 +36,22 @@ kotlin {
                 implementation(kotlin("test"))
             }
         }
+        val jvmMain by getting {
+            dependencies {
+                implementation(kotlin("stdlib"))
+            }
+        }
+        val jvmTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation("io.kotest:kotest-runner-junit5:5.6.2")
+                implementation("io.mockk:mockk:1.13.5")
+            }
+        }
     }
     explicitApi()
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }
