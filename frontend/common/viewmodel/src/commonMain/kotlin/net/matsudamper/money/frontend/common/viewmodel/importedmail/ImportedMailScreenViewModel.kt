@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.viewmodel.imported_mail
+package net.matsudamper.money.frontend.common.viewmodel.importedmail
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow

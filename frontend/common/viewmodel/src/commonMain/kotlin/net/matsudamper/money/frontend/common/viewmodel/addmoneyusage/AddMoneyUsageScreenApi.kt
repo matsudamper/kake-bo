@@ -1,11 +1,11 @@
-package net.matsudamper.money.frontend.common.viewmodel.add_money_usage
+package net.matsudamper.money.frontend.common.viewmodel.addmoneyusage
 
-import kotlinx.datetime.LocalDateTime
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
+import kotlinx.datetime.LocalDateTime
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.graphql.AddMoneyUsageMutation
