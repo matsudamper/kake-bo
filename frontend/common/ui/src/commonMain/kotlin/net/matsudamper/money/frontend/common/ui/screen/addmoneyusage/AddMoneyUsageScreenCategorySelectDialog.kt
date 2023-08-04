@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.add_money_usage
+package net.matsudamper.money.frontend.common.ui.screen.addmoneyusage
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

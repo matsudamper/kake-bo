@@ -15,8 +15,8 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
-import net.matsudamper.money.frontend.common.ui.screen.add_money_usage.AddMoneyUsageScreenCategorySelectDialogUiState
-import net.matsudamper.money.frontend.common.ui.screen.add_money_usage.AddMoneyUsageScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreenCategorySelectDialogUiState
+import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreenUiState
 import net.matsudamper.money.frontend.graphql.AddMoneyUsageScreenCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.AddMoneyUsageScreenSubCategoriesPagingQuery
 

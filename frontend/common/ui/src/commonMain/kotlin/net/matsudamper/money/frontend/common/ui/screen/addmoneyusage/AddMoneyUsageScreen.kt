@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.add_money_usage
+package net.matsudamper.money.frontend.common.ui.screen.addmoneyusage
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -36,7 +36,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import kotlinx.datetime.LocalDate
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.layout.Calendar
