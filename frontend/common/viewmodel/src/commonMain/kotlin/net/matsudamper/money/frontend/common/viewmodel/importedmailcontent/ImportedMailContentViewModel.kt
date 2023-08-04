@@ -57,13 +57,20 @@ public class ImportedMailContentViewModel(
                     }
 
                     is ApolloResponseState.Success -> {
-                        val html = resultWrapper.value.data?.user?.importedMailAttributes?.mail?.html
+                        val mail = resultWrapper.value.data?.user?.importedMailAttributes?.mail
 
-                        if (html == null) {
+                        if (mail == null) {
                             ImportedMailContentScreenUiState.LoadingState.Error
                         } else {
                             ImportedMailContentScreenUiState.LoadingState.Loaded(
-                                html = html,
+                                html = sequence {
+                                    yield(mail.html)
+                                    yield(
+                                        mail.plain
+                                            ?.replace("\r\n", "<br>")
+                                            ?.replace("\n", "<br>"),
+                                    )
+                                }.filterNotNull().firstOrNull().orEmpty(),
                             )
                         }
                     }

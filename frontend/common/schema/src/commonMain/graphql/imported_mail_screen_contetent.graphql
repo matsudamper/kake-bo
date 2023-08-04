@@ -4,6 +4,7 @@ query ImportedMailContentScreen($id: ImportedMailId!) {
             mail(id: $id) {
                 id
                 html
+                plain
             }
         }
     }
