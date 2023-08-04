@@ -140,6 +140,7 @@ public fun AddMoneyUsageScreen(
             Column(
                 Modifier
                     .padding(paddingValues)
+                    .padding(horizontal = 12.dp)
                     .widthIn(max = 500.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
