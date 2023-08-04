@@ -1,12 +1,12 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
-internal class UrlPlaceHolderParser(
-    private val directions: List<Screens>,
+internal class UrlPlaceHolderParser<D: Direction>(
+    private val directions: List<D>,
 ) {
     fun parse(
         pathname: String,
-    ): ScreenState {
         val result = directions.map direction@{ screen ->
+    ): ScreenState<D> {
             var reamingPathname = pathname
 
             val keyValues = mutableListOf<Pair<String, String?>>()
@@ -64,7 +64,7 @@ internal class UrlPlaceHolderParser(
             )
         } else {
             ScreenState(
-                screen = Screens.NotFound,
+                screen = null,
                 pathParams = mapOf(),
             )
         }
@@ -99,15 +99,15 @@ internal class UrlPlaceHolderParser(
             }
     }
 
-    data class ScreenState(
-        public val screen: Screens,
+    data class ScreenState<out D: Direction>(
+        public val screen: D?,
         public val pathParams: Map<String, String>,
     )
 
-    private data class ParseResult(
+    private data class ParseResult<D: Direction>(
         val success: Boolean,
         val keyValues: List<Pair<String, String?>>,
-        val screen: Screens,
+        val screen: D,
         val reamingPath: String,
     )
 }

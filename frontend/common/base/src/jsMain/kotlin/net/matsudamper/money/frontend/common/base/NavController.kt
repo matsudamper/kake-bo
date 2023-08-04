@@ -110,7 +110,7 @@ public class ScreenNavControllerImpl(
         window.history.back()
     }
 
-    private fun UrlPlaceHolderParser.ScreenState.toScreenStructure(
+    private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(
         queryParams: Map<String, List<String>>,
     ): ScreenStructure {
         return when (this.screen) {
@@ -131,7 +131,6 @@ public class ScreenNavControllerImpl(
             }
 
             Screens.List -> ScreenStructure.Root.List()
-            Screens.NotFound -> ScreenStructure.NotFound
             Screens.Login -> ScreenStructure.Login
             Screens.Admin -> ScreenStructure.Admin
             Screens.MailImport -> ScreenStructure.Root.Mail.Import
@@ -158,6 +157,8 @@ public class ScreenNavControllerImpl(
                     },
                 )
             }
+            null,
+            Screens.NotFound -> ScreenStructure.NotFound
         }
     }
 
