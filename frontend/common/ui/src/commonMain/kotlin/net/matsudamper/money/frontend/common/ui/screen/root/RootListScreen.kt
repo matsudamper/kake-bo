@@ -150,6 +150,8 @@ private fun ListItem(
             Spacer(modifier = Modifier.heightIn(4.dp))
             Text(text = item.amount)
             Spacer(modifier = Modifier.heightIn(4.dp))
+            Text(text = item.category ?: "")
+            Spacer(modifier = Modifier.heightIn(4.dp))
             Text(text = item.description)
         }
     }
