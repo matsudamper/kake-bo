@@ -11,7 +11,7 @@ internal class UrlPlaceHolderParser<D: DirectionUrl>(
 
             val keyValues = mutableListOf<Pair<String, String?>>()
             val placeholderRegex = """^\{(.+?)\}$""".toRegex()
-            val result = splitUrl(screen.placeholderUrl)
+            val result = splitUrl(screen.placeholderUrl).asSequence()
                 .map { phrase ->
                     val placeholderValue = placeholderRegex.find(phrase)
                         ?.groupValues?.getOrNull(1)
