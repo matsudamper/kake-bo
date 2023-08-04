@@ -341,14 +341,18 @@ private fun CalendarDialog(
                     modifier = Modifier
                         .align(Alignment.End),
                 ) {
-                    TextButton(onClick = {
-                        dismissRequest()
-                    },) {
+                    TextButton(
+                        onClick = {
+                            dismissRequest()
+                        },
+                    ) {
                         Text(text = "キャンセル")
                     }
-                    TextButton(onClick = {
-                        selectedCalendar(selectedDate)
-                    },) {
+                    TextButton(
+                        onClick = {
+                            selectedCalendar(selectedDate)
+                        },
+                    ) {
                         Text(text = "決定")
                     }
                 }
