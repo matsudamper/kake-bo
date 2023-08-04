@@ -5,7 +5,6 @@ import io.ktor.http.formUrlEncode
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 
-
 public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
     public sealed interface Root : ScreenStructure {
         public class Home : Root {

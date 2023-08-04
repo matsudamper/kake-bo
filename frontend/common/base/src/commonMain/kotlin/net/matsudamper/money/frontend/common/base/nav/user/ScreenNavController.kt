@@ -3,7 +3,7 @@ package net.matsudamper.money.frontend.common.base.nav.user
 import androidx.compose.runtime.Immutable
 
 @Immutable
-public interface ScreenNavController<D: IScreenStructure<D>> {
+public interface ScreenNavController<D : IScreenStructure<D>> {
     public val currentNavigation: D
     public fun back()
     public fun navigate(

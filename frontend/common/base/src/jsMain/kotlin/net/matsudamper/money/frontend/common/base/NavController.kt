@@ -158,7 +158,8 @@ public class ScreenNavControllerImpl(
                 )
             }
             null,
-            Screens.NotFound -> ScreenStructure.NotFound
+            Screens.NotFound,
+            -> ScreenStructure.NotFound
         }
     }
 
