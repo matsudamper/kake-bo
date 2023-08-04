@@ -247,6 +247,7 @@ private fun NumberInputDialog(
             .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
                 dismissRequest()
             },
+        contentAlignment = Alignment.Center,
     ) {
         NumberInput(
             modifier = Modifier.widthIn(max = 500.dp)
