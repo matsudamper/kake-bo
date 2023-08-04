@@ -9,6 +9,7 @@ public object ServerEnv {
     public val isDebug: Boolean = System.getenv()["IS_DEBUG"]?.toBooleanStrictOrNull() ?: false
 
     public val dbHost: String = System.getenv()["DB_HOST"]!!
+    public val dbPort: String = System.getenv()["DB_PORT"]!!
     public val dbSchema: String = System.getenv()["DB_SCHEMA"]!!
     public val dbUserName: String = System.getenv()["DB_USERNAME"]!!
     public val dbPassword: String = System.getenv()["DB_PASSWORD"]!!

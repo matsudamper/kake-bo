@@ -8,10 +8,11 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import net.matsudamper.money.backend.base.ServerEnv
 
+
 internal object DbConnection {
 
     private val config = HikariConfig().also { config ->
-        config.jdbcUrl = "jdbc:mariadb://${ServerEnv.dbHost}/${ServerEnv.dbSchema}"
+        config.jdbcUrl = "jdbc:mariadb://${ServerEnv.dbHost}:${ServerEnv.dbPort}/${ServerEnv.dbSchema}"
         config.username = ServerEnv.dbUserName
         config.password = ServerEnv.dbPassword
         config.connectionTimeout = 5 * 1000
