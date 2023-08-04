@@ -44,10 +44,6 @@ public class RootListViewModel(
                         }
                     }
                 }
-
-                override fun loadMore() {
-                    fetch()
-                }
             },
         ),
     ).also { uiStateFlow ->
@@ -73,6 +69,11 @@ public class RootListViewModel(
                                                 "${subCategory.name} / ${subCategory.category.name}"
                                             },
                                         )
+                                    },
+                                    event = object : RootListScreenUiState.LoadedEvent {
+                                        override fun loadMore() {
+                                            fetch()
+                                        }
                                     },
                                 ),
                             )

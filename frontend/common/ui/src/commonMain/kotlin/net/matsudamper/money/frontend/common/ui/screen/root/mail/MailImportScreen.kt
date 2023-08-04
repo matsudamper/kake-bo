@@ -47,12 +47,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.matsudamper.money.frontend.common.ui.layout.ScrollButton
+import net.matsudamper.money.frontend.common.ui.layout.ScrollButtonDefaults
 import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.screen.root.ImportMailScreenUiState
 
-private val scrollButtonSize = 42.dp
-private val scrollButtonHorizontalPadding = 12.dp
 
 @Composable
 public fun MailImportScreen(
@@ -95,7 +94,7 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
             if (firstLoadingFinished) {
                 Box(
                     modifier = Modifier.fillMaxWidth()
-                        .padding(end = scrollButtonSize + scrollButtonHorizontalPadding),
+                        .padding(end = ScrollButtonDefaults.scrollButtonSize + ScrollButtonDefaults.scrollButtonHorizontalPadding),
                     contentAlignment = Alignment.Center,
                 ) {
                     Button(
@@ -150,7 +149,7 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                             MailContent(
                                 modifier = Modifier
                                     .padding(vertical = 12.dp)
-                                    .padding(start = scrollButtonHorizontalPadding),
+                                    .padding(start = ScrollButtonDefaults.scrollButtonHorizontalPadding),
                                 uiState = item,
                             )
                         }
@@ -169,7 +168,7 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                                 item {
                                     OutlinedButton(
                                         modifier = Modifier.fillMaxWidth()
-                                            .padding(start = scrollButtonHorizontalPadding),
+                                            .padding(start = ScrollButtonDefaults.scrollButtonHorizontalPadding),
                                         onClick = { uiState.event.onClickLoadMore() },
                                     ) {
                                         Text(
@@ -188,8 +187,8 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                     ScrollButton(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .padding(scrollButtonHorizontalPadding)
-                            .width(scrollButtonSize),
+                            .padding(ScrollButtonDefaults.scrollButtonHorizontalPadding)
+                            .width(ScrollButtonDefaults.scrollButtonSize),
                         scrollState = lazyListState,
                         scrollSize = with(density) {
                             height.toPx() * 0.7f
