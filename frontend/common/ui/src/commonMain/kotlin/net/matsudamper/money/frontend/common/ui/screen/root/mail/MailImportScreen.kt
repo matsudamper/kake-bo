@@ -52,7 +52,6 @@ import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.screen.root.ImportMailScreenUiState
 
-
 @Composable
 public fun MailImportScreen(
     uiState: ImportMailScreenUiState,

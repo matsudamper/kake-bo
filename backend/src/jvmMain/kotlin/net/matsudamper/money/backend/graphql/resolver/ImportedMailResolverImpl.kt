@@ -1,7 +1,6 @@
 package net.matsudamper.money.backend.graphql.resolver
 
 import java.time.LocalDateTime
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
@@ -110,7 +109,6 @@ class ImportedMailResolverImpl : ImportedMailResolver {
     ): CompletionStage<DataFetcherResult<List<QlMoneyUsageSuggest>>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
-
 
         return context.dataLoaders.importedMailDataLoader.get(env).load(
             ImportedMailDataLoaderDefine.Key(

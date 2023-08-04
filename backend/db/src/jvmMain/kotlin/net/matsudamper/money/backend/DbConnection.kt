@@ -8,7 +8,6 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import net.matsudamper.money.backend.base.ServerEnv
 
-
 internal object DbConnection {
 
     private val config = HikariConfig().also { config ->
