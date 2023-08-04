@@ -35,7 +35,7 @@ internal class UrlPlaceHolderParser<D: DirectionUrl>(
                             val key = keyValues.dropLast(0).getOrNull(0)?.first ?: return@map false.apply { println("hoge") }
 
                             keyValues.add(key to value)
-                            reamingPathname = reamingPathname.drop(index)
+                            reamingPathname = reamingPathname.drop(index + phrase.length)
                         }
                         return@map true
                     }
