@@ -42,7 +42,7 @@ internal class UrlPlaceHolderParser(
                 }.all { it }
 
             val last = keyValues.lastOrNull()
-            if (reamingPathname.isNotEmpty() && last != null) {
+            if (reamingPathname.isNotEmpty() && last != null && last.second == null) {
                 keyValues.add(last.first to reamingPathname)
                 reamingPathname = ""
             }
