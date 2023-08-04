@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
+import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
 @Composable
 internal fun SettingsChangeTextSection(

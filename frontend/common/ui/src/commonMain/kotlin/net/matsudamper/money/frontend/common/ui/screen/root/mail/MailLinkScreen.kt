@@ -44,7 +44,7 @@ import androidx.compose.ui.window.Popup
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import net.matsudamper.money.frontend.common.base.ImmutableList
-import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
+import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 
 public data class ImportedMailListScreenUiState(

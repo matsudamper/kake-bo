@@ -20,7 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
+import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.CustomColors
 import net.matsudamper.money.frontend.common.ui.layout.html.text.input.HtmlTextInput
 

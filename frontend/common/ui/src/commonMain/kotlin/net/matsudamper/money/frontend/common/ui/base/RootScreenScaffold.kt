@@ -28,7 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
+import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
 @Immutable
 public interface RootScreenScaffoldListener {

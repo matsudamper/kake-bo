@@ -10,7 +10,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.createFontFamilyResolver
-import net.matsudamper.money.frontend.common.base.rememberCustomFontFamily
 
 @Composable
 public fun CustomTheme(content: @Composable () -> Unit) {
