@@ -23,14 +23,13 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
     ): CompletionStage<DataFetcherResult<String>> {
         val context = getContext(env)
         val userId = context.verifyUserSession()
-        val futureResult = getMoneyUsageFutureResult(
+        return getMoneyUsageFutureResult(
             context = context,
             env = env,
             userId = userId,
             moneyUsageId = moneyUsage.id,
-        )
-        return CompletableFuture.supplyAsync {
-            futureResult.get().title
+        ).thenApplyAsync { futureResult ->
+            futureResult.title
         }.toDataFetcher()
     }
 
@@ -40,14 +39,13 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
     ): CompletionStage<DataFetcherResult<String>> {
         val context = getContext(env)
         val userId = context.verifyUserSession()
-        val futureResult = getMoneyUsageFutureResult(
+        return getMoneyUsageFutureResult(
             context = context,
             env = env,
             userId = userId,
             moneyUsageId = moneyUsage.id,
-        )
-        return CompletableFuture.supplyAsync {
-            futureResult.get().description
+        ).thenApplyAsync { futureResult ->
+            futureResult.description
         }.toDataFetcher()
     }
 
@@ -57,14 +55,13 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
     ): CompletionStage<DataFetcherResult<LocalDateTime>> {
         val context = getContext(env)
         val userId = context.verifyUserSession()
-        val futureResult = getMoneyUsageFutureResult(
+        return getMoneyUsageFutureResult(
             context = context,
             env = env,
             userId = userId,
             moneyUsageId = moneyUsage.id,
-        )
-        return CompletableFuture.supplyAsync {
-            futureResult.get().date
+        ).thenApplyAsync { futureResult ->
+            futureResult.date
         }.toDataFetcher()
     }
 
@@ -74,14 +71,13 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
     ): CompletionStage<DataFetcherResult<Int>> {
         val context = getContext(env)
         val userId = context.verifyUserSession()
-        val futureResult = getMoneyUsageFutureResult(
+        return getMoneyUsageFutureResult(
             context = context,
             env = env,
             userId = userId,
             moneyUsageId = moneyUsage.id,
-        )
-        return CompletableFuture.supplyAsync {
-            futureResult.get().amount
+        ).thenApplyAsync { futureResult ->
+            futureResult.amount
         }.toDataFetcher()
     }
 
@@ -91,14 +87,13 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
     ): CompletionStage<DataFetcherResult<QlMoneyUsageSubCategory?>> {
         val context = getContext(env)
         val userId = context.verifyUserSession()
-        val futureResult = getMoneyUsageFutureResult(
+        return getMoneyUsageFutureResult(
             context = context,
             env = env,
             userId = userId,
             moneyUsageId = moneyUsage.id,
-        )
-        return CompletableFuture.supplyAsync {
-            val subCategoryId = futureResult.get().subCategoryId ?: return@supplyAsync null
+        ).thenApplyAsync { futureResult ->
+            val subCategoryId = futureResult.subCategoryId ?: return@thenApplyAsync null
             QlMoneyUsageSubCategory(
                 id = subCategoryId,
             )
@@ -111,19 +106,19 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
     ): CompletionStage<DataFetcherResult<List<QlImportedMail>?>> {
         val context = getContext(env)
         val userId = context.verifyUserSession()
-        val relationFuture = context.dataLoaders.moneyUsageAssociateByImportedMailDataLoader.get(env)
+
+        return context.dataLoaders.moneyUsageAssociateByImportedMailDataLoader.get(env)
             .load(
                 MoneyUsageAssociateByImportedMailDataLoaderDefine.Key(
                     userId = userId,
                     moneyUsageId = moneyUsage.id,
                 ),
-            )
-        return CompletableFuture.supplyAsync {
-            val hoge = relationFuture.get() ?: return@supplyAsync null
-            hoge.mailIdList.map { id ->
-                QlImportedMail(id = id)
-            }
-        }.toDataFetcher()
+            ).thenApplyAsync { relationFuture ->
+                val hoge = relationFuture ?: return@thenApplyAsync null
+                hoge.mailIdList.map { id ->
+                    QlImportedMail(id = id)
+                }
+            }.toDataFetcher()
     }
 
     private fun getContext(env: DataFetchingEnvironment): GraphQlContext {

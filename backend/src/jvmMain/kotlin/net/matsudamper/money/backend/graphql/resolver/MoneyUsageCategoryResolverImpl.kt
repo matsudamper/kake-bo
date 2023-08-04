@@ -21,16 +21,16 @@ class MoneyUsageCategoryResolverImpl : MoneyUsageCategoryResolver {
     ): CompletionStage<DataFetcherResult<String>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
-        val categoryLoader = context.dataLoaders.moneyUsageCategoryDataLoaderDefine.get(env)
+
+        return context.dataLoaders.moneyUsageCategoryDataLoaderDefine.get(env)
             .load(
                 MoneyUsageCategoryDataLoaderDefine.Key(
                     userId = userId,
                     categoryId = moneyUsageCategory.id,
                 ),
-            )
-        return CompletableFuture.supplyAsync {
-            categoryLoader.get()!!.name
-        }.toDataFetcher()
+            ).thenApplyAsync { categoryLoader ->
+                categoryLoader!!.name
+            }.toDataFetcher()
     }
 
     /**

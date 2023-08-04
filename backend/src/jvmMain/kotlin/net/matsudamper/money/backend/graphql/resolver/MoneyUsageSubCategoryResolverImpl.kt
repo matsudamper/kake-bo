@@ -19,17 +19,15 @@ class MoneyUsageSubCategoryResolverImpl : MoneyUsageSubCategoryResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
 
-        val subCategoryLoader = context.dataLoaders.moneyUsageSubCategoryDataLoader.get(env)
+        return context.dataLoaders.moneyUsageSubCategoryDataLoader.get(env)
             .load(
                 MoneyUsageSubCategoryDataLoaderDefine.Key(
                     userId = userId,
                     subCategoryId = moneyUsageSubCategory.id,
                 ),
-            )
-
-        return CompletableFuture.supplyAsync {
-            subCategoryLoader.get()!!.name
-        }.toDataFetcher()
+            ).thenApplyAsync { subCategoryLoader ->
+                subCategoryLoader!!.name
+            }.toDataFetcher()
     }
 
     override fun category(
@@ -39,18 +37,16 @@ class MoneyUsageSubCategoryResolverImpl : MoneyUsageSubCategoryResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
 
-        val subCategoryLoader = context.dataLoaders.moneyUsageSubCategoryDataLoader.get(env)
+        return context.dataLoaders.moneyUsageSubCategoryDataLoader.get(env)
             .load(
                 MoneyUsageSubCategoryDataLoaderDefine.Key(
                     userId = userId,
                     subCategoryId = moneyUsageSubCategory.id,
                 ),
-            )
-
-        return CompletableFuture.supplyAsync {
-            QlMoneyUsageCategory(
-                id = subCategoryLoader.get()!!.categoryId,
-            )
-        }.toDataFetcher()
+            ).thenApplyAsync { subCategoryLoader ->
+                QlMoneyUsageCategory(
+                    id = subCategoryLoader!!.categoryId,
+                )
+            }.toDataFetcher()
     }
 }
