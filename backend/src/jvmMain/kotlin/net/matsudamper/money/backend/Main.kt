@@ -24,6 +24,7 @@ import io.ktor.server.routing.accept
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
+import kotlinx.coroutines.withTimeout
 import net.matsudamper.money.backend.base.ObjectMapper
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
@@ -82,7 +83,9 @@ fun Application.myApplicationModule() {
                 call.respondText(
                     contentType = ContentType.Application.Json,
                 ) {
-                    return@respondText GraphqlHandler(call = call).handle()
+                    return@respondText withTimeout(5.seconds) {
+                        GraphqlHandler(call = call).handle()
+                    }
                 }
             }
         }
