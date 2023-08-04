@@ -33,7 +33,11 @@ import org.jetbrains.compose.web.css.times
 import org.jetbrains.compose.web.css.vh
 import org.jetbrains.compose.web.css.vw
 import org.jetbrains.compose.web.css.width
-import org.jetbrains.compose.web.dom.*
+import org.jetbrains.compose.web.dom.Div
+import org.jetbrains.compose.web.dom.Text
+import org.jetbrains.compose.web.dom.TextArea
+import org.jetbrains.compose.web.dom.Input
+import org.jetbrains.compose.web.dom.Button
 
 @Composable
 internal fun HtmlFullScreenTextInputContent(

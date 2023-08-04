@@ -14,7 +14,7 @@ import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState
-import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState.Filters.LinkStatus.*
+import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState.Filters.LinkStatus
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.ImportedMailListScreenMailPagingQuery
@@ -34,7 +34,7 @@ public class ImportedMailListViewModel(
         ImportedMailListScreenUiState(
             filters = ImportedMailListScreenUiState.Filters(
                 link = ImportedMailListScreenUiState.Filters.Link(
-                    status = Undefined,
+                    status = LinkStatus.Undefined,
                     updateState = { updateLinkStatus(it) },
                 ),
             ),
@@ -83,9 +83,9 @@ public class ImportedMailListViewModel(
                         filters = uiState.filters.copy(
                             link = uiState.filters.link.copy(
                                 status = when (viewModelState.mailState.query.isLinked) {
-                                    null -> Undefined
-                                    true -> Linked
-                                    false -> NotLinked
+                                    null -> LinkStatus.Undefined
+                                    true -> LinkStatus.Linked
+                                    false -> LinkStatus.NotLinked
                                 },
                             ),
                         ),
@@ -114,11 +114,11 @@ public class ImportedMailListViewModel(
         fetch()
     }
 
-    private fun updateLinkStatus(newState: ImportedMailListScreenUiState.Filters.LinkStatus) {
+    private fun updateLinkStatus(newState: LinkStatus) {
         val isLinked = when (newState) {
-            Undefined -> null
-            Linked -> true
-            NotLinked -> false
+            LinkStatus.Undefined -> null
+            LinkStatus.Linked -> true
+            LinkStatus.NotLinked -> false
         }
         val newQuery = viewModelStateFlow.value.mailState.query.copy(
             isLinked = isLinked,
