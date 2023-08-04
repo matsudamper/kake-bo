@@ -19,6 +19,7 @@ import net.matsudamper.money.backend.graphql.DataLoaders
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.GraphqlMoneyException
 import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
+import org.dataloader.DataLoaderRegistry
 
 class GraphqlHandler(
     private val call: ApplicationCall,
@@ -28,10 +29,14 @@ class GraphqlHandler(
         val request = jacksonObjectMapper().readValue<GraphQlRequest>(requestText)
 
         val repositoryFactory = RepositoryFactoryImpl()
-        val dataLoaders = DataLoaders(repositoryFactory = repositoryFactory)
+        val dataLoaderRegistryBuilder = DataLoaderRegistry.Builder()
+        val dataLoaders = DataLoaders(
+            repositoryFactory = repositoryFactory,
+            dataLoaderRegistryBuilder = dataLoaderRegistryBuilder,
+        )
         val executionInputBuilder = ExecutionInput.newExecutionInput()
             .dataLoaderRegistry(
-                dataLoaders.dataLoaderRegistryBuilder.build(),
+                dataLoaderRegistryBuilder.build(),
             )
             .graphQLContext(
                 mapOf(

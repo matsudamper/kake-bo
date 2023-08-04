@@ -15,8 +15,8 @@ import org.dataloader.DataLoaderRegistry
 
 class DataLoaders(
     val repositoryFactory: RepositoryFactory,
+    private val dataLoaderRegistryBuilder: DataLoaderRegistry.Builder = DataLoaderRegistry.Builder()
 ) {
-    val dataLoaderRegistryBuilder = DataLoaderRegistry.Builder()
 
     val importedMailDataLoader by register {
         ImportedMailDataLoaderDefine(repositoryFactory)
