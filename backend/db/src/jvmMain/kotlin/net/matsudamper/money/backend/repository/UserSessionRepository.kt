@@ -50,7 +50,7 @@ class UserSessionRepository {
         val result = DbConnection.use {
             DSL.using(it).transactionResult { config ->
                 DSL.using(config)
-                    .select(userSessions.USER_ID)
+                    .select(userSessions.SESSION_ID)
                     .from(userSessions)
                     .where(userSessions.SESSION_ID.eq(sessionId.id))
                     .forUpdate()
