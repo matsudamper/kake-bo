@@ -29,6 +29,7 @@ import net.matsudamper.money.backend.base.ObjectMapper
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
 import org.slf4j.event.Level
+import kotlin.time.Duration.Companion.seconds
 
 class Main {
     companion object {
