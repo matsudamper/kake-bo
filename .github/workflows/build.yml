@@ -23,6 +23,8 @@ jobs:
         uses: gradle/gradle-build-action@v2
       - run: ./gradlew :backend:assemble
       - run: ./gradlew :frontend:jsApp:jsBrowserProductionWebpack
+      - run: ./gradlew :allTests
+      - run: ./gradlew ktlintCheck
       - name: collect reports file
         if: failure()
         run: |
