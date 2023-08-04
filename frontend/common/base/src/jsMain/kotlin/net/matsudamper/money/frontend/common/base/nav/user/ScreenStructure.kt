@@ -5,18 +5,8 @@ import io.ktor.http.formUrlEncode
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 
-public sealed interface ScreenStructure {
-    public val direction: Screens
 
-    /***
-     * 同じ画面かを判定する。例えば、クエリパラメータが変わるだけでは違う画面と言えない。
-     */
-    public fun equalScreen(other: ScreenStructure): Boolean = equals(other)
-
-    public fun createUrl(): String {
-        return direction.placeholderUrl
-    }
-
+public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
     public sealed interface Root : ScreenStructure {
         public class Home : Root {
             override val direction: Screens = Screens.Home
@@ -137,6 +127,7 @@ public sealed interface ScreenStructure {
             return this == other
         }
     }
+
     public data class ImportedMailContent(
         public val id: ImportedMailId,
     ) : ScreenStructure {

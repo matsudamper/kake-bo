@@ -1,4 +1,5 @@
 package net.matsudamper.money.frontend.common.base.nav.user
+
 public enum class Screens : Direction {
     Home {
         override val title: String = "ホーム"

@@ -19,7 +19,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.UrlPlaceHolderParser
 @Suppress("RegExpRedundantEscape")
 public class ScreenNavControllerImpl(
     initial: ScreenStructure,
-) : ScreenNavController {
+) : ScreenNavController<ScreenStructure> {
     private val directions = Screens.values().toList()
     private val parser = UrlPlaceHolderParser(directions)
     private var screenState: ScreenState by mutableStateOf(
@@ -50,8 +50,8 @@ public class ScreenNavControllerImpl(
         )
     }
 
-    override fun <T : ScreenStructure> navigate(
-        navigation: T,
+    override fun navigate(
+        navigation: ScreenStructure,
     ) {
         val url = navigation.createUrl()
         if (screenState.current.equalScreen(navigation)) {
