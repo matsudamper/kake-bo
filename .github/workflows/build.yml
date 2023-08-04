@@ -24,7 +24,7 @@ jobs:
       - run: ./gradlew :backend:assemble
       - run: ./gradlew :frontend:jsApp:jsBrowserProductionWebpack
       - run: ./gradlew :allTests
-      - run: ./gradlew ktlintCheck
+      - run: ./gradlew ktlintCheck --continue
       - name: collect reports file
         if: failure()
         run: |
