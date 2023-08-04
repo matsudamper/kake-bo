@@ -65,9 +65,7 @@ class GraphqlHandler(
             )
             .build()
 
-        return ObjectMapper.jackson.writeValueAsString(responseResult).also {
-            println("result=$it")
-        }
+        return ObjectMapper.jackson.writeValueAsString(responseResult)
     }
 
     private fun handleError(errors: MutableList<GraphQLError>): List<GraphqlMoneyException> {
