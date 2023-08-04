@@ -32,7 +32,7 @@ internal class UrlPlaceHolderParser(
                             reamingPathname = reamingPathname.drop(phrase.length)
                         } else {
                             val value = reamingPathname.substring(0, index)
-                            val key = keyValues.dropLast(1).getOrNull(0)?.first ?: return@map false
+                            val key = keyValues.dropLast(0).getOrNull(0)?.first ?: return@map false.apply { println("hoge") }
 
                             keyValues.add(key to value)
                             reamingPathname = reamingPathname.drop(index)
