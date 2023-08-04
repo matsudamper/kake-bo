@@ -256,8 +256,7 @@ private fun NumberInputDialog(
                 },
             value = value,
             onChangeValue = { onChangeValue(it) },
-            dismissRequest = {
-            },
+            dismissRequest = { dismissRequest() },
         )
     }
 }
