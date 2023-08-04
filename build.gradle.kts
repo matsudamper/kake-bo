@@ -12,5 +12,11 @@ allprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
     configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+        filter {
+            exclude { project.path == ":backend:db:schema" }
+            exclude { project.path == ":backend:graphql" }
+            exclude { project.path == ":frontend:common:schema" }
+            exclude { it.file.path.contains("generated") }
+        }
     }
 }
