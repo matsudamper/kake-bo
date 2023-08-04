@@ -59,7 +59,12 @@ public data class MailScreenUiState(
         val category: String?,
         val description: String,
         val dateTime: String?,
-    )
+        val event: Event,
+    ) {
+        public interface Event {
+            public fun onClickRegister()
+        }
+    }
 
     @Immutable
     public interface LoadedEvent {
@@ -185,10 +190,19 @@ private fun MainContent(
                 LazyColumn {
                     items(uiState.usageSuggest) { item ->
                         MoneyUsageSuggestCard(
-                            modifier = Modifier.fillMaxWidth()
-                                .padding(bottom = 12.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             items = item,
                         )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row {
+                            Spacer(modifier = Modifier.weight(1f))
+                            OutlinedButton(
+                                onClick = { item.event.onClickRegister() },
+                            ) {
+                                Text("登録")
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
             }

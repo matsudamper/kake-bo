@@ -110,6 +110,11 @@ public class ImportedMailScreenViewModel(
                     },
                     description = suggestUsage.description,
                     dateTime = suggestUsage.dateTime.toString(),
+                    event = object : MailScreenUiState.UsageSuggest.Event {
+                        override fun onClickRegister() {
+                            // TODO
+                        }
+                    },
                 )
             }.toImmutableList(),
             event = object : MailScreenUiState.LoadedEvent {
