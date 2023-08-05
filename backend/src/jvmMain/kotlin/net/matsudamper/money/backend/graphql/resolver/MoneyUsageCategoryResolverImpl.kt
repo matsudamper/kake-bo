@@ -13,7 +13,6 @@ import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategoryQuery
 import net.matsudamper.money.graphql.model.QlSubCategoriesConnection
-import org.dataloader.impl.CompletableFutureKit
 
 class MoneyUsageCategoryResolverImpl : MoneyUsageCategoryResolver {
     override fun name(

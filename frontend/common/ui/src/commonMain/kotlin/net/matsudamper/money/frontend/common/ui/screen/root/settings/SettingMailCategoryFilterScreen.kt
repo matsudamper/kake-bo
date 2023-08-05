@@ -5,13 +5,12 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 
 public data class SettingMailCategoryFilterScreenUiState(
-    public val event: Event
+    public val event: Event,
 ) {
     @Immutable
-    public interface Event {
-
-    }
+    public interface Event
 }
+
 @Composable
 public fun SettingMailCategoryFilterScreen(
     modifier: Modifier = Modifier,
