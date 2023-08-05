@@ -154,7 +154,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                 navController.navigate(ScreenStructure.Root.Home())
                             }
 
-                            override fun onClickRegister() {
+                            override fun onClickList() {
                                 navController.navigate(ScreenStructure.Root.List())
                             }
 

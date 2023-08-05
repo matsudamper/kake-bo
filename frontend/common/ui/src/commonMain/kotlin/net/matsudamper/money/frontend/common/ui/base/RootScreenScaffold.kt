@@ -33,7 +33,7 @@ import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 @Immutable
 public interface RootScreenScaffoldListener {
     public fun onClickHome()
-    public fun onClickRegister()
+    public fun onClickList()
     public fun onClickSettings()
     public fun onClickMail()
 }
@@ -93,7 +93,7 @@ internal fun RootScreenScaffold(
                         )
                         NavigationBarItem(
                             selected = currentScreen == RootScreenTab.List,
-                            onClick = { listener.onClickRegister() },
+                            onClick = { listener.onClickList() },
                             icon = {
                                 Icon(Icons.Default.List, "")
                             },
@@ -156,7 +156,7 @@ internal fun RootScreenScaffold(
                         )
                         NavigationRailItem(
                             selected = currentScreen == RootScreenTab.List,
-                            onClick = { listener.onClickRegister() },
+                            onClick = { listener.onClickList() },
                             icon = {
                                 Icon(Icons.Default.List, "")
                             },
