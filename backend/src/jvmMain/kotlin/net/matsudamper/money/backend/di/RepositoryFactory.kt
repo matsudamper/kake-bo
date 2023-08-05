@@ -3,6 +3,7 @@ package net.matsudamper.money.backend.di
 import net.matsudamper.money.backend.DbConnectionImpl
 import net.matsudamper.money.backend.mail.MailRepository
 import net.matsudamper.money.backend.repository.DbMailRepository
+import net.matsudamper.money.backend.repository.MailFilterRepository
 import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.repository.MoneyUsageRepository
 import net.matsudamper.money.backend.repository.MoneyUsageSubCategoryRepository
@@ -21,6 +22,7 @@ interface RepositoryFactory {
     fun createMoneyUsageCategoryRepository(): MoneyUsageCategoryRepository
     fun createMoneyUsageSubCategoryRepository(): MoneyUsageSubCategoryRepository
     fun createMoneyUsageRepository(): MoneyUsageRepository
+    fun createMailFilterRepository(): MailFilterRepository
 }
 
 class RepositoryFactoryImpl : RepositoryFactory {
@@ -36,6 +38,11 @@ class RepositoryFactoryImpl : RepositoryFactory {
             userName = userName,
             password = password,
         )
+    }
+
+    private val mailFilterRepository = MailFilterRepository(dbConnection = DbConnectionImpl)
+    override fun createMailFilterRepository(): MailFilterRepository {
+        return mailFilterRepository
     }
 
     private val userConfigRepository = UserConfigRepository()
