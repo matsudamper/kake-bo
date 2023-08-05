@@ -142,6 +142,7 @@ object MoneyGraphQlSchema {
                 MoneyUsageCategoryResolverImpl(),
                 MoneyUsageResolverImpl(),
                 UserResolverImpl(),
+                ImportedMailCategoryFilterResolverImpl(),
                 UserSettingsResolverImpl(),
                 SettingsMutationResolverResolverImpl(),
                 UserMailAttributesResolverImpl(),

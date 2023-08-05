@@ -7,6 +7,7 @@ import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionGroups
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilters
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFiltersRecord
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import org.jooq.Record1
 import org.jooq.impl.DSL
 import org.jooq.kotlin.and
 
@@ -42,6 +43,28 @@ class MailFilterRepository(
                     moneyUsageSubCategoryId = MoneyUsageSubCategoryId(result.moneyUsageSubCategoryId!!),
                     orderNumber = result.orderNumber!!,
                 )
+            }
+        }
+    }
+
+    fun getFilters(
+        userId: UserId,
+        categoryFilterIds: List<ImportedMailCategoryFilterId>,
+    ): Result<List<MailFilter>> {
+        return dbConnection.use {
+            runCatching {
+                DSL.using(it)
+                    .select(filters)
+                    .from(filters)
+                    .where(
+                        DSL.value(true)
+                            .and(filters.USER_ID.eq(userId.id))
+                            .and(filters.CATEGORY_MAIL_FILTER_ID.`in`(categoryFilterIds.map { it.id })),
+                    )
+                    .fetch()
+                    .map {
+                        mapResult(it)
+                    }
             }
         }
     }
@@ -83,15 +106,7 @@ class MailFilterRepository(
                         filters.ORDER_NUMBER.asc(),
                     )
                     .fetch()
-                    .map {
-                        MailFilter(
-                            importedMailCategoryFilterId = ImportedMailCategoryFilterId(it.get(filters.CATEGORY_MAIL_FILTER_ID)!!),
-                            userId = UserId(it.get(filters.USER_ID)!!),
-                            title = it.get(filters.TITLE)!!,
-                            moneyUsageSubCategoryId = MoneyUsageSubCategoryId(it.get(filters.MONEY_USAGE_SUB_CATEGORY_ID)!!),
-                            orderNumber = it.get(filters.ORDER_NUMBER)!!,
-                        )
-                    }
+                    .map { mapResult(it) }
 
                 val lastResult = result.lastOrNull()
                 MailFiltersResult(
@@ -107,6 +122,16 @@ class MailFilterRepository(
                 )
             }
         }
+    }
+
+    private fun mapResult(record: Record1<JCategoryMailFiltersRecord>): MailFilter {
+        return MailFilter(
+            importedMailCategoryFilterId = ImportedMailCategoryFilterId(record.get(filters.CATEGORY_MAIL_FILTER_ID)!!),
+            userId = UserId(record.get(filters.USER_ID)!!),
+            title = record.get(filters.TITLE)!!,
+            moneyUsageSubCategoryId = MoneyUsageSubCategoryId(record.get(filters.MONEY_USAGE_SUB_CATEGORY_ID)!!),
+            orderNumber = record.get(filters.ORDER_NUMBER)!!,
+        )
     }
 
     data class MailFiltersResult(

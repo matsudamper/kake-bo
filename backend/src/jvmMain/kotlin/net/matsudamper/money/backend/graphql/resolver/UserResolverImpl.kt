@@ -4,6 +4,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
@@ -130,6 +131,7 @@ class UserResolverImpl : UserResolver {
     ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFiltersConnection?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
+        val dataLoader = context.dataLoaders.importedMailCategoryFilterDataLoader.get(env)
 
         return CompletableFuture.allOf().thenApplyAsync {
             val filterRepository = context.repositoryFactory.createMailFilterRepository()
@@ -140,6 +142,16 @@ class UserResolverImpl : UserResolver {
                     ImportedMailCategoryFiltersCursor.fromString(it)
                 },
             ).getOrNull() ?: return@thenApplyAsync null
+
+            result.items.forEach { item ->
+                dataLoader.prime(
+                    ImportedMailCategoryFilterDataLoaderDefine.Key(
+                        userId = userId,
+                        categoryFilterId = item.importedMailCategoryFilterId,
+                    ),
+                    item,
+                )
+            }
 
             QlImportedMailCategoryFiltersConnection(
                 nodes = result.items.map {
