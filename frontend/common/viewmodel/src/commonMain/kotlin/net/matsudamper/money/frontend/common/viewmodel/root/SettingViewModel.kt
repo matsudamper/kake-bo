@@ -5,6 +5,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.RootSettingScreenUiState
@@ -16,8 +17,11 @@ public class SettingViewModel(
     private val globalEventSender: EventSender<GlobalEvent>,
     private val ioDispatchers: CoroutineDispatcher,
 ) {
-    private val eventSender = EventSender<Event>()
-    public val eventHandler: EventHandler<Event> = eventSender.asHandler()
+    private val viewModelState = MutableStateFlow<ViewModelState>(
+        ViewModelState(),
+    )
+    private val backgroundEventSender = EventSender<Event>()
+    public val backgroundEventHandler: EventHandler<Event> = backgroundEventSender.asHandler()
 
     public val uiState: StateFlow<RootSettingScreenUiState> = MutableStateFlow(
         RootSettingScreenUiState(
@@ -27,7 +31,7 @@ public class SettingViewModel(
 
                 override fun onClickImapButton() {
                     coroutineScope.launch {
-                        eventSender.send {
+                        backgroundEventSender.send {
                             it.navigateToImapConfig()
                         }
                     }
@@ -35,7 +39,7 @@ public class SettingViewModel(
 
                 override fun onClickCategoryButton() {
                     coroutineScope.launch {
-                        eventSender.send {
+                        backgroundEventSender.send {
                             it.navigateToCategoriesConfig()
                         }
                     }
@@ -43,7 +47,7 @@ public class SettingViewModel(
 
                 override fun onClickMailFilter() {
                     coroutineScope.launch {
-                        eventSender.send {
+                        backgroundEventSender.send {
                             it.navigate(
                                 ScreenStructure.Root.Settings.MailCategoryFilter,
                             )
@@ -53,6 +57,33 @@ public class SettingViewModel(
             },
         ),
     ).asStateFlow()
+
+    public fun updateLastStructure(state: ScreenStructure.Root.Settings) {
+        viewModelState.update {
+            it.copy(
+                latestStructure = state,
+            )
+        }
+    }
+
+    public fun requestNavigate(currentScreen: ScreenStructure) {
+        coroutineScope.launch {
+            backgroundEventSender.send {
+                it.navigate(
+                    if (currentScreen is ScreenStructure.Root.Settings) {
+                        ScreenStructure.Root.Settings.Root
+                    } else {
+                        viewModelState.value.latestStructure
+                            ?: ScreenStructure.Root.Settings.Root
+                    },
+                )
+            }
+        }
+    }
+
+    private data class ViewModelState(
+        val latestStructure: ScreenStructure.Root.Settings? = null,
+    )
 
     public interface Event {
         public fun navigateToImapConfig()

@@ -15,6 +15,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.ImportMailScreenUiSt
 import net.matsudamper.money.frontend.common.ui.screen.root.RootListScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.RootListScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.RootScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.RootSettingScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState
@@ -38,6 +39,7 @@ internal fun RootNavContent(
     listUiStateProvider: @Composable (ScreenStructure.Root.List) -> RootListScreenUiState,
     importMailScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Imported) -> ImportedMailListScreenUiState,
     importMailLinkScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Import) -> ImportMailScreenUiState,
+    settingUiStateProvider: @Composable () -> RootSettingScreenUiState,
 ) {
     when (current) {
         is ScreenStructure.Root.Home -> {
@@ -97,7 +99,7 @@ internal fun RootNavContent(
                     globalEvent = globalEvent,
                     rootScreenScaffoldListener = rootScreenScaffoldListener,
                     viewModelEventHandlers = viewModelEventHandlers,
-                    rootCoroutineScope = rootCoroutineScope,
+                    settingUiStateProvider = settingUiStateProvider,
                 )
             }
         }

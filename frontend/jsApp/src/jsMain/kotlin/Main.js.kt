@@ -61,6 +61,7 @@ import net.matsudamper.money.frontend.common.viewmodel.importedmailcontent.Impor
 import net.matsudamper.money.frontend.common.viewmodel.importedmailcontent.ImportedMailContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
+import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.list.HomeUsageListGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.root.list.RootListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
@@ -163,6 +164,13 @@ private fun Content(
             coroutineScope = rootCoroutineScope,
         )
     }
+    val settingViewModel = remember {
+        SettingViewModel(
+            coroutineScope = rootCoroutineScope,
+            globalEventSender = globalEventSender,
+            ioDispatchers = Dispatchers.Unconfined,
+        )
+    }
     val rootScreenScaffoldListener: RootScreenScaffoldListener = remember(
         navController,
         mailScreenViewModel,
@@ -177,7 +185,9 @@ private fun Content(
             }
 
             override fun onClickSettings() {
-                navController.navigate(ScreenStructure.Root.Settings.Root)
+                settingViewModel.requestNavigate(
+                    currentScreen = navController.currentNavigation,
+                )
             }
 
             override fun onClickMail() {
@@ -230,6 +240,14 @@ private fun Content(
             val holder = rememberSaveableStateHolder()
             when (val current = navController.currentNavigation) {
                 is ScreenStructure.Root -> {
+                    LaunchedEffect(current, settingViewModel) {
+                        if (current is ScreenStructure.Root.Settings) {
+                            settingViewModel.updateLastStructure(current)
+                        }
+                    }
+                    LaunchedEffect(viewModelEventHandlers, settingViewModel.backgroundEventHandler) {
+                        viewModelEventHandlers.handle(settingViewModel.backgroundEventHandler)
+                    }
                     holder.SaveableStateProvider(ScreenStructure.Root::class.toString()) {
                         RootNavContent(
                             tabHolder = tabHolder,
@@ -267,6 +285,9 @@ private fun Content(
                                     viewModelEventHandlers.handle(importedMailListViewModel.eventHandler)
                                 }
                                 importedMailListViewModel.rootUiStateFlow.collectAsState().value
+                            },
+                            settingUiStateProvider = {
+                                settingViewModel.uiState.collectAsState().value
                             },
                         )
                     }

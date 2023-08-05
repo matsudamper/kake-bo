@@ -13,6 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import event.ViewModelEventHandlers
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.screen.root.RootSettingScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImapConfigScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoriesScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoryScreen
@@ -31,30 +32,20 @@ import net.matsudamper.money.frontend.graphql.GraphqlUserConfigQuery
 @Composable
 internal fun SettingNavContent(
     state: ScreenStructure.Root.Settings,
-    rootCoroutineScope: CoroutineScope,
     globalEventSender: EventSender<GlobalEvent>,
     globalEvent: GlobalEvent,
+    settingUiStateProvider: @Composable () -> RootSettingScreenUiState,
     viewModelEventHandlers: ViewModelEventHandlers,
     rootScreenScaffoldListener: RootScreenScaffoldListener,
 ) {
     val coroutineScope = rememberCoroutineScope()
     val holder = rememberSaveableStateHolder()
-    val settingViewModel = remember {
-        SettingViewModel(
-            coroutineScope = rootCoroutineScope,
-            globalEventSender = globalEventSender,
-            ioDispatchers = Dispatchers.Unconfined,
-        )
-    }
     when (state) {
         ScreenStructure.Root.Settings.Root -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                LaunchedEffect(settingViewModel.eventHandler) {
-                    viewModelEventHandlers.handle(settingViewModel.eventHandler)
-                }
                 SettingRootScreen(
                     modifier = Modifier.fillMaxSize(),
-                    uiState = settingViewModel.uiState.collectAsState().value,
+                    uiState = settingUiStateProvider(),
                     listener = rootScreenScaffoldListener,
                 )
             }
