@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.graphql.resolver
 
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
@@ -17,16 +18,17 @@ class MoneyUsageSubCategoryResolverImpl : MoneyUsageSubCategoryResolver {
     ): CompletionStage<DataFetcherResult<String>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
-
-        return context.dataLoaders.moneyUsageSubCategoryDataLoader.get(env)
+        val subCategoryLoader = context.dataLoaders.moneyUsageSubCategoryDataLoader.get(env)
             .load(
                 MoneyUsageSubCategoryDataLoaderDefine.Key(
                     userId = userId,
                     subCategoryId = moneyUsageSubCategory.id,
                 ),
-            ).thenApplyAsync { subCategoryLoader ->
-                subCategoryLoader!!.name
-            }.toDataFetcher()
+            )
+
+        return CompletableFuture.allOf(subCategoryLoader).thenApplyAsync {
+            subCategoryLoader.get()!!.name
+        }.toDataFetcher()
     }
 
     override fun category(
@@ -36,16 +38,18 @@ class MoneyUsageSubCategoryResolverImpl : MoneyUsageSubCategoryResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
 
-        return context.dataLoaders.moneyUsageSubCategoryDataLoader.get(env)
+        val subCategoryLoader = context.dataLoaders.moneyUsageSubCategoryDataLoader.get(env)
             .load(
                 MoneyUsageSubCategoryDataLoaderDefine.Key(
                     userId = userId,
                     subCategoryId = moneyUsageSubCategory.id,
                 ),
-            ).thenApplyAsync { subCategoryLoader ->
-                QlMoneyUsageCategory(
-                    id = subCategoryLoader!!.categoryId,
-                )
-            }.toDataFetcher()
+            )
+
+        return CompletableFuture.allOf(subCategoryLoader).thenApplyAsync {
+            QlMoneyUsageCategory(
+                id = subCategoryLoader.get()!!.categoryId,
+            )
+        }.toDataFetcher()
     }
 }

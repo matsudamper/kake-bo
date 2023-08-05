@@ -13,6 +13,7 @@ import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategoryQuery
 import net.matsudamper.money.graphql.model.QlSubCategoriesConnection
+import org.dataloader.impl.CompletableFutureKit
 
 class MoneyUsageCategoryResolverImpl : MoneyUsageCategoryResolver {
     override fun name(
@@ -22,15 +23,17 @@ class MoneyUsageCategoryResolverImpl : MoneyUsageCategoryResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
 
-        return context.dataLoaders.moneyUsageCategoryDataLoaderDefine.get(env)
+        val categoryLoader = context.dataLoaders.moneyUsageCategoryDataLoaderDefine.get(env)
             .load(
                 MoneyUsageCategoryDataLoaderDefine.Key(
                     userId = userId,
                     categoryId = moneyUsageCategory.id,
                 ),
-            ).thenApplyAsync { categoryLoader ->
-                categoryLoader!!.name
-            }.toDataFetcher()
+            )
+
+        return CompletableFuture.allOf(categoryLoader).thenApplyAsync {
+            categoryLoader.get()!!.name
+        }.toDataFetcher()
     }
 
     /**
