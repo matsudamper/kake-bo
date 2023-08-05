@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.imported_mail
+package net.matsudamper.money.frontend.common.ui.screen.importedmail
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column

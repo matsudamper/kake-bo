@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.imported_mail_content
+package net.matsudamper.money.frontend.common.ui.screen.importedmailcontent
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize

@@ -43,8 +43,8 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreen
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
-import net.matsudamper.money.frontend.common.ui.screen.imported_mail.ImportedMailScreen
-import net.matsudamper.money.frontend.common.ui.screen.imported_mail_content.ImportedMailContentScreen
+import net.matsudamper.money.frontend.common.ui.screen.importedmail.ImportedMailScreen
+import net.matsudamper.money.frontend.common.ui.screen.importedmailcontent.ImportedMailContentScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.status.NotFoundScreen
