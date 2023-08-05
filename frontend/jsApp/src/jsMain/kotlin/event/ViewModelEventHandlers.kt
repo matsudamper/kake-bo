@@ -99,6 +99,10 @@ data class ViewModelEventHandlers(
                     override fun navigateToCategoriesConfig() {
                         navController.navigate(ScreenStructure.Root.Settings.Categories)
                     }
+
+                    override fun navigate(structure: ScreenStructure) {
+                        navController.navigate(structure)
+                    }
                 },
             )
         }

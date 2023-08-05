@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.RootSettingScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -39,6 +40,16 @@ public class SettingViewModel(
                         }
                     }
                 }
+
+                override fun onClickMailFilter() {
+                    coroutineScope.launch {
+                        eventSender.send {
+                            it.navigate(
+                                ScreenStructure.Root.Settings.MailCategoryFilter,
+                            )
+                        }
+                    }
+                }
             },
         ),
     ).asStateFlow()
@@ -46,5 +57,6 @@ public class SettingViewModel(
     public interface Event {
         public fun navigateToImapConfig()
         public fun navigateToCategoriesConfig()
+        public fun navigate(structure: ScreenStructure)
     }
 }

@@ -98,6 +98,11 @@ private fun MainContent(
                 ) {
                     Text("カテゴリ編集")
                 }
+                ChildSettingButton(
+                    onClick = { uiState.event.onClickMailFilter() },
+                ) {
+                    Text("メールフィルター")
+                }
             }
         }
     }

@@ -8,5 +8,6 @@ public data class RootSettingScreenUiState(
         public fun onResume()
         public fun onClickImapButton()
         public fun onClickCategoryButton()
+        public fun onClickMailFilter()
     }
 }
