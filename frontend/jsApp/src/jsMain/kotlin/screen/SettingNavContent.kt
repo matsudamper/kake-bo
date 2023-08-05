@@ -12,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import event.ViewModelEventHandlers
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingMailCategoryFilterScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImapConfigScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoriesScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoryScreen
@@ -20,6 +21,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.ImapSettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.SettingMailCategoryFilterViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingScreenCategoryApi
@@ -112,7 +114,15 @@ internal fun SettingNavContent(
         }
 
         ScreenStructure.Root.Settings.MailCategoryFilter -> {
-
+            val viewModel = remember(coroutineScope) {
+                SettingMailCategoryFilterViewModel(
+                    coroutineScope = coroutineScope,
+                )
+            }
+            SettingMailCategoryFilterScreen(
+                modifier = Modifier.fillMaxSize(),
+                uiState = viewModel.uiStateFlow.collectAsState().value,
+            )
         }
     }
 }
