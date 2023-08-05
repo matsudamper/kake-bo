@@ -28,7 +28,7 @@ public class HomeMailTabScreenViewModel(
                         navigateEventSender.send {
                             it.navigate(
                                 viewModelStateFlow.value.lastImportMailStructure
-                                    ?: ScreenStructure.Root.Mail.Import
+                                    ?: ScreenStructure.Root.Mail.Import,
                             )
                         }
                     }
@@ -39,7 +39,7 @@ public class HomeMailTabScreenViewModel(
                         navigateEventSender.send {
                             it.navigate(
                                 viewModelStateFlow.value.lastImportedMailStructure
-                                    ?: ScreenStructure.Root.Mail.Imported(isLinked = false)
+                                    ?: ScreenStructure.Root.Mail.Imported(isLinked = false),
                             )
                         }
                     }
@@ -65,7 +65,7 @@ public class HomeMailTabScreenViewModel(
             navigateEventSender.send {
                 it.navigate(
                     viewModelStateFlow.value.screenStructure
-                        ?: ScreenStructure.Root.Mail.Imported(isLinked = false)
+                        ?: ScreenStructure.Root.Mail.Imported(isLinked = false),
                 )
             }
         }
