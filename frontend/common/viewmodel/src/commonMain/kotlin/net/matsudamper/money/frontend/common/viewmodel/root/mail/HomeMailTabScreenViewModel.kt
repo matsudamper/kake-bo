@@ -15,26 +15,32 @@ public class HomeMailTabScreenViewModel(
     private val coroutineScope: CoroutineScope,
 ) {
     private val _viewModelStateFlow = MutableStateFlow(ViewModelState())
-    public val viewModelStateFlow: StateFlow<ViewModelState> = _viewModelStateFlow.asStateFlow()
+    private val viewModelStateFlow: StateFlow<ViewModelState> = _viewModelStateFlow.asStateFlow()
 
-    private val eventSender = EventSender<Event>()
-    public val eventHandler: EventHandler<Event> = eventSender.asHandler()
+    private val navigateEventSender = EventSender<NavigateEvent>()
+    public val navigateEventHandler: EventHandler<NavigateEvent> = navigateEventSender.asHandler()
 
     public val uiStateFlow: StateFlow<HomeMailTabScreenUiState> = MutableStateFlow(
         HomeMailTabScreenUiState(
             event = object : HomeMailTabScreenUiState.Event {
                 override fun onClickImportTabButton() {
                     coroutineScope.launch {
-                        eventSender.send {
-                            it.navigateToImportMail()
+                        navigateEventSender.send {
+                            it.navigate(
+                                viewModelStateFlow.value.lastImportMailStructure
+                                    ?: ScreenStructure.Root.Mail.Import
+                            )
                         }
                     }
                 }
 
                 override fun onClickImportedTabButton() {
                     coroutineScope.launch {
-                        eventSender.send {
-                            it.navigateToImportedMail()
+                        navigateEventSender.send {
+                            it.navigate(
+                                viewModelStateFlow.value.lastImportedMailStructure
+                                    ?: ScreenStructure.Root.Mail.Imported(isLinked = false)
+                            )
                         }
                     }
                 }
@@ -54,12 +60,22 @@ public class HomeMailTabScreenViewModel(
         }
     }
 
-    public interface Event {
-        public fun navigateToImportMail()
-        public fun navigateToImportedMail()
+    public fun requestNavigate() {
+        coroutineScope.launch {
+            navigateEventSender.send {
+                it.navigate(
+                    viewModelStateFlow.value.screenStructure
+                        ?: ScreenStructure.Root.Mail.Imported(isLinked = false)
+                )
+            }
+        }
     }
 
-    public data class ViewModelState(
+    public interface NavigateEvent {
+        public fun navigate(structure: ScreenStructure)
+    }
+
+    private data class ViewModelState(
         val screenStructure: ScreenStructure.Root.Mail? = null,
         val lastImportedMailStructure: ScreenStructure.Root.Mail.Imported? = null,
         val lastImportMailStructure: ScreenStructure.Root.Mail.Import? = null,

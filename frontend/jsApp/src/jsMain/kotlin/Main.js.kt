@@ -148,7 +148,10 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                             coroutineScope = rootCoroutineScope,
                         )
                     }
-                    val rootScreenScaffoldListener: RootScreenScaffoldListener = remember(navController) {
+                    val rootScreenScaffoldListener: RootScreenScaffoldListener = remember(
+                        navController,
+                        mailScreenViewModel,
+                    ) {
                         object : RootScreenScaffoldListener {
                             override fun onClickHome() {
                                 navController.navigate(ScreenStructure.Root.Home())
@@ -163,10 +166,7 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                             }
 
                             override fun onClickMail() {
-                                navController.navigate(
-                                    mailScreenViewModel.viewModelStateFlow.value.screenStructure
-                                        ?: ScreenStructure.Root.Mail.Imported(isLinked = false),
-                                )
+                                mailScreenViewModel.requestNavigate()
                             }
                         }
                     }
@@ -181,13 +181,17 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                         navController,
                         globalEventSender,
                         rootScreenScaffoldListener,
-                        mailScreenViewModel.viewModelStateFlow,
                     ) {
                         ViewModelEventHandlers(
                             navController = navController,
                             globalEventSender = globalEventSender,
                             rootScreenScaffoldListener = rootScreenScaffoldListener,
-                            mailViewModelStateFlow = mailScreenViewModel.viewModelStateFlow,
+                        )
+                    }
+
+                    LaunchedEffect(mailScreenViewModel) {
+                        viewModelEventHandlers.handle(
+                            mailScreenViewModel.navigateEventHandler,
                         )
                     }
 
@@ -215,11 +219,6 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
                                         current = current,
                                         homeMailTabScreenUiStateProvider = {
                                             mailScreenViewModel.updateScreenStructure(it)
-                                            LaunchedEffect(mailScreenViewModel) {
-                                                viewModelEventHandlers.handle(
-                                                    mailScreenViewModel.eventHandler,
-                                                )
-                                            }
                                             mailScreenViewModel.uiStateFlow.collectAsState().value
                                         },
                                         rootScreenScaffoldListener = rootScreenScaffoldListener,

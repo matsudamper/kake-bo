@@ -1,7 +1,6 @@
 package event
 
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
@@ -26,7 +25,6 @@ data class ViewModelEventHandlers(
     private val navController: JsScreenNavController,
     private val globalEventSender: EventSender<GlobalEvent>,
     private val rootScreenScaffoldListener: RootScreenScaffoldListener,
-    private val mailViewModelStateFlow: StateFlow<HomeMailTabScreenViewModel.ViewModelState>,
 ) {
     suspend fun handle(handler: EventHandler<HomeViewModel.Event>) {
         coroutineScope {
@@ -142,23 +140,13 @@ data class ViewModelEventHandlers(
     }
 
     suspend fun handle(
-        handler: EventHandler<HomeMailTabScreenViewModel.Event>,
+        handler: EventHandler<HomeMailTabScreenViewModel.NavigateEvent>,
     ) {
         coroutineScope {
             handler.collect(
-                object : HomeMailTabScreenViewModel.Event {
-                    override fun navigateToImportMail() {
-                        navController.navigate(
-                            mailViewModelStateFlow.value.lastImportMailStructure
-                                ?: ScreenStructure.Root.Mail.Import,
-                        )
-                    }
-
-                    override fun navigateToImportedMail() {
-                        navController.navigate(
-                            mailViewModelStateFlow.value.lastImportedMailStructure
-                                ?: ScreenStructure.Root.Mail.Imported(isLinked = false),
-                        )
+                object : HomeMailTabScreenViewModel.NavigateEvent {
+                    override fun navigate(structure: ScreenStructure) {
+                        navController.navigate(structure)
                     }
                 },
             )
