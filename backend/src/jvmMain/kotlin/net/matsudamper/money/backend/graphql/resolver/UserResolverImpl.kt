@@ -157,7 +157,6 @@ class UserResolverImpl : UserResolver {
                 nodes = result.items.map {
                     QlImportedMailCategoryFilter(
                         id = it.importedMailCategoryFilterId,
-                        orderNumber = it.orderNumber,
                     )
                 },
                 cursor = result.cursor?.let { cursor ->
