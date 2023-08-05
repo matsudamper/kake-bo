@@ -4,6 +4,9 @@
 package net.matsudamper.money.db.schema.indexes
 
 
+import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionGroups
+import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditions
+import net.matsudamper.money.db.schema.tables.JCategoryMailFilters
 import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
@@ -23,6 +26,11 @@ import org.jooq.impl.Internal
 // -------------------------------------------------------------------------
 
 val MONEY_USAGES_MAILS_RELATION_MONEY_USAGE_ID: Index = Internal.createIndex(DSL.name("money_usage_id"), JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION, arrayOf(JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION.USER_ID, JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION.MONEY_USAGE_ID), false)
+val CATEGORY_MAIL_FILTER_CONDITIONS_USER_CATEGORY_MAIL_FILTER_CONDITION_GROUP_ID: Index = Internal.createIndex(DSL.name("user_category_mail_filter_condition_group_id"), JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS, arrayOf(JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS.USER_ID, JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS.CATEGORY_MAIL_FILTER_CONDITION_GROUP_ID), false)
+val CATEGORY_MAIL_FILTER_CONDITION_GROUPS_USER_CATEGORY_MAIL_FILTER_CONDITION_GROUP_ID: Index = Internal.createIndex(DSL.name("user_category_mail_filter_condition_group_id"), JCategoryMailFilterConditionGroups.CATEGORY_MAIL_FILTER_CONDITION_GROUPS, arrayOf(JCategoryMailFilterConditionGroups.CATEGORY_MAIL_FILTER_CONDITION_GROUPS.USER_ID, JCategoryMailFilterConditionGroups.CATEGORY_MAIL_FILTER_CONDITION_GROUPS.CATEGORY_MAIL_FILTER_CONDITION_GROUP_ID), false)
+val CATEGORY_MAIL_FILTER_CONDITIONS_USER_CATEGORY_MAIL_FILTER_CONDITION_ID: Index = Internal.createIndex(DSL.name("user_category_mail_filter_condition_id"), JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS, arrayOf(JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS.USER_ID, JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS.CATEGORY_MAIL_FILTER_CONDITION_ID), false)
+val CATEGORY_MAIL_FILTERS_USER_CATEGORY_MAIL_FILTER_ID: Index = Internal.createIndex(DSL.name("user_category_mail_filter_id"), JCategoryMailFilters.CATEGORY_MAIL_FILTERS, arrayOf(JCategoryMailFilters.CATEGORY_MAIL_FILTERS.USER_ID, JCategoryMailFilters.CATEGORY_MAIL_FILTERS.CATEGORY_MAIL_FILTER_ID, JCategoryMailFilters.CATEGORY_MAIL_FILTERS.ORDER_NUMBER), false)
+val CATEGORY_MAIL_FILTER_CONDITION_GROUPS_USER_CATEGORY_MAIL_FILTER_ID: Index = Internal.createIndex(DSL.name("user_category_mail_filter_id"), JCategoryMailFilterConditionGroups.CATEGORY_MAIL_FILTER_CONDITION_GROUPS, arrayOf(JCategoryMailFilterConditionGroups.CATEGORY_MAIL_FILTER_CONDITION_GROUPS.USER_ID, JCategoryMailFilterConditionGroups.CATEGORY_MAIL_FILTER_CONDITION_GROUPS.CATEGORY_MAIL_FILTER_ID), false)
 val MONEY_USAGES_USER_ID: Index = Internal.createIndex(DSL.name("user_id"), JMoneyUsages.MONEY_USAGES, arrayOf(JMoneyUsages.MONEY_USAGES.USER_ID), false)
 val MONEY_USAGES_MAILS_RELATION_USER_ID: Index = Internal.createIndex(DSL.name("user_id"), JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION, arrayOf(JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION.USER_ID), false)
 val MONEY_USAGE_CATEGORIES_USER_ID: Index = Internal.createIndex(DSL.name("user_id"), JMoneyUsageCategories.MONEY_USAGE_CATEGORIES, arrayOf(JMoneyUsageCategories.MONEY_USAGE_CATEGORIES.USER_ID), false)

@@ -5,6 +5,10 @@ package net.matsudamper.money.db.schema.tables.references
 
 
 import net.matsudamper.money.db.schema.tables.JAdminSessions
+import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionGroups
+import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionOperatorType
+import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditions
+import net.matsudamper.money.db.schema.tables.JCategoryMailFilters
 import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
@@ -22,6 +26,26 @@ import net.matsudamper.money.db.schema.tables.JUsers
  * The table <code>money.admin_sessions</code>.
  */
 val ADMIN_SESSIONS: JAdminSessions = JAdminSessions.ADMIN_SESSIONS
+
+/**
+ * The table <code>money.category_mail_filter_condition_groups</code>.
+ */
+val CATEGORY_MAIL_FILTER_CONDITION_GROUPS: JCategoryMailFilterConditionGroups = JCategoryMailFilterConditionGroups.CATEGORY_MAIL_FILTER_CONDITION_GROUPS
+
+/**
+ * The table <code>money.category_mail_filter_condition_operator_type</code>.
+ */
+val CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE: JCategoryMailFilterConditionOperatorType = JCategoryMailFilterConditionOperatorType.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE
+
+/**
+ * The table <code>money.category_mail_filter_conditions</code>.
+ */
+val CATEGORY_MAIL_FILTER_CONDITIONS: JCategoryMailFilterConditions = JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS
+
+/**
+ * The table <code>money.category_mail_filters</code>.
+ */
+val CATEGORY_MAIL_FILTERS: JCategoryMailFilters = JCategoryMailFilters.CATEGORY_MAIL_FILTERS
 
 /**
  * The table <code>money.money_usage_categories</code>.
