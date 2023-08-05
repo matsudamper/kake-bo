@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 public fun SettingScaffold(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
     title: @Composable () -> Unit,
     content: @Composable (PaddingValues) -> Unit,
@@ -27,6 +27,7 @@ public fun SettingScaffold(
 
     Column(
         modifier = modifier
+            .fillMaxWidth()
             .padding(horizontal = settingHorizontalPadding),
     ) {
         Box(

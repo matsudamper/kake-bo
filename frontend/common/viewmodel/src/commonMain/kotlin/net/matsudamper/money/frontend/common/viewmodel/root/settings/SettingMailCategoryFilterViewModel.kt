@@ -10,8 +10,14 @@ public class SettingMailCategoryFilterViewModel(
 ) {
     public val uiStateFlow: StateFlow<SettingMailCategoryFilterScreenUiState> = MutableStateFlow(
         SettingMailCategoryFilterScreenUiState(
+            loadingState = SettingMailCategoryFilterScreenUiState.LoadingState.Loading,
             event = object : SettingMailCategoryFilterScreenUiState.Event {
+                override fun onClickRetry() {
+                    fetch()
+                }
             },
         ),
     )
+
+    public fun fetch() {}
 }
