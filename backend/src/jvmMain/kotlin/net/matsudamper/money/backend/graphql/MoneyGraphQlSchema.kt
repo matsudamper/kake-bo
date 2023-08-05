@@ -18,7 +18,9 @@ import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
 import graphql.schema.visibility.NoIntrospectionGraphqlFieldVisibility
 import net.matsudamper.money.backend.base.ServerEnv
+import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.backend.graphql.resolver.ImportedMailAttributesResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.ImportedMailCategoryFilterResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.ImportedMailResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageCategoryResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageResolverImpl
@@ -91,6 +93,11 @@ object MoneyGraphQlSchema {
                 createStringScalarType(
                     name = "MailId",
                     deserialize = { MailId(it) },
+                    serialize = { it.id },
+                ),
+                createIntScalarType(
+                    name = "ImportedMailCategoryFilterId",
+                    deserialize = { ImportedMailCategoryFilterId(it) },
                     serialize = { it.id },
                 ),
                 createIntScalarType(

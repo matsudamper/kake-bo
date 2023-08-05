@@ -4,12 +4,17 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.lib.CursorParser
+import net.matsudamper.money.backend.repository.MailFilterRepository
 import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilter
+import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersConnection
+import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersQuery
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategoriesConnection
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategoriesInput
@@ -117,6 +122,38 @@ class UserResolverImpl : UserResolver {
             )
         }.toDataFetcher()
     }
+
+    override fun importedMailCategoryFilters(
+        user: QlUser,
+        query: QlImportedMailCategoryFiltersQuery,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFiltersConnection?>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+
+        return CompletableFuture.allOf().thenApplyAsync {
+            val filterRepository = context.repositoryFactory.createMailFilterRepository()
+            val result = filterRepository.getFilters(
+                isAsc = query.isAsc,
+                userId = userId,
+                cursor = query.cursor?.let {
+                    ImportedMailCategoryFiltersCursor.fromString(it)
+                },
+            ).getOrNull() ?: return@thenApplyAsync null
+
+            QlImportedMailCategoryFiltersConnection(
+                nodes = result.items.map {
+                    QlImportedMailCategoryFilter(
+                        id = it.importedMailCategoryFilterId,
+                        orderNumber = it.orderNumber,
+                    )
+                },
+                cursor = result.cursor?.let { cursor ->
+                    ImportedMailCategoryFiltersCursor(cursor).toCursorString()
+                },
+            )
+        }.toDataFetcher()
+    }
 }
 
 private class MoneyUsagesCursor(
@@ -137,6 +174,32 @@ private class MoneyUsagesCursor(
                 lastId = MoneyUsageId(
                     CursorParser.parseFromString(cursorString)[LAST_ID_KEY]!!.toInt(),
                 ),
+            )
+        }
+    }
+}
+
+
+private class ImportedMailCategoryFiltersCursor(
+    private val cursor: MailFilterRepository.MailFilterCursor,
+) {
+    fun toCursorString(): String {
+        return CursorParser.createToString(
+            mapOf(
+                ID to cursor.id.id.toString(),
+                ORDER_NUM to cursor.orderNumber.toString(),
+            ),
+        )
+    }
+
+    companion object {
+        private const val ID = "ID"
+        private const val ORDER_NUM = "ORDER_NUM"
+        fun fromString(cursorString: String): MailFilterRepository.MailFilterCursor {
+            val map = CursorParser.parseFromString(cursorString)
+            return MailFilterRepository.MailFilterCursor(
+                id = ImportedMailCategoryFilterId(map[ID]!!.toInt()),
+                orderNumber = map[ORDER_NUM]!!.toInt(),
             )
         }
     }
