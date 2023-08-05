@@ -1,11 +1,11 @@
 package net.matsudamper.money.backend.repository
 
 import net.matsudamper.money.backend.DbConnection
-import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionGroups
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilters
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFiltersRecord
+import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import org.jooq.Record1
 import org.jooq.impl.DSL

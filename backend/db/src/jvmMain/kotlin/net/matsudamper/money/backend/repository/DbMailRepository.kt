@@ -2,7 +2,6 @@ package net.matsudamper.money.backend.repository
 
 import java.time.LocalDateTime
 import net.matsudamper.money.backend.DbConnection
-import net.matsudamper.money.backend.DbConnectionImpl
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
 import net.matsudamper.money.db.schema.tables.JUserMails
@@ -13,7 +12,7 @@ import org.jooq.impl.DSL
 import org.jooq.kotlin.and
 
 class DbMailRepository(
-    private val dbConnection: DbConnection 
+    private val dbConnection: DbConnection,
 ) {
     private val userMails = JUserMails.USER_MAILS
     private val relation = JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION

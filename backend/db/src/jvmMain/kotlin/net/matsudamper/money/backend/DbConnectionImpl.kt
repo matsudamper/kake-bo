@@ -1,9 +1,6 @@
 package net.matsudamper.money.backend
 
 import java.sql.Connection
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import net.matsudamper.money.backend.base.ServerEnv

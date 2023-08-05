@@ -5,12 +5,12 @@ import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
-import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.lib.CursorParser
 import net.matsudamper.money.backend.repository.MailFilterRepository
 import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
+import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilter
@@ -189,7 +189,6 @@ private class MoneyUsagesCursor(
         }
     }
 }
-
 
 private class ImportedMailCategoryFiltersCursor(
     private val cursor: MailFilterRepository.MailFilterCursor,
