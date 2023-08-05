@@ -7,6 +7,7 @@ package net.matsudamper.money.db.schema.tables
 import java.util.function.Function
 
 import net.matsudamper.money.db.schema.JMoney
+import net.matsudamper.money.db.schema.keys.KEY_CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_PRIMARY
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionOperatorTypeRecord
 
 import org.jooq.Field
@@ -20,6 +21,7 @@ import org.jooq.SelectField
 import org.jooq.Table
 import org.jooq.TableField
 import org.jooq.TableOptions
+import org.jooq.UniqueKey
 import org.jooq.impl.DSL
 import org.jooq.impl.Internal
 import org.jooq.impl.SQLDataType
@@ -97,6 +99,7 @@ open class JCategoryMailFilterConditionOperatorType(
 
     constructor(child: Table<out Record>, key: ForeignKey<out Record, JCategoryMailFilterConditionOperatorTypeRecord>): this(Internal.createPathAlias(child, key), child, key, CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE, null)
     override fun getSchema(): Schema? = if (aliased()) null else JMoney.MONEY
+    override fun getPrimaryKey(): UniqueKey<JCategoryMailFilterConditionOperatorTypeRecord> = KEY_CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_PRIMARY
     override fun `as`(alias: String): JCategoryMailFilterConditionOperatorType = JCategoryMailFilterConditionOperatorType(DSL.name(alias), this)
     override fun `as`(alias: Name): JCategoryMailFilterConditionOperatorType = JCategoryMailFilterConditionOperatorType(alias, this)
     override fun `as`(alias: Table<*>): JCategoryMailFilterConditionOperatorType = JCategoryMailFilterConditionOperatorType(alias.getQualifiedName(), this)

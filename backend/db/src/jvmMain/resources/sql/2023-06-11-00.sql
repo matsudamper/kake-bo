@@ -143,7 +143,7 @@ CREATE TABLE category_mail_filter_condition_groups
 
 CREATE TABLE category_mail_filter_condition_operator_type
 (
-    category_mail_filter_condition_operator_type_id INT         not null,
+    category_mail_filter_condition_operator_type_id INT         not null PRIMARY KEY,
     operator_name                                   VARCHAR(10) not null
 );
 INSERT INTO category_mail_filter_condition_operator_type
@@ -156,8 +156,38 @@ CREATE TABLE category_mail_filter_conditions
     category_mail_filter_condition_id       INT                                not null PRIMARY KEY AUTO_INCREMENT,
     category_mail_filter_condition_group_id INT                                not null,
     user_id                                 INT                                not null,
+    text                                    VARCHAR(500)                       not null,
+    category_mail_filter_datasource_type_id INT                                not null,
+    category_mail_filter_condition_type_id  INT                                not null,
     created_datetime                        DATETIME DEFAULT CURRENT_TIMESTAMP not null,
     update_datetime                         DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP,
     index user_category_mail_filter_condition_id (user_id, category_mail_filter_condition_id),
     index user_category_mail_filter_condition_group_id (user_id, category_mail_filter_condition_group_id)
 );
+
+CREATE TABLE category_mail_filter_datasource_type
+(
+    category_mail_filter_datasource_type_id INT         not null PRIMARY KEY,
+    name                                    VARCHAR(50) not null,
+    order_number                            INT         not null
+);
+INSERT INTO category_mail_filter_datasource_type
+    (category_mail_filter_datasource_type_id, order_number, name)
+VALUES (0, 0, 'メールタイトル'),
+       (1, 1, 'メールFrom'),
+       (2, 2, 'メール本文'),
+       (3, 3, 'タイトル'),
+       (4, 4, 'サービス名');
+
+CREATE TABLE category_mail_filter_condition_type
+(
+    category_mail_filter_condition_type_id INT         not null PRIMARY KEY,
+    name                                   VARCHAR(50) not null,
+    order_number                           INT         not null
+);
+INSERT INTO category_mail_filter_condition_type
+    (category_mail_filter_condition_type_id, order_number, name)
+VALUES (0, 0, '含む'),
+       (1, 1, '含まない'),
+       (2, 2, '一致する'),
+       (3, 3, '一致しない');

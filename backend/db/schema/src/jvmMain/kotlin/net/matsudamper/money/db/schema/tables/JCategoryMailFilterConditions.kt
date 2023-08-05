@@ -22,7 +22,7 @@ import org.jooq.Index
 import org.jooq.Name
 import org.jooq.Record
 import org.jooq.Records
-import org.jooq.Row5
+import org.jooq.Row8
 import org.jooq.Schema
 import org.jooq.SelectField
 import org.jooq.Table
@@ -87,6 +87,23 @@ open class JCategoryMailFilterConditions(
     val USER_ID: TableField<JCategoryMailFilterConditionsRecord, Int?> = createField(DSL.name("user_id"), SQLDataType.INTEGER.nullable(false), this, "")
 
     /**
+     * The column <code>money.category_mail_filter_conditions.text</code>.
+     */
+    val TEXT: TableField<JCategoryMailFilterConditionsRecord, String?> = createField(DSL.name("text"), SQLDataType.VARCHAR(500).nullable(false), this, "")
+
+    /**
+     * The column
+     * <code>money.category_mail_filter_conditions.category_mail_filter_datasource_type_id</code>.
+     */
+    val CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID: TableField<JCategoryMailFilterConditionsRecord, Int?> = createField(DSL.name("category_mail_filter_datasource_type_id"), SQLDataType.INTEGER.nullable(false), this, "")
+
+    /**
+     * The column
+     * <code>money.category_mail_filter_conditions.category_mail_filter_condition_type_id</code>.
+     */
+    val CATEGORY_MAIL_FILTER_CONDITION_TYPE_ID: TableField<JCategoryMailFilterConditionsRecord, Int?> = createField(DSL.name("category_mail_filter_condition_type_id"), SQLDataType.INTEGER.nullable(false), this, "")
+
+    /**
      * The column
      * <code>money.category_mail_filter_conditions.created_datetime</code>.
      */
@@ -144,18 +161,18 @@ open class JCategoryMailFilterConditions(
     override fun rename(name: Table<*>): JCategoryMailFilterConditions = JCategoryMailFilterConditions(name.getQualifiedName(), null)
 
     // -------------------------------------------------------------------------
-    // Row5 type methods
+    // Row8 type methods
     // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row5<Int?, Int?, Int?, LocalDateTime?, LocalDateTime?> = super.fieldsRow() as Row5<Int?, Int?, Int?, LocalDateTime?, LocalDateTime?>
+    override fun fieldsRow(): Row8<Int?, Int?, Int?, String?, Int?, Int?, LocalDateTime?, LocalDateTime?> = super.fieldsRow() as Row8<Int?, Int?, Int?, String?, Int?, Int?, LocalDateTime?, LocalDateTime?>
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
      */
-    fun <U> mapping(from: (Int?, Int?, Int?, LocalDateTime?, LocalDateTime?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
+    fun <U> mapping(from: (Int?, Int?, Int?, String?, Int?, Int?, LocalDateTime?, LocalDateTime?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Class,
      * Function)}.
      */
-    fun <U> mapping(toType: Class<U>, from: (Int?, Int?, Int?, LocalDateTime?, LocalDateTime?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
+    fun <U> mapping(toType: Class<U>, from: (Int?, Int?, Int?, String?, Int?, Int?, LocalDateTime?, LocalDateTime?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
 }

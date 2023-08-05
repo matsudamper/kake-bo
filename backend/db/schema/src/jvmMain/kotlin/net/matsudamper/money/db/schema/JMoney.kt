@@ -9,7 +9,9 @@ import kotlin.collections.List
 import net.matsudamper.money.db.schema.tables.JAdminSessions
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionGroups
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionOperatorType
+import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionType
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditions
+import net.matsudamper.money.db.schema.tables.JCategoryMailFilterDatasourceType
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilters
 import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
@@ -57,9 +59,19 @@ open class JMoney : SchemaImpl("money", DefaultCatalog.DEFAULT_CATALOG) {
     val CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE: JCategoryMailFilterConditionOperatorType get() = JCategoryMailFilterConditionOperatorType.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE
 
     /**
+     * The table <code>money.category_mail_filter_condition_type</code>.
+     */
+    val CATEGORY_MAIL_FILTER_CONDITION_TYPE: JCategoryMailFilterConditionType get() = JCategoryMailFilterConditionType.CATEGORY_MAIL_FILTER_CONDITION_TYPE
+
+    /**
      * The table <code>money.category_mail_filter_conditions</code>.
      */
     val CATEGORY_MAIL_FILTER_CONDITIONS: JCategoryMailFilterConditions get() = JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS
+
+    /**
+     * The table <code>money.category_mail_filter_datasource_type</code>.
+     */
+    val CATEGORY_MAIL_FILTER_DATASOURCE_TYPE: JCategoryMailFilterDatasourceType get() = JCategoryMailFilterDatasourceType.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE
 
     /**
      * The table <code>money.category_mail_filters</code>.
@@ -122,7 +134,9 @@ open class JMoney : SchemaImpl("money", DefaultCatalog.DEFAULT_CATALOG) {
         JAdminSessions.ADMIN_SESSIONS,
         JCategoryMailFilterConditionGroups.CATEGORY_MAIL_FILTER_CONDITION_GROUPS,
         JCategoryMailFilterConditionOperatorType.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE,
+        JCategoryMailFilterConditionType.CATEGORY_MAIL_FILTER_CONDITION_TYPE,
         JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS,
+        JCategoryMailFilterDatasourceType.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE,
         JCategoryMailFilters.CATEGORY_MAIL_FILTERS,
         JMoneyUsageCategories.MONEY_USAGE_CATEGORIES,
         JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES,
