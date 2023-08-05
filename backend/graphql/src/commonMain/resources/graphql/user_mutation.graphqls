@@ -9,6 +9,12 @@ type UserMutation {
     addSubCategory(input: AddSubCategoryInput!) : AddSubCategoryResult!
     updateSubCategory(id: MoneyUsageSubCategoryId!, query: UpdateSubCategoryQuery!): MoneyUsageSubCategory!
     deleteSubCategory(id: MoneyUsageSubCategoryId!): Boolean!
+
+    addImportedMailCategoryFilter(input: AddImportedMailCategoryFilterInput!): ImportedMailCategoryFilter
+}
+
+input AddImportedMailCategoryFilterInput {
+    title: String!
 }
 
 input UpdateSubCategoryQuery {

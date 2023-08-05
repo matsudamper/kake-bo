@@ -6,6 +6,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
@@ -20,6 +21,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.graphql.model.QlAddCategoryInput
 import net.matsudamper.money.graphql.model.QlAddCategoryResult
+import net.matsudamper.money.graphql.model.QlAddImportedMailCategoryFilterInput
 import net.matsudamper.money.graphql.model.QlAddSubCategoryError
 import net.matsudamper.money.graphql.model.QlAddSubCategoryInput
 import net.matsudamper.money.graphql.model.QlAddSubCategoryResult
@@ -27,6 +29,7 @@ import net.matsudamper.money.graphql.model.QlAddUsageQuery
 import net.matsudamper.money.graphql.model.QlDeleteMailResult
 import net.matsudamper.money.graphql.model.QlDeleteMailResultError
 import net.matsudamper.money.graphql.model.QlImportMailResult
+import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilter
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
@@ -240,6 +243,40 @@ class UserMutationResolverImpl : UserMutationResolver {
         }.toDataFetcher()
     }
 
+    override fun addImportedMailCategoryFilter(
+        userMutation: QlUserMutation,
+        input: QlAddImportedMailCategoryFilterInput,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFilter?>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+
+        val dataLoader = context.dataLoaders.importedMailCategoryFilterDataLoader.get(env)
+
+        return CompletableFuture.supplyAsync {
+            val result = context.repositoryFactory.createMailFilterRepository()
+                .addFilter(
+                    userId = userId,
+                    title = input.title,
+                    orderNum = 0,
+                ).onFailure {
+                    it.printStackTrace()
+                }.getOrNull() ?: return@supplyAsync null
+
+            dataLoader.prime(
+                ImportedMailCategoryFilterDataLoaderDefine.Key(
+                    userId = userId,
+                    categoryFilterId = result.importedMailCategoryFilterId,
+                ),
+                result,
+            )
+
+            QlImportedMailCategoryFilter(
+                id = result.importedMailCategoryFilterId,
+            )
+        }.toDataFetcher()
+    }
+
     override fun updateCategory(
         userMutation: QlUserMutation,
         id: MoneyUsageCategoryId,
@@ -286,6 +323,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                 is MoneyUsageRepository.AddResult.Failed -> {
                     throw result.error
                 }
+
                 is MoneyUsageRepository.AddResult.Success -> {
                     return@supplyAsync QlMoneyUsage(
                         id = result.result.id,
