@@ -111,6 +111,7 @@ internal fun SettingNavContent(
             )
         }
 
+        ScreenStructure.Root.Settings.MailCategoryFilter -> {
 
         }
     }

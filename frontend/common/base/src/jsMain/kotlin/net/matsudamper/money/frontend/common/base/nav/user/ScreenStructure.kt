@@ -34,8 +34,8 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                 }
             }
 
-
-                override val direction: Screens = Screens.SettingsSubCategoryId
+            public object MailCategoryFilter : Settings {
+                override val direction: Screens = Screens.MailCategoryFilter
             }
         }
 

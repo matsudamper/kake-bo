@@ -153,6 +153,8 @@ public class ScreenNavControllerImpl(
             null,
             Screens.NotFound,
             -> ScreenStructure.NotFound
+
+            Screens.MailCategoryFilter -> ScreenStructure.Root.Settings.MailCategoryFilter
         }
     }
 
