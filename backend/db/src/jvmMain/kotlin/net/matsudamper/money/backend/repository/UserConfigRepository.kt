@@ -1,6 +1,6 @@
 package net.matsudamper.money.backend.repository
 
-import net.matsudamper.money.backend.DbConnection
+import net.matsudamper.money.backend.DbConnectionImpl
 import net.matsudamper.money.backend.element.ImapConfig
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
@@ -19,7 +19,7 @@ class UserConfigRepository {
     ): Boolean {
         return runCatching {
             val userImap = JUserImapSettings.USER_IMAP_SETTINGS
-            DbConnection.use {
+            DbConnectionImpl.use {
                 host?.also { host ->
                     DSL.using(it)
                         .insertInto(userImap)
@@ -62,7 +62,7 @@ class UserConfigRepository {
     fun getImapConfig(userId: UserId): ImapConfig? {
         return runCatching {
             val userImap = JUserImapSettings.USER_IMAP_SETTINGS
-            DbConnection.use {
+            DbConnectionImpl.use {
                 DSL.using(it)
                     .select(userImap)
                     .from(userImap)

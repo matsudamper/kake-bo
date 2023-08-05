@@ -5,7 +5,7 @@ import java.security.spec.KeySpec
 import java.util.Base64
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
-import net.matsudamper.money.backend.DbConnection
+import net.matsudamper.money.backend.DbConnectionImpl
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
 import net.matsudamper.money.db.schema.tables.JUserPasswords
@@ -20,7 +20,7 @@ class AdminRepository {
 
     fun addUser(userName: String, password: String): AddUserResult {
         runCatching {
-            DbConnection.use {
+            DbConnectionImpl.use {
                 DSL.using(it)
                     .transaction { config ->
                         val userResult = config.dsl()

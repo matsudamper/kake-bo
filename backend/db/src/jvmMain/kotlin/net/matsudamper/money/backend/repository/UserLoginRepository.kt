@@ -4,7 +4,7 @@ import java.security.spec.KeySpec
 import java.util.*
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
-import net.matsudamper.money.backend.DbConnection
+import net.matsudamper.money.backend.DbConnectionImpl
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
@@ -21,7 +21,7 @@ class UserLoginRepository {
     private val bases64Encoder = Base64.getEncoder()
 
     fun login(userName: String, passwords: String): Result {
-        val result = DbConnection.use {
+        val result = DbConnectionImpl.use {
             DSL.using(it)
                 .select(userPasswords, userPasswordExtendData)
                 .from(user)

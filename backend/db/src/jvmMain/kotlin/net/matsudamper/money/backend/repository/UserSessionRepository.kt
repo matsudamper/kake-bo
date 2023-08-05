@@ -2,7 +2,7 @@ package net.matsudamper.money.backend.repository
 
 import java.time.LocalDateTime
 import java.util.*
-import net.matsudamper.money.backend.DbConnection
+import net.matsudamper.money.backend.DbConnectionImpl
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.backend.element.UserSessionId
 import net.matsudamper.money.db.schema.tables.JUserSessions
@@ -12,7 +12,7 @@ class UserSessionRepository {
     private val userSessions = JUserSessions.USER_SESSIONS
 
     fun createSession(userId: UserId): CreateSessionResult {
-        val result = DbConnection.use {
+        val result = DbConnectionImpl.use {
             DSL.using(it)
                 .insertInto(userSessions)
                 .set(userSessions.USER_ID, userId.id)
@@ -30,7 +30,7 @@ class UserSessionRepository {
 
     fun verifySession(sessionId: UserSessionId): VerifySessionResult {
         // UserIdを取得し、全ての古いSessionを削除する
-        DbConnection.use {
+        DbConnectionImpl.use {
             val userId = DSL.using(it)
                 .select(userSessions.USER_ID)
                 .from(userSessions)
@@ -47,7 +47,7 @@ class UserSessionRepository {
         }
 
         // Sessionを更新する
-        val result = DbConnection.use {
+        val result = DbConnectionImpl.use {
             DSL.using(it).transactionResult { config ->
                 DSL.using(config)
                     .select(userSessions.SESSION_ID)

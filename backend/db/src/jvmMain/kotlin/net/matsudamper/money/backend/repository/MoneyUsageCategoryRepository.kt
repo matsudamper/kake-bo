@@ -1,6 +1,6 @@
 package net.matsudamper.money.backend.repository
 
-import net.matsudamper.money.backend.DbConnection
+import net.matsudamper.money.backend.DbConnectionImpl
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsageCategoriesRecord
@@ -16,7 +16,7 @@ class MoneyUsageCategoryRepository {
         name: String,
     ): AddCategoryResult {
         return runCatching {
-            DbConnection.use { connection ->
+            DbConnectionImpl.use { connection ->
                 val result = DSL.using(connection)
                     .insertInto(CATEGORIES)
                     .set(
@@ -46,7 +46,7 @@ class MoneyUsageCategoryRepository {
         moneyUsageCategoryIds: List<MoneyUsageCategoryId>,
     ): GetCategoryResult {
         return runCatching {
-            DbConnection.use { connection ->
+            DbConnectionImpl.use { connection ->
                 val records = DSL.using(connection)
                     .selectFrom(CATEGORIES)
                     .where(
@@ -76,7 +76,7 @@ class MoneyUsageCategoryRepository {
         userId: UserId,
     ): GetCategoryResult {
         return runCatching {
-            DbConnection.use { connection ->
+            DbConnectionImpl.use { connection ->
                 val records = DSL.using(connection)
                     .selectFrom(CATEGORIES)
                     .where(
@@ -103,7 +103,7 @@ class MoneyUsageCategoryRepository {
         categoryId: MoneyUsageCategoryId,
         name: String?,
     ): Boolean {
-        return DbConnection.use { connection ->
+        return DbConnectionImpl.use { connection ->
             if (name != null) {
                 DSL.using(connection)
                     .update(CATEGORIES)

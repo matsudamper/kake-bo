@@ -1,7 +1,7 @@
 package net.matsudamper.money.backend.repository
 
 import java.util.*
-import net.matsudamper.money.backend.DbConnection
+import net.matsudamper.money.backend.DbConnectionImpl
 import net.matsudamper.money.backend.dsl.LocalDateTimeExt
 import net.matsudamper.money.backend.element.AdminSession
 import net.matsudamper.money.backend.element.AdminSessionId
@@ -26,7 +26,7 @@ object AdminSessionRepository {
      */
     fun verifySession(adminSessionId: String): AdminSession? {
         // 期限切れのSessionを削除する
-        DbConnection.use {
+        DbConnectionImpl.use {
             DSL.using(it)
                 .deleteFrom(adminSession)
                 .where(
@@ -36,7 +36,7 @@ object AdminSessionRepository {
                 .execute()
         }
 
-        DbConnection.use {
+        DbConnectionImpl.use {
             // verify
             DSL.using(it)
                 .select()
@@ -51,7 +51,7 @@ object AdminSessionRepository {
                 .fetchAny()
         } ?: return null
 
-        val sessionId = DbConnection.use {
+        val sessionId = DbConnectionImpl.use {
             // update Expire
             DSL.using(it)
                 .update(adminSession)
@@ -73,7 +73,7 @@ object AdminSessionRepository {
     }
 
     fun createSession(): AdminSession {
-        val sessionId = DbConnection.use {
+        val sessionId = DbConnectionImpl.use {
             DSL.using(it)
                 .insertInto(adminSession)
                 .set(

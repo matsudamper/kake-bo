@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.di
 
+import net.matsudamper.money.backend.DbConnectionImpl
 import net.matsudamper.money.backend.mail.MailRepository
 import net.matsudamper.money.backend.repository.DbMailRepository
 import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
@@ -42,7 +43,7 @@ class RepositoryFactoryImpl : RepositoryFactory {
         return userConfigRepository
     }
 
-    private val dbMailRepository = DbMailRepository()
+    private val dbMailRepository = DbMailRepository(dbConnection = DbConnectionImpl)
     override fun createDbMailRepository(): DbMailRepository {
         return dbMailRepository
     }

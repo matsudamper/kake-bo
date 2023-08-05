@@ -2,6 +2,7 @@ package net.matsudamper.money.backend.repository
 
 import java.time.LocalDateTime
 import net.matsudamper.money.backend.DbConnection
+import net.matsudamper.money.backend.DbConnectionImpl
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
 import net.matsudamper.money.db.schema.tables.JUserMails
@@ -11,7 +12,9 @@ import net.matsudamper.money.element.MoneyUsageId
 import org.jooq.impl.DSL
 import org.jooq.kotlin.and
 
-class DbMailRepository {
+class DbMailRepository(
+    private val dbConnection: DbConnection 
+) {
     private val userMails = JUserMails.USER_MAILS
     private val relation = JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION
 
@@ -24,7 +27,7 @@ class DbMailRepository {
         dateTime: LocalDateTime,
     ): AddUserResult {
         runCatching {
-            DbConnection.use { connection ->
+            dbConnection.use { connection ->
                 DSL.using(connection)
                     .insertInto(userMails)
                     .set(
@@ -50,7 +53,7 @@ class DbMailRepository {
     }
 
     fun getCount(userId: UserId): Int? {
-        return DbConnection.use { connection ->
+        return dbConnection.use { connection ->
             val result = DSL.using(connection)
                 .select(DSL.count())
                 .from(userMails)
@@ -66,7 +69,7 @@ class DbMailRepository {
         mailIds: List<ImportedMailId>,
     ): Result<MutableList<ImportedMailId>> {
         return runCatching {
-            DbConnection.use { connection ->
+            dbConnection.use { connection ->
                 val results = DSL.using(connection)
                     .select(userMails.USER_MAIL_ID)
                     .from(userMails)
@@ -91,7 +94,7 @@ class DbMailRepository {
         isAsc: Boolean,
         isLinked: Boolean?,
     ): List<ImportedMailId> {
-        return DbConnection.use { connection ->
+        return dbConnection.use { connection ->
             val result = DSL.using(connection)
                 .select(
                     userMails.USER_MAIL_ID,
@@ -139,7 +142,7 @@ class DbMailRepository {
     }
 
     fun getMails(userId: UserId, mailIds: List<ImportedMailId>): List<Mail> {
-        return DbConnection.use { connection ->
+        return dbConnection.use { connection ->
             val result = DSL.using(connection)
                 .select(
                     userMails.USER_MAIL_ID,
@@ -178,7 +181,7 @@ class DbMailRepository {
         moneyUsageIdList: List<MoneyUsageId>,
     ): Result<Map<MoneyUsageId, List<ImportedMailId>>> {
         return runCatching {
-            DbConnection.use { connection ->
+            dbConnection.use { connection ->
                 val result = DSL.using(connection)
                     .select(relation.MONEY_USAGE_ID, userMails.USER_MAIL_ID)
                     .from(userMails)

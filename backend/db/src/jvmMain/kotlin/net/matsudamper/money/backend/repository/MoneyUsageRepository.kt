@@ -2,7 +2,7 @@ package net.matsudamper.money.backend.repository
 
 import java.lang.IllegalStateException
 import java.time.LocalDateTime
-import net.matsudamper.money.backend.DbConnection
+import net.matsudamper.money.backend.DbConnectionImpl
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsagesRecord
@@ -23,7 +23,7 @@ class MoneyUsageRepository {
         amount: Int,
     ): AddResult {
         return runCatching {
-            DbConnection.use { connection ->
+            DbConnectionImpl.use { connection ->
                 val results = DSL.using(connection)
                     .insertInto(usage)
                     .set(usage.USER_ID, userId.id)
@@ -57,7 +57,7 @@ class MoneyUsageRepository {
         isAsc: Boolean,
     ): Result<MutableList<MoneyUsageId>> {
         return runCatching {
-            DbConnection.use { connection ->
+            DbConnectionImpl.use { connection ->
                 val results = DSL.using(connection)
                     .select(usage.MONEY_USAGE_ID)
                     .from(usage)
@@ -94,7 +94,7 @@ class MoneyUsageRepository {
 
     fun getMoneyUsage(userId: UserId, ids: List<MoneyUsageId>): Result<List<Usage>> {
         return runCatching {
-            DbConnection.use { connection ->
+            DbConnectionImpl.use { connection ->
                 val results = DSL.using(connection)
                     .selectFrom(usage)
                     .where(

@@ -1,6 +1,6 @@
 package net.matsudamper.money.backend.repository
 
-import net.matsudamper.money.backend.DbConnection
+import net.matsudamper.money.backend.DbConnectionImpl
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
@@ -20,7 +20,7 @@ class MoneyUsageSubCategoryRepository {
         categoryId: MoneyUsageCategoryId,
     ): AddSubCategoryResult {
         runCatching {
-            DbConnection.use { connection ->
+            DbConnectionImpl.use { connection ->
                 DSL.using(connection)
                     .select(CATEGORIES.MONEY_USAGE_CATEGORY_ID)
                     .from(CATEGORIES)
@@ -39,7 +39,7 @@ class MoneyUsageSubCategoryRepository {
         }
 
         return runCatching {
-            DbConnection.use { connection ->
+            DbConnectionImpl.use { connection ->
                 val record = DSL.using(connection)
                     .insertInto(SUB_CATEGORIES)
                     .set(
@@ -71,7 +71,7 @@ class MoneyUsageSubCategoryRepository {
         categoryId: MoneyUsageCategoryId,
     ): GetSubCategoryResult {
         return runCatching {
-            val isOwner = DbConnection.use { connection ->
+            val isOwner = DbConnectionImpl.use { connection ->
                 DSL.using(connection)
                     .select()
                     .from(CATEGORIES)
@@ -87,7 +87,7 @@ class MoneyUsageSubCategoryRepository {
                 return GetSubCategoryResult.Failed(IllegalArgumentException("categoryId=$categoryId is Not owner."))
             }
 
-            DbConnection.use { connection ->
+            DbConnectionImpl.use { connection ->
                 val records = DSL.using(connection)
                     .select(
                         SUB_CATEGORIES.USER_ID,
@@ -129,7 +129,7 @@ class MoneyUsageSubCategoryRepository {
         moneyUsageSubCategoryIds: List<MoneyUsageSubCategoryId>,
     ): GetSubCategoryResult {
         return runCatching {
-            DbConnection.use { connection ->
+            DbConnectionImpl.use { connection ->
                 val records = DSL.using(connection)
                     .selectFrom(SUB_CATEGORIES)
                     .where(
@@ -157,7 +157,7 @@ class MoneyUsageSubCategoryRepository {
     }
 
     fun updateSubCategory(userId: UserId, subCategoryId: MoneyUsageSubCategoryId, name: String?): Boolean {
-        return DbConnection.use { connection ->
+        return DbConnectionImpl.use { connection ->
             if (name == null) {
                 0
             } else {
@@ -179,7 +179,7 @@ class MoneyUsageSubCategoryRepository {
         userId: UserId,
         subCategoryId: MoneyUsageSubCategoryId,
     ): Boolean {
-        return DbConnection.use { connection ->
+        return DbConnectionImpl.use { connection ->
             DSL.using(connection)
                 .deleteFrom(SUB_CATEGORIES)
                 .where(
