@@ -6,6 +6,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,6 +38,7 @@ internal fun SettingNavContent(
     rootScreenScaffoldListener: RootScreenScaffoldListener,
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val holder = rememberSaveableStateHolder()
     val settingViewModel = remember {
         SettingViewModel(
             coroutineScope = rootCoroutineScope,
@@ -46,83 +48,93 @@ internal fun SettingNavContent(
     }
     when (state) {
         ScreenStructure.Root.Settings.Root -> {
-            LaunchedEffect(settingViewModel.eventHandler) {
-                viewModelEventHandlers.handle(settingViewModel.eventHandler)
+            holder.SaveableStateProvider(state::class.toString()) {
+                LaunchedEffect(settingViewModel.eventHandler) {
+                    viewModelEventHandlers.handle(settingViewModel.eventHandler)
+                }
+                SettingRootScreen(
+                    modifier = Modifier.fillMaxSize(),
+                    uiState = settingViewModel.uiState.collectAsState().value,
+                    listener = rootScreenScaffoldListener,
+                )
             }
-            SettingRootScreen(
-                modifier = Modifier.fillMaxSize(),
-                uiState = settingViewModel.uiState.collectAsState().value,
-                listener = rootScreenScaffoldListener,
-            )
         }
 
         ScreenStructure.Root.Settings.Categories -> {
-            val viewModel = remember {
-                SettingCategoriesViewModel(
-                    coroutineScope = coroutineScope,
-                    api = SettingScreenCategoryApi(),
+            holder.SaveableStateProvider(state::class.toString()) {
+                val viewModel = remember {
+                    SettingCategoriesViewModel(
+                        coroutineScope = coroutineScope,
+                        api = SettingScreenCategoryApi(),
+                    )
+                }
+
+                LaunchedEffect(viewModel.viewModelEventHandler) {
+                    viewModelEventHandlers.handle(viewModel.viewModelEventHandler)
+                }
+                LaunchedEffect(globalEvent, viewModel.globalEventHandler) {
+                    viewModel.globalEventHandler.collect(globalEvent)
+                }
+
+                SettingCategoriesScreen(
+                    rootScreenScaffoldListener = rootScreenScaffoldListener,
+                    uiState = viewModel.uiState.collectAsState().value,
                 )
             }
-
-            LaunchedEffect(viewModel.viewModelEventHandler) {
-                viewModelEventHandlers.handle(viewModel.viewModelEventHandler)
-            }
-            LaunchedEffect(globalEvent, viewModel.globalEventHandler) {
-                viewModel.globalEventHandler.collect(globalEvent)
-            }
-
-            SettingCategoriesScreen(
-                rootScreenScaffoldListener = rootScreenScaffoldListener,
-                uiState = viewModel.uiState.collectAsState().value,
-            )
         }
 
         is ScreenStructure.Root.Settings.Category -> {
-            val viewModel = remember {
-                SettingCategoryViewModel(
-                    coroutineScope = coroutineScope,
-                    api = SettingScreenCategoryApi(),
-                    categoryId = state.id,
+            holder.SaveableStateProvider(state::class.toString()) {
+                val viewModel = remember {
+                    SettingCategoryViewModel(
+                        coroutineScope = coroutineScope,
+                        api = SettingScreenCategoryApi(),
+                        categoryId = state.id,
+                    )
+                }
+                LaunchedEffect(viewModel.viewModelEventHandler) {
+                    viewModelEventHandlers.handle(viewModel.viewModelEventHandler)
+                }
+                LaunchedEffect(viewModel.globalEventHandler) {
+                    viewModel.globalEventHandler.collect(globalEvent)
+                }
+                SettingCategoryScreen(
+                    rootScreenScaffoldListener = rootScreenScaffoldListener,
+                    uiState = viewModel.uiState.collectAsState().value,
                 )
             }
-            LaunchedEffect(viewModel.viewModelEventHandler) {
-                viewModelEventHandlers.handle(viewModel.viewModelEventHandler)
-            }
-            LaunchedEffect(viewModel.globalEventHandler) {
-                viewModel.globalEventHandler.collect(globalEvent)
-            }
-            SettingCategoryScreen(
-                rootScreenScaffoldListener = rootScreenScaffoldListener,
-                uiState = viewModel.uiState.collectAsState().value,
-            )
         }
 
         ScreenStructure.Root.Settings.Imap -> {
-            val viewModel = remember {
-                ImapSettingViewModel(
-                    coroutineScope = coroutineScope,
-                    graphqlQuery = GraphqlUserConfigQuery(),
-                    globalEventSender = globalEventSender,
-                    ioDispatchers = Dispatchers.Unconfined,
+            holder.SaveableStateProvider(state::class.toString()) {
+                val viewModel = remember {
+                    ImapSettingViewModel(
+                        coroutineScope = coroutineScope,
+                        graphqlQuery = GraphqlUserConfigQuery(),
+                        globalEventSender = globalEventSender,
+                        ioDispatchers = Dispatchers.Unconfined,
+                    )
+                }
+
+                ImapConfigScreen(
+                    uiState = viewModel.uiState.collectAsState().value,
+                    listener = rootScreenScaffoldListener,
                 )
             }
-
-            ImapConfigScreen(
-                uiState = viewModel.uiState.collectAsState().value,
-                listener = rootScreenScaffoldListener,
-            )
         }
 
         ScreenStructure.Root.Settings.MailCategoryFilter -> {
-            val viewModel = remember(coroutineScope) {
-                SettingMailCategoryFilterViewModel(
-                    coroutineScope = coroutineScope,
+            holder.SaveableStateProvider(state::class.toString()) {
+                val viewModel = remember(coroutineScope) {
+                    SettingMailCategoryFilterViewModel(
+                        coroutineScope = coroutineScope,
+                    )
+                }
+                SettingMailCategoryFilterScreen(
+                    modifier = Modifier.fillMaxSize(),
+                    uiState = viewModel.uiStateFlow.collectAsState().value,
                 )
             }
-            SettingMailCategoryFilterScreen(
-                modifier = Modifier.fillMaxSize(),
-                uiState = viewModel.uiStateFlow.collectAsState().value,
-            )
         }
     }
 }
