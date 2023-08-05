@@ -34,18 +34,8 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                 }
             }
 
-            public object SubCategory : Settings {
-                override val direction: Screens = Screens.SettingsSubCategory
-            }
 
-            public class SubCategoryId(
-                public val id: Int,
-            ) : Settings {
                 override val direction: Screens = Screens.SettingsSubCategoryId
-
-                override fun createUrl(): String {
-                    return direction.placeholderUrl.replace("{id}", id.toString())
-                }
             }
         }
 

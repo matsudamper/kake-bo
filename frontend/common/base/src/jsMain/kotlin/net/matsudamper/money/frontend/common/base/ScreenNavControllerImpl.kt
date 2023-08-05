@@ -123,13 +123,6 @@ public class ScreenNavControllerImpl(
                     ?: return ScreenStructure.NotFound,
             )
 
-            Screens.SettingsSubCategory -> ScreenStructure.Root.Settings.SubCategory
-            Screens.SettingsSubCategoryId -> {
-                ScreenStructure.Root.Settings.SubCategoryId(
-                    id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound,
-                )
-            }
-
             Screens.List -> ScreenStructure.Root.List()
             Screens.Login -> ScreenStructure.Login
             Screens.Admin -> ScreenStructure.Admin

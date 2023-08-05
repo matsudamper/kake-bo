@@ -22,13 +22,6 @@ public enum class Screens : Direction {
         override val title: String = "カテゴリ設定"
         override val placeholderUrl: String = "/settings/category/{id}"
     },
-    SettingsSubCategory {
-        override val title: String = "サブカテゴリ設定"
-        override val placeholderUrl: String = "/settings/sub-category"
-    },
-    SettingsSubCategoryId {
-        override val title: String = "サブカテゴリ設定"
-        override val placeholderUrl: String = "/settings/sub-category/{id}"
     },
 
     List {
