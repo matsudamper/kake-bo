@@ -1,0 +1,16 @@
+input ImportedMailCategoryFiltersQuery {
+    isAsc: Boolean!
+    cursor: String
+}
+
+type ImportedMailCategoryFiltersConnection {
+    nodes: [ImportedMailCategoryFilter!]!
+    cursor: String
+}
+
+type ImportedMailCategoryFilter {
+    id: ImportedMailCategoryFilterId!
+    title: String! @lazy
+    subCategory: MoneyUsageSubCategory @lazy
+    orderNumber: Int!
+}
