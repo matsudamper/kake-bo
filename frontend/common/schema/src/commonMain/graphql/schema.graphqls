@@ -54,6 +54,18 @@ type ImportedMailAttributes {
     mails(query: ImportedMailQuery!): ImportedMailConnection!
 }
 
+type ImportedMailCategoryFilter {
+    id: ImportedMailCategoryFilterId!
+    orderNumber: Int!
+    subCategory: MoneyUsageSubCategory
+    title: String!
+}
+
+type ImportedMailCategoryFiltersConnection {
+    cursor: String
+    nodes: [ImportedMailCategoryFilter!]!
+}
+
 type ImportedMailConnection {
     cursor: String
     nodes: [ImportedMail!]!
@@ -125,6 +137,7 @@ type SubCategoriesConnection {
 
 type User {
     importedMailAttributes: ImportedMailAttributes!
+    importedMailCategoryFilters(query: ImportedMailCategoryFiltersQuery!): ImportedMailCategoryFiltersConnection
     isLoggedIn: Boolean!
     moneyUsageCategories(input: MoneyUsageCategoriesInput!): MoneyUsageCategoriesConnection
     moneyUsageCategory(id: MoneyUsageCategoryId!): MoneyUsageCategory
@@ -168,6 +181,7 @@ type UserMailConnection {
 
 type UserMutation {
     addCategory(input: AddCategoryInput!): AddCategoryResult!
+    addImportedMailCategoryFilter(input: AddImportedMailCategoryFilterInput!): ImportedMailCategoryFilter
     addSubCategory(input: AddSubCategoryInput!): AddSubCategoryResult!
     addUsage(usage: AddUsageQuery!): MoneyUsage!
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
@@ -208,6 +222,8 @@ enum UserMailError {
     MailServerNotConnected
 }
 
+scalar ImportedMailCategoryFilterId
+
 scalar ImportedMailId
 
 scalar LocalDateTime
@@ -229,6 +245,10 @@ input AddCategoryInput {
     name: String!
 }
 
+input AddImportedMailCategoryFilterInput {
+    title: String!
+}
+
 input AddSubCategoryInput {
     categoryId: MoneyUsageCategoryId!
     name: String!
@@ -240,6 +260,11 @@ input AddUsageQuery {
     description: String!
     subCategoryId: MoneyUsageSubCategoryId
     title: String!
+}
+
+input ImportedMailCategoryFiltersQuery {
+    cursor: String
+    isAsc: Boolean!
 }
 
 input ImportedMailQuery {
