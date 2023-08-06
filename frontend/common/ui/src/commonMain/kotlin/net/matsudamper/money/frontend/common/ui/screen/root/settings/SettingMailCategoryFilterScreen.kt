@@ -83,7 +83,7 @@ public data class SettingMailCategoryFilterScreenUiState(
 @Composable
 public fun SettingMailCategoryFiltersScreen(
     modifier: Modifier = Modifier,
-    listener: RootScreenScaffoldListener,
+    rootScreenScaffoldListener: RootScreenScaffoldListener,
     uiState: SettingMailCategoryFilterScreenUiState,
 ) {
     LaunchedEffect(Unit) {
@@ -101,7 +101,7 @@ public fun SettingMailCategoryFiltersScreen(
     RootScreenScaffold(
         modifier = modifier,
         currentScreen = RootScreenTab.Settings,
-        listener = listener,
+        listener = rootScreenScaffoldListener,
     ) {
         SettingScaffold(
             title = {

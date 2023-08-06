@@ -1,7 +1,6 @@
 package screen
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -15,6 +14,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.RootSettingScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImapConfigScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImportedMailFilterCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoriesScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingMailCategoryFiltersScreen
@@ -22,6 +22,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingRoot
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.ImapSettingViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilter.ImportedMailFilterCategoryViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters.ImportedMailCategoryFilterScreenPagingModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters.SettingImportedMailCategoryFilterApi
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters.SettingMailCategoryFiltersViewModel
@@ -132,14 +133,24 @@ internal fun SettingNavContent(
                 SettingMailCategoryFiltersScreen(
                     modifier = Modifier.fillMaxSize(),
                     uiState = viewModel.uiStateFlow.collectAsState().value,
-                    listener = rootScreenScaffoldListener,
+                    rootScreenScaffoldListener = rootScreenScaffoldListener,
                 )
             }
         }
 
         is ScreenStructure.Root.Settings.MailCategoryFilter -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                Text("TODO")
+                val viewModel = remember(coroutineScope) {
+                    ImportedMailFilterCategoryViewModel(
+                        coroutineScope = coroutineScope,
+                    )
+                }
+
+                ImportedMailFilterCategoryScreen(
+                    modifier = Modifier.fillMaxSize(),
+                    uiState = viewModel.uiStateFlow.collectAsState().value,
+                    rootScreenScaffoldListener = rootScreenScaffoldListener,
+                )
             }
         }
     }
