@@ -87,5 +87,15 @@ class ApolloPagingResponseCollector<D : Query.Data>(
                 it.add(query)
             }
         }
+
+        fun <D : Query.Data> create(
+            apolloClient: ApolloClient,
+            coroutineScope: CoroutineScope,
+        ): ApolloPagingResponseCollector<D> {
+            return ApolloPagingResponseCollector(
+                apolloClient = apolloClient,
+                coroutineScope = coroutineScope,
+            )
+        }
     }
 }
