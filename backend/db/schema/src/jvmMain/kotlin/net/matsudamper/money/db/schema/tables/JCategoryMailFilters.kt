@@ -21,7 +21,7 @@ import org.jooq.Index
 import org.jooq.Name
 import org.jooq.Record
 import org.jooq.Records
-import org.jooq.Row7
+import org.jooq.Row8
 import org.jooq.Schema
 import org.jooq.SelectField
 import org.jooq.Table
@@ -90,6 +90,12 @@ open class JCategoryMailFilters(
     val MONEY_USAGE_SUB_CATEGORY_ID: TableField<JCategoryMailFiltersRecord, Int?> = createField(DSL.name("money_usage_sub_category_id"), SQLDataType.INTEGER.defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.INTEGER)), this, "")
 
     /**
+     * The column
+     * <code>money.category_mail_filters.category_mail_filter_condition_operator_type_id</code>.
+     */
+    val CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID: TableField<JCategoryMailFiltersRecord, Int?> = createField(DSL.name("category_mail_filter_condition_operator_type_id"), SQLDataType.INTEGER.nullable(false), this, "")
+
+    /**
      * The column <code>money.category_mail_filters.created_datetime</code>.
      */
     val CREATED_DATETIME: TableField<JCategoryMailFiltersRecord, LocalDateTime?> = createField(DSL.name("created_datetime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field(DSL.raw("current_timestamp()"), SQLDataType.LOCALDATETIME)), this, "")
@@ -149,18 +155,18 @@ open class JCategoryMailFilters(
     override fun rename(name: Table<*>): JCategoryMailFilters = JCategoryMailFilters(name.getQualifiedName(), null)
 
     // -------------------------------------------------------------------------
-    // Row7 type methods
+    // Row8 type methods
     // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row7<Int?, Int?, String?, Int?, LocalDateTime?, LocalDateTime?, Int?> = super.fieldsRow() as Row7<Int?, Int?, String?, Int?, LocalDateTime?, LocalDateTime?, Int?>
+    override fun fieldsRow(): Row8<Int?, Int?, String?, Int?, Int?, LocalDateTime?, LocalDateTime?, Int?> = super.fieldsRow() as Row8<Int?, Int?, String?, Int?, Int?, LocalDateTime?, LocalDateTime?, Int?>
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
      */
-    fun <U> mapping(from: (Int?, Int?, String?, Int?, LocalDateTime?, LocalDateTime?, Int?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
+    fun <U> mapping(from: (Int?, Int?, String?, Int?, Int?, LocalDateTime?, LocalDateTime?, Int?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Class,
      * Function)}.
      */
-    fun <U> mapping(toType: Class<U>, from: (Int?, Int?, String?, Int?, LocalDateTime?, LocalDateTime?, Int?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
+    fun <U> mapping(toType: Class<U>, from: (Int?, Int?, String?, Int?, Int?, LocalDateTime?, LocalDateTime?, Int?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
 }

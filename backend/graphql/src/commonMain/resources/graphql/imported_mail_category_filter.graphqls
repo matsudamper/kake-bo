@@ -3,6 +3,11 @@ input ImportedMailCategoryFiltersQuery {
     cursor: String
 }
 
+enum ImportedMailFilterCategoryConditionOperator {
+    OR
+    AND
+}
+
 type ImportedMailCategoryFiltersConnection {
     nodes: [ImportedMailCategoryFilter!]!
     cursor: String
@@ -14,4 +19,5 @@ type ImportedMailCategoryFilter {
     title: String! @lazy
     subCategory: MoneyUsageSubCategory @lazy
     orderNumber: Int! @lazy
+    operator: ImportedMailFilterCategoryConditionOperator! @lazy
 }

@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend.repository
 
 import net.matsudamper.money.backend.DbConnection
+import net.matsudamper.money.backend.element.ImportedMailFilterCategoryConditionOperator
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionGroups
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilters
@@ -35,13 +36,7 @@ class MailFilterRepository(
                     .returning(filters)
                     .fetchOne()
                 result ?: throw IllegalStateException("insert failed")
-                MailFilter(
-                    importedMailCategoryFilterId = ImportedMailCategoryFilterId(result.categoryMailFilterId!!),
-                    userId = UserId(result.userId!!),
-                    title = result.title.orEmpty(),
-                    moneyUsageSubCategoryId = MoneyUsageSubCategoryId(result.moneyUsageSubCategoryId!!),
-                    orderNumber = result.orderNumber!!,
-                )
+                mapResult(result)
             }
         }
     }
@@ -129,6 +124,9 @@ class MailFilterRepository(
             moneyUsageSubCategoryId = record.get(filters.MONEY_USAGE_SUB_CATEGORY_ID)?.let {
                 MoneyUsageSubCategoryId(it)
             },
+            operator = ImportedMailFilterCategoryConditionOperator.fromDbValue(
+                record.get(filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID)!!,
+            ),
             orderNumber = record.get(filters.ORDER_NUMBER)!!,
         )
     }
@@ -143,6 +141,7 @@ class MailFilterRepository(
         val userId: UserId,
         val title: String,
         val moneyUsageSubCategoryId: MoneyUsageSubCategoryId?,
+        val operator: ImportedMailFilterCategoryConditionOperator,
         val orderNumber: Int,
     )
 
