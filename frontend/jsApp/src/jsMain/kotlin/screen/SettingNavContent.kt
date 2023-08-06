@@ -143,6 +143,7 @@ internal fun SettingNavContent(
                 val viewModel = remember(coroutineScope) {
                     ImportedMailFilterCategoryViewModel(
                         coroutineScope = coroutineScope,
+                        id = state.id,
                     )
                 }
 

@@ -147,6 +147,7 @@ type SubCategoriesConnection {
 
 type User {
     importedMailAttributes: ImportedMailAttributes!
+    importedMailCategoryFilter(id: ImportedMailCategoryFilterId!): ImportedMailCategoryFilter
     importedMailCategoryFilters(query: ImportedMailCategoryFiltersQuery!): ImportedMailCategoryFiltersConnection
     isLoggedIn: Boolean!
     moneyUsageCategories(input: MoneyUsageCategoriesInput!): MoneyUsageCategoriesConnection

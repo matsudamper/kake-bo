@@ -8,6 +8,7 @@ type User {
     moneyUsageSubCategory(input: MoneyUsageSubCategoryInput!): MoneyUsageSubCategory @lazy
     moneyUsages(query: MoneyUsagesQuery!): MoneyUsagesConnection @lazy
     importedMailCategoryFilters(query: ImportedMailCategoryFiltersQuery!): ImportedMailCategoryFiltersConnection @lazy
+    importedMailCategoryFilter(id: ImportedMailCategoryFilterId!): ImportedMailCategoryFilter @lazy
 }
 
 type MoneyUsagesConnection {

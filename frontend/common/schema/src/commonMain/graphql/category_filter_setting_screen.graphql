@@ -26,3 +26,27 @@ mutation ImportedMailCategoryFiltersScreenAddImportedMailCategory($input: AddImp
         }
     }
 }
+
+query ImportedMailCategoryFilterScreen($id: ImportedMailCategoryFilterId!) {
+    user {
+        importedMailCategoryFilter(id: $id) {
+            id
+            title
+            operator
+            subCategory {
+                id
+                name
+                category {
+                    id
+                    name
+                }
+            }
+            conditions {
+                id
+                conditionType
+                dataSourceType
+                text
+            }
+        }
+    }
+}

@@ -168,6 +168,17 @@ class UserResolverImpl : UserResolver {
             )
         }.toDataFetcher()
     }
+
+    override fun importedMailCategoryFilter(user: QlUser, id: ImportedMailCategoryFilterId, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlImportedMailCategoryFilter?>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        context.verifyUserSession()
+
+        return CompletableFuture.allOf().thenApplyAsync {
+            QlImportedMailCategoryFilter(
+                id = id,
+            )
+        }.toDataFetcher()
+    }
 }
 
 private class MoneyUsagesCursor(
