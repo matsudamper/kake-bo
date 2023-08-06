@@ -29,11 +29,19 @@ import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
+import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
 
 public data class SettingMailCategoryFilterScreenUiState(
     public val event: Event,
+    public val textInput: TextInput?,
     public val loadingState: LoadingState,
 ) {
+    public data class TextInput(
+        val title: String,
+        val onCompleted: (String) -> Unit,
+        val dismiss: () -> Unit,
+    )
+
     public sealed interface LoadingState {
 
         public object Loading : LoadingState
@@ -75,6 +83,15 @@ public fun SettingMailCategoryFilterScreen(
 ) {
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
+    }
+    uiState.textInput?.also { textInput ->
+        HtmlFullScreenTextInput(
+            title = textInput.title,
+            onComplete = { textInput.onCompleted(it) },
+            canceled = { textInput.dismiss() },
+            default = "",
+            isMultiline = false,
+        )
     }
     RootScreenScaffold(
         modifier = modifier,

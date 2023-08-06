@@ -7,27 +7,65 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingMailCategoryFilterScreenUiState
+import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFiltersScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class SettingMailCategoryFilterViewModel(
     private val coroutineScope: CoroutineScope,
     private val pagingModel: ImportedMailCategoryFilterScreenPagingModel,
+    private val api: SettingImportedMailCategoryFilterApi,
 ) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState())
 
     private val loadedEvent = object : SettingMailCategoryFilterScreenUiState.LoadedEvent {
         override fun onClickAdd() {
-            // TODO
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    textInputDialog = createFilterNameDialogUiState(),
+                )
+            }
+        }
+
+        private fun createFilterNameDialogUiState(): SettingMailCategoryFilterScreenUiState.TextInput {
+            return SettingMailCategoryFilterScreenUiState.TextInput(
+                title = "メールカテゴリフィルタの追加",
+                onCompleted = { text ->
+                    coroutineScope.launch {
+                        runCatching {
+                            api.addFilter(text)
+                        }.onSuccess {
+                            pagingModel.clear()
+                            pagingModel.fetch()
+                        }.onFailure {
+                            it.printStackTrace()
+                        }
+                    }
+                    dismissTextInputDialog()
+                },
+                dismiss = {
+                    dismissTextInputDialog()
+                }
+            )
+        }
+
+        private fun dismissTextInputDialog() {
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    textInputDialog = null,
+                )
+            }
         }
     }
 
     public val uiStateFlow: StateFlow<SettingMailCategoryFilterScreenUiState> = MutableStateFlow(
         SettingMailCategoryFilterScreenUiState(
             loadingState = SettingMailCategoryFilterScreenUiState.LoadingState.Loading,
+            textInput = null,
             event = object : SettingMailCategoryFilterScreenUiState.Event {
                 override fun onClickRetry() {
                     pagingModel.fetch()
@@ -86,6 +124,7 @@ public class SettingMailCategoryFilterViewModel(
 
                     uiState.copy(
                         loadingState = loadingState,
+                        textInput = viewModelState.textInputDialog,
                     )
                 }
             }
@@ -106,5 +145,6 @@ public class SettingMailCategoryFilterViewModel(
 
     private data class ViewModelState(
         val apolloResponseStates: List<ApolloResponseState<ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data>>> = listOf(),
+        val textInputDialog: SettingMailCategoryFilterScreenUiState.TextInput? = null,
     )
 }

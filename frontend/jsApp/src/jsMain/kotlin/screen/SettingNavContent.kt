@@ -22,6 +22,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.ImapSettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.ImportedMailCategoryFilterScreenPagingModel
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.SettingImportedMailCategoryFilterApi
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.SettingMailCategoryFilterViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
@@ -120,7 +121,8 @@ internal fun SettingNavContent(
                         coroutineScope = coroutineScope,
                         pagingModel = ImportedMailCategoryFilterScreenPagingModel(
                             coroutineScope = coroutineScope,
-                        )
+                        ),
+                        api = SettingImportedMailCategoryFilterApi()
                     )
                 }
                 SettingMailCategoryFilterScreen(

@@ -18,3 +18,11 @@ query ImportedMailCategoryFiltersScreenPaging($query: ImportedMailCategoryFilter
         }
     }
 }
+
+mutation ImportedMailCategoryFiltersScreenAddImportedMailCategory($input: AddImportedMailCategoryFilterInput!) {
+    userMutation {
+        addImportedMailCategoryFilter(input: $input) {
+            id
+        }
+    }
+}
