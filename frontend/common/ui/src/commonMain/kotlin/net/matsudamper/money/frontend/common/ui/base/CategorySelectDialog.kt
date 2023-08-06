@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.addmoneyusage
+package net.matsudamper.money.frontend.common.ui.base
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,7 +37,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 
-public data class AddMoneyUsageScreenCategorySelectDialogUiState(
+public data class CategorySelectDialogUiState(
     val screenType: Screen,
     val event: Event,
 ) {
@@ -51,12 +51,12 @@ public data class AddMoneyUsageScreenCategorySelectDialogUiState(
         ) : Screen
 
         public data class Category(
-            val categories: ImmutableList<AddMoneyUsageScreenCategorySelectDialogUiState.Category>,
+            val categories: ImmutableList<CategorySelectDialogUiState.Category>,
             val onBackRequest: () -> Unit,
         ) : Screen
 
         public data class SubCategory(
-            val subCategories: ImmutableList<AddMoneyUsageScreenCategorySelectDialogUiState.Category>?,
+            val subCategories: ImmutableList<CategorySelectDialogUiState.Category>?,
             val onBackRequest: () -> Unit,
         ) : Screen
     }
@@ -76,7 +76,7 @@ public data class AddMoneyUsageScreenCategorySelectDialogUiState(
 
 @Composable
 internal fun CategorySelectDialog(
-    uiState: AddMoneyUsageScreenCategorySelectDialogUiState,
+    uiState: CategorySelectDialogUiState,
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
@@ -104,7 +104,7 @@ internal fun CategorySelectDialog(
                     .padding(12.dp),
             ) {
                 when (val screenTypeState = uiState.screenType) {
-                    is AddMoneyUsageScreenCategorySelectDialogUiState.Screen.Root -> {
+                    is CategorySelectDialogUiState.Screen.Root -> {
                         SelectedSection(
                             onClick = { screenTypeState.onClickCategory() },
                             enabled = true,
@@ -141,7 +141,7 @@ internal fun CategorySelectDialog(
                         }
                     }
 
-                    is AddMoneyUsageScreenCategorySelectDialogUiState.Screen.Category -> {
+                    is CategorySelectDialogUiState.Screen.Category -> {
                         CategoryPage(
                             items = screenTypeState.categories,
                             onBackRequest = { screenTypeState.onBackRequest() },
@@ -151,7 +151,7 @@ internal fun CategorySelectDialog(
                         )
                     }
 
-                    is AddMoneyUsageScreenCategorySelectDialogUiState.Screen.SubCategory -> {
+                    is CategorySelectDialogUiState.Screen.SubCategory -> {
                         CategoryPage(
                             items = screenTypeState.subCategories,
                             onBackRequest = { screenTypeState.onBackRequest() },
@@ -169,7 +169,7 @@ internal fun CategorySelectDialog(
 @Composable
 private fun CategoryPage(
     modifier: Modifier = Modifier,
-    items: ImmutableList<AddMoneyUsageScreenCategorySelectDialogUiState.Category>?,
+    items: ImmutableList<CategorySelectDialogUiState.Category>?,
     title: @Composable () -> Unit,
     onBackRequest: () -> Unit,
 ) {

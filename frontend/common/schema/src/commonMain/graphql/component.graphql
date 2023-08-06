@@ -1,4 +1,4 @@
-query AddMoneyUsageScreenCategoriesPaging($input: MoneyUsageCategoriesInput!) {
+query MoneyUsageSelectDialogCategoriesPaging($input: MoneyUsageCategoriesInput!) {
     user {
         moneyUsageCategories(input: $input) {
             cursor
@@ -9,8 +9,7 @@ query AddMoneyUsageScreenCategoriesPaging($input: MoneyUsageCategoriesInput!) {
         }
     }
 }
-
-query AddMoneyUsageScreenSubCategoriesPaging(
+query MoneyUsageSelectDialogSubCategoriesPaging(
     $categoryId: MoneyUsageCategoryId!,
     $query: MoneyUsageSubCategoryQuery!,
 ) {

@@ -1,7 +1,9 @@
 package net.matsudamper.money.frontend.graphql.lib
 
+import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,25 +30,23 @@ public class ApolloResponseCollector<D : Query.Data>(
     public val flow: StateFlow<ApolloResponseState<ApolloResponse<D>>> = _flow.asStateFlow()
     private var job: Job = Job()
 
-    public suspend fun fetch() {
+    public fun fetch(coroutineScope: CoroutineScope) {
         job.cancel()
-        job = Job().also { job ->
-            CoroutineScope(job).launch {
-                apolloClient
-                    .query(query)
-                    .fetchPolicy(fetchPolicy)
-                    .watch(
-                        fetchThrows = fetchThrows,
-                        refetchThrows = refetchThrows,
-                    )
-                    .catch {
-                        _flow.value = ApolloResponseState.failure(it)
-                    }
-                    .collect {
-                        println("collect: Hoge($debug)")
-                        _flow.value = ApolloResponseState.success(it)
-                    }
-            }
+        job = coroutineScope.launch {
+            apolloClient
+                .query(query)
+                .fetchPolicy(fetchPolicy)
+                .watch(
+                    fetchThrows = fetchThrows,
+                    refetchThrows = refetchThrows,
+                )
+                .catch {
+                    _flow.value = ApolloResponseState.failure(it)
+                }
+                .collect {
+                    println("collect: Hoge($debug)")
+                    _flow.value = ApolloResponseState.success(it)
+                }
         }
     }
 

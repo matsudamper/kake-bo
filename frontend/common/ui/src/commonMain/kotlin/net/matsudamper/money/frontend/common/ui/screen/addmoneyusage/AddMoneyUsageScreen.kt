@@ -37,6 +37,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
+import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
+import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.layout.Calendar
 import net.matsudamper.money.frontend.common.ui.layout.NumberInput
@@ -45,7 +47,7 @@ import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.Html
 public data class AddMoneyUsageScreenUiState(
     val calendarDialog: CalendarDialog?,
     val fullScreenTextInputDialog: FullScreenTextInputDialog?,
-    val categorySelectDialog: AddMoneyUsageScreenCategorySelectDialogUiState?,
+    val categorySelectDialog: CategorySelectDialogUiState?,
     val date: String,
     val title: String,
     val description: String,

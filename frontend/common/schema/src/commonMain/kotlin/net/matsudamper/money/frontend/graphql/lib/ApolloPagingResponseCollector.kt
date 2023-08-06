@@ -39,7 +39,7 @@ class ApolloPagingResponseCollector<D : Query.Data>(
     fun lastRetry() {
         coroutineScope.launch {
             when (collectorFlow.value.lastOrNull()?.flow?.value) {
-                is ApolloResponseState.Failure -> collectorFlow.value.lastOrNull()?.fetch()
+                is ApolloResponseState.Failure -> collectorFlow.value.lastOrNull()?.fetch(this)
                 is ApolloResponseState.Loading,
                 is ApolloResponseState.Success,
                 null,
@@ -58,7 +58,7 @@ class ApolloPagingResponseCollector<D : Query.Data>(
                 debug = debug,
             )
         coroutineScope.launch {
-            collector.fetch()
+            collector.fetch(this)
         }
         collectorFlow.update {
             it + collector

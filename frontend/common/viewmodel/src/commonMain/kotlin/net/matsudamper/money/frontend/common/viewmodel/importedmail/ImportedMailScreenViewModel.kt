@@ -144,7 +144,7 @@ public class ImportedMailScreenViewModel(
 
     private fun fetch() {
         coroutineScope.launch {
-            apolloResponseCollector.fetch()
+            apolloResponseCollector.fetch(this)
         }
     }
 

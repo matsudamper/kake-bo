@@ -4,6 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -14,16 +15,26 @@ import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import net.matsudamper.money.element.MoneyUsageCategoryId
-import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
-import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreenCategorySelectDialogUiState
+import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreenUiState
-import net.matsudamper.money.frontend.graphql.AddMoneyUsageScreenCategoriesPagingQuery
-import net.matsudamper.money.frontend.graphql.AddMoneyUsageScreenSubCategoriesPagingQuery
+import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 
 public class AddMoneyUsageViewModel(
     private val coroutineScope: CoroutineScope,
     private val graphqlApi: AddMoneyUsageScreenApi,
 ) {
+    private val categorySelectDialogViewModel = object {
+        private val event: CategorySelectDialogViewModel.Event = object : CategorySelectDialogViewModel.Event {
+            override fun categorySelected(id: MoneyUsageCategoryId) {
+                viewModel.fetchSubCategories(id)
+            }
+        }
+        val viewModel = CategorySelectDialogViewModel(
+            coroutineScope = coroutineScope,
+            event = event,
+        )
+    }.viewModel
+
     private val viewModelStateFlow = MutableStateFlow(
         ViewModelState(),
     )
@@ -80,16 +91,9 @@ public class AddMoneyUsageViewModel(
         }
 
         override fun onClickCategoryChange() {
+            categorySelectDialogViewModel.showDialog()
             coroutineScope.launch {
-                fetchCategories()
-                viewModelStateFlow.update {
-                    it.copy(
-                        categorySelectDialog = ViewModelState.CategorySelectDialog(
-                            categorySet = viewModelStateFlow.value.usageCategorySet,
-                            screenType = ViewModelState.CategorySelectDialog.ScreenType.Root,
-                        ),
-                    )
-                }
+                categorySelectDialogViewModel.fetchCategory()
             }
         }
 
@@ -148,6 +152,27 @@ public class AddMoneyUsageViewModel(
                 viewModelState.copy(
                     textInputDialog = null,
                 )
+            }
+        }
+    }
+
+    init {
+        coroutineScope.launch {
+            categorySelectDialogViewModel.getUiStateFlow().collectLatest { categoryUiState ->
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        categorySelectDialog = categoryUiState,
+                    )
+                }
+            }
+        }
+        coroutineScope.launch {
+            categorySelectDialogViewModel.viewModelStateFlow.collectLatest { categoryViewModelState ->
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        usageCategorySet = categoryViewModelState.usageCategorySet,
+                    )
+                }
             }
         }
     }
@@ -230,192 +255,22 @@ public class AddMoneyUsageViewModel(
                             val subCategory = categorySet.subCategory?.name ?: return@category default
                             "$category / $subCategory"
                         },
-                        categorySelectDialog = if (viewModelState.categorySelectDialog != null) {
-                            createCategorySelectDialogUiState(
-                                categories = viewModelState.categories,
-                                categoryDialogViewModelState = viewModelState.categorySelectDialog,
-                                subCategories = viewModelState.subCategories,
-                            )
-                        } else {
-                            null
-                        },
+                        categorySelectDialog = viewModelState.categorySelectDialog,
                     )
                 }
             }
         }
     }.asStateFlow()
 
-    private fun createCategorySelectDialogUiState(
-        categories: List<AddMoneyUsageScreenCategoriesPagingQuery.Node>,
-        subCategories: Map<MoneyUsageCategoryId, List<AddMoneyUsageScreenSubCategoriesPagingQuery.Node>>,
-        categoryDialogViewModelState: ViewModelState.CategorySelectDialog,
-    ): AddMoneyUsageScreenCategorySelectDialogUiState {
-        val categorySet = categoryDialogViewModelState.categorySet
-
-        fun changeRootScreen() {
-            viewModelStateFlow.update {
-                it.copy(
-                    categorySelectDialog = categoryDialogViewModelState.copy(
-                        screenType = ViewModelState.CategorySelectDialog.ScreenType.Root,
-                    ),
-                )
-            }
-        }
-
-        return AddMoneyUsageScreenCategorySelectDialogUiState(
-            screenType = when (categoryDialogViewModelState.screenType) {
-                ViewModelState.CategorySelectDialog.ScreenType.Root -> {
-                    AddMoneyUsageScreenCategorySelectDialogUiState.Screen.Root(
-                        category = categorySet.category?.name ?: "未選択",
-                        subCategory = categorySet.subCategory?.name ?: "未選択",
-                        enableSubCategory = categorySet.category != null,
-                        onClickCategory = {
-                            viewModelStateFlow.update {
-                                it.copy(
-                                    categorySelectDialog = categoryDialogViewModelState.copy(
-                                        screenType = ViewModelState.CategorySelectDialog.ScreenType.Category,
-                                    ),
-                                )
-                            }
-                        },
-                        onClickSubCategory = {
-                            viewModelStateFlow.update {
-                                it.copy(
-                                    categorySelectDialog = categoryDialogViewModelState.copy(
-                                        screenType = ViewModelState.CategorySelectDialog.ScreenType.SubCategory,
-                                    ),
-                                )
-                            }
-                        },
-                    )
-                }
-
-                ViewModelState.CategorySelectDialog.ScreenType.Category -> {
-                    AddMoneyUsageScreenCategorySelectDialogUiState.Screen.Category(
-                        categories = categories.map { item ->
-                            AddMoneyUsageScreenCategorySelectDialogUiState.Category(
-                                name = item.name,
-                                isSelected = item.id == categorySet.category?.id,
-                                onSelected = {
-                                    coroutineScope.launch {
-                                        fetchSubCategories(item.id)
-                                    }
-                                    viewModelStateFlow.update {
-                                        it.copy(
-                                            categorySelectDialog = categoryDialogViewModelState.copy(
-                                                screenType = ViewModelState.CategorySelectDialog.ScreenType.Root,
-                                                categorySet = categorySet.copy(
-                                                    category = item,
-                                                    subCategory = null,
-                                                ),
-                                            ),
-                                        )
-                                    }
-                                },
-                            )
-                        }.toImmutableList(),
-                        onBackRequest = { changeRootScreen() },
-                    )
-                }
-
-                ViewModelState.CategorySelectDialog.ScreenType.SubCategory -> {
-                    AddMoneyUsageScreenCategorySelectDialogUiState.Screen.SubCategory(
-                        subCategories = subCategories[categorySet.category?.id]?.map { item ->
-                            AddMoneyUsageScreenCategorySelectDialogUiState.Category(
-                                name = item.name,
-                                isSelected = item.id == categorySet.subCategory?.id,
-                                onSelected = {
-                                    viewModelStateFlow.update {
-                                        it.copy(
-                                            categorySelectDialog = categoryDialogViewModelState.copy(
-                                                screenType = ViewModelState.CategorySelectDialog.ScreenType.Root,
-                                                categorySet = categorySet.copy(
-                                                    subCategory = item,
-                                                ),
-                                            ),
-                                        )
-                                    }
-                                },
-                            )
-                        }?.toImmutableList(),
-                        onBackRequest = { changeRootScreen() },
-                    )
-                }
-            },
-            event = object : AddMoneyUsageScreenCategorySelectDialogUiState.Event {
-                override fun dismissRequest() {
-                    viewModelStateFlow.update {
-                        it.copy(
-                            categorySelectDialog = null,
-                        )
-                    }
-                }
-
-                override fun selectCompleted() {
-                    viewModelStateFlow.update {
-                        it.copy(
-                            usageCategorySet = it.categorySelectDialog?.categorySet ?: return,
-                            categorySelectDialog = null,
-                        )
-                    }
-                }
-            },
-        )
-    }
-
-    // TODO paging
-    // TODO error handling
-    private suspend fun fetchCategories() {
-        val categories = graphqlApi.getCategories()?.data?.user?.moneyUsageCategories ?: return
-
-        viewModelStateFlow.update {
-            it.copy(
-                categories = categories.nodes,
-            )
-        }
-    }
-
-    // TODO paging
-    // TODO error handling
-    private suspend fun fetchSubCategories(id: MoneyUsageCategoryId) {
-        val categories = graphqlApi.getSubCategoriesPaging(id = id)?.data?.user?.moneyUsageCategory
-            ?.subCategories?.nodes ?: return
-
-        viewModelStateFlow.update {
-            it.copy(
-                subCategories = it.subCategories
-                    .plus(id to categories),
-            )
-        }
-    }
-
     private data class ViewModelState(
         val usageDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
         val usageTitle: String = "",
         val usageDescription: String = "",
-        val usageCategorySet: CategorySet = CategorySet(),
         val usageAmount: Int = 0,
         val numberInputDialog: AddMoneyUsageScreenUiState.NumberInputDialog? = null,
-        val categorySelectDialog: CategorySelectDialog? = null,
-        val categories: List<AddMoneyUsageScreenCategoriesPagingQuery.Node> = listOf(),
-        val subCategories: Map<MoneyUsageCategoryId, List<AddMoneyUsageScreenSubCategoriesPagingQuery.Node>> = mapOf(),
         val showCalendarDialog: Boolean = false,
         val textInputDialog: AddMoneyUsageScreenUiState.FullScreenTextInputDialog? = null,
-    ) {
-        data class CategorySet(
-            val category: AddMoneyUsageScreenCategoriesPagingQuery.Node? = null,
-            val subCategory: AddMoneyUsageScreenSubCategoriesPagingQuery.Node? = null,
-        )
-
-        data class CategorySelectDialog(
-            val categorySet: CategorySet,
-            val screenType: ScreenType,
-        ) {
-            enum class ScreenType {
-                Root,
-                Category,
-                SubCategory,
-            }
-        }
-    }
+        val categorySelectDialog: CategorySelectDialogUiState? = null,
+        val usageCategorySet: CategorySelectDialogViewModel.CategorySet = CategorySelectDialogViewModel.CategorySet(),
+    )
 }

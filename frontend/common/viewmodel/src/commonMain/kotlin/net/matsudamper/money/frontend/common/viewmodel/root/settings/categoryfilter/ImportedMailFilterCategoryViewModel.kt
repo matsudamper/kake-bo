@@ -33,7 +33,7 @@ public class ImportedMailFilterCategoryViewModel(
             event = object : ImportedMailFilterCategoryScreenUiState.Event {
                 override fun onViewInitialized() {
                     coroutineScope.launch {
-                        apiResponseCollector.fetch()
+                        apiResponseCollector.fetch(this)
                     }
                 }
             },
