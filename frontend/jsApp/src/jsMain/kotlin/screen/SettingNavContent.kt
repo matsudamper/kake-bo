@@ -1,6 +1,7 @@
 package screen
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -125,11 +126,20 @@ internal fun SettingNavContent(
                         api = SettingImportedMailCategoryFilterApi()
                     )
                 }
+                LaunchedEffect(viewModel.eventHandler, viewModelEventHandlers) {
+                    viewModelEventHandlers.handle(viewModel.eventHandler)
+                }
                 SettingMailCategoryFilterScreen(
                     modifier = Modifier.fillMaxSize(),
                     uiState = viewModel.uiStateFlow.collectAsState().value,
                     listener = rootScreenScaffoldListener,
                 )
+            }
+        }
+
+        is ScreenStructure.Root.Settings.MailCategoryFilter -> {
+            holder.SaveableStateProvider(state::class.toString()) {
+                Text("TODO")
             }
         }
     }

@@ -10,7 +10,10 @@ import kotlinx.coroutines.launch
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingMailCategoryFilterScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFiltersScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
@@ -21,6 +24,9 @@ public class SettingMailCategoryFilterViewModel(
     private val api: SettingImportedMailCategoryFilterApi,
 ) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState())
+
+    private val eventSender = EventSender<Event>()
+    public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
     private val loadedEvent = object : SettingMailCategoryFilterScreenUiState.LoadedEvent {
         override fun onClickAdd() {
@@ -49,7 +55,7 @@ public class SettingMailCategoryFilterViewModel(
                 },
                 dismiss = {
                     dismissTextInputDialog()
-                }
+                },
             )
         }
 
@@ -103,13 +109,21 @@ public class SettingMailCategoryFilterViewModel(
                                             is ApolloResponseState.Loading -> null
                                             is ApolloResponseState.Success -> items.value
                                         }
-                                    }.map {
-                                        it.data?.user?.importedMailCategoryFilters?.nodes.orEmpty().map { item ->
+                                    }.map { apolloResponse ->
+                                        apolloResponse.data?.user?.importedMailCategoryFilters?.nodes.orEmpty().map { item ->
                                             SettingMailCategoryFilterScreenUiState.Item(
                                                 title = item.title,
                                                 event = object : SettingMailCategoryFilterScreenUiState.ItemEvent {
                                                     override fun onClick() {
-                                                        // TODO
+                                                        coroutineScope.launch {
+                                                            eventSender.send {
+                                                                it.navigate(
+                                                                    ScreenStructure.Root.Settings.MailCategoryFilter(
+                                                                        id = item.id,
+                                                                    ),
+                                                                )
+                                                            }
+                                                        }
                                                     }
                                                 },
                                             )
@@ -141,6 +155,10 @@ public class SettingMailCategoryFilterViewModel(
                 }
             }
         }
+    }
+
+    public interface Event {
+        public fun navigate(structure: ScreenStructure)
     }
 
     private data class ViewModelState(

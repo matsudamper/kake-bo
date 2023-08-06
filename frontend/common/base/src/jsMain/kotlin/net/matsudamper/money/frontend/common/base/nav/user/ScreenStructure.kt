@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.base.nav.user
 
 import io.ktor.http.ParametersBuilder
 import io.ktor.http.formUrlEncode
+import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 
@@ -36,6 +37,16 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
 
             public object MailCategoryFilters : Settings {
                 override val direction: Screens = Screens.MailCategoryFilters
+            }
+
+            public data class MailCategoryFilter(
+                val id: ImportedMailCategoryFilterId,
+            ) : Settings {
+                override val direction: Screens = Screens.MailCategoryFilter
+
+                override fun createUrl(): String {
+                    return direction.placeholderUrl.replace("{id}", id.id.toString())
+                }
             }
         }
 

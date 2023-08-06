@@ -8,6 +8,7 @@ import kotlinx.browser.window
 import io.ktor.http.ParametersBuilder
 import io.ktor.util.StringValues
 import io.ktor.util.toMap
+import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
@@ -150,11 +151,18 @@ public class ScreenNavControllerImpl(
                     },
                 )
             }
+
             null,
             Screens.NotFound,
             -> ScreenStructure.NotFound
 
             Screens.MailCategoryFilters -> ScreenStructure.Root.Settings.MailCategoryFilters
+            Screens.MailCategoryFilter -> ScreenStructure.Root.Settings.MailCategoryFilter(
+                id = run id@{
+                    val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
+                    ImportedMailCategoryFilterId(id)
+                },
+            )
         }
     }
 
