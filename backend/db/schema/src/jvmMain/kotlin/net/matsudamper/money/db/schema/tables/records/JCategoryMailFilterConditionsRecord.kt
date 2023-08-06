@@ -25,7 +25,7 @@ open class JCategoryMailFilterConditionsRecord() : UpdatableRecordImpl<JCategory
         set(value): Unit = set(0, value)
         get(): Int? = get(0) as Int?
 
-    open var categoryMailFilterConditionGroupId: Int?
+    open var categoryMailFilterId: Int?
         set(value): Unit = set(1, value)
         get(): Int? = get(1) as Int?
 
@@ -66,7 +66,7 @@ open class JCategoryMailFilterConditionsRecord() : UpdatableRecordImpl<JCategory
     override fun fieldsRow(): Row8<Int?, Int?, Int?, String?, Int?, Int?, LocalDateTime?, LocalDateTime?> = super.fieldsRow() as Row8<Int?, Int?, Int?, String?, Int?, Int?, LocalDateTime?, LocalDateTime?>
     override fun valuesRow(): Row8<Int?, Int?, Int?, String?, Int?, Int?, LocalDateTime?, LocalDateTime?> = super.valuesRow() as Row8<Int?, Int?, Int?, String?, Int?, Int?, LocalDateTime?, LocalDateTime?>
     override fun field1(): Field<Int?> = JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS.CATEGORY_MAIL_FILTER_CONDITION_ID
-    override fun field2(): Field<Int?> = JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS.CATEGORY_MAIL_FILTER_CONDITION_GROUP_ID
+    override fun field2(): Field<Int?> = JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS.CATEGORY_MAIL_FILTER_ID
     override fun field3(): Field<Int?> = JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS.USER_ID
     override fun field4(): Field<String?> = JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS.TEXT
     override fun field5(): Field<Int?> = JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID
@@ -74,7 +74,7 @@ open class JCategoryMailFilterConditionsRecord() : UpdatableRecordImpl<JCategory
     override fun field7(): Field<LocalDateTime?> = JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS.CREATED_DATETIME
     override fun field8(): Field<LocalDateTime?> = JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS.UPDATE_DATETIME
     override fun component1(): Int? = categoryMailFilterConditionId
-    override fun component2(): Int? = categoryMailFilterConditionGroupId
+    override fun component2(): Int? = categoryMailFilterId
     override fun component3(): Int? = userId
     override fun component4(): String? = text
     override fun component5(): Int? = categoryMailFilterDatasourceTypeId
@@ -82,7 +82,7 @@ open class JCategoryMailFilterConditionsRecord() : UpdatableRecordImpl<JCategory
     override fun component7(): LocalDateTime? = createdDatetime
     override fun component8(): LocalDateTime? = updateDatetime
     override fun value1(): Int? = categoryMailFilterConditionId
-    override fun value2(): Int? = categoryMailFilterConditionGroupId
+    override fun value2(): Int? = categoryMailFilterId
     override fun value3(): Int? = userId
     override fun value4(): String? = text
     override fun value5(): Int? = categoryMailFilterDatasourceTypeId
@@ -145,9 +145,9 @@ open class JCategoryMailFilterConditionsRecord() : UpdatableRecordImpl<JCategory
     /**
      * Create a detached, initialised JCategoryMailFilterConditionsRecord
      */
-    constructor(categoryMailFilterConditionId: Int? = null, categoryMailFilterConditionGroupId: Int? = null, userId: Int? = null, text: String? = null, categoryMailFilterDatasourceTypeId: Int? = null, categoryMailFilterConditionTypeId: Int? = null, createdDatetime: LocalDateTime? = null, updateDatetime: LocalDateTime? = null): this() {
+    constructor(categoryMailFilterConditionId: Int? = null, categoryMailFilterId: Int? = null, userId: Int? = null, text: String? = null, categoryMailFilterDatasourceTypeId: Int? = null, categoryMailFilterConditionTypeId: Int? = null, createdDatetime: LocalDateTime? = null, updateDatetime: LocalDateTime? = null): this() {
         this.categoryMailFilterConditionId = categoryMailFilterConditionId
-        this.categoryMailFilterConditionGroupId = categoryMailFilterConditionGroupId
+        this.categoryMailFilterId = categoryMailFilterId
         this.userId = userId
         this.text = text
         this.categoryMailFilterDatasourceTypeId = categoryMailFilterDatasourceTypeId

@@ -10,7 +10,7 @@ import java.util.function.Function
 import kotlin.collections.List
 
 import net.matsudamper.money.db.schema.JMoney
-import net.matsudamper.money.db.schema.indexes.CATEGORY_MAIL_FILTER_CONDITIONS_USER_CATEGORY_MAIL_FILTER_CONDITION_GROUP_ID
+import net.matsudamper.money.db.schema.indexes.CATEGORY_MAIL_FILTER_CONDITIONS_CATEGORY_MAIL_FILTER_ID
 import net.matsudamper.money.db.schema.indexes.CATEGORY_MAIL_FILTER_CONDITIONS_USER_CATEGORY_MAIL_FILTER_CONDITION_ID
 import net.matsudamper.money.db.schema.keys.KEY_CATEGORY_MAIL_FILTER_CONDITIONS_PRIMARY
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionsRecord
@@ -77,9 +77,9 @@ open class JCategoryMailFilterConditions(
 
     /**
      * The column
-     * <code>money.category_mail_filter_conditions.category_mail_filter_condition_group_id</code>.
+     * <code>money.category_mail_filter_conditions.category_mail_filter_id</code>.
      */
-    val CATEGORY_MAIL_FILTER_CONDITION_GROUP_ID: TableField<JCategoryMailFilterConditionsRecord, Int?> = createField(DSL.name("category_mail_filter_condition_group_id"), SQLDataType.INTEGER.nullable(false), this, "")
+    val CATEGORY_MAIL_FILTER_ID: TableField<JCategoryMailFilterConditionsRecord, Int?> = createField(DSL.name("category_mail_filter_id"), SQLDataType.INTEGER.nullable(false), this, "")
 
     /**
      * The column <code>money.category_mail_filter_conditions.user_id</code>.
@@ -138,7 +138,7 @@ open class JCategoryMailFilterConditions(
 
     constructor(child: Table<out Record>, key: ForeignKey<out Record, JCategoryMailFilterConditionsRecord>): this(Internal.createPathAlias(child, key), child, key, CATEGORY_MAIL_FILTER_CONDITIONS, null)
     override fun getSchema(): Schema? = if (aliased()) null else JMoney.MONEY
-    override fun getIndexes(): List<Index> = listOf(CATEGORY_MAIL_FILTER_CONDITIONS_USER_CATEGORY_MAIL_FILTER_CONDITION_GROUP_ID, CATEGORY_MAIL_FILTER_CONDITIONS_USER_CATEGORY_MAIL_FILTER_CONDITION_ID)
+    override fun getIndexes(): List<Index> = listOf(CATEGORY_MAIL_FILTER_CONDITIONS_CATEGORY_MAIL_FILTER_ID, CATEGORY_MAIL_FILTER_CONDITIONS_USER_CATEGORY_MAIL_FILTER_CONDITION_ID)
     override fun getIdentity(): Identity<JCategoryMailFilterConditionsRecord, Int?> = super.getIdentity() as Identity<JCategoryMailFilterConditionsRecord, Int?>
     override fun getPrimaryKey(): UniqueKey<JCategoryMailFilterConditionsRecord> = KEY_CATEGORY_MAIL_FILTER_CONDITIONS_PRIMARY
     override fun `as`(alias: String): JCategoryMailFilterConditions = JCategoryMailFilterConditions(DSL.name(alias), this)

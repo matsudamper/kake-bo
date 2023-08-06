@@ -118,27 +118,15 @@ CREATE TABLE money_usages_mails_relation
 
 CREATE TABLE category_mail_filters
 (
-    category_mail_filter_id     INT                                not null PRIMARY KEY AUTO_INCREMENT,
-    user_id                     INT                                not null,
-    title                       VARCHAR(500)                       not null,
-    money_usage_sub_category_id INT,
-    created_datetime            DATETIME DEFAULT CURRENT_TIMESTAMP not null,
-    update_datetime             DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP,
-    order_number                INT                                not null,
-    index user_category_mail_filter_id (user_id, category_mail_filter_id, order_number)
-);
-
-CREATE TABLE category_mail_filter_condition_groups
-(
-    category_mail_filter_condition_group_id         INT                                not null PRIMARY KEY AUTO_INCREMENT,
-    category_mail_filter_id                         INT                                not null,
+    category_mail_filter_id                         INT                                not null PRIMARY KEY AUTO_INCREMENT,
     user_id                                         INT                                not null,
     title                                           VARCHAR(500)                       not null,
+    money_usage_sub_category_id                     INT,
     category_mail_filter_condition_operator_type_id INT                                not null,
     created_datetime                                DATETIME DEFAULT CURRENT_TIMESTAMP not null,
     update_datetime                                 DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP,
-    index user_category_mail_filter_condition_group_id (user_id, category_mail_filter_condition_group_id),
-    index user_category_mail_filter_id (user_id, category_mail_filter_id)
+    order_number                                    INT                                not null,
+    index user_category_mail_filter_id (user_id, category_mail_filter_id, order_number)
 );
 
 CREATE TABLE category_mail_filter_condition_operator_type
@@ -154,7 +142,7 @@ VALUES (0, 'OR'),
 CREATE TABLE category_mail_filter_conditions
 (
     category_mail_filter_condition_id       INT                                not null PRIMARY KEY AUTO_INCREMENT,
-    category_mail_filter_condition_group_id INT                                not null,
+    category_mail_filter_id INT                                not null,
     user_id                                 INT                                not null,
     text                                    VARCHAR(500)                       not null,
     category_mail_filter_datasource_type_id INT                                not null,
@@ -162,7 +150,7 @@ CREATE TABLE category_mail_filter_conditions
     created_datetime                        DATETIME DEFAULT CURRENT_TIMESTAMP not null,
     update_datetime                         DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP,
     index user_category_mail_filter_condition_id (user_id, category_mail_filter_condition_id),
-    index user_category_mail_filter_condition_group_id (user_id, category_mail_filter_condition_group_id)
+    index category_mail_filter_id (user_id, category_mail_filter_id)
 );
 
 CREATE TABLE category_mail_filter_datasource_type
