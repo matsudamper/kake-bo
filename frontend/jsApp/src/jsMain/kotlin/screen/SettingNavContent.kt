@@ -22,9 +22,9 @@ import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingRoot
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.ImapSettingViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.settings.ImportedMailCategoryFilterScreenPagingModel
-import net.matsudamper.money.frontend.common.viewmodel.root.settings.SettingImportedMailCategoryFilterApi
-import net.matsudamper.money.frontend.common.viewmodel.root.settings.SettingMailCategoryFilterViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.filtercategories.ImportedMailCategoryFilterScreenPagingModel
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.filtercategories.SettingImportedMailCategoryFilterApi
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.filtercategories.SettingMailCategoryFilterViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingScreenCategoryApi

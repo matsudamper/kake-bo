@@ -1,8 +1,8 @@
-package net.matsudamper.money.frontend.common.viewmodel.root.settings
+package net.matsudamper.money.frontend.common.viewmodel.root.settings.filtercategories
 
-import kotlinx.coroutines.CoroutineScope
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
+import kotlinx.coroutines.CoroutineScope
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFiltersScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloPagingResponseCollector
