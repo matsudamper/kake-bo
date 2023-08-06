@@ -6,6 +6,7 @@ input ImportedMailCategoryFiltersQuery {
 type ImportedMailCategoryFiltersConnection {
     nodes: [ImportedMailCategoryFilter!]!
     cursor: String
+    isLast: Boolean!
 }
 
 type ImportedMailCategoryFilter {

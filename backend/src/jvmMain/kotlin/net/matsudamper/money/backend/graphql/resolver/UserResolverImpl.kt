@@ -162,6 +162,7 @@ class UserResolverImpl : UserResolver {
                 cursor = result.cursor?.let { cursor ->
                     ImportedMailCategoryFiltersCursor(cursor).toCursorString()
                 },
+                isLast = result.items.isEmpty(),
             )
         }.toDataFetcher()
     }

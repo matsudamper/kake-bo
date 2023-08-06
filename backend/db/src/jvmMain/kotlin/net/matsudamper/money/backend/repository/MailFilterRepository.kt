@@ -112,7 +112,7 @@ class MailFilterRepository(
                 MailFiltersResult(
                     items = result,
                     cursor = if (lastResult == null) {
-                        null
+                        cursor
                     } else {
                         MailFilterCursor(
                             id = lastResult.importedMailCategoryFilterId,
