@@ -7,7 +7,6 @@ import net.matsudamper.money.db.schema.tables.JCategoryMailFilters
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFiltersRecord
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
-import org.jooq.Record1
 import org.jooq.impl.DSL
 import org.jooq.kotlin.and
 
@@ -54,8 +53,7 @@ class MailFilterRepository(
         return dbConnection.use {
             runCatching {
                 DSL.using(it)
-                    .select(filters)
-                    .from(filters)
+                    .selectFrom(filters)
                     .where(
                         DSL.value(true)
                             .and(filters.USER_ID.eq(userId.id))
@@ -77,8 +75,7 @@ class MailFilterRepository(
         return dbConnection.use {
             runCatching {
                 val result = DSL.using(it)
-                    .select(filters)
-                    .from(filters)
+                    .selectFrom(filters)
                     .where(
                         DSL.value(true)
                             .and(filters.USER_ID.eq(userId.id))
@@ -124,7 +121,7 @@ class MailFilterRepository(
         }
     }
 
-    private fun mapResult(record: Record1<JCategoryMailFiltersRecord>): MailFilter {
+    private fun mapResult(record: JCategoryMailFiltersRecord): MailFilter {
         return MailFilter(
             importedMailCategoryFilterId = ImportedMailCategoryFilterId(record.get(filters.CATEGORY_MAIL_FILTER_ID)!!),
             userId = UserId(record.get(filters.USER_ID)!!),
