@@ -57,7 +57,7 @@ type ImportedMailAttributes {
 type ImportedMailCategoryCondition {
     conditionType: ImportedMailCategoryFilterConditionType!
     dataSourceType: ImportedMailCategoryFilterDataSourceType!
-    id: ImportedMailFilterId!
+    id: ImportedMailCategoryFilterConditionId!
     text: String!
 }
 
@@ -252,9 +252,9 @@ enum UserMailError {
     MailServerNotConnected
 }
 
-scalar ImportedMailCategoryFilterId
+scalar ImportedMailCategoryFilterConditionId
 
-scalar ImportedMailFilterId
+scalar ImportedMailCategoryFilterId
 
 scalar ImportedMailId
 
