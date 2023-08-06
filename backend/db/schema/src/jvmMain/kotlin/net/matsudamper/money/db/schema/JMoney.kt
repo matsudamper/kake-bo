@@ -7,7 +7,6 @@ package net.matsudamper.money.db.schema
 import kotlin.collections.List
 
 import net.matsudamper.money.db.schema.tables.JAdminSessions
-import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionGroups
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionOperatorType
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionType
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditions
@@ -46,11 +45,6 @@ open class JMoney : SchemaImpl("money", DefaultCatalog.DEFAULT_CATALOG) {
      * The table <code>money.admin_sessions</code>.
      */
     val ADMIN_SESSIONS: JAdminSessions get() = JAdminSessions.ADMIN_SESSIONS
-
-    /**
-     * The table <code>money.category_mail_filter_condition_groups</code>.
-     */
-    val CATEGORY_MAIL_FILTER_CONDITION_GROUPS: JCategoryMailFilterConditionGroups get() = JCategoryMailFilterConditionGroups.CATEGORY_MAIL_FILTER_CONDITION_GROUPS
 
     /**
      * The table
@@ -132,7 +126,6 @@ open class JMoney : SchemaImpl("money", DefaultCatalog.DEFAULT_CATALOG) {
 
     override fun getTables(): List<Table<*>> = listOf(
         JAdminSessions.ADMIN_SESSIONS,
-        JCategoryMailFilterConditionGroups.CATEGORY_MAIL_FILTER_CONDITION_GROUPS,
         JCategoryMailFilterConditionOperatorType.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE,
         JCategoryMailFilterConditionType.CATEGORY_MAIL_FILTER_CONDITION_TYPE,
         JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS,

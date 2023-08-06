@@ -5,7 +5,6 @@ package net.matsudamper.money.db.schema.tables.references
 
 
 import net.matsudamper.money.db.schema.tables.JAdminSessions
-import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionGroups
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionOperatorType
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionType
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditions
@@ -28,11 +27,6 @@ import net.matsudamper.money.db.schema.tables.JUsers
  * The table <code>money.admin_sessions</code>.
  */
 val ADMIN_SESSIONS: JAdminSessions = JAdminSessions.ADMIN_SESSIONS
-
-/**
- * The table <code>money.category_mail_filter_condition_groups</code>.
- */
-val CATEGORY_MAIL_FILTER_CONDITION_GROUPS: JCategoryMailFilterConditionGroups = JCategoryMailFilterConditionGroups.CATEGORY_MAIL_FILTER_CONDITION_GROUPS
 
 /**
  * The table <code>money.category_mail_filter_condition_operator_type</code>.

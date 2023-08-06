@@ -5,7 +5,6 @@ package net.matsudamper.money.db.schema.keys
 
 
 import net.matsudamper.money.db.schema.tables.JAdminSessions
-import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionGroups
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionOperatorType
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionType
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditions
@@ -22,7 +21,6 @@ import net.matsudamper.money.db.schema.tables.JUserPasswords
 import net.matsudamper.money.db.schema.tables.JUserSessions
 import net.matsudamper.money.db.schema.tables.JUsers
 import net.matsudamper.money.db.schema.tables.records.JAdminSessionsRecord
-import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionGroupsRecord
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionOperatorTypeRecord
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionTypeRecord
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionsRecord
@@ -50,7 +48,6 @@ import org.jooq.impl.Internal
 // -------------------------------------------------------------------------
 
 val KEY_ADMIN_SESSIONS_PRIMARY: UniqueKey<JAdminSessionsRecord> = Internal.createUniqueKey(JAdminSessions.ADMIN_SESSIONS, DSL.name("KEY_admin_sessions_PRIMARY"), arrayOf(JAdminSessions.ADMIN_SESSIONS.SESSION_ID), true)
-val KEY_CATEGORY_MAIL_FILTER_CONDITION_GROUPS_PRIMARY: UniqueKey<JCategoryMailFilterConditionGroupsRecord> = Internal.createUniqueKey(JCategoryMailFilterConditionGroups.CATEGORY_MAIL_FILTER_CONDITION_GROUPS, DSL.name("KEY_category_mail_filter_condition_groups_PRIMARY"), arrayOf(JCategoryMailFilterConditionGroups.CATEGORY_MAIL_FILTER_CONDITION_GROUPS.CATEGORY_MAIL_FILTER_CONDITION_GROUP_ID), true)
 val KEY_CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_PRIMARY: UniqueKey<JCategoryMailFilterConditionOperatorTypeRecord> = Internal.createUniqueKey(JCategoryMailFilterConditionOperatorType.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE, DSL.name("KEY_category_mail_filter_condition_operator_type_PRIMARY"), arrayOf(JCategoryMailFilterConditionOperatorType.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID), true)
 val KEY_CATEGORY_MAIL_FILTER_CONDITION_TYPE_PRIMARY: UniqueKey<JCategoryMailFilterConditionTypeRecord> = Internal.createUniqueKey(JCategoryMailFilterConditionType.CATEGORY_MAIL_FILTER_CONDITION_TYPE, DSL.name("KEY_category_mail_filter_condition_type_PRIMARY"), arrayOf(JCategoryMailFilterConditionType.CATEGORY_MAIL_FILTER_CONDITION_TYPE.CATEGORY_MAIL_FILTER_CONDITION_TYPE_ID), true)
 val KEY_CATEGORY_MAIL_FILTER_CONDITIONS_PRIMARY: UniqueKey<JCategoryMailFilterConditionsRecord> = Internal.createUniqueKey(JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS, DSL.name("KEY_category_mail_filter_conditions_PRIMARY"), arrayOf(JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS.CATEGORY_MAIL_FILTER_CONDITION_ID), true)
