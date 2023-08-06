@@ -1,11 +1,15 @@
 package net.matsudamper.money.backend.repository
 
 import net.matsudamper.money.backend.DbConnection
+import net.matsudamper.money.backend.element.ImportedMailCategoryFilterConditionType
+import net.matsudamper.money.backend.element.ImportedMailCategoryFilterDatasourceType
 import net.matsudamper.money.backend.element.ImportedMailFilterCategoryConditionOperator
 import net.matsudamper.money.backend.element.UserId
-import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionGroups
+import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditions
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilters
+import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionsRecord
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFiltersRecord
+import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import org.jooq.impl.DSL
@@ -15,7 +19,7 @@ class MailFilterRepository(
     private val dbConnection: DbConnection,
 ) {
     private val filters = JCategoryMailFilters.CATEGORY_MAIL_FILTERS
-    private val conditionGroups = JCategoryMailFilterConditionGroups.CATEGORY_MAIL_FILTER_CONDITION_GROUPS
+    private val conditions = JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS
 
     fun addFilter(
         title: String,
@@ -116,6 +120,43 @@ class MailFilterRepository(
         }
     }
 
+    fun getConditions(userId: UserId, filterId: ImportedMailCategoryFilterId): Result<MailFilterConditionResult> {
+        return dbConnection.use {
+            runCatching {
+                val result = DSL.using(it)
+                    .selectFrom(conditions)
+                    .where(
+                        DSL.value(true)
+                            .and(conditions.USER_ID.eq(userId.id))
+                            .and(conditions.CATEGORY_MAIL_FILTER_ID.eq(filterId.id)),
+                    )
+                    .fetch()
+
+                MailFilterConditionResult(
+                    filterId = filterId,
+                    conditions = result.map { mapResult(it) },
+                )
+            }
+        }
+    }
+
+    fun getConditions(userId: UserId, filterIds: List<ImportedMailCategoryFilterConditionId>): Result<List<Condition>> {
+        return dbConnection.use {
+            runCatching {
+                val result = DSL.using(it)
+                    .selectFrom(conditions)
+                    .where(
+                        DSL.value(true)
+                            .and(conditions.USER_ID.eq(userId.id))
+                            .and(conditions.CATEGORY_MAIL_FILTER_CONDITION_ID.`in`(filterIds.map { it.id })),
+                    )
+                    .fetch()
+
+                result.map { mapResult(it) }
+            }
+        }
+    }
+
     private fun mapResult(record: JCategoryMailFiltersRecord): MailFilter {
         return MailFilter(
             importedMailCategoryFilterId = ImportedMailCategoryFilterId(record.get(filters.CATEGORY_MAIL_FILTER_ID)!!),
@@ -131,9 +172,27 @@ class MailFilterRepository(
         )
     }
 
+    private fun mapResult(record: JCategoryMailFilterConditionsRecord): Condition {
+        return Condition(
+            conditionId = ImportedMailCategoryFilterConditionId(record.get(conditions.CATEGORY_MAIL_FILTER_CONDITION_ID)!!),
+            text = record.get(conditions.TEXT)!!,
+            conditionType = ImportedMailCategoryFilterConditionType.fromDbValue(
+                record.get(conditions.CATEGORY_MAIL_FILTER_CONDITION_TYPE_ID)!!,
+            ),
+            dataSourceType = ImportedMailCategoryFilterDatasourceType.fromDbValue(
+                record.get(conditions.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID)!!,
+            ),
+        )
+    }
+
     data class MailFiltersResult(
         val items: List<MailFilter>,
         val cursor: MailFilterCursor?,
+    )
+
+    data class MailFilterConditionResult(
+        val filterId: ImportedMailCategoryFilterId,
+        val conditions: List<Condition>,
     )
 
     data class MailFilter(
@@ -143,6 +202,13 @@ class MailFilterRepository(
         val moneyUsageSubCategoryId: MoneyUsageSubCategoryId?,
         val operator: ImportedMailFilterCategoryConditionOperator,
         val orderNumber: Int,
+    )
+
+    data class Condition(
+        val conditionId: ImportedMailCategoryFilterConditionId,
+        val text: String,
+        val conditionType: ImportedMailCategoryFilterConditionType,
+        val dataSourceType: ImportedMailCategoryFilterDatasourceType,
     )
 
     data class MailFilterCursor(

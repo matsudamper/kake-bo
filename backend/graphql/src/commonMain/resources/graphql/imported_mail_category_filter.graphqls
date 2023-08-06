@@ -25,7 +25,7 @@ type ImportedMailCategoryFilter {
 }
 
 type ImportedMailCategoryCondition {
-    id: ImportedMailFilterId!
+    id: ImportedMailCategoryFilterConditionId!
     text: String! @lazy
     dataSourceType: ImportedMailCategoryFilterDataSourceType! @lazy
     conditionType: ImportedMailCategoryFilterConditionType! @lazy

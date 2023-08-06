@@ -4,6 +4,7 @@ import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.DataLoaderDefine
+import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterConditionDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageAssociateByImportedMailDataLoaderDefine
@@ -41,6 +42,10 @@ class DataLoaders(
 
     val importedMailCategoryFilterDataLoader by register {
         ImportedMailCategoryFilterDataLoaderDefine(repositoryFactory)
+    }
+
+    val importedMailCategoryFilterConditionDataLoader by register {
+        ImportedMailCategoryFilterConditionDataLoaderDefine(repositoryFactory)
     }
 
     private fun <K, V> register(

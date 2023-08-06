@@ -4,6 +4,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterConditionDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.element.ImportedMailFilterCategoryConditionOperator
 import net.matsudamper.money.backend.element.UserId
@@ -85,7 +86,34 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
     }
 
     override fun conditions(importedMailCategoryFilter: QlImportedMailCategoryFilter, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<List<QlImportedMailCategoryCondition>?>> {
-        TODO("Not yet implemented")
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+
+        val dataLoader = context.dataLoaders.importedMailCategoryFilterConditionDataLoader.get(env)
+
+        return CompletableFuture.allOf().thenApplyAsync {
+            val result = context.repositoryFactory.createMailFilterRepository()
+                .getConditions(
+                    userId = userId,
+                    filterId = importedMailCategoryFilter.id,
+                ).onFailure {
+                    it.printStackTrace()
+                }.getOrNull() ?: return@thenApplyAsync null
+
+            result.conditions.map { condition ->
+                dataLoader.prime(
+                    ImportedMailCategoryFilterConditionDataLoaderDefine.Key(
+                        userId = userId,
+                        conditionId = condition.conditionId
+                    ),
+                    condition,
+                )
+
+                QlImportedMailCategoryCondition(
+                    id = condition.conditionId,
+                )
+            }
+        }.toDataFetcher()
     }
 
     private fun getImportedMailCategoryFilterFuture(

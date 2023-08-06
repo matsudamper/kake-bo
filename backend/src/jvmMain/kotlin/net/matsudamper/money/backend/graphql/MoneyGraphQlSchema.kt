@@ -34,6 +34,7 @@ import net.matsudamper.money.backend.graphql.resolver.mutation.MutationResolverI
 import net.matsudamper.money.backend.graphql.resolver.mutation.SettingsMutationResolverResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.mutation.UserMutationResolverImpl
 import net.matsudamper.money.backend.graphql.schema.GraphqlSchemaModule
+import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MailId
@@ -125,6 +126,11 @@ object MoneyGraphQlSchema {
                 createIntScalarType(
                     name = "ImportedMailFilterId",
                     deserialize = { ImportedMailFilterId(it) },
+                    serialize = { it.id },
+                ),
+                createIntScalarType(
+                    name = "ImportedMailCategoryFilterConditionId",
+                    deserialize = { ImportedMailCategoryFilterConditionId(it) },
                     serialize = { it.id },
                 ),
                 createIntScalarType(
