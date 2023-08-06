@@ -20,4 +20,28 @@ type ImportedMailCategoryFilter {
     subCategory: MoneyUsageSubCategory @lazy
     orderNumber: Int! @lazy
     operator: ImportedMailFilterCategoryConditionOperator! @lazy
+
+    conditions: [ImportedMailCategoryCondition!] @lazy
+}
+
+type ImportedMailCategoryCondition {
+    id: ImportedMailFilterId!
+    text: String! @lazy
+    dataSourceType: ImportedMailCategoryFilterDataSourceType! @lazy
+    conditionType: ImportedMailCategoryFilterConditionType! @lazy
+}
+
+enum ImportedMailCategoryFilterDataSourceType {
+    MailTitle
+    MailFrom
+    MailBody
+    Title
+    ServiceName
+}
+
+enum ImportedMailCategoryFilterConditionType {
+    Include
+    NotInclude
+    Equal
+    NotEqual
 }

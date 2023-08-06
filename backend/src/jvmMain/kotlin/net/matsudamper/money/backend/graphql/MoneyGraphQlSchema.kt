@@ -19,6 +19,7 @@ import graphql.schema.GraphQLScalarType
 import graphql.schema.visibility.NoIntrospectionGraphqlFieldVisibility
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.graphql.resolver.ImportedMailAttributesResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.ImportedMailCategoryConditionResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.ImportedMailCategoryFilterResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.ImportedMailResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageCategoryResolverImpl
@@ -40,6 +41,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageServiceId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.element.ImportedMailFilterId
 
 object MoneyGraphQlSchema {
     private fun getDebugSchemaFiles(): List<String> {
@@ -121,6 +123,11 @@ object MoneyGraphQlSchema {
                     serialize = { it.id },
                 ),
                 createIntScalarType(
+                    name = "ImportedMailFilterId",
+                    deserialize = { ImportedMailFilterId(it) },
+                    serialize = { it.id },
+                ),
+                createIntScalarType(
                     name = "MoneyUsageId",
                     deserialize = { MoneyUsageId(it) },
                     serialize = { it.id },
@@ -135,6 +142,7 @@ object MoneyGraphQlSchema {
             )
             .resolvers(
                 QueryResolverImpl(),
+                ImportedMailCategoryConditionResolverImpl(),
                 MutationResolverImpl(),
                 AdminMutationResolverImpl(),
                 UserMutationResolverImpl(),

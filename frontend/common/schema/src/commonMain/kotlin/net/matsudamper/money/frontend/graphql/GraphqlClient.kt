@@ -21,6 +21,8 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsageServiceId as Apollo
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryId as ApolloMoneyUsageSubCategoryId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterId as ApolloImportedMailCategoryFilterId
+import net.matsudamper.money.element.ImportedMailFilterId
+import net.matsudamper.money.frontend.graphql.type.ImportedMailFilterId as ApolloImportedMailFilterId
 
 object GraphqlClient {
     private val cacheFactory = MemoryCacheFactory(maxSizeBytes = 10 * 1024 * 1024)
@@ -57,6 +59,17 @@ object GraphqlClient {
                 },
                 deserialize = { value ->
                     value.toIntOrNull()?.let { MoneyUsageServiceId(it) }
+                },
+            ),
+        )
+        .addCustomScalarAdapter(
+            ApolloImportedMailFilterId.type,
+            CustomStringAdapter(
+                serialize = {
+                    it.id.toString()
+                },
+                deserialize = { value ->
+                    value.toIntOrNull()?.let { ImportedMailFilterId(it) }
                 },
             ),
         )

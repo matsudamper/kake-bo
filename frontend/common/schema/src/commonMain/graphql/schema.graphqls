@@ -54,8 +54,17 @@ type ImportedMailAttributes {
     mails(query: ImportedMailQuery!): ImportedMailConnection!
 }
 
+type ImportedMailCategoryCondition {
+    conditionType: ImportedMailCategoryFilterConditionType!
+    dataSourceType: ImportedMailCategoryFilterDataSourceType!
+    id: ImportedMailFilterId!
+    text: String!
+}
+
 type ImportedMailCategoryFilter {
+    conditions: [ImportedMailCategoryCondition!]
     id: ImportedMailCategoryFilterId!
+    operator: ImportedMailFilterCategoryConditionOperator!
     orderNumber: Int!
     subCategory: MoneyUsageSubCategory
     title: String!
@@ -217,6 +226,26 @@ enum DeleteMailResultError {
     MailServerNotConnected
 }
 
+enum ImportedMailCategoryFilterConditionType {
+    Equal
+    Include
+    NotEqual
+    NotInclude
+}
+
+enum ImportedMailCategoryFilterDataSourceType {
+    MailBody
+    MailFrom
+    MailTitle
+    ServiceName
+    Title
+}
+
+enum ImportedMailFilterCategoryConditionOperator {
+    AND
+    OR
+}
+
 enum UserMailError {
     InternalServerError
     MailConfigNotFound
@@ -224,6 +253,8 @@ enum UserMailError {
 }
 
 scalar ImportedMailCategoryFilterId
+
+scalar ImportedMailFilterId
 
 scalar ImportedMailId
 
