@@ -13,7 +13,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -82,7 +81,7 @@ public data class SettingMailCategoryFilterScreenUiState(
 }
 
 @Composable
-public fun SettingMailCategoryFilterScreen(
+public fun SettingMailCategoryFiltersScreen(
     modifier: Modifier = Modifier,
     listener: RootScreenScaffoldListener,
     uiState: SettingMailCategoryFilterScreenUiState,

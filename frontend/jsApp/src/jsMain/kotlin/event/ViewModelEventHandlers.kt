@@ -18,7 +18,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.list.RootListViewMod
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailLinkViewModelEvent
-import net.matsudamper.money.frontend.common.viewmodel.root.settings.filtercategories.SettingMailCategoryFilterViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.filtercategories.SettingMailCategoryFiltersViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
 
@@ -190,10 +190,10 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<SettingMailCategoryFilterViewModel.Event>) {
+    suspend fun handle(handler: EventHandler<SettingMailCategoryFiltersViewModel.Event>) {
         coroutineScope {
             handler.collect(
-                object : SettingMailCategoryFilterViewModel.Event {
+                object : SettingMailCategoryFiltersViewModel.Event {
                     override fun navigate(structure: ScreenStructure) {
                         navController.navigate(structure)
                     }

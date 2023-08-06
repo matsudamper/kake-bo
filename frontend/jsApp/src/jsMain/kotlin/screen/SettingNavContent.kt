@@ -17,14 +17,14 @@ import net.matsudamper.money.frontend.common.ui.screen.root.RootSettingScreenUiS
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImapConfigScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoriesScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoryScreen
-import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingMailCategoryFilterScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingMailCategoryFiltersScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingRootScreen
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.ImapSettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.filtercategories.ImportedMailCategoryFilterScreenPagingModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.filtercategories.SettingImportedMailCategoryFilterApi
-import net.matsudamper.money.frontend.common.viewmodel.root.settings.filtercategories.SettingMailCategoryFilterViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.filtercategories.SettingMailCategoryFiltersViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingScreenCategoryApi
@@ -118,18 +118,18 @@ internal fun SettingNavContent(
         ScreenStructure.Root.Settings.MailCategoryFilters -> {
             holder.SaveableStateProvider(state::class.toString()) {
                 val viewModel = remember(coroutineScope) {
-                    SettingMailCategoryFilterViewModel(
+                    SettingMailCategoryFiltersViewModel(
                         coroutineScope = coroutineScope,
                         pagingModel = ImportedMailCategoryFilterScreenPagingModel(
                             coroutineScope = coroutineScope,
                         ),
-                        api = SettingImportedMailCategoryFilterApi()
+                        api = SettingImportedMailCategoryFilterApi(),
                     )
                 }
                 LaunchedEffect(viewModel.eventHandler, viewModelEventHandlers) {
                     viewModelEventHandlers.handle(viewModel.eventHandler)
                 }
-                SettingMailCategoryFilterScreen(
+                SettingMailCategoryFiltersScreen(
                     modifier = Modifier.fillMaxSize(),
                     uiState = viewModel.uiStateFlow.collectAsState().value,
                     listener = rootScreenScaffoldListener,
