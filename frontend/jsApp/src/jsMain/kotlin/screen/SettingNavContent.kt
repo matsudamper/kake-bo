@@ -114,7 +114,7 @@ internal fun SettingNavContent(
             }
         }
 
-        ScreenStructure.Root.Settings.MailCategoryFilter -> {
+        ScreenStructure.Root.Settings.MailCategoryFilters -> {
             holder.SaveableStateProvider(state::class.toString()) {
                 val viewModel = remember(coroutineScope) {
                     SettingMailCategoryFilterViewModel(

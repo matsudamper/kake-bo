@@ -22,8 +22,8 @@ public enum class Screens : Direction {
         override val title: String = "カテゴリ設定"
         override val placeholderUrl: String = "/settings/category/{id}"
     },
-    MailCategoryFilter {
-        override val title: String = "メールカテゴリ振り分け設定"
+    MailCategoryFilters {
+        override val title: String = "メールカテゴリフィルタ一覧"
         override val placeholderUrl: String = "/settings/mail-category-filter"
     },
 

@@ -49,7 +49,7 @@ public class SettingViewModel(
                     coroutineScope.launch {
                         backgroundEventSender.send {
                             it.navigate(
-                                ScreenStructure.Root.Settings.MailCategoryFilter,
+                                ScreenStructure.Root.Settings.MailCategoryFilters,
                             )
                         }
                     }
