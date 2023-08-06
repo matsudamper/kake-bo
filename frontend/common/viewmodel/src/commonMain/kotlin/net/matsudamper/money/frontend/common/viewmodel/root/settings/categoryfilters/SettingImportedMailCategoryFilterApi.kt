@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.viewmodel.root.settings.filtercategories
+package net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters
 
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
