@@ -36,6 +36,18 @@ class ApolloPagingResponseCollector<D : Query.Data>(
         }
     }
 
+    fun lastRetry() {
+        coroutineScope.launch {
+            when (collectorFlow.value.lastOrNull()?.flow?.value) {
+                is ApolloResponseState.Failure -> collectorFlow.value.lastOrNull()?.fetch()
+                is ApolloResponseState.Loading,
+                is ApolloResponseState.Success,
+                null,
+                -> Unit
+            }
+        }
+    }
+
     fun add(query: Query<D>, debug: String = "") {
         val collector = ApolloResponseCollector
             .create(

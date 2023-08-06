@@ -3,21 +3,108 @@ package net.matsudamper.money.frontend.common.viewmodel.root.settings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import com.apollographql.apollo3.api.ApolloResponse
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingMailCategoryFilterScreenUiState
+import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFiltersScreenPagingQuery
+import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class SettingMailCategoryFilterViewModel(
     private val coroutineScope: CoroutineScope,
+    private val pagingModel: ImportedMailCategoryFilterScreenPagingModel,
 ) {
+    private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState())
+
+    private val loadedEvent = object : SettingMailCategoryFilterScreenUiState.LoadedEvent {
+        override fun onClickAdd() {
+            // TODO
+        }
+    }
+
     public val uiStateFlow: StateFlow<SettingMailCategoryFilterScreenUiState> = MutableStateFlow(
         SettingMailCategoryFilterScreenUiState(
             loadingState = SettingMailCategoryFilterScreenUiState.LoadingState.Loading,
             event = object : SettingMailCategoryFilterScreenUiState.Event {
                 override fun onClickRetry() {
-                    fetch()
+                    pagingModel.fetch()
+                }
+
+                override fun onViewInitialized() {
+                    pagingModel.fetch()
                 }
             },
         ),
-    )
+    ).also { uiStateFlow ->
+        coroutineScope.launch {
+            viewModelStateFlow.collectLatest { viewModelState ->
+                uiStateFlow.update { uiState ->
+                    val loadingState = when (val last = viewModelState.apolloResponseStates.lastOrNull()) {
+                        null,
+                        is ApolloResponseState.Loading,
+                        -> {
+                            SettingMailCategoryFilterScreenUiState.LoadingState.Loading
+                        }
 
-    public fun fetch() {}
+                        is ApolloResponseState.Failure -> {
+                            SettingMailCategoryFilterScreenUiState.LoadingState.Error
+                        }
+
+                        is ApolloResponseState.Success -> {
+                            val lastIsError = last.value.data?.user?.importedMailCategoryFilters == null
+                            if (lastIsError && viewModelState.apolloResponseStates.size <= 1) {
+                                SettingMailCategoryFilterScreenUiState.LoadingState.Error
+                            } else {
+                                SettingMailCategoryFilterScreenUiState.LoadingState.Loaded(
+                                    filters = viewModelState.apolloResponseStates.mapNotNull { items ->
+                                        when (items) {
+                                            is ApolloResponseState.Failure -> null
+                                            is ApolloResponseState.Loading -> null
+                                            is ApolloResponseState.Success -> items.value
+                                        }
+                                    }.map {
+                                        it.data?.user?.importedMailCategoryFilters?.nodes.orEmpty().map { item ->
+                                            SettingMailCategoryFilterScreenUiState.Item(
+                                                title = item.title,
+                                                event = object : SettingMailCategoryFilterScreenUiState.ItemEvent {
+                                                    override fun onClick() {
+                                                        // TODO
+                                                    }
+                                                },
+                                            )
+                                        }
+                                    }.flatten().toImmutableList(),
+                                    isError = lastIsError,
+                                    event = loadedEvent,
+                                )
+                            }
+                        }
+                    }
+
+                    uiState.copy(
+                        loadingState = loadingState,
+                    )
+                }
+            }
+        }
+    }.asStateFlow()
+
+    init {
+        coroutineScope.launch {
+            pagingModel.flow.collectLatest { apolloResponseStates ->
+                viewModelStateFlow.update {
+                    it.copy(
+                        apolloResponseStates = apolloResponseStates,
+                    )
+                }
+            }
+        }
+    }
+
+    private data class ViewModelState(
+        val apolloResponseStates: List<ApolloResponseState<ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data>>> = listOf(),
+    )
 }

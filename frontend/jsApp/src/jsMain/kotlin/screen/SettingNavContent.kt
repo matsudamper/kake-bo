@@ -21,6 +21,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingRoot
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.ImapSettingViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.ImportedMailCategoryFilterScreenPagingModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.SettingMailCategoryFilterViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
@@ -117,6 +118,9 @@ internal fun SettingNavContent(
                 val viewModel = remember(coroutineScope) {
                     SettingMailCategoryFilterViewModel(
                         coroutineScope = coroutineScope,
+                        pagingModel = ImportedMailCategoryFilterScreenPagingModel(
+                            coroutineScope = coroutineScope,
+                        )
                     )
                 }
                 SettingMailCategoryFilterScreen(

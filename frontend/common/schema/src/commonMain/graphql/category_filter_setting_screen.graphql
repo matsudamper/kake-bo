@@ -1,0 +1,20 @@
+query ImportedMailCategoryFiltersScreenPaging($query: ImportedMailCategoryFiltersQuery!) {
+    user {
+        importedMailCategoryFilters(query: $query) {
+            cursor
+            isLast
+            nodes {
+                id
+                title
+                subCategory {
+                    id
+                    name
+                    category {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+    }
+}

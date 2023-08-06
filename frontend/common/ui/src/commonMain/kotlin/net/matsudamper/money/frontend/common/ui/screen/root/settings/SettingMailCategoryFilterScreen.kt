@@ -20,6 +20,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -39,6 +40,7 @@ public data class SettingMailCategoryFilterScreenUiState(
         public object Error : LoadingState
         public data class Loaded(
             val filters: ImmutableList<Item>,
+            val isError: Boolean,
             val event: LoadedEvent,
         ) : LoadingState
     }
@@ -61,6 +63,7 @@ public data class SettingMailCategoryFilterScreenUiState(
     @Immutable
     public interface Event {
         public fun onClickRetry()
+        public fun onViewInitialized()
     }
 }
 
@@ -70,6 +73,9 @@ public fun SettingMailCategoryFilterScreen(
     listener: RootScreenScaffoldListener,
     uiState: SettingMailCategoryFilterScreenUiState,
 ) {
+    LaunchedEffect(Unit) {
+        uiState.event.onViewInitialized()
+    }
     RootScreenScaffold(
         modifier = modifier,
         currentScreen = RootScreenTab.Settings,
