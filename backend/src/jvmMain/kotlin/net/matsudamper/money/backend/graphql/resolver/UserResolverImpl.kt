@@ -141,7 +141,9 @@ class UserResolverImpl : UserResolver {
                 cursor = query.cursor?.let {
                     ImportedMailCategoryFiltersCursor.fromString(it)
                 },
-            ).getOrNull() ?: return@thenApplyAsync null
+            ).onFailure {
+                it.printStackTrace()
+            }.getOrNull() ?: return@thenApplyAsync null
 
             result.items.forEach { item ->
                 dataLoader.prime(

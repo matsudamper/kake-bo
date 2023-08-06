@@ -40,9 +40,11 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
         )
 
         return CompletableFuture.allOf(future).thenApplyAsync {
-            QlMoneyUsageSubCategory(
-                id = future.get()!!.moneyUsageSubCategoryId,
-            )
+            future.get()!!.moneyUsageSubCategoryId?.let {
+                QlMoneyUsageSubCategory(
+                    id = it,
+                )
+            }
         }.toDataFetcher()
     }
 

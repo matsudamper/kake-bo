@@ -126,7 +126,9 @@ class MailFilterRepository(
             importedMailCategoryFilterId = ImportedMailCategoryFilterId(record.get(filters.CATEGORY_MAIL_FILTER_ID)!!),
             userId = UserId(record.get(filters.USER_ID)!!),
             title = record.get(filters.TITLE)!!,
-            moneyUsageSubCategoryId = MoneyUsageSubCategoryId(record.get(filters.MONEY_USAGE_SUB_CATEGORY_ID)!!),
+            moneyUsageSubCategoryId = record.get(filters.MONEY_USAGE_SUB_CATEGORY_ID)?.let {
+                MoneyUsageSubCategoryId(it)
+            },
             orderNumber = record.get(filters.ORDER_NUMBER)!!,
         )
     }
@@ -140,7 +142,7 @@ class MailFilterRepository(
         val importedMailCategoryFilterId: ImportedMailCategoryFilterId,
         val userId: UserId,
         val title: String,
-        val moneyUsageSubCategoryId: MoneyUsageSubCategoryId,
+        val moneyUsageSubCategoryId: MoneyUsageSubCategoryId?,
         val orderNumber: Int,
     )
 
