@@ -42,7 +42,6 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageServiceId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
-import net.matsudamper.money.element.ImportedMailFilterId
 
 object MoneyGraphQlSchema {
     private fun getDebugSchemaFiles(): List<String> {
@@ -121,11 +120,6 @@ object MoneyGraphQlSchema {
                 createIntScalarType(
                     name = "MoneyUsageSubCategoryId",
                     deserialize = { MoneyUsageSubCategoryId(it) },
-                    serialize = { it.id },
-                ),
-                createIntScalarType(
-                    name = "ImportedMailFilterId",
-                    deserialize = { ImportedMailFilterId(it) },
                     serialize = { it.id },
                 ),
                 createIntScalarType(
