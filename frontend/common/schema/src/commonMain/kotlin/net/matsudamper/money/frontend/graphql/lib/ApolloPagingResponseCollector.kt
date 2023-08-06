@@ -65,6 +65,15 @@ class ApolloPagingResponseCollector<D : Query.Data>(
         }
     }
 
+    fun clear() {
+        collectorFlow.value.map {
+            it.cancel()
+        }
+        collectorFlow.update {
+            listOf()
+        }
+    }
+
     companion object {
         fun <D : Query.Data> createAndAdd(
             query: Query<D>,
