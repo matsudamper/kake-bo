@@ -35,6 +35,7 @@ class MailFilterRepository(
                             title = title,
                             userId = userId.id,
                             orderNumber = orderNum,
+                            categoryMailFilterConditionOperatorTypeId = ImportedMailFilterCategoryConditionOperator.AND.dbValue,
                         ),
                     )
                     .returning(filters)
