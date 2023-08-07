@@ -22,7 +22,7 @@ import org.jooq.Index
 import org.jooq.Name
 import org.jooq.Record
 import org.jooq.Records
-import org.jooq.Row10
+import org.jooq.Row9
 import org.jooq.Schema
 import org.jooq.SelectField
 import org.jooq.Table
@@ -77,11 +77,6 @@ open class JMoneyUsages(
      * The column <code>money.money_usages.user_id</code>.
      */
     val USER_ID: TableField<JMoneyUsagesRecord, Int?> = createField(DSL.name("user_id"), SQLDataType.INTEGER.nullable(false), this, "")
-
-    /**
-     * The column <code>money.money_usages.user_mail_id</code>.
-     */
-    val USER_MAIL_ID: TableField<JMoneyUsagesRecord, Int?> = createField(DSL.name("user_mail_id"), SQLDataType.INTEGER.defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.INTEGER)), this, "")
 
     /**
      * The column <code>money.money_usages.title</code>.
@@ -161,18 +156,18 @@ open class JMoneyUsages(
     override fun rename(name: Table<*>): JMoneyUsages = JMoneyUsages(name.getQualifiedName(), null)
 
     // -------------------------------------------------------------------------
-    // Row10 type methods
+    // Row9 type methods
     // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row10<Int?, Int?, Int?, String?, String?, Int?, LocalDateTime?, LocalDateTime?, LocalDateTime?, Int?> = super.fieldsRow() as Row10<Int?, Int?, Int?, String?, String?, Int?, LocalDateTime?, LocalDateTime?, LocalDateTime?, Int?>
+    override fun fieldsRow(): Row9<Int?, Int?, String?, String?, Int?, LocalDateTime?, LocalDateTime?, LocalDateTime?, Int?> = super.fieldsRow() as Row9<Int?, Int?, String?, String?, Int?, LocalDateTime?, LocalDateTime?, LocalDateTime?, Int?>
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
      */
-    fun <U> mapping(from: (Int?, Int?, Int?, String?, String?, Int?, LocalDateTime?, LocalDateTime?, LocalDateTime?, Int?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
+    fun <U> mapping(from: (Int?, Int?, String?, String?, Int?, LocalDateTime?, LocalDateTime?, LocalDateTime?, Int?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Class,
      * Function)}.
      */
-    fun <U> mapping(toType: Class<U>, from: (Int?, Int?, Int?, String?, String?, Int?, LocalDateTime?, LocalDateTime?, LocalDateTime?, Int?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
+    fun <U> mapping(toType: Class<U>, from: (Int?, Int?, String?, String?, Int?, LocalDateTime?, LocalDateTime?, LocalDateTime?, Int?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
 }
