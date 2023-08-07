@@ -6,6 +6,7 @@ import net.matsudamper.money.backend.DbConnectionImpl
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsagesRecord
+import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import org.jooq.impl.DSL
@@ -21,6 +22,7 @@ class MoneyUsageRepository {
         subCategoryId: MoneyUsageSubCategoryId?,
         date: LocalDateTime,
         amount: Int,
+        importedMailId: ImportedMailId?,
     ): AddResult {
         return runCatching {
             DbConnectionImpl.use { connection ->
@@ -32,6 +34,7 @@ class MoneyUsageRepository {
                     .set(usage.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId?.id)
                     .set(usage.DATETIME, date)
                     .set(usage.AMOUNT, amount)
+                    .set(usage.USER_MAIL_ID, importedMailId?.id)
                     .returningResult(usage)
                     .fetch()
 

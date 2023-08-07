@@ -354,6 +354,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                     subCategoryId = usage.subCategoryId,
                     amount = usage.amount,
                     date = usage.date,
+                    importedMailId = usage.importedMailId
                 )
             when (result) {
                 is MoneyUsageRepository.AddResult.Failed -> {

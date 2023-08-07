@@ -15,6 +15,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreenUiState
@@ -194,6 +195,7 @@ public class AddMoneyUsageViewModel(
                 ),
                 amount = viewModelStateFlow.value.usageAmount,
                 subCategoryId = viewModelStateFlow.value.usageCategorySet?.subCategoryId,
+                importedMailId = viewModelStateFlow.value.importedMailId,
             )
 
             // TODO Toast
@@ -232,6 +234,7 @@ public class AddMoneyUsageViewModel(
 
                         viewModelStateFlow.update {
                             it.copy(
+                                importedMailId = importedMailId,
                                 usageAmount = suggestUsage.amount ?: 0,
                                 usageDate = suggestUsage.dateTime?.date ?: it.usageDate,
                                 usageTime = suggestUsage.dateTime?.time ?: it.usageTime,
@@ -312,6 +315,7 @@ public class AddMoneyUsageViewModel(
     }
 
     private data class ViewModelState(
+        val importedMailId: ImportedMailId? = null,
         val usageDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
         val usageTime: LocalTime = LocalTime(0, 0, 0, 0),
         val usageTitle: String = "",

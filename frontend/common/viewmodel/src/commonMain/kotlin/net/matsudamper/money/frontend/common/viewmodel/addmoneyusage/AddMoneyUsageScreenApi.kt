@@ -22,6 +22,7 @@ public class AddMoneyUsageScreenApi(
         amount: Int,
         datetime: LocalDateTime,
         subCategoryId: MoneyUsageSubCategoryId?,
+        importedMailId: ImportedMailId?,
     ): ApolloResponse<AddMoneyUsageMutation.Data>? {
         return runCatching {
             apolloClient
@@ -33,6 +34,7 @@ public class AddMoneyUsageScreenApi(
                             description = description,
                             amount = amount,
                             date = datetime,
+                            importedMailId = Optional.present(importedMailId)
                         ),
                     ),
                 )

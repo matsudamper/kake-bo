@@ -297,6 +297,7 @@ input AddUsageQuery {
     amount: Int!
     date: LocalDateTime!
     description: String!
+    importedMailId: ImportedMailId
     subCategoryId: MoneyUsageSubCategoryId
     title: String!
 }

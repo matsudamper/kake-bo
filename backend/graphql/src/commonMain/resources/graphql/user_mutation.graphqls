@@ -86,6 +86,7 @@ input AddUsageQuery {
     subCategoryId: MoneyUsageSubCategoryId
     amount: Int!
     date: LocalDateTime!
+    importedMailId: ImportedMailId
 }
 
 type DeleteMailResult {
