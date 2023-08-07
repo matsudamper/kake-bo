@@ -20,6 +20,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -209,7 +210,6 @@ public fun ImportedMailFilterCategoryScreen(
 }
 
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun LoadedContent(
     modifier: Modifier = Modifier,
@@ -223,6 +223,7 @@ private fun LoadedContent(
                 Text(
                     modifier = Modifier.weight(1f),
                     text = uiState.title,
+                    style = MaterialTheme.typography.titleLarge
                 )
                 OutlinedButton(
                     modifier = Modifier.padding(8.dp),
@@ -236,6 +237,7 @@ private fun LoadedContent(
                 Text(
                     modifier = Modifier.padding(8.dp),
                     text = "次のカテゴリを適用する",
+                    style = MaterialTheme.typography.titleMedium,
                 )
                 Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
                 Row(
@@ -250,6 +252,7 @@ private fun LoadedContent(
                                 append("未設定")
                             }
                         },
+                        style = MaterialTheme.typography.bodyMedium,
                     )
                     Spacer(modifier = Modifier.weight(1f))
                     OutlinedButton(
@@ -268,6 +271,7 @@ private fun LoadedContent(
                 Text(
                     modifier = Modifier.padding(8.dp),
                     text = "条件",
+                    style = MaterialTheme.typography.titleMedium,
                 )
                 DropDownButton(
                     modifier = Modifier.padding(8.dp),
