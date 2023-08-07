@@ -15,10 +15,10 @@ import net.matsudamper.money.frontend.common.ui.screen.root.ImportMailScreenUiSt
 import net.matsudamper.money.frontend.common.ui.screen.root.RootListScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.RootListScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.RootScreen
-import net.matsudamper.money.frontend.common.ui.screen.root.RootSettingScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.settings.RootSettingScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent

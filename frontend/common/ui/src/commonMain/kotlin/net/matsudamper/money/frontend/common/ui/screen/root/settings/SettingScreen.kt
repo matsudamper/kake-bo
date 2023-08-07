@@ -26,7 +26,18 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
-import net.matsudamper.money.frontend.common.ui.screen.root.RootSettingScreenUiState
+
+public data class RootSettingScreenUiState(
+    val event: Event,
+) {
+
+    public interface Event {
+        public fun onResume()
+        public fun onClickImapButton()
+        public fun onClickCategoryButton()
+        public fun onClickMailFilter()
+    }
+}
 
 @Composable
 public fun SettingRootScreen(
