@@ -1,7 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilter
 
-import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.ApolloResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -9,6 +7,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
@@ -24,7 +24,6 @@ import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterConditionType
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterDataSourceType
 import net.matsudamper.money.frontend.graphql.type.ImportedMailFilterCategoryConditionOperator
-
 
 public class ImportedMailFilterCategoryViewModel(
     private val coroutineScope: CoroutineScope,
@@ -150,7 +149,7 @@ public class ImportedMailFilterCategoryViewModel(
                             ImportedMailCategoryFilterDataSourceType.Title -> ImportedMailFilterCategoryScreenUiState.DataSource.Title
                             ImportedMailCategoryFilterDataSourceType.UNKNOWN__ -> ImportedMailFilterCategoryScreenUiState.DataSource.Unknown
                         },
-                        conditionType = when(condition.conditionType) {
+                        conditionType = when (condition.conditionType) {
                             ImportedMailCategoryFilterConditionType.Equal -> ImportedMailFilterCategoryScreenUiState.ConditionType.Equal
                             ImportedMailCategoryFilterConditionType.Include -> ImportedMailFilterCategoryScreenUiState.ConditionType.Include
                             ImportedMailCategoryFilterConditionType.NotEqual -> ImportedMailFilterCategoryScreenUiState.ConditionType.NotEqual
@@ -225,7 +224,7 @@ public class ImportedMailFilterCategoryViewModel(
                                     }
                                 },
                                 default = filter.importedMailCategoryFilterScreenItem.title,
-                                dismiss = { dismissTextInput() }
+                                dismiss = { dismissTextInput() },
                             ),
                         )
                     }
@@ -243,7 +242,7 @@ public class ImportedMailFilterCategoryViewModel(
                                 SnackbarEventState.Event(
                                     message = "更新に失敗しました",
                                     withDismissAction = true,
-                                )
+                                ),
                             )
                         }
                     }
