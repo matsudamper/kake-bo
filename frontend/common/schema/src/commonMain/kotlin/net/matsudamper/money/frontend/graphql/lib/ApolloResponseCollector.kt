@@ -58,7 +58,7 @@ public class ApolloResponseCollector<D : Query.Data>(
         fun <D : Query.Data> create(
             apolloClient: ApolloClient,
             query: Query<D>,
-            fetchThrows: Boolean = false,
+            fetchThrows: Boolean = true,
             refetchThrows: Boolean = false,
             fetchPolicy: FetchPolicy = FetchPolicy.CacheAndNetwork,
             debug: String = "",
