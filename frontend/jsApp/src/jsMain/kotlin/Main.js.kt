@@ -39,6 +39,7 @@ import net.matsudamper.money.frontend.common.base.ScreenNavControllerImpl
 import net.matsudamper.money.frontend.common.base.nav.admin.rememberAdminScreenController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.CustomTheme
+import net.matsudamper.money.frontend.common.ui.base.MySnackBarHost
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreen
@@ -413,64 +414,5 @@ private fun Content(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun MySnackBarHost(
-    modifier: Modifier = Modifier,
-    hostState: SnackbarHostState,
-) {
-    SnackbarHost(
-        modifier = modifier,
-        hostState = hostState,
-    ) { snackbarData ->
-        val actionLabel = snackbarData.visuals.actionLabel
-        Snackbar(
-            modifier = Modifier.padding(12.dp),
-            action = if (actionLabel != null) {
-                {
-                    TextButton(
-                        colors = ButtonDefaults.textButtonColors(contentColor = actionColor),
-                        onClick = { snackbarData.performAction() },
-                        content = {
-                            Text(
-                                text = actionLabel,
-                                fontFamily = rememberCustomFontFamily(),
-                            )
-                        },
-                    )
-                }
-            } else {
-                null
-            },
-            dismissAction = if (snackbarData.visuals.withDismissAction) {
-                {
-                    IconButton(
-                        onClick = { snackbarData.dismiss() },
-                        content = {
-                            Icon(
-                                Icons.Filled.Close,
-                                contentDescription = null,
-                            )
-                        },
-                    )
-                }
-            } else {
-                null
-            },
-            actionOnNewLine = false,
-            shape = SnackbarDefaults.shape,
-            containerColor = SnackbarDefaults.color,
-            contentColor = SnackbarDefaults.contentColor,
-            actionContentColor = SnackbarDefaults.actionContentColor,
-            dismissActionContentColor = SnackbarDefaults.dismissActionContentColor,
-            content = {
-                Text(
-                    text = snackbarData.visuals.message,
-                    fontFamily = rememberCustomFontFamily(),
-                )
-            },
-        )
     }
 }
