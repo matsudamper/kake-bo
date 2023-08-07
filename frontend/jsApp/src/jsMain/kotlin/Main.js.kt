@@ -344,7 +344,7 @@ private fun Content(
                     )
                 }
 
-                ScreenStructure.AddMoneyUsage -> {
+                is ScreenStructure.AddMoneyUsage -> {
                     val viewModel = remember {
                         AddMoneyUsageViewModel(
                             coroutineScope = rootCoroutineScope,

@@ -138,7 +138,7 @@ data class ViewModelEventHandlers(
             handler.collect(
                 object : RootListViewModel.Event {
                     override fun navigateToAddMoneyUsage() {
-                        navController.navigate(ScreenStructure.AddMoneyUsage)
+                        navController.navigate(ScreenStructure.AddMoneyUsage())
                     }
                 },
             )
@@ -173,6 +173,10 @@ data class ViewModelEventHandlers(
 
                     override fun navigateToMailContent(id: ImportedMailId) {
                         navController.navigate(ScreenStructure.ImportedMailContent(id = id))
+                    }
+
+                    override fun navigate(screenStructure: ScreenStructure) {
+                        navController.navigate(screenStructure)
                     }
                 },
             )

@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.importedmail.MailScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -112,7 +113,15 @@ public class ImportedMailScreenViewModel(
                     dateTime = suggestUsage.dateTime.toString(),
                     event = object : MailScreenUiState.UsageSuggest.Event {
                         override fun onClickRegister() {
-                            // TODO
+                            coroutineScope.launch {
+                                viewModelEventSender.send {
+                                    it.navigate(
+                                        ScreenStructure.AddMoneyUsage(
+                                            importedMailId = importedMailId,
+                                        ),
+                                    )
+                                }
+                            }
                         }
                     },
                 )
@@ -152,6 +161,7 @@ public class ImportedMailScreenViewModel(
         public fun navigateToBack()
         public fun navigateToHome()
         public fun navigateToMailContent(id: ImportedMailId)
+        public fun navigate(screenStructure: ScreenStructure)
     }
 
     private data class ViewModelState(

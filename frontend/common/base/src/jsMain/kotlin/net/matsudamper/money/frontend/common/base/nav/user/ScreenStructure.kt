@@ -57,15 +57,11 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                 override val direction: Screens = Screens.MailList
 
                 override fun createUrl(): String {
-                    val urlParam = ParametersBuilder()
-                        .apply {
-                            if (isLinked != null) {
-                                append(KEY_IS_LINKED, isLinked.toString())
-                            }
+                    val urlParam = buildParameter {
+                        if (isLinked != null) {
+                            append(KEY_IS_LINKED, isLinked.toString())
                         }
-                        .build()
-                        .formUrlEncode()
-                        .let { if (it.isEmpty()) it else "?$it" }
+                    }
 
                     return direction.placeholderUrl.plus(urlParam)
                 }
@@ -143,7 +139,31 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
         }
     }
 
-    public object AddMoneyUsage : ScreenStructure {
+    public data class AddMoneyUsage(
+        val importedMailId: ImportedMailId? = null,
+    ) : ScreenStructure {
         override val direction: Screens = Screens.AddMoneyUsage
+
+        override fun createUrl(): String {
+            return direction.placeholderUrl.plus(
+                buildParameter {
+                    if (importedMailId != null) {
+                        append("imported_mail_id", importedMailId.id.toString())
+                    }
+                }
+            )
+        }
+
+        override fun equalScreen(other: ScreenStructure): Boolean {
+            return other is AddMoneyUsage
+        }
     }
+}
+
+private fun buildParameter(block: ParametersBuilder.() -> Unit): String {
+    return ParametersBuilder()
+        .apply(block)
+        .build()
+        .formUrlEncode()
+        .let { if (it.isEmpty()) it else "?$it" }
 }
