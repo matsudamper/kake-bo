@@ -1,0 +1,7 @@
+mutation AddMoneyUsage($query: AddUsageQuery!) {
+    userMutation {
+        addUsage(usage: $query) {
+            id
+        }
+    }
+}

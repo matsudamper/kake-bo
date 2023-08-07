@@ -80,11 +80,3 @@ mutation DeleteSubCategory($id: MoneyUsageSubCategoryId!) {
         deleteSubCategory(id: $id)
     }
 }
-
-mutation AddMoneyUsage($query: AddUsageQuery!) {
-    userMutation {
-        addUsage(usage: $query) {
-            id
-        }
-    }
-}
