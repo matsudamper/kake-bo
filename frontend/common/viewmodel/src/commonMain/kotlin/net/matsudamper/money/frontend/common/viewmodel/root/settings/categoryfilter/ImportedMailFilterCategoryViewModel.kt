@@ -152,15 +152,33 @@ public class ImportedMailFilterCategoryViewModel(
                         conditionType = ImportedMailFilterCategoryScreenUiState.ConditionType.NotInclude,
                         event = object : ImportedMailFilterCategoryScreenUiState.ConditionEvent {
                             override fun onClickTextChange() {
-                                TODO("Not yet implemented")
+
                             }
 
                             override fun selectedSource(source: ImportedMailFilterCategoryScreenUiState.DataSource) {
-                                TODO("Not yet implemented")
+                                coroutineScope.launch {
+                                    api.updateCondition(
+                                        id = condition.id,
+                                        dataSource = source,
+                                    ).onFailure {
+                                        eventSender.send {
+                                            it.showNativeAlert("更新に失敗しました")
+                                        }
+                                    }
+                                }
                             }
 
                             override fun selectedConditionType(type: ImportedMailFilterCategoryScreenUiState.ConditionType) {
-                                TODO("Not yet implemented")
+                                coroutineScope.launch {
+                                    api.updateCondition(
+                                        id = condition.id,
+                                        type = type,
+                                    ).onFailure {
+                                        eventSender.send {
+                                            it.showNativeAlert("更新に失敗しました")
+                                        }
+                                    }
+                                }
                             }
                         },
                     )
