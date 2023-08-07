@@ -53,7 +53,6 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
 
-
 public data class ImportedMailFilterCategoryScreenUiState(
     val loadingState: LoadingState,
     val textInput: TextInput?,
@@ -265,7 +264,7 @@ private fun LoadedContent(
                 Text(
                     modifier = Modifier.weight(1f),
                     text = uiState.title,
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
                 )
                 OutlinedButton(
                     modifier = Modifier.padding(8.dp),

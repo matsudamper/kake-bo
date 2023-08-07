@@ -22,7 +22,7 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
     public suspend fun addCondition(
-        id: ImportedMailCategoryFilterId
+        id: ImportedMailCategoryFilterId,
     ): Result<ApolloResponse<ImportedMailCategoryFilterScreenAddConditionMutation.Data>> {
         return runCatching {
             apolloClient
@@ -30,8 +30,8 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
                     ImportedMailCategoryFilterScreenAddConditionMutation(
                         input = AddImportedMailCategoryFilterConditionInput(
                             id = id,
-                        )
-                    )
+                        ),
+                    ),
                 )
                 .execute()
         }
@@ -57,10 +57,10 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
                                     ImportedMailFilterCategoryScreenUiState.Operator.OR -> ImportedMailFilterCategoryConditionOperator.OR
                                     ImportedMailFilterCategoryScreenUiState.Operator.UNKNOWN -> null
                                     null -> null
-                                }
-                            )
-                        )
-                    )
+                                },
+                            ),
+                        ),
+                    ),
                 ).execute()
         }
     }
@@ -83,7 +83,8 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
                             ImportedMailFilterCategoryScreenUiState.ConditionType.Equal -> ImportedMailCategoryFilterConditionType.Equal
                             ImportedMailFilterCategoryScreenUiState.ConditionType.NotEqual -> ImportedMailCategoryFilterConditionType.NotEqual
                             ImportedMailFilterCategoryScreenUiState.ConditionType.Unknown,
-                            null -> null
+                            null,
+                            -> null
                         }.let { Optional.present(it) },
                         dataSourceType = when (dataSource) {
                             ImportedMailFilterCategoryScreenUiState.DataSource.MailFrom -> ImportedMailCategoryFilterDataSourceType.MailFrom
@@ -92,10 +93,11 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
                             ImportedMailFilterCategoryScreenUiState.DataSource.Title -> ImportedMailCategoryFilterDataSourceType.Title
                             ImportedMailFilterCategoryScreenUiState.DataSource.ServiceName -> ImportedMailCategoryFilterDataSourceType.ServiceName
                             ImportedMailFilterCategoryScreenUiState.DataSource.Unknown,
-                            null -> null
-                        }.let { Optional.present(it) }
+                            null,
+                            -> null
+                        }.let { Optional.present(it) },
                     ),
-                )
+                ),
             ).execute()
         }
     }

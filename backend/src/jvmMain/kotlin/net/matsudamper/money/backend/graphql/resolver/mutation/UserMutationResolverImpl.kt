@@ -53,7 +53,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         userMutation: QlUserMutation,
         name: String,
         password: String,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlUserLoginResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
 
@@ -91,7 +91,7 @@ class UserMutationResolverImpl : UserMutationResolver {
 
     override fun settingsMutation(
         userMutation: QlUserMutation,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlSettingsMutation?>> {
         return CompletableFuture.supplyAsync {
             QlSettingsMutation()
@@ -101,7 +101,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     override fun importMail(
         userMutation: QlUserMutation,
         mailIds: List<MailId>,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportMailResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
@@ -125,7 +125,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     override fun deleteMail(
         userMutation: QlUserMutation,
         mailIds: List<MailId>,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlDeleteMailResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
@@ -168,7 +168,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     override fun addCategory(
         userMutation: QlUserMutation,
         input: QlAddCategoryInput,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlAddCategoryResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
@@ -197,7 +197,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     override fun addSubCategory(
         userMutation: QlUserMutation,
         input: QlAddSubCategoryInput,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlAddSubCategoryResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
@@ -260,7 +260,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     override fun deleteSubCategory(
         userMutation: QlUserMutation,
         id: MoneyUsageSubCategoryId,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Boolean>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
@@ -385,7 +385,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                 title = input.title,
                 orderNum = input.orderNumber,
                 subCategory = input.subCategoryId,
-                operator = input.operator?.toDBElement()
+                operator = input.operator?.toDBElement(),
             )
             if (isSuccess) {
                 QlImportedMailCategoryFilter(
@@ -451,7 +451,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     override fun deleteImportedMailCategoryFilter(
         userMutation: QlUserMutation,
         id: ImportedMailCategoryFilterId,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Boolean>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
@@ -469,7 +469,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     override fun deleteImportedMailCategoryFilterCondition(
         userMutation: QlUserMutation,
         id: ImportedMailCategoryFilterConditionId,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Boolean>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()

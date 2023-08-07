@@ -23,7 +23,7 @@ public class SnackbarEventState {
                     override suspend fun call(event: Event): Result {
                         return block(event)
                     }
-                }
+                },
             )
         }
     }

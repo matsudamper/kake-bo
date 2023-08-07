@@ -94,7 +94,7 @@ internal class CategorySelectDialogViewModel(
         categoryName: String? = null,
         subCategoryId: MoneyUsageSubCategoryId? = null,
         subCategoryName: String? = null,
-        useCache: Boolean = true
+        useCache: Boolean = true,
     ) {
         val category = run category@{
             ViewModelState.Category(
@@ -116,14 +116,14 @@ internal class CategorySelectDialogViewModel(
                         subCategory = subCategory,
                     ),
                     screenType = ViewModelState.CategorySelectDialog.ScreenType.Root,
-                )
+                ),
             )
         }
 
         if (
-            category == null
-            || useCache
-            || viewModelStateFlow.value.categories.getSuccessOrNull()
+            category == null ||
+            useCache ||
+            viewModelStateFlow.value.categories.getSuccessOrNull()
                 ?.value?.data?.user?.moneyUsageCategories?.nodes.orEmpty()
                 .any { it.id == categoryId }.not()
         ) {
@@ -297,7 +297,7 @@ internal class CategorySelectDialogViewModel(
                                                 viewModelStateFlow.update {
                                                     it.copy(
                                                         categorySelectDialog = categoryDialogViewModelState.copy(
-                                                            screenType = net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel.ViewModelState.CategorySelectDialog.ScreenType.Root,
+                                                            screenType = CategorySelectDialogViewModel.ViewModelState.CategorySelectDialog.ScreenType.Root,
                                                             categorySet = categorySet.copy(
                                                                 subCategory = ViewModelState.SubCategory(
                                                                     id = item.id,

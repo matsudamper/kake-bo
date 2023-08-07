@@ -104,7 +104,7 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
                 dataLoader.prime(
                     ImportedMailCategoryFilterConditionDataLoaderDefine.Key(
                         userId = userId,
-                        conditionId = condition.conditionId
+                        conditionId = condition.conditionId,
                     ),
                     condition,
                 )

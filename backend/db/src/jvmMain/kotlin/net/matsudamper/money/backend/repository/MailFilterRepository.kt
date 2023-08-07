@@ -262,7 +262,7 @@ class MailFilterRepository(
         filterId: ImportedMailCategoryFilterId,
         condition: ImportedMailCategoryFilterConditionType?,
         text: String?,
-        dataSource: ImportedMailCategoryFilterDatasourceType?
+        dataSource: ImportedMailCategoryFilterDatasourceType?,
     ): Boolean {
         return runCatching {
             // TODO filterIdが存在するかチェックする
@@ -275,12 +275,12 @@ class MailFilterRepository(
                             put(conditions.CATEGORY_MAIL_FILTER_ID, filterId.id)
                             put(
                                 conditions.CATEGORY_MAIL_FILTER_CONDITION_TYPE_ID,
-                                (condition ?: ImportedMailCategoryFilterConditionType.Include).dbValue
+                                (condition ?: ImportedMailCategoryFilterConditionType.Include).dbValue,
                             )
                             put(conditions.TEXT, text.orEmpty())
                             put(
                                 conditions.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID,
-                                (dataSource ?: ImportedMailCategoryFilterDatasourceType.Title).dbValue
+                                (dataSource ?: ImportedMailCategoryFilterDatasourceType.Title).dbValue,
                             )
                         },
                     )
@@ -291,7 +291,7 @@ class MailFilterRepository(
             it.printStackTrace()
         }.fold(
             onSuccess = { it },
-            onFailure = { false }
+            onFailure = { false },
         )
     }
 
@@ -332,7 +332,7 @@ class MailFilterRepository(
             it.printStackTrace()
         }.fold(
             onSuccess = { it },
-            onFailure = { false }
+            onFailure = { false },
         )
     }
 
@@ -357,7 +357,7 @@ class MailFilterRepository(
             it.printStackTrace()
         }.fold(
             onSuccess = { it },
-            onFailure = { false }
+            onFailure = { false },
         )
     }
 

@@ -159,7 +159,6 @@ public class ImportedMailFilterCategoryViewModel(
                         },
                         event = object : ImportedMailFilterCategoryScreenUiState.ConditionEvent {
                             override fun onClickTextChange() {
-
                             }
 
                             override fun selectedSource(source: ImportedMailFilterCategoryScreenUiState.DataSource) {

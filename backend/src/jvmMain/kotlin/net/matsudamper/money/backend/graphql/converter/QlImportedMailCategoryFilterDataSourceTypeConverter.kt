@@ -4,7 +4,7 @@ import net.matsudamper.money.backend.element.ImportedMailCategoryFilterDatasourc
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilterDataSourceType
 
 fun QlImportedMailCategoryFilterDataSourceType.toDbElement(): ImportedMailCategoryFilterDatasourceType {
-    return when(this) {
+    return when (this) {
         QlImportedMailCategoryFilterDataSourceType.MailTitle -> ImportedMailCategoryFilterDatasourceType.MailTitle
         QlImportedMailCategoryFilterDataSourceType.MailFrom -> ImportedMailCategoryFilterDatasourceType.MailFrom
         QlImportedMailCategoryFilterDataSourceType.MailBody -> ImportedMailCategoryFilterDatasourceType.MailBody

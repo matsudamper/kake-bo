@@ -4,7 +4,7 @@ import net.matsudamper.money.backend.element.ImportedMailCategoryFilterCondition
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilterConditionType
 
 public fun QlImportedMailCategoryFilterConditionType.toDbElement(): ImportedMailCategoryFilterConditionType {
-    return when(this) {
+    return when (this) {
         QlImportedMailCategoryFilterConditionType.Include -> ImportedMailCategoryFilterConditionType.Include
         QlImportedMailCategoryFilterConditionType.NotInclude -> ImportedMailCategoryFilterConditionType.NotInclude
         QlImportedMailCategoryFilterConditionType.Equal -> ImportedMailCategoryFilterConditionType.Equal
