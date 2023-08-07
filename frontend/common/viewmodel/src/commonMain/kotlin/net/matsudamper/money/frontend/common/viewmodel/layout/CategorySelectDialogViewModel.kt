@@ -198,7 +198,7 @@ internal class CategorySelectDialogViewModel(
                     CategorySelectDialogUiState.Screen.Root(
                         category = categorySet.category?.name ?: "未選択",
                         subCategory = categorySet.subCategory?.name ?: "未選択",
-                        enableSubCategory = categorySet.subCategory != null,
+                        enableSubCategory = categorySet.category != null,
                         onClickCategory = {
                             viewModelStateFlow.update {
                                 it.copy(
