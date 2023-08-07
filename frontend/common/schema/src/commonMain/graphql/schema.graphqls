@@ -196,6 +196,8 @@ type UserMutation {
     addImportedMailCategoryFilterCondition(input: AddImportedMailCategoryFilterConditionInput!): ImportedMailCategoryFilter
     addSubCategory(input: AddSubCategoryInput!): AddSubCategoryResult!
     addUsage(usage: AddUsageQuery!): MoneyUsage!
+    deleteImportedMailCategoryFilter(id: ImportedMailCategoryFilterId!): Boolean!
+    deleteImportedMailCategoryFilterCondition(id: ImportedMailCategoryFilterConditionId!): Boolean!
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
     deleteSubCategory(id: MoneyUsageSubCategoryId!): Boolean!
     importMail(mailIds: [MailId!]!): ImportMailResult!
