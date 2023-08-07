@@ -5,3 +5,26 @@ mutation AddMoneyUsage($query: AddUsageQuery!) {
         }
     }
 }
+
+query AddMoneyUsageScreen($id: ImportedMailId!) {
+    user {
+        importedMailAttributes {
+            mail(id: $id) {
+                suggestUsages {
+                    title
+                    description
+                    subCategory {
+                        id
+                        name
+                        category {
+                            id
+                            name
+                        }
+                    }
+                    dateTime
+                    amount
+                }
+            }
+        }
+    }
+}

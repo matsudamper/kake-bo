@@ -141,6 +141,7 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
 
     public data class AddMoneyUsage(
         val importedMailId: ImportedMailId? = null,
+        val importedMailIndex: Int? = null,
     ) : ScreenStructure {
         override val direction: Screens = Screens.AddMoneyUsage
 
@@ -148,7 +149,10 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
             return direction.placeholderUrl.plus(
                 buildParameter {
                     if (importedMailId != null) {
-                        append("imported_mail_id", importedMailId.id.toString())
+                        append(IMPORTED_MAIL_ID, importedMailId.id.toString())
+                    }
+                    if (importedMailIndex != null) {
+                        append(IMPORTED_MAIL_INDEX, importedMailIndex.toString())
                     }
                 }
             )
@@ -156,6 +160,19 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
 
         override fun equalScreen(other: ScreenStructure): Boolean {
             return other is AddMoneyUsage
+        }
+
+        public companion object {
+            private const val IMPORTED_MAIL_ID = "imported_mail_id"
+            private const val IMPORTED_MAIL_INDEX = "imported_mail_index"
+
+            public fun fromQueryParams(queryParams: Map<String, List<String>>): AddMoneyUsage {
+                return AddMoneyUsage(
+                    importedMailId = queryParams[IMPORTED_MAIL_ID]?.firstOrNull()?.toIntOrNull()
+                        ?.let { ImportedMailId(it) },
+                    importedMailIndex = queryParams[IMPORTED_MAIL_INDEX]?.firstOrNull()?.toIntOrNull(),
+                )
+            }
         }
     }
 }

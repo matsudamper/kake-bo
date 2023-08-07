@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.viewmodel.addmoneyusage
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -189,12 +190,7 @@ public class AddMoneyUsageViewModel(
                 description = viewModelStateFlow.value.usageDescription,
                 datetime = LocalDateTime(
                     date = date,
-                    time = LocalTime(
-                        hour = 0,
-                        minute = 0,
-                        second = 0,
-                        nanosecond = 0,
-                    ), // TODO
+                    time = viewModelStateFlow.value.usageTime,
                 ),
                 amount = viewModelStateFlow.value.usageAmount,
                 subCategoryId = viewModelStateFlow.value.usageCategorySet?.subCategoryId,
@@ -218,13 +214,44 @@ public class AddMoneyUsageViewModel(
         }
     }
 
+    private var usageFromMailIdJob: Job = Job()
     public fun updateScreenStructure(current: ScreenStructure.AddMoneyUsage) {
-        if (current.importedMailId == null) {
+        usageFromMailIdJob.cancel()
+
+        val importedMailId = current.importedMailId
+        if (importedMailId == null) {
             viewModelStateFlow.update {
                 ViewModelState()
             }
         } else {
-            // TODO
+            usageFromMailIdJob = coroutineScope.launch {
+                graphqlApi.get(importedMailId)
+                    .onSuccess { result ->
+                        val suggestUsage = result.data?.user?.importedMailAttributes?.mail?.suggestUsages
+                            ?.getOrNull(current.importedMailIndex ?: 0) ?: return@launch
+
+                        viewModelStateFlow.update {
+                            it.copy(
+                                usageAmount = suggestUsage.amount ?: 0,
+                                usageDate = suggestUsage.dateTime?.date ?: it.usageDate,
+                                usageTime = suggestUsage.dateTime?.time ?: it.usageTime,
+                                usageTitle = suggestUsage.title,
+                                usageDescription = suggestUsage.description,
+                                usageCategorySet = run category@{
+                                    CategorySelectDialogViewModel.SelectedResult(
+                                        categoryId = suggestUsage.subCategory?.category?.id ?: return@category null,
+                                        categoryName = suggestUsage.subCategory?.category?.name ?: return@category null,
+                                        subCategoryId = suggestUsage.subCategory?.id ?: return@category null,
+                                        subCategoryName = suggestUsage.subCategory?.name ?: return@category null,
+                                    )
+                                }
+                            )
+                        }
+                    }
+                    .onFailure {
+                        // TODO
+                    }
+            }
         }
     }
 
@@ -286,6 +313,7 @@ public class AddMoneyUsageViewModel(
 
     private data class ViewModelState(
         val usageDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
+        val usageTime: LocalTime = LocalTime(0, 0, 0, 0),
         val usageTitle: String = "",
         val usageDescription: String = "",
         val usageAmount: Int = 0,

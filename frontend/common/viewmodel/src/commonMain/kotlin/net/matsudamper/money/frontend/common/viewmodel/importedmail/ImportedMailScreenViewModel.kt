@@ -93,7 +93,7 @@ public class ImportedMailScreenViewModel(
                 date = mail.dateTime.toString(),
                 from = mail.from,
             ),
-            usageSuggest = mail.suggestUsages.map { suggestUsage ->
+            usageSuggest = mail.suggestUsages.mapIndexed { index, suggestUsage ->
                 MailScreenUiState.UsageSuggest(
                     title = suggestUsage.title,
                     amount = run amount@{
@@ -118,6 +118,7 @@ public class ImportedMailScreenViewModel(
                                     it.navigate(
                                         ScreenStructure.AddMoneyUsage(
                                             importedMailId = importedMailId,
+                                            importedMailIndex = index,
                                         ),
                                     )
                                 }

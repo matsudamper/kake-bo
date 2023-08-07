@@ -4,8 +4,10 @@ import kotlinx.datetime.LocalDateTime
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
+import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.graphql.AddMoneyUsageMutation
+import net.matsudamper.money.frontend.graphql.AddMoneyUsageScreenQuery
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.type.AddUsageQuery
 
@@ -34,5 +36,19 @@ public class AddMoneyUsageScreenApi(
                 )
                 .execute()
         }.getOrNull()
+    }
+
+    public suspend fun get(
+        id: ImportedMailId,
+    ): Result<ApolloResponse<AddMoneyUsageScreenQuery.Data>> {
+        return runCatching {
+            apolloClient
+                .query(
+                    AddMoneyUsageScreenQuery(
+                        id = id
+                    )
+                )
+                .execute()
+        }
     }
 }

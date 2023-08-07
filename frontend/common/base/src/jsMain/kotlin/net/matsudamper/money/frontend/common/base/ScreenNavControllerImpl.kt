@@ -133,7 +133,12 @@ public class ScreenNavControllerImpl(
                 queryParams = queryParams,
             )
 
-            Screens.AddMoneyUsage -> ScreenStructure.AddMoneyUsage()
+            Screens.AddMoneyUsage -> {
+                ScreenStructure.AddMoneyUsage.fromQueryParams(
+                    queryParams = queryParams,
+                )
+            }
+
             Screens.ImportedMail -> {
                 ScreenStructure.ImportedMail(
                     id = run id@{
