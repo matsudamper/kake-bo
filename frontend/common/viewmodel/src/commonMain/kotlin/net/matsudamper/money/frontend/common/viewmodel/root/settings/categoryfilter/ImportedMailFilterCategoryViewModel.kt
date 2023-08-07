@@ -10,11 +10,14 @@ import kotlinx.coroutines.launch
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImportedMailFilterCategoryScreenUiState
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
+import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterDataSourceType
+import net.matsudamper.money.frontend.graphql.type.ImportedMailFilterCategoryConditionOperator
 
 public class ImportedMailFilterCategoryViewModel(
     private val coroutineScope: CoroutineScope,
@@ -50,17 +53,8 @@ public class ImportedMailFilterCategoryViewModel(
                                 val filter = response.value.data?.user?.importedMailCategoryFilter
                                     ?: return@loadingState ImportedMailFilterCategoryScreenUiState.LoadingState.Error
 
-                                ImportedMailFilterCategoryScreenUiState.LoadingState.Loaded(
-                                    title = filter.title,
-                                    category = run category@{
-                                        val subCategory = filter.subCategory ?: return@category null
-                                        val category = subCategory.category
-
-                                        ImportedMailFilterCategoryScreenUiState.Category(
-                                            category = category.name,
-                                            subCategory = subCategory.name,
-                                        )
-                                    },
+                                createLoadedUiState(
+                                    filter = filter,
                                 )
                             }
                         }
@@ -83,6 +77,68 @@ public class ImportedMailFilterCategoryViewModel(
                 }
             }
         }
+    }
+
+    private fun createLoadedUiState(
+        filter: ImportedMailCategoryFilterScreenQuery.ImportedMailCategoryFilter,
+    ): ImportedMailFilterCategoryScreenUiState.LoadingState.Loaded {
+        return ImportedMailFilterCategoryScreenUiState.LoadingState.Loaded(
+            title = filter.importedMailCategoryFilterScreenItem.title,
+            category = run category@{
+                val subCategory = filter.importedMailCategoryFilterScreenItem.subCategory ?: return@category null
+                val category = subCategory.category
+
+                ImportedMailFilterCategoryScreenUiState.Category(
+                    category = category.name,
+                    subCategory = subCategory.name,
+                )
+            },
+            conditions = filter.importedMailCategoryFilterScreenItem.conditions.orEmpty().map { condition ->
+                ImportedMailFilterCategoryScreenUiState.Condition(
+                    text = condition.text,
+                    source = when (condition.dataSourceType) {
+                        ImportedMailCategoryFilterDataSourceType.MailBody -> ImportedMailFilterCategoryScreenUiState.DataSource.MailBody
+                        ImportedMailCategoryFilterDataSourceType.MailFrom -> ImportedMailFilterCategoryScreenUiState.DataSource.MailFrom
+                        ImportedMailCategoryFilterDataSourceType.MailTitle -> ImportedMailFilterCategoryScreenUiState.DataSource.MailTitle
+                        ImportedMailCategoryFilterDataSourceType.ServiceName -> ImportedMailFilterCategoryScreenUiState.DataSource.ServiceName
+                        ImportedMailCategoryFilterDataSourceType.Title -> ImportedMailFilterCategoryScreenUiState.DataSource.Title
+                        ImportedMailCategoryFilterDataSourceType.UNKNOWN__ -> ImportedMailFilterCategoryScreenUiState.DataSource.Unknown
+                    },
+                    conditionType = ImportedMailFilterCategoryScreenUiState.ConditionType.NotInclude,
+                    event = object : ImportedMailFilterCategoryScreenUiState.ConditionEvent {
+                        override fun onClickTextChange() {
+                            TODO("Not yet implemented")
+                        }
+
+                        override fun selectedSource(source: ImportedMailFilterCategoryScreenUiState.DataSource) {
+                            TODO("Not yet implemented")
+                        }
+
+                        override fun selectedConditionType(type: ImportedMailFilterCategoryScreenUiState.ConditionType) {
+                            TODO("Not yet implemented")
+                        }
+                    },
+                )
+            }.toImmutableList(),
+            operator = when (filter.importedMailCategoryFilterScreenItem.operator) {
+                ImportedMailFilterCategoryConditionOperator.AND -> ImportedMailFilterCategoryScreenUiState.Operator.AND
+                ImportedMailFilterCategoryConditionOperator.OR -> ImportedMailFilterCategoryScreenUiState.Operator.OR
+                ImportedMailFilterCategoryConditionOperator.UNKNOWN__ -> ImportedMailFilterCategoryScreenUiState.Operator.UNKNOWN
+            },
+            event = object : ImportedMailFilterCategoryScreenUiState.LoadedEvent {
+                override fun onClickAddCondition() {
+                    // TODO
+                }
+
+                override fun onClickNameChange() {
+                    // TODO
+                }
+
+                override fun onSelectedOperator(operator: ImportedMailFilterCategoryScreenUiState.Operator) {
+                    // TODO
+                }
+            },
+        )
     }
 
     private data class ViewModelState(
