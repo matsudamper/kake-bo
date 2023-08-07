@@ -127,6 +127,7 @@ public data class ImportedMailFilterCategoryScreenUiState(
     public data class TextInput(
         val title: String,
         val onCompleted: (String) -> Unit,
+        val default: String,
         val dismiss: () -> Unit,
     )
 
@@ -164,7 +165,7 @@ public fun ImportedMailFilterCategoryScreen(
             title = textInput.title,
             onComplete = { textInput.onCompleted(it) },
             canceled = { textInput.dismiss() },
-            default = "",
+            default = textInput.default,
             isMultiline = false,
         )
     }

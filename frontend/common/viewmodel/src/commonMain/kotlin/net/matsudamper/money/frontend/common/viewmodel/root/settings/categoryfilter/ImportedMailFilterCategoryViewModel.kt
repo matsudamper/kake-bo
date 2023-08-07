@@ -12,23 +12,33 @@ import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImportedMailFilterCategoryScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.GraphqlClient
+import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenAddConditionMutation
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
+import net.matsudamper.money.frontend.graphql.type.AddImportedMailCategoryFilterConditionInput
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterDataSourceType
 import net.matsudamper.money.frontend.graphql.type.ImportedMailFilterCategoryConditionOperator
+
 
 public class ImportedMailFilterCategoryViewModel(
     private val coroutineScope: CoroutineScope,
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
     private val id: ImportedMailCategoryFilterId,
+    private val api: ImportedMailFilterCategoryScreenGraphqlApi,
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
     private val apiResponseCollector = ApolloResponseCollector.create(
         apolloClient = apolloClient,
         query = ImportedMailCategoryFilterScreenQuery(id = id),
     )
+
+    private val eventSender = EventSender<Event>()
+    public val eventHandler: EventHandler<Event> = eventSender.asHandler()
+
     public val uiStateFlow: StateFlow<ImportedMailFilterCategoryScreenUiState> = MutableStateFlow(
         ImportedMailFilterCategoryScreenUiState(
             textInput = null,
@@ -61,6 +71,7 @@ public class ImportedMailFilterCategoryViewModel(
                     }
                     uiState.copy(
                         loadingState = loadingState,
+                        textInput = viewModelState.textInput,
                     )
                 }
             }
@@ -131,7 +142,28 @@ public class ImportedMailFilterCategoryViewModel(
                 }
 
                 override fun onClickNameChange() {
-                    // TODO
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(
+                            textInput = ImportedMailFilterCategoryScreenUiState.TextInput(
+                                title = "タイトルを変更",
+                                onCompleted = {
+                                    coroutineScope.launch {
+                                        api.updateFilter(id = id, title = it)
+                                            .onSuccess {
+                                                dismissTextInput()
+                                            }
+                                            .onFailure {
+                                                eventSender.send {
+                                                    it.showNativeAlert("更新に失敗しました。")
+                                                }
+                                            }
+                                    }
+                                },
+                                default = filter.importedMailCategoryFilterScreenItem.title,
+                                dismiss = { dismissTextInput() }
+                            ),
+                        )
+                    }
                 }
 
                 override fun onSelectedOperator(operator: ImportedMailFilterCategoryScreenUiState.Operator) {
@@ -141,7 +173,20 @@ public class ImportedMailFilterCategoryViewModel(
         )
     }
 
+    private fun dismissTextInput() {
+        viewModelStateFlow.update { viewModelState ->
+            viewModelState.copy(
+                textInput = null,
+            )
+        }
+    }
+
+    public interface Event {
+        public fun showNativeAlert(text: String)
+    }
+
     private data class ViewModelState(
         val apolloResponseState: ApolloResponseState<ApolloResponse<ImportedMailCategoryFilterScreenQuery.Data>> = ApolloResponseState.loading(),
+        val textInput: ImportedMailFilterCategoryScreenUiState.TextInput? = null,
     )
 }

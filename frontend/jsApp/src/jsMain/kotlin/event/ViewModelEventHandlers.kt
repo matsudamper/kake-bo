@@ -18,6 +18,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.list.RootListViewMod
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailLinkViewModelEvent
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilter.ImportedMailFilterCategoryViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters.SettingMailCategoryFiltersViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
@@ -196,6 +197,21 @@ data class ViewModelEventHandlers(
                 object : SettingMailCategoryFiltersViewModel.Event {
                     override fun navigate(structure: ScreenStructure) {
                         navController.navigate(structure)
+                    }
+                },
+            )
+        }
+    }
+
+    suspend fun handle(handler: EventHandler<ImportedMailFilterCategoryViewModel.Event>) {
+        coroutineScope {
+            val scope = this
+            handler.collect(
+                object : ImportedMailFilterCategoryViewModel.Event {
+                    override fun showNativeAlert(text: String) {
+                        scope.launch {
+                            globalEventSender.send { it.showNativeNotification(text) }
+                        }
                     }
                 },
             )

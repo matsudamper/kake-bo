@@ -186,6 +186,49 @@ class MailFilterRepository(
         )
     }
 
+    /**
+     * @return update success or not
+     */
+    fun updateFilter(
+        filterId: ImportedMailCategoryFilterId,
+        userId: UserId,
+        title: String? = null,
+        orderNum: Int? = null,
+        subCategory: MoneyUsageSubCategoryId? = null,
+    ): Boolean {
+        return runCatching {
+            dbConnection.use {
+                val resultCount = DSL.using(it)
+                    .update(filters)
+                    .set(
+                        buildMap {
+                            if (title != null) {
+                                put(filters.TITLE, title)
+                            }
+                            if (orderNum != null) {
+                                put(filters.ORDER_NUMBER, orderNum)
+                            }
+                            if (subCategory != null) {
+                                put(filters.MONEY_USAGE_SUB_CATEGORY_ID, subCategory.id)
+                            }
+                        },
+                    )
+                    .where(
+                        DSL.value(true)
+                            .and(filters.USER_ID.eq(userId.id))
+                            .and(filters.CATEGORY_MAIL_FILTER_ID.eq(filterId.id)),
+                    )
+                    .limit(1)
+                    .execute()
+
+                resultCount == 1
+            }
+        }.fold(
+            onSuccess = { it },
+            onFailure = { false },
+        )
+    }
+
     data class MailFiltersResult(
         val items: List<MailFilter>,
         val cursor: MailFilterCursor?,
