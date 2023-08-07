@@ -4,6 +4,8 @@ import kotlinx.datetime.LocalDateTime
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo3.cache.normalized.FetchPolicy
+import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.graphql.AddMoneyUsageMutation
@@ -48,6 +50,7 @@ public class AddMoneyUsageScreenApi(
                         id = id
                     )
                 )
+                .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
         }
     }
