@@ -203,7 +203,16 @@ public class ImportedMailFilterCategoryViewModel(
                 }
 
                 override fun onSelectedOperator(operator: ImportedMailFilterCategoryScreenUiState.Operator) {
-                    // TODO
+                    coroutineScope.launch {
+                        runCatching {
+                            api.updateFilter(
+                                id = id,
+                                operator = operator,
+                            )
+                        }.onFailure {
+
+                        }
+                    }
                 }
 
                 override fun onClickCategoryChange() {
