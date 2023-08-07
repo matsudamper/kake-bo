@@ -1,6 +1,5 @@
 package net.matsudamper.money.backend.base.element
 
-
 public enum class MoneyUsageServiceType(
     private val id: Int,
     public val displayName: String,

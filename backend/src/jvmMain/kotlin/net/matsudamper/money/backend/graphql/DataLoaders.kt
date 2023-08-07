@@ -50,7 +50,6 @@ class DataLoaders(
         ImportedMailCategoryFiltersDataLoaderDefine(repositoryFactory)
     }
 
-
     val importedMailCategoryFilterConditionDataLoader by register {
         ImportedMailCategoryFilterConditionDataLoaderDefine(repositoryFactory)
     }

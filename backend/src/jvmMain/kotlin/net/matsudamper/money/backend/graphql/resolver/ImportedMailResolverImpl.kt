@@ -1,5 +1,7 @@
 package net.matsudamper.money.backend.graphql.resolver
 
+import java.time.LocalDateTime
+import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
@@ -10,8 +12,6 @@ import net.matsudamper.money.backend.mail.parser.MailMoneyUsageParser
 import net.matsudamper.money.graphql.model.ImportedMailResolver
 import net.matsudamper.money.graphql.model.QlImportedMail
 import net.matsudamper.money.graphql.model.QlMoneyUsageSuggest
-import java.time.LocalDateTime
-import java.util.concurrent.CompletionStage
 
 class ImportedMailResolverImpl : ImportedMailResolver {
     override fun subject(
@@ -140,12 +140,12 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                             dateTime = result.dateTime,
                             serviceName = result.service.displayName,
                         )
-                    }
+                    },
                 )
                 .localContext(
                     MoneyUsageSuggestLocalContext(
                         importedMailId = targetMail.id,
-                    )
+                    ),
                 )
                 .build()
         }

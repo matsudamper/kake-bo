@@ -34,7 +34,7 @@ public class AddMoneyUsageScreenApi(
                             description = description,
                             amount = amount,
                             date = datetime,
-                            importedMailId = Optional.present(importedMailId)
+                            importedMailId = Optional.present(importedMailId),
                         ),
                     ),
                 )

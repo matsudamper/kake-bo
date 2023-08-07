@@ -20,7 +20,7 @@ class MoneyUsageRepository {
     fun addMailRelation(
         userId: UserId,
         importedMailId: ImportedMailId,
-        usageId: MoneyUsageId
+        usageId: MoneyUsageId,
     ): Boolean {
         return runCatching {
             DbConnectionImpl.use { connection ->
@@ -32,7 +32,7 @@ class MoneyUsageRepository {
                         .where(
                             DSL.value(true)
                                 .and(usage.USER_ID.eq(userId.id))
-                                .and(usage.MONEY_USAGE_ID.eq(usageId.id))
+                                .and(usage.MONEY_USAGE_ID.eq(usageId.id)),
                         )
                         .execute()
                     if (count != 1) {
@@ -46,7 +46,7 @@ class MoneyUsageRepository {
                         .where(
                             DSL.value(true)
                                 .and(relation.USER_ID.eq(userId.id))
-                                .and(relation.USER_MAIL_ID.eq(importedMailId.id))
+                                .and(relation.USER_MAIL_ID.eq(importedMailId.id)),
                         )
                         .execute()
                     if (count != 1) {
