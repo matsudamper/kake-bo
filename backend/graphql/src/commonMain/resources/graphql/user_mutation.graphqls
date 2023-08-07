@@ -1,20 +1,26 @@
 type UserMutation {
     userLogin(name: String!, password: String!): UserLoginResult!
     settingsMutation: SettingsMutation @lazy
+
     importMail(mailIds: [MailId!]!): ImportMailResult!
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
+
     addUsage(usage: AddUsageQuery!): MoneyUsage!
+
     addCategory(input: AddCategoryInput!) : AddCategoryResult!
     updateCategory(id: MoneyUsageCategoryId!, query: UpdateCategoryQuery!): MoneyUsageCategory!
+
     addSubCategory(input: AddSubCategoryInput!) : AddSubCategoryResult!
     updateSubCategory(id: MoneyUsageSubCategoryId!, query: UpdateSubCategoryQuery!): MoneyUsageSubCategory!
     deleteSubCategory(id: MoneyUsageSubCategoryId!): Boolean!
 
     addImportedMailCategoryFilter(input: AddImportedMailCategoryFilterInput!): ImportedMailCategoryFilter
     updateImportedMailCategoryFilter(input: UpdateImportedMailCategoryFilterInput!): ImportedMailCategoryFilter
+    deleteImportedMailCategoryFilter(id: ImportedMailCategoryFilterId!): Boolean!
 
     addImportedMailCategoryFilterCondition(input: AddImportedMailCategoryFilterConditionInput!): ImportedMailCategoryFilter
     updateImportedMailCategoryFilterCondition(input: UpdateImportedMailCategoryFilterConditionInput!): ImportedMailCategoryCondition
+    deleteImportedMailCategoryFilterCondition(id: ImportedMailCategoryFilterConditionId!): Boolean!
 }
 
 input UpdateImportedMailCategoryFilterConditionInput {

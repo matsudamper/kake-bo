@@ -18,6 +18,8 @@ import net.matsudamper.money.backend.repository.MoneyUsageRepository
 import net.matsudamper.money.backend.repository.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.repository.UserLoginRepository
 import net.matsudamper.money.backend.repository.UserSessionRepository
+import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
+import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
@@ -444,6 +446,22 @@ class UserMutationResolverImpl : UserMutationResolver {
                 id = input.id,
             )
         }.toDataFetcher()
+    }
+
+    override fun deleteImportedMailCategoryFilter(
+        userMutation: QlUserMutation,
+        id: ImportedMailCategoryFilterId,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<Boolean>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun deleteImportedMailCategoryFilterCondition(
+        userMutation: QlUserMutation,
+        id: ImportedMailCategoryFilterConditionId,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<Boolean>> {
+        TODO("Not yet implemented")
     }
 }
 
