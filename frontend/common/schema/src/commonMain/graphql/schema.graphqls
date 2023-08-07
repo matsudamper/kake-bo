@@ -193,6 +193,7 @@ type UserMailConnection {
 type UserMutation {
     addCategory(input: AddCategoryInput!): AddCategoryResult!
     addImportedMailCategoryFilter(input: AddImportedMailCategoryFilterInput!): ImportedMailCategoryFilter
+    addImportedMailCategoryFilterCondition(input: AddImportedMailCategoryFilterConditionInput!): ImportedMailCategoryFilter
     addSubCategory(input: AddSubCategoryInput!): AddSubCategoryResult!
     addUsage(usage: AddUsageQuery!): MoneyUsage!
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
@@ -200,6 +201,8 @@ type UserMutation {
     importMail(mailIds: [MailId!]!): ImportMailResult!
     settingsMutation: SettingsMutation
     updateCategory(id: MoneyUsageCategoryId!, query: UpdateCategoryQuery!): MoneyUsageCategory!
+    updateImportedMailCategoryFilter(input: UpdateImportedMailCategoryFilterInput!): ImportedMailCategoryFilter
+    updateImportedMailCategoryFilterCondition(input: UpdateImportedMailCategoryFilterConditionInput!): ImportedMailCategoryCondition
     updateSubCategory(id: MoneyUsageSubCategoryId!, query: UpdateSubCategoryQuery!): MoneyUsageSubCategory!
     userLogin(name: String!, password: String!): UserLoginResult!
 }
@@ -278,6 +281,13 @@ input AddCategoryInput {
     name: String!
 }
 
+input AddImportedMailCategoryFilterConditionInput {
+    conditionType: ImportedMailCategoryFilterConditionType
+    dataSourceType: ImportedMailCategoryFilterDataSourceType
+    id: ImportedMailCategoryFilterId!
+    text: String
+}
+
 input AddImportedMailCategoryFilterInput {
     title: String!
 }
@@ -336,6 +346,21 @@ input MoneyUsagesQuery {
 
 input UpdateCategoryQuery {
     name: String
+}
+
+input UpdateImportedMailCategoryFilterConditionInput {
+    conditionType: ImportedMailCategoryFilterConditionType
+    dataSourceType: ImportedMailCategoryFilterDataSourceType
+    id: ImportedMailCategoryFilterConditionId!
+    text: String
+}
+
+input UpdateImportedMailCategoryFilterInput {
+    id: ImportedMailCategoryFilterId!
+    operator: ImportedMailFilterCategoryConditionOperator
+    orderNumber: Int
+    subCategoryId: MoneyUsageSubCategoryId
+    title: String
 }
 
 input UpdateSubCategoryQuery {
