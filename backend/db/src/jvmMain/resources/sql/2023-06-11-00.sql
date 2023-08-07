@@ -71,10 +71,10 @@ CREATE TABLE money_usage_categories
     user_id                 INT                                not null,
     name                    VARCHAR(500)                       not null,
     created_datetime        DATETIME DEFAULT CURRENT_TIMESTAMP not null,
-    update_datetime         DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP
+    update_datetime         DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP,
+    INDEX user_id (user_id),
+    INDEX user_index (money_usage_category_id, user_id),
 );
-CREATE INDEX user_id ON money_usage_categories (user_id);
-CREATE INDEX user_index ON money_usage_categories (money_usage_category_id, user_id);
 
 CREATE TABLE money_usage_sub_categories
 (
@@ -83,10 +83,10 @@ CREATE TABLE money_usage_sub_categories
     money_usage_category_id     INT                                not null,
     name                        VARCHAR(500)                       not null,
     created_datetime            DATETIME DEFAULT CURRENT_TIMESTAMP not null,
-    update_datetime             DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP
+    update_datetime             DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP,
+    INDEX user_id (user_id),
+    INDEX user_index (money_usage_sub_category_id, user_id)
 );
-CREATE INDEX user_id ON money_usage_sub_categories (user_id);
-CREATE INDEX user_index ON money_usage_sub_categories (money_usage_sub_category_id, user_id);
 
 CREATE TABLE money_usages
 (
