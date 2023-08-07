@@ -24,7 +24,7 @@ public enum class MoneyUsageServiceType(
     ),
     MovieTicket(
         dbValue = 5,
-        displayName = "Movie Ticket",
+        displayName = "ムビチケ",
     ),
     GooglePlay(
         dbValue = 7,
