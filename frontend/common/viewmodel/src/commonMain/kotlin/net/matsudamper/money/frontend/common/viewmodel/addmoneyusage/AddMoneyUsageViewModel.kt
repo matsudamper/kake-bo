@@ -14,14 +14,20 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
 public class AddMoneyUsageViewModel(
     private val coroutineScope: CoroutineScope,
     private val graphqlApi: AddMoneyUsageScreenApi,
 ) {
+    private val eventSender = EventSender<Event>()
+    public val eventHandler: EventHandler<Event> = eventSender.asHandler()
+
     private val categorySelectDialogViewModel = object {
         private val event: CategorySelectDialogViewModel.Event = object : CategorySelectDialogViewModel.Event {
             override fun selected(result: CategorySelectDialogViewModel.SelectedResult) {
@@ -204,6 +210,21 @@ public class AddMoneyUsageViewModel(
             viewModelStateFlow.update {
                 ViewModelState()
             }
+            coroutineScope.launch {
+                eventSender.send {
+                    it.navigate(ScreenStructure.AddMoneyUsage())
+                }
+            }
+        }
+    }
+
+    public fun updateScreenStructure(current: ScreenStructure.AddMoneyUsage) {
+        if (current.importedMailId == null) {
+            viewModelStateFlow.update {
+                ViewModelState()
+            }
+        } else {
+            // TODO
         }
     }
 
@@ -258,6 +279,10 @@ public class AddMoneyUsageViewModel(
             }
         }
     }.asStateFlow()
+
+    public interface Event {
+        public fun navigate(structure: ScreenStructure)
+    }
 
     private data class ViewModelState(
         val usageDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),

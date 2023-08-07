@@ -351,6 +351,14 @@ private fun Content(
                             graphqlApi = AddMoneyUsageScreenApi(),
                         )
                     }
+                    LaunchedEffect(viewModel.eventHandler) {
+                        viewModelEventHandlers.handle(
+                            handler = viewModel.eventHandler,
+                        )
+                    }
+                    LaunchedEffect(current) {
+                        viewModel.updateScreenStructure(current)
+                    }
                     AddMoneyUsageScreen(
                         modifier = Modifier.fillMaxSize(),
                         uiState = viewModel.uiStateFlow.collectAsState().value,
