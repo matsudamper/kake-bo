@@ -195,6 +195,7 @@ class MailFilterRepository(
         title: String? = null,
         orderNum: Int? = null,
         subCategory: MoneyUsageSubCategoryId? = null,
+        operator: ImportedMailFilterCategoryConditionOperator? = null,
     ): Boolean {
         return runCatching {
             dbConnection.use {
@@ -210,6 +211,9 @@ class MailFilterRepository(
                             }
                             if (subCategory != null) {
                                 put(filters.MONEY_USAGE_SUB_CATEGORY_ID, subCategory.id)
+                            }
+                            if (operator != null) {
+                                put(filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID, operator.dbValue)
                             }
                         },
                     )

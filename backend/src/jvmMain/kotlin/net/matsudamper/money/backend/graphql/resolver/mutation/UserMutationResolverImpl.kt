@@ -8,6 +8,7 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
+import net.matsudamper.money.backend.graphql.converter.toDBElement
 import net.matsudamper.money.backend.graphql.converter.toDbElement
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
@@ -382,6 +383,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                 title = input.title,
                 orderNum = input.orderNumber,
                 subCategory = input.subCategoryId,
+                operator = input.operator?.toDBElement()
             )
             if (isSuccess) {
                 QlImportedMailCategoryFilter(
