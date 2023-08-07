@@ -137,17 +137,13 @@ public fun MainContent(
                         }
                     }
                     items(state.item) { item ->
-                        Card(
+                        SettingListMenuItemButton(
                             modifier = Modifier
                                 .fillMaxWidth(),
                             onClick = { item.event.onClick() },
                         ) {
                             Text(
-                                modifier = Modifier
-                                    .padding(
-                                        horizontal = 24.dp,
-                                        vertical = 24.dp,
-                                    ),
+                                modifier = Modifier,
                                 text = item.name,
                             )
                         }

@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.settings
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,19 +13,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
@@ -34,7 +28,6 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
-import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
 public data class SettingMailCategoryFilterScreenUiState(
     public val event: Event,
@@ -137,7 +130,6 @@ public fun SettingMailCategoryFiltersScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LoadedContent(
     modifier: Modifier = Modifier,
@@ -158,40 +150,10 @@ private fun LoadedContent(
             contentPadding = PaddingValues(8.dp),
         ) {
             items(uiState.filters) { item ->
-                ItemCard(onClick = { item.event.onClick() }) {
-                    Row(
-                        modifier = Modifier.padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(item.title)
-                    }
+                SettingListMenuItemButton(onClick = { item.event.onClick() }) {
+                    Text(item.title)
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun ItemCard(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
-    content: @Composable () -> Unit,
-) {
-    Box(
-        modifier = modifier.fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
-            .clickable { onClick() }
-            .padding(horizontal = 8.dp)
-            .padding(vertical = 16.dp),
-        contentAlignment = Alignment.CenterStart,
-    ) {
-        ProvideTextStyle(
-            titleStyle.copy(
-                fontFamily = rememberCustomFontFamily(),
-            ),
-        ) {
-            content()
         }
     }
 }
