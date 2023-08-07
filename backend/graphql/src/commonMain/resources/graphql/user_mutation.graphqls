@@ -11,10 +11,39 @@ type UserMutation {
     deleteSubCategory(id: MoneyUsageSubCategoryId!): Boolean!
 
     addImportedMailCategoryFilter(input: AddImportedMailCategoryFilterInput!): ImportedMailCategoryFilter
+    updateImportedMailCategoryFilter(input: UpdateImportedMailCategoryFilterInput!): ImportedMailCategoryFilter
+
+    addImportedMailCategoryFilterCondition(input: AddImportedMailCategoryFilterConditionInput!): ImportedMailCategoryFilter
+    updateImportedMailCategoryFilterCondition(input: UpdateImportedMailCategoryFilterConditionInput!): ImportedMailCategoryCondition
+}
+
+input UpdateImportedMailCategoryFilterConditionInput {
+    id: ImportedMailCategoryFilterConditionId!
+
+    text: String
+    dataSourceType: ImportedMailCategoryFilterDataSourceType
+    conditionType: ImportedMailCategoryFilterConditionType
+}
+
+input AddImportedMailCategoryFilterConditionInput {
+    id: ImportedMailCategoryFilterId!
+
+    text: String
+    dataSourceType: ImportedMailCategoryFilterDataSourceType
+    conditionType: ImportedMailCategoryFilterConditionType
 }
 
 input AddImportedMailCategoryFilterInput {
     title: String!
+}
+
+input UpdateImportedMailCategoryFilterInput {
+    id: ImportedMailCategoryFilterId!
+
+    title: String
+    subCategoryId: MoneyUsageSubCategoryId
+    orderNumber: Int
+    operator: ImportedMailFilterCategoryConditionOperator
 }
 
 input UpdateSubCategoryQuery {

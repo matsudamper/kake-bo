@@ -21,6 +21,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.graphql.model.QlAddCategoryInput
 import net.matsudamper.money.graphql.model.QlAddCategoryResult
+import net.matsudamper.money.graphql.model.QlAddImportedMailCategoryFilterConditionInput
 import net.matsudamper.money.graphql.model.QlAddImportedMailCategoryFilterInput
 import net.matsudamper.money.graphql.model.QlAddSubCategoryError
 import net.matsudamper.money.graphql.model.QlAddSubCategoryInput
@@ -29,12 +30,15 @@ import net.matsudamper.money.graphql.model.QlAddUsageQuery
 import net.matsudamper.money.graphql.model.QlDeleteMailResult
 import net.matsudamper.money.graphql.model.QlDeleteMailResultError
 import net.matsudamper.money.graphql.model.QlImportMailResult
+import net.matsudamper.money.graphql.model.QlImportedMailCategoryCondition
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilter
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
 import net.matsudamper.money.graphql.model.QlSettingsMutation
 import net.matsudamper.money.graphql.model.QlUpdateCategoryQuery
+import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterConditionInput
+import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterInput
 import net.matsudamper.money.graphql.model.QlUpdateSubCategoryQuery
 import net.matsudamper.money.graphql.model.QlUserLoginResult
 import net.matsudamper.money.graphql.model.QlUserMutation
@@ -331,6 +335,30 @@ class UserMutationResolverImpl : UserMutationResolver {
                 }
             }
         }.toDataFetcher()
+    }
+
+    override fun updateImportedMailCategoryFilter(
+        userMutation: QlUserMutation,
+        input: QlUpdateImportedMailCategoryFilterInput,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFilter?>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun addImportedMailCategoryFilterCondition(
+        userMutation: QlUserMutation,
+        input: QlAddImportedMailCategoryFilterConditionInput,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFilter?>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun updateImportedMailCategoryFilterCondition(
+        userMutation: QlUserMutation,
+        input: QlUpdateImportedMailCategoryFilterConditionInput,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlImportedMailCategoryCondition?>> {
+        TODO("Not yet implemented")
     }
 }
 
