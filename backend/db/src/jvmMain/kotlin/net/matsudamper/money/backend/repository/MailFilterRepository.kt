@@ -233,6 +233,27 @@ class MailFilterRepository(
         )
     }
 
+    fun deleteFilter(filterId: ImportedMailCategoryFilterId, userId: UserId): Boolean {
+        return runCatching {
+            dbConnection.use {
+                val resultCount = DSL.using(it)
+                    .deleteFrom(filters)
+                    .where(
+                        DSL.value(true)
+                            .and(filters.USER_ID.eq(userId.id))
+                            .and(filters.CATEGORY_MAIL_FILTER_ID.eq(filterId.id)),
+                    )
+                    .limit(1)
+                    .execute()
+
+                resultCount == 1
+            }
+        }.fold(
+            onSuccess = { it },
+            onFailure = { false },
+        )
+    }
+
     /**
      * @return insert success or not
      */
@@ -314,6 +335,32 @@ class MailFilterRepository(
             onFailure = { false }
         )
     }
+
+    fun deleteCondition(
+        userId: UserId,
+        conditionId: ImportedMailCategoryFilterConditionId,
+    ): Boolean {
+        return runCatching {
+            dbConnection.use {
+                val resultRowCount = DSL.using(it)
+                    .deleteFrom(conditions)
+                    .where(
+                        DSL.value(true)
+                            .and(conditions.USER_ID.eq(userId.id))
+                            .and(conditions.CATEGORY_MAIL_FILTER_CONDITION_ID.eq(conditionId.id)),
+                    )
+                    .limit(1)
+                    .execute()
+                resultRowCount == 1
+            }
+        }.onFailure {
+            it.printStackTrace()
+        }.fold(
+            onSuccess = { it },
+            onFailure = { false }
+        )
+    }
+
     data class MailFiltersResult(
         val items: List<MailFilter>,
         val cursor: MailFilterCursor?,

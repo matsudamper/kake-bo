@@ -453,7 +453,17 @@ class UserMutationResolverImpl : UserMutationResolver {
         id: ImportedMailCategoryFilterId,
         env: DataFetchingEnvironment
     ): CompletionStage<DataFetcherResult<Boolean>> {
-        TODO("Not yet implemented")
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+        val repository = context.repositoryFactory.createMailFilterRepository()
+
+        return CompletableFuture.allOf().thenApplyAsync {
+            val isSuccess = repository.deleteFilter(
+                userId = userId,
+                filterId = id,
+            )
+            isSuccess
+        }.toDataFetcher()
     }
 
     override fun deleteImportedMailCategoryFilterCondition(
@@ -461,7 +471,17 @@ class UserMutationResolverImpl : UserMutationResolver {
         id: ImportedMailCategoryFilterConditionId,
         env: DataFetchingEnvironment
     ): CompletionStage<DataFetcherResult<Boolean>> {
-        TODO("Not yet implemented")
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+        val repository = context.repositoryFactory.createMailFilterRepository()
+
+        return CompletableFuture.allOf().thenApplyAsync {
+            val isSuccess = repository.deleteCondition(
+                userId = userId,
+                conditionId = id,
+            )
+            isSuccess
+        }.toDataFetcher()
     }
 }
 
