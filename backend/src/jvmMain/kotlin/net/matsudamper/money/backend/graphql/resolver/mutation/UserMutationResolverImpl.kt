@@ -8,6 +8,7 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
+import net.matsudamper.money.backend.graphql.converter.toDbElement
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
 import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
@@ -369,7 +370,25 @@ class UserMutationResolverImpl : UserMutationResolver {
         input: QlAddImportedMailCategoryFilterConditionInput,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFilter?>> {
-        TODO("Not yet implemented")
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+        val repository = context.repositoryFactory.createMailFilterRepository()
+
+        return CompletableFuture.allOf().thenApplyAsync {
+            val isSuccess = repository.addCondition(
+                userId = userId,
+                filterId = input.id,
+                condition = input.conditionType?.toDbElement(),
+                text = input.text,
+                dataSource = input.dataSourceType?.toDbElement(),
+            )
+            if (isSuccess.not()) {
+                return@thenApplyAsync null
+            }
+            QlImportedMailCategoryFilter(
+                id = input.id,
+            )
+        }.toDataFetcher()
     }
 
     override fun updateImportedMailCategoryFilterCondition(

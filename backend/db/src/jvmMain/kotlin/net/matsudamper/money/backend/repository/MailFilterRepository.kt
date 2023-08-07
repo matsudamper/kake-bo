@@ -229,6 +229,47 @@ class MailFilterRepository(
         )
     }
 
+    /**
+     * @return insert success or not
+     */
+    fun addCondition(
+        userId: UserId,
+        filterId: ImportedMailCategoryFilterId,
+        condition: ImportedMailCategoryFilterConditionType?,
+        text: String?,
+        dataSource: ImportedMailCategoryFilterDatasourceType?
+    ): Boolean {
+        return runCatching {
+            // TODO filterIdが存在するかチェックする
+            dbConnection.use {
+                val resultRowCount = DSL.using(it)
+                    .insertInto(conditions)
+                    .set(
+                        buildMap {
+                            put(conditions.USER_ID, userId.id)
+                            put(conditions.CATEGORY_MAIL_FILTER_ID, filterId.id)
+                            put(
+                                conditions.CATEGORY_MAIL_FILTER_CONDITION_TYPE_ID,
+                                (condition ?: ImportedMailCategoryFilterConditionType.Include).dbValue
+                            )
+                            put(conditions.TEXT, text.orEmpty())
+                            put(
+                                conditions.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID,
+                                (dataSource ?: ImportedMailCategoryFilterDatasourceType.Title).dbValue
+                            )
+                        },
+                    )
+                    .execute()
+                resultRowCount == 1
+            }
+        }.onFailure {
+            it.printStackTrace()
+        }.fold(
+            onSuccess = { it },
+            onFailure = { false }
+        )
+    }
+
     data class MailFiltersResult(
         val items: List<MailFilter>,
         val cursor: MailFilterCursor?,

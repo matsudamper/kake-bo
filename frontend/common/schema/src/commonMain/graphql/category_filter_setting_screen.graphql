@@ -27,26 +27,46 @@ mutation ImportedMailCategoryFiltersScreenAddImportedMailCategory($input: AddImp
     }
 }
 
+mutation ImportedMailCategoryFilterUpdate($input: UpdateImportedMailCategoryFilterInput!) {
+    userMutation {
+        updateImportedMailCategoryFilter(input: $input) {
+            ... ImportedMailCategoryFilterScreenItem
+        }
+    }
+}
+
 query ImportedMailCategoryFilterScreen($id: ImportedMailCategoryFilterId!) {
     user {
         importedMailCategoryFilter(id: $id) {
-            id
-            title
-            operator
-            subCategory {
-                id
-                name
-                category {
-                    id
-                    name
-                }
-            }
-            conditions {
-                id
-                conditionType
-                dataSourceType
-                text
-            }
+            ... ImportedMailCategoryFilterScreenItem
         }
+    }
+}
+
+mutation ImportedMailCategoryFilterScreenAddCondition($input: AddImportedMailCategoryFilterConditionInput!) {
+    userMutation {
+        addImportedMailCategoryFilterCondition(input: $input) {
+            ... ImportedMailCategoryFilterScreenItem
+        }
+    }
+}
+
+fragment ImportedMailCategoryFilterScreenItem on ImportedMailCategoryFilter {
+    id
+    title
+    operator
+    subCategory {
+        id
+        name
+        category {
+            id
+            name
+        }
+    }
+    conditions {
+        id
+        conditionType
+        dataSourceType
+        text
     }
 }

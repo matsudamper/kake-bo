@@ -81,6 +81,7 @@ public class ImportedMailFilterCategoryViewModel(
     init {
         coroutineScope.launch {
             apiResponseCollector.flow.collectLatest { response ->
+                println("response: $response")
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         apolloResponseState = response,
@@ -138,7 +139,17 @@ public class ImportedMailFilterCategoryViewModel(
             },
             event = object : ImportedMailFilterCategoryScreenUiState.LoadedEvent {
                 override fun onClickAddCondition() {
-                    // TODO
+                    coroutineScope.launch {
+                        api.addCondition(id = id)
+                            .onSuccess {
+                                // TODO
+                            }
+                            .onFailure {
+                                eventSender.send {
+                                    it.showNativeAlert("追加に失敗しました。")
+                                }
+                            }
+                    }
                 }
 
                 override fun onClickNameChange() {
