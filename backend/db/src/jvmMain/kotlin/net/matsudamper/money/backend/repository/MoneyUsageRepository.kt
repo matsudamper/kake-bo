@@ -5,6 +5,7 @@ import java.time.LocalDateTime
 import net.matsudamper.money.backend.DbConnectionImpl
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
+import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsagesRecord
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageId
@@ -14,6 +15,59 @@ import org.jooq.kotlin.and
 
 class MoneyUsageRepository {
     private val usage = JMoneyUsages.MONEY_USAGES
+    private val relation = JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION
+
+    fun addMailRelation(
+        userId: UserId,
+        importedMailId: ImportedMailId,
+        usageId: MoneyUsageId
+    ): Boolean {
+        return runCatching {
+            DbConnectionImpl.use { connection ->
+                // 自分のものか確認する
+                run {
+                    val count = DSL.using(connection)
+                        .select(DSL.count())
+                        .from(usage)
+                        .where(
+                            DSL.value(true)
+                                .and(usage.USER_ID.eq(userId.id))
+                                .and(usage.MONEY_USAGE_ID.eq(usageId.id))
+                        )
+                        .execute()
+                    if (count != 1) {
+                        return@use false
+                    }
+                }
+                run {
+                    val count = DSL.using(connection)
+                        .select(DSL.count())
+                        .from(relation)
+                        .where(
+                            DSL.value(true)
+                                .and(relation.USER_ID.eq(userId.id))
+                                .and(relation.USER_MAIL_ID.eq(importedMailId.id))
+                        )
+                        .execute()
+                    if (count != 1) {
+                        return@use false
+                    }
+                }
+
+                DSL.using(connection)
+                    .insertInto(relation)
+                    .set(relation.USER_ID, userId.id)
+                    .set(relation.USER_MAIL_ID, importedMailId.id)
+                    .set(relation.MONEY_USAGE_ID, usageId.id)
+                    .execute() == 1
+            }
+        }.onFailure {
+            it.printStackTrace()
+        }.fold(
+            onSuccess = { it },
+            onFailure = { false },
+        )
+    }
 
     fun addUsage(
         userId: UserId,
@@ -22,7 +76,6 @@ class MoneyUsageRepository {
         subCategoryId: MoneyUsageSubCategoryId?,
         date: LocalDateTime,
         amount: Int,
-        importedMailId: ImportedMailId?,
     ): AddResult {
         return runCatching {
             DbConnectionImpl.use { connection ->
@@ -34,7 +87,6 @@ class MoneyUsageRepository {
                     .set(usage.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId?.id)
                     .set(usage.DATETIME, date)
                     .set(usage.AMOUNT, amount)
-                    .set(usage.USER_MAIL_ID, importedMailId?.id)
                     .returningResult(usage)
                     .fetch()
 

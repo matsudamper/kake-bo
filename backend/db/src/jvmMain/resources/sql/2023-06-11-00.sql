@@ -103,6 +103,7 @@ CREATE TABLE money_usages
 );
 CREATE INDEX user_id ON money_usages (user_id);
 CREATE INDEX user_index ON money_usages (money_usage_id, user_id);
+ALTER TABLE money_usages DROP COLUMN user_mail_id;
 
 CREATE TABLE money_usages_mails_relation
 (

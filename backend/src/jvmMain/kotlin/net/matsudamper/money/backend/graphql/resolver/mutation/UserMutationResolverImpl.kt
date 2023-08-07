@@ -346,7 +346,8 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
         return CompletableFuture.supplyAsync {
-            val result = context.repositoryFactory.createMoneyUsageRepository()
+            val moneyUsageRepository = context.repositoryFactory.createMoneyUsageRepository()
+            val result = moneyUsageRepository
                 .addUsage(
                     userId = userId,
                     title = usage.title,
@@ -354,7 +355,6 @@ class UserMutationResolverImpl : UserMutationResolver {
                     subCategoryId = usage.subCategoryId,
                     amount = usage.amount,
                     date = usage.date,
-                    importedMailId = usage.importedMailId
                 )
             when (result) {
                 is MoneyUsageRepository.AddResult.Failed -> {
@@ -362,6 +362,18 @@ class UserMutationResolverImpl : UserMutationResolver {
                 }
 
                 is MoneyUsageRepository.AddResult.Success -> {
+                    val mailId = usage.importedMailId
+                    if (mailId != null) {
+                        val relationResult = moneyUsageRepository.addMailRelation(
+                            userId = userId,
+                            usageId = result.result.id,
+                            importedMailId = mailId,
+                        )
+                        if (relationResult.not()) {
+                            throw IllegalStateException("add mail relation failed")
+                        }
+                    }
+
                     return@supplyAsync QlMoneyUsage(
                         id = result.result.id,
                     )
