@@ -1,17 +1,17 @@
 package net.matsudamper.money.backend.graphql.resolver
 
-import java.time.LocalDateTime
-import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
+import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageSuggestLocalContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.mail.parser.MailMoneyUsageParser
 import net.matsudamper.money.graphql.model.ImportedMailResolver
 import net.matsudamper.money.graphql.model.QlImportedMail
-import net.matsudamper.money.graphql.model.QlMoneyUsageService
 import net.matsudamper.money.graphql.model.QlMoneyUsageSuggest
+import java.time.LocalDateTime
+import java.util.concurrent.CompletionStage
 
 class ImportedMailResolverImpl : ImportedMailResolver {
     override fun subject(
@@ -116,7 +116,11 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                 importedMailId = importedMail.id,
             ),
         ).thenApplyAsync { mailLoader ->
-            val targetMail = mailLoader ?: return@thenApplyAsync listOf()
+            val targetMail = mailLoader ?: return@thenApplyAsync run {
+                DataFetcherResult.newResult<List<QlMoneyUsageSuggest>>()
+                    .data(listOf())
+                    .build()
+            }
 
             val results = MailMoneyUsageParser().parse(
                 subject = targetMail.subject,
@@ -125,21 +129,25 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                 plain = targetMail.plain.orEmpty(),
                 date = targetMail.dateTime,
             )
-            results.map { result ->
-                QlMoneyUsageSuggest(
-                    title = result.title,
-                    amount = result.price,
-                    description = result.description,
-                    dateTime = result.dateTime,
-                    service = result.service.let {
-                        QlMoneyUsageService(
-                            id = it.toId(),
-                            name = it.displayName,
+
+            DataFetcherResult.newResult<List<QlMoneyUsageSuggest>>()
+                .data(
+                    results.map { result ->
+                        QlMoneyUsageSuggest(
+                            title = result.title,
+                            amount = result.price,
+                            description = result.description,
+                            dateTime = result.dateTime,
+                            serviceName = result.service.displayName,
                         )
-                    },
-                    subCategory = null, // todo
+                    }
                 )
-            }
-        }.toDataFetcher()
+                .localContext(
+                    MoneyUsageSuggestLocalContext(
+                        importedMailId = targetMail.id,
+                    )
+                )
+                .build()
+        }
     }
 }

@@ -46,9 +46,10 @@ class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionR
             when (future.get().dataSourceType) {
                 ImportedMailCategoryFilterDatasourceType.MailTitle -> QlImportedMailCategoryFilterDataSourceType.MailTitle
                 ImportedMailCategoryFilterDatasourceType.MailFrom -> QlImportedMailCategoryFilterDataSourceType.MailFrom
-                ImportedMailCategoryFilterDatasourceType.MailBody -> QlImportedMailCategoryFilterDataSourceType.MailBody
+                ImportedMailCategoryFilterDatasourceType.MailHTML -> QlImportedMailCategoryFilterDataSourceType.MailHtml
                 ImportedMailCategoryFilterDatasourceType.Title -> QlImportedMailCategoryFilterDataSourceType.Title
                 ImportedMailCategoryFilterDatasourceType.ServiceName -> QlImportedMailCategoryFilterDataSourceType.ServiceName
+                ImportedMailCategoryFilterDatasourceType.MailPlain -> QlImportedMailCategoryFilterDataSourceType.MailPlain
             }
         }.toDataFetcher()
     }

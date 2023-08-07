@@ -30,7 +30,6 @@ apollo {
         packageName.set("net.matsudamper.money.frontend.graphql")
         mapScalar("MailId", "net.matsudamper.money.element.MailId")
         mapScalar("ImportedMailId", "net.matsudamper.money.element.ImportedMailId")
-        mapScalar("MoneyUsageServiceId", "net.matsudamper.money.element.MoneyUsageServiceId")
         mapScalar("ImportedMailCategoryFilterId", "net.matsudamper.money.element.ImportedMailCategoryFilterId")
         mapScalar("MoneyUsageCategoryId", "net.matsudamper.money.element.MoneyUsageCategoryId")
         mapScalar("MoneyUsageSubCategoryId", "net.matsudamper.money.element.MoneyUsageSubCategoryId")

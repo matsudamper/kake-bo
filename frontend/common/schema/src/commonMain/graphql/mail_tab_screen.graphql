@@ -16,10 +16,7 @@ query ImportedMailListScreenMailPaging(
                         description
                         dateTime
                         amount
-                        service {
-                            id
-                            name
-                        }
+                        serviceName
                         subCategory {
                             id
                             name

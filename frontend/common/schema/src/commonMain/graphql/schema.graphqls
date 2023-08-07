@@ -102,11 +102,6 @@ type MoneyUsageCategory {
     subCategories(query: MoneyUsageSubCategoryQuery!): SubCategoriesConnection
 }
 
-type MoneyUsageService {
-    id: MoneyUsageServiceId!
-    name: String!
-}
-
 type MoneyUsageSubCategory {
     category: MoneyUsageCategory!
     id: MoneyUsageSubCategoryId!
@@ -117,7 +112,7 @@ type MoneyUsageSuggest {
     amount: Int
     dateTime: LocalDateTime
     description: String!
-    service: MoneyUsageService
+    serviceName: String
     subCategory: MoneyUsageSubCategory
     title: String!
 }
@@ -240,8 +235,9 @@ enum ImportedMailCategoryFilterConditionType {
 }
 
 enum ImportedMailCategoryFilterDataSourceType {
-    MailBody
     MailFrom
+    MailHtml
+    MailPlain
     MailTitle
     ServiceName
     Title
@@ -271,8 +267,6 @@ scalar MailId
 scalar MoneyUsageCategoryId
 
 scalar MoneyUsageId
-
-scalar MoneyUsageServiceId
 
 scalar MoneyUsageSubCategoryId
 

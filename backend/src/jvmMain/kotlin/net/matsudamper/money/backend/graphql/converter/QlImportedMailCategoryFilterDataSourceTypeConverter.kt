@@ -7,8 +7,9 @@ fun QlImportedMailCategoryFilterDataSourceType.toDbElement(): ImportedMailCatego
     return when (this) {
         QlImportedMailCategoryFilterDataSourceType.MailTitle -> ImportedMailCategoryFilterDatasourceType.MailTitle
         QlImportedMailCategoryFilterDataSourceType.MailFrom -> ImportedMailCategoryFilterDatasourceType.MailFrom
-        QlImportedMailCategoryFilterDataSourceType.MailBody -> ImportedMailCategoryFilterDatasourceType.MailBody
+        QlImportedMailCategoryFilterDataSourceType.MailHtml -> ImportedMailCategoryFilterDatasourceType.MailHTML
         QlImportedMailCategoryFilterDataSourceType.Title -> ImportedMailCategoryFilterDatasourceType.Title
         QlImportedMailCategoryFilterDataSourceType.ServiceName -> ImportedMailCategoryFilterDatasourceType.ServiceName
+        QlImportedMailCategoryFilterDataSourceType.MailPlain -> ImportedMailCategoryFilterDatasourceType.MailPlain
     }
 }

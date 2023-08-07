@@ -11,13 +11,11 @@ import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
-import net.matsudamper.money.element.MoneyUsageServiceId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.graphql.type.ImportedMailId as ApolloImportedMailId
 import net.matsudamper.money.frontend.graphql.type.MailId as ApolloMailId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoryId as ApolloMoneyUsageCategoryId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageId as ApolloMoneyUsageId
-import net.matsudamper.money.frontend.graphql.type.MoneyUsageServiceId as ApolloMoneyUsageServiceId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryId as ApolloMoneyUsageSubCategoryId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterId as ApolloImportedMailCategoryFilterId
@@ -49,17 +47,6 @@ object GraphqlClient {
                 },
                 deserialize = { value ->
                     ImportedMailId(value)
-                },
-            ),
-        )
-        .addCustomScalarAdapter(
-            ApolloMoneyUsageServiceId.type,
-            CustomStringAdapter(
-                serialize = {
-                    it.id.toString()
-                },
-                deserialize = { value ->
-                    value.toIntOrNull()?.let { MoneyUsageServiceId(it) }
                 },
             ),
         )

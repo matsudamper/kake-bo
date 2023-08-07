@@ -3,8 +3,8 @@ type MoneyUsageSuggest {
     description: String!
     dateTime: LocalDateTime
     amount: Int
-    subCategory: MoneyUsageSubCategory
-    service: MoneyUsageService
+    subCategory: MoneyUsageSubCategory @lazy
+    serviceName: String
 }
 
 type MoneyUsageCategory {
@@ -28,9 +28,4 @@ type MoneyUsageSubCategory {
     id: MoneyUsageSubCategoryId!
     name: String! @lazy
     category: MoneyUsageCategory! @lazy
-}
-
-type MoneyUsageService {
-    id: MoneyUsageServiceId!
-    name: String!
 }

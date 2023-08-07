@@ -68,7 +68,7 @@ public class ImportedMailListViewModel(
                                         ImportedMailListScreenUiState.UsageItem(
                                             title = usage.title,
                                             description = usage.description,
-                                            service = usage.service?.name.orEmpty(),
+                                            service = usage.serviceName.orEmpty(),
                                             amount = run price@{
                                                 val amount = usage.amount ?: return@price ""
                                                 "${amount}円"

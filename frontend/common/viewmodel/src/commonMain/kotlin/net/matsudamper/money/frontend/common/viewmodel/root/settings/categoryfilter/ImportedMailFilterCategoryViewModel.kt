@@ -142,7 +142,8 @@ public class ImportedMailFilterCategoryViewModel(
                     ImportedMailFilterCategoryScreenUiState.Condition(
                         text = condition.text,
                         source = when (condition.dataSourceType) {
-                            ImportedMailCategoryFilterDataSourceType.MailBody -> ImportedMailFilterCategoryScreenUiState.DataSource.MailBody
+                            ImportedMailCategoryFilterDataSourceType.MailHtml -> ImportedMailFilterCategoryScreenUiState.DataSource.MailHtml
+                            ImportedMailCategoryFilterDataSourceType.MailPlain -> ImportedMailFilterCategoryScreenUiState.DataSource.MailPlain
                             ImportedMailCategoryFilterDataSourceType.MailFrom -> ImportedMailFilterCategoryScreenUiState.DataSource.MailFrom
                             ImportedMailCategoryFilterDataSourceType.MailTitle -> ImportedMailFilterCategoryScreenUiState.DataSource.MailTitle
                             ImportedMailCategoryFilterDataSourceType.ServiceName -> ImportedMailFilterCategoryScreenUiState.DataSource.ServiceName

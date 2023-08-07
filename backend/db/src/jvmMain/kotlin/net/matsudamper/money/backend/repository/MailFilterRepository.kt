@@ -175,6 +175,7 @@ class MailFilterRepository(
 
     private fun mapResult(record: JCategoryMailFilterConditionsRecord): Condition {
         return Condition(
+            filterId = ImportedMailCategoryFilterId(record.get(conditions.CATEGORY_MAIL_FILTER_ID)!!),
             conditionId = ImportedMailCategoryFilterConditionId(record.get(conditions.CATEGORY_MAIL_FILTER_CONDITION_ID)!!),
             text = record.get(conditions.TEXT)!!,
             conditionType = ImportedMailCategoryFilterConditionType.fromDbValue(
@@ -361,6 +362,51 @@ class MailFilterRepository(
         )
     }
 
+    fun getFilters(userId: UserId): List<MailFilter> {
+        return runCatching {
+            dbConnection.use {
+                DSL.using(it)
+                    .selectFrom(filters)
+                    .where(
+                        DSL.value(true)
+                            .and(filters.USER_ID.eq(userId.id)),
+                    )
+                    .orderBy(filters.ORDER_NUMBER.asc())
+                    .fetch()
+                    .map { record ->
+                        mapResult(record)
+                    }
+            }
+        }.onFailure {
+            it.printStackTrace()
+        }.fold(
+            onSuccess = { it },
+            onFailure = { listOf() },
+        )
+    }
+
+    fun getConditions(userId: UserId): List<Condition> {
+        return runCatching {
+            dbConnection.use {
+                DSL.using(it)
+                    .selectFrom(conditions)
+                    .where(
+                        DSL.value(true)
+                            .and(conditions.USER_ID.eq(userId.id)),
+                    )
+                    .fetch()
+                    .map { record ->
+                        mapResult(record)
+                    }
+            }
+        }.onFailure {
+            it.printStackTrace()
+        }.fold(
+            onSuccess = { it },
+            onFailure = { listOf() },
+        )
+    }
+
     data class MailFiltersResult(
         val items: List<MailFilter>,
         val cursor: MailFilterCursor?,
@@ -381,6 +427,7 @@ class MailFilterRepository(
     )
 
     data class Condition(
+        val filterId: ImportedMailCategoryFilterId,
         val conditionId: ImportedMailCategoryFilterConditionId,
         val text: String,
         val conditionType: ImportedMailCategoryFilterConditionType,

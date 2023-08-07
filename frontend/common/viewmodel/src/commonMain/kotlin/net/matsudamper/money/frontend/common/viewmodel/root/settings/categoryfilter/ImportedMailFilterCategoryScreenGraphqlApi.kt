@@ -89,7 +89,8 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
                         dataSourceType = when (dataSource) {
                             ImportedMailFilterCategoryScreenUiState.DataSource.MailFrom -> ImportedMailCategoryFilterDataSourceType.MailFrom
                             ImportedMailFilterCategoryScreenUiState.DataSource.MailTitle -> ImportedMailCategoryFilterDataSourceType.MailTitle
-                            ImportedMailFilterCategoryScreenUiState.DataSource.MailBody -> ImportedMailCategoryFilterDataSourceType.MailBody
+                            ImportedMailFilterCategoryScreenUiState.DataSource.MailHtml -> ImportedMailCategoryFilterDataSourceType.MailHtml
+                            ImportedMailFilterCategoryScreenUiState.DataSource.MailPlain -> ImportedMailCategoryFilterDataSourceType.MailPlain
                             ImportedMailFilterCategoryScreenUiState.DataSource.Title -> ImportedMailCategoryFilterDataSourceType.Title
                             ImportedMailFilterCategoryScreenUiState.DataSource.ServiceName -> ImportedMailCategoryFilterDataSourceType.ServiceName
                             ImportedMailFilterCategoryScreenUiState.DataSource.Unknown,

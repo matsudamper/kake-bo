@@ -91,7 +91,8 @@ public data class ImportedMailFilterCategoryScreenUiState(
     public enum class DataSource {
         MailFrom,
         MailTitle,
-        MailBody,
+        MailHtml,
+        MailPlain,
         Title,
         ServiceName,
         Unknown,
@@ -101,7 +102,8 @@ public data class ImportedMailFilterCategoryScreenUiState(
             return when (this) {
                 MailFrom -> "メールアドレス"
                 MailTitle -> "メールタイトル"
-                MailBody -> "メール本文"
+                MailHtml -> "メールHtml"
+                MailPlain -> "メールテキスト"
                 Title -> "タイトル"
                 ServiceName -> "サービス名"
                 Unknown -> ""
@@ -415,7 +417,8 @@ private fun ConditionCard(
                                 immutableListOf(
                                     ImportedMailFilterCategoryScreenUiState.DataSource.MailFrom,
                                     ImportedMailFilterCategoryScreenUiState.DataSource.MailTitle,
-                                    ImportedMailFilterCategoryScreenUiState.DataSource.MailBody,
+                                    ImportedMailFilterCategoryScreenUiState.DataSource.MailHtml,
+                                    ImportedMailFilterCategoryScreenUiState.DataSource.MailPlain,
                                     ImportedMailFilterCategoryScreenUiState.DataSource.Title,
                                     ImportedMailFilterCategoryScreenUiState.DataSource.ServiceName,
                                 ).forEach { source ->

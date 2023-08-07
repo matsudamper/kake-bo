@@ -1,7 +1,6 @@
 scalar UserId
 scalar MailId
 scalar ImportedMailId
-scalar MoneyUsageServiceId
 scalar MoneyUsageId
 scalar MoneyUsageCategoryId
 scalar MoneyUsageSubCategoryId

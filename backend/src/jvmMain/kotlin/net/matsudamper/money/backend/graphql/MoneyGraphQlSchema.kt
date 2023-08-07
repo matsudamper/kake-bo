@@ -25,6 +25,7 @@ import net.matsudamper.money.backend.graphql.resolver.ImportedMailResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageCategoryResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageSubCategoryResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.MoneyUsageSuggestResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.QueryResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserMailAttributesResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserResolverImpl
@@ -40,7 +41,6 @@ import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
-import net.matsudamper.money.element.MoneyUsageServiceId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 
 object MoneyGraphQlSchema {
@@ -103,11 +103,6 @@ object MoneyGraphQlSchema {
                     serialize = { it.id },
                 ),
                 createIntScalarType(
-                    name = "MoneyUsageServiceId",
-                    serialize = { it.id },
-                    deserialize = { MoneyUsageServiceId(it) },
-                ),
-                createIntScalarType(
                     name = "ImportedMailId",
                     deserialize = { ImportedMailId(it) },
                     serialize = { it.id },
@@ -156,6 +151,7 @@ object MoneyGraphQlSchema {
                 UserMailAttributesResolverImpl(),
                 ImportedMailAttributesResolverImpl(),
                 ImportedMailResolverImpl(),
+                MoneyUsageSuggestResolverImpl(),
             )
             .options(
                 @Suppress("OPT_IN_USAGE")

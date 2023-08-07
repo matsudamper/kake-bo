@@ -34,7 +34,8 @@ type ImportedMailCategoryCondition {
 enum ImportedMailCategoryFilterDataSourceType {
     MailTitle
     MailFrom
-    MailBody
+    MailHtml
+    MailPlain
     Title
     ServiceName
 }

@@ -3,9 +3,10 @@ package net.matsudamper.money.backend.element
 enum class ImportedMailCategoryFilterDatasourceType(internal val dbValue: Int) {
     MailTitle(0),
     MailFrom(1),
-    MailBody(2),
+    MailHTML(2),
     Title(3),
     ServiceName(4),
+    MailPlain(5),
     ;
 
     companion object {

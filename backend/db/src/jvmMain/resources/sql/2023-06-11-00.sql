@@ -163,9 +163,10 @@ INSERT INTO category_mail_filter_datasource_type
     (category_mail_filter_datasource_type_id, order_number, name)
 VALUES (0, 0, 'メールタイトル'),
        (1, 1, 'メールFrom'),
-       (2, 2, 'メール本文'),
-       (3, 3, 'タイトル'),
-       (4, 4, 'サービス名');
+       (2, 2, 'メールHTML'),
+       (5, 3, 'メールテキスト'),
+       (3, 4, 'タイトル'),
+       (4, 5, 'サービス名');
 
 CREATE TABLE category_mail_filter_condition_type
 (
