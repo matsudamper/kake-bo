@@ -92,18 +92,16 @@ CREATE TABLE money_usages
 (
     money_usage_id              INT                                not null PRIMARY KEY AUTO_INCREMENT,
     user_id                     INT                                not null,
-    user_mail_id                INT,
     title                       VARCHAR(500)                       not null,
     description                 VARCHAR(1000)                      not null,
     amount                      int                                not null,
     money_usage_sub_category_id INT,
     datetime                    DATETIME                           not null,
     created_datetime            DATETIME DEFAULT CURRENT_TIMESTAMP not null,
-    update_datetime             DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP
+    update_datetime             DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP,
+    INDEX user_id (user_id),
+    INDEX user_index (money_usage_id, user_id)
 );
-CREATE INDEX user_id ON money_usages (user_id);
-CREATE INDEX user_index ON money_usages (money_usage_id, user_id);
-ALTER TABLE money_usages DROP COLUMN user_mail_id;
 
 CREATE TABLE money_usages_mails_relation
 (
@@ -143,7 +141,7 @@ VALUES (0, 'OR'),
 CREATE TABLE category_mail_filter_conditions
 (
     category_mail_filter_condition_id       INT                                not null PRIMARY KEY AUTO_INCREMENT,
-    category_mail_filter_id INT                                not null,
+    category_mail_filter_id                 INT                                not null,
     user_id                                 INT                                not null,
     text                                    VARCHAR(500)                       not null,
     category_mail_filter_datasource_type_id INT                                not null,
