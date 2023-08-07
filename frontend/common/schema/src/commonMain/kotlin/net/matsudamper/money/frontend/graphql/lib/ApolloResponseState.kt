@@ -16,4 +16,8 @@ public sealed interface ApolloResponseState<T> {
         public fun <T> success(value: T): ApolloResponseState<T> = Success(value)
         public fun <T> failure(throwable: Throwable): ApolloResponseState<T> = Failure(throwable)
     }
+
+    fun getSuccessOrNull(): Success<T>? {
+        return this as? Success
+    }
 }

@@ -14,7 +14,6 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
-import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
@@ -25,8 +24,13 @@ public class AddMoneyUsageViewModel(
 ) {
     private val categorySelectDialogViewModel = object {
         private val event: CategorySelectDialogViewModel.Event = object : CategorySelectDialogViewModel.Event {
-            override fun categorySelected(id: MoneyUsageCategoryId) {
-                viewModel.fetchSubCategories(id)
+            override fun selected(result: CategorySelectDialogViewModel.SelectedResult) {
+                viewModelStateFlow.update {
+                    it.copy(
+                        usageCategorySet = result,
+                    )
+                }
+                viewModel.dismissDialog()
             }
         }
         val viewModel = CategorySelectDialogViewModel(
@@ -91,10 +95,12 @@ public class AddMoneyUsageViewModel(
         }
 
         override fun onClickCategoryChange() {
-            categorySelectDialogViewModel.showDialog()
-            coroutineScope.launch {
-                categorySelectDialogViewModel.fetchCategory()
-            }
+            categorySelectDialogViewModel.showDialog(
+                categoryId = viewModelStateFlow.value.usageCategorySet?.categoryId,
+                categoryName = viewModelStateFlow.value.usageCategorySet?.categoryName,
+                subCategoryId = viewModelStateFlow.value.usageCategorySet?.subCategoryId,
+                subCategoryName = viewModelStateFlow.value.usageCategorySet?.subCategoryName,
+            )
         }
 
         override fun onClickAmountChange() {
@@ -166,15 +172,6 @@ public class AddMoneyUsageViewModel(
                 }
             }
         }
-        coroutineScope.launch {
-            categorySelectDialogViewModel.viewModelStateFlow.collectLatest { categoryViewModelState ->
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        usageCategorySet = categoryViewModelState.usageCategorySet,
-                    )
-                }
-            }
-        }
     }
 
     private fun addMoneyUsage() {
@@ -194,7 +191,7 @@ public class AddMoneyUsageViewModel(
                     ), // TODO
                 ),
                 amount = viewModelStateFlow.value.usageAmount,
-                subCategoryId = viewModelStateFlow.value.usageCategorySet.subCategory?.id,
+                subCategoryId = viewModelStateFlow.value.usageCategorySet?.subCategoryId,
             )
 
             // TODO Toast
@@ -251,8 +248,8 @@ public class AddMoneyUsageViewModel(
                         category = run category@{
                             val default = "未選択"
                             val categorySet = viewModelState.usageCategorySet
-                            val category = categorySet.category?.name ?: return@category default
-                            val subCategory = categorySet.subCategory?.name ?: return@category default
+                            val category = categorySet?.categoryName ?: return@category default
+                            val subCategory = categorySet.subCategoryName
                             "$category / $subCategory"
                         },
                         categorySelectDialog = viewModelState.categorySelectDialog,
@@ -271,6 +268,6 @@ public class AddMoneyUsageViewModel(
         val showCalendarDialog: Boolean = false,
         val textInputDialog: AddMoneyUsageScreenUiState.FullScreenTextInputDialog? = null,
         val categorySelectDialog: CategorySelectDialogUiState? = null,
-        val usageCategorySet: CategorySelectDialogViewModel.CategorySet = CategorySelectDialogViewModel.CategorySet(),
+        val usageCategorySet: CategorySelectDialogViewModel.SelectedResult? = null,
     )
 }

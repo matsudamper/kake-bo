@@ -10,7 +10,6 @@ import kotlinx.coroutines.launch
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
-import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImportedMailFilterCategoryScreenUiState
@@ -42,8 +41,14 @@ public class ImportedMailFilterCategoryViewModel(
 
     private val categoryViewModel = object {
         private val event: CategorySelectDialogViewModel.Event = object : CategorySelectDialogViewModel.Event {
-            override fun categorySelected(id: MoneyUsageCategoryId) {
-                viewModel.fetchSubCategories(id)
+            override fun selected(result: CategorySelectDialogViewModel.SelectedResult) {
+                coroutineScope.launch {
+                    api.updateFilter(
+                        id = id,
+                        subCategoryId = result.subCategoryId,
+                    )
+                    viewModel.dismissDialog()
+                }
             }
         }
         val viewModel = CategorySelectDialogViewModel(
@@ -99,15 +104,6 @@ public class ImportedMailFilterCategoryViewModel(
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         apolloResponseState = response,
-                    )
-                }
-            }
-        }
-        coroutineScope.launch {
-            categoryViewModel.viewModelStateFlow.collectLatest { categoryViewModelState ->
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        categoryDialogViewModelState = categoryViewModelState,
                     )
                 }
             }
@@ -211,8 +207,16 @@ public class ImportedMailFilterCategoryViewModel(
                 }
 
                 override fun onClickCategoryChange() {
-                    categoryViewModel.fetchCategory(useCache = true)
-                    categoryViewModel.showDialog()
+                    val subCategory = viewModelStateFlow.value.apolloResponseState.getSuccessOrNull()
+                        ?.value?.data?.user?.importedMailCategoryFilter?.importedMailCategoryFilterScreenItem
+                        ?.subCategory
+                    val category = subCategory?.category
+                    categoryViewModel.showDialog(
+                        categoryId = category?.id,
+                        categoryName = category?.name,
+                        subCategoryId = subCategory?.id,
+                        subCategoryName = subCategory?.name,
+                    )
                 }
             },
         )
@@ -233,7 +237,6 @@ public class ImportedMailFilterCategoryViewModel(
     private data class ViewModelState(
         val apolloResponseState: ApolloResponseState<ApolloResponse<ImportedMailCategoryFilterScreenQuery.Data>> = ApolloResponseState.loading(),
         val textInput: ImportedMailFilterCategoryScreenUiState.TextInput? = null,
-        val categoryDialogViewModelState: CategorySelectDialogViewModel.ViewModelState? = null,
         val categoryDialogUiState: CategorySelectDialogUiState? = null,
     )
 }

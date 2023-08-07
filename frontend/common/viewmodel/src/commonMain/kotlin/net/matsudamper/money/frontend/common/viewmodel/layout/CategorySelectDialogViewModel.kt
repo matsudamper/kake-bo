@@ -15,6 +15,7 @@ import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.graphql.GraphqlClient
@@ -30,12 +31,7 @@ internal class CategorySelectDialogViewModel(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
     private val event: Event,
 ) {
-    private val innerViewModelStateFlow = MutableStateFlow(InnerViewModelState())
-    val viewModelStateFlow = innerViewModelStateFlow.map {
-        ViewModelState(
-            usageCategorySet = it.usageCategorySet,
-        )
-    }
+    private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val apolloResponseCollector = ApolloResponseCollector.create(
         apolloClient = apolloClient,
@@ -46,16 +42,17 @@ internal class CategorySelectDialogViewModel(
             ),
         ),
     )
-    private val subCategoriesFlow: MutableStateFlow<Map<MoneyUsageCategoryId, ApolloResponseCollector<MoneyUsageSelectDialogSubCategoriesPagingQuery.Data>>> = MutableStateFlow(mapOf())
+    private val subCategoriesFlow: MutableStateFlow<Map<MoneyUsageCategoryId, ApolloResponseCollector<MoneyUsageSelectDialogSubCategoriesPagingQuery.Data>>> =
+        MutableStateFlow(mapOf())
 
     suspend fun getUiStateFlow(): StateFlow<CategorySelectDialogUiState?> {
         return channelFlow {
-            innerViewModelStateFlow.collectLatest { viewModelState ->
+            viewModelStateFlow.collectLatest { viewModelState ->
                 send(
                     if (viewModelState.categorySelectDialog != null) {
                         createCategorySelectDialogUiState(
                             categoriesApolloResponse = viewModelState.categories,
-                            categoryDialogInnerViewModelState = viewModelState.categorySelectDialog,
+                            categoryDialogViewModelState = viewModelState.categorySelectDialog,
                             subCategoryApolloResponses = viewModelState.subCategories,
                         )
                     } else {
@@ -69,7 +66,7 @@ internal class CategorySelectDialogViewModel(
     init {
         coroutineScope.launch {
             apolloResponseCollector.flow.collectLatest { apolloResponseState ->
-                innerViewModelStateFlow.update { viewModelState ->
+                viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         categories = apolloResponseState,
                     )
@@ -82,7 +79,7 @@ internal class CategorySelectDialogViewModel(
                     it
                 }.collectLatest {
 
-                    innerViewModelStateFlow.update { viewModelState ->
+                    viewModelStateFlow.update { viewModelState ->
                         viewModelState.copy(
                             subCategories = it.toMap(),
                         )
@@ -92,41 +89,64 @@ internal class CategorySelectDialogViewModel(
         }
     }
 
-    fun showDialog() {
-        innerViewModelStateFlow.update {
+    fun showDialog(
+        categoryId: MoneyUsageCategoryId? = null,
+        categoryName: String? = null,
+        subCategoryId: MoneyUsageSubCategoryId? = null,
+        subCategoryName: String? = null,
+        useCache: Boolean = true
+    ) {
+        val category = run category@{
+            ViewModelState.Category(
+                id = categoryId ?: return@category null,
+                name = categoryName ?: return@category null,
+            )
+        }
+        val subCategory = run subCategory@{
+            ViewModelState.SubCategory(
+                id = subCategoryId ?: return@subCategory null,
+                name = subCategoryName ?: return@subCategory null,
+            )
+        }
+        viewModelStateFlow.update {
             it.copy(
-                categorySelectDialog = InnerViewModelState.CategorySelectDialog(
-                    categorySet = it.usageCategorySet,
-                    screenType = InnerViewModelState.CategorySelectDialog.ScreenType.Root,
-                ),
+                categorySelectDialog = ViewModelState.CategorySelectDialog(
+                    categorySet = ViewModelState.CategorySet(
+                        category = category,
+                        subCategory = subCategory,
+                    ),
+                    screenType = ViewModelState.CategorySelectDialog.ScreenType.Root,
+                )
+            )
+        }
+
+        if (
+            category == null
+            || useCache
+            || viewModelStateFlow.value.categories.getSuccessOrNull()
+                ?.value?.data?.user?.moneyUsageCategories?.nodes.orEmpty()
+                .any { it.id == categoryId }.not()
+        ) {
+            // TODO ページング
+            // TODO error handling
+            apolloResponseCollector.fetch(coroutineScope)
+        }
+        if (subCategory != null && categoryId != null && viewModelStateFlow.value.subCategories[categoryId] == null) {
+            fetchSubCategories(categoryId)
+        }
+    }
+
+    fun dismissDialog() {
+        viewModelStateFlow.update {
+            it.copy(
+                categorySelectDialog = null,
             )
         }
     }
 
     // TODO ページング
     // TODO error handling
-    fun fetchCategory(useCache: Boolean = true) {
-        coroutineScope.launch {
-            val requireFetch = if (useCache) {
-                true
-            } else {
-                when (val category = innerViewModelStateFlow.value.categories) {
-                    is ApolloResponseState.Failure -> true
-                    is ApolloResponseState.Loading -> true
-                    is ApolloResponseState.Success -> {
-                        category.value.data?.user?.moneyUsageCategories == null
-                    }
-                }
-            }
-            if (requireFetch) {
-                apolloResponseCollector.fetch(this)
-            }
-        }
-    }
-
-    // TODO ページング
-    // TODO error handling
-    public fun fetchSubCategories(id: MoneyUsageCategoryId) {
+    private fun fetchSubCategories(id: MoneyUsageCategoryId) {
         val beforeItem = subCategoriesFlow.value[id]
         if (beforeItem != null) {
             coroutineScope.launch {
@@ -158,41 +178,41 @@ internal class CategorySelectDialogViewModel(
     private fun createCategorySelectDialogUiState(
         categoriesApolloResponse: ApolloResponseState<ApolloResponse<MoneyUsageSelectDialogCategoriesPagingQuery.Data>>,
         subCategoryApolloResponses: Map<MoneyUsageCategoryId, ApolloResponseState<ApolloResponse<MoneyUsageSelectDialogSubCategoriesPagingQuery.Data>>>,
-        categoryDialogInnerViewModelState: InnerViewModelState.CategorySelectDialog,
+        categoryDialogViewModelState: ViewModelState.CategorySelectDialog,
     ): CategorySelectDialogUiState {
-        val categorySet = categoryDialogInnerViewModelState.categorySet
+        val categorySet = categoryDialogViewModelState.categorySet
 
         fun changeRootScreen() {
-            innerViewModelStateFlow.update {
+            viewModelStateFlow.update {
                 it.copy(
-                    categorySelectDialog = categoryDialogInnerViewModelState.copy(
-                        screenType = InnerViewModelState.CategorySelectDialog.ScreenType.Root,
+                    categorySelectDialog = categoryDialogViewModelState.copy(
+                        screenType = ViewModelState.CategorySelectDialog.ScreenType.Root,
                     ),
                 )
             }
         }
 
         return CategorySelectDialogUiState(
-            screenType = when (categoryDialogInnerViewModelState.screenType) {
-                InnerViewModelState.CategorySelectDialog.ScreenType.Root -> {
+            screenType = when (categoryDialogViewModelState.screenType) {
+                ViewModelState.CategorySelectDialog.ScreenType.Root -> {
                     CategorySelectDialogUiState.Screen.Root(
                         category = categorySet.category?.name ?: "未選択",
                         subCategory = categorySet.subCategory?.name ?: "未選択",
-                        enableSubCategory = categorySet.category != null,
+                        enableSubCategory = categorySet.subCategory != null,
                         onClickCategory = {
-                            innerViewModelStateFlow.update {
+                            viewModelStateFlow.update {
                                 it.copy(
-                                    categorySelectDialog = categoryDialogInnerViewModelState.copy(
-                                        screenType = InnerViewModelState.CategorySelectDialog.ScreenType.Category,
+                                    categorySelectDialog = categoryDialogViewModelState.copy(
+                                        screenType = ViewModelState.CategorySelectDialog.ScreenType.Category,
                                     ),
                                 )
                             }
                         },
                         onClickSubCategory = {
-                            innerViewModelStateFlow.update {
+                            viewModelStateFlow.update {
                                 it.copy(
-                                    categorySelectDialog = categoryDialogInnerViewModelState.copy(
-                                        screenType = InnerViewModelState.CategorySelectDialog.ScreenType.SubCategory,
+                                    categorySelectDialog = categoryDialogViewModelState.copy(
+                                        screenType = ViewModelState.CategorySelectDialog.ScreenType.SubCategory,
                                     ),
                                 )
                             }
@@ -200,7 +220,7 @@ internal class CategorySelectDialogViewModel(
                     )
                 }
 
-                InnerViewModelState.CategorySelectDialog.ScreenType.Category -> {
+                ViewModelState.CategorySelectDialog.ScreenType.Category -> {
                     val categories: List<CategorySelectDialogUiState.Category> = when (categoriesApolloResponse) {
                         is ApolloResponseState.Failure -> {
                             listOf()
@@ -221,14 +241,16 @@ internal class CategorySelectDialogViewModel(
                                         name = item.name,
                                         isSelected = item.id == categorySet.category?.id,
                                         onSelected = {
-                                            event.categorySelected(item.id)
-
-                                            innerViewModelStateFlow.update {
+                                            fetchSubCategories(item.id)
+                                            viewModelStateFlow.update {
                                                 it.copy(
-                                                    categorySelectDialog = categoryDialogInnerViewModelState.copy(
-                                                        screenType = InnerViewModelState.CategorySelectDialog.ScreenType.Root,
-                                                        categorySet = categorySet.copy(
-                                                            category = item,
+                                                    categorySelectDialog = categoryDialogViewModelState.copy(
+                                                        screenType = ViewModelState.CategorySelectDialog.ScreenType.Root,
+                                                        categorySet = ViewModelState.CategorySet(
+                                                            category = ViewModelState.Category(
+                                                                id = item.id,
+                                                                name = item.name,
+                                                            ),
                                                             subCategory = null,
                                                         ),
                                                     ),
@@ -247,46 +269,50 @@ internal class CategorySelectDialogViewModel(
                     )
                 }
 
-                InnerViewModelState.CategorySelectDialog.ScreenType.SubCategory -> {
-                    val subCategories: List<CategorySelectDialogUiState.Category> = when (val subCategory = subCategoryApolloResponses[categorySet.category?.id]) {
-                        null,
-                        is ApolloResponseState.Loading,
-                        -> {
-                            listOf()
-                        }
+                ViewModelState.CategorySelectDialog.ScreenType.SubCategory -> {
+                    val subCategories: List<CategorySelectDialogUiState.Category> =
+                        when (val subCategory = subCategoryApolloResponses[categorySet.category?.id]) {
+                            null,
+                            is ApolloResponseState.Loading,
+                            -> {
+                                listOf()
+                            }
 
-                        is ApolloResponseState.Failure -> {
-                            // TODO Error handling
-                            listOf()
-                        }
-
-                        is ApolloResponseState.Success -> {
-                            val subCategories = subCategory.value.data?.user?.moneyUsageCategory?.subCategories
-                            if (subCategories == null) {
+                            is ApolloResponseState.Failure -> {
                                 // TODO Error handling
                                 listOf()
-                            } else {
-                                subCategories.nodes.map { item ->
-                                    CategorySelectDialogUiState.Category(
-                                        name = item.name,
-                                        isSelected = item.id == categorySet.subCategory?.id,
-                                        onSelected = {
-                                            innerViewModelStateFlow.update {
-                                                it.copy(
-                                                    categorySelectDialog = categoryDialogInnerViewModelState.copy(
-                                                        screenType = net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel.InnerViewModelState.CategorySelectDialog.ScreenType.Root,
-                                                        categorySet = categorySet.copy(
-                                                            subCategory = item,
+                            }
+
+                            is ApolloResponseState.Success -> {
+                                val subCategories = subCategory.value.data?.user?.moneyUsageCategory?.subCategories
+                                if (subCategories == null) {
+                                    // TODO Error handling
+                                    listOf()
+                                } else {
+                                    subCategories.nodes.map { item ->
+                                        CategorySelectDialogUiState.Category(
+                                            name = item.name,
+                                            isSelected = item.id == categorySet.subCategory?.id,
+                                            onSelected = {
+                                                viewModelStateFlow.update {
+                                                    it.copy(
+                                                        categorySelectDialog = categoryDialogViewModelState.copy(
+                                                            screenType = net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel.ViewModelState.CategorySelectDialog.ScreenType.Root,
+                                                            categorySet = categorySet.copy(
+                                                                subCategory = ViewModelState.SubCategory(
+                                                                    id = item.id,
+                                                                    name = item.name,
+                                                                ),
+                                                            ),
                                                         ),
-                                                    ),
-                                                )
-                                            }
-                                        },
-                                    )
+                                                    )
+                                                }
+                                            },
+                                        )
+                                    }
                                 }
                             }
                         }
-                    }
                     CategorySelectDialogUiState.Screen.SubCategory(
                         subCategories = subCategories.toImmutableList(),
                         onBackRequest = { changeRootScreen() },
@@ -295,7 +321,7 @@ internal class CategorySelectDialogViewModel(
             },
             event = object : CategorySelectDialogUiState.Event {
                 override fun dismissRequest() {
-                    innerViewModelStateFlow.update {
+                    viewModelStateFlow.update {
                         it.copy(
                             categorySelectDialog = null,
                         )
@@ -303,27 +329,17 @@ internal class CategorySelectDialogViewModel(
                 }
 
                 override fun selectCompleted() {
-                    innerViewModelStateFlow.update {
-                        it.copy(
-                            usageCategorySet = it.categorySelectDialog?.categorySet ?: return,
-                            categorySelectDialog = null,
-                        )
-                    }
+                    event.selected(categorySet.toResult() ?: return)
                 }
             },
         )
     }
 
     interface Event {
-        fun categorySelected(id: MoneyUsageCategoryId)
+        fun selected(result: SelectedResult)
     }
 
-    data class ViewModelState(
-        val usageCategorySet: CategorySet = CategorySet(),
-    )
-
-    private data class InnerViewModelState(
-        val usageCategorySet: CategorySet = CategorySet(),
+    private data class ViewModelState(
         val categorySelectDialog: CategorySelectDialog? = null,
         val subCategories: Map<MoneyUsageCategoryId, ApolloResponseState<ApolloResponse<MoneyUsageSelectDialogSubCategoriesPagingQuery.Data>>> = mapOf(),
         val categories: ApolloResponseState<ApolloResponse<MoneyUsageSelectDialogCategoriesPagingQuery.Data>> = ApolloResponseState.loading(),
@@ -339,10 +355,38 @@ internal class CategorySelectDialogViewModel(
                 SubCategory,
             }
         }
+
+        data class Category(
+            val id: MoneyUsageCategoryId,
+            val name: String,
+        )
+
+        data class SubCategory(
+            val id: MoneyUsageSubCategoryId,
+            val name: String,
+        )
+
+        data class CategorySet(
+            val category: Category?,
+            val subCategory: SubCategory?,
+        ) {
+            fun toResult(): SelectedResult? {
+                category ?: return null
+                subCategory ?: return null
+                return SelectedResult(
+                    categoryId = category.id,
+                    categoryName = category.name,
+                    subCategoryId = subCategory.id,
+                    subCategoryName = subCategory.name,
+                )
+            }
+        }
     }
 
-    data class CategorySet(
-        val category: MoneyUsageSelectDialogCategoriesPagingQuery.Node? = null,
-        val subCategory: MoneyUsageSelectDialogSubCategoriesPagingQuery.Node? = null,
+    data class SelectedResult(
+        val categoryId: MoneyUsageCategoryId,
+        val categoryName: String,
+        val subCategoryId: MoneyUsageSubCategoryId,
+        val subCategoryName: String,
     )
 }

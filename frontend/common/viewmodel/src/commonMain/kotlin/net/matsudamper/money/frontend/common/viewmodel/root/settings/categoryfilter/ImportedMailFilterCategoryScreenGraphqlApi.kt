@@ -5,6 +5,7 @@ import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenAddConditionMutation
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterUpdateMutation
@@ -32,7 +33,8 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
 
     public suspend fun updateFilter(
         id: ImportedMailCategoryFilterId,
-        title: String,
+        title: String? = null,
+        subCategoryId: MoneyUsageSubCategoryId? = null,
     ): Result<ApolloResponse<ImportedMailCategoryFilterUpdateMutation.Data>> {
         return runCatching {
             apolloClient
@@ -41,6 +43,7 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
                         UpdateImportedMailCategoryFilterInput(
                             id = id,
                             title = Optional.present(title),
+                            subCategoryId = Optional.present(subCategoryId),
                         )
                     )
                 ).execute()
