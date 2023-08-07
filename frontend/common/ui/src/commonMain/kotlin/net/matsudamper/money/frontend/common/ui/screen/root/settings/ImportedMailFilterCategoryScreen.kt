@@ -496,9 +496,7 @@ private fun ConditionCard(
                 }
                 OutlinedButton(
                     modifier = Modifier.padding(8.dp),
-                    onClick = {
-                        item.text
-                    },
+                    onClick = { item.event.onClickTextChange() },
                 ) {
                     Text("変更")
                 }

@@ -158,6 +158,27 @@ public class ImportedMailFilterCategoryViewModel(
                         },
                         event = object : ImportedMailFilterCategoryScreenUiState.ConditionEvent {
                             override fun onClickTextChange() {
+                                viewModelStateFlow.update { viewModelState ->
+                                    viewModelState.copy(
+                                        textInput = ImportedMailFilterCategoryScreenUiState.TextInput(
+                                            title = "条件のテキストを編集",
+                                            onCompleted = { text ->
+                                                coroutineScope.launch {
+                                                    api.updateCondition(
+                                                        id = condition.id,
+                                                        text = text,
+                                                    ).onFailure {
+                                                        eventSender.send {
+                                                            it.showNativeAlert("更新に失敗しました")
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            default = condition.text,
+                                            dismiss = { dismissTextInput() },
+                                        ),
+                                    )
+                                }
                             }
 
                             override fun selectedSource(source: ImportedMailFilterCategoryScreenUiState.DataSource) {
