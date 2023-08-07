@@ -42,6 +42,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
+import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
+import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
@@ -50,7 +52,8 @@ import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.Html
 
 public data class ImportedMailFilterCategoryScreenUiState(
     val loadingState: LoadingState,
-    val textInput: TextInput? = null,
+    val textInput: TextInput?,
+    val categorySelectDialogUiState: CategorySelectDialogUiState?,
     val event: Event,
 ) {
     @Immutable
@@ -150,6 +153,7 @@ public data class ImportedMailFilterCategoryScreenUiState(
         public fun onClickAddCondition()
         public fun onClickNameChange()
         public fun onSelectedOperator(operator: Operator)
+        public fun onClickCategoryChange()
     }
 
     @Immutable
@@ -213,8 +217,13 @@ public fun ImportedMailFilterCategoryScreen(
             }
         }
     }
-}
 
+    uiState.categorySelectDialogUiState?.let { categorySelectDialogUiState ->
+        CategorySelectDialog(
+            uiState = categorySelectDialogUiState,
+        )
+    }
+}
 
 @Composable
 private fun LoadedContent(
@@ -263,7 +272,7 @@ private fun LoadedContent(
                     Spacer(modifier = Modifier.weight(1f))
                     OutlinedButton(
                         modifier = Modifier.padding(8.dp),
-                        onClick = { uiState.event.onClickAddCondition() },
+                        onClick = { uiState.event.onClickCategoryChange() },
                     ) {
                         Text("変更")
                     }
