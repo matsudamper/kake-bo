@@ -41,6 +41,7 @@ public class ApolloResponseCollector<D : Query.Data>(
                     refetchThrows = refetchThrows,
                 )
                 .catch {
+                    it.printStackTrace()
                     _flow.value = ApolloResponseState.failure(it)
                 }
                 .collect {
