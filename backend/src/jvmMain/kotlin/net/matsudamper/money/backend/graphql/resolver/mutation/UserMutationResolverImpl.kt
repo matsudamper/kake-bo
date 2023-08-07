@@ -46,7 +46,12 @@ import net.matsudamper.money.graphql.model.QlUserMutation
 import net.matsudamper.money.graphql.model.UserMutationResolver
 
 class UserMutationResolverImpl : UserMutationResolver {
-    override fun userLogin(userMutation: QlUserMutation, name: String, password: String, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlUserLoginResult>> {
+    override fun userLogin(
+        userMutation: QlUserMutation,
+        name: String,
+        password: String,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<QlUserLoginResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
 
         return CompletableFuture.supplyAsync {
@@ -81,13 +86,20 @@ class UserMutationResolverImpl : UserMutationResolver {
         }.toDataFetcher()
     }
 
-    override fun settingsMutation(userMutation: QlUserMutation, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlSettingsMutation?>> {
+    override fun settingsMutation(
+        userMutation: QlUserMutation,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<QlSettingsMutation?>> {
         return CompletableFuture.supplyAsync {
             QlSettingsMutation()
         }.toDataFetcher()
     }
 
-    override fun importMail(userMutation: QlUserMutation, mailIds: List<MailId>, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlImportMailResult>> {
+    override fun importMail(
+        userMutation: QlUserMutation,
+        mailIds: List<MailId>,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<QlImportMailResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
         return CompletableFuture.supplyAsync {
@@ -107,7 +119,11 @@ class UserMutationResolverImpl : UserMutationResolver {
         }.toDataFetcher()
     }
 
-    override fun deleteMail(userMutation: QlUserMutation, mailIds: List<MailId>, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlDeleteMailResult>> {
+    override fun deleteMail(
+        userMutation: QlUserMutation,
+        mailIds: List<MailId>,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<QlDeleteMailResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
 
@@ -146,7 +162,11 @@ class UserMutationResolverImpl : UserMutationResolver {
         }.toDataFetcher()
     }
 
-    override fun addCategory(userMutation: QlUserMutation, input: QlAddCategoryInput, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlAddCategoryResult>> {
+    override fun addCategory(
+        userMutation: QlUserMutation,
+        input: QlAddCategoryInput,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<QlAddCategoryResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
         return CompletableFuture.supplyAsync {
@@ -171,7 +191,11 @@ class UserMutationResolverImpl : UserMutationResolver {
         }.toDataFetcher()
     }
 
-    override fun addSubCategory(userMutation: QlUserMutation, input: QlAddSubCategoryInput, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlAddSubCategoryResult>> {
+    override fun addSubCategory(
+        userMutation: QlUserMutation,
+        input: QlAddSubCategoryInput,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<QlAddSubCategoryResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
         return CompletableFuture.supplyAsync {
@@ -230,7 +254,11 @@ class UserMutationResolverImpl : UserMutationResolver {
         }.toDataFetcher()
     }
 
-    override fun deleteSubCategory(userMutation: QlUserMutation, id: MoneyUsageSubCategoryId, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<Boolean>> {
+    override fun deleteSubCategory(
+        userMutation: QlUserMutation,
+        id: MoneyUsageSubCategoryId,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<Boolean>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
 
