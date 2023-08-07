@@ -1,5 +1,7 @@
 extend type UserMail @typePolicy(keyFields: "id")
 extend type MoneyUsageCategory @typePolicy(keyFields: "id")
 extend type MoneyUsageSubCategory @typePolicy(keyFields: "id")
+extend type ImportedMailCategoryFilter @typePolicy(keyFields: "id")
+extend type ImportedMailCategoryCondition @typePolicy(keyFields: "id")
 extend type MoneyUsage @typePolicy(keyFields: "id")
 extend type ImportedMail @typePolicy(keyFields: "id")
