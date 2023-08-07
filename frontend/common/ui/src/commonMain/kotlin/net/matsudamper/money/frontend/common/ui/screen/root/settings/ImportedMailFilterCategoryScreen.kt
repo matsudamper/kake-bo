@@ -288,29 +288,42 @@ private fun LoadedContent(
                     text = "条件",
                     style = MaterialTheme.typography.titleMedium,
                 )
-                DropDownButton(
-                    modifier = Modifier.padding(8.dp),
-                    item = {
-                        Text(uiState.operator.name)
-                    },
-                    dropDown = {
-                        Column(modifier = Modifier.width(IntrinsicSize.Max)) {
-                            immutableListOf(
-                                ImportedMailFilterCategoryScreenUiState.Operator.AND,
-                                ImportedMailFilterCategoryScreenUiState.Operator.OR,
-                            ).forEach { operator ->
-                                Box(
-                                    modifier = Modifier.fillMaxWidth()
-                                        .clickable { uiState.event.onSelectedOperator(operator) }
-                                        .padding(8.dp),
-                                ) {
-                                    Text(text = operator.getDisplayText())
+                run {
+                    var visibleDropDown by remember { mutableStateOf(false) }
+                    DropDownButton(
+                        modifier = Modifier.padding(8.dp),
+                        item = {
+                            Text(uiState.operator.name)
+                        },
+                        visibleDropDown = visibleDropDown,
+                        onDismissRequest = {
+                            visibleDropDown = false
+                        },
+                        onClick = {
+                            visibleDropDown = !visibleDropDown
+                        },
+                        dropDown = {
+                            Column(modifier = Modifier.width(IntrinsicSize.Max)) {
+                                immutableListOf(
+                                    ImportedMailFilterCategoryScreenUiState.Operator.AND,
+                                    ImportedMailFilterCategoryScreenUiState.Operator.OR,
+                                ).forEach { operator ->
+                                    Box(
+                                        modifier = Modifier.fillMaxWidth()
+                                            .clickable {
+                                                visibleDropDown = false
+                                                uiState.event.onSelectedOperator(operator)
+                                            }
+                                            .padding(8.dp),
+                                    ) {
+                                        Text(text = operator.getDisplayText())
+                                    }
                                 }
                             }
-                        }
-                    },
-                    contentDescription = "演算子を選択",
-                )
+                        },
+                        contentDescription = "演算子を選択",
+                    )
+                }
                 Spacer(modifier = Modifier.weight(1f))
                 OutlinedButton(
                     modifier = Modifier.padding(8.dp),
@@ -357,63 +370,83 @@ private fun ConditionCard(
             FlowRow(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                DropDownButton(
-                    modifier = Modifier.padding(end = 4.dp),
-                    item = {
-                        Text(item.source.getDisplayText())
-                    },
-                    dropDown = {
-                        Column(modifier = Modifier.width(IntrinsicSize.Max)) {
-                            immutableListOf(
-                                ImportedMailFilterCategoryScreenUiState.DataSource.MailFrom,
-                                ImportedMailFilterCategoryScreenUiState.DataSource.MailTitle,
-                                ImportedMailFilterCategoryScreenUiState.DataSource.MailBody,
-                                ImportedMailFilterCategoryScreenUiState.DataSource.Title,
-                                ImportedMailFilterCategoryScreenUiState.DataSource.ServiceName,
-                            ).forEach { source ->
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { item.event.selectedSource(source) }
-                                        .padding(8.dp),
-                                ) {
-                                    Text(source.getDisplayText())
+                run {
+                    var visibleDropDown by remember { mutableStateOf(false) }
+                    DropDownButton(
+                        modifier = Modifier.padding(end = 4.dp),
+                        visibleDropDown = visibleDropDown,
+                        onDismissRequest = {
+                            visibleDropDown = false
+                        },
+                        onClick = {
+                            visibleDropDown = !visibleDropDown
+                        },
+                        item = {
+                            Text(item.source.getDisplayText())
+                        },
+                        dropDown = {
+                            Column(modifier = Modifier.width(IntrinsicSize.Max)) {
+                                immutableListOf(
+                                    ImportedMailFilterCategoryScreenUiState.DataSource.MailFrom,
+                                    ImportedMailFilterCategoryScreenUiState.DataSource.MailTitle,
+                                    ImportedMailFilterCategoryScreenUiState.DataSource.MailBody,
+                                    ImportedMailFilterCategoryScreenUiState.DataSource.Title,
+                                    ImportedMailFilterCategoryScreenUiState.DataSource.ServiceName,
+                                ).forEach { source ->
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable { item.event.selectedSource(source) }
+                                            .padding(8.dp),
+                                    ) {
+                                        Text(source.getDisplayText())
+                                    }
                                 }
                             }
-                        }
-                    },
-                    contentDescription = null,
-                )
+                        },
+                        contentDescription = null,
+                    )
+                }
                 Text(
                     modifier = Modifier.padding(end = 4.dp),
                     text = "に",
                 )
-                DropDownButton(
-                    modifier = Modifier.padding(end = 4.dp),
-                    item = {
-                        Text(item.conditionType.getDisplayText())
-                    },
-                    dropDown = {
-                        Column(modifier = Modifier.width(IntrinsicSize.Max)) {
-                            immutableListOf(
-                                ImportedMailFilterCategoryScreenUiState.ConditionType.Include,
-                                ImportedMailFilterCategoryScreenUiState.ConditionType.NotInclude,
-                                ImportedMailFilterCategoryScreenUiState.ConditionType.Equal,
-                                ImportedMailFilterCategoryScreenUiState.ConditionType.NotEqual,
-                            ).forEach { type ->
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { item.event.selectedConditionType(type) }
-                                        .padding(8.dp),
-                                ) {
-                                    Text(type.getDisplayText())
+                run {
+                    var visibleDropDown by remember { mutableStateOf(false) }
+                    DropDownButton(
+                        modifier = Modifier.padding(end = 4.dp),
+                        item = {
+                            Text(item.conditionType.getDisplayText())
+                        },
+                        visibleDropDown = visibleDropDown,
+                        onDismissRequest = {
+                            visibleDropDown = false
+                        },
+                        onClick = {
+                            visibleDropDown = !visibleDropDown
+                        },
+                        dropDown = {
+                            Column(modifier = Modifier.width(IntrinsicSize.Max)) {
+                                immutableListOf(
+                                    ImportedMailFilterCategoryScreenUiState.ConditionType.Include,
+                                    ImportedMailFilterCategoryScreenUiState.ConditionType.NotInclude,
+                                    ImportedMailFilterCategoryScreenUiState.ConditionType.Equal,
+                                    ImportedMailFilterCategoryScreenUiState.ConditionType.NotEqual,
+                                ).forEach { type ->
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable { item.event.selectedConditionType(type) }
+                                            .padding(8.dp),
+                                    ) {
+                                        Text(type.getDisplayText())
+                                    }
                                 }
                             }
-                        }
-                    },
-                    contentDescription = null,
-                )
+                        },
+                        contentDescription = null,
+                    )
+                }
                 Text(
                     text = "とき",
                 )
@@ -445,11 +478,13 @@ private fun ConditionCard(
 @Composable
 private fun DropDownButton(
     modifier: Modifier = Modifier,
+    visibleDropDown: Boolean,
+    onClick: () -> Unit,
+    onDismissRequest: () -> Unit,
     item: @Composable () -> Unit,
     dropDown: @Composable () -> Unit,
     contentDescription: String?,
 ) {
-    var visibleDropDown by remember { mutableStateOf(false) }
     Box(
         modifier = modifier,
     ) {
@@ -461,7 +496,7 @@ private fun DropDownButton(
                 bottom = 4.dp,
             ),
             onClick = {
-                visibleDropDown = visibleDropDown.not()
+                onClick()
             },
         ) {
             item()
@@ -469,9 +504,7 @@ private fun DropDownButton(
         }
         DropdownMenu(
             expanded = visibleDropDown,
-            onDismissRequest = {
-                visibleDropDown = false
-            },
+            onDismissRequest = onDismissRequest,
             focusable = true,
         ) {
             CompositionLocalProvider(
