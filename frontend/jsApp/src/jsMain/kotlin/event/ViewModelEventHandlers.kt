@@ -230,7 +230,7 @@ data class ViewModelEventHandlers(
                     override fun navigate(structure: ScreenStructure) {
                         navController.navigate(structure)
                     }
-                }
+                },
             )
         }
     }

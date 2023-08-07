@@ -154,7 +154,7 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                     if (importedMailIndex != null) {
                         append(IMPORTED_MAIL_INDEX, importedMailIndex.toString())
                     }
-                }
+                },
             )
         }
 

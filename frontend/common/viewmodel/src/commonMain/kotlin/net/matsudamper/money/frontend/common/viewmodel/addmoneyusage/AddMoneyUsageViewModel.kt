@@ -244,7 +244,7 @@ public class AddMoneyUsageViewModel(
                                         subCategoryId = suggestUsage.subCategory?.id ?: return@category null,
                                         subCategoryName = suggestUsage.subCategory?.name ?: return@category null,
                                     )
-                                }
+                                },
                             )
                         }
                     }

@@ -47,8 +47,8 @@ public class AddMoneyUsageScreenApi(
             apolloClient
                 .query(
                     AddMoneyUsageScreenQuery(
-                        id = id
-                    )
+                        id = id,
+                    ),
                 )
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
