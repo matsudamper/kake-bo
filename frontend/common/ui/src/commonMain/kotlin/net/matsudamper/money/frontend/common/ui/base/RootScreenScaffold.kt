@@ -19,6 +19,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -51,6 +52,7 @@ internal fun RootScreenScaffold(
     modifier: Modifier = Modifier,
     currentScreen: RootScreenTab,
     listener: RootScreenScaffoldListener,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     content: @Composable BoxScope.() -> Unit,
 ) {
     BoxWithConstraints(
@@ -73,6 +75,11 @@ internal fun RootScreenScaffold(
                             fontFamily = rememberCustomFontFamily(),
                         )
                     },
+                )
+            },
+            snackbarHost = {
+                MySnackBarHost(
+                    hostState = snackbarHostState,
                 )
             },
             bottomBar = {

@@ -27,12 +27,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +44,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.internal.ChannelFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
@@ -48,11 +56,14 @@ import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
+import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
+
 
 public data class ImportedMailFilterCategoryScreenUiState(
     val loadingState: LoadingState,
     val textInput: TextInput?,
+    val snackbarEventState: SnackbarEventState,
     val categorySelectDialogUiState: CategorySelectDialogUiState?,
     val event: Event,
 ) {
@@ -168,8 +179,27 @@ public fun ImportedMailFilterCategoryScreen(
     uiState: ImportedMailFilterCategoryScreenUiState,
     rootScreenScaffoldListener: RootScreenScaffoldListener,
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
+    }
+    LaunchedEffect(uiState.snackbarEventState) {
+        uiState.snackbarEventState.collect { event ->
+            val result = snackbarHostState.showSnackbar(
+                message = event.message,
+                duration = event.duration ?: if (event.withDismissAction) {
+                    SnackbarDuration.Indefinite
+                } else {
+                    SnackbarDuration.Short
+                },
+                withDismissAction = event.withDismissAction,
+                actionLabel = event.actionLabel,
+            )
+            when (result) {
+                SnackbarResult.Dismissed -> SnackbarEventState.Result.Dismiss
+                SnackbarResult.ActionPerformed -> SnackbarEventState.Result.Action
+            }
+        }
     }
     uiState.textInput?.also { textInput ->
         HtmlFullScreenTextInput(
@@ -183,6 +213,7 @@ public fun ImportedMailFilterCategoryScreen(
     RootScreenScaffold(
         modifier = modifier,
         currentScreen = RootScreenTab.Settings,
+        snackbarHostState = snackbarHostState,
         listener = rootScreenScaffoldListener,
     ) {
         SettingScaffold(

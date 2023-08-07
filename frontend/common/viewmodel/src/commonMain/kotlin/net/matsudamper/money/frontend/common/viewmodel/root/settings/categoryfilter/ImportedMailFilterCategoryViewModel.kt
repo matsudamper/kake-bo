@@ -1,5 +1,7 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilter
 
+import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.ApolloResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -7,11 +9,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
+import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImportedMailFilterCategoryScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -57,11 +58,13 @@ public class ImportedMailFilterCategoryViewModel(
         )
     }.viewModel
 
+    private val snackbarEventState = SnackbarEventState()
     public val uiStateFlow: StateFlow<ImportedMailFilterCategoryScreenUiState> = MutableStateFlow(
         ImportedMailFilterCategoryScreenUiState(
             textInput = null,
             loadingState = ImportedMailFilterCategoryScreenUiState.LoadingState.Loading,
             categorySelectDialogUiState = null,
+            snackbarEventState = snackbarEventState,
             event = object : ImportedMailFilterCategoryScreenUiState.Event {
                 override fun onViewInitialized() {
                     coroutineScope.launch {
@@ -210,7 +213,12 @@ public class ImportedMailFilterCategoryViewModel(
                                 operator = operator,
                             )
                         }.onFailure {
-
+                            snackbarEventState.show(
+                                SnackbarEventState.Event(
+                                    message = "更新に失敗しました",
+                                    withDismissAction = true,
+                                )
+                            )
                         }
                     }
                 }
