@@ -274,6 +274,46 @@ class MailFilterRepository(
         )
     }
 
+    fun updateCondition(
+        userId: UserId,
+        conditionId: ImportedMailCategoryFilterConditionId,
+        text: String?,
+        conditionType: ImportedMailCategoryFilterConditionType?,
+        dataSource: ImportedMailCategoryFilterDatasourceType?,
+    ): Boolean {
+        return runCatching {
+            dbConnection.use {
+                val resultRowCount = DSL.using(it)
+                    .update(conditions)
+                    .set(
+                        buildMap {
+                            if (text != null) {
+                                put(conditions.TEXT, text)
+                            }
+                            if (conditionType != null) {
+                                put(conditions.CATEGORY_MAIL_FILTER_CONDITION_TYPE_ID, conditionType.dbValue)
+                            }
+                            if (dataSource != null) {
+                                put(conditions.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID, dataSource.dbValue)
+                            }
+                        },
+                    )
+                    .where(
+                        DSL.value(true)
+                            .and(conditions.USER_ID.eq(userId.id))
+                            .and(conditions.CATEGORY_MAIL_FILTER_CONDITION_ID.eq(conditionId.id)),
+                    )
+                    .limit(1)
+                    .execute()
+                resultRowCount == 1
+            }
+        }.onFailure {
+            it.printStackTrace()
+        }.fold(
+            onSuccess = { it },
+            onFailure = { false }
+        )
+    }
     data class MailFiltersResult(
         val items: List<MailFilter>,
         val cursor: MailFilterCursor?,

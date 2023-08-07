@@ -426,7 +426,24 @@ class UserMutationResolverImpl : UserMutationResolver {
         input: QlUpdateImportedMailCategoryFilterConditionInput,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportedMailCategoryCondition?>> {
-        TODO("Not yet implemented")
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+        val repository = context.repositoryFactory.createMailFilterRepository()
+
+        return CompletableFuture.allOf().thenApplyAsync {
+            val isSuccess = repository.updateCondition(
+                userId = userId,
+                conditionId = input.id,
+                conditionType = input.conditionType?.toDbElement(),
+                dataSource = input.dataSourceType?.toDbElement(),
+                text = input.text,
+            )
+            if (isSuccess.not()) return@thenApplyAsync null
+
+            QlImportedMailCategoryCondition(
+                id = input.id,
+            )
+        }.toDataFetcher()
     }
 }
 
