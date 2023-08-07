@@ -51,6 +51,14 @@ mutation ImportedMailCategoryFilterScreenAddCondition($input: AddImportedMailCat
     }
 }
 
+mutation ImportedMailCategoryFilterScreenUpdateCondition($input: UpdateImportedMailCategoryFilterConditionInput!) {
+    userMutation {
+        updateImportedMailCategoryFilterCondition(input: $input) {
+            ... ImportedMailCategoryConditionScreenItem
+        }
+    }
+}
+
 fragment ImportedMailCategoryFilterScreenItem on ImportedMailCategoryFilter {
     id
     title
@@ -64,9 +72,13 @@ fragment ImportedMailCategoryFilterScreenItem on ImportedMailCategoryFilter {
         }
     }
     conditions {
-        id
-        conditionType
-        dataSourceType
-        text
+        ... ImportedMailCategoryConditionScreenItem
     }
+}
+
+fragment ImportedMailCategoryConditionScreenItem on ImportedMailCategoryCondition {
+    id
+    conditionType
+    dataSourceType
+    text
 }

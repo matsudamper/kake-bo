@@ -136,33 +136,35 @@ public class ImportedMailFilterCategoryViewModel(
                     subCategory = subCategory.name,
                 )
             },
-            conditions = filter.importedMailCategoryFilterScreenItem.conditions.orEmpty().map { condition ->
-                ImportedMailFilterCategoryScreenUiState.Condition(
-                    text = condition.text,
-                    source = when (condition.dataSourceType) {
-                        ImportedMailCategoryFilterDataSourceType.MailBody -> ImportedMailFilterCategoryScreenUiState.DataSource.MailBody
-                        ImportedMailCategoryFilterDataSourceType.MailFrom -> ImportedMailFilterCategoryScreenUiState.DataSource.MailFrom
-                        ImportedMailCategoryFilterDataSourceType.MailTitle -> ImportedMailFilterCategoryScreenUiState.DataSource.MailTitle
-                        ImportedMailCategoryFilterDataSourceType.ServiceName -> ImportedMailFilterCategoryScreenUiState.DataSource.ServiceName
-                        ImportedMailCategoryFilterDataSourceType.Title -> ImportedMailFilterCategoryScreenUiState.DataSource.Title
-                        ImportedMailCategoryFilterDataSourceType.UNKNOWN__ -> ImportedMailFilterCategoryScreenUiState.DataSource.Unknown
-                    },
-                    conditionType = ImportedMailFilterCategoryScreenUiState.ConditionType.NotInclude,
-                    event = object : ImportedMailFilterCategoryScreenUiState.ConditionEvent {
-                        override fun onClickTextChange() {
-                            TODO("Not yet implemented")
-                        }
+            conditions = filter.importedMailCategoryFilterScreenItem.conditions.orEmpty()
+                .map { it.importedMailCategoryConditionScreenItem }
+                .map { condition ->
+                    ImportedMailFilterCategoryScreenUiState.Condition(
+                        text = condition.text,
+                        source = when (condition.dataSourceType) {
+                            ImportedMailCategoryFilterDataSourceType.MailBody -> ImportedMailFilterCategoryScreenUiState.DataSource.MailBody
+                            ImportedMailCategoryFilterDataSourceType.MailFrom -> ImportedMailFilterCategoryScreenUiState.DataSource.MailFrom
+                            ImportedMailCategoryFilterDataSourceType.MailTitle -> ImportedMailFilterCategoryScreenUiState.DataSource.MailTitle
+                            ImportedMailCategoryFilterDataSourceType.ServiceName -> ImportedMailFilterCategoryScreenUiState.DataSource.ServiceName
+                            ImportedMailCategoryFilterDataSourceType.Title -> ImportedMailFilterCategoryScreenUiState.DataSource.Title
+                            ImportedMailCategoryFilterDataSourceType.UNKNOWN__ -> ImportedMailFilterCategoryScreenUiState.DataSource.Unknown
+                        },
+                        conditionType = ImportedMailFilterCategoryScreenUiState.ConditionType.NotInclude,
+                        event = object : ImportedMailFilterCategoryScreenUiState.ConditionEvent {
+                            override fun onClickTextChange() {
+                                TODO("Not yet implemented")
+                            }
 
-                        override fun selectedSource(source: ImportedMailFilterCategoryScreenUiState.DataSource) {
-                            TODO("Not yet implemented")
-                        }
+                            override fun selectedSource(source: ImportedMailFilterCategoryScreenUiState.DataSource) {
+                                TODO("Not yet implemented")
+                            }
 
-                        override fun selectedConditionType(type: ImportedMailFilterCategoryScreenUiState.ConditionType) {
-                            TODO("Not yet implemented")
-                        }
-                    },
-                )
-            }.toImmutableList(),
+                            override fun selectedConditionType(type: ImportedMailFilterCategoryScreenUiState.ConditionType) {
+                                TODO("Not yet implemented")
+                            }
+                        },
+                    )
+                }.toImmutableList(),
             operator = when (filter.importedMailCategoryFilterScreenItem.operator) {
                 ImportedMailFilterCategoryConditionOperator.AND -> ImportedMailFilterCategoryScreenUiState.Operator.AND
                 ImportedMailFilterCategoryConditionOperator.OR -> ImportedMailFilterCategoryScreenUiState.Operator.OR
