@@ -82,6 +82,7 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
                             ImportedMailFilterCategoryScreenUiState.ConditionType.NotInclude -> ImportedMailCategoryFilterConditionType.NotInclude
                             ImportedMailFilterCategoryScreenUiState.ConditionType.Equal -> ImportedMailCategoryFilterConditionType.Equal
                             ImportedMailFilterCategoryScreenUiState.ConditionType.NotEqual -> ImportedMailCategoryFilterConditionType.NotEqual
+                            ImportedMailFilterCategoryScreenUiState.ConditionType.Unknown,
                             null -> null
                         }.let { Optional.present(it) },
                         dataSourceType = when (dataSource) {
@@ -93,7 +94,6 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
                             ImportedMailFilterCategoryScreenUiState.DataSource.Unknown,
                             null -> null
                         }.let { Optional.present(it) }
-
                     ),
                 )
             ).execute()

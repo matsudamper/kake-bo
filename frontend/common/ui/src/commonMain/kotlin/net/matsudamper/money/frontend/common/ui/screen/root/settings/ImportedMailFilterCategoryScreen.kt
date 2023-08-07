@@ -121,6 +121,7 @@ public data class ImportedMailFilterCategoryScreenUiState(
         NotInclude,
         Equal,
         NotEqual,
+        Unknown,
         ;
 
         internal fun getDisplayText(): String {
@@ -129,6 +130,7 @@ public data class ImportedMailFilterCategoryScreenUiState(
                 NotInclude -> "含まない"
                 Equal -> "一致する"
                 NotEqual -> "一致しない"
+                Unknown -> ""
             }
         }
     }

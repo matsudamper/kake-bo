@@ -21,6 +21,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
+import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterConditionType
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterDataSourceType
 import net.matsudamper.money.frontend.graphql.type.ImportedMailFilterCategoryConditionOperator
 
@@ -149,7 +150,13 @@ public class ImportedMailFilterCategoryViewModel(
                             ImportedMailCategoryFilterDataSourceType.Title -> ImportedMailFilterCategoryScreenUiState.DataSource.Title
                             ImportedMailCategoryFilterDataSourceType.UNKNOWN__ -> ImportedMailFilterCategoryScreenUiState.DataSource.Unknown
                         },
-                        conditionType = ImportedMailFilterCategoryScreenUiState.ConditionType.NotInclude,
+                        conditionType = when(condition.conditionType) {
+                            ImportedMailCategoryFilterConditionType.Equal -> ImportedMailFilterCategoryScreenUiState.ConditionType.Equal
+                            ImportedMailCategoryFilterConditionType.Include -> ImportedMailFilterCategoryScreenUiState.ConditionType.Include
+                            ImportedMailCategoryFilterConditionType.NotEqual -> ImportedMailFilterCategoryScreenUiState.ConditionType.NotEqual
+                            ImportedMailCategoryFilterConditionType.NotInclude -> ImportedMailFilterCategoryScreenUiState.ConditionType.NotInclude
+                            ImportedMailCategoryFilterConditionType.UNKNOWN__ -> ImportedMailFilterCategoryScreenUiState.ConditionType.Unknown
+                        },
                         event = object : ImportedMailFilterCategoryScreenUiState.ConditionEvent {
                             override fun onClickTextChange() {
 
