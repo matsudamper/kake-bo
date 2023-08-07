@@ -1,15 +1,19 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -20,11 +24,13 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -279,16 +285,17 @@ private fun LoadedContent(
                         Text(uiState.operator.name)
                     },
                     dropDown = {
-                        Column {
+                        Column(modifier = Modifier.width(IntrinsicSize.Max)) {
                             immutableListOf(
                                 ImportedMailFilterCategoryScreenUiState.Operator.AND,
                                 ImportedMailFilterCategoryScreenUiState.Operator.OR,
                             ).forEach { operator ->
-                                TextButton(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    onClick = { uiState.event.onSelectedOperator(operator) },
+                                Box(
+                                    modifier = Modifier.fillMaxWidth()
+                                        .clickable { uiState.event.onSelectedOperator(operator) }
+                                        .padding(8.dp),
                                 ) {
-                                    Text(operator.getDisplayText())
+                                    Text(text = operator.getDisplayText())
                                 }
                             }
                         }
@@ -321,7 +328,8 @@ private fun LoadedContent(
         } else {
             items(uiState.conditions) { item ->
                 ConditionCard(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(vertical = 8.dp),
                     item = item,
                 )
             }
@@ -337,13 +345,16 @@ private fun ConditionCard(
 ) {
     Card(modifier = modifier) {
         Column(modifier = Modifier.padding(8.dp)) {
-            FlowRow {
+            FlowRow(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 DropDownButton(
+                    modifier = Modifier.padding(end = 4.dp),
                     item = {
                         Text(item.source.getDisplayText())
                     },
                     dropDown = {
-                        Column {
+                        Column(modifier = Modifier.width(IntrinsicSize.Max)) {
                             immutableListOf(
                                 ImportedMailFilterCategoryScreenUiState.DataSource.MailFrom,
                                 ImportedMailFilterCategoryScreenUiState.DataSource.MailTitle,
@@ -351,11 +362,11 @@ private fun ConditionCard(
                                 ImportedMailFilterCategoryScreenUiState.DataSource.Title,
                                 ImportedMailFilterCategoryScreenUiState.DataSource.ServiceName,
                             ).forEach { source ->
-                                TextButton(
-                                    modifier = Modifier.padding(8.dp),
-                                    onClick = {
-                                        item.event.selectedSource(source)
-                                    },
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { item.event.selectedSource(source) }
+                                        .padding(8.dp),
                                 ) {
                                     Text(source.getDisplayText())
                                 }
@@ -364,24 +375,28 @@ private fun ConditionCard(
                     },
                     contentDescription = null,
                 )
-                Text("が")
+                Text(
+                    modifier = Modifier.padding(end = 4.dp),
+                    text = "に",
+                )
                 DropDownButton(
+                    modifier = Modifier.padding(end = 4.dp),
                     item = {
                         Text(item.conditionType.getDisplayText())
                     },
                     dropDown = {
-                        Column {
+                        Column(modifier = Modifier.width(IntrinsicSize.Max)) {
                             immutableListOf(
                                 ImportedMailFilterCategoryScreenUiState.ConditionType.Include,
                                 ImportedMailFilterCategoryScreenUiState.ConditionType.NotInclude,
                                 ImportedMailFilterCategoryScreenUiState.ConditionType.Equal,
                                 ImportedMailFilterCategoryScreenUiState.ConditionType.NotEqual,
                             ).forEach { type ->
-                                TextButton(
-                                    modifier = Modifier.padding(8.dp),
-                                    onClick = {
-                                        item.event.selectedConditionType(type)
-                                    },
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { item.event.selectedConditionType(type) }
+                                        .padding(8.dp),
                                 ) {
                                     Text(type.getDisplayText())
                                 }
@@ -390,13 +405,21 @@ private fun ConditionCard(
                     },
                     contentDescription = null,
                 )
-                Text("のとき")
-            }
-            Row {
                 Text(
-                    modifier = Modifier.weight(1f),
-                    text = item.text,
+                    text = "とき",
                 )
+            }
+            Row(
+                verticalAlignment = Alignment.Bottom,
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(
+                        text = item.text,
+                    )
+                    Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                }
                 OutlinedButton(
                     modifier = Modifier.padding(8.dp),
                     onClick = {
@@ -418,22 +441,35 @@ private fun DropDownButton(
     contentDescription: String?,
 ) {
     var visibleDropDown by remember { mutableStateOf(false) }
-    OutlinedButton(
+    Box(
         modifier = modifier,
-        onClick = {
-            visibleDropDown = true
-        },
     ) {
-        item()
-        Icon(Icons.Default.ArrowDropDown, contentDescription)
-    }
-    DropdownMenu(
-        expanded = visibleDropDown,
-        onDismissRequest = {
-            visibleDropDown = false
-        },
-        focusable = true,
-    ) {
-        dropDown()
+        OutlinedButton(
+            contentPadding = PaddingValues(
+                start = 24.dp,
+                end = 20.dp,
+                top = 4.dp,
+                bottom = 4.dp,
+            ),
+            onClick = {
+                visibleDropDown = visibleDropDown.not()
+            },
+        ) {
+            item()
+            Icon(Icons.Default.ArrowDropDown, contentDescription)
+        }
+        DropdownMenu(
+            expanded = visibleDropDown,
+            onDismissRequest = {
+                visibleDropDown = false
+            },
+            focusable = true,
+        ) {
+            CompositionLocalProvider(
+                LocalContentColor provides MaterialTheme.colorScheme.primary,
+            ) {
+                dropDown()
+            }
+        }
     }
 }
