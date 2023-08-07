@@ -171,6 +171,8 @@ public class ImportedMailFilterCategoryViewModel(
                                                         eventSender.send {
                                                             it.showNativeAlert("更新に失敗しました")
                                                         }
+                                                    }.onSuccess {
+                                                        dismissTextInput()
                                                     }
                                                 }
                                             },
