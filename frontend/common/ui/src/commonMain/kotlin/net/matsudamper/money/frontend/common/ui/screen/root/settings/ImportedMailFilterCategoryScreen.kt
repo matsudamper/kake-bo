@@ -429,7 +429,10 @@ private fun ConditionCard(
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .clickable { item.event.selectedSource(source) }
+                                            .clickable {
+                                                visibleDropDown = false
+                                                item.event.selectedSource(source)
+                                            }
                                             .padding(8.dp),
                                     ) {
                                         Text(source.getDisplayText())
@@ -469,7 +472,10 @@ private fun ConditionCard(
                                     Box(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .clickable { item.event.selectedConditionType(type) }
+                                            .clickable {
+                                                visibleDropDown = false
+                                                item.event.selectedConditionType(type)
+                                            }
                                             .padding(8.dp),
                                     ) {
                                         Text(type.getDisplayText())
