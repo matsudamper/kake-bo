@@ -6,7 +6,6 @@ import net.matsudamper.money.backend.DbConnectionImpl
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
-import net.matsudamper.money.db.schema.tables.records.JMoneyUsagesMailsRelationRecord
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsagesRecord
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageId
@@ -181,7 +180,7 @@ class MoneyUsageRepository {
 
     fun getMails(
         userId: UserId,
-        importedMailId: ImportedMailId
+        importedMailId: ImportedMailId,
     ): Result<List<Usage>> {
         return runCatching {
             DbConnectionImpl.use { connection ->
@@ -190,7 +189,7 @@ class MoneyUsageRepository {
                     .from(relation)
                     .join(usage).on(
                         relation.MONEY_USAGE_ID.eq(usage.MONEY_USAGE_ID)
-                            .and(usage.USER_ID.eq(userId.id))
+                            .and(usage.USER_ID.eq(userId.id)),
                     )
                     .where(
                         DSL.value(true)

@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend.graphql.resolver
 
 import java.time.LocalDateTime
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
@@ -14,7 +15,6 @@ import net.matsudamper.money.graphql.model.ImportedMailResolver
 import net.matsudamper.money.graphql.model.QlImportedMail
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageSuggest
-import java.util.concurrent.CompletableFuture
 
 class ImportedMailResolverImpl : ImportedMailResolver {
     override fun subject(
@@ -156,7 +156,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
 
     override fun usages(
         importedMail: QlImportedMail,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<List<QlMoneyUsage>>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
@@ -167,7 +167,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
             val result = context.repositoryFactory.createMoneyUsageRepository()
                 .getMails(
                     userId = userId,
-                    importedMailId = importedMail.id
+                    importedMailId = importedMail.id,
                 )
 
             result.onSuccess { usages ->
@@ -185,7 +185,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                             userId = usage.userId,
                             subCategoryId = usage.subCategoryId,
                             date = usage.date,
-                        )
+                        ),
                     )
                 }
             }.onFailure {
@@ -202,7 +202,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                 },
                 onFailure = {
                     listOf()
-                }
+                },
             )
         }.toDataFetcher()
     }
