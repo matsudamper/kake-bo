@@ -226,6 +226,23 @@ public class ImportedMailFilterCategoryViewModel(
                                     }
                                 }
                             }
+
+                            override fun onClickDeleteMenu() {
+                                viewModelStateFlow.update {
+                                    it.copy(
+                                        confirmDialog = ImportedMailFilterCategoryScreenUiState.ConfirmDialog(
+                                            title = "この条件を削除しますか？",
+                                            description = null,
+                                            onDismiss = {
+                                                dismissConfirmDialog()
+                                            },
+                                            onConfirm = {
+                                                // TODO
+                                            },
+                                        )
+                                    )
+                                }
+                            }
                         },
                     )
                 }.toImmutableList(),

@@ -45,6 +45,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
@@ -134,7 +135,7 @@ public data class ImportedMailFilterCategoryScreenUiState(
 
         internal fun getDisplayText(): String {
             return when (this) {
-                Include -> "含む"
+                Include -> "含まれる"
                 NotInclude -> "含まない"
                 Equal -> "一致する"
                 NotEqual -> "一致しない"
@@ -167,6 +168,7 @@ public data class ImportedMailFilterCategoryScreenUiState(
         public fun onClickTextChange()
         public fun selectedSource(source: DataSource)
         public fun selectedConditionType(type: ConditionType)
+        public fun onClickDeleteMenu()
     }
 
     @Immutable
@@ -183,6 +185,7 @@ public data class ImportedMailFilterCategoryScreenUiState(
         public fun onClickMenuDelete()
     }
 }
+
 @Composable
 public fun ImportedMailFilterCategoryScreen(
     modifier: Modifier = Modifier,
@@ -467,114 +470,148 @@ private fun ConditionCard(
     item: ImportedMailFilterCategoryScreenUiState.Condition,
 ) {
     Card(modifier = modifier) {
-        Column(modifier = Modifier.padding(8.dp)) {
-            FlowRow(
-                verticalAlignment = Alignment.CenterVertically,
+        Row(modifier = Modifier.padding(8.dp)) {
+            Column(
+                modifier = Modifier.weight(1f)
             ) {
-                run {
-                    var visibleDropDown by remember { mutableStateOf(false) }
-                    DropDownButton(
-                        modifier = Modifier.padding(end = 4.dp),
-                        visibleDropDown = visibleDropDown,
-                        onDismissRequest = {
-                            visibleDropDown = false
-                        },
-                        onClick = {
-                            visibleDropDown = !visibleDropDown
-                        },
-                        item = {
-                            Text(item.source.getDisplayText())
-                        },
-                        dropDown = {
-                            Column(modifier = Modifier.width(IntrinsicSize.Max)) {
-                                immutableListOf(
-                                    ImportedMailFilterCategoryScreenUiState.DataSource.MailFrom,
-                                    ImportedMailFilterCategoryScreenUiState.DataSource.MailTitle,
-                                    ImportedMailFilterCategoryScreenUiState.DataSource.MailHtml,
-                                    ImportedMailFilterCategoryScreenUiState.DataSource.MailPlain,
-                                    ImportedMailFilterCategoryScreenUiState.DataSource.Title,
-                                    ImportedMailFilterCategoryScreenUiState.DataSource.ServiceName,
-                                ).forEach { source ->
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable {
-                                                visibleDropDown = false
-                                                item.event.selectedSource(source)
-                                            }
-                                            .padding(8.dp),
-                                    ) {
-                                        Text(source.getDisplayText())
-                                    }
-                                }
-                            }
-                        },
-                        contentDescription = null,
-                    )
-                }
-                Text(
-                    modifier = Modifier.padding(end = 4.dp),
-                    text = "に",
-                )
-                run {
-                    var visibleDropDown by remember { mutableStateOf(false) }
-                    DropDownButton(
-                        modifier = Modifier.padding(end = 4.dp),
-                        item = {
-                            Text(item.conditionType.getDisplayText())
-                        },
-                        visibleDropDown = visibleDropDown,
-                        onDismissRequest = {
-                            visibleDropDown = false
-                        },
-                        onClick = {
-                            visibleDropDown = !visibleDropDown
-                        },
-                        dropDown = {
-                            Column(modifier = Modifier.width(IntrinsicSize.Max)) {
-                                immutableListOf(
-                                    ImportedMailFilterCategoryScreenUiState.ConditionType.Include,
-                                    ImportedMailFilterCategoryScreenUiState.ConditionType.NotInclude,
-                                    ImportedMailFilterCategoryScreenUiState.ConditionType.Equal,
-                                    ImportedMailFilterCategoryScreenUiState.ConditionType.NotEqual,
-                                ).forEach { type ->
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable {
-                                                visibleDropDown = false
-                                                item.event.selectedConditionType(type)
-                                            }
-                                            .padding(8.dp),
-                                    ) {
-                                        Text(type.getDisplayText())
-                                    }
-                                }
-                            }
-                        },
-                        contentDescription = null,
-                    )
-                }
-                Text(
-                    text = "とき",
-                )
-            }
-            Row(
-                verticalAlignment = Alignment.Bottom,
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
+                FlowRow(
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
+                    run {
+                        var visibleDropDown by remember { mutableStateOf(false) }
+                        DropDownButton(
+                            modifier = Modifier.padding(end = 4.dp),
+                            visibleDropDown = visibleDropDown,
+                            onDismissRequest = {
+                                visibleDropDown = false
+                            },
+                            onClick = {
+                                visibleDropDown = !visibleDropDown
+                            },
+                            item = {
+                                Text(item.source.getDisplayText())
+                            },
+                            dropDown = {
+                                Column(modifier = Modifier.width(IntrinsicSize.Max)) {
+                                    immutableListOf(
+                                        ImportedMailFilterCategoryScreenUiState.DataSource.MailFrom,
+                                        ImportedMailFilterCategoryScreenUiState.DataSource.MailTitle,
+                                        ImportedMailFilterCategoryScreenUiState.DataSource.MailHtml,
+                                        ImportedMailFilterCategoryScreenUiState.DataSource.MailPlain,
+                                        ImportedMailFilterCategoryScreenUiState.DataSource.Title,
+                                        ImportedMailFilterCategoryScreenUiState.DataSource.ServiceName,
+                                    ).forEach { source ->
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable {
+                                                    visibleDropDown = false
+                                                    item.event.selectedSource(source)
+                                                }
+                                                .padding(8.dp),
+                                        ) {
+                                            Text(source.getDisplayText())
+                                        }
+                                    }
+                                }
+                            },
+                            contentDescription = null,
+                        )
+                    }
                     Text(
-                        text = item.text,
+                        modifier = Modifier.padding(end = 4.dp),
+                        text = "に以下のテキストが",
                     )
-                    Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                    run {
+                        var visibleDropDown by remember { mutableStateOf(false) }
+                        DropDownButton(
+                            modifier = Modifier.padding(end = 4.dp),
+                            item = {
+                                Text(item.conditionType.getDisplayText())
+                            },
+                            visibleDropDown = visibleDropDown,
+                            onDismissRequest = {
+                                visibleDropDown = false
+                            },
+                            onClick = {
+                                visibleDropDown = !visibleDropDown
+                            },
+                            dropDown = {
+                                Column(modifier = Modifier.width(IntrinsicSize.Max)) {
+                                    immutableListOf(
+                                        ImportedMailFilterCategoryScreenUiState.ConditionType.Include,
+                                        ImportedMailFilterCategoryScreenUiState.ConditionType.NotInclude,
+                                        ImportedMailFilterCategoryScreenUiState.ConditionType.Equal,
+                                        ImportedMailFilterCategoryScreenUiState.ConditionType.NotEqual,
+                                    ).forEach { type ->
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable {
+                                                    visibleDropDown = false
+                                                    item.event.selectedConditionType(type)
+                                                }
+                                                .padding(8.dp),
+                                        ) {
+                                            Text(type.getDisplayText())
+                                        }
+                                    }
+                                }
+                            },
+                            contentDescription = null,
+                        )
+                    }
+                    Text(
+                        text = "とき",
+                    )
                 }
-                OutlinedButton(
-                    modifier = Modifier.padding(8.dp),
-                    onClick = { item.event.onClickTextChange() },
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier
+                        .clip(MaterialTheme.shapes.medium)
+                        .clickable { item.event.onClickTextChange() }
+                        .padding(8.dp),
                 ) {
-                    Text("変更")
+                    Text("テキスト")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Column(
+                        modifier = Modifier.weight(1f),
+                    ) {
+                        Text(
+                            text = item.text,
+                        )
+                        Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                    }
+                }
+            }
+            Column(
+                horizontalAlignment = Alignment.End,
+            ) {
+                var visibleDropDown by remember { mutableStateOf(false) }
+                IconButton(onClick = {
+                    visibleDropDown = !visibleDropDown
+                }) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "メニューを開く",
+                    )
+
+                    DropdownMenu(
+                        expanded = visibleDropDown,
+                        onDismissRequest = { visibleDropDown = false },
+                        focusable = true,
+                    ) {
+                        DropdownMenuItem(
+                            colors = MenuDefaults.itemColors(
+                                textColor = MaterialTheme.colorScheme.error
+                            ),
+                            text = { Text("削除") },
+                            onClick = {
+                                visibleDropDown = false
+                                item.event.onClickDeleteMenu()
+                            },
+                        )
+                    }
                 }
             }
         }
