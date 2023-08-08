@@ -19,11 +19,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -215,7 +217,20 @@ public fun ImportedMailFilterCategoryScreen(
     ) {
         SettingScaffold(
             title = {
-                Text("メールカテゴリフィルタ")
+                Row {
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = "メールカテゴリフィルタ",
+                    )
+                    IconButton(onClick = {
+
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "メニューを開く",
+                        )
+                    }
+                }
             },
         ) {
             when (val state = uiState.loadingState) {
