@@ -24,10 +24,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
@@ -52,16 +54,25 @@ import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
+import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
 
 public data class ImportedMailFilterCategoryScreenUiState(
     val loadingState: LoadingState,
     val textInput: TextInput?,
+    val confirmDialog: ConfirmDialog?,
     val snackbarEventState: SnackbarEventState,
     val categorySelectDialogUiState: CategorySelectDialogUiState?,
     val event: Event,
 ) {
+    public data class ConfirmDialog(
+        val title: String,
+        val description: String?,
+        val onConfirm: () -> Unit,
+        val onDismiss: () -> Unit,
+    )
+
     @Immutable
     public sealed interface LoadingState {
         public object Loading : LoadingState
@@ -169,9 +180,9 @@ public data class ImportedMailFilterCategoryScreenUiState(
     @Immutable
     public interface Event {
         public fun onViewInitialized()
+        public fun onClickMenuDelete()
     }
 }
-
 @Composable
 public fun ImportedMailFilterCategoryScreen(
     modifier: Modifier = Modifier,
@@ -181,6 +192,19 @@ public fun ImportedMailFilterCategoryScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
+    }
+    uiState.confirmDialog?.also { confirmDialog ->
+        AlertDialog(
+            title = { Text(confirmDialog.title) },
+            description = confirmDialog.description?.let {
+                {
+                    Text(confirmDialog.description)
+                }
+            },
+            onClickPositive = { confirmDialog.onConfirm() },
+            onClickNegative = { confirmDialog.onDismiss() },
+            onDismissRequest = { confirmDialog.onDismiss() },
+        )
     }
     LaunchedEffect(uiState.snackbarEventState) {
         uiState.snackbarEventState.collect { event ->
@@ -217,20 +241,12 @@ public fun ImportedMailFilterCategoryScreen(
     ) {
         SettingScaffold(
             title = {
-                Row {
-                    Text(
-                        modifier = Modifier.weight(1f),
-                        text = "メールカテゴリフィルタ",
-                    )
-                    IconButton(onClick = {
-
-                    }) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = "メニューを開く",
-                        )
+                Header(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClickDelete = {
+                        uiState.event.onClickMenuDelete()
                     }
-                }
+                )
             },
         ) {
             when (val state = uiState.loadingState) {
@@ -265,6 +281,48 @@ public fun ImportedMailFilterCategoryScreen(
         CategorySelectDialog(
             uiState = categorySelectDialogUiState,
         )
+    }
+}
+
+@Composable
+private fun Header(
+    modifier: Modifier = Modifier,
+    onClickDelete: () -> Unit,
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            modifier = Modifier.weight(1f),
+            text = "メールカテゴリフィルタ",
+        )
+        var visibleDropDown by remember { mutableStateOf(false) }
+        IconButton(onClick = {
+            visibleDropDown = !visibleDropDown
+        }) {
+            Icon(
+                imageVector = Icons.Default.MoreVert,
+                contentDescription = "メニューを開く",
+            )
+
+            DropdownMenu(
+                expanded = visibleDropDown,
+                onDismissRequest = { visibleDropDown = false },
+                focusable = true,
+            ) {
+                DropdownMenuItem(
+                    colors = MenuDefaults.itemColors(
+                        textColor = MaterialTheme.colorScheme.error
+                    ),
+                    text = { Text("削除") },
+                    onClick = {
+                        visibleDropDown = false
+                        onClickDelete()
+                    },
+                )
+            }
+        }
     }
 }
 

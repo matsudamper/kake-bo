@@ -65,10 +65,26 @@ public class ImportedMailFilterCategoryViewModel(
             loadingState = ImportedMailFilterCategoryScreenUiState.LoadingState.Loading,
             categorySelectDialogUiState = null,
             snackbarEventState = snackbarEventState,
+            confirmDialog = null,
             event = object : ImportedMailFilterCategoryScreenUiState.Event {
                 override fun onViewInitialized() {
                     coroutineScope.launch {
                         apiResponseCollector.fetch(this)
+                    }
+                }
+
+                override fun onClickMenuDelete() {
+                    viewModelStateFlow.update {
+                        it.copy(
+                            confirmDialog = ImportedMailFilterCategoryScreenUiState.ConfirmDialog(
+                                title = "このフィルタを削除しますか",
+                                description = null,
+                                onConfirm = {
+                                    // TODO
+                                },
+                                onDismiss = { dismissConfirmDialog() }
+                            )
+                        )
                     }
                 }
             },
@@ -95,6 +111,7 @@ public class ImportedMailFilterCategoryViewModel(
                         loadingState = loadingState,
                         textInput = viewModelState.textInput,
                         categorySelectDialogUiState = viewModelState.categoryDialogUiState,
+                        confirmDialog = viewModelState.confirmDialog,
                     )
                 }
             }
@@ -296,6 +313,14 @@ public class ImportedMailFilterCategoryViewModel(
         }
     }
 
+    private fun dismissConfirmDialog() {
+        viewModelStateFlow.update { viewModelState ->
+            viewModelState.copy(
+                confirmDialog = null,
+            )
+        }
+    }
+
     public interface Event {
         public fun showNativeAlert(text: String)
     }
@@ -304,5 +329,6 @@ public class ImportedMailFilterCategoryViewModel(
         val apolloResponseState: ApolloResponseState<ApolloResponse<ImportedMailCategoryFilterScreenQuery.Data>> = ApolloResponseState.loading(),
         val textInput: ImportedMailFilterCategoryScreenUiState.TextInput? = null,
         val categoryDialogUiState: CategorySelectDialogUiState? = null,
+        val confirmDialog: ImportedMailFilterCategoryScreenUiState.ConfirmDialog? = null,
     )
 }
