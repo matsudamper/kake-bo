@@ -148,7 +148,7 @@ public fun ImportedMailListScreen(
 }
 
 @Composable
-public fun MainContent(
+private fun MainContent(
     modifier: Modifier,
     filterUiState: ImportedMailListScreenUiState.Filters,
     uiState: ImportedMailListScreenUiState.LoadingState.Loaded,

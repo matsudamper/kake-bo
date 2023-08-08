@@ -261,9 +261,9 @@ public fun ImportedMailFilterCategoryScreen(
                     modifier = Modifier,
                     onClickDelete = {
                         uiState.event.onClickMenuDelete()
-                    }
+                    },
                 )
-            }
+            },
         ) {
             when (val state = uiState.loadingState) {
                 is ImportedMailFilterCategoryScreenUiState.LoadingState.Error -> {
@@ -310,7 +310,7 @@ private fun Menu(
         modifier = modifier,
         onClick = {
             visibleDropDown = !visibleDropDown
-        }
+        },
     ) {
         Icon(
             imageVector = Icons.Default.MoreVert,
@@ -324,7 +324,7 @@ private fun Menu(
         ) {
             DropdownMenuItem(
                 colors = MenuDefaults.itemColors(
-                    textColor = MaterialTheme.colorScheme.error
+                    textColor = MaterialTheme.colorScheme.error,
                 ),
                 text = { Text("削除") },
                 onClick = {
@@ -479,7 +479,7 @@ private fun ConditionCard(
     Card(modifier = modifier) {
         Row(modifier = Modifier.padding(8.dp)) {
             Column(
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             ) {
                 FlowRow(
                     verticalAlignment = Alignment.CenterVertically,
@@ -597,7 +597,7 @@ private fun ConditionCard(
                 var visibleDropDown by remember { mutableStateOf(false) }
                 IconButton(onClick = {
                     visibleDropDown = !visibleDropDown
-                }) {
+                },) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = "メニューを開く",
@@ -610,7 +610,7 @@ private fun ConditionCard(
                     ) {
                         DropdownMenuItem(
                             colors = MenuDefaults.itemColors(
-                                textColor = MaterialTheme.colorScheme.error
+                                textColor = MaterialTheme.colorScheme.error,
                             ),
                             text = { Text("削除") },
                             onClick = {

@@ -57,13 +57,13 @@ internal fun AlertDialog(
                 ) { /* Nothing */ }
                 .zIndex(Float.MAX_VALUE)
                 .widthIn(max = 700.dp)
-                .padding(24.dp)
+                .padding(24.dp),
         ) {
             Column(
                 modifier = Modifier
                     .padding(horizontal = 12.dp)
                     .padding(bottom = 12.dp, top = 24.dp)
-                    .width(IntrinsicSize.Max)
+                    .width(IntrinsicSize.Max),
             ) {
                 ProvideTextStyle(MaterialTheme.typography.titleLarge) {
                     Box(modifier = Modifier.padding(horizontal = 12.dp)) {

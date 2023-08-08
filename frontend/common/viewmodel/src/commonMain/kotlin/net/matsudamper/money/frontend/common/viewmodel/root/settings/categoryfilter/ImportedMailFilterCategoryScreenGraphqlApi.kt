@@ -111,14 +111,14 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
                 .mutation(
                     ImportedMailCategoryFilterScreenDeleteFilterMutation(
                         id = id,
-                    )
+                    ),
                 )
                 .execute()
         }.map {
             it.data?.userMutation?.deleteImportedMailCategoryFilter == true
         }.fold(
             onSuccess = { it },
-            onFailure = { false }
+            onFailure = { false },
         )
     }
 
@@ -128,14 +128,14 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
                 .mutation(
                     ImportedMailCategoryFilterScreenDeleteConditionMutation(
                         id = id,
-                    )
+                    ),
                 )
                 .execute()
         }.map {
             it.data?.userMutation?.deleteImportedMailCategoryFilterCondition == true
         }.fold(
             onSuccess = { it },
-            onFailure = { false }
+            onFailure = { false },
         )
     }
 }

@@ -92,13 +92,13 @@ public class ImportedMailFilterCategoryViewModel(
                                             snackbarEventState.show(
                                                 SnackbarEventState.Event(
                                                     message = "削除に失敗しました",
-                                                )
+                                                ),
                                             )
                                         }
                                     }
                                 },
-                                onDismiss = { dismissConfirmDialog() }
-                            )
+                                onDismiss = { dismissConfirmDialog() },
+                            ),
                         )
                     }
                 }
@@ -268,7 +268,7 @@ public class ImportedMailFilterCategoryViewModel(
                                                             snackbarEventState.show(
                                                                 SnackbarEventState.Event(
                                                                     message = "削除しました",
-                                                                )
+                                                                ),
                                                             )
                                                         }
                                                         apiResponseCollector.fetch(this)
@@ -276,12 +276,12 @@ public class ImportedMailFilterCategoryViewModel(
                                                         snackbarEventState.show(
                                                             SnackbarEventState.Event(
                                                                 message = "削除に失敗しました",
-                                                            )
+                                                            ),
                                                         )
                                                     }
                                                 }
                                             },
-                                        )
+                                        ),
                                     )
                                 }
                             }

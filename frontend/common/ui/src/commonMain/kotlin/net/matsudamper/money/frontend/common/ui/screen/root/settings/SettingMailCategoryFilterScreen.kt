@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -143,6 +144,7 @@ private fun LoadedContent(
     uiState: SettingMailCategoryFilterScreenUiState.LoadingState.Loaded,
 ) {
     Column(modifier = modifier) {
+        Spacer(modifier = Modifier.height(8.dp))
         Row(modifier = Modifier.fillMaxWidth()) {
             Spacer(modifier = Modifier.weight(1f))
             OutlinedButton(onClick = { uiState.event.onClickAdd() }) {
