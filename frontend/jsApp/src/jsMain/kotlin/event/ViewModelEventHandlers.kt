@@ -1,5 +1,6 @@
 package event
 
+import kotlinx.browser.window
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.matsudamper.money.element.ImportedMailId
@@ -178,6 +179,10 @@ data class ViewModelEventHandlers(
 
                     override fun navigate(screenStructure: ScreenStructure) {
                         navController.navigate(screenStructure)
+                    }
+
+                    override fun openWeb(url: String) {
+                        window.open(url)
                     }
                 },
             )

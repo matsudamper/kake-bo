@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Card
@@ -25,13 +26,17 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
+import net.matsudamper.money.frontend.common.ui.lib.applyHtml
 
 public data class MailScreenUiState(
     val loadingState: LoadingState,
@@ -65,7 +70,7 @@ public data class MailScreenUiState(
         val title: String,
         val amount: String?,
         val category: String?,
-        val description: String,
+        val description: Clickable,
         val dateTime: String?,
         val event: Event,
     ) {
@@ -73,6 +78,11 @@ public data class MailScreenUiState(
             public fun onClickRegister()
         }
     }
+
+    public data class Clickable(
+        val text: String,
+        val onClickUrl: (String) -> Unit,
+    )
 
     @Immutable
     public interface LoadedEvent {
@@ -187,7 +197,7 @@ private fun MainContent(
             Spacer(modifier = Modifier.height(24.dp))
             Column(modifier = Modifier.fillMaxWidth()) {
                 LazyColumn {
-                    if(uiState.usage.isNotEmpty()) {
+                    if (uiState.usage.isNotEmpty()) {
                         item {
                             Text(
                                 modifier = Modifier.padding(horizontal = 12.dp),
@@ -286,6 +296,7 @@ private fun LinkedMoneyUsageCard(
     }
 }
 
+@OptIn(ExperimentalTextApi::class)
 @Composable
 private fun MoneyUsageSuggestCard(
     modifier: Modifier = Modifier,
@@ -340,7 +351,19 @@ private fun MoneyUsageSuggestCard(
                         Text("説明")
                     }
                     item {
-                        Text(text = items.description)
+                        val color = MaterialTheme.colorScheme.primary
+                        val text = remember(items.description.text) {
+                            AnnotatedString(items.description.text)
+                                .applyHtml(color)
+                        }
+                        ClickableText(
+                            text = text,
+                            onClick = { index ->
+                                text.getUrlAnnotations(index, index).forEach {
+                                    items.description.onClickUrl(it.item.url)
+                                }
+                            },
+                        )
                     }
                 }
             }

@@ -127,7 +127,18 @@ public class ImportedMailScreenViewModel(
 
                         "${category.name} / ${subCategory.name}"
                     },
-                    description = suggestUsage.description,
+                    description = run {
+                        MailScreenUiState.Clickable(
+                            text = suggestUsage.description,
+                            onClickUrl = { url ->
+                                coroutineScope.launch {
+                                    viewModelEventSender.send {
+                                        it.openWeb(url)
+                                    }
+                                }
+                            },
+                        )
+                    },
                     dateTime = suggestUsage.dateTime.toString(),
                     event = object : MailScreenUiState.UsageSuggest.Event {
                         override fun onClickRegister() {
@@ -181,6 +192,7 @@ public class ImportedMailScreenViewModel(
         public fun navigateToHome()
         public fun navigateToMailContent(id: ImportedMailId)
         public fun navigate(screenStructure: ScreenStructure)
+        public fun openWeb(url: String)
     }
 
     private data class ViewModelState(
