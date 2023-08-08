@@ -75,19 +75,6 @@ class ApolloPagingResponseCollector<D : Query.Data>(
     }
 
     companion object {
-        fun <D : Query.Data> createAndAdd(
-            query: Query<D>,
-            apolloClient: ApolloClient,
-            coroutineScope: CoroutineScope,
-        ): ApolloPagingResponseCollector<D> {
-            return ApolloPagingResponseCollector<D>(
-                apolloClient = apolloClient,
-                coroutineScope = coroutineScope,
-            ).also {
-                it.add(query)
-            }
-        }
-
         fun <D : Query.Data> create(
             apolloClient: ApolloClient,
             coroutineScope: CoroutineScope,
