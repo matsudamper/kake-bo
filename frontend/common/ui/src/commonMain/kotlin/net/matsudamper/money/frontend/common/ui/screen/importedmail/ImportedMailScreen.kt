@@ -187,22 +187,24 @@ private fun MainContent(
             Spacer(modifier = Modifier.height(24.dp))
             Column(modifier = Modifier.fillMaxWidth()) {
                 LazyColumn {
-                    item {
-                        Text(
-                            modifier = Modifier.padding(horizontal = 12.dp),
-                            text = "登録済み",
-                            style = MaterialTheme.typography.headlineLarge,
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-                    items(uiState.usage) { item ->
-                        LinkedMoneyUsageCard(
-                            modifier = Modifier.fillMaxWidth(),
-                            uiState = item,
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
+                    if(uiState.usage.isNotEmpty()) {
+                        item {
+                            Text(
+                                modifier = Modifier.padding(horizontal = 12.dp),
+                                text = "登録済み",
+                                style = MaterialTheme.typography.headlineLarge,
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+                        items(uiState.usage) { item ->
+                            LinkedMoneyUsageCard(
+                                modifier = Modifier.fillMaxWidth(),
+                                uiState = item,
+                            )
+                            Spacer(modifier = Modifier.height(24.dp))
+                        }
                     }
                     item {
                         Text(
