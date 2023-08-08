@@ -73,7 +73,7 @@ CREATE TABLE money_usage_categories
     created_datetime        DATETIME DEFAULT CURRENT_TIMESTAMP not null,
     update_datetime         DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP,
     INDEX user_id (user_id),
-    INDEX user_index (money_usage_category_id, user_id),
+    INDEX user_index (money_usage_category_id, user_id)
 );
 
 CREATE TABLE money_usage_sub_categories
