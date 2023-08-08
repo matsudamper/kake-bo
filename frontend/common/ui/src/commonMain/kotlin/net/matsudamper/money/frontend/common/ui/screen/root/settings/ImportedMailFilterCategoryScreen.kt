@@ -251,13 +251,19 @@ public fun ImportedMailFilterCategoryScreen(
     ) {
         SettingScaffold(
             title = {
-                Header(
-                    modifier = Modifier.fillMaxWidth(),
+                Text(
+                    modifier = Modifier,
+                    text = "メールカテゴリフィルタ",
+                )
+            },
+            menu = {
+                Menu(
+                    modifier = Modifier,
                     onClickDelete = {
                         uiState.event.onClickMenuDelete()
                     }
                 )
-            },
+            }
         ) {
             when (val state = uiState.loadingState) {
                 is ImportedMailFilterCategoryScreenUiState.LoadingState.Error -> {
@@ -295,43 +301,37 @@ public fun ImportedMailFilterCategoryScreen(
 }
 
 @Composable
-private fun Header(
+private fun Menu(
     modifier: Modifier = Modifier,
     onClickDelete: () -> Unit,
 ) {
-    Row(
+    var visibleDropDown by remember { mutableStateOf(false) }
+    IconButton(
         modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            modifier = Modifier.weight(1f),
-            text = "メールカテゴリフィルタ",
-        )
-        var visibleDropDown by remember { mutableStateOf(false) }
-        IconButton(onClick = {
+        onClick = {
             visibleDropDown = !visibleDropDown
-        }) {
-            Icon(
-                imageVector = Icons.Default.MoreVert,
-                contentDescription = "メニューを開く",
-            )
+        }
+    ) {
+        Icon(
+            imageVector = Icons.Default.MoreVert,
+            contentDescription = "メニューを開く",
+        )
 
-            DropdownMenu(
-                expanded = visibleDropDown,
-                onDismissRequest = { visibleDropDown = false },
-                focusable = true,
-            ) {
-                DropdownMenuItem(
-                    colors = MenuDefaults.itemColors(
-                        textColor = MaterialTheme.colorScheme.error
-                    ),
-                    text = { Text("削除") },
-                    onClick = {
-                        visibleDropDown = false
-                        onClickDelete()
-                    },
-                )
-            }
+        DropdownMenu(
+            expanded = visibleDropDown,
+            onDismissRequest = { visibleDropDown = false },
+            focusable = true,
+        ) {
+            DropdownMenuItem(
+                colors = MenuDefaults.itemColors(
+                    textColor = MaterialTheme.colorScheme.error
+                ),
+                text = { Text("削除") },
+                onClick = {
+                    visibleDropDown = false
+                    onClickDelete()
+                },
+            )
         }
     }
 }

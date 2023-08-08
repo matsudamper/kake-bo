@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Divider
@@ -21,6 +22,7 @@ public fun SettingScaffold(
     modifier: Modifier = Modifier,
     titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
     title: @Composable () -> Unit,
+    menu: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
     val settingHorizontalPadding = 24.dp
@@ -30,15 +32,22 @@ public fun SettingScaffold(
             .fillMaxWidth()
             .padding(horizontal = settingHorizontalPadding),
     ) {
-        Box(
-            modifier = Modifier.padding(
-                horizontal = 18.dp,
-                vertical = 24.dp,
-            ),
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            ProvideTextStyle(titleStyle) {
-                title()
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(
+                        horizontal = 18.dp,
+                        vertical = 24.dp,
+                    ),
+            ) {
+                ProvideTextStyle(titleStyle) {
+                    title()
+                }
             }
+            menu()
         }
         Divider(
             modifier = Modifier.fillMaxWidth(),
