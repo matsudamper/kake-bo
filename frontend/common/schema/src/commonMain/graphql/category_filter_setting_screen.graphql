@@ -59,6 +59,18 @@ mutation ImportedMailCategoryFilterScreenUpdateCondition($input: UpdateImportedM
     }
 }
 
+mutation ImportedMailCategoryFilterScreenDeleteFilter($id: ImportedMailCategoryFilterId!) {
+    userMutation {
+        deleteImportedMailCategoryFilter(id: $id)
+    }
+}
+
+mutation ImportedMailCategoryFilterScreenDeleteCondition($id: ImportedMailCategoryFilterConditionId!) {
+    userMutation {
+        deleteImportedMailCategoryFilterCondition(id: $id)
+    }
+}
+
 fragment ImportedMailCategoryFilterScreenItem on ImportedMailCategoryFilter {
     id
     title

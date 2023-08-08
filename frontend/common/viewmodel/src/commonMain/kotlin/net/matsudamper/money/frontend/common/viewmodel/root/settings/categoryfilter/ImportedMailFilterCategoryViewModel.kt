@@ -75,13 +75,27 @@ public class ImportedMailFilterCategoryViewModel(
                 }
 
                 override fun onClickMenuDelete() {
-                    viewModelStateFlow.update {
-                        it.copy(
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(
                             confirmDialog = ImportedMailFilterCategoryScreenUiState.ConfirmDialog(
                                 title = "このフィルタを削除しますか",
                                 description = null,
                                 onConfirm = {
-                                    // TODO
+                                    coroutineScope.launch {
+                                        val isSuccess = api.deleteFilter(id = id)
+                                        dismissConfirmDialog()
+                                        if (isSuccess) {
+                                            eventSender.send {
+                                                it.navigate(ScreenStructure.Root.Settings.MailCategoryFilters)
+                                            }
+                                        } else {
+                                            snackbarEventState.show(
+                                                SnackbarEventState.Event(
+                                                    message = "削除に失敗しました",
+                                                )
+                                            )
+                                        }
+                                    }
                                 },
                                 onDismiss = { dismissConfirmDialog() }
                             )
@@ -237,8 +251,8 @@ public class ImportedMailFilterCategoryViewModel(
                             }
 
                             override fun onClickDeleteMenu() {
-                                viewModelStateFlow.update {
-                                    it.copy(
+                                viewModelStateFlow.update { viewModelState ->
+                                    viewModelState.copy(
                                         confirmDialog = ImportedMailFilterCategoryScreenUiState.ConfirmDialog(
                                             title = "この条件を削除しますか？",
                                             description = null,
@@ -246,7 +260,26 @@ public class ImportedMailFilterCategoryViewModel(
                                                 dismissConfirmDialog()
                                             },
                                             onConfirm = {
-                                                // TODO
+                                                coroutineScope.launch {
+                                                    val isSuccess = api.deleteCondition(id = condition.id)
+                                                    dismissConfirmDialog()
+                                                    if (isSuccess) {
+                                                        launch {
+                                                            snackbarEventState.show(
+                                                                SnackbarEventState.Event(
+                                                                    message = "削除しました",
+                                                                )
+                                                            )
+                                                        }
+                                                        apiResponseCollector.fetch(this)
+                                                    } else {
+                                                        snackbarEventState.show(
+                                                            SnackbarEventState.Event(
+                                                                message = "削除に失敗しました",
+                                                            )
+                                                        )
+                                                    }
+                                                }
                                             },
                                         )
                                     )

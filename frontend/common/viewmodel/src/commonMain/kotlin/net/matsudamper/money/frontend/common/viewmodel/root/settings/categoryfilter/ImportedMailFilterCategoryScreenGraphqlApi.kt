@@ -9,6 +9,8 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImportedMailFilterCategoryScreenUiState
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenAddConditionMutation
+import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenDeleteConditionMutation
+import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenDeleteFilterMutation
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenUpdateConditionMutation
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterUpdateMutation
 import net.matsudamper.money.frontend.graphql.type.AddImportedMailCategoryFilterConditionInput
@@ -101,5 +103,39 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
                 ),
             ).execute()
         }
+    }
+
+    public suspend fun deleteFilter(id: ImportedMailCategoryFilterId): Boolean {
+        return runCatching {
+            apolloClient
+                .mutation(
+                    ImportedMailCategoryFilterScreenDeleteFilterMutation(
+                        id = id,
+                    )
+                )
+                .execute()
+        }.map {
+            it.data?.userMutation?.deleteImportedMailCategoryFilter == true
+        }.fold(
+            onSuccess = { it },
+            onFailure = { false }
+        )
+    }
+
+    public suspend fun deleteCondition(id: ImportedMailCategoryFilterConditionId): Boolean {
+        return runCatching {
+            apolloClient
+                .mutation(
+                    ImportedMailCategoryFilterScreenDeleteConditionMutation(
+                        id = id,
+                    )
+                )
+                .execute()
+        }.map {
+            it.data?.userMutation?.deleteImportedMailCategoryFilterCondition == true
+        }.fold(
+            onSuccess = { it },
+            onFailure = { false }
+        )
     }
 }
