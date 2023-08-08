@@ -237,6 +237,15 @@ class MailFilterRepository(
     fun deleteFilter(filterId: ImportedMailCategoryFilterId, userId: UserId): Boolean {
         return runCatching {
             dbConnection.use {
+                DSL.using(it)
+                    .deleteFrom(conditions)
+                    .where(
+                        DSL.value(true)
+                            .and(conditions.USER_ID.eq(userId.id))
+                            .and(conditions.CATEGORY_MAIL_FILTER_ID.eq(filterId.id)),
+                    )
+                    .execute()
+
                 val resultCount = DSL.using(it)
                     .deleteFrom(filters)
                     .where(
