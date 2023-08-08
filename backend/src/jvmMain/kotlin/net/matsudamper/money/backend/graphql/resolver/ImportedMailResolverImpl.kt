@@ -5,13 +5,16 @@ import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
+import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageSuggestLocalContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.mail.parser.MailMoneyUsageParser
 import net.matsudamper.money.graphql.model.ImportedMailResolver
 import net.matsudamper.money.graphql.model.QlImportedMail
+import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageSuggest
+import java.util.concurrent.CompletableFuture
 
 class ImportedMailResolverImpl : ImportedMailResolver {
     override fun subject(
@@ -149,5 +152,58 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                 )
                 .build()
         }
+    }
+
+    override fun usages(
+        importedMail: QlImportedMail,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<List<QlMoneyUsage>>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+
+        val moneyUsageLoader = context.dataLoaders.moneyUsageDataLoader.get(env)
+
+        return CompletableFuture.allOf().thenApplyAsync {
+            val result = context.repositoryFactory.createMoneyUsageRepository()
+                .getMails(
+                    userId = userId,
+                    importedMailId = importedMail.id
+                )
+
+            result.onSuccess { usages ->
+                usages.forEach { usage ->
+                    moneyUsageLoader.prime(
+                        MoneyUsageDataLoaderDefine.Key(
+                            userId = userId,
+                            moneyUsageId = usage.id,
+                        ),
+                        MoneyUsageDataLoaderDefine.MoneyUsage(
+                            id = usage.id,
+                            title = usage.title,
+                            amount = usage.amount,
+                            description = usage.description,
+                            userId = usage.userId,
+                            subCategoryId = usage.subCategoryId,
+                            date = usage.date,
+                        )
+                    )
+                }
+            }.onFailure {
+                it.printStackTrace()
+            }
+
+            result.fold(
+                onSuccess = { usages ->
+                    usages.map { usage ->
+                        QlMoneyUsage(
+                            id = usage.id,
+                        )
+                    }
+                },
+                onFailure = {
+                    listOf()
+                }
+            )
+        }.toDataFetcher()
     }
 }

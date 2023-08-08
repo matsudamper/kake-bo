@@ -93,6 +93,24 @@ public class ImportedMailScreenViewModel(
                 date = mail.dateTime.toString(),
                 from = mail.from,
             ),
+            usage = mail.usages.map {
+                MailScreenUiState.LinkedUsage(
+                    title = it.title,
+                    amount = run amount@{
+                        val amount = it.amount
+
+                        val splitAmount = Formatter.formatMoney(amount)
+                        "${splitAmount}円"
+                    },
+                    category = run category@{
+                        val subCategory = it.moneyUsageSubCategory ?: return@category null
+                        val category = subCategory.category
+
+                        "${category.name} / ${subCategory.name}"
+                    },
+                    date = it.date.toString(),
+                )
+            }.toImmutableList(),
             usageSuggest = mail.suggestUsages.mapIndexed { index, suggestUsage ->
                 MailScreenUiState.UsageSuggest(
                     title = suggestUsage.title,

@@ -28,4 +28,5 @@ type ImportedMail {
     dateTime: LocalDateTime! @lazy
 
     suggestUsages: [MoneyUsageSuggest!]! @lazy
+    usages: [MoneyUsage!]! @lazy
 }

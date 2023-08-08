@@ -46,6 +46,7 @@ type ImportedMail {
     plain: String
     subject: String!
     suggestUsages: [MoneyUsageSuggest!]!
+    usages: [MoneyUsage!]!
 }
 
 type ImportedMailAttributes {

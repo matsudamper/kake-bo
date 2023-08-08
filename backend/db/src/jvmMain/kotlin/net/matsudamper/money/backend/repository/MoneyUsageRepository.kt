@@ -6,6 +6,7 @@ import net.matsudamper.money.backend.DbConnectionImpl
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
+import net.matsudamper.money.db.schema.tables.records.JMoneyUsagesMailsRelationRecord
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsagesRecord
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageId
@@ -176,6 +177,32 @@ class MoneyUsageRepository {
             date = result.get(usage.DATETIME)!!,
             amount = result.get(usage.AMOUNT)!!,
         )
+    }
+
+    fun getMails(
+        userId: UserId,
+        importedMailId: ImportedMailId
+    ): Result<List<Usage>> {
+        return runCatching {
+            DbConnectionImpl.use { connection ->
+                DSL.using(connection)
+                    .select(usage)
+                    .from(relation)
+                    .join(usage).on(
+                        relation.MONEY_USAGE_ID.eq(usage.MONEY_USAGE_ID)
+                            .and(usage.USER_ID.eq(userId.id))
+                    )
+                    .where(
+                        DSL.value(true)
+                            .and(relation.USER_ID.eq(userId.id))
+                            .and(relation.USER_MAIL_ID.eq(importedMailId.id)),
+                    )
+                    .fetch()
+                    .map {
+                        mapMoneyUsage(it.value1())
+                    }
+            }
+        }
     }
 
     sealed interface AddResult {

@@ -7,6 +7,21 @@ query ImportedMailScreen($id: ImportedMailId!) {
                 plain
                 subject
                 dateTime
+                usages {
+                    id
+                    amount
+                    title
+                    description
+                    date
+                    moneyUsageSubCategory {
+                        id
+                        name
+                        category {
+                            id
+                            name
+                        }
+                    }
+                }
                 suggestUsages {
                     title
                     description

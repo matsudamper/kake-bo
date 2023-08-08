@@ -43,6 +43,7 @@ public data class MailScreenUiState(
         public data class Loaded(
             val mail: Mail,
             val usageSuggest: ImmutableList<UsageSuggest>,
+            val usage: ImmutableList<LinkedUsage>,
             val event: LoadedEvent,
         ) : LoadingState
     }
@@ -50,6 +51,13 @@ public data class MailScreenUiState(
     public data class Mail(
         val from: String,
         val title: String,
+        val date: String,
+    )
+
+    public data class LinkedUsage(
+        val title: String,
+        val category: String?,
+        val amount: String?,
         val date: String,
     )
 
@@ -178,16 +186,34 @@ private fun MainContent(
             }
             Spacer(modifier = Modifier.height(24.dp))
             Column(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    modifier = Modifier.padding(horizontal = 12.dp),
-                    text = "解析結果",
-                    style = MaterialTheme.typography.headlineLarge,
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
-                Spacer(modifier = Modifier.height(12.dp))
-
                 LazyColumn {
+                    item {
+                        Text(
+                            modifier = Modifier.padding(horizontal = 12.dp),
+                            text = "登録済み",
+                            style = MaterialTheme.typography.headlineLarge,
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+                    items(uiState.usage) { item ->
+                        LinkedMoneyUsageCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            uiState = item,
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                    }
+                    item {
+                        Text(
+                            modifier = Modifier.padding(horizontal = 12.dp),
+                            text = "解析結果",
+                            style = MaterialTheme.typography.headlineLarge,
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
                     items(uiState.usageSuggest) { item ->
                         MoneyUsageSuggestCard(
                             modifier = Modifier.fillMaxWidth(),
@@ -204,6 +230,54 @@ private fun MainContent(
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LinkedMoneyUsageCard(
+    modifier: Modifier = Modifier,
+    uiState: MailScreenUiState.LinkedUsage,
+) {
+    Card(modifier = modifier) {
+        GridColumn(
+            modifier = Modifier.fillMaxWidth()
+                .padding(12.dp),
+            horizontalPadding = 8.dp,
+            verticalPadding = 4.dp,
+        ) {
+            row {
+                item {
+                    Text("タイトル")
+                }
+                item {
+                    Text(text = uiState.title)
+                }
+            }
+            row {
+                item {
+                    Text("日付")
+                }
+                item {
+                    Text(text = uiState.date)
+                }
+            }
+            row {
+                item {
+                    Text("カテゴリ")
+                }
+                item {
+                    Text(text = uiState.category.orEmpty())
+                }
+            }
+            row {
+                item {
+                    Text("金額")
+                }
+                item {
+                    Text(text = uiState.amount.orEmpty())
                 }
             }
         }
