@@ -133,9 +133,9 @@ class MoneyUsageRepository {
                     )
                     .orderBy(
                         if (isAsc) {
-                            usage.MONEY_USAGE_ID.asc()
+                            usage.DATETIME.asc()
                         } else {
-                            usage.MONEY_USAGE_ID.desc()
+                            usage.DATETIME.desc()
                         },
                     )
                     .limit(size)
