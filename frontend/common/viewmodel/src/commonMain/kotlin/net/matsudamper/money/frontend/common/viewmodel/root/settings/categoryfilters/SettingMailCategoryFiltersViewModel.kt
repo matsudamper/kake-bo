@@ -78,6 +78,14 @@ public class SettingMailCategoryFiltersViewModel(
                 override fun onViewInitialized() {
                     pagingModel.fetch()
                 }
+
+                override fun onClickBack() {
+                    coroutineScope.launch {
+                        eventSender.send {
+                            it.navigate(ScreenStructure.Root.Settings.Root)
+                        }
+                    }
+                }
             },
         ),
     ).also { uiStateFlow ->

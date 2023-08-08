@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
@@ -183,6 +184,7 @@ public data class ImportedMailFilterCategoryScreenUiState(
     public interface Event {
         public fun onViewInitialized()
         public fun onClickMenuDelete()
+        public fun onClickBack()
     }
 }
 
@@ -239,6 +241,11 @@ public fun ImportedMailFilterCategoryScreen(
     RootScreenScaffold(
         modifier = modifier,
         currentScreen = RootScreenTab.Settings,
+        navigation = {
+            IconButton(onClick = { uiState.event.onClickBack() }) {
+                Icon(Icons.Default.ArrowBack, contentDescription = null)
+            }
+        },
         snackbarHostState = snackbarHostState,
         listener = rootScreenScaffoldListener,
     ) {

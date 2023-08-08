@@ -218,6 +218,10 @@ data class ViewModelEventHandlers(
                             globalEventSender.send { it.showNativeNotification(text) }
                         }
                     }
+
+                    override fun navigate(structure: ScreenStructure) {
+                        navController.navigate(structure)
+                    }
                 },
             )
         }

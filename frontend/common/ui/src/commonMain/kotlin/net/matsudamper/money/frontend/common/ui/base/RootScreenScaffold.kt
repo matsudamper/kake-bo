@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -27,6 +28,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
@@ -51,6 +53,7 @@ public enum class RootScreenTab {
 internal fun RootScreenScaffold(
     modifier: Modifier = Modifier,
     currentScreen: RootScreenTab,
+    navigation: (@Composable () -> Unit)? = null,
     listener: RootScreenScaffoldListener,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     content: @Composable BoxScope.() -> Unit,
@@ -70,10 +73,15 @@ internal fun RootScreenScaffold(
                 KakeBoTopAppBar(
                     modifier = Modifier.fillMaxWidth(),
                     title = {
-                        Text(
-                            text = "家計簿",
-                            fontFamily = rememberCustomFontFamily(),
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (navigation != null) {
+                                navigation()
+                            }
+                            Text(
+                                text = "家計簿",
+                                fontFamily = rememberCustomFontFamily(),
+                            )
+                        }
                     },
                 )
             },

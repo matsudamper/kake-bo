@@ -11,6 +11,7 @@ import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImportedMailFilterCategoryScreenUiState
@@ -85,6 +86,14 @@ public class ImportedMailFilterCategoryViewModel(
                                 onDismiss = { dismissConfirmDialog() }
                             )
                         )
+                    }
+                }
+
+                override fun onClickBack() {
+                    coroutineScope.launch {
+                        eventSender.send {
+                            it.navigate(ScreenStructure.Root.Settings.MailCategoryFilters)
+                        }
                     }
                 }
             },
@@ -340,6 +349,7 @@ public class ImportedMailFilterCategoryViewModel(
 
     public interface Event {
         public fun showNativeAlert(text: String)
+        public fun navigate(structure: ScreenStructure)
     }
 
     private data class ViewModelState(
