@@ -57,12 +57,14 @@ public class ImportedMailCategoryFilterScreenPagingModel(
         }
 
         pagingState.add(
-            query = ImportedMailCategoryFiltersScreenPagingQuery(
-                query = ImportedMailCategoryFiltersQuery(
-                    cursor = Optional.present(cursor),
-                    isAsc = true,
-                ),
-            ),
+            queryBlock = {
+                ImportedMailCategoryFiltersScreenPagingQuery(
+                    query = ImportedMailCategoryFiltersQuery(
+                        cursor = Optional.present(cursor),
+                        isAsc = true,
+                    ),
+                )
+            },
         )
     }
 }

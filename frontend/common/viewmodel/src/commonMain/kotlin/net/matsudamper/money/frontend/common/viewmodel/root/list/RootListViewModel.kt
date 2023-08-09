@@ -1,16 +1,15 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.list
 
 import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.ApolloResponse
+import com.apollographql.apollo3.api.Optional
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import com.apollographql.apollo3.api.ApolloResponse
-import com.apollographql.apollo3.api.Optional
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.RootListScreenUiState
@@ -25,7 +24,6 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
 public class RootListViewModel(
     private val coroutineScope: CoroutineScope,
     apolloClient: ApolloClient = GraphqlClient.apolloClient,
-    private val api: HomeUsageListGraphqlApi,
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
@@ -122,34 +120,37 @@ public class RootListViewModel(
     }
 
     private fun fetch() {
-        val cursor: String?
-        when (val lastState = paging.flow.value.lastOrNull()) {
-            is ApolloResponseState.Loading -> return
-            is ApolloResponseState.Failure -> {
-                paging.lastRetry()
-                return
-            }
+        paging.add { collectors ->
+            val cursor: String?
+            when (val lastState = collectors.lastOrNull()?.flow?.value) {
+                is ApolloResponseState.Loading -> return@add null
+                is ApolloResponseState.Failure -> {
+                    paging.lastRetry()
+                    return@add null
+                }
 
-            null -> {
-                cursor = null
-            }
+                null -> {
+                    cursor = null
+                }
 
-            is ApolloResponseState.Success -> {
-                val result = lastState.value.data?.user?.moneyUsages ?: return paging.lastRetry()
-                if (result.hasMore.not()) return
+                is ApolloResponseState.Success -> {
+                    val result = lastState.value.data?.user?.moneyUsages
+                    if (result == null) {
+                        paging.lastRetry()
+                        return@add null
+                    }
+                    if (result.hasMore.not()) return@add null
 
-                cursor = result.cursor
+                    cursor = result.cursor
+                }
             }
-        }
-        println("cursor: $cursor")
-        paging.add(
             UsageListScreenPagingQuery(
                 query = MoneyUsagesQuery(
                     cursor = Optional.present(cursor),
                     size = 10,
                 ),
-            ),
-        )
+            )
+        }
     }
 
     public interface Event {

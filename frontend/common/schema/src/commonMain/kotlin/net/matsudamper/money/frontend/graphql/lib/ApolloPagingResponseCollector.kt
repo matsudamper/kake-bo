@@ -48,20 +48,25 @@ class ApolloPagingResponseCollector<D : Query.Data>(
         }
     }
 
-    fun add(query: Query<D>, debug: String = "") {
-        val collector = ApolloResponseCollector
-            .create(
-                apolloClient = apolloClient,
-                query = query,
-                fetchThrows = true,
-                fetchPolicy = FetchPolicy.CacheAndNetwork,
-                debug = debug,
-            )
-        collectorFlow.update {
-            it + collector
+    fun add(
+        queryBlock: (List<ApolloResponseCollector<D>>) -> Query<D>?,
+    ) {
+        var collector: ApolloResponseCollector<D>? = null
+        collectorFlow.update { collectors ->
+            val query = queryBlock(collectors) ?: return
+
+            val tmp = ApolloResponseCollector
+                .create(
+                    apolloClient = apolloClient,
+                    query = query,
+                    fetchThrows = true,
+                    fetchPolicy = FetchPolicy.CacheAndNetwork,
+                )
+            collector = tmp
+            collectors + tmp
         }
         coroutineScope.launch {
-            collector.fetch(this)
+            collector?.fetch(this)
         }
     }
 

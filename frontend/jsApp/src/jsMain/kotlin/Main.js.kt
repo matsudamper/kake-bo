@@ -147,7 +147,6 @@ private fun Content(
     val rootListViewModel = remember {
         RootListViewModel(
             coroutineScope = rootCoroutineScope,
-            api = HomeUsageListGraphqlApi(),
         )
     }
     val mailScreenViewModel = remember {
