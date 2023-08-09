@@ -41,6 +41,7 @@ import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
+import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.layout.ScrollButton
 import net.matsudamper.money.frontend.common.ui.layout.ScrollButtonDefaults
 
@@ -63,7 +64,6 @@ public data class RootListScreenUiState(
         val date: String,
         val amount: String,
         val category: String?,
-        val description: String,
         val event: ItemEvent,
     )
 
@@ -217,18 +217,44 @@ private fun ListItem(
         modifier = modifier,
         onClick = item.event::onClick,
     ) {
-        Column(modifier = Modifier.padding(12.dp)) {
-            Text(text = item.title)
-            Spacer(modifier = Modifier.heightIn(4.dp))
-            Text(text = item.description)
-            Spacer(modifier = Modifier.heightIn(4.dp))
-            Text(text = item.date)
-            Spacer(modifier = Modifier.heightIn(4.dp))
-            Text(text = item.amount)
-            Spacer(modifier = Modifier.heightIn(4.dp))
-            Text(text = item.category ?: "")
-            Spacer(modifier = Modifier.heightIn(4.dp))
-            Text(text = item.description)
+        GridColumn(
+            modifier = Modifier.fillMaxWidth()
+                .padding(12.dp),
+            horizontalPadding = 8.dp,
+            verticalPadding = 4.dp,
+        ) {
+            row {
+                item {
+                    Text("タイトル")
+                }
+                item {
+                    Text(text = item.title)
+                }
+            }
+            row {
+                item {
+                    Text("日付")
+                }
+                item {
+                    Text(text = item.date)
+                }
+            }
+            row {
+                item {
+                    Text("金額")
+                }
+                item {
+                    Text(text = item.amount)
+                }
+            }
+            row {
+                item {
+                    Text("カテゴリ")
+                }
+                item {
+                    Text(text = item.category.orEmpty())
+                }
+            }
         }
     }
 }

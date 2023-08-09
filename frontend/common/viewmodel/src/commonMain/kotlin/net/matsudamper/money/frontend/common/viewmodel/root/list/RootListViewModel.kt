@@ -67,7 +67,6 @@ public class RootListViewModel(
                             title = result.title,
                             amount = result.amount.toString(),
                             date = result.date.toString(),
-                            description = result.description,
                             category = run category@{
                                 val subCategory =
                                     result.moneyUsageSubCategory ?: return@category null
