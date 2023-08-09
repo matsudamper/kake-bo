@@ -15,6 +15,7 @@ type User {
 type MoneyUsagesConnection {
     nodes : [MoneyUsage!]!
     cursor: String
+    hasMore: Boolean!
 }
 
 input MoneyUsagesQuery {

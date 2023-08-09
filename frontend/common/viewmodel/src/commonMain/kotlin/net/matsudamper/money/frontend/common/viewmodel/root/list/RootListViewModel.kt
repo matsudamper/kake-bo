@@ -1,34 +1,41 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.list
 
+import com.apollographql.apollo3.ApolloClient
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.apollographql.apollo3.api.ApolloResponse
+import com.apollographql.apollo3.api.Optional
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.RootListScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
+import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.UsageListScreenPagingQuery
+import net.matsudamper.money.frontend.graphql.lib.ApolloPagingResponseCollector
+import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
+import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
 
 public class RootListViewModel(
     private val coroutineScope: CoroutineScope,
+    apolloClient: ApolloClient = GraphqlClient.apolloClient,
     private val api: HomeUsageListGraphqlApi,
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
+
+    private val paging = ApolloPagingResponseCollector.create<UsageListScreenPagingQuery.Data>(
+        apolloClient = apolloClient,
+        coroutineScope = coroutineScope,
+    )
 
     public val uiStateFlow: StateFlow<RootListScreenUiState> = MutableStateFlow(
         RootListScreenUiState(
@@ -51,96 +58,99 @@ public class RootListViewModel(
         coroutineScope.launch {
             viewModelStateFlow
                 .collectLatest { viewModelState ->
-                    combine(viewModelState.results) {
-                        it
-                    }.collect { results ->
-                        uiStateFlow.update { uiState ->
-                            uiState.copy(
-                                loadingState = RootListScreenUiState.LoadingState.Loaded(
-                                    loadToEnd = viewModelState.loadToEnd,
-                                    items = results.flatMap { it.data?.user?.moneyUsages?.nodes.orEmpty() }
-                                        .map { result ->
-                                            RootListScreenUiState.Item(
-                                                title = result.title,
-                                                amount = result.amount.toString(),
-                                                date = result.date.toString(),
-                                                description = result.description,
-                                                category = run category@{
-                                                    val subCategory =
-                                                        result.moneyUsageSubCategory ?: return@category null
+                    val items = viewModelState.results.mapNotNull { state ->
+                        state.getSuccessOrNull()?.value
+                    }.flatMap {
+                        it.data?.user?.moneyUsages?.nodes.orEmpty()
+                    }.map { result ->
+                        RootListScreenUiState.Item(
+                            title = result.title,
+                            amount = result.amount.toString(),
+                            date = result.date.toString(),
+                            description = result.description,
+                            category = run category@{
+                                val subCategory =
+                                    result.moneyUsageSubCategory ?: return@category null
 
-                                                    "${subCategory.name} / ${subCategory.category.name}"
-                                                },
-                                                event = object : RootListScreenUiState.ItemEvent {
-                                                    override fun onClick() {
-                                                        coroutineScope.launch {
-                                                            viewModelEventSender.send {
-                                                                it.navigate(
-                                                                    ScreenStructure.MoneyUsage(
-                                                                        id = result.id,
-                                                                    )
-                                                                )
-                                                            }
-                                                        }
-                                                    }
-                                                },
+                                "${subCategory.name} / ${subCategory.category.name}"
+                            },
+                            event = object : RootListScreenUiState.ItemEvent {
+                                override fun onClick() {
+                                    coroutineScope.launch {
+                                        viewModelEventSender.send {
+                                            it.navigate(
+                                                ScreenStructure.MoneyUsage(
+                                                    id = result.id,
+                                                )
                                             )
-                                        },
-                                    event = object : RootListScreenUiState.LoadedEvent {
-                                        override fun loadMore() {
-                                            fetch()
                                         }
-                                    },
-                                ),
-                            )
-                        }
+                                    }
+                                }
+                            },
+                        )
+                    }.toImmutableList()
+                    val hasMore = viewModelState.results.lastOrNull()
+                        ?.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.hasMore
+                        ?: true
+
+                    uiStateFlow.update { uiState ->
+                        uiState.copy(
+                            loadingState = RootListScreenUiState.LoadingState.Loaded(
+                                loadToEnd = hasMore.not(),
+                                items = items,
+                                event = object : RootListScreenUiState.LoadedEvent {
+                                    override fun loadMore() {
+                                        fetch()
+                                    }
+                                },
+                            ),
+                        )
                     }
                 }
         }
     }.asStateFlow()
 
-    private fun fetch() {
+    init {
         coroutineScope.launch {
-            viewModelStateFlow.update { viewModelState ->
-                if (viewModelStateFlow.value.isLoading) return@launch
-                viewModelState.copy(
-                    isLoading = true,
-                )
-            }
-            val beforeResults = viewModelStateFlow.value.results.lastOrNull()
-            val cursor = if (beforeResults == null) {
-                null
-            } else {
-                val tmp = beforeResults.firstOrNull()
-                tmp?.data?.user?.moneyUsages?.cursor
-                    ?: return@launch
-            }
-
-            val result = api.getHomeScreen(
-                cursor = cursor,
-            ).stateIn(coroutineScope, SharingStarted.Eagerly, null)
-                .filterNotNull()
-
-            val loadToEnd = result.first().data?.user?.moneyUsages?.let { moneyUsages ->
-                moneyUsages.cursor == null
-            }
-            try {
-                if (loadToEnd != null) {
-                    viewModelStateFlow.update { viewModelState ->
-                        viewModelState.copy(
-                            results = viewModelState.results.plus(result),
-                            loadToEnd = loadToEnd,
-                        )
-                    }
-                }
-            } finally {
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        isLoading = false,
+            paging.flow.collectLatest { responseStates ->
+                viewModelStateFlow.update {
+                    it.copy(
+                        results = responseStates,
                     )
                 }
             }
         }
+    }
+
+    private fun fetch() {
+        val cursor: String?
+        when (val lastState = paging.flow.value.lastOrNull()) {
+            is ApolloResponseState.Loading -> return
+            is ApolloResponseState.Failure -> {
+                paging.lastRetry()
+                return
+            }
+
+            null -> {
+                cursor = null
+            }
+
+            is ApolloResponseState.Success -> {
+                val result = lastState.value.data?.user?.moneyUsages ?: return paging.lastRetry()
+                if (result.hasMore.not()) return
+
+                cursor = result.cursor
+            }
+        }
+        println("cursor: $cursor")
+        paging.add(
+            UsageListScreenPagingQuery(
+                query = MoneyUsagesQuery(
+                    cursor = Optional.present(cursor),
+                    size = 10,
+                ),
+            ),
+        )
     }
 
     public interface Event {
@@ -148,8 +158,6 @@ public class RootListViewModel(
     }
 
     private data class ViewModelState(
-        val results: List<Flow<ApolloResponse<UsageListScreenPagingQuery.Data>>> = listOf(),
-        val isLoading: Boolean = false,
-        val loadToEnd: Boolean = false,
+        val results: List<ApolloResponseState<ApolloResponse<UsageListScreenPagingQuery.Data>>> = listOf(),
     )
 }

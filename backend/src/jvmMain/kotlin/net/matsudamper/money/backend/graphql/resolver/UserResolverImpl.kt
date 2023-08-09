@@ -11,6 +11,7 @@ import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.lib.CursorParser
 import net.matsudamper.money.backend.repository.MailFilterRepository
 import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
+import net.matsudamper.money.backend.repository.MoneyUsageRepository
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
@@ -28,6 +29,7 @@ import net.matsudamper.money.graphql.model.QlMoneyUsagesQuery
 import net.matsudamper.money.graphql.model.QlUser
 import net.matsudamper.money.graphql.model.QlUserSettings
 import net.matsudamper.money.graphql.model.UserResolver
+import java.time.LocalDateTime
 
 class UserResolverImpl : UserResolver {
     override fun settings(
@@ -111,16 +113,30 @@ class UserResolverImpl : UserResolver {
                     userId = userId,
                     size = query.size,
                     isAsc = false,
-                    lastId = query.cursor?.let { MoneyUsagesCursor.fromString(it) }?.lastId,
+                    cursor = query.cursor?.let { MoneyUsagesCursor.fromString(it) }?.let {
+                        MoneyUsageRepository.GetMoneyUsageByQueryResult.Cursor(
+                            lastId = it.lastId,
+                            date = it.lastDate,
+                        )
+                    },
                 )
-            val resultIds = results.getOrThrow()
+            val result = when (results) {
+                is MoneyUsageRepository.GetMoneyUsageByQueryResult.Failed -> throw results.error
+                is MoneyUsageRepository.GetMoneyUsageByQueryResult.Success -> results
+            }
             QlMoneyUsagesConnection(
-                nodes = resultIds.map { id ->
+                nodes = result.ids.map { id ->
                     QlMoneyUsage(
                         id = id,
                     )
                 },
-                cursor = resultIds.lastOrNull()?.let { MoneyUsagesCursor(it).toCursorString() },
+                cursor = result.cursor?.let { cursor ->
+                    MoneyUsagesCursor(
+                        lastId = cursor.lastId,
+                        lastDate = cursor.date,
+                    ).toCursorString()
+                },
+                hasMore = result.ids.isNotEmpty(),
             )
         }.toDataFetcher()
     }
@@ -170,7 +186,11 @@ class UserResolverImpl : UserResolver {
         }.toDataFetcher()
     }
 
-    override fun importedMailCategoryFilter(user: QlUser, id: ImportedMailCategoryFilterId, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlImportedMailCategoryFilter?>> {
+    override fun importedMailCategoryFilter(
+        user: QlUser,
+        id: ImportedMailCategoryFilterId,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFilter?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         context.verifyUserSession()
 
@@ -205,21 +225,27 @@ class UserResolverImpl : UserResolver {
 
 private class MoneyUsagesCursor(
     val lastId: MoneyUsageId,
+    val lastDate: LocalDateTime,
 ) {
     fun toCursorString(): String {
         return CursorParser.createToString(
             mapOf(
                 LAST_ID_KEY to lastId.id.toString(),
+                LAST_DATE_KEY to lastDate.toString(),
             ),
         )
     }
 
     companion object {
         private const val LAST_ID_KEY = "lastId"
+        private const val LAST_DATE_KEY = "lastDate"
         fun fromString(cursorString: String): MoneyUsagesCursor {
             return MoneyUsagesCursor(
                 lastId = MoneyUsageId(
                     CursorParser.parseFromString(cursorString)[LAST_ID_KEY]!!.toInt(),
+                ),
+                lastDate = LocalDateTime.parse(
+                    CursorParser.parseFromString(cursorString)[LAST_DATE_KEY]!!
                 ),
             )
         }

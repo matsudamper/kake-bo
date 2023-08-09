@@ -120,6 +120,7 @@ type MoneyUsageSuggest {
 
 type MoneyUsagesConnection {
     cursor: String
+    hasMore: Boolean!
     nodes: [MoneyUsage!]!
 }
 

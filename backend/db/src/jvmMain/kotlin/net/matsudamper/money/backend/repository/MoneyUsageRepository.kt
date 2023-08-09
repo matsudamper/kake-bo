@@ -108,24 +108,29 @@ class MoneyUsageRepository {
     fun getMoneyUsageByQuery(
         userId: UserId,
         size: Int,
-        lastId: MoneyUsageId?,
+        cursor: GetMoneyUsageByQueryResult.Cursor?,
         isAsc: Boolean,
-    ): Result<MutableList<MoneyUsageId>> {
+    ): GetMoneyUsageByQueryResult {
         return runCatching {
             DbConnectionImpl.use { connection ->
                 val results = DSL.using(connection)
-                    .select(usage.MONEY_USAGE_ID)
+                    .select(
+                        usage.MONEY_USAGE_ID,
+                        usage.DATETIME,
+                    )
                     .from(usage)
                     .where(
                         DSL.value(true)
                             .and(usage.USER_ID.eq(userId.id))
                             .and(
-                                when (lastId) {
+                                when (cursor?.lastId) {
                                     null -> DSL.value(true)
                                     else -> if (isAsc) {
-                                        usage.MONEY_USAGE_ID.greaterThan(lastId.id)
+                                        DSL.row(usage.DATETIME, usage.MONEY_USAGE_ID)
+                                            .greaterThan(cursor.date, cursor.lastId.id)
                                     } else {
-                                        usage.MONEY_USAGE_ID.lessThan(lastId.id)
+                                        DSL.row(usage.DATETIME, usage.MONEY_USAGE_ID)
+                                            .lessThan(cursor.date, cursor.lastId.id)
                                     }
                                 },
                             ),
@@ -140,11 +145,27 @@ class MoneyUsageRepository {
                     .limit(size)
                     .fetch()
 
-                results.map { result ->
+                val resultMoneyUsageIds = results.map { result ->
                     MoneyUsageId(result.get(usage.MONEY_USAGE_ID)!!)
                 }
+                val lastDate  = results.lastOrNull()?.get(usage.DATETIME)
+                val cursorLastId = resultMoneyUsageIds.lastOrNull()
+                GetMoneyUsageByQueryResult.Success(
+                    ids = resultMoneyUsageIds,
+                    cursor = run cursor@{
+                        GetMoneyUsageByQueryResult.Cursor(
+                            lastId = cursorLastId ?: return@cursor null,
+                            date = lastDate ?: return@cursor null,
+                        )
+                    }
+                )
             }
-        }
+        }.fold(
+            onSuccess = { it },
+            onFailure = { e ->
+                GetMoneyUsageByQueryResult.Failed(e)
+            }
+        )
     }
 
     fun getMoneyUsage(userId: UserId, ids: List<MoneyUsageId>): Result<List<Usage>> {
@@ -239,4 +260,18 @@ class MoneyUsageRepository {
         val date: LocalDateTime,
         val amount: Int,
     )
+
+    sealed interface GetMoneyUsageByQueryResult {
+        data class Success(
+            val ids: MutableList<MoneyUsageId>,
+            val cursor: Cursor?,
+        ) : GetMoneyUsageByQueryResult
+
+        data class Failed(val error: Throwable) : GetMoneyUsageByQueryResult
+
+        data class Cursor(
+            val lastId: MoneyUsageId,
+            val date: LocalDateTime,
+        )
+    }
 }

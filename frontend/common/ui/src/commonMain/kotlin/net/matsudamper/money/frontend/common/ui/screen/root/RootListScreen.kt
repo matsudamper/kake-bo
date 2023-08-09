@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
@@ -52,7 +53,7 @@ public data class RootListScreenUiState(
         public object Loading : LoadingState
         public data class Loaded(
             val loadToEnd: Boolean,
-            val items: List<Item>,
+            val items: ImmutableList<Item>,
             val event: LoadedEvent,
         ) : LoadingState
     }

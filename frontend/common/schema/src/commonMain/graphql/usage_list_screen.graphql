@@ -2,6 +2,7 @@ query UsageListScreenPaging($query: MoneyUsagesQuery!) {
     user {
         moneyUsages(query: $query) {
             cursor
+            hasMore
             nodes {
                 id
                 description

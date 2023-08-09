@@ -57,11 +57,11 @@ class ApolloPagingResponseCollector<D : Query.Data>(
                 fetchPolicy = FetchPolicy.CacheAndNetwork,
                 debug = debug,
             )
-        coroutineScope.launch {
-            collector.fetch(this)
-        }
         collectorFlow.update {
             it + collector
+        }
+        coroutineScope.launch {
+            collector.fetch(this)
         }
     }
 
