@@ -40,3 +40,9 @@ query ImportedMailScreen($id: ImportedMailId!) {
         }
     }
 }
+
+mutation ImportedMailScreenDeleteMail($id: ImportedMailId!) {
+    userMutation {
+        deleteImportedMail(id: $id)
+    }
+}

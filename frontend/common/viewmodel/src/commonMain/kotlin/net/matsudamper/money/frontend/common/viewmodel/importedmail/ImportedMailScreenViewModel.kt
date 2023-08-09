@@ -29,39 +29,63 @@ public class ImportedMailScreenViewModel(
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
     private val apolloResponseCollector = api.get(id = importedMailId, "1")
+    private val event = object : MailScreenUiState.Event {
+        override fun onClickRetry() {
+            fetch()
+        }
+
+        override fun onClickArrowBackButton() {
+            coroutineScope.launch {
+                viewModelEventSender.send {
+                    it.navigateToBack()
+                }
+            }
+        }
+
+        override fun onClickTitle() {
+            coroutineScope.launch {
+                viewModelEventSender.send {
+                    it.navigateToHome()
+                }
+            }
+        }
+
+        override fun onClickDelete() {
+            coroutineScope.launch {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        confirmDialog = MailScreenUiState.AlertDialog(
+                            onDismissRequest = { dismissConfirmDialog() },
+                            onClickNegative = { dismissConfirmDialog() },
+                            onClickPositive = {
+                                coroutineScope.launch {
+                                    val isSuccess = api.delete(id = importedMailId)
+                                    if (isSuccess) {
+                                        dismissConfirmDialog()
+                                        viewModelEventSender.send { it.navigateToBack() }
+                                    }
+                                }
+                            },
+                            title = "削除しますか？",
+                        ),
+                    )
+                }
+            }
+        }
+    }
 
     public val uiStateFlow: StateFlow<MailScreenUiState> = MutableStateFlow(
         MailScreenUiState(
             loadingState = MailScreenUiState.LoadingState.Loading,
-            event = object : MailScreenUiState.Event {
-                override fun onClickRetry() {
-                    fetch()
-                }
-
-                override fun onClickArrowBackButton() {
-                    coroutineScope.launch {
-                        viewModelEventSender.send {
-                            it.navigateToBack()
-                        }
-                    }
-                }
-
-                override fun onClickTitle() {
-                    coroutineScope.launch {
-                        viewModelEventSender.send {
-                            it.navigateToHome()
-                        }
-                    }
-                }
-            },
+            event = event,
+            confirmDialog = null,
         ),
     ).also { uiStateFlow ->
         coroutineScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
-                println("viewModelState")
-
                 uiStateFlow.update { uiState ->
                     uiState.copy(
+                        confirmDialog = viewModelState.confirmDialog,
                         loadingState = when (val apolloResponse = viewModelState.apolloResponse) {
                             is ApolloResponseState.Failure -> {
                                 MailScreenUiState.LoadingState.Error
@@ -187,6 +211,16 @@ public class ImportedMailScreenViewModel(
         }
     }
 
+    private fun dismissConfirmDialog() {
+        coroutineScope.launch {
+            viewModelStateFlow.update {
+                it.copy(
+                    confirmDialog = null,
+                )
+            }
+        }
+    }
+
     public interface Event {
         public fun navigateToBack()
         public fun navigateToHome()
@@ -198,5 +232,6 @@ public class ImportedMailScreenViewModel(
     private data class ViewModelState(
         val isLoading: Boolean = true,
         val apolloResponse: ApolloResponseState<ApolloResponse<ImportedMailScreenQuery.Data>> = ApolloResponseState.loading(),
+        val confirmDialog: MailScreenUiState.AlertDialog? = null,
     )
 }

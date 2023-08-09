@@ -14,9 +14,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,7 +29,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
@@ -35,14 +41,17 @@ import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
+import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.lib.applyHtml
 
 public data class MailScreenUiState(
     val loadingState: LoadingState,
+    val confirmDialog: AlertDialog?,
     val event: Event,
 ) {
     public sealed interface LoadingState {
+
         public object Loading : LoadingState
         public object Error : LoadingState
         public data class Loaded(
@@ -52,6 +61,13 @@ public data class MailScreenUiState(
             val event: LoadedEvent,
         ) : LoadingState
     }
+
+    public data class AlertDialog(
+        val title: String,
+        val onClickPositive: () -> Unit,
+        val onClickNegative: () -> Unit,
+        val onDismissRequest: () -> Unit,
+    )
 
     public data class Mail(
         val from: String,
@@ -94,6 +110,7 @@ public data class MailScreenUiState(
         public fun onClickRetry()
         public fun onClickArrowBackButton()
         public fun onClickTitle()
+        public fun onClickDelete()
     }
 }
 
@@ -103,6 +120,14 @@ public fun ImportedMailScreen(
     modifier: Modifier = Modifier,
     uiState: MailScreenUiState,
 ) {
+    if (uiState.confirmDialog != null) {
+        AlertDialog(
+            title = { Text(uiState.confirmDialog.title) },
+            onClickPositive = { uiState.confirmDialog.onClickPositive() },
+            onClickNegative = { uiState.confirmDialog.onClickNegative() },
+            onDismissRequest = { uiState.confirmDialog.onDismissRequest() },
+        )
+    }
     Scaffold(
         modifier = modifier,
         topBar = {
@@ -117,6 +142,28 @@ public fun ImportedMailScreen(
                 },
                 onClickTitle = {
                     uiState.event.onClickTitle()
+                },
+                menu = {
+                    var expand by remember { mutableStateOf(false) }
+                    Box {
+                        IconButton(onClick = { expand = !expand }) {
+                            Icon(Icons.Default.MoreVert, contentDescription = "menu")
+                        }
+                        DropdownMenu(
+                            expanded = expand,
+                            onDismissRequest = { expand = false },
+                        ) {
+                            DropdownMenuItem(
+                                onClick = {
+                                    expand = false
+                                    uiState.event.onClickDelete()
+                                },
+                                text = {
+                                    Text("削除")
+                                },
+                            )
+                        }
+                    }
                 },
             ) {
                 Text(

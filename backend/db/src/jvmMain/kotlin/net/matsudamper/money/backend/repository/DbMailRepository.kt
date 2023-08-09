@@ -222,7 +222,7 @@ class DbMailRepository(
                     )
                     .limit(1)
                     .execute()
-            } == 0
+            } == 1
         }.fold(
             onSuccess = { it },
             onFailure = { false },
