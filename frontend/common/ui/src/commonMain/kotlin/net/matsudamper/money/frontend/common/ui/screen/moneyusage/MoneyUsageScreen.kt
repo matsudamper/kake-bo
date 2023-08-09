@@ -41,18 +41,49 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import kotlinx.datetime.LocalDate
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
+import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffold
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
+import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
+import net.matsudamper.money.frontend.common.ui.layout.CalendarDialog
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.layout.ScrollButton
 import net.matsudamper.money.frontend.common.ui.layout.ScrollButtonDefaults
+import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
 
 public data class MoneyUsageScreenUiState(
     val event: Event,
     val loadingState: LoadingState,
+    val confirmDialog: ConfirmDialog?,
+    val textInputDialog: TextInputDialog?,
+    val calendarDialog: CalendarDialog?,
+    val categorySelectDialog: CategorySelectDialogUiState?,
 ) {
+    public data class CalendarDialog(
+        val date: LocalDate,
+        val onSelectedDate: (LocalDate) -> Unit,
+        val dismissRequest: () -> Unit,
+    )
+
+    public data class TextInputDialog(
+        val isMultiline: Boolean,
+        val title: String,
+        val onComplete: (String) -> Unit,
+        val onCancel: () -> Unit,
+        val default: String,
+    )
+
+    public data class ConfirmDialog(
+        val title: String,
+        val description: String?,
+        val onConfirm: () -> Unit,
+        val onDismiss: () -> Unit,
+    )
+
     @Immutable
     public sealed interface LoadingState {
 
@@ -87,6 +118,7 @@ public data class MoneyUsageScreenUiState(
         public fun onClickDateChange()
         public fun onClickCategoryChange()
         public fun onClickDescription()
+        public fun onClickAmountChange()
 
     }
 
@@ -115,6 +147,40 @@ public fun MoneyUsageScreen(
 ) {
     LaunchedEffect(uiState.event) {
         uiState.event.onViewInitialized()
+    }
+    if (uiState.confirmDialog != null) {
+        AlertDialog(
+            title = { Text(uiState.confirmDialog.title) },
+            onDismissRequest = { uiState.confirmDialog.onDismiss() },
+            description = uiState.confirmDialog.description?.let { description -> @Composable { Text(description) } },
+            onClickNegative = { uiState.confirmDialog.onDismiss() },
+            onClickPositive = { uiState.confirmDialog.onConfirm() },
+        )
+    }
+    if (uiState.textInputDialog != null) {
+        HtmlFullScreenTextInput(
+            isMultiline = uiState.textInputDialog.isMultiline,
+            title = uiState.textInputDialog.title,
+            default = uiState.textInputDialog.default,
+            onComplete = { uiState.textInputDialog.onComplete(it) },
+            canceled = { uiState.textInputDialog.onCancel() },
+        )
+    }
+    if (uiState.calendarDialog != null) {
+        CalendarDialog(
+            initialCalendar = uiState.calendarDialog.date,
+            dismissRequest = {
+                uiState.calendarDialog.dismissRequest()
+            },
+            selectedCalendar = {
+                uiState.calendarDialog.onSelectedDate(it)
+            },
+        )
+    }
+    if (uiState.categorySelectDialog != null) {
+        CategorySelectDialog(
+            uiState = uiState.categorySelectDialog,
+        )
     }
     KakeboScaffold(
         modifier = modifier,
@@ -182,7 +248,7 @@ private fun LoadedContent(
                         text = "使用用途",
                         style = MaterialTheme.typography.titleLarge,
                     )
-                    Box{
+                    Box {
                         var visiblePopup by remember { mutableStateOf(false) }
                         IconButton(onClick = { visiblePopup = !visiblePopup }) {
                             Icon(Icons.Default.MoreVert, "メニュー")
@@ -354,6 +420,19 @@ private fun MoneyUsage(
             },
             onClickChange = {
                 uiState.event.onClickDateChange()
+            },
+        )
+        MoneyUsageSection(
+            title = {
+                Text("金額")
+            },
+            content = {
+                Text(
+                    text = uiState.amount,
+                )
+            },
+            onClickChange = {
+                uiState.event.onClickAmountChange()
             },
         )
         MoneyUsageSection(

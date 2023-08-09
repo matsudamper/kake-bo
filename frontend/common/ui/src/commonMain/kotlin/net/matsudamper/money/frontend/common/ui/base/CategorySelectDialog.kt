@@ -35,12 +35,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import net.matsudamper.money.frontend.common.base.ImmutableList
 
 public data class CategorySelectDialogUiState(
     val screenType: Screen,
     val event: Event,
 ) {
+    @Immutable
     public sealed interface Screen {
         public data class Root(
             val category: String,
@@ -80,6 +82,7 @@ internal fun CategorySelectDialog(
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
+            .zIndex(Float.MAX_VALUE)
             .background(Color.Black.copy(alpha = 0.8f))
             .clickable(
                 indication = null,

@@ -246,6 +246,51 @@ class MoneyUsageRepository {
         )
     }
 
+    fun updateUsage(
+        userId: UserId,
+        usageId: MoneyUsageId,
+        title: String?,
+        description: String?,
+        subCategoryId: MoneyUsageSubCategoryId?,
+        date: LocalDateTime?,
+        amount: Int?,
+    ): Boolean {
+        return runCatching {
+            DbConnectionImpl.use { connection ->
+                DSL.using(connection)
+                    .update(usage)
+                    .set(usage.MONEY_USAGE_ID, usageId.id)
+                    .apply {
+                        if (title != null) {
+                            set(usage.TITLE, title)
+                        }
+                        if (description != null) {
+                            set(usage.DESCRIPTION, description)
+                        }
+                        if (subCategoryId != null) {
+                            set(usage.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId.id)
+                        }
+                        if (date != null) {
+                            set(usage.DATETIME, date)
+                        }
+                        if (amount != null) {
+                            set(usage.AMOUNT, amount)
+                        }
+                    }
+                    .where(
+                        DSL.value(true)
+                            .and(usage.USER_ID.eq(userId.id))
+                            .and(usage.MONEY_USAGE_ID.eq(usageId.id)),
+                    )
+                    .limit(1)
+                    .execute() == 1
+            }
+        }.fold(
+            onSuccess = { it },
+            onFailure = { false },
+        )
+    }
+
     sealed interface AddResult {
         data class Success(val result: Usage) : AddResult
         data class Failed(val error: Throwable) : AddResult

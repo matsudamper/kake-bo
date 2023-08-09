@@ -7,6 +7,7 @@ type UserMutation {
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
 
     addUsage(usage: AddUsageQuery!): MoneyUsage!
+    updateUsage(query: UpdateUsageQuery!): MoneyUsage!
     deleteUsage(id: MoneyUsageId!): Boolean!
 
     addCategory(input: AddCategoryInput!) : AddCategoryResult!
@@ -23,6 +24,15 @@ type UserMutation {
     addImportedMailCategoryFilterCondition(input: AddImportedMailCategoryFilterConditionInput!): ImportedMailCategoryFilter
     updateImportedMailCategoryFilterCondition(input: UpdateImportedMailCategoryFilterConditionInput!): ImportedMailCategoryCondition
     deleteImportedMailCategoryFilterCondition(id: ImportedMailCategoryFilterConditionId!): Boolean!
+}
+
+input UpdateUsageQuery {
+    id: MoneyUsageId!
+    title: String
+    date: LocalDateTime
+    amount: Int
+    description: String
+    subCategoryId: MoneyUsageSubCategoryId
 }
 
 input UpdateImportedMailCategoryFilterConditionInput {

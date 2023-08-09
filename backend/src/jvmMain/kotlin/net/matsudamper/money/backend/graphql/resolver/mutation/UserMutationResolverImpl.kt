@@ -46,6 +46,7 @@ import net.matsudamper.money.graphql.model.QlUpdateCategoryQuery
 import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterConditionInput
 import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterInput
 import net.matsudamper.money.graphql.model.QlUpdateSubCategoryQuery
+import net.matsudamper.money.graphql.model.QlUpdateUsageQuery
 import net.matsudamper.money.graphql.model.QlUserLoginResult
 import net.matsudamper.money.graphql.model.QlUserMutation
 import net.matsudamper.money.graphql.model.UserMutationResolver
@@ -532,6 +533,36 @@ class UserMutationResolverImpl : UserMutationResolver {
                 usageId = id,
             )
             isSuccess
+        }.toDataFetcher()
+    }
+
+    override fun updateUsage(
+        userMutation: QlUserMutation,
+        query: QlUpdateUsageQuery,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<QlMoneyUsage>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+        val repository = context.repositoryFactory.createMoneyUsageRepository()
+
+        return CompletableFuture.allOf().thenApplyAsync {
+            val isSuccess = repository.updateUsage(
+                userId = userId,
+                usageId = query.id,
+                title = query.title,
+                description = query.description,
+                amount = query.amount,
+                date = query.date,
+                subCategoryId = query.subCategoryId,
+            )
+
+            if (isSuccess.not()) {
+                throw IllegalStateException("update usage failed")
+            } else {
+                QlMoneyUsage(
+                    id = query.id,
+                )
+            }
         }.toDataFetcher()
     }
 }

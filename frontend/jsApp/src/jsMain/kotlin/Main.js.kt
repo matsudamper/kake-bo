@@ -51,9 +51,9 @@ import net.matsudamper.money.frontend.common.viewmodel.importedmailcontent.Impor
 import net.matsudamper.money.frontend.common.viewmodel.importedmailcontent.ImportedMailContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScreenViewModelApi
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.list.HomeUsageListGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.root.list.RootListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.ImportedMailListViewModel
@@ -423,8 +423,9 @@ private fun Content(
                     val coroutineScope = rememberCoroutineScope()
                     val viewModel = remember {
                         MoneyUsageScreenViewModel(
-                            id = current.id,
+                            moneyUsageId = current.id,
                             coroutineScope = coroutineScope,
+                            api = MoneyUsageScreenViewModelApi(),
                         )
                     }
                     LaunchedEffect(viewModel.eventHandler) {

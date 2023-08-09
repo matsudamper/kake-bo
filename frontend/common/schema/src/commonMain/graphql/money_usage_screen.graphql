@@ -1,25 +1,43 @@
 query MoneyUsageScreen($id: MoneyUsageId!) {
     user {
-        moneyUsage(id: $id) {
+        moneyUsage(id: $id)   {
+            ... MoneyUsageScreenMoneyUsage
+        }
+    }
+}
+
+mutation MoneyUsageScreenUpdateUsage($query: UpdateUsageQuery!) {
+    userMutation {
+        updateUsage(query: $query) {
+            ... MoneyUsageScreenMoneyUsage
+        }
+    }
+}
+
+mutation MoneyUsageScreenDeleteUsage($id: MoneyUsageId!) {
+    userMutation {
+        deleteUsage(id: $id)
+    }
+}
+
+fragment MoneyUsageScreenMoneyUsage on MoneyUsage {
+    id
+    title
+    amount
+    date
+    description
+    linkedMail {
+        id
+        from
+        dateTime
+        subject
+    }
+    moneyUsageSubCategory {
+        id
+        name
+        category {
             id
-            title
-            amount
-            date
-            description
-            linkedMail {
-                id
-                from
-                dateTime
-                subject
-            }
-            moneyUsageSubCategory {
-                id
-                name
-                category {
-                    id
-                    name
-                }
-            }
+            name
         }
     }
 }

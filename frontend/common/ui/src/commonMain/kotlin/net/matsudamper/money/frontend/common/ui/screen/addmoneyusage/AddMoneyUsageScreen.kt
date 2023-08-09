@@ -41,6 +41,7 @@ import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.layout.Calendar
+import net.matsudamper.money.frontend.common.ui.layout.CalendarDialog
 import net.matsudamper.money.frontend.common.ui.layout.NumberInput
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
 
@@ -285,77 +286,6 @@ private fun Section(
         TextButton(onClick = { clickChange() }) {
             ProvideTextStyle(MaterialTheme.typography.labelMedium) {
                 Text("変更")
-            }
-        }
-    }
-}
-
-@Composable
-private fun CalendarDialog(
-    modifier: Modifier = Modifier,
-    dismissRequest: () -> Unit,
-    selectedCalendar: (LocalDate) -> Unit,
-    initialCalendar: LocalDate,
-) {
-    Box(
-        modifier = modifier.fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.8f))
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() },
-            ) {
-                dismissRequest()
-            },
-        contentAlignment = Alignment.Center,
-    ) {
-        val density = LocalDensity.current
-        Card(
-            modifier = Modifier
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() },
-                ) {
-                    // カード内をタップしても閉じないようにする
-                },
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(24.dp),
-            ) {
-                var height by remember { mutableStateOf(0) }
-                var selectedDate by remember { mutableStateOf(initialCalendar) }
-                Calendar(
-                    modifier = Modifier
-                        .widthIn(max = 500.dp)
-                        .heightIn(min = with(density) { height.toDp() })
-                        .onSizeChanged {
-                            height = it.height
-                        },
-                    selectedDate = selectedDate,
-                    changeSelectedDate = {
-                        selectedDate = it
-                    },
-                )
-                Spacer(Modifier.height(24.dp))
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.End),
-                ) {
-                    TextButton(
-                        onClick = {
-                            dismissRequest()
-                        },
-                    ) {
-                        Text(text = "キャンセル")
-                    }
-                    TextButton(
-                        onClick = {
-                            selectedCalendar(selectedDate)
-                        },
-                    ) {
-                        Text(text = "決定")
-                    }
-                }
             }
         }
     }

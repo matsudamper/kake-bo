@@ -206,6 +206,7 @@ type UserMutation {
     updateImportedMailCategoryFilter(input: UpdateImportedMailCategoryFilterInput!): ImportedMailCategoryFilter
     updateImportedMailCategoryFilterCondition(input: UpdateImportedMailCategoryFilterConditionInput!): ImportedMailCategoryCondition
     updateSubCategory(id: MoneyUsageSubCategoryId!, query: UpdateSubCategoryQuery!): MoneyUsageSubCategory!
+    updateUsage(query: UpdateUsageQuery!): MoneyUsage!
     userLogin(name: String!, password: String!): UserLoginResult!
 }
 
@@ -367,6 +368,15 @@ input UpdateImportedMailCategoryFilterInput {
 
 input UpdateSubCategoryQuery {
     name: String
+}
+
+input UpdateUsageQuery {
+    amount: Int
+    date: LocalDateTime
+    description: String
+    id: MoneyUsageId!
+    subCategoryId: MoneyUsageSubCategoryId
+    title: String
 }
 
 input UpdateUserImapConfigInput {
