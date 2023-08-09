@@ -5,6 +5,7 @@ import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
+import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.lib.CursorParser
@@ -175,6 +176,27 @@ class UserResolverImpl : UserResolver {
 
         return CompletableFuture.allOf().thenApplyAsync {
             QlImportedMailCategoryFilter(
+                id = id,
+            )
+        }.toDataFetcher()
+    }
+
+    override fun moneyUsage(
+        user: QlUser,
+        id: MoneyUsageId,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<QlMoneyUsage?>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+        val moneyUsageFuture = context.dataLoaders.moneyUsageDataLoader.get(env)
+            .load(
+                MoneyUsageDataLoaderDefine.Key(
+                    userId = userId,
+                    moneyUsageId = id,
+                )
+            )
+        return CompletableFuture.allOf(moneyUsageFuture).thenApplyAsync {
+            QlMoneyUsage(
                 id = id,
             )
         }.toDataFetcher()

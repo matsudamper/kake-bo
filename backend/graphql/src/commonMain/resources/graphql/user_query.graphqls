@@ -3,6 +3,7 @@ type User {
     settings: UserSettings! @lazy
     userMailAttributes: UserMailAttributes!
     importedMailAttributes: ImportedMailAttributes!
+    moneyUsage(id: MoneyUsageId!): MoneyUsage @lazy
     moneyUsageCategories(input: MoneyUsageCategoriesInput!):MoneyUsageCategoriesConnection @lazy
     moneyUsageCategory(id: MoneyUsageCategoryId!): MoneyUsageCategory @lazy
     moneyUsageSubCategory(input: MoneyUsageSubCategoryInput!): MoneyUsageSubCategory @lazy
