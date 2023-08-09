@@ -13,6 +13,7 @@ import net.matsudamper.money.frontend.common.viewmodel.importedmail.ImportedMail
 import net.matsudamper.money.frontend.common.viewmodel.importedmailcontent.ImportedMailContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
+import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
@@ -240,6 +241,18 @@ data class ViewModelEventHandlers(
                         navController.navigate(structure)
                     }
                 },
+            )
+        }
+    }
+
+    suspend fun handle(handler: EventHandler<MoneyUsageScreenViewModel.Event>) {
+        coroutineScope {
+            handler.collect(
+                object : MoneyUsageScreenViewModel.Event {
+                    override fun navigate(structure: ScreenStructure) {
+                        navController.navigate(structure)
+                    }
+                }
             )
         }
     }

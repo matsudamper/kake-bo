@@ -423,8 +423,12 @@ private fun Content(
                     val coroutineScope = rememberCoroutineScope()
                     val viewModel = remember {
                         MoneyUsageScreenViewModel(
+                            id = current.id,
                             coroutineScope = coroutineScope,
                         )
+                    }
+                    LaunchedEffect(viewModel.eventHandler) {
+                        viewModelEventHandlers.handle(viewModel.eventHandler)
                     }
                     MoneyUsageScreen(
                         modifier = Modifier.fillMaxSize(),

@@ -1,11 +1,14 @@
 package net.matsudamper.money.frontend.common.ui.layout
 
 import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -30,10 +33,12 @@ public fun ScrollButton(
     modifier: Modifier = Modifier,
     scrollState: ScrollableState,
     scrollSize: Float,
-    animationSpec: AnimationSpec<Float>,
+    animationSpec: AnimationSpec<Float> = spring(
+        stiffness = Spring.StiffnessLow,
+    ),
 ) {
     val coroutineScope = rememberCoroutineScope()
-    Box(modifier = modifier) {
+    Box(modifier = modifier.fillMaxHeight()) {
         Button(
             modifier = Modifier.align(Alignment.TopEnd),
             shape = CircleShape,
