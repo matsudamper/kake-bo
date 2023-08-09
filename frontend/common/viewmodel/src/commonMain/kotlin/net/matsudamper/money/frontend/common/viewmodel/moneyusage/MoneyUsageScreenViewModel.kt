@@ -12,6 +12,7 @@ public class MoneyUsageScreenViewModel(
         MoneyUsageScreenUiState(
             event = object : MoneyUsageScreenUiState.Event {
             },
+            loadingState = MoneyUsageScreenUiState.LoadingState.Loading,
         )
     )
 }

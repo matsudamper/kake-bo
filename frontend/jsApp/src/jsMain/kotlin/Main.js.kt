@@ -27,6 +27,7 @@ import net.matsudamper.money.frontend.common.base.ScreenNavControllerImpl
 import net.matsudamper.money.frontend.common.base.nav.admin.rememberAdminScreenController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.CustomTheme
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.MySnackBarHost
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreen
@@ -161,11 +162,20 @@ private fun Content(
             ioDispatchers = Dispatchers.Unconfined,
         )
     }
+    val kakeboScaffoldListener: KakeboScaffoldListener = remember {
+        object : KakeboScaffoldListener {
+            override fun onClickTitle() {
+                // TODO
+            }
+        }
+    }
     val rootScreenScaffoldListener: RootScreenScaffoldListener = remember(
         navController,
         mailScreenViewModel,
     ) {
         object : RootScreenScaffoldListener {
+            override val kakeboScaffoldListener: KakeboScaffoldListener = kakeboScaffoldListener
+
             override fun onClickHome() {
                 navController.navigate(ScreenStructure.Root.Home())
             }
@@ -420,6 +430,7 @@ private fun Content(
                     MoneyUsageScreen(
                         modifier = Modifier.fillMaxSize(),
                         uiState = viewModel.uiStateFlow.collectAsState().value,
+                        kakeboScaffoldListener = kakeboScaffoldListener
                     )
                 }
             }
