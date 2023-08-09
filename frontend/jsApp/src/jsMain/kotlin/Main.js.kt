@@ -164,7 +164,7 @@ private fun Content(
     val kakeboScaffoldListener: KakeboScaffoldListener = remember {
         object : KakeboScaffoldListener {
             override fun onClickTitle() {
-                // TODO
+                navController.navigateToHome()
             }
         }
     }
