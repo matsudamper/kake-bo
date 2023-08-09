@@ -146,6 +146,7 @@ type User {
     importedMailCategoryFilter(id: ImportedMailCategoryFilterId!): ImportedMailCategoryFilter
     importedMailCategoryFilters(query: ImportedMailCategoryFiltersQuery!): ImportedMailCategoryFiltersConnection
     isLoggedIn: Boolean!
+    moneyUsage(id: MoneyUsageId!): MoneyUsage
     moneyUsageCategories(input: MoneyUsageCategoriesInput!): MoneyUsageCategoriesConnection
     moneyUsageCategory(id: MoneyUsageCategoryId!): MoneyUsageCategory
     moneyUsageSubCategory(input: MoneyUsageSubCategoryInput!): MoneyUsageSubCategory
@@ -192,10 +193,12 @@ type UserMutation {
     addImportedMailCategoryFilterCondition(input: AddImportedMailCategoryFilterConditionInput!): ImportedMailCategoryFilter
     addSubCategory(input: AddSubCategoryInput!): AddSubCategoryResult!
     addUsage(usage: AddUsageQuery!): MoneyUsage!
+    deleteImportedMail(id: ImportedMailId!): Boolean!
     deleteImportedMailCategoryFilter(id: ImportedMailCategoryFilterId!): Boolean!
     deleteImportedMailCategoryFilterCondition(id: ImportedMailCategoryFilterConditionId!): Boolean!
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
     deleteSubCategory(id: MoneyUsageSubCategoryId!): Boolean!
+    deleteUsage(id: MoneyUsageId!): Boolean!
     importMail(mailIds: [MailId!]!): ImportMailResult!
     settingsMutation: SettingsMutation
     updateCategory(id: MoneyUsageCategoryId!, query: UpdateCategoryQuery!): MoneyUsageCategory!
