@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -62,7 +63,13 @@ public data class RootListScreenUiState(
         val amount: String,
         val category: String?,
         val description: String,
+        val event: ItemEvent,
     )
+
+    @Immutable
+    public interface ItemEvent {
+        public fun onClick()
+    }
 
     @Immutable
     public interface LoadedEvent {
@@ -199,6 +206,7 @@ private fun LoadedContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ListItem(
     modifier: Modifier = Modifier,
@@ -206,6 +214,7 @@ private fun ListItem(
 ) {
     Card(
         modifier = modifier,
+        onClick = item.event::onClick,
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
             Text(text = item.title)

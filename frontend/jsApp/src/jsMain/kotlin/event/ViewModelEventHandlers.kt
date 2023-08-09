@@ -139,8 +139,8 @@ data class ViewModelEventHandlers(
         coroutineScope {
             handler.collect(
                 object : RootListViewModel.Event {
-                    override fun navigateToAddMoneyUsage() {
-                        navController.navigate(ScreenStructure.AddMoneyUsage())
+                    override fun navigate(screenStructure: ScreenStructure) {
+                        navController.navigate(screenStructure)
                     }
                 },
             )

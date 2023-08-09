@@ -11,6 +11,7 @@ import io.ktor.util.toMap
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.Screens
@@ -168,6 +169,15 @@ public class ScreenNavControllerImpl(
                     ImportedMailCategoryFilterId(id)
                 },
             )
+
+            Screens.MoneyUsage -> {
+                ScreenStructure.MoneyUsage(
+                    id = run id@{
+                        val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
+                        MoneyUsageId(id)
+                    },
+                )
+            }
         }
     }
 

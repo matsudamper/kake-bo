@@ -1,0 +1,25 @@
+query MoneyUsageScreen($id: MoneyUsageId!) {
+    user {
+        moneyUsage(id: $id) {
+            id
+            title
+            amount
+            date
+            description
+            linkedMail {
+                id
+                from
+                dateTime
+                subject
+            }
+            moneyUsageSubCategory {
+                id
+                name
+                category {
+                    id
+                    name
+                }
+            }
+        }
+    }
+}

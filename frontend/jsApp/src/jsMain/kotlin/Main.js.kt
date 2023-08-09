@@ -35,6 +35,7 @@ import net.matsudamper.money.frontend.common.ui.screen.importedmail.ImportedMail
 import net.matsudamper.money.frontend.common.ui.screen.importedmailcontent.ImportedMailContentScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.moneyusage.MoneyUsageScreen
 import net.matsudamper.money.frontend.common.ui.screen.status.NotFoundScreen
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.LoginScreenViewModel
@@ -48,6 +49,7 @@ import net.matsudamper.money.frontend.common.viewmodel.importedmail.ImportedMail
 import net.matsudamper.money.frontend.common.viewmodel.importedmailcontent.ImportedMailContentScreenGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.importedmailcontent.ImportedMailContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
+import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.list.HomeUsageListGraphqlApi
@@ -403,6 +405,19 @@ private fun Content(
                     }
 
                     ImportedMailContentScreen(
+                        modifier = Modifier.fillMaxSize(),
+                        uiState = viewModel.uiStateFlow.collectAsState().value,
+                    )
+                }
+
+                is ScreenStructure.MoneyUsage -> {
+                    val coroutineScope = rememberCoroutineScope()
+                    val viewModel = remember {
+                        MoneyUsageScreenViewModel(
+                            coroutineScope = coroutineScope,
+                        )
+                    }
+                    MoneyUsageScreen(
                         modifier = Modifier.fillMaxSize(),
                         uiState = viewModel.uiStateFlow.collectAsState().value,
                     )

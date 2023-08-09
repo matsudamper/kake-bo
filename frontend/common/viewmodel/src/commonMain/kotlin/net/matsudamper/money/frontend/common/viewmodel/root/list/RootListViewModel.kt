@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.apollographql.apollo3.api.ApolloResponse
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.RootListScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -40,7 +41,7 @@ public class RootListViewModel(
                 override fun onClickAdd() {
                     coroutineScope.launch {
                         viewModelEventSender.send {
-                            it.navigateToAddMoneyUsage()
+                            it.navigate(ScreenStructure.AddMoneyUsage())
                         }
                     }
                 }
@@ -57,19 +58,34 @@ public class RootListViewModel(
                             uiState.copy(
                                 loadingState = RootListScreenUiState.LoadingState.Loaded(
                                     loadToEnd = viewModelState.loadToEnd,
-                                    items = results.flatMap { it.data?.user?.moneyUsages?.nodes.orEmpty() }.map { result ->
-                                        RootListScreenUiState.Item(
-                                            title = result.title,
-                                            amount = result.amount.toString(),
-                                            date = result.date.toString(),
-                                            description = result.description,
-                                            category = run category@{
-                                                val subCategory = result.moneyUsageSubCategory ?: return@category null
+                                    items = results.flatMap { it.data?.user?.moneyUsages?.nodes.orEmpty() }
+                                        .map { result ->
+                                            RootListScreenUiState.Item(
+                                                title = result.title,
+                                                amount = result.amount.toString(),
+                                                date = result.date.toString(),
+                                                description = result.description,
+                                                category = run category@{
+                                                    val subCategory =
+                                                        result.moneyUsageSubCategory ?: return@category null
 
-                                                "${subCategory.name} / ${subCategory.category.name}"
-                                            },
-                                        )
-                                    },
+                                                    "${subCategory.name} / ${subCategory.category.name}"
+                                                },
+                                                event = object : RootListScreenUiState.ItemEvent {
+                                                    override fun onClick() {
+                                                        coroutineScope.launch {
+                                                            viewModelEventSender.send {
+                                                                it.navigate(
+                                                                    ScreenStructure.MoneyUsage(
+                                                                        id = result.id,
+                                                                    )
+                                                                )
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                            )
+                                        },
                                     event = object : RootListScreenUiState.LoadedEvent {
                                         override fun loadMore() {
                                             fetch()
@@ -128,7 +144,7 @@ public class RootListViewModel(
     }
 
     public interface Event {
-        public fun navigateToAddMoneyUsage()
+        public fun navigate(screenStructure: ScreenStructure)
     }
 
     private data class ViewModelState(

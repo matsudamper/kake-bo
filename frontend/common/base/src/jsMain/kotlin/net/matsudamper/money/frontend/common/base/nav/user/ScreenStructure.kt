@@ -5,6 +5,7 @@ import io.ktor.http.formUrlEncode
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageId
 
 public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
     public sealed interface Root : ScreenStructure {
@@ -113,6 +114,21 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
         public val id: ImportedMailId,
     ) : ScreenStructure {
         override val direction: Screens = Screens.ImportedMail
+
+        override fun createUrl(): String {
+            return direction.placeholderUrl
+                .replace("{id}", id.id.toString())
+        }
+
+        override fun equalScreen(other: ScreenStructure): Boolean {
+            return this == other
+        }
+    }
+
+    public data class MoneyUsage(
+        public val id: MoneyUsageId,
+    ) : ScreenStructure {
+        override val direction: Screens = Screens.MoneyUsage
 
         override fun createUrl(): String {
             return direction.placeholderUrl
