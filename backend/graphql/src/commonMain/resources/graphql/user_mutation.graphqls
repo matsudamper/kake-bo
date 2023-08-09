@@ -3,9 +3,11 @@ type UserMutation {
     settingsMutation: SettingsMutation @lazy
 
     importMail(mailIds: [MailId!]!): ImportMailResult!
+    deleteImportedMail(id: ImportedMailId!): Boolean!
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
 
     addUsage(usage: AddUsageQuery!): MoneyUsage!
+    deleteUsage(id: MoneyUsageId!): Boolean!
 
     addCategory(input: AddCategoryInput!) : AddCategoryResult!
     updateCategory(id: MoneyUsageCategoryId!, query: UpdateCategoryQuery!): MoneyUsageCategory!

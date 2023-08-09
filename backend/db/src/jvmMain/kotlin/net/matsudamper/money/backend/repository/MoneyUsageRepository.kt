@@ -204,6 +204,27 @@ class MoneyUsageRepository {
         }
     }
 
+    fun deleteUsage(
+        userId: UserId,
+        usageId: MoneyUsageId,
+    ): Boolean {
+        return runCatching {
+            DbConnectionImpl.use { connection ->
+                DSL.using(connection)
+                    .deleteFrom(usage)
+                    .where(
+                        DSL.value(true)
+                            .and(usage.USER_ID.eq(userId.id))
+                            .and(usage.MONEY_USAGE_ID.eq(usageId.id)),
+                    )
+                    .execute() == 1
+            }
+        }.fold(
+            onSuccess = { it },
+            onFailure = { false },
+        )
+    }
+
     sealed interface AddResult {
         data class Success(val result: Usage) : AddResult
         data class Failed(val error: Throwable) : AddResult

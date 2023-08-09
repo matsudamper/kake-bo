@@ -20,8 +20,10 @@ import net.matsudamper.money.backend.repository.UserLoginRepository
 import net.matsudamper.money.backend.repository.UserSessionRepository
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
+import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.graphql.model.QlAddCategoryInput
 import net.matsudamper.money.graphql.model.QlAddCategoryResult
@@ -492,6 +494,42 @@ class UserMutationResolverImpl : UserMutationResolver {
             val isSuccess = repository.deleteCondition(
                 userId = userId,
                 conditionId = id,
+            )
+            isSuccess
+        }.toDataFetcher()
+    }
+
+    override fun deleteImportedMail(
+        userMutation: QlUserMutation,
+        id: ImportedMailId,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+        val repository = context.repositoryFactory.createDbMailRepository()
+
+        return CompletableFuture.allOf().thenApplyAsync {
+            val isSuccess = repository.deleteMail(
+                userId = userId,
+                mailId = id,
+            )
+            isSuccess
+        }.toDataFetcher()
+    }
+
+    override fun deleteUsage(
+        userMutation: QlUserMutation,
+        id: MoneyUsageId,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+        val repository = context.repositoryFactory.createMoneyUsageRepository()
+
+        return CompletableFuture.allOf().thenApplyAsync {
+            val isSuccess = repository.deleteUsage(
+                userId = userId,
+                usageId = id,
             )
             isSuccess
         }.toDataFetcher()

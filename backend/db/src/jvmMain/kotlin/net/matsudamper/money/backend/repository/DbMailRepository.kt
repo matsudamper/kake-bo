@@ -207,6 +207,28 @@ class DbMailRepository(
         }
     }
 
+    fun deleteMail(
+        userId: UserId,
+        mailId: ImportedMailId,
+    ): Boolean {
+        return runCatching {
+            dbConnection.use { connection ->
+                DSL.using(connection)
+                    .deleteFrom(userMails)
+                    .where(
+                        DSL.value(true)
+                            .and(userMails.USER_ID.eq(userId.id))
+                            .and(userMails.USER_MAIL_ID.eq(mailId.id)),
+                    )
+                    .limit(1)
+                    .execute()
+            } == 0
+        }.fold(
+            onSuccess = { it },
+            onFailure = { false },
+        )
+    }
+
     public data class Mail(
         val id: ImportedMailId,
         val plain: String?,
