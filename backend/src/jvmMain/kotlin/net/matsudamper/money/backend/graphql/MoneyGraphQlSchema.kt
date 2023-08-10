@@ -18,10 +18,10 @@ import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
 import graphql.schema.visibility.NoIntrospectionGraphqlFieldVisibility
 import net.matsudamper.money.backend.base.ServerEnv
-import net.matsudamper.money.backend.graphql.resolver.ImportedMailAttributesResolverImpl
-import net.matsudamper.money.backend.graphql.resolver.ImportedMailCategoryConditionResolverImpl
-import net.matsudamper.money.backend.graphql.resolver.ImportedMailCategoryFilterResolverImpl
-import net.matsudamper.money.backend.graphql.resolver.ImportedMailResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailAttributesResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailCategoryConditionResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailCategoryFilterResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageCategoryResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageSubCategoryResolverImpl

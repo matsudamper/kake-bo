@@ -254,6 +254,11 @@ enum ImportedMailFilterCategoryConditionOperator {
     OR
 }
 
+enum ImportedMailSortKey {
+    CREATED_DATETIME
+    DATETIME
+}
+
 enum UserMailError {
     InternalServerError
     MailConfigNotFound
@@ -316,7 +321,9 @@ input ImportedMailCategoryFiltersQuery {
 input ImportedMailQuery {
     cursor: String
     filter: ImportedMailQueryFilter!
+    isAsc: Boolean!
     size: Int!
+    sortedBy: ImportedMailSortKey!
 }
 
 input ImportedMailQueryFilter {

@@ -7,11 +7,18 @@ type ImportedMailAttributes {
 input ImportedMailQuery {
     size: Int!
     cursor: String
+    sortedBy: ImportedMailSortKey!
+    isAsc: Boolean!
     filter: ImportedMailQueryFilter!
 }
 
+enum ImportedMailSortKey {
+    CREATED_DATETIME,
+    DATETIME,
+}
+
 input ImportedMailQueryFilter {
-    isLinked: Boolean!
+    isLinked: Boolean
 }
 
 type ImportedMailConnection {

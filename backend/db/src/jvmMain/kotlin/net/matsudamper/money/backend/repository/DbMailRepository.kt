@@ -51,7 +51,7 @@ class DbMailRepository(
         return AddUserResult.Success
     }
 
-    fun getCount(userId: UserId, isLinked: Boolean): Int? {
+    fun getCount(userId: UserId, isLinked: Boolean?): Int? {
         return dbConnection.use { connection ->
             val result = DSL.using(connection)
                 .select(DSL.count())
@@ -66,8 +66,9 @@ class DbMailRepository(
                             when (isLinked) {
                                 true -> relation.MONEY_USAGE_ID.isNotNull
                                 false -> relation.MONEY_USAGE_ID.isNull
+                                null -> DSL.value(true)
                             },
-                        )
+                        ),
                 )
                 .fetchOne()
 
@@ -101,14 +102,17 @@ class DbMailRepository(
     fun getMails(
         userId: UserId,
         size: Int,
-        lastMailId: ImportedMailId?,
+        pagingInfo: PagingInfo?,
         isAsc: Boolean,
+        sortedKey: MailSortedKey,
         isLinked: Boolean?,
-    ): List<ImportedMailId> {
+    ): MailPagingResult {
         return dbConnection.use { connection ->
             val result = DSL.using(connection)
                 .select(
                     userMails.USER_MAIL_ID,
+                    userMails.DATETIME,
+                    userMails.CREATED_DATETIME,
                 )
                 .from(userMails)
                 .leftJoin(relation).using(relation.USER_MAIL_ID)
@@ -123,32 +127,78 @@ class DbMailRepository(
                             },
                         )
                         .and(
-                            if (lastMailId == null) {
+                            if (pagingInfo == null) {
                                 DSL.value(true)
                             } else {
-                                if (isAsc) {
-                                    DSL.and(userMails.USER_MAIL_ID.greaterThan(lastMailId.id))
-                                } else {
-                                    DSL.and(userMails.USER_MAIL_ID.lessThan(lastMailId.id))
+                                when (pagingInfo) {
+                                    is PagingInfo.CreatedDateTime -> {
+                                        val dbRow = DSL.row(userMails.CREATED_DATETIME, userMails.USER_MAIL_ID)
+                                        val inputRow = DSL.row(pagingInfo.time, pagingInfo.importedMailId.id)
+
+                                        if (isAsc) {
+                                            dbRow.greaterThan(inputRow)
+                                        } else {
+                                            dbRow.lessThan(inputRow)
+                                        }
+                                    }
+
+                                    is PagingInfo.DateTime -> {
+                                        val dbRow = DSL.row(userMails.DATETIME, userMails.USER_MAIL_ID)
+                                        val inputRow = DSL.row(pagingInfo.time, pagingInfo.importedMailId.id)
+
+                                        if (isAsc) {
+                                            dbRow.greaterThan(inputRow)
+                                        } else {
+                                            dbRow.lessThan(inputRow)
+                                        }
+                                    }
                                 }
                             },
                         ),
                 )
                 .orderBy(
+                    when (sortedKey) {
+                        MailSortedKey.CREATE_DATETIME -> userMails.CREATED_DATETIME
+                        MailSortedKey.DATETIME -> userMails.DATETIME
+                    }.run {
+                        when (isAsc) {
+                            true -> asc()
+                            false -> desc()
+                        }
+                    },
                     userMails.USER_MAIL_ID.run {
-                        if (isAsc) {
-                            asc()
-                        } else {
-                            desc()
+                        when (isAsc) {
+                            true -> asc()
+                            false -> desc()
                         }
                     },
                 )
                 .limit(size)
                 .fetch()
 
-            result.map {
+            val mails = result.map {
                 ImportedMailId(it.get(userMails.USER_MAIL_ID)!!)
             }
+            MailPagingResult(
+                mails = mails,
+                pagingInfo = run pagingInfo@{
+                    when (sortedKey) {
+                        MailSortedKey.CREATE_DATETIME -> {
+                            PagingInfo.CreatedDateTime(
+                                importedMailId = mails.lastOrNull() ?: return@pagingInfo null,
+                                time = result.lastOrNull()?.get(userMails.CREATED_DATETIME) ?: return@pagingInfo null
+                            )
+                        }
+
+                        MailSortedKey.DATETIME -> {
+                            PagingInfo.DateTime(
+                                importedMailId = mails.lastOrNull() ?: return@pagingInfo null,
+                                time = result.lastOrNull()?.get(userMails.DATETIME) ?: return@pagingInfo null,
+                            )
+                        }
+                    }
+                },
+            )
         }
     }
 
@@ -249,6 +299,28 @@ class DbMailRepository(
         val subject: String,
         val dateTime: LocalDateTime,
     )
+
+    enum class MailSortedKey {
+        CREATE_DATETIME,
+        DATETIME,
+    }
+
+    data class MailPagingResult(
+        val mails: List<ImportedMailId>,
+        val pagingInfo: PagingInfo?,
+    )
+
+    sealed interface PagingInfo {
+        data class CreatedDateTime(
+            val importedMailId: ImportedMailId,
+            val time: LocalDateTime,
+        ) : PagingInfo
+
+        data class DateTime(
+            val importedMailId: ImportedMailId,
+            val time: LocalDateTime,
+        ) : PagingInfo
+    }
 
     sealed interface AddUserResult {
         object Success : AddUserResult

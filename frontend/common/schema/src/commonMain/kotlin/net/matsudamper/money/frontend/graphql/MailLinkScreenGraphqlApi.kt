@@ -8,6 +8,7 @@ import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import net.matsudamper.money.frontend.common.base.lib.getNestedMessage
 import net.matsudamper.money.frontend.graphql.type.ImportedMailQuery
 import net.matsudamper.money.frontend.graphql.type.ImportedMailQueryFilter
+import net.matsudamper.money.frontend.graphql.type.ImportedMailSortKey
 
 class MailLinkScreenGraphqlApi(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
@@ -25,6 +26,8 @@ class MailLinkScreenGraphqlApi(
                             filter = ImportedMailQueryFilter(
                                 isLinked = Optional.present(isLinked),
                             ),
+                            sortedBy = ImportedMailSortKey.DATETIME,
+                            isAsc = false,
                             size = 10,
                         ),
                     ),
