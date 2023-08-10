@@ -25,6 +25,7 @@ query ImportedMailScreen($id: ImportedMailId!) {
                 }
                 suggestUsages {
                     title
+                    serviceName
                     description
                     dateTime
                     amount

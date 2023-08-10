@@ -95,6 +95,7 @@ public data class MailScreenUiState(
         val description: Clickable,
         val dateTime: String?,
         val event: Event,
+        val serviceName: String,
     ) {
         public interface Event {
             public fun onClickRegister()
@@ -382,6 +383,14 @@ private fun MoneyUsageSuggestCard(
                     }
                     item {
                         Text(text = items.title)
+                    }
+                }
+                row {
+                    item {
+                        Text("サービス名")
+                    }
+                    item {
+                        Text(text = items.serviceName)
                     }
                 }
                 row {

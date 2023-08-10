@@ -114,7 +114,7 @@ public class ImportedMailScreenViewModel(
         return MailScreenUiState.LoadingState.Loaded(
             mail = MailScreenUiState.Mail(
                 title = mail.subject,
-                date = mail.dateTime.toString(),
+                date = Formatter.formatDateTime(mail.dateTime),
                 from = mail.from,
             ),
             usage = mail.usages.map {
@@ -138,6 +138,7 @@ public class ImportedMailScreenViewModel(
             usageSuggest = mail.suggestUsages.mapIndexed { index, suggestUsage ->
                 MailScreenUiState.UsageSuggest(
                     title = suggestUsage.title,
+                    serviceName = suggestUsage.serviceName.orEmpty(),
                     amount = run amount@{
                         val amount = suggestUsage.amount ?: return@amount null
 
@@ -163,7 +164,10 @@ public class ImportedMailScreenViewModel(
                             },
                         )
                     },
-                    dateTime = suggestUsage.dateTime.toString(),
+                    dateTime = run dateTime@{
+                        val dateTIme = suggestUsage.dateTime ?: return@dateTime ""
+                        Formatter.formatDateTime(dateTIme)
+                    },
                     event = object : MailScreenUiState.UsageSuggest.Event {
                         override fun onClickRegister() {
                             coroutineScope.launch {

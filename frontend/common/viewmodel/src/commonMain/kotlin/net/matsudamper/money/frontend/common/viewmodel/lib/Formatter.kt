@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.viewmodel.lib
 
 import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDateTime
 
 internal object Formatter {
     fun formatMoney(value: Number): String {
@@ -21,6 +22,17 @@ internal object Formatter {
             DayOfWeek.FRIDAY -> "金"
             DayOfWeek.SATURDAY -> "土"
             DayOfWeek.SUNDAY -> "日"
+        }
+    }
+
+    fun formatDateTime(dateTime: LocalDateTime): String {
+        return buildString {
+            append("${dateTime.year}/${dateTime.monthNumber}/${dateTime.dayOfMonth}")
+            append("(${dayOfWeekToJapanese(dateTime.date.dayOfWeek)})")
+            append(" ")
+            append(dateTime.hour.toString().padStart(2, padChar = '0'))
+            append(":")
+            append(dateTime.minute.toString().padStart(2, padChar = '0'))
         }
     }
 }
