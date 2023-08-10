@@ -52,5 +52,9 @@ public enum class MoneyUsageServiceType(
         id = 13,
         displayName = "Fanza同人",
     ),
+    Shunsugu(
+        id = 14,
+        displayName = "旬すぐ",
+    )
     ;
 }
