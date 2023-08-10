@@ -97,6 +97,7 @@ public data class ImportedMailListScreenUiState(
         val description: String,
         val amount: String,
         val date: String,
+        val category: String,
     )
 
     public data class ImportedMail(
@@ -402,6 +403,7 @@ private fun SuggestUsageItem(
                                 description = suggestUsage.description,
                                 date = suggestUsage.date,
                                 price = suggestUsage.amount,
+                                category = suggestUsage.category,
                             )
                         }
                     }
@@ -447,6 +449,7 @@ private fun SuggestUsageItem(
     description: String,
     date: String,
     price: String,
+    category: String,
 ) {
     GridColumn(
         modifier = modifier,
@@ -498,13 +501,13 @@ private fun SuggestUsageItem(
         row {
             item {
                 Text(
-                    text = "説明",
+                    text = "カテゴリ",
                     fontFamily = rememberCustomFontFamily(),
                 )
             }
             item {
                 Text(
-                    text = description,
+                    text = category,
                     fontFamily = rememberCustomFontFamily(),
                 )
             }
@@ -519,6 +522,20 @@ private fun SuggestUsageItem(
             item {
                 Text(
                     text = price,
+                    fontFamily = rememberCustomFontFamily(),
+                )
+            }
+        }
+        row {
+            item {
+                Text(
+                    text = "説明",
+                    fontFamily = rememberCustomFontFamily(),
+                )
+            }
+            item {
+                Text(
+                    text = description,
                     fontFamily = rememberCustomFontFamily(),
                 )
             }

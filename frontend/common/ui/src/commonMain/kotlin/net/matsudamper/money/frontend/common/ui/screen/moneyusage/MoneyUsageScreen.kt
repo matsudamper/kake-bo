@@ -430,19 +430,6 @@ private fun MoneyUsage(
         )
         MoneyUsageSection(
             title = {
-                Text("金額")
-            },
-            content = {
-                Text(
-                    text = uiState.amount,
-                )
-            },
-            onClickChange = {
-                uiState.event.onClickAmountChange()
-            },
-        )
-        MoneyUsageSection(
-            title = {
                 Text("カテゴリ")
             },
             content = {
@@ -452,6 +439,19 @@ private fun MoneyUsage(
             },
             onClickChange = {
                 uiState.event.onClickCategoryChange()
+            },
+        )
+        MoneyUsageSection(
+            title = {
+                Text("金額")
+            },
+            content = {
+                Text(
+                    text = uiState.amount,
+                )
+            },
+            onClickChange = {
+                uiState.event.onClickAmountChange()
             },
         )
         MoneyUsageSection(

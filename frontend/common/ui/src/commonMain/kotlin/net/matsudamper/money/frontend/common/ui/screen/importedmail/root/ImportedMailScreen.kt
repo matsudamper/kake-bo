@@ -403,18 +403,18 @@ private fun MoneyUsageSuggestCard(
                 }
                 row {
                     item {
-                        Text("金額")
-                    }
-                    item {
-                        Text(text = items.amount.orEmpty())
-                    }
-                }
-                row {
-                    item {
                         Text("カテゴリ")
                     }
                     item {
                         Text(text = items.category.orEmpty())
+                    }
+                }
+                row {
+                    item {
+                        Text("金額")
+                    }
+                    item {
+                        Text(text = items.amount.orEmpty())
                     }
                 }
                 row {
