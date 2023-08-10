@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -136,6 +137,7 @@ public data class MoneyUsageScreenUiState(
     public interface Event {
         public fun onViewInitialized()
         public fun onClickRetry()
+        public fun onClickBack()
     }
 }
 
@@ -184,6 +186,11 @@ public fun MoneyUsageScreen(
     }
     KakeboScaffold(
         modifier = modifier,
+        navigationIcon = {
+            IconButton(onClick = { uiState.event.onClickBack() }) {
+                Icon(Icons.Default.ArrowBack, "戻る")
+            }
+        },
         listener = kakeboScaffoldListener,
     ) { paddingValues ->
         when (val state = uiState.loadingState) {
@@ -210,7 +217,7 @@ public fun MoneyUsageScreen(
             MoneyUsageScreenUiState.LoadingState.Error -> {
                 LoadingErrorContent(
                     modifier = Modifier.fillMaxWidth().padding(paddingValues),
-                    onClickRetry = { uiState.event.onClickRetry() }
+                    onClickRetry = { uiState.event.onClickRetry() },
                 )
             }
         }
@@ -236,7 +243,7 @@ private fun LoadedContent(
                 end = ScrollButtonDefaults.scrollButtonSize
                     .plus(ScrollButtonDefaults.scrollButtonHorizontalPadding * 2),
             ),
-            state = state
+            state = state,
         ) {
             item {
                 Row(
@@ -259,7 +266,7 @@ private fun LoadedContent(
                                 onClickDelete = {
                                     visiblePopup = false
                                     uiState.event.onClickDelete()
-                                }
+                                },
                             )
                         }
                     }
@@ -290,12 +297,12 @@ private fun LoadedContent(
                     Card(
                         modifier = Modifier.fillMaxWidth()
                             .padding(8.dp),
-                        onClick = { mail.event.onClick() }
+                        onClick = { mail.event.onClick() },
                     ) {
                         MailContent(
                             modifier = Modifier.fillMaxWidth()
                                 .padding(12.dp),
-                            uiState = mail
+                            uiState = mail,
                         )
                     }
                 }
@@ -329,7 +336,7 @@ private fun UsageMenuPopup(
 ) {
     Popup(
         focusable = true,
-        onDismissRequest = onDismissRequest
+        onDismissRequest = onDismissRequest,
     ) {
         Card(
             elevation = CardDefaults.cardElevation(
@@ -393,7 +400,7 @@ private fun MailContent(
 @Composable
 private fun MoneyUsage(
     modifier: Modifier = Modifier,
-    uiState: MoneyUsageScreenUiState.MoneyUsage
+    uiState: MoneyUsageScreenUiState.MoneyUsage,
 ) {
     Column(modifier = modifier) {
         MoneyUsageSection(
@@ -490,7 +497,7 @@ private fun MoneyUsageSection(
                             Alignment.Top
                         } else {
                             Alignment.CenterVertically
-                        }
+                        },
                     ),
             ) {
                 ProvideTextStyle(MaterialTheme.typography.bodyLarge) {
@@ -504,7 +511,7 @@ private fun MoneyUsageSection(
                         Alignment.Bottom
                     } else {
                         Alignment.CenterVertically
-                    }
+                    },
                 ),
                 onClick = {
                     onClickChange()

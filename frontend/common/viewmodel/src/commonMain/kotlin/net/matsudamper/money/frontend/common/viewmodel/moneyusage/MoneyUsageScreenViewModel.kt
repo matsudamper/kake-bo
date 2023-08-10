@@ -72,6 +72,14 @@ public class MoneyUsageScreenViewModel(
                         apolloCollector.fetch(this)
                     }
                 }
+
+                override fun onClickBack() {
+                    coroutineScope.launch {
+                        eventSender.send {
+                            it.navigateBack()
+                        }
+                    }
+                }
             },
             loadingState = MoneyUsageScreenUiState.LoadingState.Loading,
             confirmDialog = null,
