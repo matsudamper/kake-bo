@@ -473,7 +473,7 @@ private fun SuggestUsageItem(
         row {
             item {
                 Text(
-                    text = "サービス",
+                    text = "サービス名",
                     fontFamily = rememberCustomFontFamily(),
                 )
             }
