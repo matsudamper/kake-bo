@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
 internal object ScrollButtonDefaults {
-    internal val scrollButtonSize = 42.dp
-    internal val scrollButtonHorizontalPadding = 12.dp
+    internal val scrollButtonSize = 52.dp
+    internal val scrollButtonHorizontalPadding = 8.dp
 }
 
 @Composable
