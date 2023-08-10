@@ -48,5 +48,9 @@ public enum class MoneyUsageServiceType(
         id = 12,
         displayName = "ヨドバシカメラ",
     ),
+    FanzaDojin(
+        id = 13,
+        displayName = "Fanza同人",
+    ),
     ;
 }
