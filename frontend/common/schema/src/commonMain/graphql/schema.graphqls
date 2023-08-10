@@ -41,6 +41,8 @@ type ImportMailResult {
 type ImportedMail {
     dateTime: LocalDateTime!
     from: String!
+    hasHtml: Boolean!
+    hasPlain: Boolean!
     html: String
     id: ImportedMailId!
     plain: String

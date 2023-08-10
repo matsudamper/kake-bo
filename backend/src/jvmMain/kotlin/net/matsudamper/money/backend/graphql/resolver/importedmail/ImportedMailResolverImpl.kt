@@ -71,6 +71,20 @@ class ImportedMailResolverImpl : ImportedMailResolver {
             }.toDataFetcher()
     }
 
+    override fun hasPlain(importedMail: QlImportedMail, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+        return context.dataLoaders.importedMailDataLoader.get(env)
+            .load(
+                ImportedMailDataLoaderDefine.Key(
+                    userId = userId,
+                    importedMailId = importedMail.id,
+                ),
+            ).thenApplyAsync { importedMailFuture ->
+                importedMailFuture.plain != null
+            }.toDataFetcher()
+    }
+
     override fun html(
         importedMail: QlImportedMail,
         env: DataFetchingEnvironment,
@@ -85,6 +99,20 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                 ),
             ).thenApplyAsync { importedMailFuture ->
                 importedMailFuture.html
+            }.toDataFetcher()
+    }
+
+    override fun hasHtml(importedMail: QlImportedMail, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+        return context.dataLoaders.importedMailDataLoader.get(env)
+            .load(
+                ImportedMailDataLoaderDefine.Key(
+                    userId = userId,
+                    importedMailId = importedMail.id,
+                ),
+            ).thenApplyAsync { importedMailFuture ->
+                importedMailFuture.html != null
             }.toDataFetcher()
     }
 
