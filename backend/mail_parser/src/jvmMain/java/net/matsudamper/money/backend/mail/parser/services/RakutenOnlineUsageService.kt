@@ -19,13 +19,26 @@ internal object RakutenOnlineUsageService : MoneyUsageServices {
         }
         if (canHandle.any { it }.not()) return listOf()
 
-        val title = run title@{
-            val result = "この度は提携サイト「(.+?)」にて楽天ペイ".toRegex(RegexOption.MULTILINE)
-                .find(plain)
-                ?.groupValues?.getOrNull(1) ?: return listOf()
+        val title = sequence {
+            yield(
+                run title@{
+                    val result = "この度は提携サイト「(.+?)」にて楽天ペイ".toRegex(RegexOption.MULTILINE)
+                        .find(html)
+                        ?.groupValues?.getOrNull(1) ?: return@title null
 
-            ParseUtil.removeHtmlTag(result)
-        }
+                    ParseUtil.removeHtmlTag(result)
+                }
+            )
+            yield(
+                run title@{
+                    "この度は提携サイト「\\*(.+?)\\*」にて楽天ペイ".toRegex(RegexOption.MULTILINE)
+                        .find(plain)
+                        ?.groupValues?.getOrNull(1) ?: return@title null
+                }
+            )
+        }.filterNotNull().firstOrNull() ?: return listOf()
+
+
         val price = run price@{
             val index = html.indexOf("小計：").takeIf { it >= 0 } ?: return listOf()
 
