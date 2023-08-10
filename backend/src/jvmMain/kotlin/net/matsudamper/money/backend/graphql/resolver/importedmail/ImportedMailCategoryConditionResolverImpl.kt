@@ -1,5 +1,7 @@
 package net.matsudamper.money.backend.graphql.resolver.importedmail
 
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterConditionDataLoaderDefine
@@ -12,8 +14,6 @@ import net.matsudamper.money.graphql.model.ImportedMailCategoryConditionResolver
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryCondition
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilterConditionType
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilterDataSourceType
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletionStage
 
 class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionResolver {
     override fun text(importedMailCategoryCondition: QlImportedMailCategoryCondition, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<String>> {

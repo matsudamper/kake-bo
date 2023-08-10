@@ -186,7 +186,7 @@ class DbMailRepository(
                         MailSortedKey.CREATE_DATETIME -> {
                             PagingInfo.CreatedDateTime(
                                 importedMailId = mails.lastOrNull() ?: return@pagingInfo null,
-                                time = result.lastOrNull()?.get(userMails.CREATED_DATETIME) ?: return@pagingInfo null
+                                time = result.lastOrNull()?.get(userMails.CREATED_DATETIME) ?: return@pagingInfo null,
                             )
                         }
 

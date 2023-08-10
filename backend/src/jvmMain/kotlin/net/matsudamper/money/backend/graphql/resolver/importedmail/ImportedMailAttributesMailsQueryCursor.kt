@@ -5,7 +5,6 @@ import net.matsudamper.money.backend.lib.CursorParser
 import net.matsudamper.money.backend.repository.DbMailRepository
 import net.matsudamper.money.element.ImportedMailId
 
-
 internal data class ImportedMailAttributesMailsQueryCursor(
     val pagingInfo: DbMailRepository.PagingInfo,
 ) {

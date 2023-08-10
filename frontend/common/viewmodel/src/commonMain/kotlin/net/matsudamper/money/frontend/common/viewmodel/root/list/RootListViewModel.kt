@@ -1,8 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.list
 
-import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.ApolloResponse
-import com.apollographql.apollo3.api.Optional
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -10,9 +7,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
-import net.matsudamper.money.frontend.common.base.ImmutableList
+import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.ApolloResponse
+import com.apollographql.apollo3.api.Optional
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.RootListScreenUiState
@@ -75,7 +73,7 @@ public class RootListViewModel(
                                             append("${result.date.year}年")
                                             append("${result.date.monthNumber}月")
                                         },
-                                    )
+                                    ),
                                 )
                                 lastMonth = result.date
                             }
@@ -110,7 +108,7 @@ public class RootListViewModel(
                                             }
                                         }
                                     },
-                                )
+                                ),
                             )
                         }
                     }.toImmutableList()

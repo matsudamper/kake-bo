@@ -120,7 +120,6 @@ public data class MoneyUsageScreenUiState(
         public fun onClickCategoryChange()
         public fun onClickDescription()
         public fun onClickAmountChange()
-
     }
 
     @Immutable

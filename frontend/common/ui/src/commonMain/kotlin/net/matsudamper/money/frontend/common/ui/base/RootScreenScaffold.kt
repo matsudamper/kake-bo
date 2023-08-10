@@ -129,7 +129,7 @@ internal fun RootScreenScaffold(
                         )
                     }
                 }
-            }
+            },
         ) {
             Row(
                 modifier = Modifier.padding(it),

@@ -69,10 +69,10 @@ public data class RootListScreenUiState(
             val amount: String,
             val category: String?,
             val event: ItemEvent,
-        ): Item
+        ) : Item
         public data class Title(
             val title: String,
-        ): Item
+        ) : Item
     }
 
     @Immutable
@@ -183,7 +183,7 @@ private fun LoadedContent(
             items = uiState.items,
             contentType = { it::class },
         ) { item ->
-            when(item) {
+            when (item) {
                 is RootListScreenUiState.Item.Title -> {
                     ListItemTitle(
                         modifier = Modifier.fillMaxWidth(),
@@ -235,7 +235,7 @@ private fun ListItemTitle(
         Text(
             modifier = Modifier.padding(8.dp),
             text = item.title,
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
         )
         Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
         Spacer(modifier = Modifier.height(8.dp))

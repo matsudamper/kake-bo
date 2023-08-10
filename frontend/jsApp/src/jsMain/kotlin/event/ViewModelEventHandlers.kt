@@ -9,9 +9,9 @@ import net.matsudamper.money.frontend.common.base.nav.user.JsScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.viewmodel.addmoneyusage.AddMoneyUsageViewModel
-import net.matsudamper.money.frontend.common.viewmodel.importedmail.root.ImportedMailScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.importedmail.html.ImportedMailHtmlViewModel
 import net.matsudamper.money.frontend.common.viewmodel.importedmail.plain.ImportedMailPlainViewModel
+import net.matsudamper.money.frontend.common.viewmodel.importedmail.root.ImportedMailScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScreenViewModel
@@ -253,7 +253,7 @@ data class ViewModelEventHandlers(
                     override fun navigateBack() {
                         navController.back()
                     }
-                }
+                },
             )
         }
     }

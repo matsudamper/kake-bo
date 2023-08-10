@@ -45,7 +45,7 @@ public fun KakeboScaffold(
                         },
                         text = "家計簿",
                     )
-                }
+                },
             )
         },
         snackbarHost = snackbarHost,

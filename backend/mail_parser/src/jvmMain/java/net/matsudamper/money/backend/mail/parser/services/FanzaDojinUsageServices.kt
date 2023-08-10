@@ -28,9 +28,11 @@ internal object FanzaDojinUsageServices : MoneyUsageServices {
             val startLineIndex = lines.indexOfFirst { it.startsWith("購入日") }
                 .takeIf { it >= 0 } ?: return@description ""
 
-            val startBuyTextIndex = (lines.drop(startLineIndex + 1)
-                .indexOfFirst { it == "購入商品" }
-                .takeIf { it >= 0 } ?: return@description "")
+            val startBuyTextIndex = (
+                lines.drop(startLineIndex + 1)
+                    .indexOfFirst { it == "購入商品" }
+                    .takeIf { it >= 0 } ?: return@description ""
+                )
                 .plus(startLineIndex + 1)
 
             val endLineIndex = lines.drop(startBuyTextIndex + 1)

@@ -46,10 +46,10 @@ import net.matsudamper.money.frontend.common.viewmodel.addmoneyusage.AddMoneyUsa
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminAddUserScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminLoginScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminRootScreenViewModel
-import net.matsudamper.money.frontend.common.viewmodel.importedmail.root.ImportedMailScreenGraphqlApi
-import net.matsudamper.money.frontend.common.viewmodel.importedmail.root.ImportedMailScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.importedmail.html.ImportedMailHtmlViewModel
 import net.matsudamper.money.frontend.common.viewmodel.importedmail.plain.ImportedMailPlainViewModel
+import net.matsudamper.money.frontend.common.viewmodel.importedmail.root.ImportedMailScreenGraphqlApi
+import net.matsudamper.money.frontend.common.viewmodel.importedmail.root.ImportedMailScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScreenViewModelApi
@@ -454,7 +454,7 @@ private fun Content(
                     MoneyUsageScreen(
                         modifier = Modifier.fillMaxSize(),
                         uiState = viewModel.uiStateFlow.collectAsState().value,
-                        kakeboScaffoldListener = kakeboScaffoldListener
+                        kakeboScaffoldListener = kakeboScaffoldListener,
                     )
                 }
             }

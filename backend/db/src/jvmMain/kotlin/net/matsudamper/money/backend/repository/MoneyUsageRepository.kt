@@ -148,7 +148,7 @@ class MoneyUsageRepository {
                 val resultMoneyUsageIds = results.map { result ->
                     MoneyUsageId(result.get(usage.MONEY_USAGE_ID)!!)
                 }
-                val lastDate  = results.lastOrNull()?.get(usage.DATETIME)
+                val lastDate = results.lastOrNull()?.get(usage.DATETIME)
                 val cursorLastId = resultMoneyUsageIds.lastOrNull()
                 GetMoneyUsageByQueryResult.Success(
                     ids = resultMoneyUsageIds,
@@ -157,14 +157,14 @@ class MoneyUsageRepository {
                             lastId = cursorLastId ?: return@cursor null,
                             date = lastDate ?: return@cursor null,
                         )
-                    }
+                    },
                 )
             }
         }.fold(
             onSuccess = { it },
             onFailure = { e ->
                 GetMoneyUsageByQueryResult.Failed(e)
-            }
+            },
         )
     }
 

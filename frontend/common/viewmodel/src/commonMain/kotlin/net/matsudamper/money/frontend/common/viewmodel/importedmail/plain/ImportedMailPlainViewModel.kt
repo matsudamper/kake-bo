@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.importedmail.plain
 
-import com.apollographql.apollo3.api.ApolloResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -9,6 +8,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.ui.screen.importedmail.plain.ImportedMailPlainScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -75,7 +75,7 @@ public class ImportedMailPlainViewModel(
                                     yield(
                                         mail.plain
                                             ?.replace("\r\n", "<br>")
-                                            ?.replace("\n", "<br>")
+                                            ?.replace("\n", "<br>"),
                                     )
                                 }.filterNotNull().firstOrNull().orEmpty(),
                             )

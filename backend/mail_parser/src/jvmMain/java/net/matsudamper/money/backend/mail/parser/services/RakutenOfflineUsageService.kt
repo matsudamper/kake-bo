@@ -23,7 +23,7 @@ internal object RakutenOfflineUsageService : MoneyUsageServices {
             ParseUtil.getInt(
                 "決済総額(.+?)$".toRegex(RegexOption.MULTILINE)
                     .find(plain)
-                    ?.groupValues?.getOrNull(1) ?: return@price null
+                    ?.groupValues?.getOrNull(1) ?: return@price null,
             )
         }
 

@@ -1,10 +1,8 @@
 package net.matsudamper.money.frontend.common.viewmodel.moneyusage
 
-import androidx.compose.animation.fadeIn
-import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.ApolloResponse
-import com.apollographql.apollo3.api.Optional
 import kotlinx.datetime.LocalDateTime
+import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.Optional
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenDeleteUsageMutation
@@ -34,7 +32,7 @@ public class MoneyUsageScreenViewModelApi(
                             date = Optional.present(date),
                             subCategoryId = Optional.present(subCategoryId),
                         ),
-                    )
+                    ),
                 )
                 .execute()
         }.map {
@@ -43,7 +41,7 @@ public class MoneyUsageScreenViewModelApi(
             it.printStackTrace()
         }.fold(
             onSuccess = { it != null },
-            onFailure = { false }
+            onFailure = { false },
         )
     }
 
@@ -53,7 +51,7 @@ public class MoneyUsageScreenViewModelApi(
                 .mutation(
                     MoneyUsageScreenDeleteUsageMutation(
                         id = id,
-                    )
+                    ),
                 )
                 .execute()
         }.map {
@@ -62,7 +60,7 @@ public class MoneyUsageScreenViewModelApi(
             it.printStackTrace()
         }.fold(
             onSuccess = { it == true },
-            onFailure = { false }
+            onFailure = { false },
         )
     }
 }

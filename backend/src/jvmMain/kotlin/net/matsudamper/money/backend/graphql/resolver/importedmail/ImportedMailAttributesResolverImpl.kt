@@ -1,5 +1,7 @@
 package net.matsudamper.money.backend.graphql.resolver.importedmail
 
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.graphql.GraphQlContext
@@ -13,8 +15,6 @@ import net.matsudamper.money.graphql.model.QlImportedMailConnection
 import net.matsudamper.money.graphql.model.QlImportedMailQuery
 import net.matsudamper.money.graphql.model.QlImportedMailQueryFilter
 import net.matsudamper.money.graphql.model.QlImportedMailSortKey
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.CompletionStage
 
 public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver {
     override fun count(

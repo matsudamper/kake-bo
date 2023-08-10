@@ -1,7 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.moneyusage
 
-import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.ApolloResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -10,6 +8,8 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
+import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -24,7 +24,6 @@ import net.matsudamper.money.frontend.graphql.MoneyUsageScreenQuery
 import net.matsudamper.money.frontend.graphql.fragment.MoneyUsageScreenMoneyUsage
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
-
 
 public class MoneyUsageScreenViewModel(
     private val coroutineScope: CoroutineScope,
@@ -55,7 +54,7 @@ public class MoneyUsageScreenViewModel(
         }
         val viewModel = CategorySelectDialogViewModel(
             coroutineScope = coroutineScope,
-            event = event
+            event = event,
         )
     }.viewModel
     public val uiStateFlow: StateFlow<MoneyUsageScreenUiState> = MutableStateFlow(
@@ -86,7 +85,7 @@ public class MoneyUsageScreenViewModel(
             textInputDialog = null,
             calendarDialog = null,
             categorySelectDialog = null,
-        )
+        ),
     ).also { uiStateFlow ->
         coroutineScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
@@ -115,7 +114,7 @@ public class MoneyUsageScreenViewModel(
                                         val category = subCategory.category
                                         "${subCategory.name} / ${category.name}"
                                     },
-                                    event = createMoneyUsageEvent(item = moneyUsage)
+                                    event = createMoneyUsageEvent(item = moneyUsage),
                                 ),
                                 linkedMails = moneyUsage.linkedMail.orEmpty().map { mail ->
                                     MoneyUsageScreenUiState.MailItem(
@@ -133,7 +132,7 @@ public class MoneyUsageScreenViewModel(
                                         },
                                     )
                                 }.toImmutableList(),
-                                event = createLoadedEvent()
+                                event = createLoadedEvent(),
                             )
                         }
                     }
@@ -163,7 +162,7 @@ public class MoneyUsageScreenViewModel(
                             onConfirm = {
                                 coroutineScope.launch {
                                     val isSuccess = api.deleteUsage(
-                                        id = moneyUsageId
+                                        id = moneyUsageId,
                                     )
                                     if (isSuccess) {
                                         dismissConfirmDialog()
@@ -176,7 +175,7 @@ public class MoneyUsageScreenViewModel(
                                 }
                             },
                             onDismiss = { dismissConfirmDialog() },
-                        )
+                        ),
                     )
                 }
             }
@@ -195,7 +194,7 @@ public class MoneyUsageScreenViewModel(
                                 coroutineScope.launch {
                                     val isSuccess = api.updateUsage(
                                         id = moneyUsageId,
-                                        title = text
+                                        title = text,
                                     )
                                     if (isSuccess) {
                                         dismissTextInputDialog()
@@ -206,7 +205,7 @@ public class MoneyUsageScreenViewModel(
                             },
                             default = item.title,
                             onCancel = { dismissTextInputDialog() },
-                        )
+                        ),
                     )
                 }
             }
@@ -228,7 +227,7 @@ public class MoneyUsageScreenViewModel(
                                 coroutineScope.launch {
                                     val isSuccess = api.updateUsage(
                                         id = moneyUsageId,
-                                        date = LocalDateTime(date, item.date.time)
+                                        date = LocalDateTime(date, item.date.time),
                                     )
                                     if (isSuccess) {
                                         dismissCalendarDialog()
@@ -245,7 +244,6 @@ public class MoneyUsageScreenViewModel(
             }
 
             override fun onClickAmountChange() {
-
             }
 
             override fun onClickDescription() {
@@ -258,7 +256,7 @@ public class MoneyUsageScreenViewModel(
                                 coroutineScope.launch {
                                     val isSuccess = api.updateUsage(
                                         id = moneyUsageId,
-                                        description = text
+                                        description = text,
                                     )
                                     if (isSuccess) {
                                         dismissTextInputDialog()
@@ -269,7 +267,7 @@ public class MoneyUsageScreenViewModel(
                             },
                             default = item.description,
                             onCancel = { dismissTextInputDialog() },
-                        )
+                        ),
                     )
                 }
             }
@@ -280,7 +278,7 @@ public class MoneyUsageScreenViewModel(
         apolloClient = apolloClient,
         query = MoneyUsageScreenQuery(
             id = moneyUsageId,
-        )
+        ),
     )
 
     init {

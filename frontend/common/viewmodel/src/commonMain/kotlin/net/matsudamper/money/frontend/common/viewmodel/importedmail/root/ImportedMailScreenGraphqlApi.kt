@@ -12,7 +12,7 @@ public class ImportedMailScreenGraphqlApi(
 ) {
     public suspend fun delete(
         id: ImportedMailId,
-    ) : Boolean {
+    ): Boolean {
         return runCatching {
             apolloClient
                 .mutation(ImportedMailScreenDeleteMailMutation(id = id))

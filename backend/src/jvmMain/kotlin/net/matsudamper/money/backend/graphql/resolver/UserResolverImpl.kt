@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.graphql.resolver
 
+import java.time.LocalDateTime
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
@@ -29,7 +30,6 @@ import net.matsudamper.money.graphql.model.QlMoneyUsagesQuery
 import net.matsudamper.money.graphql.model.QlUser
 import net.matsudamper.money.graphql.model.QlUserSettings
 import net.matsudamper.money.graphql.model.UserResolver
-import java.time.LocalDateTime
 
 class UserResolverImpl : UserResolver {
     override fun settings(
@@ -189,7 +189,7 @@ class UserResolverImpl : UserResolver {
     override fun importedMailCategoryFilter(
         user: QlUser,
         id: ImportedMailCategoryFilterId,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFilter?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         context.verifyUserSession()
@@ -204,7 +204,7 @@ class UserResolverImpl : UserResolver {
     override fun moneyUsage(
         user: QlUser,
         id: MoneyUsageId,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsage?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
@@ -213,7 +213,7 @@ class UserResolverImpl : UserResolver {
                 MoneyUsageDataLoaderDefine.Key(
                     userId = userId,
                     moneyUsageId = id,
-                )
+                ),
             )
         return CompletableFuture.allOf(moneyUsageFuture).thenApplyAsync {
             QlMoneyUsage(
@@ -245,7 +245,7 @@ private class MoneyUsagesCursor(
                     CursorParser.parseFromString(cursorString)[LAST_ID_KEY]!!.toInt(),
                 ),
                 lastDate = LocalDateTime.parse(
-                    CursorParser.parseFromString(cursorString)[LAST_DATE_KEY]!!
+                    CursorParser.parseFromString(cursorString)[LAST_DATE_KEY]!!,
                 ),
             )
         }

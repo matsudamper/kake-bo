@@ -503,7 +503,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     override fun deleteImportedMail(
         userMutation: QlUserMutation,
         id: ImportedMailId,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Boolean>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
@@ -521,7 +521,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     override fun deleteUsage(
         userMutation: QlUserMutation,
         id: MoneyUsageId,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Boolean>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
@@ -539,7 +539,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     override fun updateUsage(
         userMutation: QlUserMutation,
         query: QlUpdateUsageQuery,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsage>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
