@@ -19,7 +19,6 @@ internal object ShunsuguUsageService : MoneyUsageServices {
 
         val lines = ParseUtil.splitByNewLine(plain)
 
-
         val price = run price@{
             ParseUtil.getInt(
                 "お支払合計金額.*?：(.+?)円".toRegex(RegexOption.MULTILINE)
@@ -30,8 +29,10 @@ internal object ShunsuguUsageService : MoneyUsageServices {
 
         val description = run description@{
             val startIndex = lines.indexOfFirst { it.contains("【お買い上げ金額】") }
-            val endIndex = (lines.drop(startIndex + 1).indexOfFirst { it.contains("----------") }
-                .takeIf { it >= 0 } ?: return@description "")
+            val endIndex = (
+                lines.drop(startIndex + 1).indexOfFirst { it.contains("----------") }
+                    .takeIf { it >= 0 } ?: return@description ""
+                )
                 .plus(startIndex + 1)
 
             lines.subList(startIndex + 1, endIndex)

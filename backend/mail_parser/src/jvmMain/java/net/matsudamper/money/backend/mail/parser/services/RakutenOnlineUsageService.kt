@@ -27,17 +27,16 @@ internal object RakutenOnlineUsageService : MoneyUsageServices {
                         ?.groupValues?.getOrNull(1) ?: return@title null
 
                     ParseUtil.removeHtmlTag(result)
-                }
+                },
             )
             yield(
                 run title@{
                     "この度は提携サイト「\\*(.+?)\\*」にて楽天ペイ".toRegex(RegexOption.MULTILINE)
                         .find(plain)
                         ?.groupValues?.getOrNull(1) ?: return@title null
-                }
+                },
             )
         }.filterNotNull().firstOrNull() ?: return listOf()
-
 
         val price = run price@{
             val index = html.indexOf("小計：").takeIf { it >= 0 } ?: return listOf()
