@@ -121,9 +121,7 @@ public class ImportedMailScreenViewModel(
                 MailScreenUiState.LinkedUsage(
                     title = it.title,
                     amount = run amount@{
-                        val amount = it.amount
-
-                        val splitAmount = Formatter.formatMoney(amount)
+                        val splitAmount = Formatter.formatMoney(it.amount)
                         "${splitAmount}円"
                     },
                     category = run category@{
@@ -132,7 +130,7 @@ public class ImportedMailScreenViewModel(
 
                         "${category.name} / ${subCategory.name}"
                     },
-                    date = it.date.toString(),
+                    date = Formatter.formatDateTime(it.date),
                 )
             }.toImmutableList(),
             usageSuggest = mail.suggestUsages.mapIndexed { index, suggestUsage ->

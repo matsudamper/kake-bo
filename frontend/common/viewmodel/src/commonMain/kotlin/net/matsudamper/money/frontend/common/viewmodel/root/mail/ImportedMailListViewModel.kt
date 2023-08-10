@@ -17,6 +17,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailLis
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState.Filters.LinkStatus
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
+import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.ImportedMailListScreenMailPagingQuery
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
 
@@ -71,9 +72,12 @@ public class ImportedMailListViewModel(
                                             service = usage.serviceName.orEmpty(),
                                             amount = run price@{
                                                 val amount = usage.amount ?: return@price ""
-                                                "${amount}円"
+                                                "${Formatter.formatMoney(amount)}円"
                                             },
-                                            date = usage.dateTime?.toString().orEmpty(),
+                                            dateTime = run date@{
+                                                val dateTime = usage.dateTime ?: return@date ""
+                                                Formatter.formatDateTime(dateTime)
+                                            },
                                             category = run category@ {
                                                 val subCategory = usage.subCategory ?: return@category ""
                                                 val category = subCategory.category
