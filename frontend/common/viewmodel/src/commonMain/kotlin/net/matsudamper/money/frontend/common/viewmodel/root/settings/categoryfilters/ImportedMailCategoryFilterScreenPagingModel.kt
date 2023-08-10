@@ -13,7 +13,7 @@ public class ImportedMailCategoryFilterScreenPagingModel(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
     private val coroutineScope: CoroutineScope,
 ) {
-    private val pagingState = ApolloPagingResponseCollector.create<ImportedMailCategoryFiltersScreenPagingQuery.Data>(
+    private val pagingState = ApolloPagingResponseCollector<ImportedMailCategoryFiltersScreenPagingQuery.Data>(
         apolloClient = apolloClient,
         coroutineScope = coroutineScope,
     )
