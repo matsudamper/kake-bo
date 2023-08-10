@@ -51,12 +51,24 @@ class DbMailRepository(
         return AddUserResult.Success
     }
 
-    fun getCount(userId: UserId): Int? {
+    fun getCount(userId: UserId, isLinked: Boolean): Int? {
         return dbConnection.use { connection ->
             val result = DSL.using(connection)
                 .select(DSL.count())
                 .from(userMails)
-                .where(userMails.USER_ID.eq(userId.id))
+                .leftJoin(relation).on(
+                    relation.USER_MAIL_ID.eq(userMails.USER_MAIL_ID),
+                )
+                .where(
+                    DSL.value(true)
+                        .and(userMails.USER_ID.eq(userId.id))
+                        .and(
+                            when (isLinked) {
+                                true -> relation.MONEY_USAGE_ID.isNotNull
+                                false -> relation.MONEY_USAGE_ID.isNull
+                            },
+                        )
+                )
                 .fetchOne()
 
             result?.get(DSL.count())

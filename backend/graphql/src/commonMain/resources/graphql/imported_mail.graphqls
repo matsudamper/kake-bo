@@ -11,7 +11,7 @@ input ImportedMailQuery {
 }
 
 input ImportedMailQueryFilter {
-    isLinked: Boolean
+    isLinked: Boolean!
 }
 
 type ImportedMailConnection {
