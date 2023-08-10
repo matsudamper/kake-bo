@@ -24,6 +24,8 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -38,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -417,6 +420,11 @@ private fun MoneyUsageSuggestCard(
                         }
                         ClickableText(
                             text = text,
+                            style = LocalTextStyle.current.merge(
+                                SpanStyle(
+                                    color = LocalContentColor.current,
+                                ),
+                            ),
                             onClick = { index ->
                                 text.getUrlAnnotations(index, index).forEach {
                                     items.description.onClickUrl(it.item.url)
