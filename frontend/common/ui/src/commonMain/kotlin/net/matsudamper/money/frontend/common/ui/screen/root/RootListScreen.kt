@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -23,9 +24,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -59,13 +62,18 @@ public data class RootListScreenUiState(
         ) : LoadingState
     }
 
-    public data class Item(
-        val title: String,
-        val date: String,
-        val amount: String,
-        val category: String?,
-        val event: ItemEvent,
-    )
+    public sealed interface Item {
+        public data class Usage(
+            val title: String,
+            val date: String,
+            val amount: String,
+            val category: String?,
+            val event: ItemEvent,
+        ): Item
+        public data class Title(
+            val title: String,
+        ): Item
+    }
 
     @Immutable
     public interface ItemEvent {
@@ -171,16 +179,27 @@ private fun LoadedContent(
         item {
             Spacer(modifier = Modifier.heightIn(paddingValues.calculateTopPadding()))
         }
-        items(uiState.items) { item ->
-            ListItem(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        vertical = 6.dp,
+        items(
+            items = uiState.items,
+            contentType = { it::class },
+        ) { item ->
+            when(item) {
+                is RootListScreenUiState.Item.Title -> {
+                    ListItemTitle(
+                        modifier = Modifier.fillMaxWidth(),
+                        item = item,
                     )
-                    .padding(start = 12.dp),
-                item = item,
-            )
+                }
+                is RootListScreenUiState.Item.Usage -> {
+                    ListItemUsage(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp)
+                            .padding(start = 12.dp),
+                        item = item,
+                    )
+                }
+            }
         }
         if (uiState.loadToEnd.not()) {
             item {
@@ -207,11 +226,27 @@ private fun LoadedContent(
     }
 }
 
+@Composable
+private fun ListItemTitle(
+    modifier: Modifier = Modifier,
+    item: RootListScreenUiState.Item.Title,
+) {
+    Column(modifier = modifier) {
+        Text(
+            modifier = Modifier.padding(8.dp),
+            text = item.title,
+            style = MaterialTheme.typography.titleLarge
+        )
+        Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+        Spacer(modifier = Modifier.height(8.dp))
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ListItem(
+private fun ListItemUsage(
     modifier: Modifier = Modifier,
-    item: RootListScreenUiState.Item,
+    item: RootListScreenUiState.Item.Usage,
 ) {
     Card(
         modifier = modifier,

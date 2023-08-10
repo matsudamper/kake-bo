@@ -10,6 +10,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.RootListScreenUiState
@@ -57,36 +60,54 @@ public class RootListViewModel(
         coroutineScope.launch {
             viewModelStateFlow
                 .collectLatest { viewModelState ->
-                    val items = viewModelState.results.mapNotNull { state ->
+                    val nodes = viewModelState.results.mapNotNull { state ->
                         state.getSuccessOrNull()?.value
                     }.flatMap {
                         it.data?.user?.moneyUsages?.nodes.orEmpty()
-                    }.map { result ->
-                        RootListScreenUiState.Item(
-                            title = result.title,
-                            amount = "${Formatter.formatMoney(result.amount)}円",
-                            date = result.date.toString(),
-                            category = run category@{
-                                val subCategory =
-                                    result.moneyUsageSubCategory ?: return@category null
+                    }
+                    val items = buildList {
+                        var lastMonth: LocalDateTime? = null
+                        nodes.forEach { result ->
+                            if (lastMonth == null || lastMonth?.month != result.date.month) {
+                                add(
+                                    RootListScreenUiState.Item.Title(
+                                        title = buildString {
+                                            append("${result.date.year}年")
+                                            append("${result.date.monthNumber}月")
+                                        },
+                                    )
+                                )
+                                lastMonth = result.date
+                            }
+                            add(
+                                RootListScreenUiState.Item.Usage(
+                                    title = result.title,
+                                    amount = "${Formatter.formatMoney(result.amount)}円",
+                                    date = result.date.toString(),
+                                    category = run category@{
+                                        val subCategory =
+                                            result.moneyUsageSubCategory ?: return@category null
 
-                                "${subCategory.name} / ${subCategory.category.name}"
-                            },
-                            event = object : RootListScreenUiState.ItemEvent {
-                                override fun onClick() {
-                                    coroutineScope.launch {
-                                        viewModelEventSender.send {
-                                            it.navigate(
-                                                ScreenStructure.MoneyUsage(
-                                                    id = result.id,
-                                                )
-                                            )
+                                        "${subCategory.name} / ${subCategory.category.name}"
+                                    },
+                                    event = object : RootListScreenUiState.ItemEvent {
+                                        override fun onClick() {
+                                            coroutineScope.launch {
+                                                viewModelEventSender.send {
+                                                    it.navigate(
+                                                        ScreenStructure.MoneyUsage(
+                                                            id = result.id,
+                                                        ),
+                                                    )
+                                                }
+                                            }
                                         }
-                                    }
-                                }
-                            },
-                        )
+                                    },
+                                )
+                            )
+                        }
                     }.toImmutableList()
+
                     val hasMore = viewModelState.results.lastOrNull()
                         ?.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.hasMore
                         ?: true
