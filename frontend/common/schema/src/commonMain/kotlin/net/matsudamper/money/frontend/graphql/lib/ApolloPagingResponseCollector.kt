@@ -78,6 +78,9 @@ class ApolloPagingResponseCollector<D : Query.Data>(
         collectorFlow.update {
             listOf()
         }
+        _flow.update {
+            listOf()
+        }
     }
 
     companion object {
