@@ -33,6 +33,7 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreen
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
 import net.matsudamper.money.frontend.common.ui.screen.importedmail.html.ImportedMailHtmlScreen
+import net.matsudamper.money.frontend.common.ui.screen.importedmail.plain.ImportedMailPlainScreen
 import net.matsudamper.money.frontend.common.ui.screen.importedmail.root.ImportedMailScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreenUiState
@@ -431,7 +432,7 @@ private fun Content(
                         viewModelEventHandlers.handle(viewModel.viewModelEventHandler)
                     }
 
-                    ImportedMailHtmlScreen(
+                    ImportedMailPlainScreen(
                         modifier = Modifier.fillMaxSize(),
                         uiState = viewModel.uiStateFlow.collectAsState().value,
                         kakeboScaffoldListener = kakeboScaffoldListener,

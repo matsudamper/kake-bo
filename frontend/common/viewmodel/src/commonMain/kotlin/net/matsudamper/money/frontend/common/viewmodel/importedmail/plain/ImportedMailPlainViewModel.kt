@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.apollographql.apollo3.ApolloClient
 import net.matsudamper.money.element.ImportedMailId
-import net.matsudamper.money.frontend.common.ui.screen.importedmail.html.ImportedMailHtmlScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.importedmail.plain.ImportedMailPlainScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.GraphqlClient
@@ -35,10 +35,10 @@ public class ImportedMailPlainViewModel(
         ),
     )
 
-    public val uiStateFlow: StateFlow<ImportedMailHtmlScreenUiState> = MutableStateFlow(
-        ImportedMailHtmlScreenUiState(
-            loadingState = ImportedMailHtmlScreenUiState.LoadingState.Loading,
-            event = object : ImportedMailHtmlScreenUiState.Event {
+    public val uiStateFlow: StateFlow<ImportedMailPlainScreenUiState> = MutableStateFlow(
+        ImportedMailPlainScreenUiState(
+            loadingState = ImportedMailPlainScreenUiState.LoadingState.Loading,
+            event = object : ImportedMailPlainScreenUiState.Event {
                 override fun onViewInitialized() {
                     fetch()
                 }
@@ -61,16 +61,16 @@ public class ImportedMailPlainViewModel(
             viewModelStateFlow.collectLatest { viewModelState ->
                 val loadingState = when (val resultWrapper = viewModelState.apolloResponseState) {
                     is ApolloResponseState.Failure -> {
-                        ImportedMailHtmlScreenUiState.LoadingState.Error
+                        ImportedMailPlainScreenUiState.LoadingState.Error
                     }
 
                     is ApolloResponseState.Success -> {
                         val mail = resultWrapper.value.data?.user?.importedMailAttributes?.mail
 
                         if (mail == null) {
-                            ImportedMailHtmlScreenUiState.LoadingState.Error
+                            ImportedMailPlainScreenUiState.LoadingState.Error
                         } else {
-                            ImportedMailHtmlScreenUiState.LoadingState.Loaded(
+                            ImportedMailPlainScreenUiState.LoadingState.Loaded(
                                 html = sequence {
                                     yield(
                                         mail.plain
@@ -83,7 +83,7 @@ public class ImportedMailPlainViewModel(
                     }
 
                     is ApolloResponseState.Loading -> {
-                        ImportedMailHtmlScreenUiState.LoadingState.Loading
+                        ImportedMailPlainScreenUiState.LoadingState.Loading
                     }
                 }
                 uiStateFlow.update {
