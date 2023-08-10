@@ -15,6 +15,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.RootListScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
+import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.UsageListScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloPagingResponseCollector
@@ -63,7 +64,7 @@ public class RootListViewModel(
                     }.map { result ->
                         RootListScreenUiState.Item(
                             title = result.title,
-                            amount = result.amount.toString(),
+                            amount = "${Formatter.formatMoney(result.amount)}円",
                             date = result.date.toString(),
                             category = run category@{
                                 val subCategory =
