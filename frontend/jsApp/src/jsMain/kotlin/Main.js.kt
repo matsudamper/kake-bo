@@ -32,8 +32,8 @@ import net.matsudamper.money.frontend.common.ui.base.MySnackBarHost
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreen
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
-import net.matsudamper.money.frontend.common.ui.screen.importedmail.ImportedMailScreen
-import net.matsudamper.money.frontend.common.ui.screen.importedmailcontent.ImportedMailContentScreen
+import net.matsudamper.money.frontend.common.ui.screen.importedmail.root.ImportedMailScreen
+import net.matsudamper.money.frontend.common.ui.screen.importedmailcontent.ImportedMailHtmlScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.moneyusage.MoneyUsageScreen
@@ -45,10 +45,10 @@ import net.matsudamper.money.frontend.common.viewmodel.addmoneyusage.AddMoneyUsa
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminAddUserScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminLoginScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminRootScreenViewModel
-import net.matsudamper.money.frontend.common.viewmodel.importedmail.ImportedMailScreenGraphqlApi
-import net.matsudamper.money.frontend.common.viewmodel.importedmail.ImportedMailScreenViewModel
-import net.matsudamper.money.frontend.common.viewmodel.importedmailcontent.ImportedMailContentScreenGraphqlApi
-import net.matsudamper.money.frontend.common.viewmodel.importedmailcontent.ImportedMailContentViewModel
+import net.matsudamper.money.frontend.common.viewmodel.importedmail.root.ImportedMailScreenGraphqlApi
+import net.matsudamper.money.frontend.common.viewmodel.importedmail.root.ImportedMailScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.importedmail.html.ImportedMailHtmlViewModel
+import net.matsudamper.money.frontend.common.viewmodel.importedmail.plain.ImportedMailPlainViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScreenViewModelApi
@@ -400,20 +400,37 @@ private fun Content(
                     )
                 }
 
-                is ScreenStructure.ImportedMailContent -> {
+                is ScreenStructure.ImportedMailHTML -> {
                     val coroutineScope = rememberCoroutineScope()
                     val viewModel = remember {
-                        ImportedMailContentViewModel(
+                        ImportedMailHtmlViewModel(
                             id = current.id,
                             coroutineScope = coroutineScope,
-                            api = ImportedMailContentScreenGraphqlApi(),
                         )
                     }
                     LaunchedEffect(viewModel.viewModelEventHandler) {
                         viewModelEventHandlers.handle(viewModel.viewModelEventHandler)
                     }
 
-                    ImportedMailContentScreen(
+                    ImportedMailHtmlScreen(
+                        modifier = Modifier.fillMaxSize(),
+                        uiState = viewModel.uiStateFlow.collectAsState().value,
+                    )
+                }
+
+                is ScreenStructure.ImportedMailPlain -> {
+                    val coroutineScope = rememberCoroutineScope()
+                    val viewModel = remember {
+                        ImportedMailPlainViewModel(
+                            id = current.id,
+                            coroutineScope = coroutineScope,
+                        )
+                    }
+                    LaunchedEffect(viewModel.viewModelEventHandler) {
+                        viewModelEventHandlers.handle(viewModel.viewModelEventHandler)
+                    }
+
+                    ImportedMailHtmlScreen(
                         modifier = Modifier.fillMaxSize(),
                         uiState = viewModel.uiStateFlow.collectAsState().value,
                     )

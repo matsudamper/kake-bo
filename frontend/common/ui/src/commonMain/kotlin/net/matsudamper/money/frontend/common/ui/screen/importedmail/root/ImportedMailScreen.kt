@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.importedmail
+package net.matsudamper.money.frontend.common.ui.screen.importedmail.root
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -58,6 +59,8 @@ public data class MailScreenUiState(
             val mail: Mail,
             val usageSuggest: ImmutableList<UsageSuggest>,
             val usage: ImmutableList<LinkedUsage>,
+            val hasPlain: Boolean,
+            val hasHtml: Boolean,
             val event: LoadedEvent,
         ) : LoadingState
     }
@@ -102,7 +105,8 @@ public data class MailScreenUiState(
 
     @Immutable
     public interface LoadedEvent {
-        public fun onClickMailDetail()
+        public fun onClickMailHtml()
+        public fun onClickMailPlain()
     }
 
     @Immutable
@@ -234,9 +238,17 @@ private fun MainContent(
                 Row {
                     Spacer(modifier = Modifier.weight(1f))
                     OutlinedButton(
-                        onClick = { uiState.event.onClickMailDetail() },
+                        enabled = uiState.hasPlain,
+                        onClick = { uiState.event.onClickMailPlain() },
                     ) {
-                        Text("メール本文")
+                        Text("メールテキスト")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    OutlinedButton(
+                        enabled = uiState.hasHtml,
+                        onClick = { uiState.event.onClickMailHtml() },
+                    ) {
+                        Text("メールHTML")
                     }
                 }
                 Spacer(modifier = Modifier.height(12.dp))

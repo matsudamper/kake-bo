@@ -4,7 +4,8 @@ query ImportedMailScreen($id: ImportedMailId!) {
             mail(id: $id) {
                 id
                 from
-                plain
+                hasPlain
+                hasHtml
                 subject
                 dateTime
                 usages {

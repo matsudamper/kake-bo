@@ -1,5 +1,6 @@
-package net.matsudamper.money.frontend.common.viewmodel.importedmailcontent
+package net.matsudamper.money.frontend.common.viewmodel.importedmail.plain
 
+import com.apollographql.apollo3.api.ApolloResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -7,30 +8,37 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import com.apollographql.apollo3.api.ApolloResponse
+import com.apollographql.apollo3.ApolloClient
 import net.matsudamper.money.element.ImportedMailId
-import net.matsudamper.money.frontend.common.ui.screen.importedmailcontent.ImportedMailContentScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.importedmail.html.ImportedMailHtmlScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
-import net.matsudamper.money.frontend.graphql.ImportedMailContentScreenQuery
+import net.matsudamper.money.frontend.graphql.GraphqlClient
+import net.matsudamper.money.frontend.graphql.ImportedMailPlainScreenQuery
+import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
-public class ImportedMailContentViewModel(
-    private val id: ImportedMailId,
+public class ImportedMailPlainViewModel(
+    id: ImportedMailId,
     private val coroutineScope: CoroutineScope,
-    private val api: ImportedMailContentScreenGraphqlApi,
+    apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
-    private val apolloResponseCollector = api.get(id = id)
+    private val apolloResponseCollector = ApolloResponseCollector.create(
+        apolloClient = apolloClient,
+        query = ImportedMailPlainScreenQuery(
+            id = id,
+        ),
+    )
 
-    public val uiStateFlow: StateFlow<ImportedMailContentScreenUiState> = MutableStateFlow(
-        ImportedMailContentScreenUiState(
-            loadingState = ImportedMailContentScreenUiState.LoadingState.Loading,
-            event = object : ImportedMailContentScreenUiState.Event {
+    public val uiStateFlow: StateFlow<ImportedMailHtmlScreenUiState> = MutableStateFlow(
+        ImportedMailHtmlScreenUiState(
+            loadingState = ImportedMailHtmlScreenUiState.LoadingState.Loading,
+            event = object : ImportedMailHtmlScreenUiState.Event {
                 override fun onViewInitialized() {
                     fetch()
                 }
@@ -53,22 +61,21 @@ public class ImportedMailContentViewModel(
             viewModelStateFlow.collectLatest { viewModelState ->
                 val loadingState = when (val resultWrapper = viewModelState.apolloResponseState) {
                     is ApolloResponseState.Failure -> {
-                        ImportedMailContentScreenUiState.LoadingState.Error
+                        ImportedMailHtmlScreenUiState.LoadingState.Error
                     }
 
                     is ApolloResponseState.Success -> {
                         val mail = resultWrapper.value.data?.user?.importedMailAttributes?.mail
 
                         if (mail == null) {
-                            ImportedMailContentScreenUiState.LoadingState.Error
+                            ImportedMailHtmlScreenUiState.LoadingState.Error
                         } else {
-                            ImportedMailContentScreenUiState.LoadingState.Loaded(
+                            ImportedMailHtmlScreenUiState.LoadingState.Loaded(
                                 html = sequence {
-                                    yield(mail.html)
                                     yield(
                                         mail.plain
                                             ?.replace("\r\n", "<br>")
-                                            ?.replace("\n", "<br>"),
+                                            ?.replace("\n", "<br>")
                                     )
                                 }.filterNotNull().firstOrNull().orEmpty(),
                             )
@@ -76,7 +83,7 @@ public class ImportedMailContentViewModel(
                     }
 
                     is ApolloResponseState.Loading -> {
-                        ImportedMailContentScreenUiState.LoadingState.Loading
+                        ImportedMailHtmlScreenUiState.LoadingState.Loading
                     }
                 }
                 uiStateFlow.update {
@@ -106,6 +113,6 @@ public class ImportedMailContentViewModel(
     }
 
     private data class ViewModelState(
-        val apolloResponseState: ApolloResponseState<ApolloResponse<ImportedMailContentScreenQuery.Data>> = ApolloResponseState.loading(),
+        val apolloResponseState: ApolloResponseState<ApolloResponse<ImportedMailPlainScreenQuery.Data>> = ApolloResponseState.loading(),
     )
 }

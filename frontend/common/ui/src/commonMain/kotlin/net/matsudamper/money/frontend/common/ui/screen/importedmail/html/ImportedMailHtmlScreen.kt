@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.importedmailcontent
+package net.matsudamper.money.frontend.common.ui.screen.importedmail.html
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,7 +18,7 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
 
-public data class ImportedMailContentScreenUiState(
+public data class ImportedMailHtmlScreenUiState(
     val loadingState: LoadingState,
     val event: Event,
 ) {
@@ -38,15 +38,15 @@ public data class ImportedMailContentScreenUiState(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-public fun ImportedMailContentScreen(
+public fun ImportedMailHtmlScreen(
     modifier: Modifier = Modifier,
-    uiState: ImportedMailContentScreenUiState,
+    uiState: ImportedMailHtmlScreenUiState,
 ) {
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
     }
     when (uiState.loadingState) {
-        is ImportedMailContentScreenUiState.LoadingState.Loaded -> {
+        is ImportedMailHtmlScreenUiState.LoadingState.Loaded -> {
             Html(
                 html = uiState.loadingState.html,
                 onDismissRequest = {
@@ -54,7 +54,7 @@ public fun ImportedMailContentScreen(
                 },
             )
         }
-        is ImportedMailContentScreenUiState.LoadingState.Loading -> {
+        is ImportedMailHtmlScreenUiState.LoadingState.Loading -> {
             Scaffold(
                 modifier = modifier,
                 topBar = {
@@ -77,7 +77,7 @@ public fun ImportedMailContentScreen(
             }
         }
 
-        ImportedMailContentScreenUiState.LoadingState.Error -> {
+        ImportedMailHtmlScreenUiState.LoadingState.Error -> {
             LoadingErrorContent(
                 modifier = modifier,
                 onClickRetry = {

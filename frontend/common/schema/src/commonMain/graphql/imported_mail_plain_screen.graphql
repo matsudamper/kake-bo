@@ -1,9 +1,8 @@
-query ImportedMailContentScreen($id: ImportedMailId!) {
+query ImportedMailPlainScreen($id: ImportedMailId!) {
     user {
         importedMailAttributes {
             mail(id: $id) {
                 id
-                html
                 plain
             }
         }
