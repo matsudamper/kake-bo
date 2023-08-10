@@ -6,8 +6,9 @@ import java.time.LocalTime
 import net.matsudamper.money.backend.base.element.MoneyUsageServiceType
 import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
+import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 
-internal object RakutenUsageService : MoneyUsageServices {
+internal object RakutenOfflineUsageService : MoneyUsageServices {
     override val displayName: String = "Rakuten Pay"
 
     override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): List<MoneyUsage> {
@@ -19,12 +20,11 @@ internal object RakutenUsageService : MoneyUsageServices {
         if (canHandle.any { it }.not()) return listOf()
 
         val price = run price@{
-            "決済総額(.+?)$".toRegex(RegexOption.MULTILINE)
-                .find(plain)
-                ?.groupValues?.getOrNull(1)
-                ?.mapNotNull { it.toString().toIntOrNull() }
-                ?.joinToString("")
-                ?.toIntOrNull()
+            ParseUtil.getInt(
+                "決済総額(.+?)$".toRegex(RegexOption.MULTILINE)
+                    .find(plain)
+                    ?.groupValues?.getOrNull(1) ?: return@price null
+            )
         }
 
         val title = run price@{

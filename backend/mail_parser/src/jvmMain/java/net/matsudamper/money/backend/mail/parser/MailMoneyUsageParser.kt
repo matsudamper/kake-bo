@@ -7,7 +7,8 @@ import net.matsudamper.money.backend.mail.parser.services.GooglePlayUsageService
 import net.matsudamper.money.backend.mail.parser.services.MacdonaldsMobileOrderUsageService
 import net.matsudamper.money.backend.mail.parser.services.MovieTicketUsageService
 import net.matsudamper.money.backend.mail.parser.services.PayPalUsageService
-import net.matsudamper.money.backend.mail.parser.services.RakutenUsageService
+import net.matsudamper.money.backend.mail.parser.services.RakutenOfflineUsageService
+import net.matsudamper.money.backend.mail.parser.services.RakutenOnlineUsageService
 import net.matsudamper.money.backend.mail.parser.services.SteamUsageService
 import net.matsudamper.money.backend.mail.parser.services.UberEatsUsageService
 import net.matsudamper.money.backend.mail.parser.services.YodobashiUsageService
@@ -25,7 +26,8 @@ public class MailMoneyUsageParser {
             YodobashiUsageService,
             MovieTicketUsageService,
             SteamUsageService,
-            RakutenUsageService,
+            RakutenOfflineUsageService,
+            RakutenOnlineUsageService,
             PayPalUsageService,
             MacdonaldsMobileOrderUsageService,
             GooglePlayUsageService,
