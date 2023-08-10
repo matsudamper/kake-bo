@@ -17,6 +17,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 class ApolloPagingResponseCollector<D : Query.Data>(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
     private val coroutineScope: CoroutineScope,
+    private val fetchPolicy: FetchPolicy = FetchPolicy.NetworkOnly,
 ) {
     private val collectorFlow: MutableStateFlow<List<ApolloResponseCollector<D>>> =
         MutableStateFlow(listOf())
@@ -60,7 +61,7 @@ class ApolloPagingResponseCollector<D : Query.Data>(
                     apolloClient = apolloClient,
                     query = query,
                     fetchThrows = true,
-                    fetchPolicy = FetchPolicy.CacheAndNetwork,
+                    fetchPolicy = fetchPolicy,
                 )
             collector = tmp
             collectors + tmp
@@ -83,10 +84,12 @@ class ApolloPagingResponseCollector<D : Query.Data>(
         fun <D : Query.Data> create(
             apolloClient: ApolloClient,
             coroutineScope: CoroutineScope,
+            fetchPolicy: FetchPolicy = FetchPolicy.NetworkOnly,
         ): ApolloPagingResponseCollector<D> {
             return ApolloPagingResponseCollector(
                 apolloClient = apolloClient,
                 coroutineScope = coroutineScope,
+                fetchPolicy = fetchPolicy,
             )
         }
     }
