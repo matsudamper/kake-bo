@@ -83,12 +83,19 @@ public class RootListViewModel(
                                 RootListScreenUiState.Item.Usage(
                                     title = result.title,
                                     amount = "${Formatter.formatMoney(result.amount)}円",
-                                    date = result.date.toString(),
+                                    date = buildString {
+                                        append("${result.date.year}/${result.date.monthNumber}/${result.date.dayOfMonth}")
+                                        append("(${Formatter.dayOfWeekToJapanese(result.date.dayOfWeek)})")
+                                        append(" ")
+                                        append(result.date.hour.toString().padStart(2, padChar = '0'))
+                                        append(":")
+                                        append(result.date.minute.toString().padStart(2, padChar = '0'))
+                                    },
                                     category = run category@{
                                         val subCategory =
                                             result.moneyUsageSubCategory ?: return@category null
 
-                                        "${subCategory.name} / ${subCategory.category.name}"
+                                        "${subCategory.category.name} / ${subCategory.name}"
                                     },
                                     event = object : RootListScreenUiState.ItemEvent {
                                         override fun onClick() {
