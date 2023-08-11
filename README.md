@@ -9,17 +9,17 @@
 
 # 使用技術
 - フロント
-  - Kotlin/JS
-  - Jetbrains Compose Multiplatform Web
-  - Jetbrains Compose HTML
-  - Apollo
+  - [Kotlin/JS](https://kotlinlang.org/docs/js-overview.html)
+  - [Jetbrains Compose Multiplatform Web](https://www.jetbrains.com/lp/compose-multiplatform/)
+  - [Jetbrains Compose HTML](https://github.com/JetBrains/compose-multiplatform#compose-html)
+  - [Apollo](https://www.apollographql.com/)
 - バックエンド
-  - Ktor
+  - [Ktor](https://ktor.io/)
   - [GraqhQL Java](https://www.graphql-java.com/)
   - [GraphQL Java Kickstart](https://www.graphql-java-kickstart.com/)
   - [graphql-java-codegen](https://github.com/kobylynskyi/graphql-java-codegen)
 - API
-  - GraphQL
+  - [GraphQL](https://graphql.org/)
  
 # 準備するもの
 - メールサーバー
