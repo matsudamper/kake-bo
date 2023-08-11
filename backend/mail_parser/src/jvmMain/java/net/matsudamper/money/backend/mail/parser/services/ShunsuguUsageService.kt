@@ -44,7 +44,7 @@ internal object ShunsuguUsageService : MoneyUsageServices {
                 title = displayName,
                 price = price,
                 description = description,
-                service = MoneyUsageServiceType.ESekiReserve,
+                service = MoneyUsageServiceType.Shunsugu,
                 dateTime = date,
             ),
         )
