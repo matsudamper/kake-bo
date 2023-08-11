@@ -4,6 +4,8 @@ import java.time.LocalDateTime
 import net.matsudamper.money.backend.base.element.MoneyUsageServiceType
 import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
+import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
+import org.jsoup.Jsoup
 
 internal object UberEatsUsageService : MoneyUsageServices {
     override val displayName: String = "UberEats"
@@ -12,30 +14,33 @@ internal object UberEatsUsageService : MoneyUsageServices {
         val canHandle = sequence {
             yield(canHandledWithFrom(from))
             yield(canHandledWithSubject(subject))
-            yield(canHandledWithPlain(plain))
+            yield(canHandledWithHtml(html))
         }
         if (canHandle.any { it }.not()) return listOf()
 
+        val htmlDocument = Jsoup.parse(html)
         val price = run price@{
-            "合計 ￥(.+?)$".toRegex(RegexOption.MULTILINE)
-                .find(plain)
-                ?.groupValues?.getOrNull(1)
-                ?.mapNotNull { it.toString().toIntOrNull() }
-                ?.joinToString("")
-                ?.toIntOrNull()
+            val regex = "^合計.*?￥(.+?\\d)$".toRegex(RegexOption.MULTILINE)
+            val result = htmlDocument.allElements.asSequence()
+                .mapNotNull { regex.find(it.text()) }
+                .firstOrNull()
+                ?.groupValues?.getOrNull(1) ?: return@price null
+            ParseUtil.getInt(result)
         }
 
         val title = run price@{
-            "^(.+?)の領収書をお受け取りください。$".toRegex(RegexOption.MULTILINE)
-                .find(plain)
+            val regex = "^(.+?)の領収書をお受け取りください。$".toRegex(RegexOption.MULTILINE)
+            val value = htmlDocument.allElements.asSequence()
+                .mapNotNull { regex.find(it.text()) }
+                .firstOrNull()
                 ?.groupValues?.getOrNull(1)
-                ?.trimStart()
-                ?.trimEnd()
+                ?: return@price ""
+            value
         }
 
         return listOf(
             MoneyUsage(
-                title = "[$displayName]$title",
+                title = title,
                 price = price,
                 description = "",
                 service = MoneyUsageServiceType.UberEats,
@@ -52,7 +57,7 @@ internal object UberEatsUsageService : MoneyUsageServices {
         return subject.startsWith("Uber Eats のご注文")
     }
 
-    private fun canHandledWithPlain(plain: String): Boolean {
-        return plain.contains("Uber Eats Japan合同会社")
+    private fun canHandledWithHtml(value: String): Boolean {
+        return value.contains("Uber Eats Japan合同会社")
     }
 }
