@@ -1,0 +1,2 @@
+ALTER TABLE money.user_mails MODIFY COLUMN html LONGTEXT;
+ALTER TABLE money.user_mails MODIFY COLUMN plain LONGTEXT;

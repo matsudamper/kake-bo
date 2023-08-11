@@ -55,8 +55,8 @@ CREATE TABLE user_mails
 (
     user_mail_id     INT                                not null PRIMARY KEY AUTO_INCREMENT,
     user_id          INT                                not null,
-    plain            TEXT,
-    html             TEXT,
+    plain            LONGTEXT,
+    html             LONGTEXT,
     from_mail        VARCHAR(500)                       not null,
     subject          VARCHAR(500)                       not null,
     datetime         DATETIME                           not null,
