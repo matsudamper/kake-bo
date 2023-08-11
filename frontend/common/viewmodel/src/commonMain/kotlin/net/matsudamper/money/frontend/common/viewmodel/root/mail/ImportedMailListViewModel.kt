@@ -78,7 +78,7 @@ public class ImportedMailListViewModel(
                                                 val dateTime = usage.dateTime ?: return@date ""
                                                 Formatter.formatDateTime(dateTime)
                                             },
-                                            category = run category@ {
+                                            category = run category@{
                                                 val subCategory = usage.subCategory ?: return@category ""
                                                 val category = subCategory.category
 

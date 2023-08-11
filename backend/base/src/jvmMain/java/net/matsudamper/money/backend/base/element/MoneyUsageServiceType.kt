@@ -56,6 +56,6 @@ public enum class MoneyUsageServiceType(
         id = 14,
         displayName = "旬すぐ",
     ),
-    
+
     ;
 }

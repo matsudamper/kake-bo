@@ -45,9 +45,9 @@ class ImportMailUseCase(
                         from = mail.from.firstOrNull().orEmpty(),
                     )
 
-                    when(result) {
+                    when (result) {
                         is DbMailRepository.AddUserResult.Failed -> {
-                            when(val error = result.error) {
+                            when (val error = result.error) {
                                 is DbMailRepository.AddUserResult.ErrorType.InternalServerError -> {
                                     throw error.e
                                 }
