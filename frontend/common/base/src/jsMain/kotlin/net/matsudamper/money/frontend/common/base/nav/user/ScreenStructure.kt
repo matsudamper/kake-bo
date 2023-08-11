@@ -93,8 +93,14 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
             }
         }
 
-        public class List : Root {
-            override val direction: Screens = Screens.List
+        public sealed interface Usage : Root {
+            public class List : Usage {
+                override val direction: Screens = Screens.UsageList
+            }
+
+            public class Calendar : Usage {
+                override val direction: Screens = Screens.UsageCalendar
+            }
         }
     }
 

@@ -96,69 +96,60 @@ public data class RootUsageListScreenUiState(
 public fun RootUsageListScreen(
     modifier: Modifier = Modifier,
     uiState: RootUsageListScreenUiState,
-    listener: RootScreenScaffoldListener,
 ) {
     val density = LocalDensity.current
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
     }
+    BoxWithConstraints(modifier) {
+        val height = maxHeight
+        when (uiState.loadingState) {
+            is RootUsageListScreenUiState.LoadingState.Loaded -> {
+                val lazyListState = rememberLazyListState()
+                LoadedContent(
+                    modifier = Modifier.fillMaxSize(),
+                    uiState = uiState.loadingState,
+                    paddingValues = PaddingValues(
+                        end = ScrollButtonDefaults.scrollButtonHorizontalPadding * 2 + ScrollButtonDefaults.scrollButtonSize,
+                    ),
+                    lazyListState = lazyListState,
+                )
 
-    RootScreenScaffold(
-        modifier = modifier.fillMaxSize(),
-        currentScreen = RootScreenTab.List,
-        listener = listener,
-        content = {
-            BoxWithConstraints(Modifier.fillMaxSize()) {
-                val height = maxHeight
-                when (uiState.loadingState) {
-                    is RootUsageListScreenUiState.LoadingState.Loaded -> {
-                        val lazyListState = rememberLazyListState()
-                        LoadedContent(
-                            modifier = Modifier.fillMaxSize(),
-                            uiState = uiState.loadingState,
-                            paddingValues = PaddingValues(
-                                end = ScrollButtonDefaults.scrollButtonHorizontalPadding * 2 + ScrollButtonDefaults.scrollButtonSize,
-                            ),
-                            lazyListState = lazyListState,
-                        )
-
-                        ScrollButton(
-                            modifier = Modifier
-                                .align(Alignment.CenterEnd)
-                                .fillMaxHeight()
-                                .padding(ScrollButtonDefaults.scrollButtonHorizontalPadding)
-                                .width(ScrollButtonDefaults.scrollButtonSize),
-                            scrollState = lazyListState,
-                            scrollSize = with(density) {
-                                height.toPx() * 0.7f
-                            },
-                            animationSpec = spring(
-                                stiffness = Spring.StiffnessLow,
-                            ),
-                        )
-                    }
-
-                    is RootUsageListScreenUiState.LoadingState.Loading -> {
-                        CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.Center),
-                        )
-                    }
-                }
-
-                FloatingActionButton(
-                    modifier = Modifier.align(Alignment.BottomEnd)
-                        .padding(end = ScrollButtonDefaults.scrollButtonHorizontalPadding * 2 + ScrollButtonDefaults.scrollButtonSize)
-                        .padding(bottom = 24.dp, end = 12.dp),
-                    onClick = { uiState.event.onClickAdd() },
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "add money usage",
-                    )
-                }
+                ScrollButton(
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .fillMaxHeight()
+                        .padding(ScrollButtonDefaults.scrollButtonHorizontalPadding)
+                        .width(ScrollButtonDefaults.scrollButtonSize),
+                    scrollState = lazyListState,
+                    scrollSize = with(density) {
+                        height.toPx() * 0.7f
+                    },
+                    animationSpec = spring(
+                        stiffness = Spring.StiffnessLow,
+                    ),
+                )
             }
-        },
-    )
+
+            is RootUsageListScreenUiState.LoadingState.Loading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                )
+            }
+        }
+
+        FloatingActionButton(
+            modifier = Modifier.align(Alignment.BottomEnd)
+                .padding(end = ScrollButtonDefaults.scrollButtonHorizontalPadding * 2 + ScrollButtonDefaults.scrollButtonSize)
+                .padding(bottom = 24.dp, end = 12.dp),
+            onClick = { uiState.event.onClickAdd() },
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "add money usage",
+            )
+        }
+    }
 }
 
 @Composable

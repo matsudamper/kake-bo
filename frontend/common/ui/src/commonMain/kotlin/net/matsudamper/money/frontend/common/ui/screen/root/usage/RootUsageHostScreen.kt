@@ -41,6 +41,7 @@ public fun RootUsageHostScreen(
     modifier: Modifier = Modifier,
     uiState: RootUsageHostScreenUiState,
     listener: RootScreenScaffoldListener,
+    content: @Composable () -> Unit,
 ) {
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
@@ -87,7 +88,7 @@ public fun RootUsageHostScreen(
             }
         },
         content = {
-            Text("TODO")
+            content()
         },
     )
 }

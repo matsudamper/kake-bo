@@ -31,9 +31,14 @@ public enum class Screens : Direction {
         override val placeholderUrl: String = "/settings/mail-category-filter/{id}"
     },
 
-    List {
+    UsageList {
         override val title: String = "リスト"
-        override val placeholderUrl: String = "/list"
+        override val placeholderUrl: String = "/usage/list"
+    },
+
+    UsageCalendar {
+        override val title: String = "カレンダー"
+        override val placeholderUrl: String = "/usage/calendar"
     },
 
     NotFound {

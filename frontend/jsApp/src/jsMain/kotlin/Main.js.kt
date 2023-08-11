@@ -187,7 +187,7 @@ private fun Content(
             }
 
             override fun onClickList() {
-                navController.navigate(ScreenStructure.Root.List())
+                navController.navigate(ScreenStructure.Root.Usage.List())
             }
 
             override fun onClickSettings() {

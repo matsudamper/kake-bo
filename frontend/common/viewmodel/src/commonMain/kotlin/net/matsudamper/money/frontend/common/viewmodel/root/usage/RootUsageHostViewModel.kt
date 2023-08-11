@@ -20,8 +20,8 @@ public class RootUsageHostViewModel(
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
-    private val viewModelEventSender = EventSender<Event>()
-    public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
+    private val eventSender = EventSender<Event>()
+    public val viewModelEventHandler: EventHandler<Event> = eventSender.asHandler()
 
     public val uiStateFlow: StateFlow<RootUsageHostScreenUiState> = MutableStateFlow(
         RootUsageHostScreenUiState(
@@ -32,12 +32,22 @@ public class RootUsageHostViewModel(
                 }
 
                 override fun onClickCalendar() {
+                    coroutineScope.launch {
+                        eventSender.send {
+                            it.navigate(ScreenStructure.Root.Usage.Calendar())
+                        }
+                    }
                     viewModelStateFlow.update {
                         it.copy(type = RootUsageHostScreenUiState.Type.Calendar)
                     }
                 }
 
                 override fun onClickList() {
+                    coroutineScope.launch {
+                        eventSender.send {
+                            it.navigate(ScreenStructure.Root.Usage.List())
+                        }
+                    }
                     viewModelStateFlow.update {
                         it.copy(type = RootUsageHostScreenUiState.Type.List)
                     }
