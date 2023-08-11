@@ -9,11 +9,16 @@
 
 # 使用技術
 - フロント
+  - Kotlin/JS
   - Jetbrains Compose Multiplatform Web
   - Jetbrains Compose HTML
+  - Apollo
 - バックエンド
   - Ktor
-- インターフェース
+  - [GraqhQL Java](https://www.graphql-java.com/)
+  - [GraphQL Java Kickstart](https://www.graphql-java-kickstart.com/)
+  - [graphql-java-codegen](https://github.com/kobylynskyi/graphql-java-codegen)
+- API
   - GraphQL
  
 # 準備するもの
