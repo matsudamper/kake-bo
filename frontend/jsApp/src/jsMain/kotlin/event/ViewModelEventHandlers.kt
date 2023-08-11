@@ -18,7 +18,7 @@ import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScre
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.list.RootListViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.list.RootUsageListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailLinkViewModelEvent
@@ -137,10 +137,10 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<RootListViewModel.Event>) {
+    suspend fun handle(handler: EventHandler<RootUsageListViewModel.Event>) {
         coroutineScope {
             handler.collect(
-                object : RootListViewModel.Event {
+                object : RootUsageListViewModel.Event {
                     override fun navigate(screenStructure: ScreenStructure) {
                         navController.navigate(screenStructure)
                     }

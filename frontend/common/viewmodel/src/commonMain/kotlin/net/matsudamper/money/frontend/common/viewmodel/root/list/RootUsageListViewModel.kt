@@ -13,17 +13,17 @@ import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.ui.screen.root.RootListScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.RootUsageListScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
-import net.matsudamper.money.frontend.graphql.UsageListScreenPagingQuery
+import net.matsudamper.money.frontend.graphql.UsageUsageListScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloPagingResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
 
-public class RootListViewModel(
+public class RootUsageListViewModel(
     private val coroutineScope: CoroutineScope,
     apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
@@ -32,15 +32,15 @@ public class RootListViewModel(
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
-    private val paging = ApolloPagingResponseCollector.create<UsageListScreenPagingQuery.Data>(
+    private val paging = ApolloPagingResponseCollector.create<UsageUsageListScreenPagingQuery.Data>(
         apolloClient = apolloClient,
         coroutineScope = coroutineScope,
     )
 
-    public val uiStateFlow: StateFlow<RootListScreenUiState> = MutableStateFlow(
-        RootListScreenUiState(
-            loadingState = RootListScreenUiState.LoadingState.Loading,
-            event = object : RootListScreenUiState.Event {
+    public val uiStateFlow: StateFlow<RootUsageListScreenUiState> = MutableStateFlow(
+        RootUsageListScreenUiState(
+            loadingState = RootUsageListScreenUiState.LoadingState.Loading,
+            event = object : RootUsageListScreenUiState.Event {
                 override fun onViewInitialized() {
                     fetch()
                 }
@@ -68,7 +68,7 @@ public class RootListViewModel(
                         nodes.forEach { result ->
                             if (lastMonth == null || lastMonth?.month != result.date.month) {
                                 add(
-                                    RootListScreenUiState.Item.Title(
+                                    RootUsageListScreenUiState.Item.Title(
                                         title = buildString {
                                             append("${result.date.year}年")
                                             append("${result.date.monthNumber}月")
@@ -78,7 +78,7 @@ public class RootListViewModel(
                                 lastMonth = result.date
                             }
                             add(
-                                RootListScreenUiState.Item.Usage(
+                                RootUsageListScreenUiState.Item.Usage(
                                     title = result.title,
                                     amount = "${Formatter.formatMoney(result.amount)}円",
                                     date = Formatter.formatDateTime(result.date),
@@ -88,7 +88,7 @@ public class RootListViewModel(
 
                                         "${subCategory.category.name} / ${subCategory.name}"
                                     },
-                                    event = object : RootListScreenUiState.ItemEvent {
+                                    event = object : RootUsageListScreenUiState.ItemEvent {
                                         override fun onClick() {
                                             coroutineScope.launch {
                                                 viewModelEventSender.send {
@@ -112,10 +112,10 @@ public class RootListViewModel(
 
                     uiStateFlow.update { uiState ->
                         uiState.copy(
-                            loadingState = RootListScreenUiState.LoadingState.Loaded(
+                            loadingState = RootUsageListScreenUiState.LoadingState.Loaded(
                                 loadToEnd = hasMore.not(),
                                 items = items,
-                                event = object : RootListScreenUiState.LoadedEvent {
+                                event = object : RootUsageListScreenUiState.LoadedEvent {
                                     override fun loadMore() {
                                         fetch()
                                     }
@@ -164,7 +164,7 @@ public class RootListViewModel(
                     cursor = result.cursor
                 }
             }
-            UsageListScreenPagingQuery(
+            UsageUsageListScreenPagingQuery(
                 query = MoneyUsagesQuery(
                     cursor = Optional.present(cursor),
                     size = 10,
@@ -178,6 +178,6 @@ public class RootListViewModel(
     }
 
     private data class ViewModelState(
-        val results: List<ApolloResponseState<ApolloResponse<UsageListScreenPagingQuery.Data>>> = listOf(),
+        val results: List<ApolloResponseState<ApolloResponse<UsageUsageListScreenPagingQuery.Data>>> = listOf(),
     )
 }

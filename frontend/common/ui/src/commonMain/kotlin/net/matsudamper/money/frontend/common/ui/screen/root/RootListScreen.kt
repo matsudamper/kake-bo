@@ -48,7 +48,7 @@ import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.layout.ScrollButton
 import net.matsudamper.money.frontend.common.ui.layout.ScrollButtonDefaults
 
-public data class RootListScreenUiState(
+public data class RootUsageListScreenUiState(
     val event: Event,
     val loadingState: LoadingState,
 ) {
@@ -95,7 +95,7 @@ public data class RootListScreenUiState(
 @Composable
 public fun RootListScreen(
     modifier: Modifier = Modifier,
-    uiState: RootListScreenUiState,
+    uiState: RootUsageListScreenUiState,
     listener: RootScreenScaffoldListener,
 ) {
     val density = LocalDensity.current
@@ -111,7 +111,7 @@ public fun RootListScreen(
             BoxWithConstraints(Modifier.fillMaxSize()) {
                 val height = maxHeight
                 when (uiState.loadingState) {
-                    is RootListScreenUiState.LoadingState.Loaded -> {
+                    is RootUsageListScreenUiState.LoadingState.Loaded -> {
                         val lazyListState = rememberLazyListState()
                         LoadedContent(
                             modifier = Modifier.fillMaxSize(),
@@ -138,7 +138,7 @@ public fun RootListScreen(
                         )
                     }
 
-                    is RootListScreenUiState.LoadingState.Loading -> {
+                    is RootUsageListScreenUiState.LoadingState.Loading -> {
                         CircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center),
                         )
@@ -164,7 +164,7 @@ public fun RootListScreen(
 @Composable
 private fun LoadedContent(
     modifier: Modifier = Modifier,
-    uiState: RootListScreenUiState.LoadingState.Loaded,
+    uiState: RootUsageListScreenUiState.LoadingState.Loaded,
     lazyListState: LazyListState,
     paddingValues: PaddingValues,
 ) {
@@ -184,13 +184,13 @@ private fun LoadedContent(
             contentType = { it::class },
         ) { item ->
             when (item) {
-                is RootListScreenUiState.Item.Title -> {
+                is RootUsageListScreenUiState.Item.Title -> {
                     ListItemTitle(
                         modifier = Modifier.fillMaxWidth(),
                         item = item,
                     )
                 }
-                is RootListScreenUiState.Item.Usage -> {
+                is RootUsageListScreenUiState.Item.Usage -> {
                     ListItemUsage(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -229,7 +229,7 @@ private fun LoadedContent(
 @Composable
 private fun ListItemTitle(
     modifier: Modifier = Modifier,
-    item: RootListScreenUiState.Item.Title,
+    item: RootUsageListScreenUiState.Item.Title,
 ) {
     Column(modifier = modifier) {
         Text(
@@ -246,7 +246,7 @@ private fun ListItemTitle(
 @Composable
 private fun ListItemUsage(
     modifier: Modifier = Modifier,
-    item: RootListScreenUiState.Item.Usage,
+    item: RootUsageListScreenUiState.Item.Usage,
 ) {
     Card(
         modifier = modifier,

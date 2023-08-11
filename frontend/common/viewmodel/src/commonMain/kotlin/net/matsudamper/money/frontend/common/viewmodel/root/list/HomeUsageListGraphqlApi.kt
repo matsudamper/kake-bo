@@ -7,7 +7,7 @@ import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import net.matsudamper.money.frontend.graphql.GraphqlClient
-import net.matsudamper.money.frontend.graphql.UsageListScreenPagingQuery
+import net.matsudamper.money.frontend.graphql.UsageUsageListScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
 import org.jetbrains.skiko.Cursor
 
@@ -16,10 +16,10 @@ public class HomeUsageListGraphqlApi(
 ) {
     public fun getHomeScreen(
         cursor: Cursor?,
-    ): Flow<ApolloResponse<UsageListScreenPagingQuery.Data>> {
+    ): Flow<ApolloResponse<UsageUsageListScreenPagingQuery.Data>> {
         return apolloClient
             .query(
-                UsageListScreenPagingQuery(
+                UsageUsageListScreenPagingQuery(
                     query = MoneyUsagesQuery(
                         cursor = Optional.present(cursor),
                         size = 10,

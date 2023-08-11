@@ -55,7 +55,7 @@ import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScre
 import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScreenViewModelApi
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.list.RootListViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.list.RootUsageListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.ImportedMailListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModel
@@ -145,8 +145,8 @@ private fun Content(
         )
     }
 
-    val rootListViewModel = remember {
-        RootListViewModel(
+    val rootUsageListViewModel = remember {
+        RootUsageListViewModel(
             coroutineScope = rootCoroutineScope,
         )
     }
@@ -263,12 +263,12 @@ private fun Content(
                             loginCheckUseCase = loginCheckUseCase,
                             globalEvent = globalEvent,
                             listUiStateProvider = {
-                                LaunchedEffect(rootListViewModel.viewModelEventHandler) {
+                                LaunchedEffect(rootUsageListViewModel.viewModelEventHandler) {
                                     viewModelEventHandlers.handle(
-                                        handler = rootListViewModel.viewModelEventHandler,
+                                        handler = rootUsageListViewModel.viewModelEventHandler,
                                     )
                                 }
-                                rootListViewModel.uiStateFlow.collectAsState().value
+                                rootUsageListViewModel.uiStateFlow.collectAsState().value
                             },
                             importMailLinkScreenUiStateProvider = {
                                 LaunchedEffect(mailImportViewModel.eventHandler) {

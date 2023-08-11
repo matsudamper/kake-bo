@@ -13,7 +13,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.ImportMailScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.RootListScreen
-import net.matsudamper.money.frontend.common.ui.screen.root.RootListScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.RootUsageListScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.RootScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreenUiState
@@ -36,7 +36,7 @@ internal fun RootNavContent(
     globalEventSender: EventSender<GlobalEvent>,
     loginCheckUseCase: LoginCheckUseCase,
     homeMailTabScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail) -> HomeMailTabScreenUiState,
-    listUiStateProvider: @Composable (ScreenStructure.Root.List) -> RootListScreenUiState,
+    listUiStateProvider: @Composable (ScreenStructure.Root.List) -> RootUsageListScreenUiState,
     importMailScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Imported) -> ImportedMailListScreenUiState,
     importMailLinkScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Import) -> ImportMailScreenUiState,
     settingUiStateProvider: @Composable () -> RootSettingScreenUiState,
