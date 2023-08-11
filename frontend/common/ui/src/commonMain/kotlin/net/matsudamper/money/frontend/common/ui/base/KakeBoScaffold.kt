@@ -24,6 +24,7 @@ public fun KakeboScaffold(
     navigationIcon: @Composable () -> Unit = {},
     onClickTitle: () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
+    menu: @Composable () -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
     listener: KakeboScaffoldListener,
     content: @Composable (PaddingValues) -> Unit,
@@ -35,6 +36,7 @@ public fun KakeboScaffold(
             KakeBoTopAppBar(
                 navigationIcon = navigationIcon,
                 onClickTitle = onClickTitle,
+                menu = menu,
                 title = {
                     Text(
                         modifier = Modifier.clickable(

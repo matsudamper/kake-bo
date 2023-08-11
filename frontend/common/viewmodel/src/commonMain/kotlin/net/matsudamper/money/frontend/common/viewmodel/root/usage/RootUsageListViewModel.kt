@@ -18,7 +18,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
-import net.matsudamper.money.frontend.graphql.UsageUsageListScreenPagingQuery
+import net.matsudamper.money.frontend.graphql.UsageListScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloPagingResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
@@ -32,7 +32,7 @@ public class RootUsageListViewModel(
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
-    private val paging = ApolloPagingResponseCollector.create<UsageUsageListScreenPagingQuery.Data>(
+    private val paging = ApolloPagingResponseCollector.create<UsageListScreenPagingQuery.Data>(
         apolloClient = apolloClient,
         coroutineScope = coroutineScope,
     )
@@ -164,7 +164,7 @@ public class RootUsageListViewModel(
                     cursor = result.cursor
                 }
             }
-            UsageUsageListScreenPagingQuery(
+            UsageListScreenPagingQuery(
                 query = MoneyUsagesQuery(
                     cursor = Optional.present(cursor),
                     size = 10,
@@ -178,6 +178,6 @@ public class RootUsageListViewModel(
     }
 
     private data class ViewModelState(
-        val results: List<ApolloResponseState<ApolloResponse<UsageUsageListScreenPagingQuery.Data>>> = listOf(),
+        val results: List<ApolloResponseState<ApolloResponse<UsageListScreenPagingQuery.Data>>> = listOf(),
     )
 }

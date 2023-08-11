@@ -24,6 +24,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewM
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailLinkViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilter.ImportedMailFilterCategoryViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters.SettingMailCategoryFiltersViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
 
@@ -264,6 +265,18 @@ data class ViewModelEventHandlers(
                 object : ImportedMailPlainViewModel.Event {
                     override fun backRequest() {
                         navController.back()
+                    }
+                },
+            )
+        }
+    }
+
+    suspend fun handle(handler: EventHandler<RootUsageHostViewModel.Event>) {
+        coroutineScope {
+            handler.collect(
+                object : RootUsageHostViewModel.Event {
+                    override fun navigate(screenStructure: ScreenStructure) {
+                        navController.navigate(screenStructure)
                     }
                 },
             )

@@ -59,6 +59,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageListV
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.ImportedMailListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
@@ -145,6 +146,11 @@ private fun Content(
         )
     }
 
+    val rootUsageHostViewModel = remember {
+        RootUsageHostViewModel(
+            coroutineScope = rootCoroutineScope,
+        )
+    }
     val rootUsageListViewModel = remember {
         RootUsageListViewModel(
             coroutineScope = rootCoroutineScope,
@@ -262,7 +268,15 @@ private fun Content(
                             globalEventSender = globalEventSender,
                             loginCheckUseCase = loginCheckUseCase,
                             globalEvent = globalEvent,
-                            listUiStateProvider = {
+                            rootUsageHostUiStateProvider = {
+                                LaunchedEffect(rootUsageHostViewModel.viewModelEventHandler) {
+                                    viewModelEventHandlers.handle(
+                                        handler = rootUsageHostViewModel.viewModelEventHandler,
+                                    )
+                                }
+                                rootUsageHostViewModel.uiStateFlow.collectAsState().value
+                            },
+                            usageListUiStateProvider = {
                                 LaunchedEffect(rootUsageListViewModel.viewModelEventHandler) {
                                     viewModelEventHandlers.handle(
                                         handler = rootUsageListViewModel.viewModelEventHandler,

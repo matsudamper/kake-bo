@@ -19,6 +19,8 @@ import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScre
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.RootSettingScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
@@ -36,7 +38,8 @@ internal fun RootNavContent(
     globalEventSender: EventSender<GlobalEvent>,
     loginCheckUseCase: LoginCheckUseCase,
     homeMailTabScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail) -> HomeMailTabScreenUiState,
-    listUiStateProvider: @Composable (ScreenStructure.Root.List) -> RootUsageListScreenUiState,
+    rootUsageHostUiStateProvider: @Composable (ScreenStructure.Root.List) -> RootUsageHostScreenUiState,
+    usageListUiStateProvider: @Composable (ScreenStructure.Root.List) -> RootUsageListScreenUiState,
     importMailScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Imported) -> ImportedMailListScreenUiState,
     importMailLinkScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Import) -> ImportMailScreenUiState,
     settingUiStateProvider: @Composable () -> RootSettingScreenUiState,
@@ -65,13 +68,21 @@ internal fun RootNavContent(
 
         is ScreenStructure.Root.List -> {
             tabHolder.SaveableStateProvider(current::class.toString()) {
-                val uiState = listUiStateProvider(current)
-                RootUsageListScreen(
+                val uiState = rootUsageHostUiStateProvider(current)
+                RootUsageHostScreen(
                     modifier = Modifier.fillMaxSize(),
                     uiState = uiState,
                     listener = rootScreenScaffoldListener,
                 )
             }
+//            tabHolder.SaveableStateProvider(current::class.toString()) {
+//                val uiState = usageListUiStateProvider(current)
+//                RootUsageListScreen(
+//                    modifier = Modifier.fillMaxSize(),
+//                    uiState = uiState,
+//                    listener = rootScreenScaffoldListener,
+//                )
+//            }
         }
 
         is ScreenStructure.Root.Mail -> {

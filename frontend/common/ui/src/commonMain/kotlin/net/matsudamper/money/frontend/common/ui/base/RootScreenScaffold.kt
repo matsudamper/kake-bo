@@ -50,6 +50,7 @@ internal fun RootScreenScaffold(
     modifier: Modifier = Modifier,
     currentScreen: RootScreenTab,
     navigation: (@Composable () -> Unit)? = null,
+    menu: @Composable () -> Unit = {},
     listener: RootScreenScaffoldListener,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     content: @Composable BoxScope.() -> Unit,
@@ -66,6 +67,7 @@ internal fun RootScreenScaffold(
         KakeboScaffold(
             modifier = Modifier.fillMaxWidth(),
             navigationIcon = navigation ?: {},
+            menu = menu,
             snackbarHost = {
                 MySnackBarHost(
                     hostState = snackbarHostState,
