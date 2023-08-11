@@ -259,7 +259,9 @@ private fun Content(
                             is ScreenStructure.Root.Home -> {
 
                             }
-                            is ScreenStructure.Root.Mail -> {}
+                            is ScreenStructure.Root.Mail -> {
+                                mailScreenViewModel.updateScreenStructure(current)
+                            }
 
                             is ScreenStructure.Root.Settings -> {
                                 settingViewModel.updateLastStructure(current)
@@ -277,7 +279,6 @@ private fun Content(
                             tabHolder = tabHolder,
                             current = current,
                             homeMailTabScreenUiStateProvider = {
-                                mailScreenViewModel.updateScreenStructure(it)
                                 mailScreenViewModel.uiStateFlow.collectAsState().value
                             },
                             rootScreenScaffoldListener = rootScreenScaffoldListener,

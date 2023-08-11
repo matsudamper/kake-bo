@@ -38,8 +38,8 @@ internal fun RootNavContent(
     rootCoroutineScope: CoroutineScope,
     globalEventSender: EventSender<GlobalEvent>,
     loginCheckUseCase: LoginCheckUseCase,
-    homeMailTabScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail) -> HomeMailTabScreenUiState,
-    rootUsageHostUiStateProvider: @Composable (ScreenStructure.Root.Usage) -> RootUsageHostScreenUiState,
+    homeMailTabScreenUiStateProvider: @Composable () -> HomeMailTabScreenUiState,
+    rootUsageHostUiStateProvider: @Composable () -> RootUsageHostScreenUiState,
     usageListUiStateProvider: @Composable (ScreenStructure.Root.Usage) -> RootUsageListScreenUiState,
     importMailScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Imported) -> ImportedMailListScreenUiState,
     importMailLinkScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Import) -> ImportMailScreenUiState,
@@ -70,7 +70,7 @@ internal fun RootNavContent(
 
         is ScreenStructure.Root.Usage -> {
             tabHolder.SaveableStateProvider(ScreenStructure.Root.Usage::class.toString()) {
-                val hostUiState = rootUsageHostUiStateProvider(current)
+                val hostUiState = rootUsageHostUiStateProvider()
                 RootUsageHostScreen(
                     modifier = Modifier.fillMaxSize(),
                     uiState = hostUiState,
@@ -98,7 +98,7 @@ internal fun RootNavContent(
 
         is ScreenStructure.Root.Mail -> {
             tabHolder.SaveableStateProvider(current::class.toString()) {
-                val uiState = homeMailTabScreenUiStateProvider(current)
+                val uiState = homeMailTabScreenUiStateProvider()
                 HomeMailTabScreen(
                     screenStructure = current,
                     uiState = uiState,
