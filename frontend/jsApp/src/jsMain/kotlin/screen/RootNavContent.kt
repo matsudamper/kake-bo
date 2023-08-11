@@ -12,7 +12,7 @@ import event.ViewModelEventHandlers
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.ImportMailScreenUiState
-import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootListScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.RootScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreen
@@ -66,7 +66,7 @@ internal fun RootNavContent(
         is ScreenStructure.Root.List -> {
             tabHolder.SaveableStateProvider(current::class.toString()) {
                 val uiState = listUiStateProvider(current)
-                RootListScreen(
+                RootUsageListScreen(
                     modifier = Modifier.fillMaxSize(),
                     uiState = uiState,
                     listener = rootScreenScaffoldListener,

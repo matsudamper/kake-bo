@@ -93,7 +93,7 @@ public data class RootUsageListScreenUiState(
 }
 
 @Composable
-public fun RootListScreen(
+public fun RootUsageListScreen(
     modifier: Modifier = Modifier,
     uiState: RootUsageListScreenUiState,
     listener: RootScreenScaffoldListener,
