@@ -73,13 +73,19 @@ public fun RootUsageHostScreen(
                     onDismissRequest = { expanded = false },
                 ) {
                     DropdownMenuItem(
-                        onClick = { uiState.event.onClickCalendar() },
+                        onClick = {
+                            expanded = false
+                            uiState.event.onClickCalendar()
+                        },
                         text = {
                             Text(text = "カレンダー")
                         },
                     )
                     DropdownMenuItem(
-                        onClick = { uiState.event.onClickList() },
+                        onClick = {
+                            expanded = false
+                            uiState.event.onClickList()
+                        },
                         text = {
                             Text(text = "リスト")
                         },
