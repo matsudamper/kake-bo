@@ -21,6 +21,16 @@ type MoneyUsagesConnection {
 input MoneyUsagesQuery {
     size: Int!
     cursor: String
+    filter: MoneyUsagesQueryFilter
+}
+
+input YearMonth {
+    year: Int!
+    month: Int!
+}
+
+input MoneyUsagesQueryFilter {
+    yearMonth: YearMonth!
 }
 
 input MoneyUsageCategoryInput {
