@@ -1,7 +1,6 @@
 package net.matsudamper.money.backend.repository
 
 import java.lang.IllegalStateException
-import java.time.LocalDate
 import java.time.LocalDateTime
 import net.matsudamper.money.backend.DbConnectionImpl
 import net.matsudamper.money.backend.element.UserId
@@ -111,7 +110,8 @@ class MoneyUsageRepository {
         size: Int,
         cursor: GetMoneyUsageByQueryResult.Cursor?,
         isAsc: Boolean,
-        month: LocalDate?,
+        startDateTime: LocalDateTime?,
+        endDateTime: LocalDateTime?,
     ): GetMoneyUsageByQueryResult {
         return runCatching {
             DbConnectionImpl.use { connection ->
@@ -137,16 +137,16 @@ class MoneyUsageRepository {
                                 },
                             )
                             .and(
-                                when(month) {
+                                when (startDateTime) {
                                     null -> DSL.value(true)
-                                    else -> DSL.value(true)
-                                        .and(
-                                            usage.DATETIME.greaterOrEqual(month.atStartOfDay())
-                                        )
-                                        .and(
-                                            usage.DATETIME.lessThan(month.plusMonths(1).atStartOfDay())
-                                        )
-                                }
+                                    else -> usage.DATETIME.greaterOrEqual(startDateTime)
+                                },
+                            )
+                            .and(
+                                when (endDateTime) {
+                                    null -> DSL.value(true)
+                                    else -> usage.DATETIME.lessThan(endDateTime)
+                                },
                             ),
                     )
                     .orderBy(

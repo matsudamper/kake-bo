@@ -24,13 +24,9 @@ input MoneyUsagesQuery {
     filter: MoneyUsagesQueryFilter
 }
 
-input YearMonth {
-    year: Int!
-    month: Int!
-}
-
 input MoneyUsagesQueryFilter {
-    yearMonth: YearMonth!
+    startDateTime: LocalDateTime
+    endDateTime: LocalDateTime
 }
 
 input MoneyUsageCategoryInput {

@@ -1,6 +1,5 @@
 package net.matsudamper.money.backend.graphql.resolver
 
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
@@ -120,11 +119,8 @@ class UserResolverImpl : UserResolver {
                             date = it.lastDate,
                         )
                     },
-                    month = run {
-                        val filter = query.filter ?: return@run null
-
-                        LocalDate.of(filter.yearMonth.year, filter.yearMonth.month, 1)
-                    }
+                    startDateTime = query.filter?.startDateTime,
+                    endDateTime = query.filter?.endDateTime,
                 )
             val result = when (results) {
                 is MoneyUsageRepository.GetMoneyUsageByQueryResult.Failed -> throw results.error
