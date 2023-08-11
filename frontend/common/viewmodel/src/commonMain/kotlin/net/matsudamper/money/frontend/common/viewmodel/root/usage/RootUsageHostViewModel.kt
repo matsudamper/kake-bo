@@ -20,8 +20,8 @@ public class RootUsageHostViewModel(
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
-    private val eventSender = EventSender<Event>()
-    public val viewModelEventHandler: EventHandler<Event> = eventSender.asHandler()
+    private val rootNavigationEventSender = EventSender<RootNavigationEvent>()
+    public val rootNavigationEventHandler: EventHandler<RootNavigationEvent> = rootNavigationEventSender.asHandler()
 
     public val uiStateFlow: StateFlow<RootUsageHostScreenUiState> = MutableStateFlow(
         RootUsageHostScreenUiState(
@@ -33,23 +33,17 @@ public class RootUsageHostViewModel(
 
                 override fun onClickCalendar() {
                     coroutineScope.launch {
-                        eventSender.send {
+                        rootNavigationEventSender.send {
                             it.navigate(ScreenStructure.Root.Usage.Calendar())
                         }
-                    }
-                    viewModelStateFlow.update {
-                        it.copy(type = RootUsageHostScreenUiState.Type.Calendar)
                     }
                 }
 
                 override fun onClickList() {
                     coroutineScope.launch {
-                        eventSender.send {
+                        rootNavigationEventSender.send {
                             it.navigate(ScreenStructure.Root.Usage.List())
                         }
-                    }
-                    viewModelStateFlow.update {
-                        it.copy(type = RootUsageHostScreenUiState.Type.List)
                     }
                 }
             },
@@ -58,10 +52,14 @@ public class RootUsageHostViewModel(
         coroutineScope.launch {
             viewModelStateFlow
                 .collectLatest { viewModelState ->
+                    viewModelState.screenStructure ?: return@collectLatest
 
-                    uiStateFlow.update { uiState ->
-                        uiState.copy(
-                            type = viewModelState.type,
+                    uiStateFlow.update {
+                        it.copy(
+                            type = when(viewModelState.screenStructure) {
+                                is ScreenStructure.Root.Usage.Calendar -> RootUsageHostScreenUiState.Type.Calendar
+                                is ScreenStructure.Root.Usage.List ->   RootUsageHostScreenUiState.Type.List
+                            }
                         )
                     }
                 }
@@ -73,11 +71,31 @@ public class RootUsageHostViewModel(
         }
     }
 
-    public interface Event {
+    public fun updateStructure(structure: ScreenStructure.Root.Usage) {
+        viewModelStateFlow.update {
+            it.copy(
+                screenStructure = structure,
+            )
+        }
+    }
+
+    public fun requestNavigate() {
+        coroutineScope.launch {
+            rootNavigationEventSender.send {
+                it.navigate(
+                    viewModelStateFlow.value.screenStructure
+                        ?: ScreenStructure.Root.Usage.Calendar(),
+                )
+            }
+        }
+    }
+
+    public interface RootNavigationEvent {
         public fun navigate(screenStructure: ScreenStructure)
     }
 
+
     private data class ViewModelState(
-        val type: RootUsageHostScreenUiState.Type = RootUsageHostScreenUiState.Type.Calendar,
+        val screenStructure: ScreenStructure.Root.Usage? = null,
     )
 }

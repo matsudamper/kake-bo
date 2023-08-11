@@ -271,10 +271,10 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<RootUsageHostViewModel.Event>) {
+    suspend fun handle(handler: EventHandler<RootUsageHostViewModel.RootNavigationEvent>) {
         coroutineScope {
             handler.collect(
-                object : RootUsageHostViewModel.Event {
+                object : RootUsageHostViewModel.RootNavigationEvent {
                     override fun navigate(screenStructure: ScreenStructure) {
                         navController.navigate(screenStructure)
                     }

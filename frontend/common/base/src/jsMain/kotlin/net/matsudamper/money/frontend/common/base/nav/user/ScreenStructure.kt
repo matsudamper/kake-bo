@@ -96,10 +96,16 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
         public sealed interface Usage : Root {
             public class List : Usage {
                 override val direction: Screens = Screens.UsageList
+                override fun equalScreen(other: ScreenStructure): Boolean {
+                    return other is List
+                }
             }
 
             public class Calendar : Usage {
                 override val direction: Screens = Screens.UsageCalendar
+                override fun equalScreen(other: ScreenStructure): Boolean {
+                    return other is Calendar
+                }
             }
         }
     }

@@ -187,7 +187,7 @@ private fun Content(
             }
 
             override fun onClickList() {
-                navController.navigate(ScreenStructure.Root.Usage.List())
+                rootUsageHostViewModel.requestNavigate()
             }
 
             override fun onClickSettings() {
@@ -225,6 +225,14 @@ private fun Content(
             mailScreenViewModel.navigateEventHandler,
         )
     }
+    LaunchedEffect(
+        viewModelEventHandlers,
+        rootUsageHostViewModel.rootNavigationEventHandler,
+    ) {
+        viewModelEventHandlers.handle(
+            handler = rootUsageHostViewModel.rootNavigationEventHandler,
+        )
+    }
 
     Scaffold(
         modifier = Modifier
@@ -247,8 +255,18 @@ private fun Content(
             when (val current = navController.currentNavigation) {
                 is ScreenStructure.Root -> {
                     LaunchedEffect(current, settingViewModel) {
-                        if (current is ScreenStructure.Root.Settings) {
-                            settingViewModel.updateLastStructure(current)
+                        when(current) {
+                            is ScreenStructure.Root.Home -> {
+
+                            }
+                            is ScreenStructure.Root.Mail -> {}
+
+                            is ScreenStructure.Root.Settings -> {
+                                settingViewModel.updateLastStructure(current)
+                            }
+                            is ScreenStructure.Root.Usage -> {
+                                rootUsageHostViewModel.updateStructure(current)
+                            }
                         }
                     }
                     LaunchedEffect(viewModelEventHandlers, settingViewModel.backgroundEventHandler) {
@@ -269,11 +287,6 @@ private fun Content(
                             loginCheckUseCase = loginCheckUseCase,
                             globalEvent = globalEvent,
                             rootUsageHostUiStateProvider = {
-                                LaunchedEffect(rootUsageHostViewModel.viewModelEventHandler) {
-                                    viewModelEventHandlers.handle(
-                                        handler = rootUsageHostViewModel.viewModelEventHandler,
-                                    )
-                                }
                                 rootUsageHostViewModel.uiStateFlow.collectAsState().value
                             },
                             usageListUiStateProvider = {
