@@ -7,6 +7,7 @@ import kotlinx.coroutines.runBlocking
 import net.matsudamper.money.backend.di.RepositoryFactory
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.backend.mail.MailRepository
+import net.matsudamper.money.backend.repository.DbMailRepository
 import net.matsudamper.money.element.MailId
 
 class ImportMailUseCase(
@@ -35,7 +36,7 @@ class ImportMailUseCase(
                     val html = mail.content.filterIsInstance<MailRepository.MailResult.Content.Html>()
                     val text = mail.content.filterIsInstance<MailRepository.MailResult.Content.Text>()
 
-                    dbMailRepository.addMail(
+                    val result = dbMailRepository.addMail(
                         userId = userId,
                         subject = mail.subject,
                         plainText = text.firstOrNull()?.text,
@@ -44,7 +45,18 @@ class ImportMailUseCase(
                         from = mail.from.firstOrNull().orEmpty(),
                     )
 
-                    async { mailRepository.deleteMessage(listOf(mail.messageID)) }
+                    when(result) {
+                        is DbMailRepository.AddUserResult.Failed -> {
+                            when(val error = result.error) {
+                                is DbMailRepository.AddUserResult.ErrorType.InternalServerError -> {
+                                    throw error.e
+                                }
+                            }
+                        }
+                        DbMailRepository.AddUserResult.Success -> {
+                            async { mailRepository.deleteMessage(listOf(mail.messageID)) }
+                        }
+                    }
                 }
             }.fold(
                 onSuccess = {
