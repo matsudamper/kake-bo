@@ -18,7 +18,7 @@ import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScre
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.list.RootUsageListViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailLinkViewModelEvent

@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.viewmodel.root.list
+package net.matsudamper.money.frontend.common.viewmodel.root.usage
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
