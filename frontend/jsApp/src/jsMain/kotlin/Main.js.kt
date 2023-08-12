@@ -59,6 +59,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageListV
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.ImportedMailListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalendarViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
@@ -153,6 +154,11 @@ private fun Content(
     }
     val rootUsageListViewModel = remember {
         RootUsageListViewModel(
+            coroutineScope = rootCoroutineScope,
+        )
+    }
+    val rootUsageCalendarViewModel = remember {
+        RootUsageCalendarViewModel(
             coroutineScope = rootCoroutineScope,
         )
     }
@@ -289,6 +295,14 @@ private fun Content(
                             globalEvent = globalEvent,
                             rootUsageHostUiStateProvider = {
                                 rootUsageHostViewModel.uiStateFlow.collectAsState().value
+                            },
+                            usageCalendarUiStateProvider = {
+                                LaunchedEffect(rootUsageCalendarViewModel.viewModelEventHandler) {
+                                    viewModelEventHandlers.handle(
+                                        handler = rootUsageCalendarViewModel.viewModelEventHandler,
+                                    )
+                                }
+                                rootUsageCalendarViewModel.uiStateFlow.collectAsState().value
                             },
                             usageListUiStateProvider = {
                                 LaunchedEffect(rootUsageListViewModel.viewModelEventHandler) {

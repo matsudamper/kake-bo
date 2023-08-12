@@ -19,6 +19,8 @@ import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScre
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.RootSettingScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalendarScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalendarScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListScreen
@@ -40,7 +42,8 @@ internal fun RootNavContent(
     loginCheckUseCase: LoginCheckUseCase,
     homeMailTabScreenUiStateProvider: @Composable () -> HomeMailTabScreenUiState,
     rootUsageHostUiStateProvider: @Composable () -> RootUsageHostScreenUiState,
-    usageListUiStateProvider: @Composable (ScreenStructure.Root.Usage) -> RootUsageListScreenUiState,
+    usageListUiStateProvider: @Composable () -> RootUsageListScreenUiState,
+    usageCalendarUiStateProvider: @Composable () -> RootUsageCalendarScreenUiState,
     importMailScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Imported) -> ImportedMailListScreenUiState,
     importMailLinkScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Import) -> ImportMailScreenUiState,
     settingUiStateProvider: @Composable () -> RootSettingScreenUiState,
@@ -79,12 +82,16 @@ internal fun RootNavContent(
                     when(current) {
                         is ScreenStructure.Root.Usage.Calendar -> {
                             usageHost.SaveableStateProvider(current::class.toString()) {
-
+                                val uiState = usageCalendarUiStateProvider()
+                                RootUsageCalendarScreen(
+                                    modifier = Modifier.fillMaxSize(),
+                                    uiState = uiState,
+                                )
                             }
                         }
                         is ScreenStructure.Root.Usage.List -> {
                             usageHost.SaveableStateProvider(current::class.toString()) {
-                                val uiState = usageListUiStateProvider(current)
+                                val uiState = usageListUiStateProvider()
                                 RootUsageListScreen(
                                     modifier = Modifier.fillMaxSize(),
                                     uiState = uiState,
