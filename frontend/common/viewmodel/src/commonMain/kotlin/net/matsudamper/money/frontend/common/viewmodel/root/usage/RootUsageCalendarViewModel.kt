@@ -68,10 +68,8 @@ public class RootUsageCalendarViewModel(
                         val dayGroup = nodes.groupBy { it.date.date.dayOfMonth }
 
                         val daysOfMonth = run daysOfMonth@{
-                            val firstDay = dayGroup.toList()
-                                .minByOrNull { it.first }
-                                ?.second?.firstOrNull()?.date?.date
-                                ?.let { LocalDate(it.year, it.monthNumber, 1) } ?: return@cells null
+                            val firstDay = viewModelState.displayMonth
+                                .let { LocalDate(it.year, it.monthNumber, 1) }
 
                             buildList<LocalDate> {
                                 add(firstDay)
