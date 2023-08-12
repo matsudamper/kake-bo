@@ -50,9 +50,9 @@ import androidx.compose.ui.window.Popup
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import net.matsudamper.money.frontend.common.base.ImmutableList
-import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButton
 import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButtonDefaults
+import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
 public data class ImportedMailListScreenUiState(

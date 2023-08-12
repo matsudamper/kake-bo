@@ -238,7 +238,7 @@ private fun CalendarCell(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 2.dp)
-                .height(1.dp)
+                .height(1.dp),
         )
         uiState.items.forEach { item ->
             Spacer(Modifier.height(2.dp))

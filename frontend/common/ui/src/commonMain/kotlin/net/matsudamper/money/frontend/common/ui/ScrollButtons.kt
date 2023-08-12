@@ -28,7 +28,7 @@ internal object ScrollButtonsDefaults {
     val height = 58.dp
     val padding = PaddingValues(
         end = 12.dp,
-        bottom = 12.dp
+        bottom = 12.dp,
     )
 }
 

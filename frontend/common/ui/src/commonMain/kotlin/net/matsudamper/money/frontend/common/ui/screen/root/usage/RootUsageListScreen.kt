@@ -41,9 +41,9 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import net.matsudamper.money.frontend.common.base.ImmutableList
-import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButton
 import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButtonDefaults
+import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 
 public data class RootUsageListScreenUiState(
     val event: Event,
