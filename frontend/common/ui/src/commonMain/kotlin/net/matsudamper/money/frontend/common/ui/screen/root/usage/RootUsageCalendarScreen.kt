@@ -230,7 +230,12 @@ private fun CalendarCell(
             text = uiState.text,
             style = MaterialTheme.typography.titleSmall,
         )
-        Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 2.dp)
+                .height(1.dp)
+        )
         uiState.items.forEach { item ->
             Spacer(Modifier.height(2.dp))
             Card(
