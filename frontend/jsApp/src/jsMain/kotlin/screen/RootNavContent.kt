@@ -13,7 +13,6 @@ import event.ViewModelEventHandlers
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.ImportMailScreenUiState
-import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.RootScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreenUiState
@@ -24,6 +23,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalen
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
@@ -79,7 +79,7 @@ internal fun RootNavContent(
                     uiState = hostUiState,
                     listener = rootScreenScaffoldListener,
                 ) {
-                    when(current) {
+                    when (current) {
                         is ScreenStructure.Root.Usage.Calendar -> {
                             usageHost.SaveableStateProvider(current::class.toString()) {
                                 val uiState = usageCalendarUiStateProvider()

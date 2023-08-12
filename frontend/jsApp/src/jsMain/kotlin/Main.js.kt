@@ -55,11 +55,9 @@ import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScre
 import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScreenViewModelApi
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.ImportedMailListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalendarViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
@@ -251,9 +249,8 @@ private fun Content(
             when (val current = navController.currentNavigation) {
                 is ScreenStructure.Root -> {
                     LaunchedEffect(current, settingViewModel) {
-                        when(current) {
+                        when (current) {
                             is ScreenStructure.Root.Home -> {
-
                             }
                             is ScreenStructure.Root.Mail -> {
                                 mailScreenViewModel.updateScreenStructure(current)

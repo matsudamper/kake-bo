@@ -102,7 +102,7 @@ public fun SettingMailCategoryFiltersScreen(
         modifier = modifier,
         topBar = {
             KakeBoTopAppBar(
-                title  = {
+                title = {
                     Text(
                         modifier = Modifier.clickable(
                             interactionSource = remember { MutableInteractionSource() },

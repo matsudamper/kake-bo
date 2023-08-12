@@ -8,23 +8,20 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.plus
-import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.ApolloResponse
-import com.apollographql.apollo3.api.Optional
-import kotlinx.datetime.Clock
-import kotlinx.datetime.DatePeriod
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.ApolloResponse
+import com.apollographql.apollo3.api.Optional
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
-import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalendarScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -102,9 +99,9 @@ public class RootUsageCalendarViewModel(
                                 text = "${localDate.dayOfMonth}日",
                                 items = day.map { node ->
                                     RootUsageCalendarScreenUiState.CalendarDayItem(
-                                        title = node.title
+                                        title = node.title,
                                     )
-                                }.toImmutableList()
+                                }.toImmutableList(),
                             )
                         }
                     }.orEmpty().toImmutableList()
@@ -183,7 +180,7 @@ public class RootUsageCalendarViewModel(
                                         dayOfMonth = 1,
                                     ),
                                     LocalTime(0, 0),
-                                )
+                                ),
                             ),
                             untilDateTime = Optional.present(
                                 LocalDateTime(
@@ -193,9 +190,9 @@ public class RootUsageCalendarViewModel(
                                         dayOfMonth = 1,
                                     ).minus(1, DateTimeUnit.DAY),
                                     LocalTime(0, 0),
-                                )
+                                ),
                             ),
-                        )
+                        ),
                     ),
                     size = 10,
                 ),
@@ -236,6 +233,6 @@ public class RootUsageCalendarViewModel(
                 monthNumber = currentLocalDateTime.monthNumber,
                 dayOfMonth = 1,
             )
-        }
+        },
     )
 }

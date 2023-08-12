@@ -18,7 +18,6 @@ import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScre
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailLinkViewModelEvent
@@ -26,6 +25,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfil
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters.SettingMailCategoryFiltersViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalendarViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
 

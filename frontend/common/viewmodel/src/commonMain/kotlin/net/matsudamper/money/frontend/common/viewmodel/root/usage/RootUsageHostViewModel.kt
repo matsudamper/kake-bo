@@ -96,7 +96,7 @@ public class RootUsageHostViewModel(
                         calendarHeader = RootUsageHostScreenUiState.Header.Calendar(
                             title = "${calendarViewModelState.displayMonth.year}/${calendarViewModelState.displayMonth.monthNumber}",
                             event = calendarHeaderEvent,
-                        )
+                        ),
                     )
                 }
             }

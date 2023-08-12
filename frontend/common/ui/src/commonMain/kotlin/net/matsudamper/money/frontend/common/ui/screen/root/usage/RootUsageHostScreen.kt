@@ -18,7 +18,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,7 +47,7 @@ public data class RootUsageHostScreenUiState(
         public object None : Header
         public data class Calendar(
             val title: String,
-            val event: HeaderCalendarEvent
+            val event: HeaderCalendarEvent,
         ) : Header
 
         public data class List(
@@ -59,7 +58,7 @@ public data class RootUsageHostScreenUiState(
 
     public enum class Type {
         Calendar,
-        List
+        List,
     }
 
     @Immutable
@@ -67,7 +66,6 @@ public data class RootUsageHostScreenUiState(
         public fun onClickPrevMonth()
         public fun onClickNextMonth()
     }
-
 
     @Immutable
     public interface Event {
@@ -113,16 +111,18 @@ public fun RootUsageHostScreen(
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                    Box(modifier = Modifier.clip(CircleShape)
-                                        .clickable { uiState.header.event.onClickPrevMonth() }
-                                        .padding(8.dp)
+                                    Box(
+                                        modifier = Modifier.clip(CircleShape)
+                                            .clickable { uiState.header.event.onClickPrevMonth() }
+                                            .padding(8.dp),
                                     ) {
                                         Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "前の月")
                                     }
-                                    Box(modifier = Modifier
-                                        .clip(CircleShape)
-                                        .clickable { uiState.header.event.onClickNextMonth() }
-                                        .padding(8.dp)
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(CircleShape)
+                                            .clickable { uiState.header.event.onClickNextMonth() }
+                                            .padding(8.dp),
                                     ) {
                                         Icon(Icons.Default.KeyboardArrowRight, contentDescription = "次の月")
                                     }
@@ -131,7 +131,6 @@ public fun RootUsageHostScreen(
                             }
 
                             is RootUsageHostScreenUiState.Header.List -> {
-
                             }
 
                             is RootUsageHostScreenUiState.Header.None -> Unit
@@ -185,7 +184,7 @@ public fun RootUsageHostScreen(
                             )
                         }
                     }
-                }
+                },
             )
         },
         content = {

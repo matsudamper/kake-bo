@@ -179,7 +179,6 @@ public fun ImportedMailScreen(
                             uiState.event.onClickTitle()
                         },
                 ) {
-
                     Text(
                         text = "家計簿 - メール",
                     )

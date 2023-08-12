@@ -58,7 +58,7 @@ public fun HomeMailTabScreen(
                     )
                 },
             )
-        }
+        },
     ) {
         Column(modifier = modifier) {
             TabRow(
