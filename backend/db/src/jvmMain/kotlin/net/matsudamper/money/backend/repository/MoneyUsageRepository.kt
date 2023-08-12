@@ -110,8 +110,8 @@ class MoneyUsageRepository {
         size: Int,
         cursor: GetMoneyUsageByQueryResult.Cursor?,
         isAsc: Boolean,
-        startDateTime: LocalDateTime?,
-        endDateTime: LocalDateTime?,
+        sinceDateTime: LocalDateTime?,
+        untilDateTime: LocalDateTime?,
     ): GetMoneyUsageByQueryResult {
         return runCatching {
             DbConnectionImpl.use { connection ->
@@ -137,15 +137,15 @@ class MoneyUsageRepository {
                                 },
                             )
                             .and(
-                                when (startDateTime) {
+                                when (sinceDateTime) {
                                     null -> DSL.value(true)
-                                    else -> usage.DATETIME.greaterOrEqual(startDateTime)
+                                    else -> usage.DATETIME.greaterOrEqual(sinceDateTime)
                                 },
                             )
                             .and(
-                                when (endDateTime) {
+                                when (untilDateTime) {
                                     null -> DSL.value(true)
-                                    else -> usage.DATETIME.lessThan(endDateTime)
+                                    else -> usage.DATETIME.lessThan(untilDateTime)
                                 },
                             ),
                     )

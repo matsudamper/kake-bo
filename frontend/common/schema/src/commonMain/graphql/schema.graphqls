@@ -353,7 +353,13 @@ input MoneyUsageSubCategoryQuery {
 
 input MoneyUsagesQuery {
     cursor: String
+    filter: MoneyUsagesQueryFilter
     size: Int!
+}
+
+input MoneyUsagesQueryFilter {
+    sinceDateTime: LocalDateTime
+    untilDateTime: LocalDateTime
 }
 
 input UpdateCategoryQuery {

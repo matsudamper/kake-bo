@@ -119,8 +119,8 @@ class UserResolverImpl : UserResolver {
                             date = it.lastDate,
                         )
                     },
-                    startDateTime = query.filter?.startDateTime,
-                    endDateTime = query.filter?.endDateTime,
+                    sinceDateTime = query.filter?.sinceDateTime,
+                    untilDateTime = query.filter?.untilDateTime,
                 )
             val result = when (results) {
                 is MoneyUsageRepository.GetMoneyUsageByQueryResult.Failed -> throw results.error

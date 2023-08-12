@@ -14,7 +14,14 @@ import kotlinx.datetime.plus
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
+import kotlinx.datetime.Clock
+import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
+import kotlinx.datetime.toLocalDateTime
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
@@ -27,6 +34,7 @@ import net.matsudamper.money.frontend.graphql.UsageCalendarScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloPagingResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
+import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryFilter
 
 public class RootUsageCalendarViewModel(
     private val coroutineScope: CoroutineScope,
@@ -166,6 +174,30 @@ public class RootUsageCalendarViewModel(
             UsageCalendarScreenPagingQuery(
                 query = MoneyUsagesQuery(
                     cursor = Optional.present(cursor),
+                    filter = Optional.present(
+                        MoneyUsagesQueryFilter(
+                            sinceDateTime = Optional.present(
+                                LocalDateTime(
+                                    LocalDate(
+                                        year = viewModelStateFlow.value.displayMonth.date.year,
+                                        month = viewModelStateFlow.value.displayMonth.date.month,
+                                        dayOfMonth = 1,
+                                    ),
+                                    LocalTime(0, 0),
+                                )
+                            ),
+                            untilDateTime = Optional.present(
+                                LocalDateTime(
+                                    LocalDate(
+                                        year = viewModelStateFlow.value.displayMonth.date.year,
+                                        monthNumber = viewModelStateFlow.value.displayMonth.date.monthNumber + 1,
+                                        dayOfMonth = 1,
+                                    ).minus(1, DateTimeUnit.DAY),
+                                    LocalTime(0, 0),
+                                )
+                            ),
+                        )
+                    ),
                     size = 10,
                 ),
             )
@@ -178,5 +210,6 @@ public class RootUsageCalendarViewModel(
 
     private data class ViewModelState(
         val results: List<ApolloResponseState<ApolloResponse<UsageCalendarScreenPagingQuery.Data>>> = listOf(),
+        val displayMonth: LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
     )
 }
