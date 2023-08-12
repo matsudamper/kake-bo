@@ -124,7 +124,10 @@ public fun RootUsageCalendarScreen(
                     modifier = Modifier.fillMaxSize(),
                     uiState = uiState.loadingState,
                     state = lazyGridState,
-                    contentPadding = PaddingValues(bottom = with(density) { buttonSize.height.toDp() }),
+                    contentPadding = PaddingValues(
+                        top = 12.dp,
+                        bottom = with(density) { buttonSize.height.toDp() },
+                    ),
                 )
 
                 Column(
