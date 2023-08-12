@@ -95,7 +95,7 @@ internal fun RootScreenScaffold(
                             },
                             label = {
                                 Text(
-                                    "リスト",
+                                    "一覧",
                                     fontFamily = rememberCustomFontFamily(),
                                 )
                             },
@@ -158,7 +158,7 @@ internal fun RootScreenScaffold(
                             },
                             label = {
                                 Text(
-                                    "リスト",
+                                    "一覧",
                                     fontFamily = rememberCustomFontFamily(),
                                 )
                             },
