@@ -40,7 +40,7 @@ public class RootUsageCalendarViewModel(
     private val coroutineScope: CoroutineScope,
     apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
-    private val viewModelStateFlow = MutableStateFlow(ViewModelState())
+    internal val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
@@ -203,11 +203,31 @@ public class RootUsageCalendarViewModel(
         }
     }
 
+    internal fun prevMonth() {
+        viewModelStateFlow.update {
+            it.copy(
+                displayMonth = it.displayMonth.minus(1, DateTimeUnit.MONTH),
+            )
+        }
+        paging.clear()
+        fetch()
+    }
+
+    internal fun nextMonth() {
+        viewModelStateFlow.update {
+            it.copy(
+                displayMonth = it.displayMonth.plus(1, DateTimeUnit.MONTH),
+            )
+        }
+        paging.clear()
+        fetch()
+    }
+
     public interface Event {
         public fun navigate(screenStructure: ScreenStructure)
     }
 
-    private data class ViewModelState(
+    public data class ViewModelState(
         val results: List<ApolloResponseState<ApolloResponse<UsageCalendarScreenPagingQuery.Data>>> = listOf(),
         val displayMonth: LocalDate = run {
             val currentLocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())

@@ -3,15 +3,22 @@ package net.matsudamper.money.frontend.common.ui.screen.root.usage
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.onClick
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
@@ -39,8 +47,7 @@ public data class RootUsageHostScreenUiState(
     public sealed interface Header {
         public object None : Header
         public data class Calendar(
-            val year: Int,
-            val month: Int,
+            val title: String,
             val event: HeaderCalendarEvent
         ) : Header
 
@@ -88,15 +95,48 @@ public fun RootUsageHostScreen(
         topBar = {
             KakeBoTopAppBar(
                 title = {
-                    Text(
-                        modifier = Modifier.clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                        ) {
-                            listener.kakeboScaffoldListener.onClickTitle()
-                        },
-                        text = "家計簿",
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            modifier = Modifier.clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                            ) {
+                                listener.kakeboScaffoldListener.onClickTitle()
+                            },
+                            text = "家計簿",
+                        )
+                        Spacer(modifier = Modifier.widthIn(12.dp))
+                        when (uiState.header) {
+                            is RootUsageHostScreenUiState.Header.Calendar -> {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Box(modifier = Modifier.clip(CircleShape)
+                                        .clickable { uiState.header.event.onClickPrevMonth() }
+                                        .padding(8.dp)
+                                    ) {
+                                        Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "前の月")
+                                    }
+                                    Box(modifier = Modifier
+                                        .clip(CircleShape)
+                                        .clickable { uiState.header.event.onClickNextMonth() }
+                                        .padding(8.dp)
+                                    ) {
+                                        Icon(Icons.Default.KeyboardArrowRight, contentDescription = "次の月")
+                                    }
+                                    Text(text = uiState.header.title)
+                                }
+                            }
+
+                            is RootUsageHostScreenUiState.Header.List -> {
+
+                            }
+
+                            is RootUsageHostScreenUiState.Header.None -> Unit
+                        }
+                    }
                 },
                 menu = {
                     var expanded by remember { mutableStateOf(false) }

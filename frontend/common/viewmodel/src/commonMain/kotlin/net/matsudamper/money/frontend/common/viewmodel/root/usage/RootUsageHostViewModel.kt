@@ -67,15 +67,39 @@ public class RootUsageHostViewModel(
                             type = when (viewModelState.screenStructure) {
                                 is ScreenStructure.Root.Usage.Calendar -> RootUsageHostScreenUiState.Type.Calendar
                                 is ScreenStructure.Root.Usage.List -> RootUsageHostScreenUiState.Type.List
-                            }
+                            },
+                            header = when (viewModelState.screenStructure) {
+                                is ScreenStructure.Root.Usage.Calendar -> viewModelState.calendarHeader
+                                is ScreenStructure.Root.Usage.List -> RootUsageHostScreenUiState.Header.None
+                            } ?: RootUsageHostScreenUiState.Header.None,
                         )
                     }
                 }
         }
     }.asStateFlow()
 
+    private val calendarHeaderEvent = object : RootUsageHostScreenUiState.HeaderCalendarEvent {
+        override fun onClickPrevMonth() {
+            calendarViewModel.prevMonth()
+        }
+
+        override fun onClickNextMonth() {
+            calendarViewModel.nextMonth()
+        }
+    }
+
     init {
         coroutineScope.launch {
+            calendarViewModel.viewModelStateFlow.collectLatest { calendarViewModelState ->
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        calendarHeader = RootUsageHostScreenUiState.Header.Calendar(
+                            title = "${calendarViewModelState.displayMonth.year}/${calendarViewModelState.displayMonth.monthNumber}",
+                            event = calendarHeaderEvent,
+                        )
+                    )
+                }
+            }
         }
     }
 
@@ -102,8 +126,8 @@ public class RootUsageHostViewModel(
         public fun navigate(screenStructure: ScreenStructure)
     }
 
-
     private data class ViewModelState(
         val screenStructure: ScreenStructure.Root.Usage? = null,
+        val calendarHeader: RootUsageHostScreenUiState.Header.Calendar? = null,
     )
 }
