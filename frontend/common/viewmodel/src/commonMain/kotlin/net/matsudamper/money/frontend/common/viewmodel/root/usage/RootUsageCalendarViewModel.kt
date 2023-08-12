@@ -179,8 +179,8 @@ public class RootUsageCalendarViewModel(
                             sinceDateTime = Optional.present(
                                 LocalDateTime(
                                     LocalDate(
-                                        year = viewModelStateFlow.value.displayMonth.date.year,
-                                        month = viewModelStateFlow.value.displayMonth.date.month,
+                                        year = viewModelStateFlow.value.displayMonth.year,
+                                        month = viewModelStateFlow.value.displayMonth.month,
                                         dayOfMonth = 1,
                                     ),
                                     LocalTime(0, 0),
@@ -189,8 +189,8 @@ public class RootUsageCalendarViewModel(
                             untilDateTime = Optional.present(
                                 LocalDateTime(
                                     LocalDate(
-                                        year = viewModelStateFlow.value.displayMonth.date.year,
-                                        monthNumber = viewModelStateFlow.value.displayMonth.date.monthNumber + 1,
+                                        year = viewModelStateFlow.value.displayMonth.year,
+                                        monthNumber = viewModelStateFlow.value.displayMonth.monthNumber + 1,
                                         dayOfMonth = 1,
                                     ).minus(1, DateTimeUnit.DAY),
                                     LocalTime(0, 0),
@@ -210,6 +210,13 @@ public class RootUsageCalendarViewModel(
 
     private data class ViewModelState(
         val results: List<ApolloResponseState<ApolloResponse<UsageCalendarScreenPagingQuery.Data>>> = listOf(),
-        val displayMonth: LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+        val displayMonth: LocalDate = run {
+            val currentLocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+            LocalDate(
+                year = currentLocalDateTime.year,
+                monthNumber = currentLocalDateTime.monthNumber,
+                dayOfMonth = 1,
+            )
+        }
     )
 }
