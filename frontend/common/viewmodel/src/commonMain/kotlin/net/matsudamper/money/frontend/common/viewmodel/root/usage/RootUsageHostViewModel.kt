@@ -7,21 +7,20 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import com.apollographql.apollo3.ApolloClient
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
-import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 public class RootUsageHostViewModel(
     private val coroutineScope: CoroutineScope,
-    apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    pagingModel: RootUsageCalendarPagingModel,
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     public val calendarViewModel: RootUsageCalendarViewModel = RootUsageCalendarViewModel(
         coroutineScope = coroutineScope,
+        pagingModel = pagingModel,
     )
     public val listViewModel: RootUsageListViewModel = RootUsageListViewModel(
         coroutineScope = coroutineScope,

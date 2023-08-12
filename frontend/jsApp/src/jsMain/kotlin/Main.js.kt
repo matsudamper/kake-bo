@@ -58,6 +58,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.ImportedMailListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalendarPagingModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
@@ -148,6 +149,9 @@ private fun Content(
     val rootUsageHostViewModel = remember {
         RootUsageHostViewModel(
             coroutineScope = rootCoroutineScope,
+            pagingModel = RootUsageCalendarPagingModel(
+                coroutineScope = rootCoroutineScope,
+            )
         )
     }
     val mailScreenViewModel = remember {
@@ -252,6 +256,7 @@ private fun Content(
                         when (current) {
                             is ScreenStructure.Root.Home -> {
                             }
+
                             is ScreenStructure.Root.Mail -> {
                                 mailScreenViewModel.updateScreenStructure(current)
                             }
@@ -259,6 +264,7 @@ private fun Content(
                             is ScreenStructure.Root.Settings -> {
                                 settingViewModel.updateLastStructure(current)
                             }
+
                             is ScreenStructure.Root.Usage -> {
                                 rootUsageHostViewModel.updateStructure(current)
                             }
