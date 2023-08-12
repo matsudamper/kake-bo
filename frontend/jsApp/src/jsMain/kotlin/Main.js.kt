@@ -152,16 +152,6 @@ private fun Content(
             coroutineScope = rootCoroutineScope,
         )
     }
-    val rootUsageListViewModel = remember {
-        RootUsageListViewModel(
-            coroutineScope = rootCoroutineScope,
-        )
-    }
-    val rootUsageCalendarViewModel = remember {
-        RootUsageCalendarViewModel(
-            coroutineScope = rootCoroutineScope,
-        )
-    }
     val mailScreenViewModel = remember {
         HomeMailTabScreenViewModel(
             coroutineScope = rootCoroutineScope,
@@ -297,20 +287,20 @@ private fun Content(
                                 rootUsageHostViewModel.uiStateFlow.collectAsState().value
                             },
                             usageCalendarUiStateProvider = {
-                                LaunchedEffect(rootUsageCalendarViewModel.viewModelEventHandler) {
+                                LaunchedEffect(rootUsageHostViewModel.calendarViewModel.viewModelEventHandler) {
                                     viewModelEventHandlers.handle(
-                                        handler = rootUsageCalendarViewModel.viewModelEventHandler,
+                                        handler = rootUsageHostViewModel.calendarViewModel.viewModelEventHandler,
                                     )
                                 }
-                                rootUsageCalendarViewModel.uiStateFlow.collectAsState().value
+                                rootUsageHostViewModel.calendarViewModel.uiStateFlow.collectAsState().value
                             },
                             usageListUiStateProvider = {
-                                LaunchedEffect(rootUsageListViewModel.viewModelEventHandler) {
+                                LaunchedEffect(rootUsageHostViewModel.listViewModel.viewModelEventHandler) {
                                     viewModelEventHandlers.handle(
-                                        handler = rootUsageListViewModel.viewModelEventHandler,
+                                        handler = rootUsageHostViewModel.listViewModel.viewModelEventHandler,
                                     )
                                 }
-                                rootUsageListViewModel.uiStateFlow.collectAsState().value
+                                rootUsageHostViewModel.listViewModel.uiStateFlow.collectAsState().value
                             },
                             importMailLinkScreenUiStateProvider = {
                                 LaunchedEffect(mailImportViewModel.eventHandler) {

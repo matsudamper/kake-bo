@@ -20,6 +20,13 @@ public class RootUsageHostViewModel(
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
+    public val calendarViewModel: RootUsageCalendarViewModel = RootUsageCalendarViewModel(
+        coroutineScope = coroutineScope,
+    )
+    public val listViewModel: RootUsageListViewModel = RootUsageListViewModel(
+        coroutineScope = coroutineScope,
+    )
+
     private val rootNavigationEventSender = EventSender<RootNavigationEvent>()
     public val rootNavigationEventHandler: EventHandler<RootNavigationEvent> = rootNavigationEventSender.asHandler()
 
@@ -56,9 +63,9 @@ public class RootUsageHostViewModel(
 
                     uiStateFlow.update {
                         it.copy(
-                            type = when(viewModelState.screenStructure) {
+                            type = when (viewModelState.screenStructure) {
                                 is ScreenStructure.Root.Usage.Calendar -> RootUsageHostScreenUiState.Type.Calendar
-                                is ScreenStructure.Root.Usage.List ->   RootUsageHostScreenUiState.Type.List
+                                is ScreenStructure.Root.Usage.List -> RootUsageHostScreenUiState.Type.List
                             }
                         )
                     }
