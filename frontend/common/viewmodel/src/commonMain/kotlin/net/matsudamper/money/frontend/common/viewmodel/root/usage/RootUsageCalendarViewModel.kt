@@ -194,7 +194,7 @@ public class RootUsageCalendarViewModel(
                             ),
                         ),
                     ),
-                    isAsc = false,
+                    isAsc = true,
                     size = 10,
                 ),
             )
