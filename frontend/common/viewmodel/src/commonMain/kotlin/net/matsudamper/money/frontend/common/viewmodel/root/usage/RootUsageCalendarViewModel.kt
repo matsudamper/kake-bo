@@ -89,23 +89,53 @@ public class RootUsageCalendarViewModel(
                             DayOfWeek.FRIDAY -> 5
                             DayOfWeek.SATURDAY -> 6
                         }
-                        (0 until padding).map {
-                            RootUsageCalendarScreenUiState.CalendarCell.Empty
-                        }.plus(
-                            daysOfMonth.map { localDate ->
-                                val day = dayGroup[localDate.dayOfMonth].orEmpty()
+                        buildList {
+                            addAll(
+                                listOf(
+                                    DayOfWeek.SUNDAY,
+                                    DayOfWeek.MONDAY,
+                                    DayOfWeek.TUESDAY,
+                                    DayOfWeek.WEDNESDAY,
+                                    DayOfWeek.THURSDAY,
+                                    DayOfWeek.FRIDAY,
+                                    DayOfWeek.SATURDAY,
+                                ).map {
+                                    RootUsageCalendarScreenUiState.CalendarCell.DayOfWeek(
+                                        text = when (it) {
+                                            DayOfWeek.SUNDAY -> "日"
+                                            DayOfWeek.MONDAY -> "月"
+                                            DayOfWeek.TUESDAY -> "火"
+                                            DayOfWeek.WEDNESDAY -> "水"
+                                            DayOfWeek.THURSDAY -> "木"
+                                            DayOfWeek.FRIDAY -> "金"
+                                            DayOfWeek.SATURDAY -> "土"
+                                        },
+                                        dayOfWeek = it,
+                                    )
+                                }
+                            )
+                            addAll(
+                                (0 until padding).map {
+                                    RootUsageCalendarScreenUiState.CalendarCell.Empty
+                                }
+                            )
+                            addAll(
+                                daysOfMonth.map { localDate ->
+                                    val day = dayGroup[localDate.dayOfMonth].orEmpty()
 
-                                RootUsageCalendarScreenUiState.CalendarCell.Day(
-                                    text = "${localDate.dayOfMonth}日",
-                                    items = day.map { node ->
-                                        RootUsageCalendarScreenUiState.CalendarDayItem(
-                                            title = node.title,
-                                        )
-                                    }.toImmutableList(),
-                                )
-                            }
-                        )
-                    }.orEmpty().toImmutableList()
+                                    RootUsageCalendarScreenUiState.CalendarCell.Day(
+                                        text = "${localDate.dayOfMonth}日",
+                                        isToday = localDate == viewModelState.today,
+                                        items = day.map { node ->
+                                            RootUsageCalendarScreenUiState.CalendarDayItem(
+                                                title = node.title,
+                                            )
+                                        }.toImmutableList(),
+                                    )
+                                }
+                            )
+                        }
+                    }.toImmutableList()
 
                     uiStateFlow.update { uiState ->
                         uiState.copy(
@@ -173,6 +203,7 @@ public class RootUsageCalendarViewModel(
 
     public data class ViewModelState(
         val results: List<ApolloResponseState<ApolloResponse<UsageCalendarScreenPagingQuery.Data>>> = listOf(),
+        val today: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
         val displayMonth: LocalDate = run {
             val currentLocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
             LocalDate(

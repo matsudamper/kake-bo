@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.ui.screen.root.usage
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -34,9 +35,13 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import kotlinx.datetime.DayOfWeek
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.layout.ScrollButton
 import net.matsudamper.money.frontend.common.ui.layout.ScrollButtonDefaults
@@ -55,9 +60,16 @@ public data class RootUsageCalendarScreenUiState(
     }
 
     public sealed interface CalendarCell {
+
         public data class Day(
             val text: String,
+            val isToday: Boolean,
             val items: ImmutableList<CalendarDayItem>,
+        ) : CalendarCell
+
+        public data class DayOfWeek(
+            val dayOfWeek: kotlinx.datetime.DayOfWeek,
+            val text: String,
         ) : CalendarCell
 
         public object Empty : CalendarCell
@@ -152,20 +164,30 @@ private fun LoadedContent(
     paddingValues: PaddingValues,
 ) {
     LazyVerticalGrid(
+        modifier = modifier,
         columns = GridCells.Fixed(7),
     ) {
         items(uiState.calendarCells) { cell ->
-            Box(modifier = Modifier.heightIn(min = 100.dp)) {
-                when (cell) {
-                    is RootUsageCalendarScreenUiState.CalendarCell.Day -> {
-                        CalendarCell(
-                            uiState = cell,
-                        )
-                    }
+            when (cell) {
+                is RootUsageCalendarScreenUiState.CalendarCell.Day -> {
+                    CalendarCell(
+                        modifier = Modifier.heightIn(min = 100.dp),
+                        uiState = cell,
+                    )
+                }
 
-                    RootUsageCalendarScreenUiState.CalendarCell.Empty -> Unit
+                is RootUsageCalendarScreenUiState.CalendarCell.Empty -> Unit
+                is RootUsageCalendarScreenUiState.CalendarCell.DayOfWeek -> {
+                    Text(
+                        modifier = Modifier.fillMaxSize()
+                            .padding(2.dp),
+                        text = cell.text,
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleSmall,
+                    )
                 }
             }
+
         }
     }
 }
@@ -175,8 +197,30 @@ private fun CalendarCell(
     modifier: Modifier = Modifier,
     uiState: RootUsageCalendarScreenUiState.CalendarCell.Day,
 ) {
-    Column(modifier = modifier) {
-        Text(uiState.text)
+    Column(
+        modifier = modifier
+            .padding(vertical = 2.dp)
+    ) {
+        Text(
+            modifier = Modifier
+                .padding(2.dp)
+                .clip(MaterialTheme.shapes.small)
+                .background(
+                    if (uiState.isToday) {
+                        MaterialTheme.colorScheme.secondaryContainer
+                    } else {
+                        Color.Transparent
+                    }
+                )
+                .padding(2.dp),
+            color = if (uiState.isToday) {
+                MaterialTheme.colorScheme.onSecondaryContainer
+            } else {
+                Color.Unspecified
+            },
+            text = uiState.text,
+            style = MaterialTheme.typography.titleSmall,
+        )
         Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
         uiState.items.forEach { item ->
             Spacer(Modifier.height(2.dp))
