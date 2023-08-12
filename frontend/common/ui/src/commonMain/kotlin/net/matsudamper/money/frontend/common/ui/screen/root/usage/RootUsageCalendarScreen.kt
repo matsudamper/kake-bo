@@ -8,18 +8,16 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
@@ -33,17 +31,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
-import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButton
-import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButtonDefaults
+import net.matsudamper.money.frontend.common.ui.ScrollButtons
+import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 
 public data class RootUsageCalendarScreenUiState(
     val event: Event,
@@ -114,30 +118,45 @@ public fun RootUsageCalendarScreen(
         val height = maxHeight
         when (uiState.loadingState) {
             is RootUsageCalendarScreenUiState.LoadingState.Loaded -> {
-                val lazyListState = rememberLazyListState()
+                var buttonSize: IntSize by remember { mutableStateOf(IntSize.Zero) }
+                val lazyGridState = rememberLazyGridState()
                 LoadedContent(
                     modifier = Modifier.fillMaxSize(),
                     uiState = uiState.loadingState,
-                    paddingValues = PaddingValues(
-                        end = ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding * 2 + ElongatedScrollButtonDefaults.scrollButtonSize,
-                    ),
-                    lazyListState = lazyListState,
+                    state = lazyGridState,
+                    contentPadding = PaddingValues(bottom = with(density) { buttonSize.height.toDp() }),
                 )
 
-                ElongatedScrollButton(
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .fillMaxHeight()
-                        .padding(ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding)
-                        .width(ElongatedScrollButtonDefaults.scrollButtonSize),
-                    scrollState = lazyListState,
-                    scrollSize = with(density) {
-                        height.toPx() * 0.7f
-                    },
-                    animationSpec = spring(
-                        stiffness = Spring.StiffnessLow,
-                    ),
-                )
+                Column(
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                        .onSizeChanged {
+                            buttonSize = it
+                        },
+                    horizontalAlignment = Alignment.End,
+                ) {
+                    FloatingActionButton(
+                        modifier = Modifier
+                            .padding(bottom = 12.dp, end = 12.dp),
+                        onClick = { uiState.event.onClickAdd() },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "add money usage",
+                        )
+                    }
+                    ScrollButtons(
+                        modifier = Modifier
+                            .padding(ScrollButtonsDefaults.padding)
+                            .height(ScrollButtonsDefaults.height),
+                        scrollState = lazyGridState,
+                        scrollSize = with(density) {
+                            height.toPx() * 0.7f
+                        },
+                        animationSpec = spring(
+                            stiffness = Spring.StiffnessLow,
+                        ),
+                    )
+                }
             }
 
             is RootUsageCalendarScreenUiState.LoadingState.Loading -> {
@@ -146,18 +165,6 @@ public fun RootUsageCalendarScreen(
                 )
             }
         }
-
-        FloatingActionButton(
-            modifier = Modifier.align(Alignment.BottomEnd)
-                .padding(end = ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding * 2 + ElongatedScrollButtonDefaults.scrollButtonSize)
-                .padding(bottom = 24.dp, end = 12.dp),
-            onClick = { uiState.event.onClickAdd() },
-        ) {
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "add money usage",
-            )
-        }
     }
 }
 
@@ -165,12 +172,14 @@ public fun RootUsageCalendarScreen(
 private fun LoadedContent(
     modifier: Modifier = Modifier,
     uiState: RootUsageCalendarScreenUiState.LoadingState.Loaded,
-    lazyListState: LazyListState,
-    paddingValues: PaddingValues,
+    state: LazyGridState,
+    contentPadding: PaddingValues,
 ) {
     LazyVerticalGrid(
         modifier = modifier,
+        state = state,
         columns = GridCells.Fixed(7),
+        contentPadding = contentPadding,
     ) {
         items(uiState.calendarCells) { cell ->
             when (cell) {
