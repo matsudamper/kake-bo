@@ -26,7 +26,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -42,10 +41,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import kotlinx.datetime.DayOfWeek
 import net.matsudamper.money.frontend.common.base.ImmutableList
-import net.matsudamper.money.frontend.common.ui.layout.ScrollButton
-import net.matsudamper.money.frontend.common.ui.layout.ScrollButtonDefaults
+import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButton
+import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButtonDefaults
 
 public data class RootUsageCalendarScreenUiState(
     val event: Event,
@@ -121,17 +119,17 @@ public fun RootUsageCalendarScreen(
                     modifier = Modifier.fillMaxSize(),
                     uiState = uiState.loadingState,
                     paddingValues = PaddingValues(
-                        end = ScrollButtonDefaults.scrollButtonHorizontalPadding * 2 + ScrollButtonDefaults.scrollButtonSize,
+                        end = ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding * 2 + ElongatedScrollButtonDefaults.scrollButtonSize,
                     ),
                     lazyListState = lazyListState,
                 )
 
-                ScrollButton(
+                ElongatedScrollButton(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .fillMaxHeight()
-                        .padding(ScrollButtonDefaults.scrollButtonHorizontalPadding)
-                        .width(ScrollButtonDefaults.scrollButtonSize),
+                        .padding(ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding)
+                        .width(ElongatedScrollButtonDefaults.scrollButtonSize),
                     scrollState = lazyListState,
                     scrollSize = with(density) {
                         height.toPx() * 0.7f
@@ -151,7 +149,7 @@ public fun RootUsageCalendarScreen(
 
         FloatingActionButton(
             modifier = Modifier.align(Alignment.BottomEnd)
-                .padding(end = ScrollButtonDefaults.scrollButtonHorizontalPadding * 2 + ScrollButtonDefaults.scrollButtonSize)
+                .padding(end = ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding * 2 + ElongatedScrollButtonDefaults.scrollButtonSize)
                 .padding(bottom = 24.dp, end = 12.dp),
             onClick = { uiState.event.onClickAdd() },
         ) {
@@ -198,7 +196,6 @@ private fun LoadedContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CalendarCell(
     modifier: Modifier = Modifier,

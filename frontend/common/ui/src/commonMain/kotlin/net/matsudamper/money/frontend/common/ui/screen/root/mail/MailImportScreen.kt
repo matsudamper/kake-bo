@@ -46,8 +46,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import net.matsudamper.money.frontend.common.ui.layout.ScrollButton
-import net.matsudamper.money.frontend.common.ui.layout.ScrollButtonDefaults
+import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButton
+import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButtonDefaults
 import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 import net.matsudamper.money.frontend.common.ui.screen.root.ImportMailScreenUiState
@@ -93,7 +93,7 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
             if (firstLoadingFinished) {
                 Box(
                     modifier = Modifier.fillMaxWidth()
-                        .padding(end = ScrollButtonDefaults.scrollButtonSize + ScrollButtonDefaults.scrollButtonHorizontalPadding),
+                        .padding(end = ElongatedScrollButtonDefaults.scrollButtonSize + ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding),
                     contentAlignment = Alignment.Center,
                 ) {
                     Button(
@@ -148,7 +148,7 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                             MailContent(
                                 modifier = Modifier
                                     .padding(vertical = 12.dp)
-                                    .padding(start = ScrollButtonDefaults.scrollButtonHorizontalPadding),
+                                    .padding(start = ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding),
                                 uiState = item,
                             )
                         }
@@ -167,7 +167,7 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                                 item {
                                     OutlinedButton(
                                         modifier = Modifier.fillMaxWidth()
-                                            .padding(start = ScrollButtonDefaults.scrollButtonHorizontalPadding),
+                                            .padding(start = ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding),
                                         onClick = { uiState.event.onClickLoadMore() },
                                     ) {
                                         Text(
@@ -183,11 +183,11 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                         }
                     }
 
-                    ScrollButton(
+                    ElongatedScrollButton(
                         modifier = Modifier
                             .fillMaxHeight()
-                            .padding(ScrollButtonDefaults.scrollButtonHorizontalPadding)
-                            .width(ScrollButtonDefaults.scrollButtonSize),
+                            .padding(ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding)
+                            .width(ElongatedScrollButtonDefaults.scrollButtonSize),
                         scrollState = lazyListState,
                         scrollSize = with(density) {
                             height.toPx() * 0.7f

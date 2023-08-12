@@ -42,8 +42,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
-import net.matsudamper.money.frontend.common.ui.layout.ScrollButton
-import net.matsudamper.money.frontend.common.ui.layout.ScrollButtonDefaults
+import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButton
+import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButtonDefaults
 
 public data class RootUsageListScreenUiState(
     val event: Event,
@@ -107,17 +107,17 @@ public fun RootUsageListScreen(
                     modifier = Modifier.fillMaxSize(),
                     uiState = uiState.loadingState,
                     paddingValues = PaddingValues(
-                        end = ScrollButtonDefaults.scrollButtonHorizontalPadding * 2 + ScrollButtonDefaults.scrollButtonSize,
+                        end = ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding * 2 + ElongatedScrollButtonDefaults.scrollButtonSize,
                     ),
                     lazyListState = lazyListState,
                 )
 
-                ScrollButton(
+                ElongatedScrollButton(
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
                         .fillMaxHeight()
-                        .padding(ScrollButtonDefaults.scrollButtonHorizontalPadding)
-                        .width(ScrollButtonDefaults.scrollButtonSize),
+                        .padding(ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding)
+                        .width(ElongatedScrollButtonDefaults.scrollButtonSize),
                     scrollState = lazyListState,
                     scrollSize = with(density) {
                         height.toPx() * 0.7f
@@ -137,7 +137,7 @@ public fun RootUsageListScreen(
 
         FloatingActionButton(
             modifier = Modifier.align(Alignment.BottomEnd)
-                .padding(end = ScrollButtonDefaults.scrollButtonHorizontalPadding * 2 + ScrollButtonDefaults.scrollButtonSize)
+                .padding(end = ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding * 2 + ElongatedScrollButtonDefaults.scrollButtonSize)
                 .padding(bottom = 24.dp, end = 12.dp),
             onClick = { uiState.event.onClickAdd() },
         ) {

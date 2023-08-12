@@ -51,8 +51,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
-import net.matsudamper.money.frontend.common.ui.layout.ScrollButton
-import net.matsudamper.money.frontend.common.ui.layout.ScrollButtonDefaults
+import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButton
+import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButtonDefaults
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
 public data class ImportedMailListScreenUiState(
@@ -176,7 +176,7 @@ private fun MainContent(
                 modifier = Modifier.fillMaxSize(),
                 state = lazyListState,
                 contentPadding = PaddingValues(
-                    end = ScrollButtonDefaults.scrollButtonHorizontalPadding + ScrollButtonDefaults.scrollButtonSize,
+                    end = ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding + ElongatedScrollButtonDefaults.scrollButtonSize,
                 ),
             ) {
                 items(uiState.listItems) { mail ->
@@ -209,12 +209,12 @@ private fun MainContent(
                 }
             }
 
-            ScrollButton(
+            ElongatedScrollButton(
                 modifier = Modifier
                     .align(Alignment.CenterEnd)
                     .fillMaxHeight()
-                    .padding(ScrollButtonDefaults.scrollButtonHorizontalPadding)
-                    .width(ScrollButtonDefaults.scrollButtonSize),
+                    .padding(ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding)
+                    .width(ElongatedScrollButtonDefaults.scrollButtonSize),
                 scrollState = lazyListState,
                 scrollSize = with(density) {
                     height.toPx() * 0.7f

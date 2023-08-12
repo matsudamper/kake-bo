@@ -54,8 +54,8 @@ import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.CalendarDialog
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
-import net.matsudamper.money.frontend.common.ui.layout.ScrollButton
-import net.matsudamper.money.frontend.common.ui.layout.ScrollButtonDefaults
+import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButton
+import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButtonDefaults
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
 
 public data class MoneyUsageScreenUiState(
@@ -255,8 +255,8 @@ private fun LoadedContent(
             modifier = Modifier.fillMaxSize()
                 .padding(horizontal = 12.dp),
             contentPadding = PaddingValues(
-                end = ScrollButtonDefaults.scrollButtonSize
-                    .plus(ScrollButtonDefaults.scrollButtonHorizontalPadding * 2),
+                end = ElongatedScrollButtonDefaults.scrollButtonSize
+                    .plus(ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding * 2),
             ),
             state = state,
         ) {
@@ -332,12 +332,12 @@ private fun LoadedContent(
                 }
             }
         }
-        ScrollButton(
+        ElongatedScrollButton(
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .fillMaxHeight()
-                .padding(ScrollButtonDefaults.scrollButtonHorizontalPadding)
-                .width(ScrollButtonDefaults.scrollButtonSize),
+                .padding(ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding)
+                .width(ElongatedScrollButtonDefaults.scrollButtonSize),
             scrollState = state,
             scrollSize = remember(density, height) { with(density) { (height * 0.7f).toPx() } },
         )

@@ -23,13 +23,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
-internal object ScrollButtonDefaults {
+internal object ElongatedScrollButtonDefaults {
     internal val scrollButtonSize = 52.dp
     internal val scrollButtonHorizontalPadding = 8.dp
 }
 
 @Composable
-public fun ScrollButton(
+public fun ElongatedScrollButton(
     modifier: Modifier = Modifier,
     scrollState: ScrollableState,
     scrollSize: Float,
