@@ -151,7 +151,7 @@ private fun Content(
             coroutineScope = rootCoroutineScope,
             pagingModel = RootUsageCalendarPagingModel(
                 coroutineScope = rootCoroutineScope,
-            )
+            ),
         )
     }
     val mailScreenViewModel = remember {

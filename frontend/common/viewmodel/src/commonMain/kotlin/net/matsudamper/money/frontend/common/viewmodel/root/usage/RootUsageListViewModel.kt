@@ -168,7 +168,7 @@ public class RootUsageListViewModel(
                 query = MoneyUsagesQuery(
                     cursor = Optional.present(cursor),
                     size = 10,
-                    isAsc = false
+                    isAsc = false,
                 ),
             )
         }

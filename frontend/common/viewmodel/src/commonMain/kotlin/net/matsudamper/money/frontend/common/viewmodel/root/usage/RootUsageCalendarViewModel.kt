@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
@@ -17,7 +18,6 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
-import kotlinx.datetime.DayOfWeek
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -112,12 +112,12 @@ public class RootUsageCalendarViewModel(
                                         },
                                         dayOfWeek = it,
                                     )
-                                }
+                                },
                             )
                             addAll(
                                 (0 until padding).map {
                                     RootUsageCalendarScreenUiState.CalendarCell.Empty
-                                }
+                                },
                             )
                             addAll(
                                 daysOfMonth.map { localDate ->
@@ -141,7 +141,7 @@ public class RootUsageCalendarViewModel(
                                             )
                                         }.toImmutableList(),
                                     )
-                                }
+                                },
                             )
                         }
                     }.toImmutableList()
@@ -182,7 +182,6 @@ public class RootUsageCalendarViewModel(
                 }
         }
     }
-
 
     internal fun prevMonth() {
         viewModelStateFlow.update {

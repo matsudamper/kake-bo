@@ -1,6 +1,8 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.usage
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -8,8 +10,6 @@ import kotlinx.datetime.LocalTime
 import kotlinx.datetime.minus
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.UsageCalendarScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloPagingResponseCollector
