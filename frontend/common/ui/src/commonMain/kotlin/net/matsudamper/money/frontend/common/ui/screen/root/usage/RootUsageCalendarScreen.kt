@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.ui.screen.root.usage
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -26,6 +27,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -77,7 +79,13 @@ public data class RootUsageCalendarScreenUiState(
 
     public data class CalendarDayItem(
         val title: String,
+        val event: CalendarDayEvent,
     )
+
+    @Immutable
+    public interface CalendarDayEvent {
+        public fun onClick()
+    }
 
     @Immutable
     public interface ItemEvent {
@@ -192,6 +200,7 @@ private fun LoadedContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CalendarCell(
     modifier: Modifier = Modifier,
@@ -233,6 +242,7 @@ private fun CalendarCell(
             ) {
                 Text(
                     modifier = Modifier.fillMaxWidth()
+                        .clickable { item.event.onClick() }
                         .padding(2.dp),
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,

@@ -121,14 +121,23 @@ public class RootUsageCalendarViewModel(
                             )
                             addAll(
                                 daysOfMonth.map { localDate ->
-                                    val day = dayGroup[localDate.dayOfMonth].orEmpty()
+                                    val days = dayGroup[localDate.dayOfMonth].orEmpty()
 
                                     RootUsageCalendarScreenUiState.CalendarCell.Day(
                                         text = "${localDate.dayOfMonth}日",
                                         isToday = localDate == viewModelState.today,
-                                        items = day.map { node ->
+                                        items = days.map { day ->
                                             RootUsageCalendarScreenUiState.CalendarDayItem(
-                                                title = node.title,
+                                                title = day.title,
+                                                event = object : RootUsageCalendarScreenUiState.CalendarDayEvent {
+                                                    override fun onClick() {
+                                                        coroutineScope.launch {
+                                                            viewModelEventSender.send {
+                                                                it.navigate(ScreenStructure.MoneyUsage(day.id))
+                                                            }
+                                                        }
+                                                    }
+                                                },
                                             )
                                         }.toImmutableList(),
                                     )
