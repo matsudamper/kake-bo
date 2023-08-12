@@ -163,9 +163,7 @@ private fun LoadedContent(
                         )
                     }
 
-                    RootUsageCalendarScreenUiState.CalendarCell.Empty -> {
-                        Text("empty")
-                    }
+                    RootUsageCalendarScreenUiState.CalendarCell.Empty -> Unit
                 }
             }
         }

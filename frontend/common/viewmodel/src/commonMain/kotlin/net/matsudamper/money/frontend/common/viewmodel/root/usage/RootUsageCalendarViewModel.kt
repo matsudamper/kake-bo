@@ -17,6 +17,7 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
+import kotlinx.datetime.DayOfWeek
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -67,10 +68,10 @@ public class RootUsageCalendarViewModel(
                     val cells: ImmutableList<RootUsageCalendarScreenUiState.CalendarCell> = run cells@{
                         val dayGroup = nodes.groupBy { it.date.date.dayOfMonth }
 
-                        val daysOfMonth = run daysOfMonth@{
-                            val firstDay = viewModelState.displayMonth
-                                .let { LocalDate(it.year, it.monthNumber, 1) }
+                        val firstDay = viewModelState.displayMonth
+                            .let { LocalDate(it.year, it.monthNumber, 1) }
 
+                        val daysOfMonth = run daysOfMonth@{
                             buildList<LocalDate> {
                                 add(firstDay)
                                 while (last().month == firstDay.month) {
@@ -79,19 +80,31 @@ public class RootUsageCalendarViewModel(
                                 removeLast()
                             }
                         }
-
-                        daysOfMonth.map { localDate ->
-                            val day = dayGroup[localDate.dayOfMonth].orEmpty()
-
-                            RootUsageCalendarScreenUiState.CalendarCell.Day(
-                                text = "${localDate.dayOfMonth}日",
-                                items = day.map { node ->
-                                    RootUsageCalendarScreenUiState.CalendarDayItem(
-                                        title = node.title,
-                                    )
-                                }.toImmutableList(),
-                            )
+                        val padding = when (firstDay.dayOfWeek) {
+                            DayOfWeek.SUNDAY -> 0
+                            DayOfWeek.MONDAY -> 1
+                            DayOfWeek.TUESDAY -> 2
+                            DayOfWeek.WEDNESDAY -> 3
+                            DayOfWeek.THURSDAY -> 4
+                            DayOfWeek.FRIDAY -> 5
+                            DayOfWeek.SATURDAY -> 6
                         }
+                        (0 until padding).map {
+                            RootUsageCalendarScreenUiState.CalendarCell.Empty
+                        }.plus(
+                            daysOfMonth.map { localDate ->
+                                val day = dayGroup[localDate.dayOfMonth].orEmpty()
+
+                                RootUsageCalendarScreenUiState.CalendarCell.Day(
+                                    text = "${localDate.dayOfMonth}日",
+                                    items = day.map { node ->
+                                        RootUsageCalendarScreenUiState.CalendarDayItem(
+                                            title = node.title,
+                                        )
+                                    }.toImmutableList(),
+                                )
+                            }
+                        )
                     }.orEmpty().toImmutableList()
 
                     uiStateFlow.update { uiState ->
