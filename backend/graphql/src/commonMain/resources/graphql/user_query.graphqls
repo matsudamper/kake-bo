@@ -21,6 +21,7 @@ type MoneyUsagesConnection {
 input MoneyUsagesQuery {
     size: Int!
     cursor: String
+    isAsc: Boolean!
     filter: MoneyUsagesQueryFilter
 }
 

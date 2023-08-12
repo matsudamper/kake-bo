@@ -112,7 +112,7 @@ class UserResolverImpl : UserResolver {
                 .getMoneyUsageByQuery(
                     userId = userId,
                     size = query.size,
-                    isAsc = false,
+                    isAsc = query.isAsc,
                     cursor = query.cursor?.let { MoneyUsagesCursor.fromString(it) }?.let {
                         MoneyUsageRepository.GetMoneyUsageByQueryResult.Cursor(
                             lastId = it.lastId,
