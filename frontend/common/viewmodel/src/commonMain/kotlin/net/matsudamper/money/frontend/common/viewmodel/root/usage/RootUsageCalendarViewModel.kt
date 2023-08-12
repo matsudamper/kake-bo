@@ -71,7 +71,6 @@ public class RootUsageCalendarViewModel(
         coroutineScope.launch {
             viewModelStateFlow
                 .collectLatest { viewModelState ->
-                    println("viewModelState: $viewModelState")
                     val nodes = viewModelState.results.mapNotNull { state ->
                         state.getSuccessOrNull()?.value
                     }.flatMap {
