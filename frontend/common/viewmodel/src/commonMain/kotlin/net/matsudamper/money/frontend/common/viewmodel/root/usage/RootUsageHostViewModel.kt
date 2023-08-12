@@ -33,6 +33,7 @@ public class RootUsageHostViewModel(
     public val uiStateFlow: StateFlow<RootUsageHostScreenUiState> = MutableStateFlow(
         RootUsageHostScreenUiState(
             type = RootUsageHostScreenUiState.Type.Calendar,
+            header = RootUsageHostScreenUiState.Header.None,
             event = object : RootUsageHostScreenUiState.Event {
                 override fun onViewInitialized() {
                     // TODO

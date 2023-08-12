@@ -1,5 +1,7 @@
 package net.matsudamper.money.frontend.common.ui.screen.importedmail.plain
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -8,10 +10,13 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffold
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
@@ -58,15 +63,29 @@ public fun ImportedMailPlainScreen(
         is ImportedMailPlainScreenUiState.LoadingState.Loading -> {
             KakeboScaffold(
                 modifier = modifier,
-                listener = kakeboScaffoldListener,
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            uiState.event.onClickClose()
+                topBar = {
+                    KakeBoTopAppBar(
+                        navigation = {
+                            IconButton(
+                                onClick = {
+                                    uiState.event.onClickClose()
+                                },
+                            ) {
+                                Icon(Icons.Filled.Close, contentDescription = "Close")
+                            }
                         },
-                    ) {
-                        Icon(Icons.Filled.Close, contentDescription = "Close")
-                    }
+                        title = {
+                            Text(
+                                modifier = Modifier.clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null,
+                                ) {
+                                    kakeboScaffoldListener.onClickTitle()
+                                },
+                                text = "家計簿",
+                            )
+                        },
+                    )
                 },
             ) {
                 Box(

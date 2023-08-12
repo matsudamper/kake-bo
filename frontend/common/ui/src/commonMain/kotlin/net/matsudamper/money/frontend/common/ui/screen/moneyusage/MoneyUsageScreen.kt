@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.ui.screen.moneyusage
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -46,6 +47,7 @@ import kotlinx.datetime.LocalDate
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
+import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffold
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
@@ -185,12 +187,26 @@ public fun MoneyUsageScreen(
     }
     KakeboScaffold(
         modifier = modifier,
-        navigationIcon = {
-            IconButton(onClick = { uiState.event.onClickBack() }) {
-                Icon(Icons.Default.ArrowBack, "戻る")
-            }
+        topBar = {
+            KakeBoTopAppBar(
+                navigation = {
+                    IconButton(onClick = { uiState.event.onClickBack() }) {
+                        Icon(Icons.Default.ArrowBack, "戻る")
+                    }
+                },
+                title = {
+                    Text(
+                        modifier = Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) {
+                            kakeboScaffoldListener.onClickTitle()
+                        },
+                        text = "家計簿",
+                    )
+                },
+            )
         },
-        listener = kakeboScaffoldListener,
     ) { paddingValues ->
         when (val state = uiState.loadingState) {
             is MoneyUsageScreenUiState.LoadingState.Loaded -> {

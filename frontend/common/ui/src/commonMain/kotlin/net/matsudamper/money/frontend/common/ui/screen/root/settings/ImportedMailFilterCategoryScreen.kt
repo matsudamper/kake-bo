@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.settings
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -52,6 +53,7 @@ import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
+import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
@@ -241,10 +243,25 @@ public fun ImportedMailFilterCategoryScreen(
     RootScreenScaffold(
         modifier = modifier,
         currentScreen = RootScreenTab.Settings,
-        navigation = {
-            IconButton(onClick = { uiState.event.onClickBack() }) {
-                Icon(Icons.Default.ArrowBack, contentDescription = null)
-            }
+        topBar = {
+            KakeBoTopAppBar(
+                title = {
+                    Text(
+                        modifier = Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) {
+                            rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                        },
+                        text = "家計簿",
+                    )
+                },
+                navigation = {
+                    IconButton(onClick = { uiState.event.onClickBack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = null)
+                    }
+                },
+            )
         },
         snackbarHostState = snackbarHostState,
         listener = rootScreenScaffoldListener,
@@ -595,9 +612,11 @@ private fun ConditionCard(
                 horizontalAlignment = Alignment.End,
             ) {
                 var visibleDropDown by remember { mutableStateOf(false) }
-                IconButton(onClick = {
-                    visibleDropDown = !visibleDropDown
-                },) {
+                IconButton(
+                    onClick = {
+                        visibleDropDown = !visibleDropDown
+                    },
+                ) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = "メニューを開く",

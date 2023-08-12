@@ -21,34 +21,18 @@ public interface KakeboScaffoldListener {
 @Composable
 public fun KakeboScaffold(
     modifier: Modifier = Modifier,
-    navigationIcon: @Composable () -> Unit = {},
-    onClickTitle: () -> Unit = {},
+    topBar: (@Composable () -> Unit)? = null,
     bottomBar: @Composable () -> Unit = {},
-    menu: @Composable () -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
-    listener: KakeboScaffoldListener,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
         modifier = modifier,
         contentColor = MaterialTheme.colorScheme.onSurface,
         topBar = {
-            KakeBoTopAppBar(
-                navigationIcon = navigationIcon,
-                onClickTitle = onClickTitle,
-                menu = menu,
-                title = {
-                    Text(
-                        modifier = Modifier.clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                        ) {
-                            listener.onClickTitle()
-                        },
-                        text = "家計簿",
-                    )
-                },
-            )
+            if (topBar != null) {
+                topBar()
+            }
         },
         snackbarHost = snackbarHost,
         bottomBar = bottomBar,

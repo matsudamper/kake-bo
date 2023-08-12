@@ -49,8 +49,7 @@ public enum class RootScreenTab {
 internal fun RootScreenScaffold(
     modifier: Modifier = Modifier,
     currentScreen: RootScreenTab,
-    navigation: (@Composable () -> Unit)? = null,
-    menu: @Composable () -> Unit = {},
+    topBar: @Composable () -> Unit,
     listener: RootScreenScaffoldListener,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     content: @Composable BoxScope.() -> Unit,
@@ -66,14 +65,12 @@ internal fun RootScreenScaffold(
         }
         KakeboScaffold(
             modifier = Modifier.fillMaxWidth(),
-            navigationIcon = navigation ?: {},
-            menu = menu,
+            topBar = topBar,
             snackbarHost = {
                 MySnackBarHost(
                     hostState = snackbarHostState,
                 )
             },
-            listener = listener.kakeboScaffoldListener,
             bottomBar = {
                 if (isLargeScreen.not()) {
                     NavigationBar {

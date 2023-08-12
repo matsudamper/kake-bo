@@ -105,7 +105,11 @@ public fun AddMoneyUsageScreen(
             KakeBoTopAppBar(
                 modifier = Modifier.fillMaxWidth(),
                 title = {
-                    Text("追加")
+                    Box(
+                        modifier = Modifier,
+                    ) {
+                        Text("追加")
+                    }
                 },
             )
         },

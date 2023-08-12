@@ -1,5 +1,7 @@
 package net.matsudamper.money.frontend.common.ui.screen.importedmail.root
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -140,16 +142,13 @@ public fun ImportedMailScreen(
         modifier = modifier,
         topBar = {
             KakeBoTopAppBar(
-                navigationIcon = {
+                navigation = {
                     IconButton(onClick = { uiState.event.onClickArrowBackButton() }) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = null,
                         )
                     }
-                },
-                onClickTitle = {
-                    uiState.event.onClickTitle()
                 },
                 menu = {
                     var expand by remember { mutableStateOf(false) }
@@ -174,9 +173,17 @@ public fun ImportedMailScreen(
                     }
                 },
             ) {
-                Text(
-                    text = "家計簿 - メール",
-                )
+                Box(
+                    modifier = Modifier
+                        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                            uiState.event.onClickTitle()
+                        },
+                ) {
+
+                    Text(
+                        text = "家計簿 - メール",
+                    )
+                }
             }
         },
         contentColor = MaterialTheme.colorScheme.onSurface,
