@@ -1,12 +1,7 @@
-query RootHomeTabScreen {
+query RootHomeTabScreen($query: MoneyUsageStaticsQuery!) {
     user {
-        userMailAttributes {
-            mailCount
-        }
-        importedMailAttributes {
-            count(query: {
-                isLinked: false
-            })
+        moneyUsageStatics(query: $query) {
+            totalAmount
         }
     }
 }
