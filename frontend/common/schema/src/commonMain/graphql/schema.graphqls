@@ -105,6 +105,22 @@ type MoneyUsageCategory {
     subCategories(query: MoneyUsageSubCategoryQuery!): SubCategoriesConnection
 }
 
+type MoneyUsageStatics {
+    byCategories: [MoneyUsageStaticsByCategory!]!
+    totalAmount: Long
+}
+
+type MoneyUsageStaticsByCategory {
+    bySubCategories: [MoneyUsageStaticsBySubCategory!]!
+    category: MoneyUsageCategory!
+    totalAmount: Long
+}
+
+type MoneyUsageStaticsBySubCategory {
+    category: MoneyUsageSubCategory!
+    totalAmount: Long
+}
+
 type MoneyUsageSubCategory {
     category: MoneyUsageCategory!
     id: MoneyUsageSubCategoryId!
@@ -152,6 +168,7 @@ type User {
     moneyUsage(id: MoneyUsageId!): MoneyUsage
     moneyUsageCategories(input: MoneyUsageCategoriesInput!): MoneyUsageCategoriesConnection
     moneyUsageCategory(id: MoneyUsageCategoryId!): MoneyUsageCategory
+    moneyUsageStatics(query: MoneyUsageStaticsQuery!): MoneyUsageStatics!
     moneyUsageSubCategory(input: MoneyUsageSubCategoryInput!): MoneyUsageSubCategory
     moneyUsages(query: MoneyUsagesQuery!): MoneyUsagesConnection
     settings: UserSettings!
@@ -275,6 +292,9 @@ scalar ImportedMailId
 
 scalar LocalDateTime
 
+"A 64-bit signed integer"
+scalar Long
+
 scalar MailId
 
 scalar MoneyUsageCategoryId
@@ -340,6 +360,11 @@ input MailQuery {
 input MoneyUsageCategoriesInput {
     cursor: String
     size: Int!
+}
+
+input MoneyUsageStaticsQuery {
+    sinceDateTime: LocalDateTime!
+    untilDateTime: LocalDateTime!
 }
 
 input MoneyUsageSubCategoryInput {
