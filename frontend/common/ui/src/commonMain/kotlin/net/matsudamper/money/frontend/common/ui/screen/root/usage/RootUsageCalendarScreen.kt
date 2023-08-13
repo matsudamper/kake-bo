@@ -153,7 +153,7 @@ public fun RootUsageCalendarScreen(
                             .height(ScrollButtonsDefaults.height),
                         scrollState = lazyGridState,
                         scrollSize = with(density) {
-                            height.toPx() * 0.7f
+                            height.toPx() * 0.4f
                         },
                         animationSpec = spring(
                             stiffness = Spring.StiffnessLow,
