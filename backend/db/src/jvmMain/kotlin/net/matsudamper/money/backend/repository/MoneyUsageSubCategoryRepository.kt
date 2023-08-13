@@ -25,7 +25,7 @@ class MoneyUsageSubCategoryRepository {
                     .select(CATEGORIES.MONEY_USAGE_CATEGORY_ID)
                     .from(CATEGORIES)
                     .where(
-                        CATEGORIES.USER_ID.eq(userId.id)
+                        CATEGORIES.USER_ID.eq(userId.value)
                             .and(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.id)),
                     )
                     .count()
@@ -44,7 +44,7 @@ class MoneyUsageSubCategoryRepository {
                     .insertInto(SUB_CATEGORIES)
                     .set(
                         JMoneyUsageCategoriesRecord(
-                            userId = userId.id,
+                            userId = userId.value,
                             name = name,
                             moneyUsageCategoryId = categoryId.id,
                         ),
@@ -77,7 +77,7 @@ class MoneyUsageSubCategoryRepository {
                     .from(CATEGORIES)
                     .where(
                         DSL.value(true)
-                            .and(CATEGORIES.USER_ID.eq(userId.id))
+                            .and(CATEGORIES.USER_ID.eq(userId.value))
                             .and(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.id)),
                     )
                     .fetchOne() != null
@@ -99,8 +99,8 @@ class MoneyUsageSubCategoryRepository {
                     .join(CATEGORIES).using(CATEGORIES.MONEY_USAGE_CATEGORY_ID)
                     .where(
                         DSL.value(true)
-                            .and(CATEGORIES.USER_ID.eq(userId.id))
-                            .and(SUB_CATEGORIES.USER_ID.eq(userId.id))
+                            .and(CATEGORIES.USER_ID.eq(userId.value))
+                            .and(SUB_CATEGORIES.USER_ID.eq(userId.value))
                             .and(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.id)),
                     )
                     .fetch()
@@ -133,7 +133,7 @@ class MoneyUsageSubCategoryRepository {
                 val records = DSL.using(connection)
                     .selectFrom(SUB_CATEGORIES)
                     .where(
-                        SUB_CATEGORIES.USER_ID.eq(userId.id)
+                        SUB_CATEGORIES.USER_ID.eq(userId.value)
                             .and(
                                 SUB_CATEGORIES.MONEY_USAGE_SUB_CATEGORY_ID
                                     .`in`(moneyUsageSubCategoryIds.map { it.id }),
@@ -166,7 +166,7 @@ class MoneyUsageSubCategoryRepository {
                     .set(SUB_CATEGORIES.NAME, name)
                     .where(
                         DSL.value(true)
-                            .and(SUB_CATEGORIES.USER_ID.eq(userId.id))
+                            .and(SUB_CATEGORIES.USER_ID.eq(userId.value))
                             .and(SUB_CATEGORIES.MONEY_USAGE_SUB_CATEGORY_ID.eq(subCategoryId.id)),
                     )
                     .limit(1)
@@ -184,7 +184,7 @@ class MoneyUsageSubCategoryRepository {
                 .deleteFrom(SUB_CATEGORIES)
                 .where(
                     DSL.value(true)
-                        .and(SUB_CATEGORIES.USER_ID.eq(userId.id))
+                        .and(SUB_CATEGORIES.USER_ID.eq(userId.value))
                         .and(SUB_CATEGORIES.MONEY_USAGE_SUB_CATEGORY_ID.eq(subCategoryId.id)),
                 )
                 .limit(1)

@@ -33,7 +33,7 @@ class MailFilterRepository(
                     .set(
                         JCategoryMailFiltersRecord(
                             title = title,
-                            userId = userId.id,
+                            userId = userId.value,
                             orderNumber = orderNum,
                             categoryMailFilterConditionOperatorTypeId = ImportedMailFilterCategoryConditionOperator.AND.dbValue,
                         ),
@@ -56,7 +56,7 @@ class MailFilterRepository(
                     .selectFrom(filters)
                     .where(
                         DSL.value(true)
-                            .and(filters.USER_ID.eq(userId.id))
+                            .and(filters.USER_ID.eq(userId.value))
                             .and(filters.CATEGORY_MAIL_FILTER_ID.`in`(categoryFilterIds.map { it.id })),
                     )
                     .fetch()
@@ -78,7 +78,7 @@ class MailFilterRepository(
                     .selectFrom(filters)
                     .where(
                         DSL.value(true)
-                            .and(filters.USER_ID.eq(userId.id))
+                            .and(filters.USER_ID.eq(userId.value))
                             .and(
                                 if (cursor == null) {
                                     DSL.value(true)
@@ -128,7 +128,7 @@ class MailFilterRepository(
                     .selectFrom(conditions)
                     .where(
                         DSL.value(true)
-                            .and(conditions.USER_ID.eq(userId.id))
+                            .and(conditions.USER_ID.eq(userId.value))
                             .and(conditions.CATEGORY_MAIL_FILTER_ID.eq(filterId.id)),
                     )
                     .fetch()
@@ -148,7 +148,7 @@ class MailFilterRepository(
                     .selectFrom(conditions)
                     .where(
                         DSL.value(true)
-                            .and(conditions.USER_ID.eq(userId.id))
+                            .and(conditions.USER_ID.eq(userId.value))
                             .and(conditions.CATEGORY_MAIL_FILTER_CONDITION_ID.`in`(filterIds.map { it.id })),
                     )
                     .fetch()
@@ -220,7 +220,7 @@ class MailFilterRepository(
                     )
                     .where(
                         DSL.value(true)
-                            .and(filters.USER_ID.eq(userId.id))
+                            .and(filters.USER_ID.eq(userId.value))
                             .and(filters.CATEGORY_MAIL_FILTER_ID.eq(filterId.id)),
                     )
                     .limit(1)
@@ -241,7 +241,7 @@ class MailFilterRepository(
                     .deleteFrom(conditions)
                     .where(
                         DSL.value(true)
-                            .and(conditions.USER_ID.eq(userId.id))
+                            .and(conditions.USER_ID.eq(userId.value))
                             .and(conditions.CATEGORY_MAIL_FILTER_ID.eq(filterId.id)),
                     )
                     .execute()
@@ -250,7 +250,7 @@ class MailFilterRepository(
                     .deleteFrom(filters)
                     .where(
                         DSL.value(true)
-                            .and(filters.USER_ID.eq(userId.id))
+                            .and(filters.USER_ID.eq(userId.value))
                             .and(filters.CATEGORY_MAIL_FILTER_ID.eq(filterId.id)),
                     )
                     .limit(1)
@@ -281,7 +281,7 @@ class MailFilterRepository(
                     .insertInto(conditions)
                     .set(
                         buildMap {
-                            put(conditions.USER_ID, userId.id)
+                            put(conditions.USER_ID, userId.value)
                             put(conditions.CATEGORY_MAIL_FILTER_ID, filterId.id)
                             put(
                                 conditions.CATEGORY_MAIL_FILTER_CONDITION_TYPE_ID,
@@ -331,7 +331,7 @@ class MailFilterRepository(
                     )
                     .where(
                         DSL.value(true)
-                            .and(conditions.USER_ID.eq(userId.id))
+                            .and(conditions.USER_ID.eq(userId.value))
                             .and(conditions.CATEGORY_MAIL_FILTER_CONDITION_ID.eq(conditionId.id)),
                     )
                     .limit(1)
@@ -356,7 +356,7 @@ class MailFilterRepository(
                     .deleteFrom(conditions)
                     .where(
                         DSL.value(true)
-                            .and(conditions.USER_ID.eq(userId.id))
+                            .and(conditions.USER_ID.eq(userId.value))
                             .and(conditions.CATEGORY_MAIL_FILTER_CONDITION_ID.eq(conditionId.id)),
                     )
                     .limit(1)
@@ -378,7 +378,7 @@ class MailFilterRepository(
                     .selectFrom(filters)
                     .where(
                         DSL.value(true)
-                            .and(filters.USER_ID.eq(userId.id)),
+                            .and(filters.USER_ID.eq(userId.value)),
                     )
                     .orderBy(filters.ORDER_NUMBER.asc())
                     .fetch()
@@ -401,7 +401,7 @@ class MailFilterRepository(
                     .selectFrom(conditions)
                     .where(
                         DSL.value(true)
-                            .and(conditions.USER_ID.eq(userId.id)),
+                            .and(conditions.USER_ID.eq(userId.value)),
                     )
                     .fetch()
                     .map { record ->

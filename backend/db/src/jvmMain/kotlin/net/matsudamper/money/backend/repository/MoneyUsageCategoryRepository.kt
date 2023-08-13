@@ -21,7 +21,7 @@ class MoneyUsageCategoryRepository {
                     .insertInto(CATEGORIES)
                     .set(
                         JMoneyUsageCategoriesRecord(
-                            userId = userId.id,
+                            userId = userId.value,
                             name = name,
                         ),
                     )
@@ -50,7 +50,7 @@ class MoneyUsageCategoryRepository {
                 val records = DSL.using(connection)
                     .selectFrom(CATEGORIES)
                     .where(
-                        CATEGORIES.USER_ID.eq(userId.id)
+                        CATEGORIES.USER_ID.eq(userId.value)
                             .and(
                                 CATEGORIES.MONEY_USAGE_CATEGORY_ID
                                     .`in`(moneyUsageCategoryIds.map { it.id }),
@@ -80,7 +80,7 @@ class MoneyUsageCategoryRepository {
                 val records = DSL.using(connection)
                     .selectFrom(CATEGORIES)
                     .where(
-                        CATEGORIES.USER_ID.eq(userId.id),
+                        CATEGORIES.USER_ID.eq(userId.value),
                     )
                     .fetch()
 
@@ -110,7 +110,7 @@ class MoneyUsageCategoryRepository {
                     .set(CATEGORIES.NAME, name)
                     .where(
                         DSL.value(true)
-                            .and(CATEGORIES.USER_ID.eq(userId.id))
+                            .and(CATEGORIES.USER_ID.eq(userId.value))
                             .and(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.id)),
                     )
                     .limit(1)

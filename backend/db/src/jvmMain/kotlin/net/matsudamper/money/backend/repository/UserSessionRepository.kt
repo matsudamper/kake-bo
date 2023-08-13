@@ -15,7 +15,7 @@ class UserSessionRepository {
         val result = DbConnectionImpl.use {
             DSL.using(it)
                 .insertInto(userSessions)
-                .set(userSessions.USER_ID, userId.id)
+                .set(userSessions.USER_ID, userId.value)
                 .set(userSessions.SESSION_ID, UUID.randomUUID().toString().replace("-", ""))
                 .set(userSessions.EXPIRE_DATETIME, getNewExpire())
                 .returningResult(userSessions.SESSION_ID, userSessions.EXPIRE_DATETIME)

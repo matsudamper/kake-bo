@@ -31,7 +31,7 @@ class MoneyUsageRepository {
                         .from(usage)
                         .where(
                             DSL.value(true)
-                                .and(usage.USER_ID.eq(userId.id))
+                                .and(usage.USER_ID.eq(userId.value))
                                 .and(usage.MONEY_USAGE_ID.eq(usageId.id)),
                         )
                         .execute()
@@ -45,7 +45,7 @@ class MoneyUsageRepository {
                         .from(relation)
                         .where(
                             DSL.value(true)
-                                .and(relation.USER_ID.eq(userId.id))
+                                .and(relation.USER_ID.eq(userId.value))
                                 .and(relation.USER_MAIL_ID.eq(importedMailId.id)),
                         )
                         .execute()
@@ -56,7 +56,7 @@ class MoneyUsageRepository {
 
                 DSL.using(connection)
                     .insertInto(relation)
-                    .set(relation.USER_ID, userId.id)
+                    .set(relation.USER_ID, userId.value)
                     .set(relation.USER_MAIL_ID, importedMailId.id)
                     .set(relation.MONEY_USAGE_ID, usageId.id)
                     .execute() == 1
@@ -81,7 +81,7 @@ class MoneyUsageRepository {
             DbConnectionImpl.use { connection ->
                 val results = DSL.using(connection)
                     .insertInto(usage)
-                    .set(usage.USER_ID, userId.id)
+                    .set(usage.USER_ID, userId.value)
                     .set(usage.TITLE, title)
                     .set(usage.DESCRIPTION, description)
                     .set(usage.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId?.id)
@@ -123,7 +123,7 @@ class MoneyUsageRepository {
                     .from(usage)
                     .where(
                         DSL.value(true)
-                            .and(usage.USER_ID.eq(userId.id))
+                            .and(usage.USER_ID.eq(userId.value))
                             .and(
                                 when (cursor?.lastId) {
                                     null -> DSL.value(true)
@@ -189,7 +189,7 @@ class MoneyUsageRepository {
                     .selectFrom(usage)
                     .where(
                         DSL.value(true)
-                            .and(usage.USER_ID.eq(userId.id))
+                            .and(usage.USER_ID.eq(userId.value))
                             .and(usage.MONEY_USAGE_ID.`in`(ids.map { it.id })),
                     )
                     .fetch()
@@ -224,11 +224,11 @@ class MoneyUsageRepository {
                     .from(relation)
                     .join(usage).on(
                         relation.MONEY_USAGE_ID.eq(usage.MONEY_USAGE_ID)
-                            .and(usage.USER_ID.eq(userId.id)),
+                            .and(usage.USER_ID.eq(userId.value)),
                     )
                     .where(
                         DSL.value(true)
-                            .and(relation.USER_ID.eq(userId.id))
+                            .and(relation.USER_ID.eq(userId.value))
                             .and(relation.USER_MAIL_ID.eq(importedMailId.id)),
                     )
                     .fetch()
@@ -249,7 +249,7 @@ class MoneyUsageRepository {
                     .deleteFrom(usage)
                     .where(
                         DSL.value(true)
-                            .and(usage.USER_ID.eq(userId.id))
+                            .and(usage.USER_ID.eq(userId.value))
                             .and(usage.MONEY_USAGE_ID.eq(usageId.id)),
                     )
                     .execute() == 1
@@ -293,7 +293,7 @@ class MoneyUsageRepository {
                     }
                     .where(
                         DSL.value(true)
-                            .and(usage.USER_ID.eq(userId.id))
+                            .and(usage.USER_ID.eq(userId.value))
                             .and(usage.MONEY_USAGE_ID.eq(usageId.id)),
                     )
                     .limit(1)

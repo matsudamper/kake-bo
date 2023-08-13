@@ -31,7 +31,7 @@ class DbMailRepository(
                     .insertInto(userMails)
                     .set(
                         JUserMailsRecord(
-                            userId = userId.id,
+                            userId = userId.value,
                             plain = plainText,
                             html = html,
                             datetime = dateTime,
@@ -61,7 +61,7 @@ class DbMailRepository(
                 )
                 .where(
                     DSL.value(true)
-                        .and(userMails.USER_ID.eq(userId.id))
+                        .and(userMails.USER_ID.eq(userId.value))
                         .and(
                             when (isLinked) {
                                 true -> relation.MONEY_USAGE_ID.isNotNull
@@ -87,7 +87,7 @@ class DbMailRepository(
                     .from(userMails)
                     .where(
                         DSL.value(true)
-                            .and(userMails.USER_ID.eq(userId.id))
+                            .and(userMails.USER_ID.eq(userId.value))
                             .and(userMails.USER_MAIL_ID.`in`(mailIds.map { it.id })),
                     )
                     .fetch()
@@ -118,7 +118,7 @@ class DbMailRepository(
                 .leftJoin(relation).using(relation.USER_MAIL_ID)
                 .where(
                     DSL.value(true)
-                        .and(userMails.USER_ID.eq(userId.id))
+                        .and(userMails.USER_ID.eq(userId.value))
                         .and(
                             when (isLinked) {
                                 true -> relation.MONEY_USAGE_ID.isNotNull
@@ -215,7 +215,7 @@ class DbMailRepository(
                 )
                 .from(userMails)
                 .where(
-                    userMails.USER_ID.eq(userId.id)
+                    userMails.USER_ID.eq(userId.value)
                         .and(userMails.USER_MAIL_ID.`in`(mailIds.map { it.id })),
                 )
                 .fetch()
@@ -249,7 +249,7 @@ class DbMailRepository(
                     .leftJoin(relation).using(relation.USER_MAIL_ID)
                     .where(
                         DSL.value(true)
-                            .and(userMails.USER_ID.eq(userId.id))
+                            .and(userMails.USER_ID.eq(userId.value))
                             .and(relation.MONEY_USAGE_ID.`in`(moneyUsageIdList.map { it.id })),
                     )
                     .fetch()
@@ -279,7 +279,7 @@ class DbMailRepository(
                     .deleteFrom(userMails)
                     .where(
                         DSL.value(true)
-                            .and(userMails.USER_ID.eq(userId.id))
+                            .and(userMails.USER_ID.eq(userId.value))
                             .and(userMails.USER_MAIL_ID.eq(mailId.id)),
                     )
                     .limit(1)

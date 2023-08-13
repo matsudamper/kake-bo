@@ -23,7 +23,7 @@ class UserConfigRepository {
                 host?.also { host ->
                     DSL.using(it)
                         .insertInto(userImap)
-                        .set(userImap.USER_ID, userId.id)
+                        .set(userImap.USER_ID, userId.value)
                         .onDuplicateKeyUpdate()
                         .set(userImap.HOST, host)
                         .execute()
@@ -31,7 +31,7 @@ class UserConfigRepository {
                 port?.also { port ->
                     DSL.using(it)
                         .insertInto(userImap)
-                        .set(userImap.USER_ID, userId.id)
+                        .set(userImap.USER_ID, userId.value)
                         .onDuplicateKeyUpdate()
                         .set(userImap.PORT, port)
                         .execute()
@@ -39,7 +39,7 @@ class UserConfigRepository {
                 password?.also { password ->
                     DSL.using(it)
                         .insertInto(userImap)
-                        .set(userImap.USER_ID, userId.id)
+                        .set(userImap.USER_ID, userId.value)
                         .onDuplicateKeyUpdate()
                         .set(userImap.PASSWORD, password)
                         .execute()
@@ -47,7 +47,7 @@ class UserConfigRepository {
                 userName?.also { userName ->
                     DSL.using(it)
                         .insertInto(userImap)
-                        .set(userImap.USER_ID, userId.id)
+                        .set(userImap.USER_ID, userId.value)
                         .onDuplicateKeyUpdate()
                         .set(userImap.USE_NAME, userName)
                         .execute()
@@ -66,7 +66,7 @@ class UserConfigRepository {
                 DSL.using(it)
                     .select(userImap)
                     .from(userImap)
-                    .where(userImap.USER_ID.eq(userId.id))
+                    .where(userImap.USER_ID.eq(userId.value))
                     .fetchOne()
             }
         }.fold(

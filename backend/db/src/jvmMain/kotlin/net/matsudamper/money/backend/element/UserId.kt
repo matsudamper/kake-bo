@@ -1,3 +1,3 @@
 package net.matsudamper.money.backend.element
 
-data class UserId(val id: Int)
+data class UserId(val value: Int)
