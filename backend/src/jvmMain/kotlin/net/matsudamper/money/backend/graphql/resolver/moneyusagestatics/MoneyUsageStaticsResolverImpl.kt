@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.graphql.resolver.moneyusagestatics
 
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
@@ -9,7 +10,6 @@ import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.graphql.model.MoneyUsageStaticsResolver
 import net.matsudamper.money.graphql.model.QlMoneyUsageStatics
 import net.matsudamper.money.graphql.model.QlMoneyUsageStaticsByCategory
-import java.util.concurrent.CompletableFuture
 
 class MoneyUsageStaticsResolverImpl : MoneyUsageStaticsResolver {
     private val DataFetchingEnvironment.localContext get() = getLocalContext<MoneyUsageStaticsLocalContext>()
@@ -20,7 +20,6 @@ class MoneyUsageStaticsResolverImpl : MoneyUsageStaticsResolver {
     ): CompletionStage<DataFetcherResult<Long?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
-
 
         return CompletableFuture.supplyAsync {
             context.repositoryFactory.createMoneyUsageStaticsRepository()

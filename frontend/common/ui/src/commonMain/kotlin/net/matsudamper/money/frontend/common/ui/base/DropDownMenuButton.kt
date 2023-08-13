@@ -23,7 +23,7 @@ internal fun DropDownMenuButton(
             start = 24.dp,
             end = 18.dp,
             top = 8.dp,
-            bottom = 8.dp
+            bottom = 8.dp,
         ),
         onClick = onClick,
     ) {

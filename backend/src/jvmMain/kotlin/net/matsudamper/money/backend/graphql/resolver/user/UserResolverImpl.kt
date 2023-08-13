@@ -235,7 +235,7 @@ class UserResolverImpl : UserResolver {
                 .localContext(
                     MoneyUsageStaticsLocalContext(
                         query = query,
-                    )
+                    ),
                 )
                 .build(),
         )

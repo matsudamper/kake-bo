@@ -1,10 +1,10 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.home
 
-import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.ApolloResponse
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
+import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenQuery
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageStaticsQuery
@@ -31,7 +31,7 @@ public class RootHomeTabScreenApi(
                             LocalTime(0, 0, 0),
                         ),
                     ),
-                )
+                ),
             ).execute()
         }
     }
