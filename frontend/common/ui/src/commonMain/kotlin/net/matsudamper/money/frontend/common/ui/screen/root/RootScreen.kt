@@ -33,7 +33,7 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButton
 
 @Composable
-public fun RootScreen(
+public fun RootHomeTabScreen(
     uiState: HomeScreenUiState,
     scaffoldListener: RootScreenScaffoldListener,
 ) {
