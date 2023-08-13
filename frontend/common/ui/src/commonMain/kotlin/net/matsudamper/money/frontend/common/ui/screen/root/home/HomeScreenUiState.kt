@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.root
+package net.matsudamper.money.frontend.common.ui.screen.root.home
 
 import androidx.compose.runtime.Immutable
 

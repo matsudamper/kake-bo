@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.root
+package net.matsudamper.money.frontend.common.ui.screen.root.mail
 
 import androidx.compose.runtime.Immutable
 import net.matsudamper.money.frontend.common.base.ImmutableList

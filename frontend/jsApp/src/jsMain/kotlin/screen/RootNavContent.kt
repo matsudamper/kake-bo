@@ -12,8 +12,8 @@ import kotlinx.coroutines.CoroutineScope
 import event.ViewModelEventHandlers
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.screen.root.ImportMailScreenUiState
-import net.matsudamper.money.frontend.common.ui.screen.root.RootHomeTabScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportMailScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState

@@ -13,7 +13,7 @@ import kotlinx.coroutines.withContext
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
-import net.matsudamper.money.frontend.common.ui.screen.root.ImportMailScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportMailScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
