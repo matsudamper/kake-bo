@@ -1,0 +1,25 @@
+package net.matsudamper.money.backend.graphql.resolver.moneyusagestatics
+
+import graphql.execution.DataFetcherResult
+import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.graphql.model.MoneyUsageStaticsByCategoryResolver
+import net.matsudamper.money.graphql.model.QlMoneyUsageStaticsByCategory
+import net.matsudamper.money.graphql.model.QlMoneyUsageStaticsBySubCategory
+import java.util.concurrent.CompletionStage
+
+class MoneyUsageStaticsByCategoryResolverImpl: MoneyUsageStaticsByCategoryResolver {
+    override fun bySubCategories(
+        moneyUsageStaticsByCategory: QlMoneyUsageStaticsByCategory,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<List<QlMoneyUsageStaticsBySubCategory>>> {
+        TODO("Not yet implemented")
+    }
+
+    override fun totalAmount(
+        moneyUsageStaticsByCategory: QlMoneyUsageStaticsByCategory,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<Int>> {
+        TODO("Not yet implemented")
+    }
+
+}

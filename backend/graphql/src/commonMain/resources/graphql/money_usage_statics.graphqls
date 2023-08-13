@@ -1,0 +1,21 @@
+
+input MoneyUsageStaticsQuery {
+    sinceDateTime: LocalDateTime!
+    untilDateTime: LocalDateTime!
+}
+
+type MoneyUsageStatics {
+    totalAmount: Int! @lazy
+    byCategories: [MoneyUsageStaticsByCategory!]! @lazy
+}
+
+type MoneyUsageStaticsByCategory {
+    category: MoneyUsageCategory!
+    bySubCategories: [MoneyUsageStaticsBySubCategory!]! @lazy
+    totalAmount: Int! @lazy
+}
+
+type MoneyUsageStaticsBySubCategory {
+    category: MoneyUsageSubCategory!
+    totalAmount: Int! @lazy
+}

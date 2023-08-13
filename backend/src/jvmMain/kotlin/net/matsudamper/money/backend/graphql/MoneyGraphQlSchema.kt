@@ -29,6 +29,9 @@ import net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailA
 import net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailCategoryConditionResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailCategoryFilterResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.moneyusagestatics.MoneyUsageStaticsByCategoryResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.moneyusagestatics.MoneyUsageStaticsBySubCategoryResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.moneyusagestatics.MoneyUsageStaticsResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.mutation.AdminMutationResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.mutation.MutationResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.mutation.SettingsMutationResolverResolverImpl
@@ -145,6 +148,9 @@ object MoneyGraphQlSchema {
                 MoneyUsageCategoryResolverImpl(),
                 MoneyUsageResolverImpl(),
                 UserResolverImpl(),
+                MoneyUsageStaticsResolverImpl(),
+                MoneyUsageStaticsByCategoryResolverImpl(),
+                MoneyUsageStaticsBySubCategoryResolverImpl(),
                 ImportedMailCategoryFilterResolverImpl(),
                 UserSettingsResolverImpl(),
                 SettingsMutationResolverResolverImpl(),

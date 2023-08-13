@@ -13,6 +13,7 @@ import net.matsudamper.money.backend.repository.MoneyUsageRepository
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.graphql.model.MoneyUsageStaticsResolver
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilter
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersConnection
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersQuery
@@ -20,6 +21,9 @@ import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategoriesConnection
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategoriesInput
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
+import net.matsudamper.money.graphql.model.QlMoneyUsageStatics
+import net.matsudamper.money.graphql.model.QlMoneyUsageStaticsByCategory
+import net.matsudamper.money.graphql.model.QlMoneyUsageStaticsQuery
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategoryInput
 import net.matsudamper.money.graphql.model.QlMoneyUsagesConnection
@@ -219,5 +223,15 @@ class UserResolverImpl : UserResolver {
                 id = id,
             )
         }.toDataFetcher()
+    }
+
+    override fun moneyUsageStatics(
+        user: QlUser,
+        query: QlMoneyUsageStaticsQuery,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<QlMoneyUsageStatics>> {
+        return CompletableFuture.completedFuture(
+            QlMoneyUsageStatics(),
+        ).toDataFetcher()
     }
 }
