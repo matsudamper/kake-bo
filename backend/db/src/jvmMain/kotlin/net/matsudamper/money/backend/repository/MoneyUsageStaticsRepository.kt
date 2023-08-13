@@ -18,9 +18,10 @@ class MoneyUsageStaticsRepository(
         untilDateTimeAt: LocalDateTime,
     ): Long? {
         return runCatching {
-            val result = dbConnection.use { connection ->
-                DSL.using(connection)
-                    .select(DSL.sum(usage.AMOUNT))
+            dbConnection.use { connection ->
+                val count = DSL.coalesce(DSL.sum(usage.AMOUNT), 0.toBigDecimal())
+                val result = DSL.using(connection)
+                    .select(count)
                     .from(usage)
                     .where(usage.USER_ID.eq(userId.value))
                     .and(
@@ -28,8 +29,9 @@ class MoneyUsageStaticsRepository(
                             .and(usage.DATETIME.lessThan(untilDateTimeAt))
                     )
                     .fetchOne()
+
+                result?.get(count)!!.toLong()
             }
-            result?.get(DSL.sum(usage.AMOUNT))?.toLong()
         }.onFailure {
             it.printStackTrace()
         }.fold(
