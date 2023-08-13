@@ -24,7 +24,6 @@ import net.matsudamper.money.backend.graphql.resolver.MoneyUsageSubCategoryResol
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageSuggestResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.QueryResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserMailAttributesResolverImpl
-import net.matsudamper.money.backend.graphql.resolver.UserResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserSettingsResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailAttributesResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailCategoryConditionResolverImpl
@@ -34,6 +33,7 @@ import net.matsudamper.money.backend.graphql.resolver.mutation.AdminMutationReso
 import net.matsudamper.money.backend.graphql.resolver.mutation.MutationResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.mutation.SettingsMutationResolverResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.mutation.UserMutationResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.user.UserResolverImpl
 import net.matsudamper.money.backend.graphql.schema.GraphqlSchemaModule
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId

@@ -1,6 +1,5 @@
-package net.matsudamper.money.backend.graphql.resolver
+package net.matsudamper.money.backend.graphql.resolver.user
 
-import java.time.LocalDateTime
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
@@ -9,8 +8,6 @@ import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLo
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
-import net.matsudamper.money.backend.lib.CursorParser
-import net.matsudamper.money.backend.repository.MailFilterRepository
 import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.repository.MoneyUsageRepository
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
@@ -222,59 +219,5 @@ class UserResolverImpl : UserResolver {
                 id = id,
             )
         }.toDataFetcher()
-    }
-}
-
-private class MoneyUsagesCursor(
-    val lastId: MoneyUsageId,
-    val lastDate: LocalDateTime,
-) {
-    fun toCursorString(): String {
-        return CursorParser.createToString(
-            mapOf(
-                LAST_ID_KEY to lastId.id.toString(),
-                LAST_DATE_KEY to lastDate.toString(),
-            ),
-        )
-    }
-
-    companion object {
-        private const val LAST_ID_KEY = "lastId"
-        private const val LAST_DATE_KEY = "lastDate"
-        fun fromString(cursorString: String): MoneyUsagesCursor {
-            return MoneyUsagesCursor(
-                lastId = MoneyUsageId(
-                    CursorParser.parseFromString(cursorString)[LAST_ID_KEY]!!.toInt(),
-                ),
-                lastDate = LocalDateTime.parse(
-                    CursorParser.parseFromString(cursorString)[LAST_DATE_KEY]!!,
-                ),
-            )
-        }
-    }
-}
-
-private class ImportedMailCategoryFiltersCursor(
-    private val cursor: MailFilterRepository.MailFilterCursor,
-) {
-    fun toCursorString(): String {
-        return CursorParser.createToString(
-            mapOf(
-                ID to cursor.id.id.toString(),
-                ORDER_NUM to cursor.orderNumber.toString(),
-            ),
-        )
-    }
-
-    companion object {
-        private const val ID = "ID"
-        private const val ORDER_NUM = "ORDER_NUM"
-        fun fromString(cursorString: String): MailFilterRepository.MailFilterCursor {
-            val map = CursorParser.parseFromString(cursorString)
-            return MailFilterRepository.MailFilterCursor(
-                id = ImportedMailCategoryFilterId(map[ID]!!.toInt()),
-                orderNumber = map[ORDER_NUM]!!.toInt(),
-            )
-        }
     }
 }
