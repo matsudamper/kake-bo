@@ -34,7 +34,7 @@ import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButton
 
 @Composable
 public fun RootHomeTabScreen(
-    uiState: HomeScreenUiState,
+    uiState: RootHomeTabUiState,
     scaffoldListener: RootScreenScaffoldListener,
 ) {
     LaunchedEffect(uiState.event) {
@@ -61,7 +61,7 @@ public fun RootHomeTabScreen(
         },
         content = {
             when (val screenState = uiState.screenState) {
-                is HomeScreenUiState.ScreenState.Loading -> {
+                is RootHomeTabUiState.ScreenState.Loading -> {
                     Box(modifier = Modifier.fillMaxSize()) {
                         CircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center),
@@ -69,7 +69,7 @@ public fun RootHomeTabScreen(
                     }
                 }
 
-                is HomeScreenUiState.ScreenState.Loaded -> {
+                is RootHomeTabUiState.ScreenState.Loaded -> {
                     MainContent(
                         uiState = screenState,
                     )
@@ -82,7 +82,7 @@ public fun RootHomeTabScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainContent(
-    uiState: HomeScreenUiState.ScreenState.Loaded,
+    uiState: RootHomeTabUiState.ScreenState.Loaded,
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val height = this.maxHeight

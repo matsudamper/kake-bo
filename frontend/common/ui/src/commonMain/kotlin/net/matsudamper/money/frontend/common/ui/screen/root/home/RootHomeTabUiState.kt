@@ -2,7 +2,7 @@ package net.matsudamper.money.frontend.common.ui.screen.root.home
 
 import androidx.compose.runtime.Immutable
 
-public data class HomeScreenUiState(
+public data class RootHomeTabUiState(
     val screenState: ScreenState,
     val event: Event,
 ) {

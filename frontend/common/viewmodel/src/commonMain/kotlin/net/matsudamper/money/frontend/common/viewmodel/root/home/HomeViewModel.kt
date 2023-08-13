@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.matsudamper.money.frontend.common.ui.screen.root.home.HomeScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -19,11 +19,11 @@ public class HomeViewModel(
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
-    private val uiStateEvent = object : HomeScreenUiState.Event {
+    private val uiStateEvent = object : RootHomeTabUiState.Event {
         override fun onViewInitialized() {
         }
     }
-    private val uiStateLoadedEvent = object : HomeScreenUiState.LoadedEvent {
+    private val uiStateLoadedEvent = object : RootHomeTabUiState.LoadedEvent {
         override fun onClickMailImportButton() {
             coroutineScope.launch {
                 viewModelEventSender.send { it.navigateToMailImport() }
@@ -37,9 +37,9 @@ public class HomeViewModel(
         }
     }
 
-    public val uiStateFlow: StateFlow<HomeScreenUiState> = MutableStateFlow(
-        HomeScreenUiState(
-            screenState = HomeScreenUiState.ScreenState.Loading,
+    public val uiStateFlow: StateFlow<RootHomeTabUiState> = MutableStateFlow(
+        RootHomeTabUiState(
+            screenState = RootHomeTabUiState.ScreenState.Loading,
             event = uiStateEvent,
         ),
     ).also { uiStateFlow ->
@@ -48,7 +48,7 @@ public class HomeViewModel(
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         screenState = run screenState@{
-                            HomeScreenUiState.ScreenState.Loaded(
+                            RootHomeTabUiState.ScreenState.Loaded(
                                 notImportMailCount = it.data?.user?.userMailAttributes?.mailCount,
                                 importedAndNotLinkedMailCount = it.data?.user?.importedMailAttributes?.count,
                                 event = uiStateLoadedEvent,
