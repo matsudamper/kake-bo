@@ -4,14 +4,14 @@ import kotlinx.coroutines.flow.Flow
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.graphql.GraphqlClient
-import net.matsudamper.money.frontend.graphql.HomeScreenQuery
+import net.matsudamper.money.frontend.graphql.RootHomeTabScreenQuery
 
 public class RootHomeTabScreenApi(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
-    public fun getHomeScreen(): Flow<ApolloResponse<HomeScreenQuery.Data>> {
+    public fun getHomeScreen(): Flow<ApolloResponse<RootHomeTabScreenQuery.Data>> {
         return apolloClient
-            .query(HomeScreenQuery())
+            .query(RootHomeTabScreenQuery())
             .toFlow()
     }
 }

@@ -1,4 +1,4 @@
-query HomeScreen {
+query RootHomeTabScreen {
     user {
         userMailAttributes {
             mailCount
