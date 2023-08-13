@@ -27,8 +27,8 @@ import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListS
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
-import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeGraphqlApi
-import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenApi
+import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenViewModel
 
 @Composable
 internal fun RootNavContent(
@@ -53,9 +53,9 @@ internal fun RootNavContent(
         is ScreenStructure.Root.Home -> {
             tabHolder.SaveableStateProvider(current::class.toString()) {
                 val viewModel = remember {
-                    HomeViewModel(
+                    RootHomeTabScreenViewModel(
                         coroutineScope = rootCoroutineScope,
-                        homeGraphqlApi = HomeGraphqlApi(),
+                        api = RootHomeTabScreenApi(),
                         loginCheckUseCase = loginCheckUseCase,
                     )
                 }

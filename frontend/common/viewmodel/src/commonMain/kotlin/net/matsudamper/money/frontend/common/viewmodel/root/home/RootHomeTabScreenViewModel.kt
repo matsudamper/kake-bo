@@ -11,9 +11,9 @@ import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
-public class HomeViewModel(
+public class RootHomeTabScreenViewModel(
     private val coroutineScope: CoroutineScope,
-    private val homeGraphqlApi: HomeGraphqlApi,
+    private val api: RootHomeTabScreenApi,
     private val loginCheckUseCase: LoginCheckUseCase,
 ) {
     private val viewModelEventSender = EventSender<Event>()
@@ -44,7 +44,7 @@ public class HomeViewModel(
         ),
     ).also { uiStateFlow ->
         coroutineScope.launch {
-            homeGraphqlApi.getHomeScreen().collect {
+            api.getHomeScreen().collect {
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         screenState = run screenState@{

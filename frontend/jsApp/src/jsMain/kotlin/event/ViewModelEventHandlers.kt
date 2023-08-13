@@ -17,7 +17,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.home.HomeViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailLinkViewModelEvent
@@ -34,10 +34,10 @@ data class ViewModelEventHandlers(
     private val globalEventSender: EventSender<GlobalEvent>,
     private val rootScreenScaffoldListener: RootScreenScaffoldListener,
 ) {
-    suspend fun handle(handler: EventHandler<HomeViewModel.Event>) {
+    suspend fun handle(handler: EventHandler<RootHomeTabScreenViewModel.Event>) {
         coroutineScope {
             handler.collect(
-                object : HomeViewModel.Event {
+                object : RootHomeTabScreenViewModel.Event {
                     override fun navigateToMailImport() {
                         navController.navigate(ScreenStructure.Root.Mail.Import)
                     }

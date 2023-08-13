@@ -6,7 +6,7 @@ import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.HomeScreenQuery
 
-public class HomeGraphqlApi(
+public class RootHomeTabScreenApi(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
     public fun getHomeScreen(): Flow<ApolloResponse<HomeScreenQuery.Data>> {
