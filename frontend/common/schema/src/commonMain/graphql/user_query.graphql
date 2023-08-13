@@ -22,15 +22,3 @@ query GetMail($mailQuery: MailQuery!) {
         }
     }
 }
-query HomeScreen {
-    user {
-        userMailAttributes {
-            mailCount
-        }
-        importedMailAttributes {
-            count(query: {
-                isLinked: false
-            })
-        }
-    }
-}
