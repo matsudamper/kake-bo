@@ -7,6 +7,7 @@ import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
+import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageStaticsLocalContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.repository.MoneyUsageRepository
@@ -229,7 +230,14 @@ class UserResolverImpl : UserResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsageStatics>> {
         return CompletableFuture.completedFuture(
-            QlMoneyUsageStatics(),
-        ).toDataFetcher()
+            DataFetcherResult.newResult<QlMoneyUsageStatics>()
+                .data(QlMoneyUsageStatics())
+                .localContext(
+                    MoneyUsageStaticsLocalContext(
+                        query = query,
+                    )
+                )
+                .build(),
+        )
     }
 }
