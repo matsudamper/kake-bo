@@ -21,6 +21,7 @@ class MoneyUsageStaticsRepository(
             val result = dbConnection.use { connection ->
                 DSL.using(connection)
                     .select(DSL.sum(usage.AMOUNT))
+                    .from(usage)
                     .where(usage.USER_ID.eq(userId.value))
                     .and(
                         usage.DATETIME.greaterOrEqual(sinceDateTimeAt)
