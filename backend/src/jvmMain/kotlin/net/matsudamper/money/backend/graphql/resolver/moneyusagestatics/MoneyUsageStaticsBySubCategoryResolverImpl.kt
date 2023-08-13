@@ -10,7 +10,7 @@ class MoneyUsageStaticsBySubCategoryResolverImpl : MoneyUsageStaticsBySubCategor
     override fun totalAmount(
         moneyUsageStaticsBySubCategory: QlMoneyUsageStaticsBySubCategory,
         env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<Int>> {
+    ): CompletionStage<DataFetcherResult<Long?>> {
         TODO("Not yet implemented")
     }
 }

@@ -76,6 +76,7 @@ val graphqlCodegen = tasks.named<io.github.kobylynskyi.graphql.codegen.gradle.Gr
         "ImportedMailId" to "net.matsudamper.money.element.ImportedMailId",
         "ImportedMailCategoryFilterConditionId" to "net.matsudamper.money.element.ImportedMailCategoryFilterConditionId",
         "ImportedMailCategoryFilterId" to "net.matsudamper.money.element.ImportedMailCategoryFilterId",
+        "Long" to "Long",
         "MoneyUsageId" to "net.matsudamper.money.element.MoneyUsageId",
         "LocalDateTime" to "java.time.LocalDateTime",
         "OffsetDateTime" to "java.time.OffsetDateTime",

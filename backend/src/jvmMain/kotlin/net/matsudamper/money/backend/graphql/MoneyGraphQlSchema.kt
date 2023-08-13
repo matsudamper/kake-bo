@@ -95,6 +95,9 @@ object MoneyGraphQlSchema {
                 GraphQLScalarType.newScalar(ExtendedScalars.GraphQLLong)
                     .name("UserId")
                     .build(),
+                GraphQLScalarType.newScalar(ExtendedScalars.GraphQLLong)
+                    .name("Long")
+                    .build(),
                 createStringScalarType(
                     name = "MailId",
                     deserialize = { MailId(it) },
@@ -202,6 +205,22 @@ object MoneyGraphQlSchema {
         name: String,
         serialize: (T) -> Int,
         deserialize: (Int) -> T,
+    ): GraphQLScalarType {
+        return GraphQLScalarType.newScalar()
+            .coercing(
+                ValueClassCoercing(
+                    serialize = serialize,
+                    deserialize = deserialize,
+                ),
+            )
+            .name(name)
+            .build()
+    }
+
+    private fun <T> createLongScalarType(
+        name: String,
+        serialize: (T) -> Long,
+        deserialize: (Long) -> T,
     ): GraphQLScalarType {
         return GraphQLScalarType.newScalar()
             .coercing(

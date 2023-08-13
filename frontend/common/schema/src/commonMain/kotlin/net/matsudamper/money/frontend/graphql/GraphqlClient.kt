@@ -21,6 +21,7 @@ import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterId as ApolloImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterConditionId as ApolloImportedMailCategoryFilterConditionId
+import net.matsudamper.money.frontend.graphql.type.Long as ApolloLong
 
 
 object GraphqlClient {
@@ -28,6 +29,24 @@ object GraphqlClient {
     val apolloClient: ApolloClient = ApolloClient.Builder()
         .serverUrl("$serverProtocol//$serverHost/query")
         .normalizedCache(cacheFactory)
+        .addCustomScalarAdapter(
+            ApolloLong.type,
+            CustomLongAdapter(
+                serialize = { it },
+                deserialize = { it },
+            ),
+        )
+        .addCustomScalarAdapter(
+            ApolloMailId.type,
+            CustomStringAdapter(
+                serialize = {
+                    it.id
+                },
+                deserialize = {
+                    MailId(it)
+                },
+            ),
+        )
         .addCustomScalarAdapter(
             ApolloMailId.type,
             CustomStringAdapter(
@@ -131,6 +150,23 @@ private class CustomIntAdapter<T>(
 ) : Adapter<T?> {
     override fun fromJson(reader: JsonReader, customScalarAdapters: CustomScalarAdapters): T? {
         return deserialize(reader.nextInt())
+    }
+
+    override fun toJson(writer: JsonWriter, customScalarAdapters: CustomScalarAdapters, value: T?) {
+        if (value != null) {
+            writer.value(serialize(value))
+        } else {
+            writer.nullValue()
+        }
+    }
+}
+
+private class CustomLongAdapter<T>(
+    val deserialize: (Long) -> T?,
+    val serialize: (T) -> Long,
+) : Adapter<T?> {
+    override fun fromJson(reader: JsonReader, customScalarAdapters: CustomScalarAdapters): T? {
+        return deserialize(reader.nextLong())
     }
 
     override fun toJson(writer: JsonWriter, customScalarAdapters: CustomScalarAdapters, value: T?) {

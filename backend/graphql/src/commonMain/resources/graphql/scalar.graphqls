@@ -8,3 +8,4 @@ scalar ImportedMailCategoryFilterId
 scalar ImportedMailCategoryFilterConditionId
 scalar LocalDateTime
 scalar OffsetDateTime
+scalar Long

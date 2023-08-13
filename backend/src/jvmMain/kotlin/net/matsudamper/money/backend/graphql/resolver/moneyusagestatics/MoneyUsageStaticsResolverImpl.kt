@@ -11,8 +11,8 @@ class MoneyUsageStaticsResolverImpl : MoneyUsageStaticsResolver {
     override fun totalAmount(
         moneyUsageStatics: QlMoneyUsageStatics,
         env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<Int>> {
         TODO("Not yet implemented")
+    ): CompletionStage<DataFetcherResult<Long?>> {
     }
 
     override fun byCategories(
