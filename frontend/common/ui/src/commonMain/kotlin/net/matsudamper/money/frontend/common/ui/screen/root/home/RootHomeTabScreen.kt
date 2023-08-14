@@ -84,30 +84,9 @@ public fun RootHomeTabScreen(
             )
         },
         content = {
-            when (val screenState = uiState.screenState) {
-                is RootHomeTabUiState.ScreenState.Loading -> {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.Center),
-                        )
-                    }
-                }
-
-                is RootHomeTabUiState.ScreenState.Loaded -> {
-                    MainContent(
-                        uiState = screenState,
-                    )
-                }
-
-                is RootHomeTabUiState.ScreenState.Error -> {
-                    LoadingErrorContent(
-                        modifier = Modifier.fillMaxSize(),
-                        onClickRetry = {
-                            // TODO
-                        },
-                    )
-                }
-            }
+            MainContent(
+                contentType = uiState.contentType,
+            )
         },
     )
 }
@@ -115,7 +94,7 @@ public fun RootHomeTabScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainContent(
-    uiState: RootHomeTabUiState.ScreenState.Loaded,
+    contentType: RootHomeTabUiState.ContentType,
 ) {
     Column {
         Row(modifier = Modifier.fillMaxWidth()) {
@@ -132,11 +111,79 @@ private fun MainContent(
                 },
             )
         }
-        when (uiState.displayType) {
-            is RootHomeTabUiState.DisplayType.Between -> {
+        when (contentType) {
+            is RootHomeTabUiState.ContentType.Between -> {
                 BetweenContent(
+                    modifier = Modifier.fillMaxSize(),
+                    uiState = contentType,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BetweenContent(
+    modifier: Modifier = Modifier,
+    uiState: RootHomeTabUiState.ContentType.Between,
+) {
+    BoxWithConstraints(modifier = modifier) {
+        when (uiState.loadingState) {
+            RootHomeTabUiState.BetweenLoadingState.Loading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center),
+                )
+            }
+
+            RootHomeTabUiState.BetweenLoadingState.Error -> {
+                LoadingErrorContent(
                     modifier = Modifier.fillMaxWidth(),
-                    uiState = uiState.displayType,
+                    onClickRetry = {
+                        // TODO
+                    },
+                )
+            }
+
+            is RootHomeTabUiState.BetweenLoadingState.Loaded -> {
+                val height = this.maxHeight
+                val scrollState = rememberScrollState()
+                val density = LocalDensity.current
+                var scrollBarHeight by remember { mutableStateOf(0) }
+                Column(
+                    modifier = Modifier
+                        .verticalScroll(scrollState),
+                ) {
+                    PeriodSection(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClickPreviousMonth = { uiState.event.onClickPreviousMonth() },
+                        onClickNextMonth = { uiState.event.onClickNextMonth() },
+                        betweenText = {
+                            Text(uiState.loadingState.between)
+                        },
+                        rangeText = {
+                            Text(uiState.loadingState.rangeText)
+                        },
+                        onClickRange = { range -> uiState.event.onClickRange(range) },
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    BetweenLoaded(
+                        uiState = uiState.loadingState
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(with(density) { scrollBarHeight.toDp() }))
+                }
+                ScrollButtons(
+                    modifier = Modifier
+                        .onSizeChanged {
+                            scrollBarHeight = it.height
+                        }
+                        .align(Alignment.BottomEnd)
+                        .padding(ScrollButtonsDefaults.padding)
+                        .height(ScrollButtonsDefaults.height),
+                    scrollState = scrollState,
+                    scrollSize = with(density) {
+                        height.toPx() * 0.4f
+                    },
                 )
             }
         }
@@ -145,121 +192,82 @@ private fun MainContent(
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
-private fun BetweenContent(
+private fun BetweenLoaded(
     modifier: Modifier = Modifier,
-    uiState: RootHomeTabUiState.DisplayType.Between,
+    uiState: RootHomeTabUiState.BetweenLoadingState.Loaded,
 ) {
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        val height = this.maxHeight
-        val scrollState = rememberScrollState()
-        val density = LocalDensity.current
-        var scrollBarHeight by remember { mutableStateOf(0) }
-        Column(
-            modifier = modifier
-                .verticalScroll(scrollState),
-        ) {
-            PeriodSection(
-                modifier = Modifier.fillMaxWidth(),
-                onClickPreviousMonth = { uiState.event.onClickPreviousMonth() },
-                onClickNextMonth = { uiState.event.onClickNextMonth() },
-                betweenText = {
-                    Text(uiState.between)
-                },
-                rangeText = {
-                    Text(uiState.rangeText)
-                },
-                onClickRange = { range -> uiState.event.onClickRange(range) },
-            )
-            Spacer(modifier = Modifier.height(12.dp))
+    Column(
+        modifier = modifier
+            .padding(horizontal = 24.dp),
+    ) {
+        Text(
+            modifier = Modifier
+                .padding(horizontal = 8.dp)
+                .padding(bottom = 8.dp),
+            text = "合計",
+        )
+        Card {
             Column(
-                modifier = Modifier
-                    .padding(horizontal = 24.dp),
+                modifier = Modifier.padding(16.dp)
             ) {
-                Text(
+                BarGraph(
                     modifier = Modifier
-                        .padding(horizontal = 8.dp)
-                        .padding(bottom = 8.dp),
-                    text = "合計",
+                        .fillMaxWidth()
+                        .height(600.dp),
+                    uiState = uiState.totalBar,
+                    contentColor = LocalContentColor.current,
                 )
-                Card {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-                        BarGraph(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(600.dp),
-                            uiState = uiState.totalBar,
-                            contentColor = LocalContentColor.current,
+                Spacer(modifier = Modifier.height(12.dp))
+                FlowRow(modifier = Modifier.fillMaxWidth()) {
+                    uiState.totalBarColorTextMapping.forEach {
+                        AssistChip(
+                            onClick = {
+                                it.onClick()
+                            },
+                            label = {
+                                Row(
+                                    modifier = Modifier.padding(vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(16.dp)
+                                            .clip(RoundedCornerShape(4.dp))
+                                            .background(it.color),
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(it.text)
+                                }
+                            }
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        FlowRow(modifier = Modifier.fillMaxWidth()) {
-                            uiState.totalBarColorTextMapping.forEach {
-                                AssistChip(
-                                    onClick = {
-                                        it.onClick()
-                                    },
-                                    label = {
-                                        Row(
-                                            modifier = Modifier.padding(vertical = 4.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(16.dp)
-                                                    .clip(RoundedCornerShape(4.dp))
-                                                    .background(it.color),
-                                            )
-                                            Spacer(modifier = Modifier.width(4.dp))
-                                            Text(it.text)
-                                        }
-                                    }
-                                )
-                                Spacer(Modifier.width(8.dp))
-                            }
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Card {
-                    PolygonalLineGraph(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        graphItems = uiState.totals,
-                        contentColor = LocalContentColor.current,
-                    )
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Card {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        uiState.totals.forEach {
-                            Row {
-                                Text("${it.year}/${it.month.toString().padStart(2, '0')}")
-                                Spacer(modifier = Modifier.widthIn(min = 8.dp).weight(1f))
-                                Text("${it.amount}円")
-                            }
-                        }
+                        Spacer(Modifier.width(8.dp))
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(12.dp))
-            Spacer(modifier = Modifier.height(with(density) { scrollBarHeight.toDp() }))
         }
-        ScrollButtons(
-            modifier = Modifier
-                .onSizeChanged {
-                    scrollBarHeight = it.height
+        Spacer(modifier = Modifier.height(12.dp))
+        Card {
+            PolygonalLineGraph(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .height(200.dp),
+                graphItems = uiState.totals,
+                contentColor = LocalContentColor.current,
+            )
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        Card {
+            Column(modifier = Modifier.padding(16.dp)) {
+                uiState.totals.forEach {
+                    Row {
+                        Text("${it.year}/${it.month.toString().padStart(2, '0')}")
+                        Spacer(modifier = Modifier.widthIn(min = 8.dp).weight(1f))
+                        Text("${it.amount}円")
+                    }
                 }
-                .align(Alignment.BottomEnd)
-                .padding(ScrollButtonsDefaults.padding)
-                .height(ScrollButtonsDefaults.height),
-            scrollState = scrollState,
-            scrollSize = with(density) {
-                height.toPx() * 0.4f
-            },
-        )
+            }
+        }
     }
 }
 

@@ -86,95 +86,110 @@ public class RootHomeTabScreenViewModel(
 
     public val uiStateFlow: StateFlow<RootHomeTabUiState> = MutableStateFlow(
         RootHomeTabUiState(
-            screenState = RootHomeTabUiState.ScreenState.Loading,
+            contentType = RootHomeTabUiState.ContentType.Between(
+                loadingState = RootHomeTabUiState.BetweenLoadingState.Loading,
+                event = betweenEvent,
+            ),
             event = uiStateEvent,
         ),
     ).also { uiStateFlow ->
         coroutineScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
-                val screenState = run screenState@{
-                    val displayPeriods = (0 until viewModelState.displayPeriod.monthCount).map { index ->
-                        viewModelState.displayPeriod.sinceDate.addMonth(index)
-                    }
-                    val allLoaded = displayPeriods.all { displayPeriod ->
-                        viewModelState.responseMap.contains(displayPeriod)
-                    }
-                    if (allLoaded.not()) {
-                        return@screenState RootHomeTabUiState.ScreenState.Loading
-                    }
-
-                    val responses = run {
-                        val responses = displayPeriods.map { displayPeriod ->
-                            viewModelState.responseMap[displayPeriod]
-                        }
-                        if (responses.size != responses.filterNotNull().size) {
-                            return@screenState RootHomeTabUiState.ScreenState.Error
-                        }
-                        displayPeriods.zip(responses.filterNotNull())
-                    }
-
-                    RootHomeTabUiState.ScreenState.Loaded(
-                        displayType = RootHomeTabUiState.DisplayType.Between(
-                            between = "${displayPeriods.first().year}/${displayPeriods.first().month} - ${displayPeriods.last().year}/${displayPeriods.last().month}",
+                val screenState = when (viewModelState.contentTYpe) {
+                    ViewModelState.ContentType.Between -> run screenState@{
+                        val loadingState = RootHomeTabUiState.ContentType.Between(
+                            loadingState = RootHomeTabUiState.BetweenLoadingState.Loading,
                             event = betweenEvent,
-                            rangeText = "${viewModelState.displayPeriod.monthCount}ヶ月",
-                            totalBar = BarGraphUiState(
-                                items = responses.map { (yearMonth, response) ->
-                                    BarGraphUiState.PeriodData(
+                        )
+                        val errorState = RootHomeTabUiState.ContentType.Between(
+                            loadingState = RootHomeTabUiState.BetweenLoadingState.Error,
+                            event = betweenEvent,
+                        )
+
+                        val displayPeriods = (0 until viewModelState.displayPeriod.monthCount).map { index ->
+                            viewModelState.displayPeriod.sinceDate.addMonth(index)
+                        }
+                        val allLoaded = displayPeriods.all { displayPeriod ->
+                            viewModelState.responseMap.contains(displayPeriod)
+                        }
+                        if (allLoaded.not()) {
+                            return@screenState loadingState
+                        }
+
+                        val responses = run {
+                            val responses = displayPeriods.map { displayPeriod ->
+                                viewModelState.responseMap[displayPeriod]
+                            }
+                            if (responses.size != responses.filterNotNull().size) {
+                                return@screenState errorState
+                            }
+                            displayPeriods.zip(responses.filterNotNull())
+                        }
+
+                        RootHomeTabUiState.ContentType.Between(
+                            event = betweenEvent,
+                            loadingState = RootHomeTabUiState.BetweenLoadingState.Loaded(
+                                between = "${displayPeriods.first().year}/${displayPeriods.first().month} - ${displayPeriods.last().year}/${displayPeriods.last().month}",
+                                rangeText = "${viewModelState.displayPeriod.monthCount}ヶ月",
+                                totalBar = BarGraphUiState(
+                                    items = responses.map { (yearMonth, response) ->
+                                        BarGraphUiState.PeriodData(
+                                            year = yearMonth.year,
+                                            month = yearMonth.month,
+                                            items = run item@{
+                                                response.data?.user?.moneyUsageAnalytics?.byCategories.orEmpty()
+                                                    .forEach {
+                                                        println("${it.category.name} ${it.totalAmount}")
+                                                    }
+                                                val byCategory =
+                                                    response.data?.user?.moneyUsageAnalytics?.byCategories
+                                                        ?: return@screenState errorState
+
+                                                byCategory.map {
+                                                    val amount = it.totalAmount
+                                                        ?: return@screenState errorState
+                                                    BarGraphUiState.Item(
+                                                        color = reservedColorModel.getColor(it.category.id.id.toString()),
+                                                        title = it.category.name,
+                                                        value = amount,
+                                                    )
+                                                }.toImmutableList()
+                                            },
+                                            total = response.data?.user?.moneyUsageAnalytics?.totalAmount
+                                                ?: return@screenState errorState,
+                                        )
+                                    }.toImmutableList(),
+                                ),
+                                totalBarColorTextMapping = responses.mapNotNull { (_, response) ->
+                                    response.data?.user?.moneyUsageAnalytics?.byCategories
+                                }.flatMap { byCategories ->
+                                    byCategories.map { it.category }
+                                }.distinctBy {
+                                    it.id
+                                }.map {
+                                    RootHomeTabUiState.ColorText(
+                                        color = reservedColorModel.getColor(it.id.id.toString()),
+                                        text = it.name,
+                                        onClick = {
+
+                                        },
+                                    )
+                                }.toImmutableList(),
+                                totals = responses.map { (yearMonth, response) ->
+                                    PolygonalLineGraphItemUiState(
+                                        amount = response.data?.user?.moneyUsageAnalytics?.totalAmount
+                                            ?: return@screenState errorState,
                                         year = yearMonth.year,
                                         month = yearMonth.month,
-                                        items = run item@{
-                                            response.data?.user?.moneyUsageAnalytics?.byCategories.orEmpty().forEach {
-                                                println("${it.category.name} ${it.totalAmount}")
-                                            }
-                                            val byCategory = response.data?.user?.moneyUsageAnalytics?.byCategories
-                                                ?: return@screenState RootHomeTabUiState.ScreenState.Error
-
-                                            byCategory.map {
-                                                val amount = it.totalAmount
-                                                    ?: return@screenState RootHomeTabUiState.ScreenState.Error
-                                                BarGraphUiState.Item(
-                                                    color = reservedColorModel.getColor(it.category.id.id.toString()),
-                                                    title = it.category.name,
-                                                    value = amount,
-                                                )
-                                            }.toImmutableList()
-                                        },
-                                        total = response.data?.user?.moneyUsageAnalytics?.totalAmount
-                                            ?: return@screenState RootHomeTabUiState.ScreenState.Error,
                                     )
                                 }.toImmutableList(),
                             ),
-                            totalBarColorTextMapping = responses.mapNotNull { (_, response) ->
-                                response.data?.user?.moneyUsageAnalytics?.byCategories
-                            }.flatMap { byCategories ->
-                                byCategories.map { it.category }
-                            }.distinctBy {
-                                it.id
-                            }.map {
-                                RootHomeTabUiState.ColorText(
-                                    color = reservedColorModel.getColor(it.id.id.toString()),
-                                    text = it.name,
-                                    onClick = {
-
-                                    },
-                                )
-                            }.toImmutableList(),
-                            totals = responses.map { (yearMonth, response) ->
-                                PolygonalLineGraphItemUiState(
-                                    amount = response.data?.user?.moneyUsageAnalytics?.totalAmount
-                                        ?: return@screenState RootHomeTabUiState.ScreenState.Error,
-                                    year = yearMonth.year,
-                                    month = yearMonth.month,
-                                )
-                            }.toImmutableList(),
-                        ),
-                    )
+                        )
+                    }
                 }
-
                 uiStateFlow.update { uiState ->
                     uiState.copy(
-                        screenState = screenState,
+                        contentType = screenState,
                     )
                 }
             }
@@ -225,6 +240,7 @@ public class RootHomeTabScreenViewModel(
     }
 
     private data class ViewModelState(
+        val contentTYpe: ContentType = ContentType.Between,
         val responseMap: Map<YearMonth, ApolloResponse<RootHomeTabScreenAnalyticsByDateQuery.Data>?> = mapOf(),
         val displayPeriod: Period = run {
             val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
@@ -254,5 +270,9 @@ public class RootHomeTabScreenViewModel(
             val sinceDate: YearMonth,
             val monthCount: Int,
         )
+
+        enum class ContentType {
+            Between,
+        }
     }
 }
