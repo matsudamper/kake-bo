@@ -97,7 +97,6 @@ public class RootHomeTabScreenViewModel(
                         val responses = displayPeriods.map { displayPeriod ->
                             viewModelState.responseMap[displayPeriod]
                         }
-                        println("${responses.size} != ${responses.filterNotNull().size}")
                         if (responses.size != responses.filterNotNull().size) {
                             return@screenState RootHomeTabUiState.ScreenState.Error
                         }
