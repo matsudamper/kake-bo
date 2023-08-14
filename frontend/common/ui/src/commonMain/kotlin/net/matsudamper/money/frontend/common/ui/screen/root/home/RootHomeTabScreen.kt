@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.home
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -27,7 +26,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,16 +36,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.drawText
-import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
-import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.ScrollButtons
 import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
@@ -56,7 +46,8 @@ import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
-import net.matsudamper.money.frontend.common.ui.layout.PolygonalLineGraph
+import net.matsudamper.money.frontend.common.ui.layout.graph.BarGraph
+import net.matsudamper.money.frontend.common.ui.layout.graph.PolygonalLineGraph
 
 @Composable
 public fun RootHomeTabScreen(
@@ -181,6 +172,16 @@ private fun BetweenContent(
                         .padding(bottom = 8.dp),
                     text = "合計",
                 )
+                Card {
+                    BarGraph(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth()
+                            .height(600.dp),
+                        uiState = uiState.totalBar,
+                        contentColor = LocalContentColor.current,
+                    )
+                }
                 Card {
                     PolygonalLineGraph(
                         modifier = Modifier

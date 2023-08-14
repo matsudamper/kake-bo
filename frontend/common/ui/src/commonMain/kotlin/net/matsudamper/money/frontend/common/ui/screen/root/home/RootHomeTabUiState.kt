@@ -2,7 +2,8 @@ package net.matsudamper.money.frontend.common.ui.screen.root.home
 
 import androidx.compose.runtime.Immutable
 import net.matsudamper.money.frontend.common.base.ImmutableList
-import net.matsudamper.money.frontend.common.ui.layout.PolygonalLineGraphItemUiState
+import net.matsudamper.money.frontend.common.ui.layout.graph.BarGraphUiState
+import net.matsudamper.money.frontend.common.ui.layout.graph.PolygonalLineGraphItemUiState
 
 public data class RootHomeTabUiState(
     val screenState: ScreenState,
@@ -21,6 +22,7 @@ public data class RootHomeTabUiState(
         public data class Between(
             val between: String,
             val totals: ImmutableList<PolygonalLineGraphItemUiState>,
+            val totalBar: BarGraphUiState,
             val rangeText: String,
             val event: BetweenEvent,
         ) : DisplayType

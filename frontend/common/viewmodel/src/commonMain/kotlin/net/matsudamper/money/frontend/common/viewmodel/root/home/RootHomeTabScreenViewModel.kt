@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.home
 
+import com.apollographql.apollo3.api.ApolloResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,11 +14,12 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
-import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
-import net.matsudamper.money.frontend.common.ui.layout.PolygonalLineGraphItemUiState
+import net.matsudamper.money.frontend.common.ui.layout.graph.BarGraphUiState
+import net.matsudamper.money.frontend.common.ui.layout.graph.PolygonalLineGraphItemUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
+import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenQuery
@@ -31,6 +33,8 @@ public class RootHomeTabScreenViewModel(
 
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
+
+    private val reservedColorModel = ReservedColorModel()
 
     private val uiStateEvent = object : RootHomeTabUiState.Event {
         override fun onViewInitialized() {
@@ -127,6 +131,33 @@ public class RootHomeTabScreenViewModel(
                             between = "${displayPeriods.first().year}/${displayPeriods.first().month} - ${displayPeriods.last().year}/${displayPeriods.last().month}",
                             event = betweenEvent,
                             rangeText = "${viewModelState.displayPeriod.monthCount}ヶ月",
+                            totalBar = BarGraphUiState(
+                                items = responses.map { (yearMonth, response) ->
+                                    BarGraphUiState.PeriodData(
+                                        year = yearMonth.year,
+                                        month = yearMonth.month,
+                                        items = run item@{
+                                            response.data?.user?.moneyUsageStatics?.byCategories.orEmpty().forEach {
+                                                println("${it.category.name} ${it.totalAmount}")
+                                            }
+                                            val byCategory = response.data?.user?.moneyUsageStatics?.byCategories
+                                                ?: return@screenState RootHomeTabUiState.ScreenState.Error
+
+                                            byCategory.map {
+                                                val amount = it.totalAmount
+                                                    ?: return@screenState RootHomeTabUiState.ScreenState.Error
+                                                BarGraphUiState.Item(
+                                                    color = reservedColorModel.getColor(it.category.id.id.toString()),
+                                                    title = it.category.name,
+                                                    value = amount,
+                                                )
+                                            }.toImmutableList()
+                                        },
+                                        total = response.data?.user?.moneyUsageStatics?.totalAmount
+                                            ?: return@screenState RootHomeTabUiState.ScreenState.Error,
+                                    )
+                                }.toImmutableList()
+                            ),
                             totals = responses.map { (yearMonth, response) ->
                                 PolygonalLineGraphItemUiState(
                                     amount = response.data?.user?.moneyUsageStatics?.totalAmount

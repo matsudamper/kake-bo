@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.layout
+package net.matsudamper.money.frontend.common.ui.layout.graph
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.padding
