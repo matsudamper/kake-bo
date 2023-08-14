@@ -7,7 +7,7 @@ import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
-import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageStaticsLocalContext
+import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsLocalContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.repository.MoneyUsageRepository
@@ -21,8 +21,8 @@ import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategoriesConnection
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategoriesInput
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
-import net.matsudamper.money.graphql.model.QlMoneyUsageStatics
-import net.matsudamper.money.graphql.model.QlMoneyUsageStaticsQuery
+import net.matsudamper.money.graphql.model.QlMoneyUsageAnalytics
+import net.matsudamper.money.graphql.model.QlMoneyUsageAnalyticsQuery
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategoryInput
 import net.matsudamper.money.graphql.model.QlMoneyUsagesConnection
@@ -224,16 +224,16 @@ class UserResolverImpl : UserResolver {
         }.toDataFetcher()
     }
 
-    override fun moneyUsageStatics(
+    override fun moneyUsageAnalytics(
         user: QlUser,
-        query: QlMoneyUsageStaticsQuery,
+        query: QlMoneyUsageAnalyticsQuery,
         env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<QlMoneyUsageStatics>> {
+    ): CompletionStage<DataFetcherResult<QlMoneyUsageAnalytics>> {
         return CompletableFuture.completedFuture(
-            DataFetcherResult.newResult<QlMoneyUsageStatics>()
-                .data(QlMoneyUsageStatics())
+            DataFetcherResult.newResult<QlMoneyUsageAnalytics>()
+                .data(QlMoneyUsageAnalytics())
                 .localContext(
-                    MoneyUsageStaticsLocalContext(
+                    MoneyUsageAnalyticsLocalContext(
                         query = query,
                     ),
                 )

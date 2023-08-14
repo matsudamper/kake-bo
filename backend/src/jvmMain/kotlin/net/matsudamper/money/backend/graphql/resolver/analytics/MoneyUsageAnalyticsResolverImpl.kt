@@ -1,4 +1,4 @@
-package net.matsudamper.money.backend.graphql.resolver.moneyusagestatics
+package net.matsudamper.money.backend.graphql.resolver.analytics
 
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
@@ -6,26 +6,26 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.graphql.DataFetcherResultBuilder
 import net.matsudamper.money.backend.graphql.GraphQlContext
-import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageStaticsByCategoriesLocalContext
-import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageStaticsLocalContext
+import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsByCategoriesLocalContext
+import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsLocalContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
-import net.matsudamper.money.graphql.model.MoneyUsageStaticsResolver
+import net.matsudamper.money.graphql.model.MoneyUsageAnalyticsResolver
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
-import net.matsudamper.money.graphql.model.QlMoneyUsageStatics
-import net.matsudamper.money.graphql.model.QlMoneyUsageStaticsByCategory
+import net.matsudamper.money.graphql.model.QlMoneyUsageAnalytics
+import net.matsudamper.money.graphql.model.QlMoneyUsageAnalyticsByCategory
 
-class MoneyUsageStaticsResolverImpl : MoneyUsageStaticsResolver {
-    private val DataFetchingEnvironment.localContext get() = getLocalContext<MoneyUsageStaticsLocalContext>()
+class MoneyUsageAnalyticsResolverImpl : MoneyUsageAnalyticsResolver {
+    private val DataFetchingEnvironment.localContext get() = getLocalContext<MoneyUsageAnalyticsLocalContext>()
 
     override fun totalAmount(
-        moneyUsageStatics: QlMoneyUsageStatics,
+        moneyUsageAnalytics: QlMoneyUsageAnalytics,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Long?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
 
         return CompletableFuture.supplyAsync {
-            context.repositoryFactory.createMoneyUsageStaticsRepository()
+            context.repositoryFactory.createMoneyUsageAnalyticsRepository()
                 .getTotalAmount(
                     userId = userId,
                     sinceDateTimeAt = env.localContext.query.sinceDateTime,
@@ -35,14 +35,14 @@ class MoneyUsageStaticsResolverImpl : MoneyUsageStaticsResolver {
     }
 
     override fun byCategories(
-        moneyUsageStatics: QlMoneyUsageStatics,
+        moneyUsageAnalytics: QlMoneyUsageAnalytics,
         env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<List<QlMoneyUsageStaticsByCategory>?>> {
+    ): CompletionStage<DataFetcherResult<List<QlMoneyUsageAnalyticsByCategory>?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
 
         return CompletableFuture.supplyAsync {
-            val results = context.repositoryFactory.createMoneyUsageStaticsRepository()
+            val results = context.repositoryFactory.createMoneyUsageAnalyticsRepository()
                 .getTotalAmountByCategories(
                     userId = userId,
                     sinceDateTimeAt = env.localContext.query.sinceDateTime,
@@ -54,12 +54,12 @@ class MoneyUsageStaticsResolverImpl : MoneyUsageStaticsResolver {
 
             DataFetcherResultBuilder.nullable(
                 value = results.map {
-                    QlMoneyUsageStaticsByCategory(
+                    QlMoneyUsageAnalyticsByCategory(
                         category = QlMoneyUsageCategory(it.categoryId),
                         totalAmount = it.totalAmount,
                     )
                 },
-                localContext = MoneyUsageStaticsByCategoriesLocalContext(
+                localContext = MoneyUsageAnalyticsByCategoriesLocalContext(
                     query = env.localContext.query,
                 ),
             ).build()

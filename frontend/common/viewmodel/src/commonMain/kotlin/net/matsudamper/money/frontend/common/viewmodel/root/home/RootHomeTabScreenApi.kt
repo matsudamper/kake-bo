@@ -6,8 +6,8 @@ import kotlinx.datetime.LocalTime
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.graphql.GraphqlClient
-import net.matsudamper.money.frontend.graphql.RootHomeTabScreenQuery
-import net.matsudamper.money.frontend.graphql.type.MoneyUsageStaticsQuery
+import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByDateQuery
+import net.matsudamper.money.frontend.graphql.type.MoneyUsageAnalyticsQuery
 
 public class RootHomeTabScreenApi(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
@@ -17,11 +17,11 @@ public class RootHomeTabScreenApi(
         startMonth: Int,
         endYear: Int,
         endMonth: Int,
-    ): Result<ApolloResponse<RootHomeTabScreenQuery.Data>> {
+    ): Result<ApolloResponse<RootHomeTabScreenAnalyticsByDateQuery.Data>> {
         return runCatching {
             apolloClient.query(
-                RootHomeTabScreenQuery(
-                    query = MoneyUsageStaticsQuery(
+                RootHomeTabScreenAnalyticsByDateQuery(
+                    query = MoneyUsageAnalyticsQuery(
                         sinceDateTime = LocalDateTime(
                             LocalDate(startYear, startMonth, 1),
                             LocalTime(0, 0, 0),

@@ -22,7 +22,7 @@ import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
-import net.matsudamper.money.frontend.graphql.RootHomeTabScreenQuery
+import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByDateQuery
 
 public class RootHomeTabScreenViewModel(
     private val coroutineScope: CoroutineScope,
@@ -137,10 +137,10 @@ public class RootHomeTabScreenViewModel(
                                         year = yearMonth.year,
                                         month = yearMonth.month,
                                         items = run item@{
-                                            response.data?.user?.moneyUsageStatics?.byCategories.orEmpty().forEach {
+                                            response.data?.user?.moneyUsageAnalytics?.byCategories.orEmpty().forEach {
                                                 println("${it.category.name} ${it.totalAmount}")
                                             }
-                                            val byCategory = response.data?.user?.moneyUsageStatics?.byCategories
+                                            val byCategory = response.data?.user?.moneyUsageAnalytics?.byCategories
                                                 ?: return@screenState RootHomeTabUiState.ScreenState.Error
 
                                             byCategory.map {
@@ -153,13 +153,13 @@ public class RootHomeTabScreenViewModel(
                                                 )
                                             }.toImmutableList()
                                         },
-                                        total = response.data?.user?.moneyUsageStatics?.totalAmount
+                                        total = response.data?.user?.moneyUsageAnalytics?.totalAmount
                                             ?: return@screenState RootHomeTabUiState.ScreenState.Error,
                                     )
                                 }.toImmutableList(),
                             ),
                             totalBarColorTextMapping = responses.mapNotNull { (_, response) ->
-                                response.data?.user?.moneyUsageStatics?.byCategories
+                                response.data?.user?.moneyUsageAnalytics?.byCategories
                             }.flatMap { byCategories ->
                                 byCategories.map { it.category }
                             }.distinctBy {
@@ -172,7 +172,7 @@ public class RootHomeTabScreenViewModel(
                             }.toImmutableList(),
                             totals = responses.map { (yearMonth, response) ->
                                 PolygonalLineGraphItemUiState(
-                                    amount = response.data?.user?.moneyUsageStatics?.totalAmount
+                                    amount = response.data?.user?.moneyUsageAnalytics?.totalAmount
                                         ?: return@screenState RootHomeTabUiState.ScreenState.Error,
                                     year = yearMonth.year,
                                     month = yearMonth.month,
@@ -236,7 +236,7 @@ public class RootHomeTabScreenViewModel(
     }
 
     private data class ViewModelState(
-        val responseMap: Map<YearMonth, ApolloResponse<RootHomeTabScreenQuery.Data>?> = mapOf(),
+        val responseMap: Map<YearMonth, ApolloResponse<RootHomeTabScreenAnalyticsByDateQuery.Data>?> = mapOf(),
         val displayPeriod: Period = run {
             val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 .date

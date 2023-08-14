@@ -105,18 +105,18 @@ type MoneyUsageCategory {
     subCategories(query: MoneyUsageSubCategoryQuery!): SubCategoriesConnection
 }
 
-type MoneyUsageStatics {
-    byCategories: [MoneyUsageStaticsByCategory!]!
+type MoneyUsageAnalytics {
+    byCategories: [MoneyUsageAnalyticsByCategory!]!
     totalAmount: Long
 }
 
-type MoneyUsageStaticsByCategory {
-    bySubCategories: [MoneyUsageStaticsBySubCategory!]!
+type MoneyUsageAnalyticsByCategory {
+    bySubCategories: [MoneyUsageAnalyticsBySubCategory!]!
     category: MoneyUsageCategory!
     totalAmount: Long
 }
 
-type MoneyUsageStaticsBySubCategory {
+type MoneyUsageAnalyticsBySubCategory {
     category: MoneyUsageSubCategory!
     totalAmount: Long
 }
@@ -168,7 +168,7 @@ type User {
     moneyUsage(id: MoneyUsageId!): MoneyUsage
     moneyUsageCategories(input: MoneyUsageCategoriesInput!): MoneyUsageCategoriesConnection
     moneyUsageCategory(id: MoneyUsageCategoryId!): MoneyUsageCategory
-    moneyUsageStatics(query: MoneyUsageStaticsQuery!): MoneyUsageStatics!
+    moneyUsageAnalytics(query: MoneyUsageAnalyticsQuery!): MoneyUsageAnalytics!
     moneyUsageSubCategory(input: MoneyUsageSubCategoryInput!): MoneyUsageSubCategory
     moneyUsages(query: MoneyUsagesQuery!): MoneyUsagesConnection
     settings: UserSettings!
@@ -362,7 +362,7 @@ input MoneyUsageCategoriesInput {
     size: Int!
 }
 
-input MoneyUsageStaticsQuery {
+input MoneyUsageAnalyticsQuery {
     sinceDateTime: LocalDateTime!
     untilDateTime: LocalDateTime!
 }

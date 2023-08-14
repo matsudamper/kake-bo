@@ -10,7 +10,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import org.jooq.impl.DSL
 import org.jooq.kotlin.and
 
-class MoneyUsageStaticsRepository(
+class MoneyUsageAnalyticsRepository(
     private val dbConnection: DbConnection,
 ) {
     private val usage = JMoneyUsages.MONEY_USAGES

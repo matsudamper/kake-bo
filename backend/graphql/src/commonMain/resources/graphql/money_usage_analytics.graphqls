@@ -1,0 +1,21 @@
+
+input MoneyUsageAnalyticsQuery {
+    sinceDateTime: LocalDateTime!
+    untilDateTime: LocalDateTime!
+}
+
+type MoneyUsageAnalytics {
+    totalAmount: Long @lazy
+    byCategories: [MoneyUsageAnalyticsByCategory!] @lazy
+}
+
+type MoneyUsageAnalyticsByCategory {
+    category: MoneyUsageCategory!
+    bySubCategories: [MoneyUsageAnalyticsBySubCategory!] @lazy
+    totalAmount: Long
+}
+
+type MoneyUsageAnalyticsBySubCategory {
+    category: MoneyUsageSubCategory!
+    totalAmount: Long @lazy
+}

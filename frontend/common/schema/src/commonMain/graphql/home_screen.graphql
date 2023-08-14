@@ -1,6 +1,6 @@
-query RootHomeTabScreen($query: MoneyUsageStaticsQuery!) {
+query RootHomeTabScreenAnalyticsByDate($query: MoneyUsageAnalyticsQuery!) {
     user {
-        moneyUsageStatics(query: $query) {
+        moneyUsageAnalytics(query: $query) {
             totalAmount
             byCategories {
                 totalAmount
