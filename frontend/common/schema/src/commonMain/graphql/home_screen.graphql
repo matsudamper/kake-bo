@@ -1,3 +1,18 @@
+query RootHomeTabScreen {
+    user {
+        moneyUsageCategories(input: {
+            cursor: null,
+            size: 100,
+        }) {
+            nodes {
+                id
+                name
+            }
+        }
+    }
+}
+
+
 query RootHomeTabScreenAnalyticsByDate($query: MoneyUsageAnalyticsQuery!) {
     user {
         moneyUsageAnalytics(query: $query) {

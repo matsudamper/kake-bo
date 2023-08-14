@@ -7,15 +7,23 @@ import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
+import kotlinx.coroutines.flow.Flow
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByCategoryQuery
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByDateQuery
+import net.matsudamper.money.frontend.graphql.RootHomeTabScreenQuery
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageAnalyticsQuery
 
 public class RootHomeTabScreenApi(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
+    public fun screenFlow(): Flow<ApolloResponse<RootHomeTabScreenQuery.Data>> {
+        return apolloClient
+            .query(RootHomeTabScreenQuery())
+            .toFlow()
+    }
+
     public suspend fun fetchCategory(
         id: MoneyUsageCategoryId,
         startYear: Int,
@@ -45,7 +53,7 @@ public class RootHomeTabScreenApi(
                         FetchPolicy.CacheAndNetwork
                     } else {
                         FetchPolicy.NetworkFirst
-                    }
+                    },
                 )
                 .execute()
         }
@@ -78,7 +86,7 @@ public class RootHomeTabScreenApi(
                         FetchPolicy.CacheAndNetwork
                     } else {
                         FetchPolicy.NetworkFirst
-                    }
+                    },
                 )
                 .execute()
         }

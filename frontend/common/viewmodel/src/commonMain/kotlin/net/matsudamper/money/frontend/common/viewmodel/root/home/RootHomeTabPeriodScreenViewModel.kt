@@ -25,6 +25,7 @@ import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByCategoryQuery
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByDateQuery
+import net.matsudamper.money.frontend.graphql.RootHomeTabScreenQuery
 
 public class RootHomeTabPeriodScreenViewModel(
     private val coroutineScope: CoroutineScope,
@@ -94,41 +95,42 @@ public class RootHomeTabPeriodScreenViewModel(
                     val displayPeriods = (0 until viewModelState.displayPeriod.monthCount).map { index ->
                         viewModelState.displayPeriod.sinceDate.addMonth(index)
                     }
-                    val allLoaded = displayPeriods.all { displayPeriod ->
-                        viewModelState.allResponseMap.contains(displayPeriod)
-                    }
-                    if (allLoaded.not()) {
-                        return@screenState RootHomeTabPeriodContentUiState.LoadingState.Loading
-                    }
-
-                    val responses = run {
-                        val responses = displayPeriods.map { displayPeriod ->
-                            viewModelState.allResponseMap[displayPeriod]
-                        }
-                        if (responses.size != responses.filterNotNull().size) {
-                            return@screenState RootHomeTabPeriodContentUiState.LoadingState.Error
-                        }
-                        displayPeriods.zip(responses.filterNotNull())
-                    }
-
-                    val categories = responses.mapNotNull { (_, response) ->
-                        response.data?.user?.moneyUsageAnalytics?.byCategories
-                    }.flatMap { byCategories ->
-                        byCategories.map { it.category }
-                    }.distinctBy {
-                        it.id
-                    }
 
                     RootHomeTabPeriodContentUiState.LoadingState.Loaded(
                         categoryType = when (viewModelState.contentType) {
                             is ViewModelState.ContentType.All -> "すべて"
                             is ViewModelState.ContentType.Category -> viewModelState.contentType.name
                         },
-                        categoryTypes = createCategoryTypes(categories = categories).toImmutableList(),
+                        categoryTypes = createCategoryTypes(categories = viewModelState.categories).toImmutableList(),
                         between = "${displayPeriods.first().year}/${displayPeriods.first().month} - ${displayPeriods.last().year}/${displayPeriods.last().month}",
                         rangeText = "${viewModelState.displayPeriod.monthCount}ヶ月",
                         graphContent = when (viewModelState.contentType) {
                             is ViewModelState.ContentType.All -> {
+                                val allLoaded = displayPeriods.all { displayPeriod ->
+                                    viewModelState.allResponseMap.contains(displayPeriod)
+                                }
+                                if (allLoaded.not()) {
+                                    return@screenState RootHomeTabPeriodContentUiState.LoadingState.Loading
+                                }
+
+                                val responses = run {
+                                    val responses = displayPeriods.map { displayPeriod ->
+                                        viewModelState.allResponseMap[displayPeriod]
+                                    }
+                                    if (responses.size != responses.filterNotNull().size) {
+                                        return@screenState RootHomeTabPeriodContentUiState.LoadingState.Error
+                                    }
+                                    displayPeriods.zip(responses.filterNotNull())
+                                }
+
+                                val categories = responses.mapNotNull { (_, response) ->
+                                    response.data?.user?.moneyUsageAnalytics?.byCategories
+                                }.flatMap { byCategories ->
+                                    byCategories.map { it.category }
+                                }.distinctBy {
+                                    it.id
+                                }
+
                                 createTotalUiState(
                                     responses = responses,
                                     categories = categories,
@@ -154,8 +156,20 @@ public class RootHomeTabPeriodScreenViewModel(
         }
     }.asStateFlow()
 
+    init {
+        coroutineScope.launch {
+            api.screenFlow().collectLatest {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        categories = it.data?.user?.moneyUsageCategories?.nodes.orEmpty(),
+                    )
+                }
+            }
+        }
+    }
+
     private fun createCategoryTypes(
-        categories: List<RootHomeTabScreenAnalyticsByDateQuery.Category>,
+        categories: List<RootHomeTabScreenQuery.Node>,
     ): List<RootHomeTabPeriodContentUiState.CategoryTypes> {
         return buildList {
             add(
@@ -358,6 +372,11 @@ public class RootHomeTabPeriodScreenViewModel(
                     }
                 }.map { it.await() }
 
+            println("fetch: ${(0 until period.monthCount)
+                .map { index ->
+                    period.sinceDate.addMonth(index)
+                }.joinToString(postfix = "月") { it.month.toString() }}")
+            println("period: $period")
             viewModelStateFlow.update {
                 it.copy(
                     displayPeriod = period,
@@ -407,6 +426,7 @@ public class RootHomeTabPeriodScreenViewModel(
         val contentType: ContentType = ContentType.All,
         val allResponseMap: Map<YearMonth, ApolloResponse<RootHomeTabScreenAnalyticsByDateQuery.Data>?> = mapOf(),
         val categoryResponseMap: Map<YearMonthCategory, ApolloResponse<RootHomeTabScreenAnalyticsByCategoryQuery.Data>?> = mapOf(),
+        val categories: List<RootHomeTabScreenQuery.Node> = listOf(),
         val displayPeriod: Period = run {
             val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 .date
