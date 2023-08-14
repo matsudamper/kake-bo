@@ -171,7 +171,6 @@ public class RootHomeTabScreenViewModel(
                                         color = reservedColorModel.getColor(it.id.id.toString()),
                                         text = it.name,
                                         onClick = {
-
                                         },
                                     )
                                 }.toImmutableList(),

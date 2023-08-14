@@ -18,11 +18,11 @@ import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilter
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersConnection
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersQuery
 import net.matsudamper.money.graphql.model.QlMoneyUsage
+import net.matsudamper.money.graphql.model.QlMoneyUsageAnalytics
+import net.matsudamper.money.graphql.model.QlMoneyUsageAnalyticsQuery
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategoriesConnection
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategoriesInput
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
-import net.matsudamper.money.graphql.model.QlMoneyUsageAnalytics
-import net.matsudamper.money.graphql.model.QlMoneyUsageAnalyticsQuery
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategoryInput
 import net.matsudamper.money.graphql.model.QlMoneyUsagesConnection

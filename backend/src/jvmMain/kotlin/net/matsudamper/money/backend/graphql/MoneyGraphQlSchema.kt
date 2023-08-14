@@ -25,13 +25,13 @@ import net.matsudamper.money.backend.graphql.resolver.MoneyUsageSuggestResolverI
 import net.matsudamper.money.backend.graphql.resolver.QueryResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserMailAttributesResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserSettingsResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.analytics.MoneyUsageAnalyticsByCategoryResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.analytics.MoneyUsageAnalyticsBySubCategoryResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.analytics.MoneyUsageAnalyticsResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailAttributesResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailCategoryConditionResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailCategoryFilterResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailResolverImpl
-import net.matsudamper.money.backend.graphql.resolver.analytics.MoneyUsageAnalyticsByCategoryResolverImpl
-import net.matsudamper.money.backend.graphql.resolver.analytics.MoneyUsageAnalyticsBySubCategoryResolverImpl
-import net.matsudamper.money.backend.graphql.resolver.analytics.MoneyUsageAnalyticsResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.mutation.AdminMutationResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.mutation.MutationResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.mutation.SettingsMutationResolverResolverImpl

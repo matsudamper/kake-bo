@@ -4,9 +4,9 @@ import net.matsudamper.money.backend.DbConnectionImpl
 import net.matsudamper.money.backend.mail.MailRepository
 import net.matsudamper.money.backend.repository.DbMailRepository
 import net.matsudamper.money.backend.repository.MailFilterRepository
+import net.matsudamper.money.backend.repository.MoneyUsageAnalyticsRepository
 import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.repository.MoneyUsageRepository
-import net.matsudamper.money.backend.repository.MoneyUsageAnalyticsRepository
 import net.matsudamper.money.backend.repository.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.repository.UserConfigRepository
 

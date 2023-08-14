@@ -167,7 +167,7 @@ private fun BetweenContent(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     BetweenLoaded(
-                        uiState = uiState.loadingState
+                        uiState = uiState.loadingState,
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Spacer(modifier = Modifier.height(with(density) { scrollBarHeight.toDp() }))
@@ -208,7 +208,7 @@ private fun BetweenLoaded(
         )
         Card {
             Column(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(16.dp),
             ) {
                 BarGraph(
                     modifier = Modifier
@@ -227,7 +227,7 @@ private fun BetweenLoaded(
                             label = {
                                 Row(
                                     modifier = Modifier.padding(vertical = 4.dp),
-                                    verticalAlignment = Alignment.CenterVertically
+                                    verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     Box(
                                         modifier = Modifier
@@ -238,7 +238,7 @@ private fun BetweenLoaded(
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(it.text)
                                 }
-                            }
+                            },
                         )
                         Spacer(Modifier.width(8.dp))
                     }

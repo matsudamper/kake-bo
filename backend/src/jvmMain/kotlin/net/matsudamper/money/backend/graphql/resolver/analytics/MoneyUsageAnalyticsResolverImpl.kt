@@ -10,9 +10,9 @@ import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsByC
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsLocalContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.graphql.model.MoneyUsageAnalyticsResolver
-import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageAnalytics
 import net.matsudamper.money.graphql.model.QlMoneyUsageAnalyticsByCategory
+import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
 
 class MoneyUsageAnalyticsResolverImpl : MoneyUsageAnalyticsResolver {
     private val DataFetchingEnvironment.localContext get() = getLocalContext<MoneyUsageAnalyticsLocalContext>()
