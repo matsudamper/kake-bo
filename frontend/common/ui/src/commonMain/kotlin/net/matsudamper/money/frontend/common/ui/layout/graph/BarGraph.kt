@@ -48,7 +48,7 @@ internal fun BarGraph(
     val maxTotalValue = remember(uiState.items) {
         uiState.items.maxOfOrNull { it.total } ?: 0
     }
-    val textMeasurer = rememberTextMeasurer(cacheSize = 2 + 12) // TODO
+    val textMeasurer = rememberTextMeasurer(cacheSize = 2 + 12)
 
     val minTextMeasureResult = remember(minTotalValue) {
         textMeasurer.measure(
