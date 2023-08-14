@@ -59,17 +59,25 @@ public data class RootHomeTabPeriodContentUiState(
     val event: Event,
 ) {
     public sealed interface LoadingState {
+
         public data class Loaded(
             val totals: ImmutableList<PolygonalLineGraphItemUiState>,
             val totalBar: BarGraphUiState,
             val totalBarColorTextMapping: ImmutableList<RootHomeTabUiState.ColorText>,
             val rangeText: String,
             val between: String,
+            val categoryType: String,
+            val categoryTypes: ImmutableList<CategoryTypes>,
         ) : LoadingState
 
         public object Loading : LoadingState
         public object Error : LoadingState
     }
+
+    public data class CategoryTypes(
+        val title: String,
+        val onClick: () -> Unit,
+    )
 
     @Immutable
     public interface Event {
@@ -162,12 +170,31 @@ private fun BetweenLoaded(
     Column(
         modifier = modifier,
     ) {
-        Text(
+        Box(
             modifier = Modifier
-                .padding(horizontal = 8.dp)
-                .padding(bottom = 8.dp),
-            text = "合計",
-        )
+                .padding(bottom = 4.dp),
+        ) {
+            var expanded by remember { mutableStateOf(false) }
+            DropDownMenuButton(
+                modifier = Modifier,
+                onClick = { expanded = !expanded },
+            ) {
+                Text(uiState.categoryType)
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                uiState.categoryTypes.forEach { type ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(type.title)
+                        },
+                        onClick = { type.onClick() }
+                    )
+                }
+            }
+        }
         Card {
             Column(
                 modifier = Modifier.padding(16.dp),

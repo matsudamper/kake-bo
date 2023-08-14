@@ -109,8 +109,36 @@ public class RootHomeTabPeriodScreenViewModel(
                         displayPeriods.zip(responses.filterNotNull())
                     }
 
-                    RootHomeTabPeriodContentUiState.LoadingState.Loaded(
+                    val categories = responses.mapNotNull { (_, response) ->
+                        response.data?.user?.moneyUsageAnalytics?.byCategories
+                    }.flatMap { byCategories ->
+                        byCategories.map { it.category }
+                    }.distinctBy {
+                        it.id
+                    }
 
+                    RootHomeTabPeriodContentUiState.LoadingState.Loaded(
+                        categoryType = "すべて", // TODO
+                        categoryTypes = buildList {
+                            add(
+                                RootHomeTabPeriodContentUiState.CategoryTypes(
+                                    title = "すべて",
+                                    onClick = {
+
+                                    },
+                                )
+                            )
+                            addAll(
+                                categories.map {
+                                    RootHomeTabPeriodContentUiState.CategoryTypes(
+                                        title = it.name,
+                                        onClick = {
+
+                                        },
+                                    )
+                                }
+                            )
+                        }.toImmutableList(),
                         between = "${displayPeriods.first().year}/${displayPeriods.first().month} - ${displayPeriods.last().year}/${displayPeriods.last().month}",
                         rangeText = "${viewModelState.displayPeriod.monthCount}ヶ月",
                         totalBar = BarGraphUiState(
@@ -142,13 +170,7 @@ public class RootHomeTabPeriodScreenViewModel(
                                 )
                             }.toImmutableList(),
                         ),
-                        totalBarColorTextMapping = responses.mapNotNull { (_, response) ->
-                            response.data?.user?.moneyUsageAnalytics?.byCategories
-                        }.flatMap { byCategories ->
-                            byCategories.map { it.category }
-                        }.distinctBy {
-                            it.id
-                        }.map {
+                        totalBarColorTextMapping = categories.map {
                             RootHomeTabUiState.ColorText(
                                 color = reservedColorModel.getColor(it.id.id.toString()),
                                 text = it.name,
