@@ -77,6 +77,7 @@ public data class RootHomeTabPeriodContentUiState(
         public fun onClickPreviousMonth()
         public fun onClickRange(range: Int)
         public fun onViewInitialized()
+        public fun onClickRetry()
     }
 }
 
@@ -100,7 +101,7 @@ public fun RootHomeTabPeriodContent(
                 LoadingErrorContent(
                     modifier = Modifier.fillMaxWidth(),
                     onClickRetry = {
-                        // TODO
+                        uiState.event.onClickRetry()
                     },
                 )
             }

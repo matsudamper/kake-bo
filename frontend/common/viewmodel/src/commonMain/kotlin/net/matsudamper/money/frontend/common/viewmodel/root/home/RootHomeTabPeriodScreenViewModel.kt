@@ -74,6 +74,10 @@ public class RootHomeTabPeriodScreenViewModel(
         override fun onViewInitialized() {
             fetch()
         }
+
+        override fun onClickRetry() {
+            fetch()
+        }
     }
 
     public val uiStateFlow: StateFlow<RootHomeTabPeriodContentUiState> = MutableStateFlow(
