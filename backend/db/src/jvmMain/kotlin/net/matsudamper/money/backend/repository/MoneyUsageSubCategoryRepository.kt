@@ -26,7 +26,7 @@ class MoneyUsageSubCategoryRepository {
                     .from(CATEGORIES)
                     .where(
                         CATEGORIES.USER_ID.eq(userId.value)
-                            .and(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.id)),
+                            .and(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.value)),
                     )
                     .count()
             }
@@ -46,7 +46,7 @@ class MoneyUsageSubCategoryRepository {
                         JMoneyUsageCategoriesRecord(
                             userId = userId.value,
                             name = name,
-                            moneyUsageCategoryId = categoryId.id,
+                            moneyUsageCategoryId = categoryId.value,
                         ),
                     )
                     .returning()
@@ -78,7 +78,7 @@ class MoneyUsageSubCategoryRepository {
                     .where(
                         DSL.value(true)
                             .and(CATEGORIES.USER_ID.eq(userId.value))
-                            .and(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.id)),
+                            .and(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.value)),
                     )
                     .fetchOne() != null
             }
@@ -101,7 +101,7 @@ class MoneyUsageSubCategoryRepository {
                         DSL.value(true)
                             .and(CATEGORIES.USER_ID.eq(userId.value))
                             .and(SUB_CATEGORIES.USER_ID.eq(userId.value))
-                            .and(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.id)),
+                            .and(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.value)),
                     )
                     .fetch()
 

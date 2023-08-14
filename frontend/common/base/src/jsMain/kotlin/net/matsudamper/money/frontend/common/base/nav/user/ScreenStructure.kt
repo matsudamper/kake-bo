@@ -32,7 +32,7 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                 override val direction: Screens = Screens.SettingsCategoryId
 
                 override fun createUrl(): String {
-                    return direction.placeholderUrl.replace("{id}", id.id.toString())
+                    return direction.placeholderUrl.replace("{id}", id.value.toString())
                 }
             }
 

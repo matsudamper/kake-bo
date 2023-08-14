@@ -117,7 +117,7 @@ object GraphqlClient {
             ApolloMoneyUsageCategoryId.type,
             CustomIntAdapter(
                 serialize = {
-                    it.id
+                    it.value
                 },
                 deserialize = { value ->
                     MoneyUsageCategoryId(value)

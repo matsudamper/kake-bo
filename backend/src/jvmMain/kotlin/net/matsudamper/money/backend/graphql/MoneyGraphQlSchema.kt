@@ -116,7 +116,7 @@ object MoneyGraphQlSchema {
                 createIntScalarType(
                     name = "MoneyUsageCategoryId",
                     deserialize = { MoneyUsageCategoryId(it) },
-                    serialize = { it.id },
+                    serialize = { it.value },
                 ),
                 createIntScalarType(
                     name = "MoneyUsageSubCategoryId",

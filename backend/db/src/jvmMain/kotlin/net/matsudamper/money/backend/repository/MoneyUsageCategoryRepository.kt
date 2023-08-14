@@ -53,7 +53,7 @@ class MoneyUsageCategoryRepository {
                         CATEGORIES.USER_ID.eq(userId.value)
                             .and(
                                 CATEGORIES.MONEY_USAGE_CATEGORY_ID
-                                    .`in`(moneyUsageCategoryIds.map { it.id }),
+                                    .`in`(moneyUsageCategoryIds.map { it.value }),
                             ),
                     )
                     .fetch()
@@ -111,7 +111,7 @@ class MoneyUsageCategoryRepository {
                     .where(
                         DSL.value(true)
                             .and(CATEGORIES.USER_ID.eq(userId.value))
-                            .and(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.id)),
+                            .and(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.value)),
                     )
                     .limit(1)
                     .execute()

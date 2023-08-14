@@ -1,3 +1,3 @@
 package net.matsudamper.money.element
 
-data class MoneyUsageCategoryId(val id: Int)
+data class MoneyUsageCategoryId(val value: Int)
