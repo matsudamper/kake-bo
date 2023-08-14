@@ -5,14 +5,42 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
+import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.graphql.GraphqlClient
+import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByCategoryQuery
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByDateQuery
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageAnalyticsQuery
 
 public class RootHomeTabScreenApi(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
-    public suspend fun fetch(
+    public suspend fun fetchCategory(
+        id: MoneyUsageCategoryId,
+        startYear: Int,
+        startMonth: Int,
+        endYear: Int,
+        endMonth: Int,
+    ): Result<ApolloResponse<RootHomeTabScreenAnalyticsByCategoryQuery.Data>> {
+        return runCatching {
+            apolloClient.query(
+                RootHomeTabScreenAnalyticsByCategoryQuery(
+                    id = id,
+                    query = MoneyUsageAnalyticsQuery(
+                        sinceDateTime = LocalDateTime(
+                            LocalDate(startYear, startMonth, 1),
+                            LocalTime(0, 0, 0),
+                        ),
+                        untilDateTime = LocalDateTime(
+                            LocalDate(endYear, endMonth, 1),
+                            LocalTime(0, 0, 0),
+                        ),
+                    ),
+                ),
+            ).execute()
+        }
+    }
+
+    public suspend fun fetchAll(
         startYear: Int,
         startMonth: Int,
         endYear: Int,

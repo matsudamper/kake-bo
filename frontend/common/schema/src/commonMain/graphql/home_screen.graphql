@@ -12,3 +12,22 @@ query RootHomeTabScreenAnalyticsByDate($query: MoneyUsageAnalyticsQuery!) {
         }
     }
 }
+
+query RootHomeTabScreenAnalyticsByCategory($id: MoneyUsageCategoryId!, $query: MoneyUsageAnalyticsQuery!) {
+    user {
+        moneyUsageAnalyticsByCategory(id: $id, query: $query) {
+            totalAmount
+            bySubCategories {
+                totalAmount
+                subCategory {
+                    id
+                    name
+                    category {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+    }
+}

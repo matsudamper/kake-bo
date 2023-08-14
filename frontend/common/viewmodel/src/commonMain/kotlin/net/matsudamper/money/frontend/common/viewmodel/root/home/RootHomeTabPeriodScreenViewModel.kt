@@ -18,10 +18,12 @@ import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.layout.graph.BarGraphUiState
+import net.matsudamper.money.frontend.common.ui.layout.graph.PolygonalLineGraphItemUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodContentUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabUiState
 import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
+import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByCategoryQuery
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByDateQuery
 
 public class RootHomeTabPeriodScreenViewModel(
@@ -90,7 +92,7 @@ public class RootHomeTabPeriodScreenViewModel(
                         viewModelState.displayPeriod.sinceDate.addMonth(index)
                     }
                     val allLoaded = displayPeriods.all { displayPeriod ->
-                        viewModelState.responseMap.contains(displayPeriod)
+                        viewModelState.allResponseMap.contains(displayPeriod)
                     }
                     if (allLoaded.not()) {
                         return@screenState RootHomeTabPeriodContentUiState.LoadingState.Loading
@@ -98,7 +100,7 @@ public class RootHomeTabPeriodScreenViewModel(
 
                     val responses = run {
                         val responses = displayPeriods.map { displayPeriod ->
-                            viewModelState.responseMap[displayPeriod]
+                            viewModelState.allResponseMap[displayPeriod]
                         }
                         if (responses.size != responses.filterNotNull().size) {
                             return@screenState RootHomeTabPeriodContentUiState.LoadingState.Error
@@ -122,10 +124,22 @@ public class RootHomeTabPeriodScreenViewModel(
                         categoryTypes = createCategoryTypes(categories = categories).toImmutableList(),
                         between = "${displayPeriods.first().year}/${displayPeriods.first().month} - ${displayPeriods.last().year}/${displayPeriods.last().month}",
                         rangeText = "${viewModelState.displayPeriod.monthCount}ヶ月",
-                        graphContent = createTotalUiState(
-                            responses = responses,
-                            categories = categories,
-                        ) ?: return@screenState RootHomeTabPeriodContentUiState.LoadingState.Error,
+                        graphContent = when (viewModelState.contentType) {
+                            is ViewModelState.ContentType.All -> {
+                                createTotalUiState(
+                                    responses = responses,
+                                    categories = categories,
+                                ) ?: return@screenState RootHomeTabPeriodContentUiState.LoadingState.Error
+                            }
+
+                            is ViewModelState.ContentType.Category -> {
+                                createCategoryUiState(
+                                    categoryId = viewModelState.contentType.categoryId,
+                                    displayPeriods = displayPeriods,
+                                    categoryResponseMap = viewModelState.categoryResponseMap
+                                ) ?: return@screenState RootHomeTabPeriodContentUiState.LoadingState.Loading
+                            }
+                        },
                     )
                 }
 
@@ -166,11 +180,51 @@ public class RootHomeTabPeriodScreenViewModel(
                                     ),
                                 )
                             }
+                            fetch(
+                                period = viewModelStateFlow.value.displayPeriod,
+                            )
                         },
                     )
                 },
             )
         }
+    }
+
+    private fun createCategoryUiState(
+        categoryId: MoneyUsageCategoryId,
+        displayPeriods: List<ViewModelState.YearMonth>,
+        categoryResponseMap: Map<ViewModelState.YearMonthCategory, ApolloResponse<RootHomeTabScreenAnalyticsByCategoryQuery.Data>?>
+    ): RootHomeTabPeriodContentUiState.GraphContent.Category? {
+        return RootHomeTabPeriodContentUiState.GraphContent.Category(
+            graphItems = displayPeriods.map { yearMonth ->
+                val key = ViewModelState.YearMonthCategory(
+                    categoryId = categoryId,
+                    yearMonth = yearMonth,
+                )
+                val apolloResult = categoryResponseMap[key] ?: return null
+                val amount = apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.totalAmount ?: return null
+
+                PolygonalLineGraphItemUiState(
+                    year = yearMonth.year,
+                    month = yearMonth.month,
+                    amount = amount,
+                )
+            }.toImmutableList(),
+            monthTotalItems = displayPeriods.map { yearMonth ->
+                val key = ViewModelState.YearMonthCategory(
+                    categoryId = categoryId,
+                    yearMonth = yearMonth,
+                )
+
+                val apolloResult = categoryResponseMap[key] ?: return null
+                val result = apolloResult.data?.user?.moneyUsageAnalyticsByCategory ?: return null
+
+                RootHomeTabPeriodContentUiState.MonthTotalItem(
+                    title = "${yearMonth.year}/${yearMonth.month.toString().padStart(2, '0')}",
+                    amount = Formatter.formatMoney(result.totalAmount ?: return null) + "円",
+                )
+            }.toImmutableList(),
+        )
     }
 
     private fun createTotalUiState(
@@ -192,7 +246,7 @@ public class RootHomeTabPeriodScreenViewModel(
                                 val amount = it.totalAmount
                                     ?: return null
                                 BarGraphUiState.Item(
-                                    color = reservedColorModel.getColor(it.category.id.id.toString()),
+                                    color = reservedColorModel.getColor(it.category.id.value.toString()),
                                     title = it.category.name,
                                     value = amount,
                                 )
@@ -205,7 +259,7 @@ public class RootHomeTabPeriodScreenViewModel(
             ),
             totalBarColorTextMapping = categories.map {
                 RootHomeTabUiState.ColorText(
-                    color = reservedColorModel.getColor(it.id.id.toString()),
+                    color = reservedColorModel.getColor(it.id.value.toString()),
                     text = it.name,
                     onClick = {
                         viewModelStateFlow.update { viewModelState ->
@@ -216,6 +270,10 @@ public class RootHomeTabPeriodScreenViewModel(
                                 ),
                             )
                         }
+
+                        fetch(
+                            period = viewModelStateFlow.value.displayPeriod,
+                        )
                     },
                 )
             }.toImmutableList(),
@@ -232,6 +290,24 @@ public class RootHomeTabPeriodScreenViewModel(
     }
 
     private fun fetch(period: ViewModelState.Period) {
+        when (val type = viewModelStateFlow.value.contentType) {
+            is ViewModelState.ContentType.All -> {
+                fetchAll(period = period)
+            }
+
+            is ViewModelState.ContentType.Category -> {
+                fetchCategory(
+                    period = period,
+                    categoryId = type.categoryId,
+                )
+            }
+        }
+    }
+
+    private fun fetchCategory(
+        period: ViewModelState.Period,
+        categoryId: MoneyUsageCategoryId,
+    ) {
         coroutineScope.launch {
             (0 until period.monthCount)
                 .map { index ->
@@ -240,11 +316,21 @@ public class RootHomeTabPeriodScreenViewModel(
                     start to start.addMonth(1)
                 }
                 .filter { (startYearMonth, _) ->
-                    viewModelStateFlow.value.responseMap.contains(startYearMonth).not()
+                    viewModelStateFlow.value.categoryResponseMap.contains(
+                        ViewModelState.YearMonthCategory(
+                            categoryId = categoryId,
+                            yearMonth = startYearMonth,
+                        ),
+                    ).not()
                 }
                 .map { (startYearMonth, endYearMonth) ->
+                    val key = ViewModelState.YearMonthCategory(
+                        categoryId = categoryId,
+                        yearMonth = startYearMonth,
+                    )
                     async {
-                        val result = api.fetch(
+                        val result = api.fetchCategory(
+                            id = categoryId,
                             startYear = startYearMonth.year,
                             startMonth = startYearMonth.month,
                             endYear = endYearMonth.year,
@@ -253,7 +339,44 @@ public class RootHomeTabPeriodScreenViewModel(
 
                         viewModelStateFlow.update {
                             it.copy(
-                                responseMap = it.responseMap
+                                categoryResponseMap = it.categoryResponseMap
+                                    .plus(key to result.getOrNull()),
+                            )
+                        }
+                    }
+                }.map { it.await() }
+
+            viewModelStateFlow.update {
+                it.copy(
+                    displayPeriod = period,
+                )
+            }
+        }
+    }
+
+    private fun fetchAll(period: ViewModelState.Period) {
+        coroutineScope.launch {
+            (0 until period.monthCount)
+                .map { index ->
+                    val start = period.sinceDate.addMonth(index)
+
+                    start to start.addMonth(1)
+                }
+                .filter { (startYearMonth, _) ->
+                    viewModelStateFlow.value.allResponseMap.contains(startYearMonth).not()
+                }
+                .map { (startYearMonth, endYearMonth) ->
+                    async {
+                        val result = api.fetchAll(
+                            startYear = startYearMonth.year,
+                            startMonth = startYearMonth.month,
+                            endYear = endYearMonth.year,
+                            endMonth = endYearMonth.month,
+                        )
+
+                        viewModelStateFlow.update {
+                            it.copy(
+                                allResponseMap = it.allResponseMap
                                     .plus(startYearMonth to result.getOrNull()),
                             )
                         }
@@ -269,7 +392,8 @@ public class RootHomeTabPeriodScreenViewModel(
 
     private data class ViewModelState(
         val contentType: ContentType = ContentType.All,
-        val responseMap: Map<YearMonth, ApolloResponse<RootHomeTabScreenAnalyticsByDateQuery.Data>?> = mapOf(),
+        val allResponseMap: Map<YearMonth, ApolloResponse<RootHomeTabScreenAnalyticsByDateQuery.Data>?> = mapOf(),
+        val categoryResponseMap: Map<YearMonthCategory, ApolloResponse<RootHomeTabScreenAnalyticsByCategoryQuery.Data>?> = mapOf(),
         val displayPeriod: Period = run {
             val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 .date
@@ -279,6 +403,11 @@ public class RootHomeTabPeriodScreenViewModel(
             )
         },
     ) {
+        data class YearMonthCategory(
+            val categoryId: MoneyUsageCategoryId,
+            val yearMonth: YearMonth,
+        )
+
         data class YearMonth(
             val year: Int,
             val month: Int,

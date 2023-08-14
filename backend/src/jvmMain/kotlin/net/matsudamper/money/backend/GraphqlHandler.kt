@@ -19,6 +19,7 @@ import net.matsudamper.money.backend.graphql.DataLoaders
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.GraphqlMoneyException
 import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
+import net.matsudamper.money.backend.graphql.UserIdVerifyUseCase
 import org.dataloader.DataLoaderRegistry
 
 class GraphqlHandler(
@@ -30,9 +31,17 @@ class GraphqlHandler(
 
         val repositoryFactory = RepositoryFactoryImpl()
         val dataLoaderRegistryBuilder = DataLoaderRegistry.Builder()
+        val userIdVerifyUseCase = UserIdVerifyUseCase(call)
         val dataLoaders = DataLoaders(
             repositoryFactory = repositoryFactory,
             dataLoaderRegistryBuilder = dataLoaderRegistryBuilder,
+            userIdVerifyUseCase = userIdVerifyUseCase,
+        )
+        val graphqlContext = GraphQlContext(
+            call = call,
+            repositoryFactory = repositoryFactory,
+            dataLoaders = dataLoaders,
+            userIdVerifyUseCase = userIdVerifyUseCase,
         )
         val executionInputBuilder = ExecutionInput.newExecutionInput()
             .dataLoaderRegistry(
@@ -40,11 +49,7 @@ class GraphqlHandler(
             )
             .graphQLContext(
                 mapOf(
-                    GraphQlContext::class.java.name to GraphQlContext(
-                        call = call,
-                        repositoryFactory = repositoryFactory,
-                        dataLoaders = dataLoaders,
-                    ),
+                    GraphQlContext::class.java.name to graphqlContext,
                 ),
             )
             .query(request.query)

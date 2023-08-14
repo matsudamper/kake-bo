@@ -17,5 +17,5 @@ type MoneyUsageAnalyticsByCategory {
 
 type MoneyUsageAnalyticsBySubCategory {
     subCategory: MoneyUsageSubCategory!
-    totalAmount: Long @lazy
+    totalAmount: Long
 }

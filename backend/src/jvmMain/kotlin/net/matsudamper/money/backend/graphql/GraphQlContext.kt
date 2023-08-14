@@ -10,17 +10,16 @@ import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.di.RepositoryFactory
 import net.matsudamper.money.backend.element.AdminSession
 import net.matsudamper.money.backend.element.UserId
-import net.matsudamper.money.backend.element.UserSessionId
 import net.matsudamper.money.backend.repository.AdminSessionRepository
-import net.matsudamper.money.backend.repository.UserSessionRepository
+
 
 class GraphQlContext(
     private val call: ApplicationCall,
     public val repositoryFactory: RepositoryFactory,
     public val dataLoaders: DataLoaders,
+    public val userIdVerifyUseCase: UserIdVerifyUseCase,
 ) {
     private var adminSession: AdminSession? = null
-    private var verifyUserSessionResult: UserSessionRepository.VerifySessionResult.Success? = null
     private val host get() = ServerEnv.domain ?: call.request.host()
 
     fun verifyAdminSession() {
@@ -39,30 +38,7 @@ class GraphQlContext(
         )
     }
 
-    fun verifyUserSession(): UserId {
-        val verifyUserSessionResult = verifyUserSessionResult
-        if (verifyUserSessionResult != null) return verifyUserSessionResult.userId
-
-        val userSessionString = getCookie(CookieKeys.userSessionId) ?: throw GraphqlMoneyException.SessionNotVerify()
-
-        when (val userSessionResult = UserSessionRepository().verifySession(UserSessionId(userSessionString))) {
-            is UserSessionRepository.VerifySessionResult.Failure -> {
-                throw GraphqlMoneyException.SessionNotVerify()
-            }
-
-            is UserSessionRepository.VerifySessionResult.Success -> {
-                this.verifyUserSessionResult = userSessionResult
-
-                setCookie(
-                    key = CookieKeys.userSessionId,
-                    value = userSessionResult.sessionId.id,
-                    expires = GMTDate(userSessionResult.expire.toEpochSecond(ZoneOffset.UTC) * 1000),
-                )
-
-                return userSessionResult.userId
-            }
-        }
-    }
+    fun verifyUserSession(): UserId = userIdVerifyUseCase.verifyUserSession()
 
     fun setAdminSessionCookie(value: String, expires: LocalDateTime) {
         setCookie(
@@ -80,7 +56,7 @@ class GraphQlContext(
         )
     }
 
-    fun getCookie(key: String): String? {
+    private fun getCookie(key: String): String? {
         return call.request.cookies[key]
     }
 

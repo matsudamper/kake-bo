@@ -94,6 +94,22 @@ type MoneyUsage {
     title: String!
 }
 
+type MoneyUsageAnalytics {
+    byCategories: [MoneyUsageAnalyticsByCategory!]
+    totalAmount: Long
+}
+
+type MoneyUsageAnalyticsByCategory {
+    bySubCategories: [MoneyUsageAnalyticsBySubCategory!]
+    category: MoneyUsageCategory!
+    totalAmount: Long
+}
+
+type MoneyUsageAnalyticsBySubCategory {
+    subCategory: MoneyUsageSubCategory!
+    totalAmount: Long
+}
+
 type MoneyUsageCategoriesConnection {
     cursor: String
     nodes: [MoneyUsageCategory!]!
@@ -103,22 +119,6 @@ type MoneyUsageCategory {
     id: MoneyUsageCategoryId!
     name: String!
     subCategories(query: MoneyUsageSubCategoryQuery!): SubCategoriesConnection
-}
-
-type MoneyUsageAnalytics {
-    byCategories: [MoneyUsageAnalyticsByCategory!]!
-    totalAmount: Long
-}
-
-type MoneyUsageAnalyticsByCategory {
-    bySubCategories: [MoneyUsageAnalyticsBySubCategory!]!
-    category: MoneyUsageCategory!
-    totalAmount: Long
-}
-
-type MoneyUsageAnalyticsBySubCategory {
-    category: MoneyUsageSubCategory!
-    totalAmount: Long
 }
 
 type MoneyUsageSubCategory {
@@ -166,9 +166,10 @@ type User {
     importedMailCategoryFilters(query: ImportedMailCategoryFiltersQuery!): ImportedMailCategoryFiltersConnection
     isLoggedIn: Boolean!
     moneyUsage(id: MoneyUsageId!): MoneyUsage
+    moneyUsageAnalytics(query: MoneyUsageAnalyticsQuery!): MoneyUsageAnalytics!
+    moneyUsageAnalyticsByCategory(id: MoneyUsageCategoryId!, query: MoneyUsageAnalyticsQuery!): MoneyUsageAnalyticsByCategory
     moneyUsageCategories(input: MoneyUsageCategoriesInput!): MoneyUsageCategoriesConnection
     moneyUsageCategory(id: MoneyUsageCategoryId!): MoneyUsageCategory
-    moneyUsageAnalytics(query: MoneyUsageAnalyticsQuery!): MoneyUsageAnalytics!
     moneyUsageSubCategory(input: MoneyUsageSubCategoryInput!): MoneyUsageSubCategory
     moneyUsages(query: MoneyUsagesQuery!): MoneyUsagesConnection
     settings: UserSettings!
@@ -357,14 +358,14 @@ input MailQuery {
     size: Int!
 }
 
-input MoneyUsageCategoriesInput {
-    cursor: String
-    size: Int!
-}
-
 input MoneyUsageAnalyticsQuery {
     sinceDateTime: LocalDateTime!
     untilDateTime: LocalDateTime!
+}
+
+input MoneyUsageCategoriesInput {
+    cursor: String
+    size: Int!
 }
 
 input MoneyUsageSubCategoryInput {

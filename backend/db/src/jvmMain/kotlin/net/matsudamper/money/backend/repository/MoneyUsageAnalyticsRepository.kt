@@ -7,6 +7,7 @@ import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import org.jooq.impl.DSL
 import org.jooq.kotlin.and
 
@@ -45,6 +46,51 @@ class MoneyUsageAnalyticsRepository(
         )
     }
 
+
+    fun getTotalAmountBySubCategories(
+        userId: UserId,
+        categoryIds: List<MoneyUsageCategoryId>,
+        sinceDateTimeAt: LocalDateTime,
+        untilDateTimeAt: LocalDateTime,
+    ): Result<List<TotalAmountBySubCategory>> {
+        return runCatching {
+            dbConnection.use { connection ->
+                val amount = DSL.coalesce(DSL.sum(usage.AMOUNT), 0.toBigDecimal())
+                val results = DSL.using(connection)
+                    .select(amount, subCategories.MONEY_USAGE_SUB_CATEGORY_ID, subCategories.MONEY_USAGE_CATEGORY_ID)
+                    .from(usage)
+                    .join(subCategories).using(usage.MONEY_USAGE_SUB_CATEGORY_ID)
+                    .join(categories).using(subCategories.MONEY_USAGE_CATEGORY_ID)
+                    .where(
+                        DSL.value(true)
+                            .and(usage.USER_ID.eq(userId.value))
+                            .and(usage.DATETIME.greaterOrEqual(sinceDateTimeAt))
+                            .and(usage.DATETIME.lessThan(untilDateTimeAt))
+                            .and(subCategories.MONEY_USAGE_CATEGORY_ID.`in`(categoryIds.map { it.value })),
+                    )
+                    .groupBy(subCategories.MONEY_USAGE_SUB_CATEGORY_ID)
+                    .fetch()
+
+                val groupedResult = results.groupBy {
+                    MoneyUsageCategoryId(it.get(categories.MONEY_USAGE_CATEGORY_ID)!!)
+                }
+                categoryIds.map { categoryId ->
+                    val result = groupedResult[categoryId]
+
+                    TotalAmountBySubCategory(
+                        categoryId = categoryId,
+                        subCategories = result.orEmpty().map {
+                            SubCategoryTotalAmount(
+                                id = MoneyUsageSubCategoryId(it.get(subCategories.MONEY_USAGE_SUB_CATEGORY_ID)!!),
+                                totalAmount = it.get(amount).toLong(),
+                            )
+                        },
+                    )
+                }
+            }
+        }
+    }
+
     fun getTotalAmountByCategories(
         userId: UserId,
         sinceDateTimeAt: LocalDateTime,
@@ -80,5 +126,15 @@ class MoneyUsageAnalyticsRepository(
     data class TotalAmountByCategory(
         val totalAmount: Long,
         val categoryId: MoneyUsageCategoryId,
+    )
+
+    data class TotalAmountBySubCategory(
+        val categoryId: MoneyUsageCategoryId,
+        val subCategories: List<SubCategoryTotalAmount>,
+    )
+
+    data class SubCategoryTotalAmount(
+        val id: MoneyUsageSubCategoryId,
+        val totalAmount: Long,
     )
 }

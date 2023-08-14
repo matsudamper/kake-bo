@@ -5,6 +5,7 @@ type User {
     importedMailAttributes: ImportedMailAttributes!
     moneyUsage(id: MoneyUsageId!): MoneyUsage @lazy
     moneyUsageAnalytics(query: MoneyUsageAnalyticsQuery!): MoneyUsageAnalytics! @lazy
+    moneyUsageAnalyticsByCategory(id: MoneyUsageCategoryId!, query: MoneyUsageAnalyticsQuery!): MoneyUsageAnalyticsByCategory @lazy
     moneyUsageCategories(input: MoneyUsageCategoriesInput!):MoneyUsageCategoriesConnection @lazy
     moneyUsageCategory(id: MoneyUsageCategoryId!): MoneyUsageCategory @lazy
     moneyUsageSubCategory(input: MoneyUsageSubCategoryInput!): MoneyUsageSubCategory @lazy

@@ -9,6 +9,7 @@ import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterCondit
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFiltersDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
+import net.matsudamper.money.backend.dataloader.MoneyUsageAnalyticsBySubCategoryLoader
 import net.matsudamper.money.backend.dataloader.MoneyUsageAssociateByImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageCategoryDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
@@ -20,6 +21,7 @@ import org.dataloader.DataLoaderRegistry
 class DataLoaders(
     val repositoryFactory: RepositoryFactory,
     private val dataLoaderRegistryBuilder: DataLoaderRegistry.Builder = DataLoaderRegistry.Builder(),
+    private val userIdVerifyUseCase: UserIdVerifyUseCase,
 ) {
 
     val importedMailDataLoader by register {
@@ -55,6 +57,10 @@ class DataLoaders(
     }
     val importedMailCategoryFilterConditionsDataLoader by register {
         ImportedMailCategoryFilterConditionsDataLoaderDefine(repositoryFactory)
+    }
+
+    val moneyUsageAnalyticsBySubCategoryLoader by register {
+        MoneyUsageAnalyticsBySubCategoryLoader(repositoryFactory, userIdVerifyUseCase)
     }
 
     private fun <K, V> register(

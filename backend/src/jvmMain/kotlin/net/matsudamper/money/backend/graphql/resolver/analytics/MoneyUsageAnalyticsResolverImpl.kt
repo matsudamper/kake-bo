@@ -6,7 +6,7 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.graphql.DataFetcherResultBuilder
 import net.matsudamper.money.backend.graphql.GraphQlContext
-import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsByCategoriesLocalContext
+import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsByCategoryLocalContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsLocalContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.graphql.model.MoneyUsageAnalyticsResolver
@@ -59,7 +59,7 @@ class MoneyUsageAnalyticsResolverImpl : MoneyUsageAnalyticsResolver {
                         totalAmount = it.totalAmount,
                     )
                 },
-                localContext = MoneyUsageAnalyticsByCategoriesLocalContext(
+                localContext = MoneyUsageAnalyticsByCategoryLocalContext(
                     query = env.localContext.query,
                 ),
             ).build()

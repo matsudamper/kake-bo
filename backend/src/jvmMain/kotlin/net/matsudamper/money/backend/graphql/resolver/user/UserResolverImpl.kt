@@ -6,7 +6,9 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
+import net.matsudamper.money.backend.graphql.DataFetcherResultBuilder
 import net.matsudamper.money.backend.graphql.GraphQlContext
+import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsByCategoryLocalContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsLocalContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
@@ -19,6 +21,7 @@ import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersConnecti
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersQuery
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageAnalytics
+import net.matsudamper.money.graphql.model.QlMoneyUsageAnalyticsByCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageAnalyticsQuery
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategoriesConnection
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategoriesInput
@@ -239,5 +242,44 @@ class UserResolverImpl : UserResolver {
                 )
                 .build(),
         )
+    }
+
+    override fun moneyUsageAnalyticsByCategory(
+        user: QlUser,
+        id: MoneyUsageCategoryId,
+        query: QlMoneyUsageAnalyticsQuery,
+        env: DataFetchingEnvironment
+    ): CompletionStage<DataFetcherResult<QlMoneyUsageAnalyticsByCategory?>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+
+        return CompletableFuture.supplyAsync {
+            val results = context.repositoryFactory.createMoneyUsageAnalyticsRepository()
+                .getTotalAmountByCategories(
+                    userId = userId,
+                    sinceDateTimeAt = query.sinceDateTime,
+                    untilDateTimeAt = query.untilDateTime,
+                )
+                .onFailure {
+                    it.printStackTrace()
+                }.getOrNull() ?: return@supplyAsync DataFetcherResultBuilder.buildNullBalue()
+
+            val result = results.firstOrNull { it.categoryId == id }
+
+
+            DataFetcherResult.newResult<QlMoneyUsageAnalyticsByCategory>()
+                .data(
+                    QlMoneyUsageAnalyticsByCategory(
+                        category = QlMoneyUsageCategory(id),
+                        totalAmount = result?.totalAmount ?: 0,
+                    )
+                )
+                .localContext(
+                    MoneyUsageAnalyticsByCategoryLocalContext(
+                        query = query,
+                    ),
+                )
+                .build()
+        }
     }
 }
