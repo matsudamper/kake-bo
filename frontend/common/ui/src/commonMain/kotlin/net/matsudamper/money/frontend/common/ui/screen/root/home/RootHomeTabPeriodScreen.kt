@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -61,13 +62,11 @@ public data class RootHomeTabPeriodContentUiState(
     public sealed interface LoadingState {
 
         public data class Loaded(
-            val totals: ImmutableList<PolygonalLineGraphItemUiState>,
-            val totalBar: BarGraphUiState,
-            val totalBarColorTextMapping: ImmutableList<RootHomeTabUiState.ColorText>,
             val rangeText: String,
             val between: String,
             val categoryType: String,
             val categoryTypes: ImmutableList<CategoryTypes>,
+            val graphContent: GraphContent,
         ) : LoadingState
 
         public object Loading : LoadingState
@@ -77,6 +76,24 @@ public data class RootHomeTabPeriodContentUiState(
     public data class CategoryTypes(
         val title: String,
         val onClick: () -> Unit,
+    )
+
+    public sealed interface GraphContent {
+        public data class Total(
+            val barGraph: BarGraphUiState,
+            val monthTotalItems: ImmutableList<MonthTotalItem>,
+            val totalBarColorTextMapping: ImmutableList<RootHomeTabUiState.ColorText>,
+        ) : GraphContent
+
+        public data class Category(
+            val graphItems: ImmutableList<PolygonalLineGraphItemUiState>,
+            val monthTotalItems: ImmutableList<MonthTotalItem>,
+        ) : GraphContent
+    }
+
+    public data class MonthTotalItem(
+        val title: String,
+        val amount: String,
     )
 
     @Immutable
@@ -161,7 +178,6 @@ public fun RootHomeTabPeriodContent(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun BetweenLoaded(
     modifier: Modifier = Modifier,
@@ -195,45 +211,31 @@ private fun BetweenLoaded(
                 }
             }
         }
-        Card {
-            Column(
-                modifier = Modifier.padding(16.dp),
-            ) {
-                BarGraph(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(600.dp),
-                    uiState = uiState.totalBar,
-                    contentColor = LocalContentColor.current,
+        when (uiState.graphContent) {
+            is RootHomeTabPeriodContentUiState.GraphContent.Category -> {
+                CategoryContent(
+                    modifier = Modifier.fillMaxWidth(),
+                    uiState = uiState.graphContent,
                 )
-                Spacer(modifier = Modifier.height(12.dp))
-                FlowRow(modifier = Modifier.fillMaxWidth()) {
-                    uiState.totalBarColorTextMapping.forEach {
-                        AssistChip(
-                            onClick = {
-                                it.onClick()
-                            },
-                            label = {
-                                Row(
-                                    modifier = Modifier.padding(vertical = 4.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(16.dp)
-                                            .clip(RoundedCornerShape(4.dp))
-                                            .background(it.color),
-                                    )
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text(it.text)
-                                }
-                            },
-                        )
-                        Spacer(Modifier.width(8.dp))
-                    }
-                }
+            }
+
+            is RootHomeTabPeriodContentUiState.GraphContent.Total -> {
+                TotalContent(
+                    modifier = Modifier.fillMaxSize(),
+                    uiState = uiState.graphContent,
+                )
             }
         }
+
+    }
+}
+
+@Composable
+private fun CategoryContent(
+    modifier: Modifier = Modifier,
+    uiState: RootHomeTabPeriodContentUiState.GraphContent.Category,
+) {
+    Column(modifier = modifier) {
         Spacer(modifier = Modifier.height(12.dp))
         Card {
             PolygonalLineGraph(
@@ -241,19 +243,78 @@ private fun BetweenLoaded(
                     .padding(16.dp)
                     .fillMaxWidth()
                     .height(200.dp),
-                graphItems = uiState.totals,
+                graphItems = uiState.graphItems,
                 contentColor = LocalContentColor.current,
             )
         }
         Spacer(modifier = Modifier.height(12.dp))
         Card {
             Column(modifier = Modifier.padding(16.dp)) {
-                uiState.totals.forEach {
+                uiState.monthTotalItems.forEach {
                     Row {
-                        Text("${it.year}/${it.month.toString().padStart(2, '0')}")
+                        Text(it.title)
                         Spacer(modifier = Modifier.widthIn(min = 8.dp).weight(1f))
-                        Text("${it.amount}円")
+                        Text(it.amount)
                     }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+@Composable
+private fun TotalContent(
+    modifier: Modifier = Modifier,
+    uiState: RootHomeTabPeriodContentUiState.GraphContent.Total,
+) {
+    Card(modifier = modifier) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+        ) {
+            BarGraph(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(600.dp),
+                uiState = uiState.barGraph,
+                contentColor = LocalContentColor.current,
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            FlowRow(modifier = Modifier.fillMaxWidth()) {
+                uiState.totalBarColorTextMapping.forEach {
+                    AssistChip(
+                        onClick = {
+                            it.onClick()
+                        },
+                        label = {
+                            Row(
+                                modifier = Modifier.padding(vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(16.dp)
+                                        .clip(RoundedCornerShape(4.dp))
+                                        .background(it.color),
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(it.text)
+                            }
+                        },
+                    )
+                    Spacer(Modifier.width(8.dp))
+                }
+            }
+        }
+    }
+    Spacer(modifier = Modifier.height(12.dp))
+    Card {
+        Column(modifier = Modifier.padding(16.dp)) {
+            uiState.monthTotalItems.forEach {
+                Row {
+                    Text(it.title)
+                    Spacer(modifier = Modifier.widthIn(min = 8.dp).weight(1f))
+                    Text(it.amount)
                 }
             }
         }

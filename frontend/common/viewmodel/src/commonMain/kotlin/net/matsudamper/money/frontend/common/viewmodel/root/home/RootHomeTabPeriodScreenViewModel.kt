@@ -1,6 +1,8 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.home
 
+import com.apollographql.apollo3.api.ApolloResponse
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,14 +15,12 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
-import com.apollographql.apollo3.api.ApolloResponse
-import kotlinx.coroutines.async
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.layout.graph.BarGraphUiState
-import net.matsudamper.money.frontend.common.ui.layout.graph.PolygonalLineGraphItemUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodContentUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabUiState
 import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
+import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByDateQuery
 
 public class RootHomeTabPeriodScreenViewModel(
@@ -137,51 +137,10 @@ public class RootHomeTabPeriodScreenViewModel(
                         }.toImmutableList(),
                         between = "${displayPeriods.first().year}/${displayPeriods.first().month} - ${displayPeriods.last().year}/${displayPeriods.last().month}",
                         rangeText = "${viewModelState.displayPeriod.monthCount}ヶ月",
-                        totalBar = BarGraphUiState(
-                            items = responses.map { (yearMonth, response) ->
-                                BarGraphUiState.PeriodData(
-                                    year = yearMonth.year,
-                                    month = yearMonth.month,
-                                    items = run item@{
-                                        response.data?.user?.moneyUsageAnalytics?.byCategories.orEmpty()
-                                            .forEach {
-                                                println("${it.category.name} ${it.totalAmount}")
-                                            }
-                                        val byCategory =
-                                            response.data?.user?.moneyUsageAnalytics?.byCategories
-                                                ?: return@screenState RootHomeTabPeriodContentUiState.LoadingState.Error
-
-                                        byCategory.map {
-                                            val amount = it.totalAmount
-                                                ?: return@screenState RootHomeTabPeriodContentUiState.LoadingState.Error
-                                            BarGraphUiState.Item(
-                                                color = reservedColorModel.getColor(it.category.id.id.toString()),
-                                                title = it.category.name,
-                                                value = amount,
-                                            )
-                                        }.toImmutableList()
-                                    },
-                                    total = response.data?.user?.moneyUsageAnalytics?.totalAmount
-                                        ?: return@screenState RootHomeTabPeriodContentUiState.LoadingState.Error,
-                                )
-                            }.toImmutableList(),
-                        ),
-                        totalBarColorTextMapping = categories.map {
-                            RootHomeTabUiState.ColorText(
-                                color = reservedColorModel.getColor(it.id.id.toString()),
-                                text = it.name,
-                                onClick = {
-                                },
-                            )
-                        }.toImmutableList(),
-                        totals = responses.map { (yearMonth, response) ->
-                            PolygonalLineGraphItemUiState(
-                                amount = response.data?.user?.moneyUsageAnalytics?.totalAmount
-                                    ?: return@screenState RootHomeTabPeriodContentUiState.LoadingState.Error,
-                                year = yearMonth.year,
-                                month = yearMonth.month,
-                            )
-                        }.toImmutableList(),
+                        graphContent = createTotalUiState(
+                            responses = responses,
+                            categories = categories,
+                        ) ?: return@screenState RootHomeTabPeriodContentUiState.LoadingState.Error,
                     )
                 }
 
@@ -192,6 +151,60 @@ public class RootHomeTabPeriodScreenViewModel(
             }
         }
     }.asStateFlow()
+
+    private fun createTotalUiState(
+        responses: List<Pair<ViewModelState.YearMonth, ApolloResponse<RootHomeTabScreenAnalyticsByDateQuery.Data>>>,
+        categories: List<RootHomeTabScreenAnalyticsByDateQuery.Category>
+    ): RootHomeTabPeriodContentUiState.GraphContent.Total? {
+        return RootHomeTabPeriodContentUiState.GraphContent.Total(
+            barGraph = BarGraphUiState(
+                items = responses.map { (yearMonth, response) ->
+                    BarGraphUiState.PeriodData(
+                        year = yearMonth.year,
+                        month = yearMonth.month,
+                        items = run item@{
+                            response.data?.user?.moneyUsageAnalytics?.byCategories.orEmpty()
+                                .forEach {
+                                    println("${it.category.name} ${it.totalAmount}")
+                                }
+                            val byCategory =
+                                response.data?.user?.moneyUsageAnalytics?.byCategories
+                                    ?: return null
+
+                            byCategory.map {
+                                val amount = it.totalAmount
+                                    ?: return null
+                                BarGraphUiState.Item(
+                                    color = reservedColorModel.getColor(it.category.id.id.toString()),
+                                    title = it.category.name,
+                                    value = amount,
+                                )
+                            }.toImmutableList()
+                        },
+                        total = response.data?.user?.moneyUsageAnalytics?.totalAmount
+                            ?: return null,
+                    )
+                }.toImmutableList(),
+            ),
+            totalBarColorTextMapping = categories.map {
+                RootHomeTabUiState.ColorText(
+                    color = reservedColorModel.getColor(it.id.id.toString()),
+                    text = it.name,
+                    onClick = {
+                    },
+                )
+            }.toImmutableList(),
+            monthTotalItems = responses.map { (yearMonth, response) ->
+                RootHomeTabPeriodContentUiState.MonthTotalItem(
+                    amount = Formatter.formatMoney(
+                        response.data?.user?.moneyUsageAnalytics?.totalAmount
+                            ?: return null
+                    ) + "円",
+                    title = "${yearMonth.year}/${yearMonth.month.toString().padStart(2, '0')}",
+                )
+            }.toImmutableList(),
+        )
+    }
 
     private fun fetch(period: ViewModelState.Period) {
         coroutineScope.launch {
