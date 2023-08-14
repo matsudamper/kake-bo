@@ -15,6 +15,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.layout.graph.BarGraphUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodContentUiState
@@ -114,27 +115,11 @@ public class RootHomeTabPeriodScreenViewModel(
                     }
 
                     RootHomeTabPeriodContentUiState.LoadingState.Loaded(
-                        categoryType = "すべて", // TODO
-                        categoryTypes = buildList {
-                            add(
-                                RootHomeTabPeriodContentUiState.CategoryTypes(
-                                    title = "すべて",
-                                    onClick = {
-
-                                    },
-                                )
-                            )
-                            addAll(
-                                categories.map {
-                                    RootHomeTabPeriodContentUiState.CategoryTypes(
-                                        title = it.name,
-                                        onClick = {
-
-                                        },
-                                    )
-                                }
-                            )
-                        }.toImmutableList(),
+                        categoryType = when (viewModelState.contentType) {
+                            is ViewModelState.ContentType.All -> "すべて"
+                            is ViewModelState.ContentType.Category -> viewModelState.contentType.name
+                        },
+                        categoryTypes = createCategoryTypes(categories = categories).toImmutableList(),
                         between = "${displayPeriods.first().year}/${displayPeriods.first().month} - ${displayPeriods.last().year}/${displayPeriods.last().month}",
                         rangeText = "${viewModelState.displayPeriod.monthCount}ヶ月",
                         graphContent = createTotalUiState(
@@ -151,6 +136,42 @@ public class RootHomeTabPeriodScreenViewModel(
             }
         }
     }.asStateFlow()
+
+    private fun createCategoryTypes(
+        categories: List<RootHomeTabScreenAnalyticsByDateQuery.Category>,
+    ): List<RootHomeTabPeriodContentUiState.CategoryTypes> {
+        return buildList {
+            add(
+                RootHomeTabPeriodContentUiState.CategoryTypes(
+                    title = "すべて",
+                    onClick = {
+                        viewModelStateFlow.update { viewModelState ->
+                            viewModelState.copy(
+                                contentType = ViewModelState.ContentType.All,
+                            )
+                        }
+                    },
+                )
+            )
+            addAll(
+                categories.map { category ->
+                    RootHomeTabPeriodContentUiState.CategoryTypes(
+                        title = category.name,
+                        onClick = {
+                            viewModelStateFlow.update { viewModelState ->
+                                viewModelState.copy(
+                                    contentType = ViewModelState.ContentType.Category(
+                                        categoryId = category.id,
+                                        name = category.name,
+                                    ),
+                                )
+                            }
+                        },
+                    )
+                }
+            )
+        }
+    }
 
     private fun createTotalUiState(
         responses: List<Pair<ViewModelState.YearMonth, ApolloResponse<RootHomeTabScreenAnalyticsByDateQuery.Data>>>,
@@ -191,6 +212,14 @@ public class RootHomeTabPeriodScreenViewModel(
                     color = reservedColorModel.getColor(it.id.id.toString()),
                     text = it.name,
                     onClick = {
+                        viewModelStateFlow.update { viewModelState ->
+                            viewModelState.copy(
+                                contentType = ViewModelState.ContentType.Category(
+                                    categoryId = it.id,
+                                    name = it.name,
+                                ),
+                            )
+                        }
                     },
                 )
             }.toImmutableList(),
@@ -243,6 +272,7 @@ public class RootHomeTabPeriodScreenViewModel(
     }
 
     private data class ViewModelState(
+        val contentType: ContentType = ContentType.All,
         val responseMap: Map<YearMonth, ApolloResponse<RootHomeTabScreenAnalyticsByDateQuery.Data>?> = mapOf(),
         val displayPeriod: Period = run {
             val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
@@ -272,5 +302,13 @@ public class RootHomeTabPeriodScreenViewModel(
             val sinceDate: YearMonth,
             val monthCount: Int,
         )
+
+        sealed interface ContentType {
+            object All : ContentType
+            data class Category(
+                val categoryId: MoneyUsageCategoryId,
+                val name: String,
+            ) : ContentType
+        }
     }
 }
