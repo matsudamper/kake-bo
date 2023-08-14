@@ -36,7 +36,7 @@ class MoneyUsageStaticsResolverImpl : MoneyUsageStaticsResolver {
 
     override fun byCategories(
         moneyUsageStatics: QlMoneyUsageStatics,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<List<QlMoneyUsageStaticsByCategory>?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
@@ -61,7 +61,7 @@ class MoneyUsageStaticsResolverImpl : MoneyUsageStaticsResolver {
                 },
                 localContext = MoneyUsageStaticsByCategoriesLocalContext(
                     query = env.localContext.query,
-                )
+                ),
             ).build()
         }
     }

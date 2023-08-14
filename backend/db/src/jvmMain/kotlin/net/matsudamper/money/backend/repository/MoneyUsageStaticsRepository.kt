@@ -62,7 +62,7 @@ class MoneyUsageStaticsRepository(
                         DSL.value(true)
                             .and(usage.USER_ID.eq(userId.value))
                             .and(usage.DATETIME.greaterOrEqual(sinceDateTimeAt))
-                            .and(usage.DATETIME.lessThan(untilDateTimeAt))
+                            .and(usage.DATETIME.lessThan(untilDateTimeAt)),
                     )
                     .groupBy(categories.MONEY_USAGE_CATEGORY_ID)
                     .fetch()

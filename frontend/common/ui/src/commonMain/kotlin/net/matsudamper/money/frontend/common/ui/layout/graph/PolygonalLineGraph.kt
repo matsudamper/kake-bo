@@ -39,7 +39,7 @@ internal fun PolygonalLineGraph(
 
     Canvas(
         modifier
-            .padding(4.dp) // 点がはみ出さないように。計算入れるのが面倒なので全体に追加する
+            .padding(4.dp), // 点がはみ出さないように。計算入れるのが面倒なので全体に追加する
     ) {
         if (graphItems.isEmpty()) return@Canvas
 
@@ -65,11 +65,10 @@ internal fun PolygonalLineGraph(
             .coerceAtLeast(maxTextMeasureResult.size.width)
             .plus(8.dp.toPx())
         val betweenWidth = (
-                (size.width)
-                    .minus(xLabels.lastOrNull()?.size?.width ?: 0) // 最後のX軸ラベルが表示される分
-                    .minus(maxYLabelTextWidth) // Y軸ラベルの最大幅
-                ).div(graphItems.size - 1)
-
+            (size.width)
+                .minus(xLabels.lastOrNull()?.size?.width ?: 0) // 最後のX軸ラベルが表示される分
+                .minus(maxYLabelTextWidth) // Y軸ラベルの最大幅
+            ).div(graphItems.size - 1)
 
         val multilineLabel = betweenWidth <= (xLabels.maxOfOrNull { it.size.width } ?: 0).plus(8.dp.toPx())
         val multilineLabelHeightPadding = 4.dp.toPx()
@@ -106,7 +105,7 @@ internal fun PolygonalLineGraph(
             drawText(
                 textLayoutResult = minTextMeasureResult,
                 color = contentColor,
-                topLeft = Offset(0f, size.height / 2 - (maxTextMeasureResult.size.height / 2))
+                topLeft = Offset(0f, size.height / 2 - (maxTextMeasureResult.size.height / 2)),
             )
             drawLine(
                 color = contentColor,
@@ -124,12 +123,12 @@ internal fun PolygonalLineGraph(
             drawText(
                 textLayoutResult = minTextMeasureResult,
                 color = contentColor,
-                topLeft = Offset(0f, graphYHeight - (minTextMeasureResult.size.height / 2))
+                topLeft = Offset(0f, graphYHeight - (minTextMeasureResult.size.height / 2)),
             )
             drawText(
                 textLayoutResult = maxTextMeasureResult,
                 color = contentColor,
-                topLeft = Offset(0f, 0f)
+                topLeft = Offset(0f, 0f),
             )
             graphItems.forEachIndexed { index, item ->
                 drawCircle(

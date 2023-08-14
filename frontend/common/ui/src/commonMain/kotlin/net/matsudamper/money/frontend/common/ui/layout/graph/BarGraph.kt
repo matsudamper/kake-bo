@@ -72,7 +72,7 @@ internal fun BarGraph(
     }
     Row(modifier = modifier) {
         Canvas(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         ) {
             if (uiState.items.isEmpty()) return@Canvas
 
@@ -140,7 +140,7 @@ internal fun BarGraph(
                 drawText(
                     textLayoutResult = minTextMeasureResult,
                     color = contentColor,
-                    topLeft = Offset(0f, size.height / 2 - (maxTextMeasureResult.size.height / 2))
+                    topLeft = Offset(0f, size.height / 2 - (maxTextMeasureResult.size.height / 2)),
                 )
                 drawLine(
                     color = contentColor,
@@ -158,12 +158,12 @@ internal fun BarGraph(
                 drawText(
                     textLayoutResult = minTextMeasureResult,
                     color = contentColor,
-                    topLeft = Offset(0f, graphYHeight - (minTextMeasureResult.size.height / 2))
+                    topLeft = Offset(0f, graphYHeight - (minTextMeasureResult.size.height / 2)),
                 )
                 drawText(
                     textLayoutResult = maxTextMeasureResult,
                     color = contentColor,
-                    topLeft = Offset(0f, 0f)
+                    topLeft = Offset(0f, 0f),
                 )
                 uiState.items.forEachIndexed { index, periodData ->
                     println("$periodData")

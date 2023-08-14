@@ -164,7 +164,7 @@ private fun BetweenContent(
             Spacer(modifier = Modifier.height(12.dp))
             Column(
                 modifier = Modifier
-                    .padding(horizontal = 24.dp)
+                    .padding(horizontal = 24.dp),
             ) {
                 Text(
                     modifier = Modifier
@@ -270,7 +270,7 @@ private fun PeriodSection(
                     },
                     text = {
                         Text("3ヶ月")
-                    }
+                    },
                 )
                 DropdownMenuItem(
                     onClick = {
@@ -279,7 +279,7 @@ private fun PeriodSection(
                     },
                     text = {
                         Text("6ヶ月")
-                    }
+                    },
                 )
                 DropdownMenuItem(
                     onClick = {
@@ -288,7 +288,7 @@ private fun PeriodSection(
                     },
                     text = {
                         Text("12ヶ月")
-                    }
+                    },
                 )
             }
         }

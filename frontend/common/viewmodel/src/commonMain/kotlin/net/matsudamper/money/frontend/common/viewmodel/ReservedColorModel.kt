@@ -12,7 +12,7 @@ internal class ReservedColorModel(
         Color.Green,
         Color.Red,
         Color.Cyan,
-        Color.LightGray
+        Color.LightGray,
     ),
 ) {
     private val stateFlow = MutableStateFlow(mapOf<String, Color>())

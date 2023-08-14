@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.home
 
-import com.apollographql.apollo3.api.ApolloResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,6 +13,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.layout.graph.BarGraphUiState
 import net.matsudamper.money.frontend.common.ui.layout.graph.PolygonalLineGraphItemUiState
@@ -156,7 +156,7 @@ public class RootHomeTabScreenViewModel(
                                         total = response.data?.user?.moneyUsageStatics?.totalAmount
                                             ?: return@screenState RootHomeTabUiState.ScreenState.Error,
                                     )
-                                }.toImmutableList()
+                                }.toImmutableList(),
                             ),
                             totals = responses.map { (yearMonth, response) ->
                                 PolygonalLineGraphItemUiState(
