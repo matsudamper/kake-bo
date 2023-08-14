@@ -15,6 +15,7 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.ui.layout.PolygonalLineGraphItemUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -72,6 +73,24 @@ public class RootHomeTabScreenViewModel(
             }
             fetch()
         }
+
+        override fun onClickRange(range: Int) {
+            viewModelStateFlow.update { viewModelState ->
+                val currentEndYearMonth = viewModelState.displayPeriod.let { period ->
+                    period.sinceDate.addMonth(period.monthCount)
+                }
+                val newSinceDate = currentEndYearMonth
+                    .addMonth(-range)
+
+                viewModelState.copy(
+                    displayPeriod = ViewModelState.Period(
+                        sinceDate = newSinceDate,
+                        monthCount = range,
+                    ),
+                )
+            }
+            fetch()
+        }
     }
 
     public val uiStateFlow: StateFlow<RootHomeTabUiState> = MutableStateFlow(
@@ -107,8 +126,9 @@ public class RootHomeTabScreenViewModel(
                         displayType = RootHomeTabUiState.DisplayType.Between(
                             between = "${displayPeriods.first().year}/${displayPeriods.first().month} - ${displayPeriods.last().year}/${displayPeriods.last().month}",
                             event = betweenEvent,
+                            rangeText = "${viewModelState.displayPeriod.monthCount}ヶ月",
                             totals = responses.map { (yearMonth, response) ->
-                                RootHomeTabUiState.Total(
+                                PolygonalLineGraphItemUiState(
                                     amount = response.data?.user?.moneyUsageStatics?.totalAmount
                                         ?: return@screenState RootHomeTabUiState.ScreenState.Error,
                                     year = yearMonth.year,
@@ -142,7 +162,7 @@ public class RootHomeTabScreenViewModel(
                 .map { index ->
                     val start = period.sinceDate.addMonth(index)
 
-                    start to start.addMonth(index + 1)
+                    start to start.addMonth(1)
                 }
                 .filter { (startYearMonth, _) ->
                     viewModelStateFlow.value.responseMap.contains(startYearMonth).not()
@@ -178,8 +198,8 @@ public class RootHomeTabScreenViewModel(
             val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                 .date
             Period(
-                sinceDate = YearMonth(currentDate.year, currentDate.monthNumber),
-                monthCount = 3,
+                sinceDate = YearMonth(currentDate.year, currentDate.monthNumber).addMonth(-5),
+                monthCount = 6,
             )
         },
     ) {

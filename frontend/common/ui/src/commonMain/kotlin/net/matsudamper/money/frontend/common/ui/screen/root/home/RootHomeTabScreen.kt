@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.home
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -18,18 +20,34 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.ScrollButtons
 import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
@@ -38,6 +56,7 @@ import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
+import net.matsudamper.money.frontend.common.ui.layout.PolygonalLineGraph
 
 @Composable
 public fun RootHomeTabScreen(
@@ -139,37 +158,51 @@ private fun BetweenContent(
             modifier = modifier
                 .verticalScroll(scrollState),
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
+            PeriodSection(
+                modifier = Modifier.fillMaxWidth(),
+                onClickPreviousMonth = { uiState.event.onClickPreviousMonth() },
+                onClickNextMonth = { uiState.event.onClickNextMonth() },
+                betweenText = {
+                    Text(uiState.between)
+                },
+                rangeText = {
+                    Text(uiState.rangeText)
+                },
+                onClickRange = { range -> uiState.event.onClickRange(range) },
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 24.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(
-                        modifier = Modifier.clip(CircleShape)
-                            .clickable { uiState.event.onClickPreviousMonth() }
-                            .padding(8.dp),
-                    ) {
-                        Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "前の月")
-                    }
-                    Box(
-                        modifier = Modifier.clip(CircleShape)
-                            .clickable { uiState.event.onClickNextMonth() }
-                            .padding(8.dp),
-                    ) {
-                        Icon(Icons.Default.KeyboardArrowRight, contentDescription = "次の月")
+                Text(
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                        .padding(bottom = 8.dp),
+                    text = "合計",
+                )
+                Card {
+                    PolygonalLineGraph(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .fillMaxWidth()
+                            .height(200.dp),
+                        graphItems = uiState.totals,
+                        contentColor = LocalContentColor.current,
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
+                Card {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        uiState.totals.forEach {
+                            Row {
+                                Text("${it.year}/${it.month.toString().padStart(2, '0')}")
+                                Spacer(modifier = Modifier.widthIn(min = 8.dp).weight(1f))
+                                Text("${it.amount}円")
+                            }
+                        }
                     }
                 }
-                Text(uiState.between)
-                Spacer(Modifier.weight(1f))
-                DropDownMenuButton(
-                    onClick = {},
-                ) {
-                    Text("3ヶ月")
-                }
-            }
-            uiState.totals.forEach {
-                Text("${it.year}年${it.month}月: ${it.amount}")
             }
         }
         ScrollButtons(
@@ -182,5 +215,81 @@ private fun BetweenContent(
                 height.toPx() * 0.4f
             },
         )
+    }
+}
+
+@Composable
+private fun PeriodSection(
+    modifier: Modifier = Modifier,
+    onClickPreviousMonth: () -> Unit,
+    onClickNextMonth: () -> Unit,
+    betweenText: @Composable () -> Unit,
+    rangeText: @Composable () -> Unit,
+    onClickRange: (range: Int) -> Unit,
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(
+                modifier = Modifier.clip(CircleShape)
+                    .clickable { onClickPreviousMonth() }
+                    .padding(8.dp),
+            ) {
+                Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "前の月")
+            }
+            Box(
+                modifier = Modifier.clip(CircleShape)
+                    .clickable { onClickNextMonth() }
+                    .padding(8.dp),
+            ) {
+                Icon(Icons.Default.KeyboardArrowRight, contentDescription = "次の月")
+            }
+        }
+        betweenText()
+        Spacer(Modifier.weight(1f))
+        Box {
+            var expanded by remember { mutableStateOf(false) }
+            DropDownMenuButton(
+                onClick = { expanded = !expanded },
+            ) {
+                rangeText()
+            }
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                DropdownMenuItem(
+                    onClick = {
+                        expanded = false
+                        onClickRange(3)
+                    },
+                    text = {
+                        Text("3ヶ月")
+                    }
+                )
+                DropdownMenuItem(
+                    onClick = {
+                        expanded = false
+                        onClickRange(6)
+                    },
+                    text = {
+                        Text("6ヶ月")
+                    }
+                )
+                DropdownMenuItem(
+                    onClick = {
+                        expanded = false
+                        onClickRange(12)
+                    },
+                    text = {
+                        Text("12ヶ月")
+                    }
+                )
+            }
+        }
     }
 }
