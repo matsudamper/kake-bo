@@ -34,6 +34,7 @@ public data class RootHomeTabUiState(
     public data class ColorText(
         val color: Color,
         val text: String,
+        val onClick: () -> Unit,
     )
 
     @Immutable

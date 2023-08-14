@@ -168,6 +168,9 @@ public class RootHomeTabScreenViewModel(
                                 RootHomeTabUiState.ColorText(
                                     color = reservedColorModel.getColor(it.id.id.toString()),
                                     text = it.name,
+                                    onClick = {
+
+                                    },
                                 )
                             }.toImmutableList(),
                             totals = responses.map { (yearMonth, response) ->

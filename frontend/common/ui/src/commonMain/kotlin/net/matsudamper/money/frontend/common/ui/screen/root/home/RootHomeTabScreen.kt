@@ -42,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.ScrollButtons
@@ -142,7 +143,7 @@ private fun MainContent(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 private fun BetweenContent(
     modifier: Modifier = Modifier,
@@ -152,6 +153,7 @@ private fun BetweenContent(
         val height = this.maxHeight
         val scrollState = rememberScrollState()
         val density = LocalDensity.current
+        var scrollBarHeight by remember { mutableStateOf(0) }
         Column(
             modifier = modifier
                 .verticalScroll(scrollState),
@@ -193,21 +195,27 @@ private fun BetweenContent(
                         Spacer(modifier = Modifier.height(12.dp))
                         FlowRow(modifier = Modifier.fillMaxWidth()) {
                             uiState.totalBarColorTextMapping.forEach {
-                                Card {
-                                    Row(
-                                        modifier = Modifier.padding(4.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(16.dp)
-                                                .clip(RoundedCornerShape(4.dp))
-                                                .background(it.color),
-                                        )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text(it.text)
+                                AssistChip(
+                                    onClick = {
+                                        it.onClick()
+                                    },
+                                    label = {
+                                        Row(
+                                            modifier = Modifier.padding(vertical = 4.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(16.dp)
+                                                    .clip(RoundedCornerShape(4.dp))
+                                                    .background(it.color),
+                                            )
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            Text(it.text)
+                                        }
                                     }
-                                }
+                                )
+                                Spacer(Modifier.width(8.dp))
                             }
                         }
                     }
@@ -236,9 +244,14 @@ private fun BetweenContent(
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(with(density) { scrollBarHeight.toDp() }))
         }
         ScrollButtons(
             modifier = Modifier
+                .onSizeChanged {
+                    scrollBarHeight = it.height
+                }
                 .align(Alignment.BottomEnd)
                 .padding(ScrollButtonsDefaults.padding)
                 .height(ScrollButtonsDefaults.height),
