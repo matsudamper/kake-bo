@@ -14,6 +14,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo3.api.ApolloResponse
+import kotlinx.coroutines.async
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.layout.graph.BarGraphUiState
 import net.matsudamper.money.frontend.common.ui.layout.graph.PolygonalLineGraphItemUiState
@@ -32,51 +33,46 @@ public class RootHomeTabPeriodScreenViewModel(
 
     private val event = object : RootHomeTabPeriodContentUiState.Event {
         override fun onClickNextMonth() {
-            viewModelStateFlow.update {
-                it.copy(
-                    displayPeriod = it.displayPeriod.copy(
-                        sinceDate = it.displayPeriod.sinceDate.addMonth(1),
-                    ),
+            val period = viewModelStateFlow.value.displayPeriod
+
+            fetch(
+                period = period.copy(
+                    sinceDate = period.sinceDate.addMonth(1),
                 )
-            }
-            fetch()
+            )
         }
 
         override fun onClickPreviousMonth() {
-            viewModelStateFlow.update {
-                it.copy(
-                    displayPeriod = it.displayPeriod.copy(
-                        sinceDate = it.displayPeriod.sinceDate.addMonth(-1),
-                    ),
+            val period = viewModelStateFlow.value.displayPeriod
+
+            fetch(
+                period = period.copy(
+                    sinceDate = period.sinceDate.addMonth(-1),
                 )
-            }
-            fetch()
+            )
         }
 
         override fun onClickRange(range: Int) {
-            viewModelStateFlow.update { viewModelState ->
-                val currentEndYearMonth = viewModelState.displayPeriod.let { period ->
-                    period.sinceDate.addMonth(period.monthCount)
-                }
-                val newSinceDate = currentEndYearMonth
-                    .addMonth(-range)
-
-                viewModelState.copy(
-                    displayPeriod = ViewModelState.Period(
-                        sinceDate = newSinceDate,
-                        monthCount = range,
-                    ),
-                )
+            val currentEndYearMonth = viewModelStateFlow.value.displayPeriod.let { period ->
+                period.sinceDate.addMonth(period.monthCount)
             }
-            fetch()
+            val newSinceDate = currentEndYearMonth
+                .addMonth(-range)
+
+            fetch(
+                period = ViewModelState.Period(
+                    sinceDate = newSinceDate,
+                    monthCount = range,
+                )
+            )
         }
 
         override fun onViewInitialized() {
-            fetch()
+            fetch(viewModelStateFlow.value.displayPeriod)
         }
 
         override fun onClickRetry() {
-            fetch()
+            fetch(viewModelStateFlow.value.displayPeriod)
         }
     }
 
@@ -197,9 +193,8 @@ public class RootHomeTabPeriodScreenViewModel(
         }
     }.asStateFlow()
 
-    private fun fetch() {
+    private fun fetch(period: ViewModelState.Period) {
         coroutineScope.launch {
-            val period = viewModelStateFlow.value.displayPeriod
             (0 until period.monthCount)
                 .map { index ->
                     val start = period.sinceDate.addMonth(index)
@@ -210,7 +205,7 @@ public class RootHomeTabPeriodScreenViewModel(
                     viewModelStateFlow.value.responseMap.contains(startYearMonth).not()
                 }
                 .map { (startYearMonth, endYearMonth) ->
-                    launch {
+                    async {
                         val result = api.fetch(
                             startYear = startYearMonth.year,
                             startMonth = startYearMonth.month,
@@ -225,7 +220,12 @@ public class RootHomeTabPeriodScreenViewModel(
                             )
                         }
                     }
-                }
+                }.map { it.await() }
+            viewModelStateFlow.update {
+                it.copy(
+                    displayPeriod = period,
+                )
+            }
         }
     }
 
