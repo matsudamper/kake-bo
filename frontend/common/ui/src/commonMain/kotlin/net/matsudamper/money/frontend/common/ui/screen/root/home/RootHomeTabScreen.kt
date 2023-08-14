@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
@@ -50,7 +48,6 @@ public data class RootHomeTabUiState(
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun RootHomeTabScreen(
@@ -85,7 +82,7 @@ public fun RootHomeTabScreen(
             Column(modifier = Modifier.fillMaxSize()) {
                 Row(
                     modifier = Modifier.fillMaxWidth()
-                        .padding(12.dp)
+                        .padding(12.dp),
                 ) {
                     FilterChip(
                         selected = uiState.contentType == RootHomeTabUiState.ContentType.Period,

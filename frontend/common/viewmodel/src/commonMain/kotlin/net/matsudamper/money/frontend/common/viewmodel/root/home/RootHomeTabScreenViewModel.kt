@@ -29,7 +29,6 @@ public class RootHomeTabScreenViewModel(
 
     private val uiStateEvent = object : RootHomeTabUiState.Event {
         override fun onViewInitialized() {
-
         }
 
         override fun onClickMonth() {
@@ -46,7 +45,7 @@ public class RootHomeTabScreenViewModel(
     }
 
     public val uiStateFlow: StateFlow<RootHomeTabUiState> = MutableStateFlow(
-        createUiState(viewModelStateFlow.value)
+        createUiState(viewModelStateFlow.value),
     ).also { uiStateFlow ->
         coroutineScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->

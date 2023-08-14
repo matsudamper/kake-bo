@@ -69,7 +69,6 @@ internal fun RootNavContent(
                     uiState = viewModel.uiStateFlow.collectAsState().value,
                     scaffoldListener = rootScreenScaffoldListener,
                     monthContent = {
-
                     },
                     periodContent = {
                         RootHomeTabPeriodContent(
