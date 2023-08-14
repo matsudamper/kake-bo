@@ -113,7 +113,8 @@ public fun RootHomeTabPeriodContent(
                 var scrollBarHeight by remember { mutableStateOf(0) }
                 Column(
                     modifier = Modifier
-                        .verticalScroll(scrollState),
+                        .verticalScroll(scrollState)
+                        .padding(horizontal = 24.dp),
                 ) {
                     PeriodSection(
                         modifier = Modifier.fillMaxWidth(),
@@ -159,8 +160,7 @@ private fun BetweenLoaded(
     uiState: RootHomeTabPeriodContentUiState.LoadingState.Loaded,
 ) {
     Column(
-        modifier = modifier
-            .padding(horizontal = 24.dp),
+        modifier = modifier,
     ) {
         Text(
             modifier = Modifier
