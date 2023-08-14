@@ -49,14 +49,6 @@ internal fun BarGraph(
         uiState.items.maxOfOrNull { it.total } ?: 0
     }
     val textMeasurer = rememberTextMeasurer(cacheSize = 2 + 12) // TODO
-    val amountRange = remember(maxTotalValue, minTotalValue) {
-        val range = maxTotalValue - minTotalValue
-        if (range == 0L) {
-            1
-        } else {
-            range
-        }
-    }
 
     val minTextMeasureResult = remember(minTotalValue) {
         textMeasurer.measure(
@@ -119,7 +111,7 @@ internal fun BarGraph(
                 .minus(labelBoxHeight)
                 .minus(graphAndLabelPadding)
 
-            val heightParAmount = graphYHeight / amountRange
+            val heightParAmount = graphYHeight / maxTotalValue
 
             xLabels.forEachIndexed { index, item ->
                 val y = if (multilineLabel && index % 2 == 1) {
@@ -140,55 +132,34 @@ internal fun BarGraph(
                     ),
                 )
             }
+            drawText(
+                textLayoutResult = minTextMeasureResult,
+                color = contentColor,
+                topLeft = Offset(0f, graphYHeight - (minTextMeasureResult.size.height / 2)),
+            )
+            drawText(
+                textLayoutResult = maxTextMeasureResult,
+                color = contentColor,
+                topLeft = Offset(0f, 0f),
+            )
+            uiState.items.forEachIndexed { index, periodData ->
+                val x = graphBaseX + (spaceWidth + barWidth).times(index)
+                var beforeY = graphYHeight
 
-            if (amountRange == 0.toLong()) {
-                drawText(
-                    textLayoutResult = minTextMeasureResult,
-                    color = contentColor,
-                    topLeft = Offset(0f, size.height / 2 - (maxTextMeasureResult.size.height / 2)),
-                )
-                drawLine(
-                    color = contentColor,
-                    strokeWidth = 2.dp.toPx(),
-                    start = Offset(
-                        x = maxYLabelTextWidth,
-                        y = graphYHeight / 2,
-                    ),
-                    end = Offset(
-                        x = size.width,
-                        y = graphYHeight / 2,
-                    ),
-                )
-            } else {
-                drawText(
-                    textLayoutResult = minTextMeasureResult,
-                    color = contentColor,
-                    topLeft = Offset(0f, graphYHeight - (minTextMeasureResult.size.height / 2)),
-                )
-                drawText(
-                    textLayoutResult = maxTextMeasureResult,
-                    color = contentColor,
-                    topLeft = Offset(0f, 0f),
-                )
-                uiState.items.forEachIndexed { index, periodData ->
-                    val x = graphBaseX + (spaceWidth + barWidth).times(index)
-                    var beforeY = graphYHeight
-
-                    periodData.items.forEach { item ->
-                        val itemHeight = item.value * heightParAmount
-                        drawRect(
-                            color = item.color,
-                            topLeft = Offset(
-                                x = x,
-                                y = beforeY - itemHeight,
-                            ),
-                            size = Size(
-                                width = barWidth,
-                                height = itemHeight,
-                            ),
-                        )
-                        beforeY -= itemHeight
-                    }
+                periodData.items.forEach { item ->
+                    val itemHeight = (item.value * heightParAmount)
+                    drawRect(
+                        color = item.color,
+                        topLeft = Offset(
+                            x = x,
+                            y = beforeY - itemHeight,
+                        ),
+                        size = Size(
+                            width = barWidth,
+                            height = itemHeight,
+                        ),
+                    )
+                    beforeY -= itemHeight
                 }
             }
         }
