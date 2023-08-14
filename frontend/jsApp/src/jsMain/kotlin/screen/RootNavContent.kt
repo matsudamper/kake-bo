@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import event.ViewModelEventHandlers
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodContent
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreenUiState
@@ -67,6 +68,15 @@ internal fun RootNavContent(
                 RootHomeTabScreen(
                     uiState = viewModel.uiStateFlow.collectAsState().value,
                     scaffoldListener = rootScreenScaffoldListener,
+                    monthContent = {
+
+                    },
+                    betweenContent = {
+                        RootHomeTabPeriodContent(
+                            modifier = Modifier.fillMaxSize(),
+                            uiState = viewModel.periodViewModel.uiStateFlow.collectAsState().value,
+                        )
+                    },
                 )
             }
         }
@@ -89,6 +99,7 @@ internal fun RootNavContent(
                                 )
                             }
                         }
+
                         is ScreenStructure.Root.Usage.List -> {
                             usageHost.SaveableStateProvider(current::class.toString()) {
                                 val uiState = usageListUiStateProvider()
