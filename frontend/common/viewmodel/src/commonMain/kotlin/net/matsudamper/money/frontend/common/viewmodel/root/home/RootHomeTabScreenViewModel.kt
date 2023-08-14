@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
@@ -29,6 +30,18 @@ public class RootHomeTabScreenViewModel(
     private val uiStateEvent = object : RootHomeTabUiState.Event {
         override fun onViewInitialized() {
 
+        }
+
+        override fun onClickMonth() {
+            viewModelStateFlow.update {
+                it.copy(contentTYpe = RootHomeTabUiState.ContentType.Month)
+            }
+        }
+
+        override fun onClickPeriod() {
+            viewModelStateFlow.update {
+                it.copy(contentTYpe = RootHomeTabUiState.ContentType.Period)
+            }
         }
     }
 
@@ -61,6 +74,6 @@ public class RootHomeTabScreenViewModel(
     }
 
     private data class ViewModelState(
-        val contentTYpe: RootHomeTabUiState.ContentType = RootHomeTabUiState.ContentType.Between,
+        val contentTYpe: RootHomeTabUiState.ContentType = RootHomeTabUiState.ContentType.Period,
     )
 }

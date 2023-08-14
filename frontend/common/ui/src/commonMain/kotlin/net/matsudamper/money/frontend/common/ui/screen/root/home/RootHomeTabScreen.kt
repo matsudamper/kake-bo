@@ -4,10 +4,15 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -16,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
@@ -32,13 +38,15 @@ public data class RootHomeTabUiState(
     )
 
     public enum class ContentType {
-        Between,
+        Period,
         Month,
     }
 
     @Immutable
     public interface Event {
         public fun onViewInitialized()
+        public fun onClickPeriod()
+        public fun onClickMonth()
     }
 }
 
@@ -48,7 +56,7 @@ public data class RootHomeTabUiState(
 public fun RootHomeTabScreen(
     uiState: RootHomeTabUiState,
     monthContent: @Composable () -> Unit,
-    betweenContent: @Composable () -> Unit,
+    periodContent: @Composable () -> Unit,
     scaffoldListener: RootScreenScaffoldListener,
 ) {
     LaunchedEffect(uiState.event) {
@@ -75,17 +83,23 @@ public fun RootHomeTabScreen(
         },
         content = {
             Column(modifier = Modifier.fillMaxSize()) {
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    AssistChip(
-                        onClick = {},
-                        label = {
-                            Text("月別")
-                        },
-                    )
-                    AssistChip(
-                        onClick = {},
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(12.dp)
+                ) {
+                    FilterChip(
+                        selected = uiState.contentType == RootHomeTabUiState.ContentType.Period,
+                        onClick = { uiState.event.onClickPeriod() },
                         label = {
                             Text("期間")
+                        },
+                    )
+                    Spacer(modifier = Modifier.widthIn(12.dp))
+                    FilterChip(
+                        selected = uiState.contentType == RootHomeTabUiState.ContentType.Month,
+                        onClick = { uiState.event.onClickMonth() },
+                        label = {
+                            Text("月別")
                         },
                     )
                 }
@@ -97,9 +111,9 @@ public fun RootHomeTabScreen(
                         }
                     }
 
-                    RootHomeTabUiState.ContentType.Between -> {
+                    RootHomeTabUiState.ContentType.Period -> {
                         holder.SaveableStateProvider(uiState.contentType) {
-                            betweenContent()
+                            periodContent()
                         }
                     }
                 }

@@ -71,7 +71,7 @@ internal fun RootNavContent(
                     monthContent = {
 
                     },
-                    betweenContent = {
+                    periodContent = {
                         RootHomeTabPeriodContent(
                             modifier = Modifier.fillMaxSize(),
                             uiState = viewModel.periodViewModel.uiStateFlow.collectAsState().value,
