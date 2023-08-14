@@ -75,7 +75,10 @@ public class RootHomeTabPeriodScreenViewModel(
         }
 
         override fun onClickRetry() {
-            fetch(viewModelStateFlow.value.displayPeriod)
+            fetch(
+                period = viewModelStateFlow.value.displayPeriod,
+                forceReFetch = true,
+            )
         }
     }
 
@@ -136,7 +139,7 @@ public class RootHomeTabPeriodScreenViewModel(
                                 createCategoryUiState(
                                     categoryId = viewModelState.contentType.categoryId,
                                     displayPeriods = displayPeriods,
-                                    categoryResponseMap = viewModelState.categoryResponseMap
+                                    categoryResponseMap = viewModelState.categoryResponseMap,
                                 ) ?: return@screenState RootHomeTabPeriodContentUiState.LoadingState.Loading
                             }
                         },
@@ -193,7 +196,7 @@ public class RootHomeTabPeriodScreenViewModel(
     private fun createCategoryUiState(
         categoryId: MoneyUsageCategoryId,
         displayPeriods: List<ViewModelState.YearMonth>,
-        categoryResponseMap: Map<ViewModelState.YearMonthCategory, ApolloResponse<RootHomeTabScreenAnalyticsByCategoryQuery.Data>?>
+        categoryResponseMap: Map<ViewModelState.YearMonthCategory, ApolloResponse<RootHomeTabScreenAnalyticsByCategoryQuery.Data>?>,
     ): RootHomeTabPeriodContentUiState.GraphContent.Category? {
         return RootHomeTabPeriodContentUiState.GraphContent.Category(
             graphItems = displayPeriods.map { yearMonth ->
@@ -289,16 +292,23 @@ public class RootHomeTabPeriodScreenViewModel(
         )
     }
 
-    private fun fetch(period: ViewModelState.Period) {
+    private fun fetch(
+        period: ViewModelState.Period,
+        forceReFetch: Boolean = false,
+    ) {
         when (val type = viewModelStateFlow.value.contentType) {
             is ViewModelState.ContentType.All -> {
-                fetchAll(period = period)
+                fetchAll(
+                    period = period,
+                    forceReFetch = forceReFetch,
+                )
             }
 
             is ViewModelState.ContentType.Category -> {
                 fetchCategory(
                     period = period,
                     categoryId = type.categoryId,
+                    forceReFetch = forceReFetch,
                 )
             }
         }
@@ -307,6 +317,7 @@ public class RootHomeTabPeriodScreenViewModel(
     private fun fetchCategory(
         period: ViewModelState.Period,
         categoryId: MoneyUsageCategoryId,
+        forceReFetch: Boolean = false,
     ) {
         coroutineScope.launch {
             (0 until period.monthCount)
@@ -316,7 +327,7 @@ public class RootHomeTabPeriodScreenViewModel(
                     start to start.addMonth(1)
                 }
                 .filter { (startYearMonth, _) ->
-                    viewModelStateFlow.value.categoryResponseMap.contains(
+                    forceReFetch || viewModelStateFlow.value.categoryResponseMap.contains(
                         ViewModelState.YearMonthCategory(
                             categoryId = categoryId,
                             yearMonth = startYearMonth,
@@ -335,6 +346,7 @@ public class RootHomeTabPeriodScreenViewModel(
                             startMonth = startYearMonth.month,
                             endYear = endYearMonth.year,
                             endMonth = endYearMonth.month,
+                            useCache = forceReFetch.not(),
                         )
 
                         viewModelStateFlow.update {
@@ -354,7 +366,7 @@ public class RootHomeTabPeriodScreenViewModel(
         }
     }
 
-    private fun fetchAll(period: ViewModelState.Period) {
+    private fun fetchAll(period: ViewModelState.Period, forceReFetch: Boolean) {
         coroutineScope.launch {
             (0 until period.monthCount)
                 .map { index ->
@@ -363,7 +375,7 @@ public class RootHomeTabPeriodScreenViewModel(
                     start to start.addMonth(1)
                 }
                 .filter { (startYearMonth, _) ->
-                    viewModelStateFlow.value.allResponseMap.contains(startYearMonth).not()
+                    forceReFetch || viewModelStateFlow.value.allResponseMap.contains(startYearMonth).not()
                 }
                 .map { (startYearMonth, endYearMonth) ->
                     async {
@@ -372,6 +384,7 @@ public class RootHomeTabPeriodScreenViewModel(
                             startMonth = startYearMonth.month,
                             endYear = endYearMonth.year,
                             endMonth = endYearMonth.month,
+                            useCache = forceReFetch.not(),
                         )
 
                         viewModelStateFlow.update {

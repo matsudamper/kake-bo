@@ -5,6 +5,8 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
+import com.apollographql.apollo3.cache.normalized.FetchPolicy
+import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByCategoryQuery
@@ -20,6 +22,7 @@ public class RootHomeTabScreenApi(
         startMonth: Int,
         endYear: Int,
         endMonth: Int,
+        useCache: Boolean,
     ): Result<ApolloResponse<RootHomeTabScreenAnalyticsByCategoryQuery.Data>> {
         return runCatching {
             apolloClient.query(
@@ -36,7 +39,15 @@ public class RootHomeTabScreenApi(
                         ),
                     ),
                 ),
-            ).execute()
+            )
+                .fetchPolicy(
+                    if (useCache) {
+                        FetchPolicy.CacheAndNetwork
+                    } else {
+                        FetchPolicy.NetworkFirst
+                    }
+                )
+                .execute()
         }
     }
 
@@ -45,6 +56,7 @@ public class RootHomeTabScreenApi(
         startMonth: Int,
         endYear: Int,
         endMonth: Int,
+        useCache: Boolean,
     ): Result<ApolloResponse<RootHomeTabScreenAnalyticsByDateQuery.Data>> {
         return runCatching {
             apolloClient.query(
@@ -60,7 +72,15 @@ public class RootHomeTabScreenApi(
                         ),
                     ),
                 ),
-            ).execute()
+            )
+                .fetchPolicy(
+                    if (useCache) {
+                        FetchPolicy.CacheAndNetwork
+                    } else {
+                        FetchPolicy.NetworkFirst
+                    }
+                )
+                .execute()
         }
     }
 }
