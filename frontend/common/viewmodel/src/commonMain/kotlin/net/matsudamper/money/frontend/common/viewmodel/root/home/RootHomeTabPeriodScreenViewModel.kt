@@ -184,10 +184,6 @@ public class RootHomeTabPeriodScreenViewModel(
                         year = yearMonth.year,
                         month = yearMonth.month,
                         items = run item@{
-                            response.data?.user?.moneyUsageAnalytics?.byCategories.orEmpty()
-                                .forEach {
-                                    println("${it.category.name} ${it.totalAmount}")
-                                }
                             val byCategory =
                                 response.data?.user?.moneyUsageAnalytics?.byCategories
                                     ?: return null
