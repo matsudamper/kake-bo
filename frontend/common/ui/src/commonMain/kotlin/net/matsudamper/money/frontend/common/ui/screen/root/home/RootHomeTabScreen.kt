@@ -1,19 +1,25 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.home
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
@@ -136,6 +142,7 @@ private fun MainContent(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun BetweenContent(
     modifier: Modifier = Modifier,
@@ -173,15 +180,39 @@ private fun BetweenContent(
                     text = "合計",
                 )
                 Card {
-                    BarGraph(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .fillMaxWidth()
-                            .height(600.dp),
-                        uiState = uiState.totalBar,
-                        contentColor = LocalContentColor.current,
-                    )
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        BarGraph(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(600.dp),
+                            uiState = uiState.totalBar,
+                            contentColor = LocalContentColor.current,
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        FlowRow(modifier = Modifier.fillMaxWidth()) {
+                            uiState.totalBarColorTextMapping.forEach {
+                                Card {
+                                    Row(
+                                        modifier = Modifier.padding(4.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(16.dp)
+                                                .clip(RoundedCornerShape(4.dp))
+                                                .background(it.color),
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                        Text(it.text)
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
+                Spacer(modifier = Modifier.height(12.dp))
                 Card {
                     PolygonalLineGraph(
                         modifier = Modifier

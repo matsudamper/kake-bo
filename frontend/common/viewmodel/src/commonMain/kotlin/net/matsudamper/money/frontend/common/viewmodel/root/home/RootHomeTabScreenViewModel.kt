@@ -158,6 +158,18 @@ public class RootHomeTabScreenViewModel(
                                     )
                                 }.toImmutableList(),
                             ),
+                            totalBarColorTextMapping = responses.mapNotNull { (_, response) ->
+                                response.data?.user?.moneyUsageStatics?.byCategories
+                            }.flatMap { byCategories ->
+                                byCategories.map { it.category }
+                            }.distinctBy {
+                                it.id
+                            }.map {
+                                RootHomeTabUiState.ColorText(
+                                    color = reservedColorModel.getColor(it.id.id.toString()),
+                                    text = it.name,
+                                )
+                            }.toImmutableList(),
                             totals = responses.map { (yearMonth, response) ->
                                 PolygonalLineGraphItemUiState(
                                     amount = response.data?.user?.moneyUsageStatics?.totalAmount
