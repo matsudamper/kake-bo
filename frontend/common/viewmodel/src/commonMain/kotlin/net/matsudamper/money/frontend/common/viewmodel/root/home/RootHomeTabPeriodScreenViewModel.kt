@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.home
 
-import com.apollographql.apollo3.api.ApolloResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,6 +14,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.layout.graph.BarGraphUiState
@@ -39,7 +39,7 @@ public class RootHomeTabPeriodScreenViewModel(
             fetch(
                 period = period.copy(
                     sinceDate = period.sinceDate.addMonth(1),
-                )
+                ),
             )
         }
 
@@ -49,7 +49,7 @@ public class RootHomeTabPeriodScreenViewModel(
             fetch(
                 period = period.copy(
                     sinceDate = period.sinceDate.addMonth(-1),
-                )
+                ),
             )
         }
 
@@ -64,7 +64,7 @@ public class RootHomeTabPeriodScreenViewModel(
                 period = ViewModelState.Period(
                     sinceDate = newSinceDate,
                     monthCount = range,
-                )
+                ),
             )
         }
 
@@ -151,7 +151,7 @@ public class RootHomeTabPeriodScreenViewModel(
                             )
                         }
                     },
-                )
+                ),
             )
             addAll(
                 categories.map { category ->
@@ -168,14 +168,14 @@ public class RootHomeTabPeriodScreenViewModel(
                             }
                         },
                     )
-                }
+                },
             )
         }
     }
 
     private fun createTotalUiState(
         responses: List<Pair<ViewModelState.YearMonth, ApolloResponse<RootHomeTabScreenAnalyticsByDateQuery.Data>>>,
-        categories: List<RootHomeTabScreenAnalyticsByDateQuery.Category>
+        categories: List<RootHomeTabScreenAnalyticsByDateQuery.Category>,
     ): RootHomeTabPeriodContentUiState.GraphContent.Total? {
         return RootHomeTabPeriodContentUiState.GraphContent.Total(
             barGraph = BarGraphUiState(
@@ -223,7 +223,7 @@ public class RootHomeTabPeriodScreenViewModel(
                 RootHomeTabPeriodContentUiState.MonthTotalItem(
                     amount = Formatter.formatMoney(
                         response.data?.user?.moneyUsageAnalytics?.totalAmount
-                            ?: return null
+                            ?: return null,
                     ) + "円",
                     title = "${yearMonth.year}/${yearMonth.month.toString().padStart(2, '0')}",
                 )

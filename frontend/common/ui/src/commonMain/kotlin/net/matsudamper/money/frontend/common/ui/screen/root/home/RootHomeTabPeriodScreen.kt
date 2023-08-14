@@ -206,7 +206,7 @@ private fun BetweenLoaded(
                         text = {
                             Text(type.title)
                         },
-                        onClick = { type.onClick() }
+                        onClick = { type.onClick() },
                     )
                 }
             }
@@ -226,7 +226,6 @@ private fun BetweenLoaded(
                 )
             }
         }
-
     }
 }
 
