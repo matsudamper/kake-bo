@@ -46,7 +46,6 @@ class MoneyUsageAnalyticsRepository(
         )
     }
 
-
     fun getTotalAmountBySubCategories(
         userId: UserId,
         categoryIds: List<MoneyUsageCategoryId>,

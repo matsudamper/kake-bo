@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.graphql
 
+import java.time.ZoneOffset
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.request.host
 import io.ktor.util.date.GMTDate
@@ -8,7 +9,6 @@ import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.backend.element.UserSessionId
 import net.matsudamper.money.backend.repository.UserSessionRepository
-import java.time.ZoneOffset
 
 class UserIdVerifyUseCase(
     private val call: ApplicationCall,
@@ -40,7 +40,7 @@ class UserIdVerifyUseCase(
             }
         }
     }
-    
+
     private fun getCookie(key: String): String? {
         return call.request.cookies[key]
     }

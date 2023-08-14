@@ -248,7 +248,7 @@ class UserResolverImpl : UserResolver {
         user: QlUser,
         id: MoneyUsageCategoryId,
         query: QlMoneyUsageAnalyticsQuery,
-        env: DataFetchingEnvironment
+        env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsageAnalyticsByCategory?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSession()
@@ -266,13 +266,12 @@ class UserResolverImpl : UserResolver {
 
             val result = results.firstOrNull { it.categoryId == id }
 
-
             DataFetcherResult.newResult<QlMoneyUsageAnalyticsByCategory>()
                 .data(
                     QlMoneyUsageAnalyticsByCategory(
                         category = QlMoneyUsageCategory(id),
                         totalAmount = result?.totalAmount ?: 0,
-                    )
+                    ),
                 )
                 .localContext(
                     MoneyUsageAnalyticsByCategoryLocalContext(

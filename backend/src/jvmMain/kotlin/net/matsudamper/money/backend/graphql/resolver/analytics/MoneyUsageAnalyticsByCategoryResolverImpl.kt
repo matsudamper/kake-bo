@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.graphql.resolver.analytics
 
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
@@ -11,7 +12,6 @@ import net.matsudamper.money.graphql.model.MoneyUsageAnalyticsByCategoryResolver
 import net.matsudamper.money.graphql.model.QlMoneyUsageAnalyticsByCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageAnalyticsBySubCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
-import java.util.concurrent.CompletableFuture
 
 class MoneyUsageAnalyticsByCategoryResolverImpl : MoneyUsageAnalyticsByCategoryResolver {
     private val DataFetchingEnvironment.localContext: MoneyUsageAnalyticsByCategoryLocalContext
@@ -30,13 +30,13 @@ class MoneyUsageAnalyticsByCategoryResolverImpl : MoneyUsageAnalyticsByCategoryR
                 id = moneyUsageAnalyticsByCategory.category.id,
                 sinceDateTimeAt = env.localContext.query.sinceDateTime,
                 untilDateTimeAt = env.localContext.query.untilDateTime,
-            )
+            ),
         )
         return CompletableFuture.allOf(future).thenApplyAsync {
             future.get().subCategories.map {
                 QlMoneyUsageAnalyticsBySubCategory(
                     subCategory = QlMoneyUsageSubCategory(it.id),
-                    totalAmount = it.totalAmount
+                    totalAmount = it.totalAmount,
                 )
             }
         }.toDataFetcher()

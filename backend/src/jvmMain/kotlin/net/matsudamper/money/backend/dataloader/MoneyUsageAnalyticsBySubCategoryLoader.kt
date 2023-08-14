@@ -1,5 +1,7 @@
 package net.matsudamper.money.backend.dataloader
 
+import java.time.LocalDateTime
+import java.util.concurrent.CompletableFuture
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import net.matsudamper.money.backend.di.RepositoryFactory
@@ -8,8 +10,6 @@ import net.matsudamper.money.backend.repository.MoneyUsageAnalyticsRepository
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
-import java.time.LocalDateTime
-import java.util.concurrent.CompletableFuture
 
 class MoneyUsageAnalyticsBySubCategoryLoader(
     private val repositoryFactory: RepositoryFactory,

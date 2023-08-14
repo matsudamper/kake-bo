@@ -12,7 +12,6 @@ import net.matsudamper.money.backend.element.AdminSession
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.backend.repository.AdminSessionRepository
 
-
 class GraphQlContext(
     private val call: ApplicationCall,
     public val repositoryFactory: RepositoryFactory,

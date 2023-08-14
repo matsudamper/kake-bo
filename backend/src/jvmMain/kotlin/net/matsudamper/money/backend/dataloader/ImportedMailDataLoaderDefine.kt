@@ -1,12 +1,12 @@
 package net.matsudamper.money.backend.dataloader
 
+import java.util.concurrent.CompletableFuture
 import net.matsudamper.money.backend.di.RepositoryFactory
 import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.backend.repository.DbMailRepository
 import net.matsudamper.money.element.ImportedMailId
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
-import java.util.concurrent.CompletableFuture
 
 class ImportedMailDataLoaderDefine(
     private val repositoryFactory: RepositoryFactory,
