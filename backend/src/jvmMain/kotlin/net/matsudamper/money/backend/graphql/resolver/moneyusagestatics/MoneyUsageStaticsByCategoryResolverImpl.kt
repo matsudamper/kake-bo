@@ -11,14 +11,7 @@ class MoneyUsageStaticsByCategoryResolverImpl : MoneyUsageStaticsByCategoryResol
     override fun bySubCategories(
         moneyUsageStaticsByCategory: QlMoneyUsageStaticsByCategory,
         env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<List<QlMoneyUsageStaticsBySubCategory>>> {
-        TODO("Not yet implemented")
-    }
-
-    override fun totalAmount(
-        moneyUsageStaticsByCategory: QlMoneyUsageStaticsByCategory,
-        env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<Long?>> {
+    ): CompletionStage<DataFetcherResult<List<QlMoneyUsageStaticsBySubCategory>?>> {
         TODO("Not yet implemented")
     }
 }

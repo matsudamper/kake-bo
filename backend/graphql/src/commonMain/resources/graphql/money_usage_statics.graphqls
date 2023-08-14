@@ -6,13 +6,13 @@ input MoneyUsageStaticsQuery {
 
 type MoneyUsageStatics {
     totalAmount: Long @lazy
-    byCategories: [MoneyUsageStaticsByCategory!]! @lazy
+    byCategories: [MoneyUsageStaticsByCategory!] @lazy
 }
 
 type MoneyUsageStaticsByCategory {
     category: MoneyUsageCategory!
-    bySubCategories: [MoneyUsageStaticsBySubCategory!]! @lazy
-    totalAmount: Long @lazy
+    bySubCategories: [MoneyUsageStaticsBySubCategory!] @lazy
+    totalAmount: Long
 }
 
 type MoneyUsageStaticsBySubCategory {
