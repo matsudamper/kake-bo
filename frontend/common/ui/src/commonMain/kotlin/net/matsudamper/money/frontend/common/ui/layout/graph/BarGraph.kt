@@ -76,8 +76,8 @@ internal fun BarGraph(
         ) {
             if (uiState.items.isEmpty()) return@Canvas
 
-            val barWidth = 38.dp.toPx()
-            val minSpaceWidth = 60.dp.toPx()
+            val maxBarWidth = 42.dp.toPx()
+            val minSpaceWidth = 2.dp.toPx()
 
             val xLabels = uiState.items.mapIndexed { index, item ->
                 if (index == 0 || item.month == 1) {
@@ -94,11 +94,16 @@ internal fun BarGraph(
             val graphWidth = size.width - maxYLabelTextWidth
             val graphBaseX = maxYLabelTextWidth
 
-            val spaceWidth: Float
-            if ((barWidth * uiState.items.size) + (minSpaceWidth * uiState.items.size - 1) <= graphWidth) {
-                spaceWidth = (graphWidth - (barWidth * uiState.items.size)) / (uiState.items.size - 1)
+            val spaceWidth: Float =
+                if ((maxBarWidth * uiState.items.size) + (minSpaceWidth * uiState.items.size - 1) <= graphWidth) {
+                    (graphWidth - (maxBarWidth * uiState.items.size)) / (uiState.items.size - 1)
+                } else {
+                    minSpaceWidth
+                }
+            val barWidth = if (maxBarWidth * uiState.items.size + spaceWidth * (uiState.items.size - 1) <= graphWidth) {
+                maxBarWidth
             } else {
-                spaceWidth = minSpaceWidth
+                (graphWidth - spaceWidth * (uiState.items.size - 1)) / uiState.items.size
             }
 
             val multilineLabel =
