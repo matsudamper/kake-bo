@@ -171,7 +171,6 @@ internal fun BarGraph(
                     topLeft = Offset(0f, 0f),
                 )
                 uiState.items.forEachIndexed { index, periodData ->
-                    println("$periodData")
                     val x = graphBaseX + (spaceWidth + barWidth).times(index)
                     var beforeY = graphYHeight
 
