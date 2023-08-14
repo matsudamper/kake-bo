@@ -16,7 +16,6 @@ public data class RootHomeTabUiState(
         public object Error : ScreenState
         public data class Loaded(
             val displayType: DisplayType,
-            val event: LoadedEvent,
         ) : ScreenState
     }
 
@@ -42,12 +41,6 @@ public data class RootHomeTabUiState(
         public fun onClickNextMonth()
         public fun onClickPreviousMonth()
         public fun onClickRange(range: Int)
-    }
-
-    @Immutable
-    public interface LoadedEvent {
-        public fun onClickMailImportButton()
-        public fun onClickNotLinkedMailButton()
     }
 
     @Immutable

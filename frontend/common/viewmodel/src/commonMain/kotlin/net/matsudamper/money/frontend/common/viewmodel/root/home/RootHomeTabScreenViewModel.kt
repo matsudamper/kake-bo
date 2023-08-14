@@ -41,19 +41,6 @@ public class RootHomeTabScreenViewModel(
             fetch()
         }
     }
-    private val uiStateLoadedEvent = object : RootHomeTabUiState.LoadedEvent {
-        override fun onClickMailImportButton() {
-            coroutineScope.launch {
-                viewModelEventSender.send { it.navigateToMailImport() }
-            }
-        }
-
-        override fun onClickNotLinkedMailButton() {
-            coroutineScope.launch {
-                viewModelEventSender.send { it.navigateToMailLink() }
-            }
-        }
-    }
 
     private val betweenEvent = object : RootHomeTabUiState.BetweenEvent {
         override fun onClickNextMonth() {
@@ -182,7 +169,6 @@ public class RootHomeTabScreenViewModel(
                                 )
                             }.toImmutableList(),
                         ),
-                        event = uiStateLoadedEvent,
                     )
                 }
 
