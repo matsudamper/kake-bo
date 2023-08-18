@@ -10,6 +10,7 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
 import event.ViewModelEventHandlers
+import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodContent
@@ -52,7 +53,7 @@ internal fun RootNavContent(
 ) {
     val usageHost = rememberSaveableStateHolder()
     when (current) {
-        is ScreenStructure.Root.Home -> {
+        is RootHomeScreenStructure -> {
             tabHolder.SaveableStateProvider(current::class.toString()) {
                 val viewModel = remember {
                     RootHomeTabScreenViewModel(
@@ -68,25 +69,45 @@ internal fun RootNavContent(
                 RootHomeTabScreen(
                     uiState = viewModel.uiStateFlow.collectAsState().value,
                     scaffoldListener = rootScreenScaffoldListener,
-                    monthContent = {
-                    },
-                    periodContent = {
-                        val periodViewModel = remember {
-                            RootHomeTabPeriodScreenViewModel(
-                                coroutineScope = rootCoroutineScope,
-                                api = RootHomeTabScreenApi(),
-                            )
+                    content = {
+                        val holder = rememberSaveableStateHolder()
+                        when (current) {
+                            is RootHomeScreenStructure.Monthly -> {
+                                holder.SaveableStateProvider(RootHomeScreenStructure.Monthly::class) {
+                                }
+                            }
+
+                            is RootHomeScreenStructure.Period -> {
+                                when (current) {
+                                    is RootHomeScreenStructure.Home,
+                                    is RootHomeScreenStructure.PeriodAnalytics,
+                                    -> {
+                                        holder.SaveableStateProvider(RootHomeScreenStructure.PeriodAnalytics::class) {
+                                            val periodViewModel = remember {
+                                                RootHomeTabPeriodScreenViewModel(
+                                                    coroutineScope = rootCoroutineScope,
+                                                    api = RootHomeTabScreenApi(),
+                                                )
+                                            }
+                                            LaunchedEffect(current, periodViewModel) {
+                                                periodViewModel.updateScreenStructure(current)
+                                            }
+                                            LaunchedEffect(periodViewModel.viewModelEventHandler) {
+                                                viewModelEventHandlers.handle(periodViewModel.viewModelEventHandler)
+                                            }
+                                            RootHomeTabPeriodContent(
+                                                modifier = Modifier.fillMaxSize(),
+                                                uiState = periodViewModel.uiStateFlow.collectAsState().value,
+                                            )
+                                        }
+                                    }
+
+                                    is RootHomeScreenStructure.PeriodSubCategory -> {
+
+                                    }
+                                }
+                            }
                         }
-                        LaunchedEffect(current, periodViewModel) {
-                            periodViewModel.updateScreenStructure(current)
-                        }
-                        LaunchedEffect(periodViewModel.viewModelEventHandler) {
-                            viewModelEventHandlers.handle(periodViewModel.viewModelEventHandler)
-                        }
-                        RootHomeTabPeriodContent(
-                            modifier = Modifier.fillMaxSize(),
-                            uiState = periodViewModel.uiStateFlow.collectAsState().value,
-                        )
                     },
                 )
             }

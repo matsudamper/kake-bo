@@ -1,109 +1,13 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
-import kotlinx.datetime.LocalDate
-import io.ktor.http.ParametersBuilder
-import io.ktor.http.formUrlEncode
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
-import net.matsudamper.money.element.MoneyUsageSubCategoryId
+
 
 public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
     public sealed interface Root : ScreenStructure {
-        public sealed interface Home : Root {
-            public val since: LocalDate?
-        }
-
-        public object RedirectHome : Home {
-            override val since: LocalDate? = null
-            override val direction: Direction = Screens.HomeRedirect
-        }
-
-        public data class HomeAnalytics(
-            override val since: LocalDate? = null,
-        ) : Home {
-            override val direction: Screens = Screens.Home
-
-            override fun createUrl(): String {
-                val urlParam = buildParameter {
-                    if (since != null) {
-                        append(
-                            SINCE_KEY,
-                            buildString {
-                                append(since.year)
-                                append("-")
-                                append(since.monthNumber.toString().padStart(2, '0'))
-                            },
-                        )
-                    }
-                }
-                return direction.placeholderUrl.plus(urlParam)
-            }
-
-            override fun equalScreen(other: ScreenStructure): Boolean {
-                return other is HomeAnalytics
-            }
-
-            public companion object {
-                private const val SINCE_KEY = "since"
-
-                @Suppress("UNUSED_PARAMETER")
-                public fun create(
-                    pathParams: Map<String, String>,
-                    queryParams: Map<String, List<String>>,
-                ): HomeAnalytics {
-                    return HomeAnalytics(
-                        since = queryParams[SINCE_KEY]?.firstOrNull()
-                            ?.let { LocalDate.parse("${it}-01") },
-                    )
-                }
-            }
-        }
-
-        public data class HomeSubCategory(
-            val subCategoryId: MoneyUsageSubCategoryId,
-            override val since: LocalDate? = null,
-        ) : Home {
-            override val direction: Screens = Screens.HomePeriodSubCategory
-
-            override fun createUrl(): String {
-                val urlParam = buildParameter {
-                    if (since != null) {
-                        append(
-                            SINCE_KEY,
-                            buildString {
-                                append(since.year)
-                                append("-")
-                                append(since.monthNumber.toString().padStart(2, '0'))
-                            },
-                        )
-                    }
-                }
-                return direction.placeholderUrl
-                    .replace("{id}", subCategoryId.id.toString())
-                    .plus(urlParam)
-            }
-
-            override fun equalScreen(other: ScreenStructure): Boolean {
-                return other is HomeAnalytics
-            }
-
-            public companion object {
-                private const val SINCE_KEY = "since"
-
-                public fun create(
-                    pathParams: Map<String, String>,
-                    queryParams: Map<String, List<String>>,
-                ): HomeSubCategory {
-                    return HomeSubCategory(
-                        subCategoryId = MoneyUsageSubCategoryId(pathParams["{id}"]!!.toInt()),
-                        since = queryParams[SINCE_KEY]?.firstOrNull()
-                            ?.let { LocalDate.parse("${it}-01") },
-                    )
-                }
-            }
-        }
 
         public sealed interface Settings : Root {
             public object Root : Settings {
@@ -310,12 +214,4 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
             }
         }
     }
-}
-
-private fun buildParameter(block: ParametersBuilder.() -> Unit): String {
-    return ParametersBuilder()
-        .apply(block)
-        .build()
-        .formUrlEncode()
-        .let { if (it.isEmpty()) it else "?$it" }
 }

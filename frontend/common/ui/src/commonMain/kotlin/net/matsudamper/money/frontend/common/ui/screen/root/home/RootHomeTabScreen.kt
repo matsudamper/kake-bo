@@ -52,8 +52,7 @@ public data class RootHomeTabUiState(
 @Composable
 public fun RootHomeTabScreen(
     uiState: RootHomeTabUiState,
-    monthContent: @Composable () -> Unit,
-    periodContent: @Composable () -> Unit,
+    content: @Composable () -> Unit,
     scaffoldListener: RootScreenScaffoldListener,
 ) {
     LaunchedEffect(uiState.event) {
@@ -100,20 +99,7 @@ public fun RootHomeTabScreen(
                         },
                     )
                 }
-                val holder = rememberSaveableStateHolder()
-                when (uiState.contentType) {
-                    RootHomeTabUiState.ContentType.Month -> {
-                        holder.SaveableStateProvider(uiState.contentType) {
-                            monthContent()
-                        }
-                    }
-
-                    RootHomeTabUiState.ContentType.Period -> {
-                        holder.SaveableStateProvider(uiState.contentType) {
-                            periodContent()
-                        }
-                    }
-                }
+                content()
             }
         },
     )

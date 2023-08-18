@@ -17,6 +17,7 @@ import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.layout.graph.BarGraphUiState
 import net.matsudamper.money.frontend.common.ui.layout.graph.PolygonalLineGraphItemUiState
@@ -174,7 +175,7 @@ public class RootHomeTabPeriodScreenViewModel(
         }
     }
 
-    public fun updateScreenStructure(current: ScreenStructure.Root.Home) {
+    public fun updateScreenStructure(current: RootHomeScreenStructure.Period) {
         val since = current.since
         if (since != null) {
             viewModelStateFlow.update { viewModelState ->
@@ -453,7 +454,7 @@ public class RootHomeTabPeriodScreenViewModel(
         coroutineScope.launch {
             viewModelEventSender.send {
                 it.navigate(
-                    ScreenStructure.Root.HomeAnalytics(
+                    RootHomeScreenStructure.PeriodAnalytics(
                         since = LocalDate(
                             viewModelStateFlow.value.displayPeriod.sinceDate.year,
                             viewModelStateFlow.value.displayPeriod.sinceDate.month,

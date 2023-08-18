@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.user.JsScreenNavController
+import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -50,7 +51,7 @@ public class LoginScreenViewModel(
                         }.getOrNull()
 
                         if (result?.data?.userMutation?.userLogin?.isSuccess == true) {
-                            navController.navigate(ScreenStructure.Root.HomeAnalytics())
+                            navController.navigate(RootHomeScreenStructure.Home)
                             globalEventSender.send {
                                 it.showSnackBar("ログインしました")
                             }
@@ -84,7 +85,7 @@ public class LoginScreenViewModel(
         coroutineScope.launch {
             val isLoggedIn = graphqlQuery.isLoggedIn()
             if (isLoggedIn) {
-                navController.navigate(ScreenStructure.Root.HomeAnalytics())
+                navController.navigate(RootHomeScreenStructure.Home)
             }
         }
     }

@@ -12,6 +12,7 @@ import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.Screens
@@ -74,7 +75,7 @@ public class ScreenNavControllerImpl(
 
     override fun navigateToHome() {
         navigate(
-            screenState.lastHome ?: ScreenStructure.Root.HomeAnalytics(),
+            screenState.lastHome ?: RootHomeScreenStructure.Home,
         )
     }
 
@@ -116,11 +117,15 @@ public class ScreenNavControllerImpl(
         queryParams: Map<String, List<String>>,
     ): ScreenStructure {
         return when (this.screen) {
-            Screens.Home, Screens.HomeRedirect -> ScreenStructure.Root.HomeAnalytics.create(
+            Screens.HomeMonthly -> RootHomeScreenStructure.Monthly.create(
                 pathParams = pathParams,
                 queryParams = queryParams,
             )
-            Screens.HomePeriodSubCategory -> ScreenStructure.Root.HomeSubCategory.create(
+            Screens.Home, Screens.HomeRedirect -> RootHomeScreenStructure.PeriodAnalytics.create(
+                pathParams = pathParams,
+                queryParams = queryParams,
+            )
+            Screens.HomePeriodSubCategory -> RootHomeScreenStructure.PeriodSubCategory.create(
                 pathParams = pathParams,
                 queryParams = queryParams,
             )

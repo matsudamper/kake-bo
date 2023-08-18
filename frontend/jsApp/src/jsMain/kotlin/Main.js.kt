@@ -25,6 +25,7 @@ import lib.compose.JsCompose
 import lib.js.NormalizeInputKeyCapture
 import net.matsudamper.money.frontend.common.base.ScreenNavControllerImpl
 import net.matsudamper.money.frontend.common.base.nav.admin.rememberAdminScreenController
+import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.CustomTheme
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
@@ -118,7 +119,7 @@ private fun Content(
 
     val navController = remember {
         ScreenNavControllerImpl(
-            initial = ScreenStructure.Root.HomeAnalytics(),
+            initial = RootHomeScreenStructure.Home,
         )
     }
     val loginCheckUseCase = remember {
@@ -181,7 +182,7 @@ private fun Content(
             override val kakeboScaffoldListener: KakeboScaffoldListener = kakeboScaffoldListener
 
             override fun onClickHome() {
-                navController.navigate(ScreenStructure.Root.HomeAnalytics())
+                navController.navigate(RootHomeScreenStructure.Home)
             }
 
             override fun onClickList() {
@@ -254,10 +255,7 @@ private fun Content(
                 is ScreenStructure.Root -> {
                     LaunchedEffect(current, settingViewModel) {
                         when (current) {
-                            is ScreenStructure.Root.RedirectHome,
-                            is ScreenStructure.Root.HomeSubCategory,
-                            is ScreenStructure.Root.HomeAnalytics,
-                            -> {
+                            is RootHomeScreenStructure -> {
                             }
 
                             is ScreenStructure.Root.Mail -> {
@@ -271,6 +269,7 @@ private fun Content(
                             is ScreenStructure.Root.Usage -> {
                                 rootUsageHostViewModel.updateStructure(current)
                             }
+
                         }
                     }
                     LaunchedEffect(viewModelEventHandlers, settingViewModel.backgroundEventHandler) {
