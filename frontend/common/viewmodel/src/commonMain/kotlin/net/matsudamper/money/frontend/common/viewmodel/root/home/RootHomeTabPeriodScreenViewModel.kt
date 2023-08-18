@@ -175,6 +175,22 @@ public class RootHomeTabPeriodScreenViewModel(
         }
     }
 
+    public fun updateScreenStructure(current: ScreenStructure.Root.Home) {
+        val since = current.since
+        if (since != null) {
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    displayPeriod = viewModelState.displayPeriod.copy(
+                        sinceDate = ViewModelState.YearMonth(
+                            year = since.year,
+                            month = since.monthNumber,
+                        ),
+                    ),
+                )
+            }
+        }
+    }
+
     private fun createCategoryTypes(
         categories: List<RootHomeTabScreenQuery.Node>,
     ): List<RootHomeTabPeriodContentUiState.CategoryTypes> {
@@ -443,22 +459,6 @@ public class RootHomeTabPeriodScreenViewModel(
                             viewModelStateFlow.value.displayPeriod.sinceDate.year,
                             viewModelStateFlow.value.displayPeriod.sinceDate.month,
                             1,
-                        ),
-                    ),
-                )
-            }
-        }
-    }
-
-    public fun updateScreenStructure(current: ScreenStructure.Root.Home) {
-        val since = current.since
-        if (since != null) {
-            viewModelStateFlow.update { viewModelState ->
-                viewModelState.copy(
-                    displayPeriod = viewModelState.displayPeriod.copy(
-                        sinceDate = ViewModelState.YearMonth(
-                            year = since.year,
-                            month = since.monthNumber,
                         ),
                     ),
                 )
