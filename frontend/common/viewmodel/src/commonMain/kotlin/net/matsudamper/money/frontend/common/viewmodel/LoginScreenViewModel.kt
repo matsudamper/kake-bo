@@ -50,7 +50,7 @@ public class LoginScreenViewModel(
                         }.getOrNull()
 
                         if (result?.data?.userMutation?.userLogin?.isSuccess == true) {
-                            navController.navigate(ScreenStructure.Root.Home())
+                            navController.navigate(ScreenStructure.Root.HomeAnalytics())
                             globalEventSender.send {
                                 it.showSnackBar("ログインしました")
                             }
@@ -84,7 +84,7 @@ public class LoginScreenViewModel(
         coroutineScope.launch {
             val isLoggedIn = graphqlQuery.isLoggedIn()
             if (isLoggedIn) {
-                navController.navigate(ScreenStructure.Root.Home())
+                navController.navigate(ScreenStructure.Root.HomeAnalytics())
             }
         }
     }

@@ -74,7 +74,7 @@ public class ScreenNavControllerImpl(
 
     override fun navigateToHome() {
         navigate(
-            screenState.lastHome ?: ScreenStructure.Root.Home(),
+            screenState.lastHome ?: ScreenStructure.Root.HomeAnalytics(),
         )
     }
 
@@ -116,7 +116,7 @@ public class ScreenNavControllerImpl(
         queryParams: Map<String, List<String>>,
     ): ScreenStructure {
         return when (this.screen) {
-            Screens.Home -> ScreenStructure.Root.Home.create(
+            Screens.Home, Screens.HomeRedirect -> ScreenStructure.Root.HomeAnalytics.create(
                 pathParams = pathParams,
                 queryParams = queryParams,
             )

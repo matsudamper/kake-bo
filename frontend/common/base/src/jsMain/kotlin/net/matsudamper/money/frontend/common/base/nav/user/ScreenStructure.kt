@@ -11,26 +11,38 @@ import net.matsudamper.money.element.MoneyUsageId
 
 public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
     public sealed interface Root : ScreenStructure {
-        public data class Home(
-            val since: LocalDate? = null,
-        ) : Root {
+        public sealed interface Home : Root {
+            public val since: LocalDate?
+        }
+
+        public object RedirectHome : Home {
+            override val since: LocalDate? = null
+            override val direction: Direction = Screens.HomeRedirect
+        }
+
+        public data class HomeAnalytics(
+            override val since: LocalDate? = null,
+        ) : Home {
             override val direction: Screens = Screens.Home
 
             override fun createUrl(): String {
                 val urlParam = buildParameter {
                     if (since != null) {
-                        append(SINCE_KEY, buildString {
-                            append(since.year)
-                            append("-")
-                            append(since.monthNumber.toString().padStart(2, '0'))
-                        })
+                        append(
+                            SINCE_KEY,
+                            buildString {
+                                append(since.year)
+                                append("-")
+                                append(since.monthNumber.toString().padStart(2, '0'))
+                            },
+                        )
                     }
                 }
                 return direction.placeholderUrl.plus(urlParam)
             }
 
             override fun equalScreen(other: ScreenStructure): Boolean {
-                return other is Home
+                return other is HomeAnalytics
             }
 
             public companion object {
@@ -40,8 +52,8 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                 public fun create(
                     pathParams: Map<String, String>,
                     queryParams: Map<String, List<String>>,
-                ): Home {
-                    return Home(
+                ): HomeAnalytics {
+                    return HomeAnalytics(
                         since = queryParams[SINCE_KEY]?.firstOrNull()
                             ?.let { LocalDate.parse("${it}-01") },
                     )

@@ -118,7 +118,7 @@ private fun Content(
 
     val navController = remember {
         ScreenNavControllerImpl(
-            initial = ScreenStructure.Root.Home(),
+            initial = ScreenStructure.Root.HomeAnalytics(),
         )
     }
     val loginCheckUseCase = remember {
@@ -181,7 +181,7 @@ private fun Content(
             override val kakeboScaffoldListener: KakeboScaffoldListener = kakeboScaffoldListener
 
             override fun onClickHome() {
-                navController.navigate(ScreenStructure.Root.Home())
+                navController.navigate(ScreenStructure.Root.HomeAnalytics())
             }
 
             override fun onClickList() {
@@ -254,7 +254,9 @@ private fun Content(
                 is ScreenStructure.Root -> {
                     LaunchedEffect(current, settingViewModel) {
                         when (current) {
-                            is ScreenStructure.Root.Home -> {
+                            is ScreenStructure.Root.RedirectHome,
+                            is ScreenStructure.Root.HomeAnalytics,
+                            -> {
                             }
 
                             is ScreenStructure.Root.Mail -> {

@@ -1,9 +1,13 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
 public enum class Screens : Direction {
-    Home {
+    HomeRedirect {
         override val title: String = "ホーム"
         override val placeholderUrl: String = "/"
+    },
+    Home {
+        override val title: String = "ホーム"
+        override val placeholderUrl: String = "/home/period"
     },
 
     Settings {

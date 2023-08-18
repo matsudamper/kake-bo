@@ -2,7 +2,6 @@ package net.matsudamper.money.frontend.common.viewmodel.root.home
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -454,7 +453,7 @@ public class RootHomeTabPeriodScreenViewModel(
         coroutineScope.launch {
             viewModelEventSender.send {
                 it.navigate(
-                    ScreenStructure.Root.Home(
+                    ScreenStructure.Root.HomeAnalytics(
                         since = LocalDate(
                             viewModelStateFlow.value.displayPeriod.sinceDate.year,
                             viewModelStateFlow.value.displayPeriod.sinceDate.month,
