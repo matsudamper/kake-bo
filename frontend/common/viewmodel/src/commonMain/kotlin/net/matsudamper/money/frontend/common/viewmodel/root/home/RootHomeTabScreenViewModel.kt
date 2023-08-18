@@ -16,17 +16,11 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 public class RootHomeTabScreenViewModel(
     private val coroutineScope: CoroutineScope,
     private val loginCheckUseCase: LoginCheckUseCase,
-    private val api: RootHomeTabScreenApi,
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
-
-    public val periodViewModel: RootHomeTabPeriodScreenViewModel = RootHomeTabPeriodScreenViewModel(
-        coroutineScope = coroutineScope,
-        api = api,
-    )
 
     private val uiStateEvent = object : RootHomeTabUiState.Event {
         override fun onViewInitialized() {
@@ -59,11 +53,6 @@ public class RootHomeTabScreenViewModel(
         coroutineScope.launch {
             loginCheckUseCase.check()
         }
-    }
-
-
-    public fun updateScreenStructure(current: ScreenStructure.Root.Home) {
-        periodViewModel.updateScreenStructure(current)
     }
 
     private fun createUiState(viewModelState: ViewModelState): RootHomeTabUiState {

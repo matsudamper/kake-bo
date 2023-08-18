@@ -28,6 +28,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListS
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
+import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenViewModel
 
@@ -56,12 +57,8 @@ internal fun RootNavContent(
                 val viewModel = remember {
                     RootHomeTabScreenViewModel(
                         coroutineScope = rootCoroutineScope,
-                        api = RootHomeTabScreenApi(),
                         loginCheckUseCase = loginCheckUseCase,
                     )
-                }
-                LaunchedEffect(current) {
-                    viewModel.updateScreenStructure(current)
                 }
                 LaunchedEffect(viewModel.viewModelEventHandler) {
                     viewModelEventHandlers.handle(
@@ -74,7 +71,15 @@ internal fun RootNavContent(
                     monthContent = {
                     },
                     periodContent = {
-                        val periodViewModel = viewModel.periodViewModel
+                        val periodViewModel = remember {
+                            RootHomeTabPeriodScreenViewModel(
+                                coroutineScope = rootCoroutineScope,
+                                api = RootHomeTabScreenApi(),
+                            )
+                        }
+                        LaunchedEffect(current, periodViewModel) {
+                            periodViewModel.updateScreenStructure(current)
+                        }
                         LaunchedEffect(periodViewModel.viewModelEventHandler) {
                             viewModelEventHandlers.handle(periodViewModel.viewModelEventHandler)
                         }
