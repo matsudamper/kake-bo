@@ -60,6 +60,9 @@ internal fun RootNavContent(
                         loginCheckUseCase = loginCheckUseCase,
                     )
                 }
+                LaunchedEffect(current) {
+                    viewModel.updateScreenStructure(current)
+                }
                 LaunchedEffect(viewModel.viewModelEventHandler) {
                     viewModelEventHandlers.handle(
                         handler = viewModel.viewModelEventHandler,
@@ -71,9 +74,13 @@ internal fun RootNavContent(
                     monthContent = {
                     },
                     periodContent = {
+                        val periodViewModel = viewModel.periodViewModel
+                        LaunchedEffect(periodViewModel.viewModelEventHandler) {
+                            viewModelEventHandlers.handle(periodViewModel.viewModelEventHandler)
+                        }
                         RootHomeTabPeriodContent(
                             modifier = Modifier.fillMaxSize(),
-                            uiState = viewModel.periodViewModel.uiStateFlow.collectAsState().value,
+                            uiState = periodViewModel.uiStateFlow.collectAsState().value,
                         )
                     },
                 )

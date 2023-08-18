@@ -1,5 +1,7 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import io.ktor.http.ParametersBuilder
 import io.ktor.http.formUrlEncode
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
@@ -9,8 +11,42 @@ import net.matsudamper.money.element.MoneyUsageId
 
 public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
     public sealed interface Root : ScreenStructure {
-        public class Home : Root {
+        public data class Home(
+            val since: LocalDate? = null,
+        ) : Root {
             override val direction: Screens = Screens.Home
+
+            override fun createUrl(): String {
+                val urlParam = buildParameter {
+                    if (since != null) {
+                        append(SINCE_KEY, buildString {
+                            append(since.year)
+                            append("-")
+                            append(since.monthNumber.toString().padStart(2, '0'))
+                        })
+                    }
+                }
+                return direction.placeholderUrl.plus(urlParam)
+            }
+
+            override fun equalScreen(other: ScreenStructure): Boolean {
+                return other is Home
+            }
+
+            public companion object {
+                private const val SINCE_KEY = "since"
+
+                @Suppress("UNUSED_PARAMETER")
+                public fun create(
+                    pathParams: Map<String, String>,
+                    queryParams: Map<String, List<String>>,
+                ): Home {
+                    return Home(
+                        since = queryParams[SINCE_KEY]?.firstOrNull()
+                            ?.let { LocalDate.parse("${it}-01") },
+                    )
+                }
+            }
         }
 
         public sealed interface Settings : Root {
@@ -77,7 +113,7 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                     @Suppress("UNUSED_PARAMETER")
                     public fun create(
                         pathParams: Map<String, String>,
-                        queryParams: Map<String, kotlin.collections.List<String>>,
+                        queryParams: Map<String, List<String>>,
                     ): Imported {
                         return Imported(
                             isLinked = queryParams[KEY_IS_LINKED]

@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -58,6 +59,11 @@ public class RootHomeTabScreenViewModel(
         coroutineScope.launch {
             loginCheckUseCase.check()
         }
+    }
+
+
+    public fun updateScreenStructure(current: ScreenStructure.Root.Home) {
+        periodViewModel.updateScreenStructure(current)
     }
 
     private fun createUiState(viewModelState: ViewModelState): RootHomeTabUiState {

@@ -18,6 +18,7 @@ kotlin {
                 implementation(compose.runtime)
                 implementation(compose.ui)
                 implementation(libs.kotlin.coroutines.core)
+                implementation(libs.kotlin.datetime)
             }
         }
         val jsMain by getting {

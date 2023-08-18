@@ -116,7 +116,11 @@ public class ScreenNavControllerImpl(
         queryParams: Map<String, List<String>>,
     ): ScreenStructure {
         return when (this.screen) {
-            Screens.Home -> ScreenStructure.Root.Home()
+            Screens.Home -> ScreenStructure.Root.Home.create(
+                pathParams = pathParams,
+                queryParams = queryParams,
+            )
+
             Screens.Settings -> ScreenStructure.Root.Settings.Root
             Screens.SettingsImap -> ScreenStructure.Root.Settings.Imap
             Screens.SettingsCategory -> ScreenStructure.Root.Settings.Categories
@@ -149,6 +153,7 @@ public class ScreenNavControllerImpl(
                     },
                 )
             }
+
             Screens.ImportedMailPlain -> {
                 ScreenStructure.ImportedMailPlain(
                     id = run id@{
