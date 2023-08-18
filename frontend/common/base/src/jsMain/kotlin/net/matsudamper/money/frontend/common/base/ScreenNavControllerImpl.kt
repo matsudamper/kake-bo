@@ -120,6 +120,10 @@ public class ScreenNavControllerImpl(
                 pathParams = pathParams,
                 queryParams = queryParams,
             )
+            Screens.HomePeriodSubCategory -> ScreenStructure.Root.HomeSubCategory.create(
+                pathParams = pathParams,
+                queryParams = queryParams,
+            )
 
             Screens.Settings -> ScreenStructure.Root.Settings.Root
             Screens.SettingsImap -> ScreenStructure.Root.Settings.Imap

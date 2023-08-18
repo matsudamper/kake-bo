@@ -255,6 +255,7 @@ private fun Content(
                     LaunchedEffect(current, settingViewModel) {
                         when (current) {
                             is ScreenStructure.Root.RedirectHome,
+                            is ScreenStructure.Root.HomeSubCategory,
                             is ScreenStructure.Root.HomeAnalytics,
                             -> {
                             }
