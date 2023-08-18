@@ -39,12 +39,8 @@ data class ViewModelEventHandlers(
         coroutineScope {
             handler.collect(
                 object : RootHomeTabScreenViewModel.Event {
-                    override fun navigateToMailImport() {
-                        navController.navigate(ScreenStructure.Root.Mail.Import)
-                    }
-
-                    override fun navigateToMailLink() {
-                        navController.navigate(ScreenStructure.Root.Mail.Imported(isLinked = false))
+                    override fun navigate(screen: ScreenStructure) {
+                        navController.navigate(screen)
                     }
                 },
             )

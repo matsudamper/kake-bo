@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -37,7 +36,7 @@ public data class RootHomeTabUiState(
 
     public enum class ContentType {
         Period,
-        Month,
+        Monthly,
     }
 
     @Immutable
@@ -92,7 +91,7 @@ public fun RootHomeTabScreen(
                     )
                     Spacer(modifier = Modifier.widthIn(12.dp))
                     FilterChip(
-                        selected = uiState.contentType == RootHomeTabUiState.ContentType.Month,
+                        selected = uiState.contentType == RootHomeTabUiState.ContentType.Monthly,
                         onClick = { uiState.event.onClickMonth() },
                         label = {
                             Text("月別")

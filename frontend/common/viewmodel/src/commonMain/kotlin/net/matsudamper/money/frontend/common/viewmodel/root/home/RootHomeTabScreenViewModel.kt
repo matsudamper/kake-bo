@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
@@ -27,14 +28,18 @@ public class RootHomeTabScreenViewModel(
         }
 
         override fun onClickMonth() {
-            viewModelStateFlow.update {
-                it.copy(contentTYpe = RootHomeTabUiState.ContentType.Month)
+            coroutineScope.launch {
+                viewModelEventSender.send {
+                    it.navigate(RootHomeScreenStructure.Monthly())
+                }
             }
         }
 
         override fun onClickPeriod() {
-            viewModelStateFlow.update {
-                it.copy(contentTYpe = RootHomeTabUiState.ContentType.Period)
+            coroutineScope.launch {
+                viewModelEventSender.send {
+                    it.navigate(RootHomeScreenStructure.PeriodAnalytics())
+                }
             }
         }
     }
@@ -55,6 +60,17 @@ public class RootHomeTabScreenViewModel(
         }
     }
 
+    public fun updateScreenStructure(current: RootHomeScreenStructure) {
+        viewModelStateFlow.update { viewModelState ->
+            viewModelState.copy(
+                contentTYpe = when (current) {
+                    is RootHomeScreenStructure.Monthly -> RootHomeTabUiState.ContentType.Monthly
+                    is RootHomeScreenStructure.Period -> RootHomeTabUiState.ContentType.Period
+                },
+            )
+        }
+    }
+
     private fun createUiState(viewModelState: ViewModelState): RootHomeTabUiState {
         return RootHomeTabUiState(
             event = uiStateEvent,
@@ -63,8 +79,7 @@ public class RootHomeTabScreenViewModel(
     }
 
     public interface Event {
-        public fun navigateToMailImport()
-        public fun navigateToMailLink()
+        public fun navigate(screen: ScreenStructure)
     }
 
     private data class ViewModelState(

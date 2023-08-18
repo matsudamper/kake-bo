@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
 import kotlinx.datetime.LocalDate
+import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 
 public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
@@ -56,7 +57,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
     }
 
     public data class PeriodSubCategory(
-        val subCategoryId: MoneyUsageSubCategoryId,
+        val categoryId: MoneyUsageCategoryId,
         override val since: LocalDate? = null,
     ) : Period {
         override val direction: Screens = Screens.HomePeriodSubCategory
@@ -75,7 +76,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
                 }
             }
             return direction.placeholderUrl
-                .replace("{id}", subCategoryId.id.toString())
+                .replace("{id}", categoryId.value.toString())
                 .plus(urlParam)
         }
 
@@ -91,7 +92,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
                 queryParams: Map<String, List<String>>,
             ): PeriodSubCategory {
                 return PeriodSubCategory(
-                    subCategoryId = MoneyUsageSubCategoryId(pathParams["{id}"]!!.toInt()),
+                    categoryId = MoneyUsageCategoryId(pathParams["{id}"]!!.toInt()),
                     since = queryParams[SINCE_KEY]?.firstOrNull()
                         ?.let { LocalDate.parse("${it}-01") },
                 )

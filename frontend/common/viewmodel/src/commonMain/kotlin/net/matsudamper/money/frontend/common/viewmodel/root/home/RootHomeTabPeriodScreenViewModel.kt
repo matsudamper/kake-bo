@@ -40,27 +40,29 @@ public class RootHomeTabPeriodScreenViewModel(
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
-    private val reservedColorModel = ReservedColorModel()
-
     private val event = object : RootHomeTabPeriodContentUiState.Event {
         override fun onClickNextMonth() {
-            val period = viewModelStateFlow.value.displayPeriod
-
-            fetch(
-                period = period.copy(
-                    sinceDate = period.sinceDate.addMonth(1),
-                ),
-            )
+            viewModelStateFlow.update {
+                val period = viewModelStateFlow.value.displayPeriod
+                it.copy(
+                    displayPeriod = period.copy(
+                        sinceDate = period.sinceDate.addMonth(1),
+                    ),
+                )
+            }
+            updateUrl()
         }
 
         override fun onClickPreviousMonth() {
-            val period = viewModelStateFlow.value.displayPeriod
-
-            fetch(
-                period = period.copy(
-                    sinceDate = period.sinceDate.addMonth(-1),
-                ),
-            )
+            viewModelStateFlow.update {
+                val period = viewModelStateFlow.value.displayPeriod
+                it.copy(
+                    displayPeriod = period.copy(
+                        sinceDate = period.sinceDate.addMonth(-1),
+                    ),
+                )
+            }
+            updateUrl()
         }
 
         override fun onClickRange(range: Int) {
@@ -70,23 +72,22 @@ public class RootHomeTabPeriodScreenViewModel(
             val newSinceDate = currentEndYearMonth
                 .addMonth(-range)
 
-            fetch(
-                period = ViewModelState.Period(
-                    sinceDate = newSinceDate,
-                    monthCount = range,
-                ),
-            )
+            viewModelStateFlow.update {
+                it.copy(
+                    displayPeriod = ViewModelState.Period(
+                        sinceDate = newSinceDate,
+                        monthCount = range,
+                    ),
+                )
+            }
+            updateUrl()
         }
 
         override fun onViewInitialized() {
-            fetch(viewModelStateFlow.value.displayPeriod)
         }
 
+        // TODO Remove
         override fun onClickRetry() {
-            fetch(
-                period = viewModelStateFlow.value.displayPeriod,
-                forceReFetch = true,
-            )
         }
     }
 
@@ -111,47 +112,6 @@ public class RootHomeTabPeriodScreenViewModel(
                         categoryTypes = createCategoryTypes(categories = viewModelState.categories).toImmutableList(),
                         between = "${displayPeriods.first().year}/${displayPeriods.first().month} - ${displayPeriods.last().year}/${displayPeriods.last().month}",
                         rangeText = "${viewModelState.displayPeriod.monthCount}ヶ月",
-                        graphContent = when (viewModelState.contentType) {
-                            is ViewModelState.ContentType.All -> {
-                                val allLoaded = displayPeriods.all { displayPeriod ->
-                                    viewModelState.allResponseMap.contains(displayPeriod)
-                                }
-                                if (allLoaded.not()) {
-                                    return@screenState RootHomeTabPeriodContentUiState.LoadingState.Loading
-                                }
-
-                                val responses = run {
-                                    val responses = displayPeriods.map { displayPeriod ->
-                                        viewModelState.allResponseMap[displayPeriod]
-                                    }
-                                    if (responses.size != responses.filterNotNull().size) {
-                                        return@screenState RootHomeTabPeriodContentUiState.LoadingState.Error
-                                    }
-                                    displayPeriods.zip(responses.filterNotNull())
-                                }
-
-                                val categories = responses.mapNotNull { (_, response) ->
-                                    response.data?.user?.moneyUsageAnalytics?.byCategories
-                                }.flatMap { byCategories ->
-                                    byCategories.map { it.category }
-                                }.distinctBy {
-                                    it.id
-                                }
-
-                                createTotalUiState(
-                                    responses = responses,
-                                    categories = categories,
-                                ) ?: return@screenState RootHomeTabPeriodContentUiState.LoadingState.Error
-                            }
-
-                            is ViewModelState.ContentType.Category -> {
-                                createCategoryUiState(
-                                    categoryId = viewModelState.contentType.categoryId,
-                                    displayPeriods = displayPeriods,
-                                    categoryResponseMap = viewModelState.categoryResponseMap,
-                                ) ?: return@screenState RootHomeTabPeriodContentUiState.LoadingState.Loading
-                            }
-                        },
                     )
                 }
 
@@ -212,6 +172,20 @@ public class RootHomeTabPeriodScreenViewModel(
                     RootHomeTabPeriodContentUiState.CategoryTypes(
                         title = category.name,
                         onClick = {
+                            coroutineScope.launch {
+                                viewModelEventSender.send {
+                                    it.navigate(
+                                        RootHomeScreenStructure.PeriodSubCategory(
+                                            categoryId = category.id,
+                                            since = LocalDate(
+                                                year = viewModelStateFlow.value.displayPeriod.sinceDate.year,
+                                                monthNumber = viewModelStateFlow.value.displayPeriod.sinceDate.month,
+                                                dayOfMonth = 1,
+                                            ),
+                                        ),
+                                    )
+                                }
+                            }
                             viewModelStateFlow.update { viewModelState ->
                                 viewModelState.copy(
                                     contentType = ViewModelState.ContentType.Category(
@@ -220,233 +194,10 @@ public class RootHomeTabPeriodScreenViewModel(
                                     ),
                                 )
                             }
-                            fetch(
-                                period = viewModelStateFlow.value.displayPeriod,
-                            )
                         },
                     )
                 },
             )
-        }
-    }
-
-    private fun createCategoryUiState(
-        categoryId: MoneyUsageCategoryId,
-        displayPeriods: List<ViewModelState.YearMonth>,
-        categoryResponseMap: Map<ViewModelState.YearMonthCategory, ApolloResponse<RootHomeTabScreenAnalyticsByCategoryQuery.Data>?>,
-    ): RootHomeTabPeriodContentUiState.GraphContent.Category? {
-        return RootHomeTabPeriodContentUiState.GraphContent.Category(
-            graphItems = displayPeriods.map { yearMonth ->
-                val key = ViewModelState.YearMonthCategory(
-                    categoryId = categoryId,
-                    yearMonth = yearMonth,
-                )
-                val apolloResult = categoryResponseMap[key] ?: return null
-                val amount = apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.totalAmount ?: return null
-
-                PolygonalLineGraphItemUiState(
-                    year = yearMonth.year,
-                    month = yearMonth.month,
-                    amount = amount,
-                )
-            }.toImmutableList(),
-            monthTotalItems = displayPeriods.map { yearMonth ->
-                val key = ViewModelState.YearMonthCategory(
-                    categoryId = categoryId,
-                    yearMonth = yearMonth,
-                )
-
-                val apolloResult = categoryResponseMap[key] ?: return null
-                val result = apolloResult.data?.user?.moneyUsageAnalyticsByCategory ?: return null
-
-                RootHomeTabPeriodContentUiState.MonthTotalItem(
-                    title = "${yearMonth.year}/${yearMonth.month.toString().padStart(2, '0')}",
-                    amount = Formatter.formatMoney(result.totalAmount ?: return null) + "円",
-                )
-            }.toImmutableList(),
-        )
-    }
-
-    private fun createTotalUiState(
-        responses: List<Pair<ViewModelState.YearMonth, ApolloResponse<RootHomeTabScreenAnalyticsByDateQuery.Data>>>,
-        categories: List<RootHomeTabScreenAnalyticsByDateQuery.Category>,
-    ): RootHomeTabPeriodContentUiState.GraphContent.Total? {
-        return RootHomeTabPeriodContentUiState.GraphContent.Total(
-            barGraph = BarGraphUiState(
-                items = responses.map { (yearMonth, response) ->
-                    BarGraphUiState.PeriodData(
-                        year = yearMonth.year,
-                        month = yearMonth.month,
-                        items = run item@{
-                            val byCategory =
-                                response.data?.user?.moneyUsageAnalytics?.byCategories
-                                    ?: return null
-
-                            byCategory.map {
-                                val amount = it.totalAmount
-                                    ?: return null
-                                BarGraphUiState.Item(
-                                    color = reservedColorModel.getColor(it.category.id.value.toString()),
-                                    title = it.category.name,
-                                    value = amount,
-                                )
-                            }.toImmutableList()
-                        },
-                        total = response.data?.user?.moneyUsageAnalytics?.totalAmount
-                            ?: return null,
-                    )
-                }.toImmutableList(),
-            ),
-            totalBarColorTextMapping = categories.map {
-                RootHomeTabUiState.ColorText(
-                    color = reservedColorModel.getColor(it.id.value.toString()),
-                    text = it.name,
-                    onClick = {
-                        viewModelStateFlow.update { viewModelState ->
-                            viewModelState.copy(
-                                contentType = ViewModelState.ContentType.Category(
-                                    categoryId = it.id,
-                                    name = it.name,
-                                ),
-                            )
-                        }
-
-                        fetch(
-                            period = viewModelStateFlow.value.displayPeriod,
-                        )
-                    },
-                )
-            }.toImmutableList(),
-            monthTotalItems = responses.map { (yearMonth, response) ->
-                RootHomeTabPeriodContentUiState.MonthTotalItem(
-                    amount = Formatter.formatMoney(
-                        response.data?.user?.moneyUsageAnalytics?.totalAmount
-                            ?: return null,
-                    ) + "円",
-                    title = "${yearMonth.year}/${yearMonth.month.toString().padStart(2, '0')}",
-                )
-            }.toImmutableList(),
-        )
-    }
-
-    private fun fetch(
-        period: ViewModelState.Period,
-        forceReFetch: Boolean = false,
-    ) {
-        when (val type = viewModelStateFlow.value.contentType) {
-            is ViewModelState.ContentType.All -> {
-                fetchAll(
-                    period = period,
-                    forceReFetch = forceReFetch,
-                )
-            }
-
-            is ViewModelState.ContentType.Category -> {
-                fetchCategory(
-                    period = period,
-                    categoryId = type.categoryId,
-                    forceReFetch = forceReFetch,
-                )
-            }
-        }
-    }
-
-    private fun fetchCategory(
-        period: ViewModelState.Period,
-        categoryId: MoneyUsageCategoryId,
-        forceReFetch: Boolean = false,
-    ) {
-        coroutineScope.launch {
-            (0 until period.monthCount)
-                .map { index ->
-                    val start = period.sinceDate.addMonth(index)
-
-                    start to start.addMonth(1)
-                }
-                .filter { (startYearMonth, _) ->
-                    forceReFetch || viewModelStateFlow.value.categoryResponseMap.contains(
-                        ViewModelState.YearMonthCategory(
-                            categoryId = categoryId,
-                            yearMonth = startYearMonth,
-                        ),
-                    ).not()
-                }
-                .map { (startYearMonth, endYearMonth) ->
-                    val key = ViewModelState.YearMonthCategory(
-                        categoryId = categoryId,
-                        yearMonth = startYearMonth,
-                    )
-                    async {
-                        val result = api.fetchCategory(
-                            id = categoryId,
-                            startYear = startYearMonth.year,
-                            startMonth = startYearMonth.month,
-                            endYear = endYearMonth.year,
-                            endMonth = endYearMonth.month,
-                            useCache = forceReFetch.not(),
-                        )
-
-                        viewModelStateFlow.update {
-                            it.copy(
-                                categoryResponseMap = it.categoryResponseMap
-                                    .plus(key to result.getOrNull()),
-                            )
-                        }
-                    }
-                }.map { it.await() }
-
-            println(
-                "fetch: ${
-                    (0 until period.monthCount)
-                        .map { index ->
-                            period.sinceDate.addMonth(index)
-                        }.joinToString(postfix = "月") { it.month.toString() }
-                }",
-            )
-            println("period: $period")
-            viewModelStateFlow.update {
-                it.copy(
-                    displayPeriod = period,
-                )
-            }
-        }
-    }
-
-    private fun fetchAll(period: ViewModelState.Period, forceReFetch: Boolean) {
-        coroutineScope.launch {
-            (0 until period.monthCount)
-                .map { index ->
-                    val start = period.sinceDate.addMonth(index)
-
-                    start to start.addMonth(1)
-                }
-                .filter { (startYearMonth, _) ->
-                    forceReFetch || viewModelStateFlow.value.allResponseMap.contains(startYearMonth).not()
-                }
-                .map { (startYearMonth, endYearMonth) ->
-                    async {
-                        val result = api.fetchAll(
-                            startYear = startYearMonth.year,
-                            startMonth = startYearMonth.month,
-                            endYear = endYearMonth.year,
-                            endMonth = endYearMonth.month,
-                            useCache = forceReFetch.not(),
-                        )
-
-                        viewModelStateFlow.update {
-                            it.copy(
-                                allResponseMap = it.allResponseMap
-                                    .plus(startYearMonth to result.getOrNull()),
-                            )
-                        }
-                    }
-                }.map { it.await() }
-            viewModelStateFlow.update {
-                it.copy(
-                    displayPeriod = period,
-                )
-            }
-            updateUrl()
         }
     }
 
@@ -472,8 +223,6 @@ public class RootHomeTabPeriodScreenViewModel(
 
     private data class ViewModelState(
         val contentType: ContentType = ContentType.All,
-        val allResponseMap: Map<YearMonth, ApolloResponse<RootHomeTabScreenAnalyticsByDateQuery.Data>?> = mapOf(),
-        val categoryResponseMap: Map<YearMonthCategory, ApolloResponse<RootHomeTabScreenAnalyticsByCategoryQuery.Data>?> = mapOf(),
         val categories: List<RootHomeTabScreenQuery.Node> = listOf(),
         val displayPeriod: Period = run {
             val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
@@ -484,11 +233,6 @@ public class RootHomeTabPeriodScreenViewModel(
             )
         },
     ) {
-        data class YearMonthCategory(
-            val categoryId: MoneyUsageCategoryId,
-            val yearMonth: YearMonth,
-        )
-
         data class YearMonth(
             val year: Int,
             val month: Int,
