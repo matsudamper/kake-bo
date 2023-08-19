@@ -117,6 +117,9 @@ internal fun RootNavContent(
                                                     LaunchedEffect(allContentViewModel, current) {
                                                         allContentViewModel.updateStructure(current)
                                                     }
+                                                    LaunchedEffect(allContentViewModel.eventHandler) {
+                                                        viewModelEventHandlers.handle(allContentViewModel.eventHandler)
+                                                    }
                                                     RootHomeTabPeriodAllContent(
                                                         modifier = Modifier.fillMaxSize(),
                                                         uiState = allContentViewModel.uiStateFlow.collectAsState().value,

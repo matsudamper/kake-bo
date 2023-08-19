@@ -17,11 +17,14 @@ import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.layout.graph.BarGraphUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllContentUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodContentUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabUiState
 import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByDateQuery
 
@@ -31,6 +34,9 @@ public class RootHomeTabPeriodAllContentViewModel(
 ) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState())
     private val reservedColorModel = ReservedColorModel()
+
+    private val eventSender = EventSender<Event>()
+    public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
     public val uiStateFlow: StateFlow<RootHomeTabPeriodAllContentUiState> = MutableStateFlow(
         RootHomeTabPeriodAllContentUiState(
@@ -169,18 +175,11 @@ public class RootHomeTabPeriodAllContentViewModel(
                     color = reservedColorModel.getColor(category.id.value.toString()),
                     text = category.name,
                     onClick = {
-//                        viewModelStateFlow.update { viewModelState ->
-//                            viewModelState.copy(
-//                                contentType = ViewModelState.ContentType.Category(
-//                                    categoryId = it.id,
-//                                    name = it.name,
-//                                ),
-//                            )
-//                        }
-//
-//                        fetch(
-//                            period = viewModelStateFlow.value.displayPeriod,
-//                        )
+                        coroutineScope.launch {
+                            eventSender.send {
+                                it.navigate(RootHomeScreenStructure.PeriodCategory(category.id))
+                            }
+                        }
                     },
                 )
             }.toImmutableList(),
@@ -209,6 +208,10 @@ public class RootHomeTabPeriodAllContentViewModel(
             period = viewModelStateFlow.value.displayPeriod,
             forceReFetch = false,
         )
+    }
+
+    public interface Event {
+        public fun navigate(screen: ScreenStructure)
     }
 
     private data class ViewModelState(

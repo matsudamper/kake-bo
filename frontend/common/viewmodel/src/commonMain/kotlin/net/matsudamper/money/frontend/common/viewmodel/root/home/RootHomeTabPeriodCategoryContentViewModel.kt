@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.home
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -52,6 +53,14 @@ public class RootHomeTabPeriodCategoryContentViewModel(
         }
     }.asStateFlow()
 
+    init {
+        // TODO Viewの初期化時にやる
+        fetchCategory(
+            period = viewModelStateFlow.value.displayPeriod,
+            categoryId = categoryId,
+        )
+    }
+
     private fun createCategoryUiState(
         categoryId: MoneyUsageCategoryId,
         displayPeriods: List<ViewModelState.YearMonth>,
@@ -93,6 +102,67 @@ public class RootHomeTabPeriodCategoryContentViewModel(
         return RootHomeTabPeriodCategoryContentUiState(
             loadingState = loadingState,
         )
+    }
+
+    private fun fetchCategory(
+        period: ViewModelState.Period,
+        categoryId: MoneyUsageCategoryId,
+        forceReFetch: Boolean = false,
+    ) {
+        coroutineScope.launch {
+            (0 until period.monthCount)
+                .map { index ->
+                    val start = period.sinceDate.addMonth(index)
+
+                    start to start.addMonth(1)
+                }
+                .filter { (startYearMonth, _) ->
+                    forceReFetch || viewModelStateFlow.value.categoryResponseMap.contains(
+                        ViewModelState.YearMonthCategory(
+                            categoryId = categoryId,
+                            yearMonth = startYearMonth,
+                        ),
+                    ).not()
+                }
+                .map { (startYearMonth, endYearMonth) ->
+                    val key = ViewModelState.YearMonthCategory(
+                        categoryId = categoryId,
+                        yearMonth = startYearMonth,
+                    )
+                    async {
+                        val result = api.fetchCategory(
+                            id = categoryId,
+                            startYear = startYearMonth.year,
+                            startMonth = startYearMonth.month,
+                            endYear = endYearMonth.year,
+                            endMonth = endYearMonth.month,
+                            useCache = forceReFetch.not(),
+                        )
+
+                        viewModelStateFlow.update {
+                            it.copy(
+                                categoryResponseMap = it.categoryResponseMap
+                                    .plus(key to result.getOrNull()),
+                            )
+                        }
+                    }
+                }.map { it.await() }
+
+            println(
+                "fetch: ${
+                    (0 until period.monthCount)
+                        .map { index ->
+                            period.sinceDate.addMonth(index)
+                        }.joinToString(postfix = "月") { it.month.toString() }
+                }",
+            )
+            println("period: $period")
+            viewModelStateFlow.update {
+                it.copy(
+                    displayPeriod = period,
+                )
+            }
+        }
     }
 
     private data class ViewModelState(
