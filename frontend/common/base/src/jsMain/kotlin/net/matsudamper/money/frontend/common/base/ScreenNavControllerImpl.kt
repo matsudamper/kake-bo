@@ -125,7 +125,7 @@ public class ScreenNavControllerImpl(
                 pathParams = pathParams,
                 queryParams = queryParams,
             )
-            Screens.HomePeriodSubCategory -> RootHomeScreenStructure.PeriodSubCategory.create(
+            Screens.HomePeriodCategory -> RootHomeScreenStructure.PeriodCategory.create(
                 pathParams = pathParams,
                 queryParams = queryParams,
             )

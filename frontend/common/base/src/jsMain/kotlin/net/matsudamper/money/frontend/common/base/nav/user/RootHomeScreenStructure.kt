@@ -55,11 +55,11 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
         }
     }
 
-    public data class PeriodSubCategory(
+    public data class PeriodCategory(
         val categoryId: MoneyUsageCategoryId,
         override val since: LocalDate? = null,
     ) : Period {
-        override val direction: Screens = Screens.HomePeriodSubCategory
+        override val direction: Screens = Screens.HomePeriodCategory
 
         override fun createUrl(): String {
             val urlParam = buildParameter {
@@ -89,8 +89,8 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
             public fun create(
                 pathParams: Map<String, String>,
                 queryParams: Map<String, List<String>>,
-            ): PeriodSubCategory {
-                return PeriodSubCategory(
+            ): PeriodCategory {
+                return PeriodCategory(
                     categoryId = MoneyUsageCategoryId(pathParams["{id}"]!!.toInt()),
                     since = queryParams[SINCE_KEY]?.firstOrNull()
                         ?.let { LocalDate.parse("$it-01") },

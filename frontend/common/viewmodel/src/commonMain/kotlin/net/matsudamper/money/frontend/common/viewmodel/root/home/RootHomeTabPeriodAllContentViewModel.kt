@@ -164,10 +164,10 @@ public class RootHomeTabPeriodAllContentViewModel(
                     )
                 }.toImmutableList(),
             ),
-            totalBarColorTextMapping = categories.map {
+            totalBarColorTextMapping = categories.map { category ->
                 RootHomeTabUiState.ColorText(
-                    color = reservedColorModel.getColor(it.id.value.toString()),
-                    text = it.name,
+                    color = reservedColorModel.getColor(category.id.value.toString()),
+                    text = category.name,
                     onClick = {
 //                        viewModelStateFlow.update { viewModelState ->
 //                            viewModelState.copy(

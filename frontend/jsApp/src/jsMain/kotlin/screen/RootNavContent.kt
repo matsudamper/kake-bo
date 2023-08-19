@@ -124,7 +124,7 @@ internal fun RootNavContent(
                                                 }
                                             }
 
-                                            is RootHomeScreenStructure.PeriodSubCategory -> {
+                                            is RootHomeScreenStructure.PeriodCategory -> {
                                                 val categoryViewModel = remember {
                                                     RootHomeTabPeriodCategoryContentViewModel(
                                                         categoryId = current.categoryId,

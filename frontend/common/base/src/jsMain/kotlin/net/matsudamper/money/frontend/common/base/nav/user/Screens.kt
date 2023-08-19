@@ -9,7 +9,7 @@ public enum class Screens : Direction {
         override val title: String = "ホーム"
         override val placeholderUrl: String = "/home/period"
     },
-    HomePeriodSubCategory {
+    HomePeriodCategory {
         override val title: String = "サブカテゴリ"
         override val placeholderUrl: String = "/home/period/sub-category/{id}"
     },

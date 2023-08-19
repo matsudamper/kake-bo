@@ -166,7 +166,7 @@ public class RootHomeTabPeriodScreenViewModel(
                             coroutineScope.launch {
                                 viewModelEventSender.send {
                                     it.navigate(
-                                        RootHomeScreenStructure.PeriodSubCategory(
+                                        RootHomeScreenStructure.PeriodCategory(
                                             categoryId = category.id,
                                             since = LocalDate(
                                                 year = viewModelStateFlow.value.displayPeriod.sinceDate.year,
