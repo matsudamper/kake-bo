@@ -17,6 +17,7 @@ import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.ui.layout.graph.PolygonalLineGraphItemUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodCategoryContentUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodContentUiState
@@ -163,6 +164,25 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                 )
             }
         }
+    }
+
+    public fun updateStructure(current: RootHomeScreenStructure.PeriodCategory) {
+        val since = current.since ?: return
+        viewModelStateFlow.update { viewModelState ->
+            viewModelState.copy(
+                displayPeriod = viewModelState.displayPeriod.copy(
+                    sinceDate = ViewModelState.YearMonth(
+                        year = since.year,
+                        month = since.monthNumber,
+                    ),
+                ),
+            )
+        }
+        fetchCategory(
+            period = viewModelStateFlow.value.displayPeriod,
+            categoryId = categoryId,
+            forceReFetch = false,
+        )
     }
 
     private data class ViewModelState(

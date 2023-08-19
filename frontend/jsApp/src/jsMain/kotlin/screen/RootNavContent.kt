@@ -135,6 +135,9 @@ internal fun RootNavContent(
                                                         api = RootHomeTabScreenApi(),
                                                     )
                                                 }
+                                                LaunchedEffect(categoryViewModel, current) {
+                                                    categoryViewModel.updateStructure(current)
+                                                }
                                                 RootHomeTabPeriodCategoryContent(
                                                     modifier = Modifier.fillMaxSize(),
                                                     uiState = categoryViewModel.uiStateFlow.collectAsState().value,
