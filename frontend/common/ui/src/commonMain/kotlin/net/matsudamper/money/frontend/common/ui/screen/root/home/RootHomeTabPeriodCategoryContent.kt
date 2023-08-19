@@ -26,7 +26,7 @@ public data class RootHomeTabPeriodCategoryContentUiState(
     val loadingState: LoadingState,
 ) {
     public sealed interface LoadingState {
-        public object Error: LoadingState
+        public object Error : LoadingState
         public object Loading : LoadingState
         public data class Loaded(
             val graphItems: ImmutableList<PolygonalLineGraphItemUiState>,

@@ -211,7 +211,6 @@ public class RootHomeTabPeriodAllContentViewModel(
         )
     }
 
-
     private data class ViewModelState(
         val allResponseMap: Map<YearMonth, ApolloResponse<RootHomeTabScreenAnalyticsByDateQuery.Data>?> = mapOf(),
         val displayPeriod: Period = run {

@@ -2,7 +2,6 @@ package net.matsudamper.money.frontend.common.base.nav.user
 
 import kotlinx.datetime.LocalDate
 import net.matsudamper.money.element.MoneyUsageCategoryId
-import net.matsudamper.money.element.MoneyUsageSubCategoryId
 
 public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
     public sealed interface Period : RootHomeScreenStructure {
@@ -50,7 +49,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
             ): PeriodAnalytics {
                 return PeriodAnalytics(
                     since = queryParams[SINCE_KEY]?.firstOrNull()
-                        ?.let { LocalDate.parse("${it}-01") },
+                        ?.let { LocalDate.parse("$it-01") },
                 )
             }
         }
@@ -94,7 +93,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
                 return PeriodSubCategory(
                     categoryId = MoneyUsageCategoryId(pathParams["{id}"]!!.toInt()),
                     since = queryParams[SINCE_KEY]?.firstOrNull()
-                        ?.let { LocalDate.parse("${it}-01") },
+                        ?.let { LocalDate.parse("$it-01") },
                 )
             }
         }
@@ -132,10 +131,9 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
             ): Monthly {
                 return Monthly(
                     date = queryParams[MONTH_KEY]?.firstOrNull()
-                        ?.let { LocalDate.parse("${it}-01") },
+                        ?.let { LocalDate.parse("$it-01") },
                 )
             }
-
         }
     }
 }

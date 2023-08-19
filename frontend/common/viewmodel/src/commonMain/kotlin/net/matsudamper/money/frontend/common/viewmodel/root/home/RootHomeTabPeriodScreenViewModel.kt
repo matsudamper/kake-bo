@@ -1,7 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.home
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,21 +13,13 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
-import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.ui.layout.graph.BarGraphUiState
-import net.matsudamper.money.frontend.common.ui.layout.graph.PolygonalLineGraphItemUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodContentUiState
-import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabUiState
-import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
-import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
-import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByCategoryQuery
-import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByDateQuery
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenQuery
 
 public class RootHomeTabPeriodScreenViewModel(

@@ -269,7 +269,6 @@ private fun Content(
                             is ScreenStructure.Root.Usage -> {
                                 rootUsageHostViewModel.updateStructure(current)
                             }
-
                         }
                     }
                     LaunchedEffect(viewModelEventHandlers, settingViewModel.backgroundEventHandler) {

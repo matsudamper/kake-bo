@@ -49,10 +49,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                     )
                 }
             }
-
         }
-
-
     }.asStateFlow()
 
     private fun createCategoryUiState(
