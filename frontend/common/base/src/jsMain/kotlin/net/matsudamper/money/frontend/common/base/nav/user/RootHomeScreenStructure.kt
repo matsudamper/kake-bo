@@ -91,7 +91,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
                 queryParams: Map<String, List<String>>,
             ): PeriodCategory {
                 return PeriodCategory(
-                    categoryId = MoneyUsageCategoryId(pathParams["{id}"]!!.toInt()),
+                    categoryId = MoneyUsageCategoryId(pathParams["id"]!!.toInt()),
                     since = queryParams[SINCE_KEY]?.firstOrNull()
                         ?.let { LocalDate.parse("$it-01") },
                 )
