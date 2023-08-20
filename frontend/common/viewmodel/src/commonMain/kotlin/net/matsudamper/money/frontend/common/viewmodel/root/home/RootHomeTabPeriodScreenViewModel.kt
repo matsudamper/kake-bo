@@ -17,7 +17,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodContentUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenQuery
@@ -31,7 +31,7 @@ public class RootHomeTabPeriodScreenViewModel(
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
-    private val event = object : RootHomeTabPeriodContentUiState.Event {
+    private val event = object : RootHomeTabPeriodUiState.Event {
         override fun onClickNextMonth() {
             viewModelStateFlow.update {
                 val period = viewModelStateFlow.value.displayPeriod
@@ -82,9 +82,9 @@ public class RootHomeTabPeriodScreenViewModel(
         }
     }
 
-    public val uiStateFlow: StateFlow<RootHomeTabPeriodContentUiState> = MutableStateFlow(
-        RootHomeTabPeriodContentUiState(
-            loadingState = RootHomeTabPeriodContentUiState.LoadingState.Loading,
+    public val uiStateFlow: StateFlow<RootHomeTabPeriodUiState> = MutableStateFlow(
+        RootHomeTabPeriodUiState(
+            loadingState = RootHomeTabPeriodUiState.LoadingState.Loading,
             event = event,
         ),
     ).also { uiStateFlow ->
@@ -95,7 +95,7 @@ public class RootHomeTabPeriodScreenViewModel(
                         viewModelState.displayPeriod.sinceDate.addMonth(index)
                     }
 
-                    RootHomeTabPeriodContentUiState.LoadingState.Loaded(
+                    RootHomeTabPeriodUiState.LoadingState.Loaded(
                         categoryType = when (viewModelState.contentType) {
                             is ViewModelState.ContentType.All -> "すべて"
                             is ViewModelState.ContentType.Category -> viewModelState.contentType.name
@@ -106,7 +106,7 @@ public class RootHomeTabPeriodScreenViewModel(
                     )
                 }
 
-                uiStateFlow.value = RootHomeTabPeriodContentUiState(
+                uiStateFlow.value = RootHomeTabPeriodUiState(
                     loadingState = loadingState,
                     event = event,
                 )
@@ -144,10 +144,10 @@ public class RootHomeTabPeriodScreenViewModel(
 
     private fun createCategoryTypes(
         categories: List<RootHomeTabScreenQuery.Node>,
-    ): List<RootHomeTabPeriodContentUiState.CategoryTypes> {
+    ): List<RootHomeTabPeriodUiState.CategoryTypes> {
         return buildList {
             add(
-                RootHomeTabPeriodContentUiState.CategoryTypes(
+                RootHomeTabPeriodUiState.CategoryTypes(
                     title = "すべて",
                     onClick = {
                         viewModelStateFlow.update { viewModelState ->
@@ -160,7 +160,7 @@ public class RootHomeTabPeriodScreenViewModel(
             )
             addAll(
                 categories.map { category ->
-                    RootHomeTabPeriodContentUiState.CategoryTypes(
+                    RootHomeTabPeriodUiState.CategoryTypes(
                         title = category.name,
                         onClick = {
                             coroutineScope.launch {
@@ -209,7 +209,7 @@ public class RootHomeTabPeriodScreenViewModel(
     }
 
     public interface Event {
-        public fun navigate(screenStructure: ScreenStructure)
+        public fun navigate(screen: ScreenStructure)
     }
 
     private data class ViewModelState(

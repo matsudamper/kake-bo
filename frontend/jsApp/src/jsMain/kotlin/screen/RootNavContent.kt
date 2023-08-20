@@ -13,10 +13,8 @@ import event.ViewModelEventHandlers
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllContent
-import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodCategoryContent
-import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodContent
-import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportMailScreenUiState
@@ -59,97 +57,65 @@ internal fun RootNavContent(
     when (current) {
         is RootHomeScreenStructure -> {
             tabHolder.SaveableStateProvider(current::class.toString()) {
-                val viewModel = remember {
-                    RootHomeTabScreenViewModel(
-                        coroutineScope = rootCoroutineScope,
-                        loginCheckUseCase = loginCheckUseCase,
-                    )
-                }
-                LaunchedEffect(viewModel.viewModelEventHandler) {
-                    viewModelEventHandlers.handle(
-                        handler = viewModel.viewModelEventHandler,
-                    )
-                }
-                LaunchedEffect(viewModel, current) {
-                    viewModel.updateScreenStructure(current)
-                }
-                RootHomeTabScreen(
-                    uiState = viewModel.uiStateFlow.collectAsState().value,
-                    scaffoldListener = rootScreenScaffoldListener,
-                    content = {
-                        val holder = rememberSaveableStateHolder()
-                        when (current) {
-                            is RootHomeScreenStructure.Monthly -> {
-                                holder.SaveableStateProvider(RootHomeScreenStructure.Monthly::class) {
-                                }
-                            }
+                val holder = rememberSaveableStateHolder()
 
-                            is RootHomeScreenStructure.Period -> {
+                when (current) {
+                    is RootHomeScreenStructure.Monthly -> {
+                        holder.SaveableStateProvider(RootHomeScreenStructure.Monthly::class) {
+                        }
+                    }
+
+                    is RootHomeScreenStructure.Period -> {
+                        when (current) {
+                            is RootHomeScreenStructure.Home,
+                            is RootHomeScreenStructure.PeriodAnalytics,
+                            -> {
                                 holder.SaveableStateProvider(RootHomeScreenStructure.Period::class) {
-                                    val periodViewModel = remember {
-                                        RootHomeTabPeriodScreenViewModel(
+                                    val allContentViewModel = remember {
+                                        RootHomeTabPeriodAllContentViewModel(
                                             coroutineScope = rootCoroutineScope,
                                             api = RootHomeTabScreenApi(),
+                                            loginCheckUseCase = loginCheckUseCase,
                                         )
                                     }
-                                    LaunchedEffect(current, periodViewModel) {
-                                        periodViewModel.updateScreenStructure(current)
+                                    LaunchedEffect(allContentViewModel, current) {
+                                        allContentViewModel.updateStructure(current)
                                     }
-                                    RootHomeTabPeriodContent(
+                                    LaunchedEffect(allContentViewModel.eventHandler) {
+                                        viewModelEventHandlers.handle(allContentViewModel.eventHandler)
+                                    }
+                                    RootHomeTabPeriodAllScreen(
                                         modifier = Modifier.fillMaxSize(),
-                                        uiState = periodViewModel.uiStateFlow.collectAsState().value,
-                                    ) {
-                                        when (current) {
-                                            is RootHomeScreenStructure.Home,
-                                            is RootHomeScreenStructure.PeriodAnalytics,
-                                            -> {
-                                                holder.SaveableStateProvider(RootHomeScreenStructure.PeriodAnalytics::class) {
-                                                    LaunchedEffect(periodViewModel.viewModelEventHandler) {
-                                                        viewModelEventHandlers.handle(periodViewModel.viewModelEventHandler)
-                                                    }
-
-                                                    val allContentViewModel = remember {
-                                                        RootHomeTabPeriodAllContentViewModel(
-                                                            coroutineScope = rootCoroutineScope,
-                                                            api = RootHomeTabScreenApi(),
-                                                        )
-                                                    }
-                                                    LaunchedEffect(allContentViewModel, current) {
-                                                        allContentViewModel.updateStructure(current)
-                                                    }
-                                                    LaunchedEffect(allContentViewModel.eventHandler) {
-                                                        viewModelEventHandlers.handle(allContentViewModel.eventHandler)
-                                                    }
-                                                    RootHomeTabPeriodAllContent(
-                                                        modifier = Modifier.fillMaxSize(),
-                                                        uiState = allContentViewModel.uiStateFlow.collectAsState().value,
-                                                    )
-                                                }
-                                            }
-
-                                            is RootHomeScreenStructure.PeriodCategory -> {
-                                                val categoryViewModel = remember {
-                                                    RootHomeTabPeriodCategoryContentViewModel(
-                                                        categoryId = current.categoryId,
-                                                        coroutineScope = rootCoroutineScope,
-                                                        api = RootHomeTabScreenApi(),
-                                                    )
-                                                }
-                                                LaunchedEffect(categoryViewModel, current) {
-                                                    categoryViewModel.updateStructure(current)
-                                                }
-                                                RootHomeTabPeriodCategoryContent(
-                                                    modifier = Modifier.fillMaxSize(),
-                                                    uiState = categoryViewModel.uiStateFlow.collectAsState().value,
-                                                )
-                                            }
-                                        }
-                                    }
+                                        uiState = allContentViewModel.uiStateFlow.collectAsState().value,
+                                        scaffoldListener = rootScreenScaffoldListener,
+                                    )
                                 }
                             }
+
+                            is RootHomeScreenStructure.PeriodCategory -> {
+                                val categoryViewModel = remember {
+                                    RootHomeTabPeriodCategoryContentViewModel(
+                                        categoryId = current.categoryId,
+                                        coroutineScope = rootCoroutineScope,
+                                        api = RootHomeTabScreenApi(),
+                                        loginCheckUseCase = loginCheckUseCase,
+                                    )
+                                }
+                                LaunchedEffect(categoryViewModel.eventHandlers) {
+                                    viewModelEventHandlers.handle(categoryViewModel.eventHandlers)
+                                }
+                                LaunchedEffect(categoryViewModel, current) {
+                                    categoryViewModel.updateStructure(current)
+                                }
+                                RootHomeTabPeriodCategoryScreen(
+                                    modifier = Modifier.fillMaxSize(),
+                                    uiState = categoryViewModel.uiStateFlow.collectAsState().value,
+                                    scaffoldListener = rootScreenScaffoldListener,
+                                )
+                            }
                         }
-                    },
-                )
+                    }
+                }
             }
         }
 

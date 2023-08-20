@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreenScaffoldUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -23,7 +23,7 @@ public class RootHomeTabScreenViewModel(
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
-    private val uiStateEvent = object : RootHomeTabUiState.Event {
+    private val uiStateEvent = object : RootHomeTabScreenScaffoldUiState.Event {
         override fun onViewInitialized() {
         }
 
@@ -44,7 +44,7 @@ public class RootHomeTabScreenViewModel(
         }
     }
 
-    public val uiStateFlow: StateFlow<RootHomeTabUiState> = MutableStateFlow(
+    public val uiStateFlow: StateFlow<RootHomeTabScreenScaffoldUiState> = MutableStateFlow(
         createUiState(viewModelStateFlow.value),
     ).also { uiStateFlow ->
         coroutineScope.launch {
@@ -64,15 +64,15 @@ public class RootHomeTabScreenViewModel(
         viewModelStateFlow.update { viewModelState ->
             viewModelState.copy(
                 contentTYpe = when (current) {
-                    is RootHomeScreenStructure.Monthly -> RootHomeTabUiState.ContentType.Monthly
-                    is RootHomeScreenStructure.Period -> RootHomeTabUiState.ContentType.Period
+                    is RootHomeScreenStructure.Monthly -> RootHomeTabScreenScaffoldUiState.ContentType.Monthly
+                    is RootHomeScreenStructure.Period -> RootHomeTabScreenScaffoldUiState.ContentType.Period
                 },
             )
         }
     }
 
-    private fun createUiState(viewModelState: ViewModelState): RootHomeTabUiState {
-        return RootHomeTabUiState(
+    private fun createUiState(viewModelState: ViewModelState): RootHomeTabScreenScaffoldUiState {
+        return RootHomeTabScreenScaffoldUiState(
             event = uiStateEvent,
             contentType = viewModelState.contentTYpe,
         )
@@ -83,6 +83,6 @@ public class RootHomeTabScreenViewModel(
     }
 
     private data class ViewModelState(
-        val contentTYpe: RootHomeTabUiState.ContentType = RootHomeTabUiState.ContentType.Period,
+        val contentTYpe: RootHomeTabScreenScaffoldUiState.ContentType = RootHomeTabScreenScaffoldUiState.ContentType.Period,
     )
 }

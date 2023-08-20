@@ -18,10 +18,15 @@ import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.layout.graph.PolygonalLineGraphItemUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodCategoryContentUiState
-import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodContentUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodUiState
+import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler3
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByCategoryQuery
 
@@ -29,25 +34,65 @@ public class RootHomeTabPeriodCategoryContentViewModel(
     private val categoryId: MoneyUsageCategoryId,
     private val coroutineScope: CoroutineScope,
     private val api: RootHomeTabScreenApi,
+    loginCheckUseCase: LoginCheckUseCase,
 ) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState(categoryId = categoryId))
     private val reservedColorModel = ReservedColorModel()
 
+    private val tabViewModel = RootHomeTabScreenViewModel(
+        coroutineScope = coroutineScope,
+        loginCheckUseCase = loginCheckUseCase,
+    )
+    private val periodViewModel = RootHomeTabPeriodScreenViewModel(
+        coroutineScope = coroutineScope,
+        api = RootHomeTabScreenApi(),
+    )
+
+    private val eventSender = EventSender<Event>()
+    public val eventHandlers: EventHandler3<Event, EventHandler<Event>, RootHomeTabScreenViewModel.Event, EventHandler<RootHomeTabScreenViewModel.Event>, RootHomeTabPeriodScreenViewModel.Event, EventHandler<RootHomeTabPeriodScreenViewModel.Event>> = EventHandler3(
+        eventSender.asHandler(),
+        tabViewModel.viewModelEventHandler,
+        periodViewModel.viewModelEventHandler,
+    )
+
     public val uiStateFlow: StateFlow<RootHomeTabPeriodCategoryContentUiState> = MutableStateFlow<RootHomeTabPeriodCategoryContentUiState>(
         RootHomeTabPeriodCategoryContentUiState(
             loadingState = RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading,
+            rootHomeTabPeriodUiState = periodViewModel.uiStateFlow.value,
+            rootHomeTabUiState = tabViewModel.uiStateFlow.value,
         ),
     ).also { uiStateFlow ->
+        tabViewModel.viewModelEventHandler
+        coroutineScope.launch {
+            tabViewModel.uiStateFlow.collectLatest { tabUiState ->
+                uiStateFlow.update { uiState ->
+                    uiState.copy(
+                        rootHomeTabUiState = tabUiState,
+                    )
+                }
+            }
+        }
+        coroutineScope.launch {
+            periodViewModel.uiStateFlow.collectLatest { periodUiState ->
+                uiStateFlow.update { uiState ->
+                    uiState.copy(
+                        rootHomeTabPeriodUiState = periodUiState,
+                    )
+                }
+            }
+        }
         coroutineScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
                 val displayPeriods = (0 until viewModelState.displayPeriod.monthCount).map { index ->
                     viewModelState.displayPeriod.sinceDate.addMonth(index)
                 }
                 uiStateFlow.update {
-                    createCategoryUiState(
-                        categoryId = viewModelState.categoryId,
-                        displayPeriods = displayPeriods,
-                        categoryResponseMap = viewModelState.categoryResponseMap,
+                    it.copy(
+                        loadingState = createCategoryUiState(
+                            categoryId = viewModelState.categoryId,
+                            displayPeriods = displayPeriods,
+                            categoryResponseMap = viewModelState.categoryResponseMap,
+                        ),
                     )
                 }
             }
@@ -66,7 +111,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
         categoryId: MoneyUsageCategoryId,
         displayPeriods: List<ViewModelState.YearMonth>,
         categoryResponseMap: Map<ViewModelState.YearMonthCategory, ApolloResponse<RootHomeTabScreenAnalyticsByCategoryQuery.Data>?>,
-    ): RootHomeTabPeriodCategoryContentUiState {
+    ): RootHomeTabPeriodCategoryContentUiState.LoadingState {
         val loadingState = run loadingState@{
             RootHomeTabPeriodCategoryContentUiState.LoadingState.Loaded(
                 graphItems = displayPeriods.map { yearMonth ->
@@ -92,7 +137,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                     val apolloResult = categoryResponseMap[key] ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading
                     val result = apolloResult.data?.user?.moneyUsageAnalyticsByCategory ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
 
-                    RootHomeTabPeriodContentUiState.MonthTotalItem(
+                    RootHomeTabPeriodUiState.MonthTotalItem(
                         title = "${yearMonth.year}/${yearMonth.month.toString().padStart(2, '0')}",
                         amount = Formatter.formatMoney(result.totalAmount ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error) + "円",
                     )
@@ -100,9 +145,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
             )
         }
 
-        return RootHomeTabPeriodCategoryContentUiState(
-            loadingState = loadingState,
-        )
+        return loadingState
     }
 
     private fun fetchCategory(
@@ -183,6 +226,10 @@ public class RootHomeTabPeriodCategoryContentViewModel(
             categoryId = categoryId,
             forceReFetch = false,
         )
+    }
+
+    public interface Event {
+        public fun navigate(navigate: ScreenStructure)
     }
 
     private data class ViewModelState(

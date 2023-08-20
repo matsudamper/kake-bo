@@ -24,7 +24,7 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 
-public data class RootHomeTabUiState(
+public data class RootHomeTabScreenScaffoldUiState(
     val contentType: ContentType,
     val event: Event,
 ) {
@@ -49,10 +49,10 @@ public data class RootHomeTabUiState(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-public fun RootHomeTabScreen(
-    uiState: RootHomeTabUiState,
-    content: @Composable () -> Unit,
+public fun RootHomeTabScreenScaffold(
+    uiState: RootHomeTabScreenScaffoldUiState,
     scaffoldListener: RootScreenScaffoldListener,
+    content: @Composable () -> Unit,
 ) {
     LaunchedEffect(uiState.event) {
         uiState.event.onViewInitialized()
@@ -83,7 +83,7 @@ public fun RootHomeTabScreen(
                         .padding(12.dp),
                 ) {
                     FilterChip(
-                        selected = uiState.contentType == RootHomeTabUiState.ContentType.Period,
+                        selected = uiState.contentType == RootHomeTabScreenScaffoldUiState.ContentType.Period,
                         onClick = { uiState.event.onClickPeriod() },
                         label = {
                             Text("期間")
@@ -91,7 +91,7 @@ public fun RootHomeTabScreen(
                     )
                     Spacer(modifier = Modifier.widthIn(12.dp))
                     FilterChip(
-                        selected = uiState.contentType == RootHomeTabUiState.ContentType.Monthly,
+                        selected = uiState.contentType == RootHomeTabScreenScaffoldUiState.ContentType.Monthly,
                         onClick = { uiState.event.onClickMonth() },
                         label = {
                             Text("月別")

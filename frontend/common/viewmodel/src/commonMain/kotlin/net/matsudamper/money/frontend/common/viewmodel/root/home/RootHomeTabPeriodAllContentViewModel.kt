@@ -20,10 +20,12 @@ import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructu
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.layout.graph.BarGraphUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllContentUiState
-import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodContentUiState
-import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreenScaffoldUiState
+import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler3
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByDateQuery
@@ -31,18 +33,52 @@ import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByDateQu
 public class RootHomeTabPeriodAllContentViewModel(
     private val coroutineScope: CoroutineScope,
     private val api: RootHomeTabScreenApi,
+    loginCheckUseCase: LoginCheckUseCase,
 ) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState())
     private val reservedColorModel = ReservedColorModel()
 
+    private val tabViewModel = RootHomeTabScreenViewModel(
+        coroutineScope = coroutineScope,
+        loginCheckUseCase = loginCheckUseCase,
+    )
+    private val periodViewModel = RootHomeTabPeriodScreenViewModel(
+        coroutineScope = coroutineScope,
+        api = RootHomeTabScreenApi(),
+    )
+
     private val eventSender = EventSender<Event>()
-    public val eventHandler: EventHandler<Event> = eventSender.asHandler()
+    public val eventHandler: EventHandler3<Event, EventHandler<Event>, RootHomeTabScreenViewModel.Event, EventHandler<RootHomeTabScreenViewModel.Event>, RootHomeTabPeriodScreenViewModel.Event, EventHandler<RootHomeTabPeriodScreenViewModel.Event>> = EventHandler3(
+        eventSender.asHandler(),
+        tabViewModel.viewModelEventHandler,
+        periodViewModel.viewModelEventHandler,
+    )
 
     public val uiStateFlow: StateFlow<RootHomeTabPeriodAllContentUiState> = MutableStateFlow(
         RootHomeTabPeriodAllContentUiState(
             loadingState = RootHomeTabPeriodAllContentUiState.LoadingState.Loading,
+            rootHomeTabPeriodUiState = periodViewModel.uiStateFlow.value,
+            rootHomeTabUiState = tabViewModel.uiStateFlow.value,
         ),
     ).also { uiStateFlow ->
+        coroutineScope.launch {
+            tabViewModel.uiStateFlow.collectLatest { tabUiState ->
+                uiStateFlow.update { uiState ->
+                    uiState.copy(
+                        rootHomeTabUiState = tabUiState,
+                    )
+                }
+            }
+        }
+        coroutineScope.launch {
+            periodViewModel.uiStateFlow.collectLatest { periodUiState ->
+                uiStateFlow.update { uiState ->
+                    uiState.copy(
+                        rootHomeTabPeriodUiState = periodUiState,
+                    )
+                }
+            }
+        }
         coroutineScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
                 val displayPeriods = (0 until viewModelState.displayPeriod.monthCount).map { index ->
@@ -171,7 +207,7 @@ public class RootHomeTabPeriodAllContentViewModel(
                 }.toImmutableList(),
             ),
             totalBarColorTextMapping = categories.map { category ->
-                RootHomeTabUiState.ColorText(
+                RootHomeTabScreenScaffoldUiState.ColorText(
                     color = reservedColorModel.getColor(category.id.value.toString()),
                     text = category.name,
                     onClick = {
@@ -184,7 +220,7 @@ public class RootHomeTabPeriodAllContentViewModel(
                 )
             }.toImmutableList(),
             monthTotalItems = responses.map { (yearMonth, response) ->
-                RootHomeTabPeriodContentUiState.MonthTotalItem(
+                RootHomeTabPeriodUiState.MonthTotalItem(
                     amount = Formatter.formatMoney(
                         response.data?.user?.moneyUsageAnalytics?.totalAmount
                             ?: return null,
