@@ -15,11 +15,10 @@ public class EventHandler<Receiver>(
     }
 }
 
-
 public class EventHandler2<
-        Receiver1, Handler1 : EventHandler<Receiver1>,
-        Receiver2, Handler2 : EventHandler<Receiver2>,
-        >(
+    Receiver1, Handler1 : EventHandler<Receiver1>,
+    Receiver2, Handler2 : EventHandler<Receiver2>,
+    >(
     private val handler1: Handler1,
     private val handler2: Handler2,
 ) {
@@ -35,10 +34,10 @@ public class EventHandler2<
 }
 
 public class EventHandler3<
-        Receiver1, Handler1 : EventHandler<Receiver1>,
-        Receiver2, Handler2 : EventHandler<Receiver2>,
-        Receiver3, Handler3 : EventHandler<Receiver3>,
-        >(
+    Receiver1, Handler1 : EventHandler<Receiver1>,
+    Receiver2, Handler2 : EventHandler<Receiver2>,
+    Receiver3, Handler3 : EventHandler<Receiver3>,
+    >(
     private val handler1: Handler1,
     private val handler2: Handler2,
     private val handler3: Handler3,

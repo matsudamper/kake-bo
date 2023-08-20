@@ -6,7 +6,6 @@ import kotlinx.coroutines.launch
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.nav.user.JsScreenNavController
-import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.viewmodel.addmoneyusage.AddMoneyUsageViewModel
@@ -297,7 +296,9 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler3<RootHomeTabPeriodAllContentViewModel.Event, EventHandler<RootHomeTabPeriodAllContentViewModel.Event>, RootHomeTabScreenViewModel.Event, EventHandler<RootHomeTabScreenViewModel.Event>, RootHomeTabPeriodScreenViewModel.Event, EventHandler<RootHomeTabPeriodScreenViewModel.Event>>) {
+    suspend fun handle(
+        handler: EventHandler3<RootHomeTabPeriodAllContentViewModel.Event, EventHandler<RootHomeTabPeriodAllContentViewModel.Event>, RootHomeTabScreenViewModel.Event, EventHandler<RootHomeTabScreenViewModel.Event>, RootHomeTabPeriodScreenViewModel.Event, EventHandler<RootHomeTabPeriodScreenViewModel.Event>>,
+    ) {
         coroutineScope {
             handler.collect(
                 receiver = object : RootHomeTabPeriodAllContentViewModel.Event {
@@ -312,7 +313,7 @@ data class ViewModelEventHandlers(
     }
 
     suspend fun handle(
-        handler: EventHandler3<RootHomeTabPeriodCategoryContentViewModel.Event, EventHandler<RootHomeTabPeriodCategoryContentViewModel.Event>, RootHomeTabScreenViewModel.Event, EventHandler<RootHomeTabScreenViewModel.Event>, RootHomeTabPeriodScreenViewModel.Event, EventHandler<RootHomeTabPeriodScreenViewModel.Event>>
+        handler: EventHandler3<RootHomeTabPeriodCategoryContentViewModel.Event, EventHandler<RootHomeTabPeriodCategoryContentViewModel.Event>, RootHomeTabScreenViewModel.Event, EventHandler<RootHomeTabScreenViewModel.Event>, RootHomeTabPeriodScreenViewModel.Event, EventHandler<RootHomeTabPeriodScreenViewModel.Event>>,
     ) {
         coroutineScope {
             handler.collect(

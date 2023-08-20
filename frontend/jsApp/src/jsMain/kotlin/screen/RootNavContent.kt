@@ -31,9 +31,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodAllContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodCategoryContentViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenApi
-import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenViewModel
 
 @Composable
 internal fun RootNavContent(
