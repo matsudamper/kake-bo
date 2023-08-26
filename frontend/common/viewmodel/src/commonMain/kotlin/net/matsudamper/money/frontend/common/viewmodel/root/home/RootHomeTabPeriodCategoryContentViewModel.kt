@@ -23,9 +23,7 @@ import net.matsudamper.money.frontend.common.ui.layout.graph.PolygonalLineGraphI
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodCategoryContentUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
-import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
-import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler3
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByCategoryQuery
@@ -37,7 +35,6 @@ public class RootHomeTabPeriodCategoryContentViewModel(
     loginCheckUseCase: LoginCheckUseCase,
 ) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState(categoryId = categoryId))
-    private val reservedColorModel = ReservedColorModel()
 
     private val tabViewModel = RootHomeTabScreenViewModel(
         coroutineScope = coroutineScope,
@@ -53,7 +50,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
     public val tabEventHandler: EventHandler<RootHomeTabScreenViewModel.Event> = tabViewModel.viewModelEventHandler
     public val periodEventHandler: EventHandler<RootHomeTabPeriodScreenViewModel.Event> = periodViewModel.viewModelEventHandler
 
-    public val uiStateFlow: StateFlow<RootHomeTabPeriodCategoryContentUiState> = MutableStateFlow<RootHomeTabPeriodCategoryContentUiState>(
+    public val uiStateFlow: StateFlow<RootHomeTabPeriodCategoryContentUiState> = MutableStateFlow(
         RootHomeTabPeriodCategoryContentUiState(
             loadingState = RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading,
             rootHomeTabPeriodUiState = periodViewModel.uiStateFlow.value,
