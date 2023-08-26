@@ -25,7 +25,6 @@ import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScre
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
-import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler3
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByDateQuery
@@ -48,11 +47,9 @@ public class RootHomeTabPeriodAllContentViewModel(
     )
 
     private val eventSender = EventSender<Event>()
-    public val eventHandler: EventHandler3<Event, EventHandler<Event>, RootHomeTabScreenViewModel.Event, EventHandler<RootHomeTabScreenViewModel.Event>, RootHomeTabPeriodScreenViewModel.Event, EventHandler<RootHomeTabPeriodScreenViewModel.Event>> = EventHandler3(
-        eventSender.asHandler(),
-        tabViewModel.viewModelEventHandler,
-        periodViewModel.viewModelEventHandler,
-    )
+    public val eventHandler: EventHandler<Event> = eventSender.asHandler()
+    public val tabEventHandler: EventHandler<RootHomeTabScreenViewModel.Event> = tabViewModel.viewModelEventHandler
+    public val periodEventHandler: EventHandler<RootHomeTabPeriodScreenViewModel.Event> = periodViewModel.viewModelEventHandler
 
     public val uiStateFlow: StateFlow<RootHomeTabPeriodAllContentUiState> = MutableStateFlow(
         RootHomeTabPeriodAllContentUiState(

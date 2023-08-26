@@ -13,7 +13,6 @@ import net.matsudamper.money.frontend.common.viewmodel.importedmail.html.Importe
 import net.matsudamper.money.frontend.common.viewmodel.importedmail.plain.ImportedMailPlainViewModel
 import net.matsudamper.money.frontend.common.viewmodel.importedmail.root.ImportedMailScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
-import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler3
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
@@ -297,50 +296,42 @@ data class ViewModelEventHandlers(
     }
 
     suspend fun handle(
-        handler: EventHandler3<RootHomeTabPeriodAllContentViewModel.Event, EventHandler<RootHomeTabPeriodAllContentViewModel.Event>, RootHomeTabScreenViewModel.Event, EventHandler<RootHomeTabScreenViewModel.Event>, RootHomeTabPeriodScreenViewModel.Event, EventHandler<RootHomeTabPeriodScreenViewModel.Event>>,
+        handler: EventHandler<RootHomeTabPeriodAllContentViewModel.Event>,
     ) {
         coroutineScope {
             handler.collect(
-                receiver = object : RootHomeTabPeriodAllContentViewModel.Event {
+                 object : RootHomeTabPeriodAllContentViewModel.Event {
                     override fun navigate(screen: ScreenStructure) {
                         navController.navigate(screen)
                     }
                 },
-                receiver2 = createRootScreenEvent(),
-                receiver3 = createRootHomeScreenPeriodEvent(),
             )
         }
     }
-
     suspend fun handle(
-        handler: EventHandler3<RootHomeTabPeriodCategoryContentViewModel.Event, EventHandler<RootHomeTabPeriodCategoryContentViewModel.Event>, RootHomeTabScreenViewModel.Event, EventHandler<RootHomeTabScreenViewModel.Event>, RootHomeTabPeriodScreenViewModel.Event, EventHandler<RootHomeTabPeriodScreenViewModel.Event>>,
+        handler: EventHandler<RootHomeTabScreenViewModel.Event>,
     ) {
         coroutineScope {
             handler.collect(
-                receiver = object : RootHomeTabPeriodCategoryContentViewModel.Event {
+                object : RootHomeTabScreenViewModel.Event {
                     override fun navigate(screen: ScreenStructure) {
                         navController.navigate(screen)
                     }
-                },
-                receiver2 = createRootScreenEvent(),
-                receiver3 = createRootHomeScreenPeriodEvent(),
+                }
             )
         }
     }
-
-    private fun createRootScreenEvent(): RootHomeTabScreenViewModel.Event {
-        return object : RootHomeTabScreenViewModel.Event {
-            override fun navigate(screen: ScreenStructure) {
-                navController.navigate(screen)
-            }
-        }
-    }
-
-    private fun createRootHomeScreenPeriodEvent(): RootHomeTabPeriodScreenViewModel.Event {
-        return object : RootHomeTabPeriodScreenViewModel.Event {
-            override fun navigate(screen: ScreenStructure) {
-                navController.navigate(screen)
-            }
+    suspend fun handle(
+        handler: EventHandler<RootHomeTabPeriodCategoryContentViewModel.Event>,
+    ) {
+        coroutineScope {
+            handler.collect(
+                object : RootHomeTabPeriodCategoryContentViewModel.Event {
+                    override fun navigate(screen: ScreenStructure) {
+                        navController.navigate(screen)
+                    }
+                }
+            )
         }
     }
 }

@@ -49,11 +49,9 @@ public class RootHomeTabPeriodCategoryContentViewModel(
     )
 
     private val eventSender = EventSender<Event>()
-    public val eventHandlers: EventHandler3<Event, EventHandler<Event>, RootHomeTabScreenViewModel.Event, EventHandler<RootHomeTabScreenViewModel.Event>, RootHomeTabPeriodScreenViewModel.Event, EventHandler<RootHomeTabPeriodScreenViewModel.Event>> = EventHandler3(
-        eventSender.asHandler(),
-        tabViewModel.viewModelEventHandler,
-        periodViewModel.viewModelEventHandler,
-    )
+    public val eventHandler: EventHandler<Event> = eventSender.asHandler()
+    public val tabEventHandler: EventHandler<RootHomeTabScreenViewModel.Event> = tabViewModel.viewModelEventHandler
+    public val periodEventHandler: EventHandler<RootHomeTabPeriodScreenViewModel.Event> = periodViewModel.viewModelEventHandler
 
     public val uiStateFlow: StateFlow<RootHomeTabPeriodCategoryContentUiState> = MutableStateFlow<RootHomeTabPeriodCategoryContentUiState>(
         RootHomeTabPeriodCategoryContentUiState(
@@ -194,10 +192,10 @@ public class RootHomeTabPeriodCategoryContentViewModel(
 
             println(
                 "fetch: ${
-                (0 until period.monthCount)
-                    .map { index ->
-                        period.sinceDate.addMonth(index)
-                    }.joinToString(postfix = "月") { it.month.toString() }
+                    (0 until period.monthCount)
+                        .map { index ->
+                            period.sinceDate.addMonth(index)
+                        }.joinToString(postfix = "月") { it.month.toString() }
                 }",
             )
             println("period: $period")
