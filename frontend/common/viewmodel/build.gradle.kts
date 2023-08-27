@@ -14,6 +14,7 @@ kotlin {
                 implementation(project(":frontend:common:base"))
                 implementation(project(":frontend:common:ui"))
                 implementation(project(":frontend:common:schema"))
+                implementation(project(":shared"))
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(libs.compose.material3)

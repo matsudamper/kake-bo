@@ -18,6 +18,12 @@ kotlin {
                 implementation(libs.compose.material3)
             }
         }
+        val jsMain by getting {
+            dependencies {
+                implementation(libs.ktor.client.js)
+                implementation(libs.ktor.client.logging)
+            }
+        }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))

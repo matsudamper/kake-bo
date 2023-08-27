@@ -16,9 +16,9 @@ kotlin {
                 implementation(project(":shared"))
                 implementation(project(":frontend:common:base"))
 
-                implementation(libs.apollo.runtime)
+                api(libs.apollo.runtime)
                 implementation(libs.kotlin.datetime)
-                implementation(libs.apollo.normalizedCache)
+                api(libs.apollo.normalizedCache)
                 implementation(libs.apollo.adapters)
             }
         }
