@@ -9,15 +9,15 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
     public sealed interface Root : ScreenStructure {
 
         public sealed interface Settings : Root {
-            public object Root : Settings {
+            public data object Root : Settings {
                 override val direction: Screens = Screens.Settings
             }
 
-            public object Imap : Settings {
+            public data object Imap : Settings {
                 override val direction: Screens = Screens.SettingsImap
             }
 
-            public object Categories : Settings {
+            public data object Categories : Settings {
                 override val direction: Screens = Screens.SettingsCategory
             }
 
@@ -31,7 +31,7 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                 }
             }
 
-            public object MailCategoryFilters : Settings {
+            public data object MailCategoryFilters : Settings {
                 override val direction: Screens = Screens.MailCategoryFilters
             }
 
@@ -83,7 +83,7 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                 }
             }
 
-            public object Import : Mail {
+            public data object Import : Mail {
                 override val direction: Screens = Screens.MailImport
             }
         }
@@ -105,15 +105,15 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
         }
     }
 
-    public object NotFound : ScreenStructure {
+    public data object NotFound : ScreenStructure {
         override val direction: Screens = Screens.NotFound
     }
 
-    public object Login : ScreenStructure {
+    public data object Login : ScreenStructure {
         override val direction: Screens = Screens.Login
     }
 
-    public object Admin : ScreenStructure {
+    public data object Admin : ScreenStructure {
         override val direction: Screens = Screens.Admin
     }
 
