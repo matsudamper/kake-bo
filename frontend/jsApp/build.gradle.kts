@@ -12,7 +12,7 @@ kotlin {
         binaries.executable()
     }
     sourceSets {
-        val commonMain by getting {
+        val jsMain by getting {
             dependencies {
                 implementation(project(":shared"))
                 implementation(project(":frontend:common:base"))
@@ -24,17 +24,6 @@ kotlin {
                 implementation(libs.kotlin.serialization.json)
                 implementation(compose.foundation)
                 implementation(compose.material3)
-            }
-        }
-        val jsMain by getting {
-            dependencies {
-                implementation(project(":shared"))
-//                implementation(project(":frontend:common:base"))
-//                implementation(project(":frontend:common:ui"))
-//                implementation(project(":frontend:common:viewmodel"))
-
-                implementation(kotlin("stdlib"))
-                implementation(libs.kotlin.serialization.json)
                 implementation(compose.html.core)
                 implementation(compose.runtime)
             }
