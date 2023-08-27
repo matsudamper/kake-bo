@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.ui.screen.root.settings
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -499,7 +500,7 @@ private fun ConditionCard(
                 modifier = Modifier.weight(1f),
             ) {
                 FlowRow(
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalArrangement = Arrangement.Center,
                 ) {
                     run {
                         var visibleDropDown by remember { mutableStateOf(false) }
