@@ -18,6 +18,7 @@ include(":backend:mail_parser")
 include(":shared")
 
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google()
         gradlePluginPortal()
