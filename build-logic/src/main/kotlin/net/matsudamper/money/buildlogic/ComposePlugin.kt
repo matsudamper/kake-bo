@@ -13,8 +13,8 @@ class ComposePlugin : Plugin<Project> {
                 apply("org.jetbrains.compose")
             }
             extensions.configure<ComposeExtension> {
-//                kotlinCompilerPlugin.set("1.5.2-beta01")
-//                kotlinCompilerPluginArgs.add("suppressKotlinVersionCompatibilityCheck=1.9.10")
+                kotlinCompilerPlugin.set("1.5.2-beta01")
+                kotlinCompilerPluginArgs.add("suppressKotlinVersionCompatibilityCheck=1.9.10")
             }
         }
     }
