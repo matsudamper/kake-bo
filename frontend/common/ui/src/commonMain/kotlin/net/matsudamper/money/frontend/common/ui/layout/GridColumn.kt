@@ -98,7 +98,7 @@ internal fun GridColumn(
                 columns.maxOfOrNull { column ->
                     column.sumOf { rowGroup ->
                         rowGroup.maxOfOrNull { it.height } ?: 0
-                    } ?: 0
+                    }
                 } ?: 0
             }.coerceAtLeast(constraints.minHeight),
         ) {

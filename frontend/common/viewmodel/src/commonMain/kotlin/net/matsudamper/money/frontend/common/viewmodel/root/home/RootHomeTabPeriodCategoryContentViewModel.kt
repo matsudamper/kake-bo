@@ -224,7 +224,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
     }
 
     public interface Event {
-        public fun navigate(navigate: ScreenStructure)
+        public fun navigate(screen: ScreenStructure)
     }
 
     private data class ViewModelState(
