@@ -42,11 +42,6 @@ kotlin {
     }
 }
 
-compose {
-    kotlinCompilerPlugin.set("1.5.0")
-    kotlinCompilerPluginArgs.add("suppressKotlinVersionCompatibilityCheck=1.9.10")
-}
-
 // wasm
 compose.experimental {
     web.application {}
