@@ -500,7 +500,7 @@ private fun ConditionCard(
                 modifier = Modifier.weight(1f),
             ) {
                 FlowRow(
-                    verticalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     run {
                         var visibleDropDown by remember { mutableStateOf(false) }
