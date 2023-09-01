@@ -77,7 +77,7 @@ public class RootUsageCalendarPagingModel(
                                         year = selectedMonth.year,
                                         monthNumber = selectedMonth.monthNumber + 1,
                                         dayOfMonth = 1,
-                                    ).minus(1, DateTimeUnit.DAY),
+                                    ),
                                     LocalTime(0, 0),
                                 ),
                             ),
