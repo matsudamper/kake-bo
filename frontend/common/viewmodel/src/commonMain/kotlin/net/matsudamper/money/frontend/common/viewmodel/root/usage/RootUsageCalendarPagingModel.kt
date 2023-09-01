@@ -8,6 +8,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
 import net.matsudamper.money.frontend.graphql.GraphqlClient
@@ -75,9 +76,9 @@ public class RootUsageCalendarPagingModel(
                                 LocalDateTime(
                                     LocalDate(
                                         year = selectedMonth.year,
-                                        monthNumber = selectedMonth.monthNumber + 1,
+                                        monthNumber = selectedMonth.monthNumber,
                                         dayOfMonth = 1,
-                                    ),
+                                    ).plus(1, DateTimeUnit.MONTH),
                                     LocalTime(0, 0),
                                 ),
                             ),
