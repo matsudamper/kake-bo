@@ -38,8 +38,8 @@ public data class RootHomeTabPeriodAllContentUiState(
     val rootHomeTabPeriodUiState: RootHomeTabPeriodUiState,
 ) {
     public sealed interface LoadingState {
-        public object Loading : LoadingState
-        public object Error : LoadingState
+        public data object Loading : LoadingState
+        public data object Error : LoadingState
         public data class Loaded(
             val barGraph: BarGraphUiState,
             val monthTotalItems: ImmutableList<RootHomeTabPeriodUiState.MonthTotalItem>,
