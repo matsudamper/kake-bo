@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+
 plugins {
     kotlin("multiplatform") apply false
     alias(libs.plugins.kotlin.serialization) apply false
@@ -6,6 +9,22 @@ plugins {
 }
 
 dependencies {
+}
+
+subprojects {
+    afterEvaluate {
+        extensions.findByType<KotlinMultiplatformExtension>()?.apply {
+            if (
+                targets.any {
+                    it.platformType == KotlinPlatformType.js
+                }
+            ) {
+                js(IR) {
+
+                }
+            }
+        }
+    }
 }
 
 allprojects {
