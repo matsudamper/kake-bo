@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -98,7 +99,7 @@ public fun RootHomeTabPeriodScaffold(
                 val height = this.maxHeight
                 val scrollState = rememberScrollState()
                 val density = LocalDensity.current
-                var scrollBarHeight by remember { mutableStateOf(0) }
+                var scrollBarHeight by remember { mutableIntStateOf(0) }
                 Column(
                     modifier = Modifier
                         .verticalScroll(scrollState)
