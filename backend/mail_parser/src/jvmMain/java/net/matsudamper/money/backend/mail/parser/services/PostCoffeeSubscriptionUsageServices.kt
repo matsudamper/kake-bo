@@ -10,8 +10,20 @@ internal object PostCoffeeSubscriptionUsageServices : MoneyUsageServices {
     override val displayName: String = "PostCoffee"
 
     override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): List<MoneyUsage> {
+        val forwardedInfo = ParseUtil.parseForwarded(plain)
         val canHandle = sequence {
-            yield(canHandledWithFromAndSubject(from = from, subject = subject))
+            yield(canHandled(from = from, subject = subject))
+            yield(
+                run {
+                    if (forwardedInfo != null) {
+                        val forwardedFrom = forwardedInfo.from ?: return@run false
+                        val forwardedSubject = forwardedInfo.subject ?: return@run false
+                        canHandled(from = forwardedFrom, subject = forwardedSubject)
+                    } else {
+                        false
+                    }
+                },
+            )
         }
         if (canHandle.any { it }.not()) return listOf()
         val lines = plain.split("\r\n")
@@ -44,12 +56,12 @@ internal object PostCoffeeSubscriptionUsageServices : MoneyUsageServices {
                 price = price,
                 description = description.orEmpty(),
                 service = MoneyUsageServiceType.Amazon,
-                dateTime = date,
+                dateTime = forwardedInfo?.date ?: date,
             ),
         )
     }
 
-    private fun canHandledWithFromAndSubject(from: String, subject: String): Boolean {
+    private fun canHandled(from: String, subject: String): Boolean {
         return from == "support@postcoffee.co" && subject == "サブスクリプションの注文が確定しました"
     }
 }
