@@ -44,8 +44,8 @@ public data class RootHomeTabPeriodUiState(
             val categoryTypes: ImmutableList<CategoryTypes>,
         ) : LoadingState
 
-        public object Loading : LoadingState
-        public object Error : LoadingState
+        public data object Loading : LoadingState
+        public data object Error : LoadingState
     }
 
     public data class CategoryTypes(
