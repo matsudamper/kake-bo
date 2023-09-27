@@ -75,6 +75,7 @@ public class RootHomeTabPeriodScreenViewModel(
         }
 
         override fun onViewInitialized() {
+            collectScreenInfo()
         }
 
         // TODO Remove
@@ -114,18 +115,6 @@ public class RootHomeTabPeriodScreenViewModel(
         }
     }.asStateFlow()
 
-    init {
-        coroutineScope.launch {
-            api.screenFlow().collectLatest {
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        categories = it.data?.user?.moneyUsageCategories?.nodes.orEmpty(),
-                    )
-                }
-            }
-        }
-    }
-
     public fun updateScreenStructure(current: RootHomeScreenStructure.Period) {
         val since = current.since
         if (since != null) {
@@ -138,6 +127,18 @@ public class RootHomeTabPeriodScreenViewModel(
                         ),
                     ),
                 )
+            }
+        }
+    }
+
+    private fun collectScreenInfo() {
+        coroutineScope.launch {
+            api.screenFlow().collectLatest {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        categories = it.data?.user?.moneyUsageCategories?.nodes.orEmpty(),
+                    )
+                }
             }
         }
     }

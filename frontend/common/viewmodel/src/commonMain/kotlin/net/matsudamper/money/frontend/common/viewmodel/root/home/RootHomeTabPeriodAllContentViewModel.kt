@@ -56,6 +56,18 @@ public class RootHomeTabPeriodAllContentViewModel(
             loadingState = RootHomeTabPeriodAllContentUiState.LoadingState.Loading,
             rootHomeTabPeriodUiState = periodViewModel.uiStateFlow.value,
             rootHomeTabUiState = tabViewModel.uiStateFlow.value,
+            event = object : RootHomeTabPeriodAllContentUiState.Event {
+                override suspend fun onViewInitialized() {
+                    val period = viewModelStateFlow.value.displayPeriod
+
+                    fetchAll(
+                        period = period.copy(
+                            sinceDate = period.sinceDate.addMonth(1),
+                        ),
+                        forceReFetch = false,
+                    )
+                }
+            },
         ),
     ).also { uiStateFlow ->
         coroutineScope.launch {
@@ -121,19 +133,6 @@ public class RootHomeTabPeriodAllContentViewModel(
             }
         }
     }.asStateFlow()
-
-    init {
-        coroutineScope.launch {
-            val period = viewModelStateFlow.value.displayPeriod
-
-            fetchAll(
-                period = period.copy(
-                    sinceDate = period.sinceDate.addMonth(1),
-                ),
-                forceReFetch = false,
-            )
-        }
-    }
 
     private fun fetchAll(period: ViewModelState.Period, forceReFetch: Boolean) {
         coroutineScope.launch {

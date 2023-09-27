@@ -22,6 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,6 +37,7 @@ public data class RootHomeTabPeriodAllContentUiState(
     val rootHomeTabUiState: RootHomeTabScreenScaffoldUiState,
     val loadingState: LoadingState,
     val rootHomeTabPeriodUiState: RootHomeTabPeriodUiState,
+    val event: Event,
 ) {
     public sealed interface LoadingState {
         public data object Loading : LoadingState
@@ -46,6 +48,10 @@ public data class RootHomeTabPeriodAllContentUiState(
             val totalBarColorTextMapping: ImmutableList<RootHomeTabScreenScaffoldUiState.ColorText>,
         ) : LoadingState
     }
+
+    public interface Event {
+        public suspend fun onViewInitialized()
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
@@ -55,6 +61,9 @@ public fun RootHomeTabPeriodAllScreen(
     uiState: RootHomeTabPeriodAllContentUiState,
     scaffoldListener: RootScreenScaffoldListener,
 ) {
+    LaunchedEffect(Unit) {
+        uiState.event.onViewInitialized()
+    }
     RootHomeTabScreenScaffold(
         uiState = uiState.rootHomeTabUiState,
         scaffoldListener = scaffoldListener,
