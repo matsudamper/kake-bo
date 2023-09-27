@@ -64,7 +64,7 @@ public class RootHomeTabPeriodAllContentViewModel(
                         period = period.copy(
                             sinceDate = period.sinceDate.addMonth(1),
                         ),
-                        forceReFetch = false,
+                        forceReFetch = true,
                     )
                 }
             },
