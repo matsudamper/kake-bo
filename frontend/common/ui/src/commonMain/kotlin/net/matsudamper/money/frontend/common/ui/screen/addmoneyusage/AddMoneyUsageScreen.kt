@@ -271,7 +271,9 @@ private fun Section(
     descriptionStyle: TextStyle = MaterialTheme.typography.bodyLarge,
 ) {
     Row(modifier.padding(vertical = 12.dp)) {
-        Column {
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
             ProvideTextStyle(titleStyle) {
                 title()
             }
@@ -280,7 +282,6 @@ private fun Section(
                 description()
             }
         }
-        Spacer(Modifier.weight(1f))
         TextButton(onClick = { clickChange() }) {
             ProvideTextStyle(MaterialTheme.typography.labelMedium) {
                 Text("変更")
