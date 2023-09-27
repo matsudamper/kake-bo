@@ -3,6 +3,7 @@ package net.matsudamper.money.backend.repository
 import java.time.LocalDateTime
 import net.matsudamper.money.backend.DbConnection
 import net.matsudamper.money.backend.element.UserId
+import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
 import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.records.JUserMailsRecord
@@ -16,6 +17,7 @@ class DbMailRepository(
 ) {
     private val userMails = JUserMails.USER_MAILS
     private val relation = JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION
+    private val moneyUsages = JMoneyUsages.MONEY_USAGES
 
     fun addMail(
         userId: UserId,
@@ -116,13 +118,19 @@ class DbMailRepository(
                 )
                 .from(userMails)
                 .leftJoin(relation).using(relation.USER_MAIL_ID)
+                .leftJoin(moneyUsages).using(moneyUsages.MONEY_USAGE_ID)
                 .where(
                     DSL.value(true)
                         .and(userMails.USER_ID.eq(userId.value))
                         .and(
                             when (isLinked) {
-                                true -> relation.MONEY_USAGE_ID.isNotNull
-                                false -> relation.MONEY_USAGE_ID.isNull
+                                true -> {
+                                    relation.MONEY_USAGE_ID.isNotNull
+                                }
+                                false -> {
+                                    moneyUsages.MONEY_USAGE_ID.isNull
+                                        .or(relation.MONEY_USAGE_ID.isNull)
+                                }
                                 null -> DSL.value(true)
                             },
                         )
