@@ -60,6 +60,10 @@ public enum class MoneyUsageServiceType(
         id = 15,
         displayName = "PostCoffee",
     ),
+    BicCamera(
+        id = 16,
+        displayName = "ビックカメラ",
+    ),
 
     ;
 }

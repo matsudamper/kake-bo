@@ -2,6 +2,7 @@ package net.matsudamper.money.backend.mail.parser
 
 import java.time.LocalDateTime
 import net.matsudamper.money.backend.mail.parser.services.AmazonCoJpUsageServices
+import net.matsudamper.money.backend.mail.parser.services.BicCameraUsageServices
 import net.matsudamper.money.backend.mail.parser.services.ESekiReserveUsegeService
 import net.matsudamper.money.backend.mail.parser.services.FanzaDojinUsageServices
 import net.matsudamper.money.backend.mail.parser.services.GooglePlayUsageService
@@ -39,6 +40,7 @@ public class MailMoneyUsageParser {
             FanzaDojinUsageServices,
             ShunsuguUsageService,
             PostCoffeeSubscriptionUsageServices,
+            BicCameraUsageServices,
         )
             .mapNotNull {
                 runCatching {
