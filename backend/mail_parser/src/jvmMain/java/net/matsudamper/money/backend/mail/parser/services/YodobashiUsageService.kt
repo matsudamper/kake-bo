@@ -6,6 +6,7 @@ import java.time.LocalTime
 import net.matsudamper.money.backend.base.element.MoneyUsageServiceType
 import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
+import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 
 internal object YodobashiUsageService : MoneyUsageServices {
     override val displayName: String = "ヨドバシカメラ"
@@ -18,9 +19,7 @@ internal object YodobashiUsageService : MoneyUsageServices {
         }
         if (canHandle.any { it }.not()) return listOf()
 
-        val lines = plain
-            .split("\r\n")
-            .flatMap { it.split("\n") }
+        val lines = ParseUtil.splitByNewLine(plain)
 
         val totalPrice = run price@{
             "【ご注文金額】今回のお買い物合計金額(.+?)$".toRegex(RegexOption.MULTILINE).find(plain)
@@ -43,16 +42,29 @@ internal object YodobashiUsageService : MoneyUsageServices {
             )
         }
 
-        return buildList prices@{
-            val firstIndex = lines.indexOfFirst { it.contains("【ご注文商品】") }.takeIf { it >= 0 } ?: return@prices
-            val endIndex = lines.indexOfFirst { it.contains("ご注文・出荷状況については下記をご確認ください。") }.takeIf { it >= 0 } ?: return@prices
+        val orderItemsLines = run {
+            val firstIndex = lines.indexOfFirst { it.contains("【ご注文商品】") }.takeIf { it >= 0 }!!
+            val endIndex = lines.indexOfFirst { it.contains("ご注文・出荷状況については下記をご確認ください。") }.takeIf { it >= 0 }!!
+            lines.subList(firstIndex, endIndex)
+        }
 
-            val targetLines = lines.subList(firstIndex, endIndex)
+        return buildList prices@{
+            run total@{
+                add(
+                    MoneyUsage(
+                        title = displayName,
+                        dateTime = parsedDate ?: date,
+                        price = totalPrice,
+                        service = MoneyUsageServiceType.Yodobashi,
+                        description = orderItemsLines.joinToString("\n"),
+                    ),
+                )
+            }
             val titleRegex = "^・「(.+)」$".toRegex()
             val priceRegex = "合計.+?点(.+?)円".toRegex()
 
             var beforeTitle: String? = null
-            targetLines.forEach { line ->
+            orderItemsLines.forEach { line ->
                 val titleResult = titleRegex.find(line)?.groupValues?.getOrNull(1)
                 val priceResult = priceRegex.find(line)?.groupValues?.getOrNull(1)
                     ?.mapNotNull { it.toString().toIntOrNull() }
