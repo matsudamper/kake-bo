@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -320,7 +322,7 @@ private fun Filter(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun SuggestUsageItem(
     modifier: Modifier = Modifier,
@@ -376,7 +378,7 @@ private fun SuggestUsageItem(
                         else -> {
                             var page by remember { mutableStateOf(0) }
                             if (listItem.usages.size > 1) {
-                                Row {
+                                FlowRow {
                                     repeat(listItem.usages.size) { index ->
                                         OutlinedButton(
                                             onClick = {
