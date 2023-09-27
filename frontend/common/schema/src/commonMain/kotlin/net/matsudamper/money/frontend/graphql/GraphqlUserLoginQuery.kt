@@ -2,6 +2,8 @@ package net.matsudamper.money.frontend.graphql
 
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
+import com.apollographql.apollo3.cache.normalized.FetchPolicy
+import com.apollographql.apollo3.cache.normalized.fetchPolicy
 
 class GraphqlUserLoginQuery(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
@@ -24,6 +26,7 @@ class GraphqlUserLoginQuery(
         return runCatching {
             apolloClient
                 .query(UserIsLoggedInQuery())
+                .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
                 .data
                 ?.user
