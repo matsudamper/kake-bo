@@ -25,6 +25,9 @@ public class RootHomeTabScreenViewModel(
 
     private val uiStateEvent = object : RootHomeTabScreenScaffoldUiState.Event {
         override fun onViewInitialized() {
+            coroutineScope.launch {
+                loginCheckUseCase.check()
+            }
         }
 
         override fun onClickMonth() {
@@ -53,12 +56,6 @@ public class RootHomeTabScreenViewModel(
             }
         }
     }.asStateFlow()
-
-    init {
-        coroutineScope.launch {
-            loginCheckUseCase.check()
-        }
-    }
 
     public fun updateScreenStructure(current: RootHomeScreenStructure) {
         viewModelStateFlow.update { viewModelState ->
