@@ -10,6 +10,8 @@ query AddMoneyUsageScreen($id: ImportedMailId!) {
     user {
         importedMailAttributes {
             mail(id: $id) {
+                subject
+                dateTime
                 suggestUsages {
                     title
                     description

@@ -225,36 +225,51 @@ public class AddMoneyUsageViewModel(
             viewModelStateFlow.update {
                 ViewModelState()
             }
-        } else {
-            usageFromMailIdJob = coroutineScope.launch {
-                graphqlApi.get(importedMailId)
-                    .onSuccess { result ->
-                        val suggestUsage = result.data?.user?.importedMailAttributes?.mail?.suggestUsages
-                            ?.getOrNull(current.importedMailIndex ?: 0) ?: return@launch
+            return
+        }
 
+        usageFromMailIdJob = coroutineScope.launch {
+            graphqlApi.get(importedMailId)
+                .onSuccess { result ->
+                    val importedMailIndex = current.importedMailIndex
+                    if (importedMailIndex == null) {
+                        val subject = result.data?.user?.importedMailAttributes?.mail?.subject.orEmpty()
+                        val date = result.data?.user?.importedMailAttributes?.mail?.dateTime
                         viewModelStateFlow.update {
                             it.copy(
                                 importedMailId = importedMailId,
-                                usageAmount = suggestUsage.amount ?: 0,
-                                usageDate = suggestUsage.dateTime?.date ?: it.usageDate,
-                                usageTime = suggestUsage.dateTime?.time ?: it.usageTime,
-                                usageTitle = suggestUsage.title,
-                                usageDescription = suggestUsage.description,
-                                usageCategorySet = run category@{
-                                    CategorySelectDialogViewModel.SelectedResult(
-                                        categoryId = suggestUsage.subCategory?.category?.id ?: return@category null,
-                                        categoryName = suggestUsage.subCategory?.category?.name ?: return@category null,
-                                        subCategoryId = suggestUsage.subCategory?.id ?: return@category null,
-                                        subCategoryName = suggestUsage.subCategory?.name ?: return@category null,
-                                    )
-                                },
+                                usageTitle = subject,
+                                usageDate = date?.date ?: Clock.System.todayIn(TimeZone.currentSystemDefault())
                             )
                         }
+                        return@launch
                     }
-                    .onFailure {
-                        // TODO
+
+                    val suggestUsage = result.data?.user?.importedMailAttributes?.mail?.suggestUsages
+                        ?.getOrNull(importedMailIndex) ?: return@launch
+
+                    viewModelStateFlow.update {
+                        it.copy(
+                            importedMailId = importedMailId,
+                            usageAmount = suggestUsage.amount ?: 0,
+                            usageDate = suggestUsage.dateTime?.date ?: it.usageDate,
+                            usageTime = suggestUsage.dateTime?.time ?: it.usageTime,
+                            usageTitle = suggestUsage.title,
+                            usageDescription = suggestUsage.description,
+                            usageCategorySet = run category@{
+                                CategorySelectDialogViewModel.SelectedResult(
+                                    categoryId = suggestUsage.subCategory?.category?.id ?: return@category null,
+                                    categoryName = suggestUsage.subCategory?.category?.name ?: return@category null,
+                                    subCategoryId = suggestUsage.subCategory?.id ?: return@category null,
+                                    subCategoryName = suggestUsage.subCategory?.name ?: return@category null,
+                                )
+                            },
+                        )
                     }
-            }
+                }
+                .onFailure {
+                    // TODO
+                }
         }
     }
 

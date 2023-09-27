@@ -208,6 +208,18 @@ public class ImportedMailScreenViewModel(
                         }
                     }
                 }
+
+                override fun onClickRegister() {
+                    coroutineScope.launch {
+                        viewModelEventSender.send {
+                            it.navigate(
+                                ScreenStructure.AddMoneyUsage(
+                                    importedMailId = importedMailId,
+                                ),
+                            )
+                        }
+                    }
+                }
             },
         )
     }

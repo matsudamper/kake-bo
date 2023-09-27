@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
@@ -113,6 +114,7 @@ public data class MailScreenUiState(
     public interface LoadedEvent {
         public fun onClickMailHtml()
         public fun onClickMailPlain()
+        public fun onClickRegister()
     }
 
     @Immutable
@@ -295,24 +297,59 @@ private fun MainContent(
                         Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
                         Spacer(modifier = Modifier.height(12.dp))
                     }
-                    items(uiState.usageSuggest) { item ->
-                        MoneyUsageSuggestCard(
-                            modifier = Modifier.fillMaxWidth(),
-                            items = item,
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Row {
-                            Spacer(modifier = Modifier.weight(1f))
-                            OutlinedButton(
-                                onClick = { item.event.onClickRegister() },
-                            ) {
-                                Text("登録")
-                            }
+                    if (uiState.usageSuggest.isEmpty()) {
+                        item {
+                            UsageSuggestEmptyContent(
+                                modifier = Modifier.fillMaxWidth(),
+                                onClickRegister = { uiState.event.onClickRegister() },
+                            )
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
+                    } else {
+                        items(uiState.usageSuggest) { item ->
+                            MoneyUsageSuggestCard(
+                                modifier = Modifier.fillMaxWidth(),
+                                items = item,
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Row {
+                                Spacer(modifier = Modifier.weight(1f))
+                                OutlinedButton(
+                                    onClick = { item.event.onClickRegister() },
+                                ) {
+                                    Text("登録")
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun UsageSuggestEmptyContent(
+    modifier: Modifier = Modifier,
+    onClickRegister: () -> Unit,
+) {
+    Column(
+        modifier = modifier.padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = "解析できませんでした",
+            style = MaterialTheme.typography.bodyLarge,
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        OutlinedButton(
+            onClick = { onClickRegister() },
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = null,
+            )
+            Text("手動登録")
         }
     }
 }
