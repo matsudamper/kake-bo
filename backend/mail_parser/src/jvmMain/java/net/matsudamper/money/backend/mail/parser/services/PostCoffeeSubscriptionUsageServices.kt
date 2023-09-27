@@ -26,8 +26,7 @@ internal object PostCoffeeSubscriptionUsageServices : MoneyUsageServices {
             )
         }
         if (canHandle.any { it }.not()) return listOf()
-        val lines = plain.split("\r\n")
-            .flatMap { it.split("\n") }
+        val lines = ParseUtil.splitByNewLine(plain)
 
         val price = run {
             val amountTitleIndex = lines.indexOf("*今回のご請求額*")
