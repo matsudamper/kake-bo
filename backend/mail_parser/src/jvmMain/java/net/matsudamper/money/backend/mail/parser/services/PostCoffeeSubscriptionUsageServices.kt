@@ -54,7 +54,7 @@ internal object PostCoffeeSubscriptionUsageServices : MoneyUsageServices {
                 title = "PostCoffee 定期便",
                 price = price,
                 description = description.orEmpty(),
-                service = MoneyUsageServiceType.Amazon,
+                service = MoneyUsageServiceType.PostCoffee,
                 dateTime = forwardedInfo?.date ?: date,
             ),
         )
