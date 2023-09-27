@@ -46,7 +46,8 @@ internal fun JsCompose(
         val htmlRenderContextState by LocalHtmlRenderContext.current.stateFlow.collectAsState()
         val htmlFullScreenTextInputContextState by LocalHtmlFullScreenTextInputContext.current.stateFlow.collectAsState()
 
-        @Suppress("UNUSED_VARIABLE") val hasFullScreenOverlay by remember {
+        @Suppress("UNUSED_VARIABLE")
+        val hasFullScreenOverlay by remember {
             derivedStateOf {
                 htmlRenderContextState.isNotEmpty() ||
                     htmlFullScreenTextInputContextState.isNotEmpty()

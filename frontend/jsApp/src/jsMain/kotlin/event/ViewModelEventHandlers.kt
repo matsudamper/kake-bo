@@ -300,7 +300,7 @@ data class ViewModelEventHandlers(
     ) {
         coroutineScope {
             handler.collect(
-                 object : RootHomeTabPeriodAllContentViewModel.Event {
+                object : RootHomeTabPeriodAllContentViewModel.Event {
                     override fun navigate(screen: ScreenStructure) {
                         navController.navigate(screen)
                     }
@@ -317,7 +317,7 @@ data class ViewModelEventHandlers(
                     override fun navigate(screen: ScreenStructure) {
                         navController.navigate(screen)
                     }
-                }
+                },
             )
         }
     }
@@ -330,7 +330,7 @@ data class ViewModelEventHandlers(
                     override fun navigate(screen: ScreenStructure) {
                         navController.navigate(screen)
                     }
-                }
+                },
             )
         }
     }

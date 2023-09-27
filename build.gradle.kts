@@ -20,7 +20,6 @@ subprojects {
                 }
             ) {
                 js(IR) {
-
                 }
             }
         }
