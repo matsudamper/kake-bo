@@ -46,7 +46,7 @@ internal fun JsCompose(
         val htmlRenderContextState by LocalHtmlRenderContext.current.stateFlow.collectAsState()
         val htmlFullScreenTextInputContextState by LocalHtmlFullScreenTextInputContext.current.stateFlow.collectAsState()
 
-        val hasFullScreenOverlay by remember {
+        @Suppress("UNUSED_VARIABLE") val hasFullScreenOverlay by remember {
             derivedStateOf {
                 htmlRenderContextState.isNotEmpty() ||
                     htmlFullScreenTextInputContextState.isNotEmpty()
@@ -61,12 +61,13 @@ internal fun JsCompose(
                     height(100.percent)
                     position(Position.Absolute)
                     outline("none")
-                    if (hasFullScreenOverlay) {
-                        property(
-                            "pointer-events",
-                            "none",
-                        )
-                    }
+                    // Compose1.5.10に上げたらスマホでここが解除されなくなった。無くても動いたので一旦コメントアウト
+//                    if (hasFullScreenOverlay) {
+//                        property(
+//                            "pointer-events",
+//                            "none",
+//                        )
+//                    }
                 }
             },
         )
