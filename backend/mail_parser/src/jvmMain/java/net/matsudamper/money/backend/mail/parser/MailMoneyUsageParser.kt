@@ -10,6 +10,7 @@ import net.matsudamper.money.backend.mail.parser.services.MacdonaldsMobileOrderU
 import net.matsudamper.money.backend.mail.parser.services.MovieTicketUsageService
 import net.matsudamper.money.backend.mail.parser.services.PayPalUsageService
 import net.matsudamper.money.backend.mail.parser.services.PostCoffeeSubscriptionUsageServices
+import net.matsudamper.money.backend.mail.parser.services.PostCoffeeUsageServices
 import net.matsudamper.money.backend.mail.parser.services.RakutenOfflineUsageService
 import net.matsudamper.money.backend.mail.parser.services.RakutenOnlineUsageService
 import net.matsudamper.money.backend.mail.parser.services.ShunsuguUsageService
@@ -40,6 +41,7 @@ public class MailMoneyUsageParser {
             FanzaDojinUsageServices,
             ShunsuguUsageService,
             PostCoffeeSubscriptionUsageServices,
+            PostCoffeeUsageServices,
             BicCameraUsageServices,
         )
             .mapNotNull {
