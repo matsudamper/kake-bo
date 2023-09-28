@@ -245,14 +245,39 @@ class MoneyUsageRepository {
     ): Boolean {
         return runCatching {
             DbConnectionImpl.use { connection ->
-                DSL.using(connection)
-                    .deleteFrom(usage)
-                    .where(
-                        DSL.value(true)
-                            .and(usage.USER_ID.eq(userId.value))
-                            .and(usage.MONEY_USAGE_ID.eq(usageId.id)),
-                    )
-                    .execute() == 1
+                val context = DSL.using(connection)
+                try {
+                    context.startTransaction()
+
+                    if (
+                        context
+                            .deleteFrom(usage)
+                            .where(
+                                DSL.value(true)
+                                    .and(usage.USER_ID.eq(userId.value))
+                                    .and(usage.MONEY_USAGE_ID.eq(usageId.id)),
+                            )
+                            .execute() != 1
+                    ) {
+                        context.rollback()
+                        return@use false
+                    }
+
+                    context
+                        .deleteFrom(relation)
+                        .where(
+                            DSL.value(true)
+                                .and(relation.USER_ID.eq(userId.value))
+                                .and(relation.MONEY_USAGE_ID.eq(usageId.id)),
+                        )
+                        .execute()
+
+                    context.commit()
+                    return@use true
+                } catch (e: Throwable) {
+                    context.rollback()
+                    return@use false
+                }
             }
         }.fold(
             onSuccess = { it },
