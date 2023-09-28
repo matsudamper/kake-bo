@@ -3,7 +3,9 @@ package net.matsudamper.money.frontend.common.ui.screen.importedmail.root
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -41,11 +44,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.ui.ScrollButtons
+import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
@@ -59,8 +66,8 @@ public data class MailScreenUiState(
 ) {
     public sealed interface LoadingState {
 
-        public object Loading : LoadingState
-        public object Error : LoadingState
+        public data object Loading : LoadingState
+        public data object Error : LoadingState
         public data class Loaded(
             val mail: Mail,
             val usageSuggest: ImmutableList<UsageSuggest>,
@@ -225,106 +232,146 @@ private fun MainContent(
     modifier: Modifier,
     uiState: MailScreenUiState.LoadingState.Loaded,
 ) {
-    Box(
-        modifier = modifier.fillMaxSize()
-            .padding(horizontal = 24.dp)
-            .widthIn(max = 700.dp),
+    val density = LocalDensity.current
+    val lazyListState = rememberLazyListState()
+    var scrollButtonSize by remember { mutableStateOf(0.dp) }
+    BoxWithConstraints(
+        modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.TopCenter,
     ) {
-        Column(modifier = Modifier.fillMaxWidth()) {
+        val height = this.maxHeight
+        Column(
+            modifier = Modifier.fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .widthIn(max = 700.dp),
+        ) {
             Spacer(modifier = Modifier.height(24.dp))
-            Column(modifier = Modifier.fillMaxWidth()) {
+            MailSection(
+                uiState = uiState,
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+            SuggestSection(
+                uiState = uiState,
+                contentPadding = PaddingValues(
+                    bottom = scrollButtonSize,
+                ),
+            )
+        }
+
+        ScrollButtons(
+            modifier = Modifier
+                .onSizeChanged {
+                    scrollButtonSize = with(density) { it.height.toDp() }
+                }
+                .align(Alignment.BottomEnd)
+                .padding(ScrollButtonsDefaults.padding)
+                .height(ScrollButtonsDefaults.height),
+            scrollState = lazyListState,
+            scrollSize = with(density) { height.toPx() } * 0.4f,
+        )
+    }
+}
+
+@Composable
+private fun SuggestSection(
+    uiState: MailScreenUiState.LoadingState.Loaded,
+    contentPadding: PaddingValues,
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        LazyColumn(
+            contentPadding = contentPadding,
+        ) {
+            if (uiState.usage.isNotEmpty()) {
+                item {
+                    Text(
+                        modifier = Modifier.padding(horizontal = 12.dp),
+                        text = "登録済み",
+                        style = MaterialTheme.typography.headlineLarge,
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
+                items(uiState.usage) { item ->
+                    LinkedMoneyUsageCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        uiState = item,
+                    )
+                    Spacer(modifier = Modifier.height(24.dp))
+                }
+            }
+            item {
                 Text(
                     modifier = Modifier.padding(horizontal = 12.dp),
-                    text = "メール",
+                    text = "解析結果",
                     style = MaterialTheme.typography.headlineLarge,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
                 Spacer(modifier = Modifier.height(12.dp))
-                MailCard(
-                    modifier = Modifier.fillMaxWidth(),
-                    uiState = uiState.mail,
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Row {
-                    Spacer(modifier = Modifier.weight(1f))
-                    OutlinedButton(
-                        enabled = uiState.hasPlain,
-                        onClick = { uiState.event.onClickMailPlain() },
-                    ) {
-                        Text("メールテキスト")
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    OutlinedButton(
-                        enabled = uiState.hasHtml,
-                        onClick = { uiState.event.onClickMailHtml() },
-                    ) {
-                        Text("メールHTML")
-                    }
-                }
-                Spacer(modifier = Modifier.height(12.dp))
             }
-            Spacer(modifier = Modifier.height(24.dp))
-            Column(modifier = Modifier.fillMaxWidth()) {
-                LazyColumn {
-                    if (uiState.usage.isNotEmpty()) {
-                        item {
-                            Text(
-                                modifier = Modifier.padding(horizontal = 12.dp),
-                                text = "登録済み",
-                                style = MaterialTheme.typography.headlineLarge,
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
-                            Spacer(modifier = Modifier.height(12.dp))
-                        }
-                        items(uiState.usage) { item ->
-                            LinkedMoneyUsageCard(
-                                modifier = Modifier.fillMaxWidth(),
-                                uiState = item,
-                            )
-                            Spacer(modifier = Modifier.height(24.dp))
-                        }
-                    }
-                    item {
-                        Text(
-                            modifier = Modifier.padding(horizontal = 12.dp),
-                            text = "解析結果",
-                            style = MaterialTheme.typography.headlineLarge,
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-                    if (uiState.usageSuggest.isEmpty()) {
-                        item {
-                            UsageSuggestEmptyContent(
-                                modifier = Modifier.fillMaxWidth(),
-                                onClickRegister = { uiState.event.onClickRegister() },
-                            )
-                        }
-                    } else {
-                        items(uiState.usageSuggest) { item ->
-                            MoneyUsageSuggestCard(
-                                modifier = Modifier.fillMaxWidth(),
-                                items = item,
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Row {
-                                Spacer(modifier = Modifier.weight(1f))
-                                OutlinedButton(
-                                    onClick = { item.event.onClickRegister() },
-                                ) {
-                                    Text("登録")
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(16.dp))
+            if (uiState.usageSuggest.isEmpty()) {
+                item {
+                    UsageSuggestEmptyContent(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClickRegister = { uiState.event.onClickRegister() },
+                    )
+                }
+            } else {
+                items(uiState.usageSuggest) { item ->
+                    MoneyUsageSuggestCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        items = item,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row {
+                        Spacer(modifier = Modifier.weight(1f))
+                        OutlinedButton(
+                            onClick = { item.event.onClickRegister() },
+                        ) {
+                            Text("登録")
                         }
                     }
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun MailSection(uiState: MailScreenUiState.LoadingState.Loaded) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            modifier = Modifier.padding(horizontal = 12.dp),
+            text = "メール",
+            style = MaterialTheme.typography.headlineLarge,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+        Spacer(modifier = Modifier.height(12.dp))
+        MailCard(
+            modifier = Modifier.fillMaxWidth(),
+            uiState = uiState.mail,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Row {
+            Spacer(modifier = Modifier.weight(1f))
+            OutlinedButton(
+                enabled = uiState.hasPlain,
+                onClick = { uiState.event.onClickMailPlain() },
+            ) {
+                Text("メールテキスト")
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            OutlinedButton(
+                enabled = uiState.hasHtml,
+                onClick = { uiState.event.onClickMailHtml() },
+            ) {
+                Text("メールHTML")
+            }
+        }
+        Spacer(modifier = Modifier.height(12.dp))
     }
 }
 
