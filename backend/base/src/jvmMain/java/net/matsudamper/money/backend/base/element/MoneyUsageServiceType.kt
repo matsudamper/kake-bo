@@ -72,6 +72,6 @@ public enum class MoneyUsageServiceType(
         id = 18,
         displayName = "楽天",
     ),
-    
+
     ;
 }
