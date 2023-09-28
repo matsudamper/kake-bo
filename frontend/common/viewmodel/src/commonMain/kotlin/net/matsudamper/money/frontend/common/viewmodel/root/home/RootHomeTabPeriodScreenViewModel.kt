@@ -101,6 +101,7 @@ public class RootHomeTabPeriodScreenViewModel(
                         categoryType = when (viewModelState.contentType) {
                             is ViewModelState.ContentType.All -> "すべて"
                             is ViewModelState.ContentType.Category -> viewModelState.contentType.name
+                            is ViewModelState.ContentType.Loading -> ""
                         },
                         categoryTypes = createCategoryTypes(categories = viewModelState.categories).toImmutableList(),
                         between = "${displayPeriods.first().year}/${displayPeriods.first().month} - ${displayPeriods.last().year}/${displayPeriods.last().month}",
@@ -134,24 +135,25 @@ public class RootHomeTabPeriodScreenViewModel(
 
     private fun collectScreenInfo() {
         coroutineScope.launch {
-            api.screenFlow().collectLatest {
+            api.screenFlow().collectLatest { response ->
+                val newCategories = response.data?.user?.moneyUsageCategories?.nodes.orEmpty()
+                val category = newCategories.firstOrNull { it.id == categoryId }
                 viewModelStateFlow.update { viewModelState ->
                     val newContentType = run type@{
                         if (viewModelState.categories.isNotEmpty()) {
                             return@type viewModelState.contentType
                         }
-                        val category = viewModelState.categories.firstOrNull { it.id == categoryId }
                         if (category != null) {
                             ViewModelState.ContentType.Category(
                                 categoryId = category.id,
                                 name = category.name,
                             )
+                        } else {
+                            ViewModelState.ContentType.All
                         }
-
-                        return@type viewModelState.contentType
                     }
                     viewModelState.copy(
-                        categories = it.data?.user?.moneyUsageCategories?.nodes.orEmpty(),
+                        categories = newCategories,
                         contentType = newContentType,
                     )
                 }
@@ -195,11 +197,7 @@ public class RootHomeTabPeriodScreenViewModel(
                                     it.navigate(
                                         RootHomeScreenStructure.PeriodCategory(
                                             categoryId = category.id,
-                                            since = LocalDate(
-                                                year = viewModelStateFlow.value.displayPeriod.sinceDate.year,
-                                                monthNumber = viewModelStateFlow.value.displayPeriod.sinceDate.month,
-                                                dayOfMonth = 1,
-                                            ),
+                                            since = getCurrentLocalDate(),
                                         ),
                                     )
                                 }
@@ -222,17 +220,31 @@ public class RootHomeTabPeriodScreenViewModel(
     private fun updateUrl() {
         coroutineScope.launch {
             viewModelEventSender.send {
-                it.navigate(
-                    RootHomeScreenStructure.PeriodAnalytics(
-                        since = LocalDate(
-                            viewModelStateFlow.value.displayPeriod.sinceDate.year,
-                            viewModelStateFlow.value.displayPeriod.sinceDate.month,
-                            1,
+                val since = getCurrentLocalDate()
+                if (categoryId == null) {
+                    it.navigate(
+                        RootHomeScreenStructure.PeriodAnalytics(
+                            since = since,
                         ),
-                    ),
-                )
+                    )
+                } else {
+                    it.navigate(
+                        RootHomeScreenStructure.PeriodCategory(
+                            categoryId = categoryId,
+                            since = since,
+                        ),
+                    )
+                }
             }
         }
+    }
+
+    private fun getCurrentLocalDate(): LocalDate {
+        return LocalDate(
+            year = viewModelStateFlow.value.displayPeriod.sinceDate.year,
+            monthNumber = viewModelStateFlow.value.displayPeriod.sinceDate.month,
+            dayOfMonth = 1,
+        )
     }
 
     public interface Event {
@@ -240,7 +252,7 @@ public class RootHomeTabPeriodScreenViewModel(
     }
 
     private data class ViewModelState(
-        val contentType: ContentType = ContentType.All,
+        val contentType: ContentType = ContentType.Loading,
         val categories: List<RootHomeTabScreenQuery.Node> = listOf(),
         val displayPeriod: Period = run {
             val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
@@ -272,6 +284,7 @@ public class RootHomeTabPeriodScreenViewModel(
         )
 
         sealed interface ContentType {
+            data object Loading : ContentType
             data object All : ContentType
             data class Category(
                 val categoryId: MoneyUsageCategoryId,
