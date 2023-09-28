@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -94,26 +95,31 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
         contentColor = MaterialTheme.colorScheme.onSurface,
         bottomBar = {
             if (firstLoadingFinished) {
-                Box(
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Button(
-                        modifier = Modifier.padding(12.dp)
-                            .widthIn(max = 500.dp)
-                            .fillMaxWidth(),
-                        onClick = { uiState.event.onClickImport() },
-                        elevation = ButtonDefaults.buttonElevation(
-                            defaultElevation = 4.dp,
-                            pressedElevation = 8.dp,
-                        ),
-                        shape = CircleShape,
+                    Box(
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.Center,
                     ) {
-                        Text(
-                            text = "インポート",
-                            fontSize = 18.sp,
-                            fontFamily = rememberCustomFontFamily(),
-                        )
+                        Button(
+                            modifier = Modifier.padding(12.dp)
+                                .widthIn(max = 500.dp)
+                                .fillMaxWidth(),
+                            onClick = { uiState.event.onClickImport() },
+                            elevation = ButtonDefaults.buttonElevation(
+                                defaultElevation = 4.dp,
+                                pressedElevation = 8.dp,
+                            ),
+                            shape = CircleShape,
+                        ) {
+                            Text(
+                                text = "インポート",
+                                fontSize = 18.sp,
+                                fontFamily = rememberCustomFontFamily(),
+                            )
+                        }
                     }
 
                     ScrollButtons(
@@ -121,7 +127,7 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                             .onSizeChanged {
                                 scrollBarHeight = it.height
                             }
-                            .align(Alignment.BottomEnd)
+                            .align(Alignment.Bottom)
                             .padding(ScrollButtonsDefaults.padding)
                             .height(ScrollButtonsDefaults.height),
                         scrollState = lazyListState,
