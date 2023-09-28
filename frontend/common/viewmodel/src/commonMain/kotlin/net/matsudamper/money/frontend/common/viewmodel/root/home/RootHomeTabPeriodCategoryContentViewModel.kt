@@ -187,15 +187,6 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                     }
                 }.map { it.await() }
 
-            println(
-                "fetch: ${
-                (0 until period.monthCount)
-                    .map { index ->
-                        period.sinceDate.addMonth(index)
-                    }.joinToString(postfix = "月") { it.month.toString() }
-                }",
-            )
-            println("period: $period")
             viewModelStateFlow.update {
                 it.copy(
                     displayPeriod = period,
