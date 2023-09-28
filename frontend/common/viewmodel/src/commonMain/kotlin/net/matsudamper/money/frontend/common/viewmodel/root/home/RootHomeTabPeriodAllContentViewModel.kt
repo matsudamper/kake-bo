@@ -269,13 +269,15 @@ public class RootHomeTabPeriodAllContentViewModel(
     }
 
     public fun updateStructure(current: RootHomeScreenStructure.Period) {
-        val since = current.since ?: return // TODO
-        viewModelStateFlow.update {
-            it.copy(
-                displayPeriod = it.displayPeriod.copy(
-                    sinceDate = ViewModelState.YearMonth(since.year, since.monthNumber),
-                ),
-            )
+        val since = current.since
+        if (since != null) {
+            viewModelStateFlow.update {
+                it.copy(
+                    displayPeriod = it.displayPeriod.copy(
+                        sinceDate = ViewModelState.YearMonth(since.year, since.monthNumber),
+                    ),
+                )
+            }
         }
         fetchAll(
             period = viewModelStateFlow.value.displayPeriod,
