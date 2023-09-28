@@ -226,7 +226,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                         ViewModelState.YearMonthCategory(
                             categoryId = categoryId,
                             yearMonth = startYearMonth,
-                        )
+                        ),
                     ] == null
                 }
                 .map { (startYearMonth, endYearMonth) ->
