@@ -232,7 +232,11 @@ public class AddMoneyUsageViewModel(
             graphqlApi.get(importedMailId)
                 .onSuccess { result ->
                     val importedMailIndex = current.importedMailIndex
-                    if (importedMailIndex == null) {
+
+                    val suggestUsage = result.data?.user?.importedMailAttributes?.mail?.suggestUsages
+                        ?.getOrNull(importedMailIndex ?: 0)
+
+                    if (suggestUsage == null) {
                         val subject = result.data?.user?.importedMailAttributes?.mail?.subject.orEmpty()
                         val date = result.data?.user?.importedMailAttributes?.mail?.dateTime
                         viewModelStateFlow.update {
@@ -244,9 +248,6 @@ public class AddMoneyUsageViewModel(
                         }
                         return@launch
                     }
-
-                    val suggestUsage = result.data?.user?.importedMailAttributes?.mail?.suggestUsages
-                        ?.getOrNull(importedMailIndex) ?: return@launch
 
                     viewModelStateFlow.update {
                         it.copy(
