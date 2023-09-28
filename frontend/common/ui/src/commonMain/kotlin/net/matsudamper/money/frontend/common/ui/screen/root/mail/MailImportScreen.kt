@@ -1,7 +1,5 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.mail
 
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -11,8 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -38,15 +34,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButton
+import net.matsudamper.money.frontend.common.ui.ScrollButtons
+import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButtonDefaults
 import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
@@ -83,16 +83,19 @@ public fun MailImportScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MailContent(uiState: ImportMailScreenUiState) {
+    val density = LocalDensity.current
     val firstLoadingFinished = remember(uiState.isLoading, uiState.mails) {
         uiState.mails.isNotEmpty() || uiState.isLoading.not()
     }
+    var scrollBarHeight by remember { mutableIntStateOf(0) }
+    var containerHeight by remember { mutableIntStateOf(0) }
+    val lazyListState = rememberLazyListState()
     Scaffold(
         contentColor = MaterialTheme.colorScheme.onSurface,
         bottomBar = {
             if (firstLoadingFinished) {
                 Box(
-                    modifier = Modifier.fillMaxWidth()
-                        .padding(end = ElongatedScrollButtonDefaults.scrollButtonSize + ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding),
+                    modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center,
                 ) {
                     Button(
@@ -112,6 +115,18 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                             fontFamily = rememberCustomFontFamily(),
                         )
                     }
+
+                    ScrollButtons(
+                        modifier = Modifier
+                            .onSizeChanged {
+                                scrollBarHeight = it.height
+                            }
+                            .align(Alignment.BottomEnd)
+                            .padding(ScrollButtonsDefaults.padding)
+                            .height(ScrollButtonsDefaults.height),
+                        scrollState = lazyListState,
+                        scrollSize = containerHeight * 0.4f,
+                    )
                 }
             }
         },
@@ -126,22 +141,20 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
             }
         } else {
             BoxWithConstraints(
-                modifier = Modifier.fillMaxSize()
-                    .padding(
-                        top = paddingValues.calculateTopPadding(),
-                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                    ),
+                modifier = Modifier.fillMaxSize(),
             ) {
-                val height = this.maxHeight
-                val lazyListState = rememberLazyListState()
-                val density = LocalDensity.current
+                LaunchedEffect(maxHeight) {
+                    containerHeight = with(density) {
+                        maxHeight.roundToPx()
+                    }
+                }
                 Row(modifier = Modifier.fillMaxSize()) {
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxHeight()
                             .weight(1f),
                         state = lazyListState,
+                        contentPadding = paddingValues,
                     ) {
                         items(uiState.mails) { item ->
                             MailContent(
@@ -177,24 +190,7 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                                 }
                             }
                         }
-                        item {
-                            Spacer(modifier = Modifier.height(paddingValues.calculateBottomPadding()))
-                        }
                     }
-
-                    ElongatedScrollButton(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .padding(ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding)
-                            .width(ElongatedScrollButtonDefaults.scrollButtonSize),
-                        scrollState = lazyListState,
-                        scrollSize = with(density) {
-                            height.toPx() * 0.7f
-                        },
-                        animationSpec = spring(
-                            stiffness = Spring.StiffnessLow,
-                        ),
-                    )
                 }
             }
         }

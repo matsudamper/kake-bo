@@ -1,7 +1,5 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.mail
 
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -45,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
@@ -53,8 +52,8 @@ import androidx.compose.ui.window.Popup
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import net.matsudamper.money.frontend.common.base.ImmutableList
-import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButton
-import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButtonDefaults
+import net.matsudamper.money.frontend.common.ui.ScrollButtons
+import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
@@ -159,6 +158,7 @@ private fun MainContent(
     moreLoading: () -> Unit,
 ) {
     val density = LocalDensity.current
+    var scrollButtonSize by remember { mutableStateOf(0.dp) }
     Column(modifier = modifier) {
         Filter(
             modifier = Modifier.fillMaxWidth(),
@@ -179,7 +179,7 @@ private fun MainContent(
                 modifier = Modifier.fillMaxSize(),
                 state = lazyListState,
                 contentPadding = PaddingValues(
-                    end = ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding + ElongatedScrollButtonDefaults.scrollButtonSize,
+                    bottom = scrollButtonSize,
                 ),
             ) {
                 items(uiState.listItems) { mail ->
@@ -212,19 +212,16 @@ private fun MainContent(
                 }
             }
 
-            ElongatedScrollButton(
+            ScrollButtons(
                 modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .fillMaxHeight()
-                    .padding(ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding)
-                    .width(ElongatedScrollButtonDefaults.scrollButtonSize),
+                    .onSizeChanged {
+                        scrollButtonSize = with(density) { it.height.toDp() }
+                    }
+                    .align(Alignment.BottomEnd)
+                    .padding(ScrollButtonsDefaults.padding)
+                    .height(ScrollButtonsDefaults.height),
                 scrollState = lazyListState,
-                scrollSize = with(density) {
-                    height.toPx() * 0.7f
-                },
-                animationSpec = spring(
-                    stiffness = Spring.StiffnessLow,
-                ),
+                scrollSize = with(density) { height.toPx() } * 0.4f,
             )
         }
     }
