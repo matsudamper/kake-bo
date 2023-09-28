@@ -72,6 +72,10 @@ public enum class MoneyUsageServiceType(
         id = 18,
         displayName = "楽天",
     ),
+    EkiNet(
+        id = 19,
+        displayName = "えきねっと",
+    ),
 
     ;
 }
