@@ -172,6 +172,16 @@ public class RootHomeTabPeriodScreenViewModel(
                                 contentType = ViewModelState.ContentType.All,
                             )
                         }
+
+                        coroutineScope.launch {
+                            viewModelEventSender.send {
+                                it.navigate(
+                                    RootHomeScreenStructure.PeriodAnalytics(
+                                        since = getCurrentLocalDate(),
+                                    ),
+                                )
+                            }
+                        }
                     },
                 ),
             )
