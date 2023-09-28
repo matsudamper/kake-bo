@@ -17,14 +17,17 @@ import org.jetbrains.compose.web.css.FlexDirection
 import org.jetbrains.compose.web.css.JustifyContent
 import org.jetbrains.compose.web.css.alignItems
 import org.jetbrains.compose.web.css.backgroundColor
+import org.jetbrains.compose.web.css.borderRadius
 import org.jetbrains.compose.web.css.color
 import org.jetbrains.compose.web.css.display
 import org.jetbrains.compose.web.css.em
 import org.jetbrains.compose.web.css.flexDirection
+import org.jetbrains.compose.web.css.fontSize
 import org.jetbrains.compose.web.css.height
 import org.jetbrains.compose.web.css.justifyContent
 import org.jetbrains.compose.web.css.marginTop
 import org.jetbrains.compose.web.css.minus
+import org.jetbrains.compose.web.css.padding
 import org.jetbrains.compose.web.css.paddingLeft
 import org.jetbrains.compose.web.css.paddingRight
 import org.jetbrains.compose.web.css.percent
@@ -33,11 +36,13 @@ import org.jetbrains.compose.web.css.times
 import org.jetbrains.compose.web.css.vh
 import org.jetbrains.compose.web.css.vw
 import org.jetbrains.compose.web.css.width
+import org.jetbrains.compose.web.dom.AttrBuilderContext
 import org.jetbrains.compose.web.dom.Button
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Input
 import org.jetbrains.compose.web.dom.Text
 import org.jetbrains.compose.web.dom.TextArea
+import org.w3c.dom.HTMLButtonElement
 
 @Composable
 internal fun HtmlFullScreenTextInputContent(
@@ -101,6 +106,8 @@ internal fun HtmlFullScreenTextInputContent(
                     attrs = {
                         id(inputId)
                         style {
+                            fontSize(1.1.em)
+                            padding(0.2.em)
                             width(100.percent)
                         }
                         placeholder(value.title)
@@ -127,7 +134,7 @@ internal fun HtmlFullScreenTextInputContent(
                     }
                 },
             ) {
-                Button(
+                ConfirmButton(
                     attrs = {
                         onClick {
                             value.canceled()
@@ -143,7 +150,7 @@ internal fun HtmlFullScreenTextInputContent(
                         }
                     },
                 )
-                Button(
+                ConfirmButton(
                     attrs = {
                         onClick {
                             value.textComplete(text)
