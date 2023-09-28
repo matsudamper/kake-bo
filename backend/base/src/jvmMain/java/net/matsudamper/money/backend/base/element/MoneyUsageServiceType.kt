@@ -68,6 +68,9 @@ public enum class MoneyUsageServiceType(
         id = 17,
         displayName = "Book Walker",
     ),
-
+    Rakuten(
+        id = 18,
+        displayName = "楽天",
+    )
     ;
 }

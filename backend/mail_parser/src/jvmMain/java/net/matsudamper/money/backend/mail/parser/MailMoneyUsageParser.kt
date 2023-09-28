@@ -14,6 +14,7 @@ import net.matsudamper.money.backend.mail.parser.services.PostCoffeeSubscription
 import net.matsudamper.money.backend.mail.parser.services.PostCoffeeUsageServices
 import net.matsudamper.money.backend.mail.parser.services.RakutenOfflineUsageService
 import net.matsudamper.money.backend.mail.parser.services.RakutenOnlineUsageService
+import net.matsudamper.money.backend.mail.parser.services.RakutenUsageServices
 import net.matsudamper.money.backend.mail.parser.services.ShunsuguUsageService
 import net.matsudamper.money.backend.mail.parser.services.SteamUsageService
 import net.matsudamper.money.backend.mail.parser.services.UberEatsUsageService
@@ -41,6 +42,7 @@ public class MailMoneyUsageParser {
             UberEatsUsageService,
             FanzaDojinUsageServices,
             ShunsuguUsageService,
+            RakutenUsageServices,
             PostCoffeeSubscriptionUsageServices,
             PostCoffeeUsageServices,
             BicCameraUsageServices,
