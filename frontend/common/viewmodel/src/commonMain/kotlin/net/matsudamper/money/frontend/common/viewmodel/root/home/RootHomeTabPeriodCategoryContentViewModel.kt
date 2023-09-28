@@ -55,6 +55,14 @@ public class RootHomeTabPeriodCategoryContentViewModel(
             loadingState = RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading,
             rootHomeTabPeriodUiState = periodViewModel.uiStateFlow.value,
             rootHomeTabUiState = tabViewModel.uiStateFlow.value,
+            event = object : RootHomeTabPeriodCategoryContentUiState.Event {
+                override suspend fun onViewInitialized() {
+                    fetchCategory(
+                        period = viewModelStateFlow.value.displayPeriod,
+                        categoryId = categoryId,
+                    )
+                }
+            },
         ),
     ).also { uiStateFlow ->
         tabViewModel.viewModelEventHandler
@@ -93,14 +101,6 @@ public class RootHomeTabPeriodCategoryContentViewModel(
             }
         }
     }.asStateFlow()
-
-    init {
-        // TODO Viewの初期化時にやる
-        fetchCategory(
-            period = viewModelStateFlow.value.displayPeriod,
-            categoryId = categoryId,
-        )
-    }
 
     private fun createCategoryUiState(
         categoryId: MoneyUsageCategoryId,

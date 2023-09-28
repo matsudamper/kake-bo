@@ -14,6 +14,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -27,15 +28,19 @@ public data class RootHomeTabPeriodCategoryContentUiState(
     val loadingState: LoadingState,
     val rootHomeTabUiState: RootHomeTabScreenScaffoldUiState,
     val rootHomeTabPeriodUiState: RootHomeTabPeriodUiState,
+    val event: Event,
 ) {
 
     public sealed interface LoadingState {
-        public object Error : LoadingState
-        public object Loading : LoadingState
+        public data object Error : LoadingState
+        public data object Loading : LoadingState
         public data class Loaded(
             val graphItems: ImmutableList<PolygonalLineGraphItemUiState>,
             val monthTotalItems: ImmutableList<RootHomeTabPeriodUiState.MonthTotalItem>,
         ) : LoadingState
+    }
+    public interface Event {
+        public suspend fun onViewInitialized()
     }
 }
 
@@ -45,6 +50,9 @@ public fun RootHomeTabPeriodCategoryScreen(
     uiState: RootHomeTabPeriodCategoryContentUiState,
     scaffoldListener: RootScreenScaffoldListener,
 ) {
+    LaunchedEffect(Unit) {
+        uiState.event.onViewInitialized()
+    }
     RootHomeTabScreenScaffold(
         uiState = uiState.rootHomeTabUiState,
         scaffoldListener = scaffoldListener,
