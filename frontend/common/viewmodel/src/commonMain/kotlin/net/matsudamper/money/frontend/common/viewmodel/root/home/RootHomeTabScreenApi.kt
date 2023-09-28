@@ -50,9 +50,9 @@ public class RootHomeTabScreenApi(
             )
                 .fetchPolicy(
                     if (useCache) {
-                        FetchPolicy.CacheAndNetwork
+                        FetchPolicy.CacheFirst
                     } else {
-                        FetchPolicy.NetworkFirst
+                        FetchPolicy.NetworkOnly
                     },
                 )
                 .execute()
@@ -87,7 +87,7 @@ public class RootHomeTabScreenApi(
                     if (useCache) {
                         FetchPolicy.CacheFirst
                     } else {
-                        FetchPolicy.NetworkFirst
+                        FetchPolicy.NetworkOnly
                     },
                 )
                 .execute()
