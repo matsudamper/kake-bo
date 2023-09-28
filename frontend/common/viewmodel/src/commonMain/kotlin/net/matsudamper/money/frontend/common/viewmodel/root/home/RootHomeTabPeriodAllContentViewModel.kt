@@ -102,9 +102,7 @@ public class RootHomeTabPeriodAllContentViewModel(
                     val period = viewModelStateFlow.value.displayPeriod
 
                     fetchAll(
-                        period = period.copy(
-                            sinceDate = period.sinceDate.addMonth(1),
-                        ),
+                        period = period,
                         forceReFetch = true,
                     )
                 }
