@@ -29,12 +29,12 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByCategoryQuery
 
 public class RootHomeTabPeriodCategoryContentViewModel(
-    private val categoryId: MoneyUsageCategoryId,
+    initialCategoryId: MoneyUsageCategoryId,
     private val coroutineScope: CoroutineScope,
     private val api: RootHomeTabScreenApi,
     loginCheckUseCase: LoginCheckUseCase,
 ) {
-    private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState(categoryId = categoryId))
+    private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState(categoryId = initialCategoryId))
 
     private val tabViewModel = RootHomeTabScreenViewModel(
         coroutineScope = coroutineScope,
@@ -53,7 +53,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
     private val periodViewModel = RootHomeTabPeriodScreenViewModel(
         coroutineScope = coroutineScope,
         api = RootHomeTabScreenApi(),
-        categoryId = categoryId,
+        initialCategoryId = initialCategoryId,
     ).also { viewModel ->
         coroutineScope.launch {
             viewModel.viewModelEventHandler.collect(
@@ -99,7 +99,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                 override suspend fun onViewInitialized() {
                     fetchCategory(
                         period = viewModelStateFlow.value.displayPeriod,
-                        categoryId = categoryId,
+                        categoryId = initialCategoryId,
                     )
                 }
             },
@@ -141,6 +141,32 @@ public class RootHomeTabPeriodCategoryContentViewModel(
             }
         }
     }.asStateFlow()
+
+    public fun updateStructure(current: RootHomeScreenStructure.PeriodCategory) {
+        val since = current.since
+        viewModelStateFlow.update { viewModelState ->
+            viewModelState.copy(
+                categoryId = current.categoryId,
+                displayPeriod = viewModelState.displayPeriod.copy(
+                    sinceDate = run since@{
+                        if (since != null) {
+                            ViewModelState.YearMonth(
+                                year = since.year,
+                                month = since.monthNumber,
+                            )
+                        } else {
+                            viewModelState.displayPeriod.sinceDate
+                        }
+                    },
+                ),
+            )
+        }
+        fetchCategory(
+            period = viewModelStateFlow.value.displayPeriod,
+            categoryId = current.categoryId,
+            forceReFetch = false,
+        )
+    }
 
     private fun createCategoryUiState(
         categoryId: MoneyUsageCategoryId,
@@ -233,25 +259,6 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                 )
             }
         }
-    }
-
-    public fun updateStructure(current: RootHomeScreenStructure.PeriodCategory) {
-        val since = current.since ?: return
-        viewModelStateFlow.update { viewModelState ->
-            viewModelState.copy(
-                displayPeriod = viewModelState.displayPeriod.copy(
-                    sinceDate = ViewModelState.YearMonth(
-                        year = since.year,
-                        month = since.monthNumber,
-                    ),
-                ),
-            )
-        }
-        fetchCategory(
-            period = viewModelStateFlow.value.displayPeriod,
-            categoryId = categoryId,
-            forceReFetch = false,
-        )
     }
 
     public interface Event {

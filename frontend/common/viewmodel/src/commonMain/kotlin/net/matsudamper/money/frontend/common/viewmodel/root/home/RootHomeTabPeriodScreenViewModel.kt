@@ -24,9 +24,13 @@ import net.matsudamper.money.frontend.graphql.RootHomeTabScreenQuery
 public class RootHomeTabPeriodScreenViewModel(
     private val coroutineScope: CoroutineScope,
     private val api: RootHomeTabScreenApi,
-    private val categoryId: MoneyUsageCategoryId?,
+    initialCategoryId: MoneyUsageCategoryId?,
 ) {
-    private val viewModelStateFlow = MutableStateFlow(ViewModelState())
+    private val viewModelStateFlow = MutableStateFlow(
+        ViewModelState(
+            categoryId = initialCategoryId,
+        ),
+    )
 
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
@@ -136,7 +140,7 @@ public class RootHomeTabPeriodScreenViewModel(
         coroutineScope.launch {
             api.screenFlow().collectLatest { response ->
                 val newCategories = response.data?.user?.moneyUsageCategories?.nodes.orEmpty()
-                val category = newCategories.firstOrNull { it.id == categoryId }
+                val category = newCategories.firstOrNull { it.id == viewModelStateFlow.value.categoryId }
                 viewModelStateFlow.update { viewModelState ->
                     val newContentType = run type@{
                         if (viewModelState.categories.isNotEmpty()) {
@@ -210,6 +214,7 @@ public class RootHomeTabPeriodScreenViewModel(
     private fun updateUrl() {
         coroutineScope.launch {
             viewModelEventSender.send {
+                val categoryId = viewModelStateFlow.value.categoryId
                 if (categoryId == null) {
                     it.onClickAllFilter()
                 } else {
@@ -233,6 +238,7 @@ public class RootHomeTabPeriodScreenViewModel(
     }
 
     private data class ViewModelState(
+        val categoryId: MoneyUsageCategoryId?,
         val contentType: ContentType = ContentType.Loading,
         val categories: List<RootHomeTabScreenQuery.Node> = listOf(),
         val displayPeriod: Period = run {

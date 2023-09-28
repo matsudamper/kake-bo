@@ -55,7 +55,7 @@ public class RootHomeTabPeriodAllContentViewModel(
     private val periodViewModel = RootHomeTabPeriodScreenViewModel(
         coroutineScope = coroutineScope,
         api = RootHomeTabScreenApi(),
-        categoryId = null,
+        initialCategoryId = null,
     ).also { viewModel ->
         coroutineScope.launch {
             viewModel.viewModelEventHandler.collect(

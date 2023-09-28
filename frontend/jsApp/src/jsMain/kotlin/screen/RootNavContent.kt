@@ -93,7 +93,7 @@ internal fun RootNavContent(
                             is RootHomeScreenStructure.PeriodCategory -> {
                                 val categoryViewModel = remember {
                                     RootHomeTabPeriodCategoryContentViewModel(
-                                        categoryId = current.categoryId,
+                                        initialCategoryId = current.categoryId,
                                         coroutineScope = rootCoroutineScope,
                                         api = RootHomeTabScreenApi(),
                                         loginCheckUseCase = loginCheckUseCase,
