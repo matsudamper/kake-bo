@@ -115,6 +115,13 @@ fun Application.myApplicationModule() {
                                 )
                             }
                         }
+                        accessPath == "/skiko.wasm" -> {
+                            cacheControl {
+                                listOf(
+                                    CacheControl.MaxAge(maxAgeSeconds = 1.hours.inWholeSeconds.toInt()),
+                                )
+                            }
+                        }
                         else -> Unit
                     }
                 }
