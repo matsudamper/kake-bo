@@ -246,7 +246,7 @@ public class RootHomeTabPeriodScreenViewModel(
         )
 
         sealed interface ContentType {
-            object All : ContentType
+            data object All : ContentType
             data class Category(
                 val categoryId: MoneyUsageCategoryId,
                 val name: String,
