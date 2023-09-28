@@ -64,6 +64,10 @@ public enum class MoneyUsageServiceType(
         id = 16,
         displayName = "ビックカメラ",
     ),
+    BookWalker(
+        id = 17,
+        displayName = "Book Walker",
+    ),
 
     ;
 }
