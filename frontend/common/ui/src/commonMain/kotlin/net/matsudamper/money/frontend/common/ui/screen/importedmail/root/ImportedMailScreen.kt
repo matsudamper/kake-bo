@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.ClickableText
@@ -252,6 +253,7 @@ private fun MainContent(
             Spacer(modifier = Modifier.height(24.dp))
             SuggestSection(
                 uiState = uiState,
+                lazyListState = lazyListState,
                 contentPadding = PaddingValues(
                     bottom = scrollButtonSize,
                 ),
@@ -276,9 +278,11 @@ private fun MainContent(
 private fun SuggestSection(
     uiState: MailScreenUiState.LoadingState.Loaded,
     contentPadding: PaddingValues,
+    lazyListState: LazyListState,
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         LazyColumn(
+            state = lazyListState,
             contentPadding = contentPadding,
         ) {
             if (uiState.usage.isNotEmpty()) {
