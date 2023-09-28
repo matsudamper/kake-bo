@@ -6,6 +6,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatterBuilder
 import java.time.format.SignStyle
 import java.time.temporal.ChronoField
+import java.util.Locale
 
 internal object ParseUtil {
     fun getInt(value: String): Int? {
@@ -95,4 +96,5 @@ internal object ParseUtil {
         .appendLiteral(":")
         .appendValue(ChronoField.MINUTE_OF_HOUR, 1, 2, SignStyle.NEVER)
         .toFormatter()
+        .withLocale(Locale.JAPANESE)
 }
