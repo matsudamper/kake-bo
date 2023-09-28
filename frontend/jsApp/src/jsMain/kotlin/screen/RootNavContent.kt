@@ -82,12 +82,6 @@ internal fun RootNavContent(
                                     LaunchedEffect(allContentViewModel.eventHandler) {
                                         viewModelEventHandlers.handle(allContentViewModel.eventHandler)
                                     }
-                                    LaunchedEffect(allContentViewModel.periodEventHandler) {
-                                        viewModelEventHandlers.handle(allContentViewModel.periodEventHandler)
-                                    }
-                                    LaunchedEffect(allContentViewModel.tabEventHandler) {
-                                        viewModelEventHandlers.handle(allContentViewModel.tabEventHandler)
-                                    }
                                     RootHomeTabPeriodAllScreen(
                                         modifier = Modifier.fillMaxSize(),
                                         uiState = allContentViewModel.uiStateFlow.collectAsState().value,
@@ -107,12 +101,6 @@ internal fun RootNavContent(
                                 }
                                 LaunchedEffect(categoryViewModel.eventHandler) {
                                     viewModelEventHandlers.handle(categoryViewModel.eventHandler)
-                                }
-                                LaunchedEffect(categoryViewModel.periodEventHandler) {
-                                    viewModelEventHandlers.handle(categoryViewModel.periodEventHandler)
-                                }
-                                LaunchedEffect(categoryViewModel.tabEventHandler) {
-                                    viewModelEventHandlers.handle(categoryViewModel.tabEventHandler)
                                 }
                                 LaunchedEffect(categoryViewModel, current) {
                                     categoryViewModel.updateStructure(current)

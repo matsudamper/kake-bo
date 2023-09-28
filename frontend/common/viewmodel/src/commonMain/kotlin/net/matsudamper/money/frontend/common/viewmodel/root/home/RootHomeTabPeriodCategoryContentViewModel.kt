@@ -39,17 +39,56 @@ public class RootHomeTabPeriodCategoryContentViewModel(
     private val tabViewModel = RootHomeTabScreenViewModel(
         coroutineScope = coroutineScope,
         loginCheckUseCase = loginCheckUseCase,
-    )
+    ).also { viewModel ->
+        coroutineScope.launch {
+            viewModel.viewModelEventHandler.collect(
+                object : RootHomeTabScreenViewModel.Event {
+                    override fun navigate(screen: ScreenStructure) {
+                        coroutineScope.launch { eventSender.send { it.navigate(screen) } }
+                    }
+                },
+            )
+        }
+    }
     private val periodViewModel = RootHomeTabPeriodScreenViewModel(
         coroutineScope = coroutineScope,
         api = RootHomeTabScreenApi(),
         categoryId = categoryId,
-    )
+    ).also { viewModel ->
+        coroutineScope.launch {
+            viewModel.viewModelEventHandler.collect(
+                object : RootHomeTabPeriodScreenViewModel.Event {
+                    override fun onClickAllFilter() {
+                        coroutineScope.launch {
+                            eventSender.send {
+                                it.navigate(
+                                    RootHomeScreenStructure.PeriodAnalytics(
+                                        since = viewModel.getCurrentLocalDate(),
+                                    ),
+                                )
+                            }
+                        }
+                    }
+
+                    override fun onClickCategoryFilter(categoryId: MoneyUsageCategoryId) {
+                        coroutineScope.launch {
+                            eventSender.send {
+                                it.navigate(
+                                    RootHomeScreenStructure.PeriodCategory(
+                                        categoryId = categoryId,
+                                        since = viewModel.getCurrentLocalDate(),
+                                    ),
+                                )
+                            }
+                        }
+                    }
+                },
+            )
+        }
+    }
 
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
-    public val tabEventHandler: EventHandler<RootHomeTabScreenViewModel.Event> = tabViewModel.viewModelEventHandler
-    public val periodEventHandler: EventHandler<RootHomeTabPeriodScreenViewModel.Event> = periodViewModel.viewModelEventHandler
 
     public val uiStateFlow: StateFlow<RootHomeTabPeriodCategoryContentUiState> = MutableStateFlow(
         RootHomeTabPeriodCategoryContentUiState(

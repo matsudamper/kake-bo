@@ -15,6 +15,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo3.api.ApolloResponse
+import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -40,17 +41,56 @@ public class RootHomeTabPeriodAllContentViewModel(
     private val tabViewModel = RootHomeTabScreenViewModel(
         coroutineScope = coroutineScope,
         loginCheckUseCase = loginCheckUseCase,
-    )
+    ).also { viewModel ->
+        coroutineScope.launch {
+            viewModel.viewModelEventHandler.collect(
+                object : RootHomeTabScreenViewModel.Event {
+                    override fun navigate(screen: ScreenStructure) {
+                        coroutineScope.launch { eventSender.send { it.navigate(screen) } }
+                    }
+                },
+            )
+        }
+    }
     private val periodViewModel = RootHomeTabPeriodScreenViewModel(
         coroutineScope = coroutineScope,
         api = RootHomeTabScreenApi(),
         categoryId = null,
-    )
+    ).also { viewModel ->
+        coroutineScope.launch {
+            viewModel.viewModelEventHandler.collect(
+                object : RootHomeTabPeriodScreenViewModel.Event {
+                    override fun onClickAllFilter() {
+                        coroutineScope.launch {
+                            eventSender.send {
+                                it.navigate(
+                                    RootHomeScreenStructure.PeriodAnalytics(
+                                        since = viewModel.getCurrentLocalDate(),
+                                    ),
+                                )
+                            }
+                        }
+                    }
+
+                    override fun onClickCategoryFilter(categoryId: MoneyUsageCategoryId) {
+                        coroutineScope.launch {
+                            eventSender.send {
+                                it.navigate(
+                                    RootHomeScreenStructure.PeriodCategory(
+                                        categoryId = categoryId,
+                                        since = viewModel.getCurrentLocalDate(),
+                                    ),
+                                )
+                            }
+                        }
+                    }
+                },
+            )
+        }
+    }
 
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
-    public val tabEventHandler: EventHandler<RootHomeTabScreenViewModel.Event> = tabViewModel.viewModelEventHandler
-    public val periodEventHandler: EventHandler<RootHomeTabPeriodScreenViewModel.Event> = periodViewModel.viewModelEventHandler
 
     public val uiStateFlow: StateFlow<RootHomeTabPeriodAllContentUiState> = MutableStateFlow(
         RootHomeTabPeriodAllContentUiState(

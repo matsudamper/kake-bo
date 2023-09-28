@@ -16,7 +16,6 @@ import kotlinx.datetime.toLocalDateTime
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
-import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -177,11 +176,7 @@ public class RootHomeTabPeriodScreenViewModel(
 
                         coroutineScope.launch {
                             viewModelEventSender.send {
-                                it.navigate(
-                                    RootHomeScreenStructure.PeriodAnalytics(
-                                        since = getCurrentLocalDate(),
-                                    ),
-                                )
+                                it.onClickAllFilter()
                             }
                         }
                     },
@@ -194,12 +189,7 @@ public class RootHomeTabPeriodScreenViewModel(
                         onClick = {
                             coroutineScope.launch {
                                 viewModelEventSender.send {
-                                    it.navigate(
-                                        RootHomeScreenStructure.PeriodCategory(
-                                            categoryId = category.id,
-                                            since = getCurrentLocalDate(),
-                                        ),
-                                    )
+                                    it.onClickCategoryFilter(category.id)
                                 }
                             }
                             viewModelStateFlow.update { viewModelState ->
@@ -220,26 +210,16 @@ public class RootHomeTabPeriodScreenViewModel(
     private fun updateUrl() {
         coroutineScope.launch {
             viewModelEventSender.send {
-                val since = getCurrentLocalDate()
                 if (categoryId == null) {
-                    it.navigate(
-                        RootHomeScreenStructure.PeriodAnalytics(
-                            since = since,
-                        ),
-                    )
+                    it.onClickAllFilter()
                 } else {
-                    it.navigate(
-                        RootHomeScreenStructure.PeriodCategory(
-                            categoryId = categoryId,
-                            since = since,
-                        ),
-                    )
+                    it.onClickCategoryFilter(categoryId = categoryId)
                 }
             }
         }
     }
 
-    private fun getCurrentLocalDate(): LocalDate {
+    public fun getCurrentLocalDate(): LocalDate {
         return LocalDate(
             year = viewModelStateFlow.value.displayPeriod.sinceDate.year,
             monthNumber = viewModelStateFlow.value.displayPeriod.sinceDate.month,
@@ -248,7 +228,8 @@ public class RootHomeTabPeriodScreenViewModel(
     }
 
     public interface Event {
-        public fun navigate(screen: ScreenStructure)
+        public fun onClickAllFilter()
+        public fun onClickCategoryFilter(categoryId: MoneyUsageCategoryId)
     }
 
     private data class ViewModelState(
