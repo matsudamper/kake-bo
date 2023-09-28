@@ -272,7 +272,7 @@ private fun Section(
 ) {
     Row(modifier.padding(vertical = 12.dp)) {
         Column(
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         ) {
             ProvideTextStyle(titleStyle) {
                 title()

@@ -239,7 +239,7 @@ public class AddMoneyUsageViewModel(
                             it.copy(
                                 importedMailId = importedMailId,
                                 usageTitle = subject,
-                                usageDate = date?.date ?: Clock.System.todayIn(TimeZone.currentSystemDefault())
+                                usageDate = date?.date ?: Clock.System.todayIn(TimeZone.currentSystemDefault()),
                             )
                         }
                         return@launch
