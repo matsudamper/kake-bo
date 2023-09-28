@@ -71,6 +71,7 @@ public enum class MoneyUsageServiceType(
     Rakuten(
         id = 18,
         displayName = "楽天",
-    )
+    ),
+    
     ;
 }

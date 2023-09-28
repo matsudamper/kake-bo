@@ -64,7 +64,7 @@ internal object RakutenUsageServices : MoneyUsageServices {
                     temporal.get(ChronoField.HOUR_OF_DAY),
                     temporal.get(ChronoField.MINUTE_OF_HOUR),
                     temporal.get(ChronoField.SECOND_OF_MINUTE),
-                )
+                ),
             )
         }
 
