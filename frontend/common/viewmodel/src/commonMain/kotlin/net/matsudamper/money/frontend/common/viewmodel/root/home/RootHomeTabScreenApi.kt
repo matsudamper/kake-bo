@@ -56,6 +56,8 @@ public class RootHomeTabScreenApi(
                     },
                 )
                 .execute()
+        }.onFailure {
+            it.printStackTrace()
         }
     }
 
@@ -89,6 +91,8 @@ public class RootHomeTabScreenApi(
                     },
                 )
                 .execute()
+        }.onFailure {
+            it.printStackTrace()
         }
     }
 }
