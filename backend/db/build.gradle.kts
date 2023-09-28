@@ -23,7 +23,7 @@ kotlin {
                 implementation("org.jooq:jooq:$jooqVersion")
                 implementation("org.jooq:jooq-kotlin:$jooqVersion")
 
-                implementation("org.mariadb.jdbc:mariadb-java-client:3.1.4")
+                implementation("org.mariadb.jdbc:mariadb-java-client:3.2.0")
                 implementation("com.zaxxer:HikariCP:5.0.1")
             }
         }
