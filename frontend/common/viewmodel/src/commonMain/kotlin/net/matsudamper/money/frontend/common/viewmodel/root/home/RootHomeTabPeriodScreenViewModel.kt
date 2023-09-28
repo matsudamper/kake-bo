@@ -5,6 +5,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -25,6 +28,7 @@ import net.matsudamper.money.frontend.graphql.RootHomeTabScreenQuery
 public class RootHomeTabPeriodScreenViewModel(
     private val coroutineScope: CoroutineScope,
     private val api: RootHomeTabScreenApi,
+    private val categoryId: MoneyUsageCategoryId?,
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
@@ -135,8 +139,23 @@ public class RootHomeTabPeriodScreenViewModel(
         coroutineScope.launch {
             api.screenFlow().collectLatest {
                 viewModelStateFlow.update { viewModelState ->
+                    val newContentType = run type@{
+                        if (viewModelState.categories.isNotEmpty()) {
+                            return@type viewModelState.contentType
+                        }
+                        val category = viewModelState.categories.firstOrNull { it.id == categoryId }
+                        if (category != null) {
+                            ViewModelState.ContentType.Category(
+                                categoryId = category.id,
+                                name = category.name,
+                            )
+                        }
+
+                        return@type viewModelState.contentType
+                    }
                     viewModelState.copy(
                         categories = it.data?.user?.moneyUsageCategories?.nodes.orEmpty(),
+                        contentType = newContentType,
                     )
                 }
             }

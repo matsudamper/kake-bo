@@ -43,6 +43,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
     private val periodViewModel = RootHomeTabPeriodScreenViewModel(
         coroutineScope = coroutineScope,
         api = RootHomeTabScreenApi(),
+        categoryId = categoryId,
     )
 
     private val eventSender = EventSender<Event>()
