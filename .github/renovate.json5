@@ -2,4 +2,5 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "prHourlyLimit": 0,
   "prConcurrentLimit": 20,
+  "extends": [":dependencyDashboard"],
 }
