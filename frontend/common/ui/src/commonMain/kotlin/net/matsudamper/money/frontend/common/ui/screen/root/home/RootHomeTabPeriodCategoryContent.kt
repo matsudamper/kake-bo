@@ -21,8 +21,8 @@ import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.layout.graph.PolygonalLineGraph
-import net.matsudamper.money.frontend.common.ui.layout.graph.PolygonalLineGraphItemUiState
+import net.matsudamper.money.frontend.common.ui.layout.graph.BarGraph
+import net.matsudamper.money.frontend.common.ui.layout.graph.BarGraphUiState
 
 public data class RootHomeTabPeriodCategoryContentUiState(
     val loadingState: LoadingState,
@@ -35,10 +35,12 @@ public data class RootHomeTabPeriodCategoryContentUiState(
         public data object Error : LoadingState
         public data object Loading : LoadingState
         public data class Loaded(
-            val graphItems: ImmutableList<PolygonalLineGraphItemUiState>,
+            val graphItems: BarGraphUiState,
+            val graphTitleItems: ImmutableList<GraphTitleChipUiState>,
             val monthTotalItems: ImmutableList<RootHomeTabPeriodUiState.MonthTotalItem>,
         ) : LoadingState
     }
+
     public interface Event {
         public suspend fun onViewInitialized()
     }
@@ -66,13 +68,18 @@ public fun RootHomeTabPeriodCategoryScreen(
                     Column(modifier = modifier) {
                         Spacer(modifier = Modifier.height(12.dp))
                         Card {
-                            PolygonalLineGraph(
+                            BarGraph(
                                 modifier = Modifier
                                     .padding(16.dp)
                                     .fillMaxWidth()
-                                    .height(200.dp),
-                                graphItems = loadingState.graphItems,
+                                    .height(500.dp),
+                                uiState = loadingState.graphItems,
                                 contentColor = LocalContentColor.current,
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            GraphTitleChips(
+                                modifier = Modifier.padding(horizontal = 16.dp),
+                                items = loadingState.graphTitleItems,
                             )
                         }
                         Spacer(modifier = Modifier.height(12.dp))

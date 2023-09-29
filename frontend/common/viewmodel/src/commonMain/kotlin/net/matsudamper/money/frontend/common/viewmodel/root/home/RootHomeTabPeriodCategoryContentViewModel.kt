@@ -19,10 +19,12 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.ui.layout.graph.PolygonalLineGraphItemUiState
+import net.matsudamper.money.frontend.common.ui.layout.graph.BarGraphUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.home.GraphTitleChipUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodCategoryContentUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
+import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
@@ -34,6 +36,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
     private val api: RootHomeTabScreenApi,
     loginCheckUseCase: LoginCheckUseCase,
 ) {
+    private val reservedColorModel = ReservedColorModel()
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState(categoryId = initialCategoryId))
 
     private val tabViewModel = RootHomeTabScreenViewModel(
@@ -175,20 +178,49 @@ public class RootHomeTabPeriodCategoryContentViewModel(
     ): RootHomeTabPeriodCategoryContentUiState.LoadingState {
         val loadingState = run loadingState@{
             RootHomeTabPeriodCategoryContentUiState.LoadingState.Loaded(
-                graphItems = displayPeriods.map { yearMonth ->
+                graphItems = BarGraphUiState(
+                    items = displayPeriods.map { yearMonth ->
+                        val key = ViewModelState.YearMonthCategory(
+                            categoryId = categoryId,
+                            yearMonth = yearMonth,
+                        )
+                        val apolloResult = categoryResponseMap[key] ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading
+                        val amount = apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.totalAmount ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
+                        val subCategory = apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.bySubCategories ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
+
+                        BarGraphUiState.PeriodData(
+                            year = yearMonth.year,
+                            month = yearMonth.month,
+                            items = subCategory.map { bySubCategory ->
+                                BarGraphUiState.Item(
+                                    color = reservedColorModel.getColor(bySubCategory.subCategory.id.toString()),
+                                    title = bySubCategory.subCategory.name,
+                                    value = bySubCategory.totalAmount ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error,
+                                )
+                            }.toImmutableList(),
+                            total = amount,
+                        )
+                    }.toImmutableList(),
+                ),
+                graphTitleItems = displayPeriods.flatMap { yearMonth ->
                     val key = ViewModelState.YearMonthCategory(
                         categoryId = categoryId,
                         yearMonth = yearMonth,
                     )
                     val apolloResult = categoryResponseMap[key] ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading
-                    val amount = apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.totalAmount ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
+                    val subCategory = apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.bySubCategories ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
 
-                    PolygonalLineGraphItemUiState(
-                        year = yearMonth.year,
-                        month = yearMonth.month,
-                        amount = amount,
-                    )
-                }.toImmutableList(),
+                    subCategory.map { it.subCategory }
+                }.distinctBy { it.id }
+                    .map {
+                        GraphTitleChipUiState(
+                            title = it.name,
+                            color = reservedColorModel.getColor(it.id.toString()),
+                            onClick = {
+                                // TODO
+                            },
+                        )
+                    }.toImmutableList(),
                 monthTotalItems = displayPeriods.map { yearMonth ->
                     val key = ViewModelState.YearMonthCategory(
                         categoryId = categoryId,

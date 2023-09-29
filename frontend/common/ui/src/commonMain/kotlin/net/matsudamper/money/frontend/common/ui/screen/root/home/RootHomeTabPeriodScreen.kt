@@ -60,6 +60,11 @@ public data class RootHomeTabPeriodUiState(
         val amount: String,
     )
 
+    public data class MonthSubCategoryItem(
+        val title: String,
+        val amount: Long,
+    )
+
     @Immutable
     public interface Event {
         public fun onClickNextMonth()

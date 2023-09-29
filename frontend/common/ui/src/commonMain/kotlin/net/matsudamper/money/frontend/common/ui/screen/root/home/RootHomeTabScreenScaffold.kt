@@ -17,7 +17,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
@@ -28,12 +27,6 @@ public data class RootHomeTabScreenScaffoldUiState(
     val contentType: ContentType,
     val event: Event,
 ) {
-    public data class ColorText(
-        val color: Color,
-        val text: String,
-        val onClick: () -> Unit,
-    )
-
     public enum class ContentType {
         Period,
         Monthly,

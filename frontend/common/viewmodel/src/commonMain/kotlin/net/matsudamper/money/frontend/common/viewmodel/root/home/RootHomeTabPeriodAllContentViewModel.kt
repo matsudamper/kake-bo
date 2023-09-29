@@ -20,9 +20,9 @@ import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmu
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.layout.graph.BarGraphUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.home.GraphTitleChipUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllContentUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodUiState
-import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreenScaffoldUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -242,9 +242,9 @@ public class RootHomeTabPeriodAllContentViewModel(
                 }.toImmutableList(),
             ),
             totalBarColorTextMapping = categories.map { category ->
-                RootHomeTabScreenScaffoldUiState.ColorText(
+                GraphTitleChipUiState(
                     color = reservedColorModel.getColor(category.id.value.toString()),
-                    text = category.name,
+                    title = category.name,
                     onClick = {
                         coroutineScope.launch {
                             eventSender.send {
