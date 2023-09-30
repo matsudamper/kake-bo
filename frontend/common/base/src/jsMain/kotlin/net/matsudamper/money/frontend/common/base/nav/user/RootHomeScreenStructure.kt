@@ -8,7 +8,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
         public val since: LocalDate?
     }
 
-    public object Home : Period {
+    public data object Home : Period {
         override val since: LocalDate? = null
         override val direction: Direction = Screens.HomeRedirect
     }
