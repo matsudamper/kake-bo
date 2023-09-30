@@ -45,7 +45,7 @@ public class RootHomeTabPeriodScreenViewModel(
                     ),
                 )
             }
-            updateUrl()
+            updateSinceDate()
         }
 
         override fun onClickPreviousMonth() {
@@ -57,7 +57,7 @@ public class RootHomeTabPeriodScreenViewModel(
                     ),
                 )
             }
-            updateUrl()
+            updateSinceDate()
         }
 
         override fun onClickRange(range: Int) {
@@ -75,7 +75,7 @@ public class RootHomeTabPeriodScreenViewModel(
                     ),
                 )
             }
-            updateUrl()
+            updateSinceDate()
         }
 
         override fun onViewInitialized() {
@@ -131,6 +131,19 @@ public class RootHomeTabPeriodScreenViewModel(
                             month = since.monthNumber,
                         ),
                     ),
+                )
+            }
+        }
+    }
+
+    private fun updateSinceDate() {
+        coroutineScope.launch {
+            val newPeriod = viewModelStateFlow.value.displayPeriod
+            viewModelEventSender.send {
+                it.updateSinceDate(
+                    year = newPeriod.sinceDate.year,
+                    month = newPeriod.sinceDate.month,
+                    period = newPeriod.monthCount,
                 )
             }
         }
@@ -211,19 +224,6 @@ public class RootHomeTabPeriodScreenViewModel(
         }
     }
 
-    private fun updateUrl() {
-        coroutineScope.launch {
-            viewModelEventSender.send {
-                val categoryId = viewModelStateFlow.value.categoryId
-                if (categoryId == null) {
-                    it.onClickAllFilter()
-                } else {
-                    it.onClickCategoryFilter(categoryId = categoryId)
-                }
-            }
-        }
-    }
-
     public fun getCurrentLocalDate(): LocalDate {
         return LocalDate(
             year = viewModelStateFlow.value.displayPeriod.sinceDate.year,
@@ -235,6 +235,7 @@ public class RootHomeTabPeriodScreenViewModel(
     public interface Event {
         public fun onClickAllFilter()
         public fun onClickCategoryFilter(categoryId: MoneyUsageCategoryId)
+        public fun updateSinceDate(year: Int, month: Int, period: Int)
     }
 
     private data class ViewModelState(

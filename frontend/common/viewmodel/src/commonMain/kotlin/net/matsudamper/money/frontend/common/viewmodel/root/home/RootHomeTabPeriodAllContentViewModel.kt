@@ -84,6 +84,19 @@ public class RootHomeTabPeriodAllContentViewModel(
                             }
                         }
                     }
+
+                    override fun updateSinceDate(year: Int, month: Int, period: Int) {
+                        coroutineScope.launch {
+                            eventSender.send {
+                                it.navigate(
+                                    RootHomeScreenStructure.PeriodAnalytics(
+                                        since = LocalDate(year, month, 1),
+                                        period = period,
+                                    ),
+                                )
+                            }
+                        }
+                    }
                 },
             )
         }
@@ -273,6 +286,7 @@ public class RootHomeTabPeriodAllContentViewModel(
                 it.copy(
                     displayPeriod = it.displayPeriod.copy(
                         sinceDate = ViewModelState.YearMonth(since.year, since.monthNumber),
+                        monthCount = current.period,
                     ),
                 )
             }

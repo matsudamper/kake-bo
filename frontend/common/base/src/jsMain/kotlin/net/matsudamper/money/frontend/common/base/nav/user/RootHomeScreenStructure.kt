@@ -6,15 +6,18 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
     public sealed interface Period : RootHomeScreenStructure {
         public val since: LocalDate?
+        public val period: Int
     }
 
     public data object Home : Period {
         override val since: LocalDate? = null
+        override val period: Int = 3
         override val direction: Direction = Screens.HomeRedirect
     }
 
     public data class PeriodAnalytics(
         override val since: LocalDate? = null,
+        override val period: Int = 3,
     ) : Period {
         override val direction: Screens = Screens.Home
 
@@ -30,6 +33,10 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
                             append(since.monthNumber.toString().padStart(2, '0'))
                         },
                     )
+                    append(
+                        PERIOD_KEY,
+                        period.toString(),
+                    )
                 }
             }
             return direction.placeholderUrl.plus(urlParam)
@@ -41,6 +48,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
 
         public companion object {
             private const val SINCE_KEY = "since"
+            private const val PERIOD_KEY = "period"
 
             @Suppress("UNUSED_PARAMETER")
             public fun create(
@@ -50,6 +58,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
                 return PeriodAnalytics(
                     since = queryParams[SINCE_KEY]?.firstOrNull()
                         ?.let { LocalDate.parse("$it-01") },
+                    period = queryParams[PERIOD_KEY]?.firstOrNull()?.toIntOrNull() ?: 3,
                 )
             }
         }
@@ -57,6 +66,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
 
     public data class PeriodCategory(
         val categoryId: MoneyUsageCategoryId,
+        override val period: Int = 3,
         override val since: LocalDate? = null,
     ) : Period {
         override val direction: Screens = Screens.HomePeriodCategory

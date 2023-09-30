@@ -85,6 +85,22 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                             }
                         }
                     }
+
+                    override fun updateSinceDate(year: Int, month: Int, period: Int) {
+                        coroutineScope.launch {
+                            viewModelStateFlow.update { viewModelState ->
+                                viewModelState.copy(
+                                    displayPeriod = viewModelState.displayPeriod.copy(
+                                        sinceDate = ViewModelState.YearMonth(
+                                            year = year,
+                                            month = month,
+                                        ),
+                                        monthCount = period,
+                                    ),
+                                )
+                            }
+                        }
+                    }
                 },
             )
         }
