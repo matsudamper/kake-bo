@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.viewmodel.root.home
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -214,7 +215,7 @@ public class RootHomeTabPeriodAllContentViewModel(
                             )
                         }
                     }
-                }.map { it.await() }
+                }.awaitAll()
             viewModelStateFlow.update {
                 it.copy(
                     displayPeriod = period,
