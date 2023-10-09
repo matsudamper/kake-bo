@@ -215,6 +215,11 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                                 )
                             }.toImmutableList(),
                             total = amount,
+                            event = object : BarGraphUiState.PeriodDataEvent {
+                                override fun onClick() {
+                                    println("onClick: $yearMonth")
+                                }
+                            },
                         )
                     }.toImmutableList(),
                 ),

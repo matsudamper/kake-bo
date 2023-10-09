@@ -252,6 +252,11 @@ public class RootHomeTabPeriodAllContentViewModel(
                         },
                         total = response.data?.user?.moneyUsageAnalytics?.totalAmount
                             ?: return null,
+                        event = object : BarGraphUiState.PeriodDataEvent {
+                            override fun onClick() {
+                                println("onClick: $yearMonth")
+                            }
+                        },
                     )
                 }.toImmutableList(),
             ),

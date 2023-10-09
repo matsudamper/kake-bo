@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
@@ -19,6 +20,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
@@ -39,7 +41,13 @@ public data class BarGraphUiState(
         val month: Int,
         val items: ImmutableList<Item>,
         val total: Long,
+        val event: PeriodDataEvent,
     )
+
+    @Immutable
+    public interface PeriodDataEvent {
+        public fun onClick()
+    }
 
     public data class Item(
         val color: Color,
@@ -83,7 +91,10 @@ internal fun BarGraph(
                 with(density) { maxWidth.toPx() } - yLabelMaxWidth
             }
         }
-        val graphBaseX = yLabelMaxWidth
+        val graphHeight by remember(maxHeight, density) {
+            mutableStateOf(with(density) { maxHeight.toPx() })
+        }
+        val graphBaseX by remember { derivedStateOf { yLabelMaxWidth } }
 
         val spaceWidth by remember(config) {
             derivedStateOf {
@@ -104,12 +115,61 @@ internal fun BarGraph(
             }
         }
 
+        val graphRangeRects by remember {
+            derivedStateOf {
+                latestUiState.items.indices.map { index ->
+                    val x = graphBaseX + (spaceWidth + barWidth).times(index)
+
+                    val leftPadding = if (index != 0) spaceWidth / 2f else 0f
+                    val rightPadding = if (index != latestUiState.items.lastIndex) spaceWidth / 2f else 0f
+                    val topLeft = Offset(
+                        x = x - leftPadding,
+                        y = 0f,
+                    )
+                    val size = Size(
+                        width = barWidth + leftPadding + rightPadding,
+                        height = graphHeight,
+                    )
+                    Rect(
+                        offset = topLeft,
+                        size = size,
+                    )
+                }
+            }
+        }
+
         Canvas(
             modifier = Modifier.fillMaxSize()
                 .pointerInput(Unit) {
                     awaitEachGesture {
                         val pointer = awaitPointerEvent()
-                        cursorPosition = pointer.changes.firstOrNull()?.position ?: return@awaitEachGesture
+                        val changes = pointer.changes
+                        cursorPosition = changes.firstOrNull()?.position ?: return@awaitEachGesture
+
+                        when (pointer.type) {
+                            PointerEventType.Press -> {
+                                pointer.changes.forEach { it.consume() }
+                                while (true) {
+                                    val releasePointer = awaitPointerEvent()
+                                    when (releasePointer.type) {
+                                        PointerEventType.Release -> {
+                                            for (change in changes) {
+                                                val clickedIndex = graphRangeRects.indexOfFirst { it.contains(change.position) }
+                                                    .takeIf { it >= 0 }
+                                                    ?: continue
+                                                latestUiState.items.getOrNull(clickedIndex)?.event?.onClick()
+                                                break
+                                            }
+                                            break
+                                        }
+
+                                        PointerEventType.Exit -> break
+                                    }
+                                }
+                            }
+
+                            else -> Unit
+                        }
                     }
                 },
         ) {
@@ -158,31 +218,6 @@ internal fun BarGraph(
                 color = contentColor,
                 topLeft = Offset(0f, 0f),
             )
-            latestUiState.items.forEachIndexed { index, _ ->
-                val x = graphBaseX + (spaceWidth + barWidth).times(index)
-
-                val leftPadding = if (index != 0) spaceWidth / 2f else 0f
-                val rightPadding = if (index != latestUiState.items.lastIndex) spaceWidth / 2f else 0f
-                val topLeft = Offset(
-                    x = x - leftPadding,
-                    y = 0f,
-                )
-                val size = Size(
-                    width = barWidth + leftPadding + rightPadding,
-                    height = size.height,
-                )
-                if (Rect(
-                        offset = topLeft,
-                        size = size,
-                    ).contains(cursorPosition)
-                ) {
-                    drawRect(
-                        color = if (index % 2 == 0) Color.Blue else Color.Yellow,
-                        topLeft = topLeft,
-                        size = size,
-                    )
-                }
-            }
             latestUiState.items.forEachIndexed { index, periodData ->
                 val x = graphBaseX + (spaceWidth + barWidth).times(index)
                 var beforeY = graphYHeight
@@ -201,6 +236,16 @@ internal fun BarGraph(
                         ),
                     )
                     beforeY -= itemHeight
+                }
+            }
+
+            graphRangeRects.forEach { rect ->
+                if (rect.contains(cursorPosition)) {
+                    drawRect(
+                        color = Color.Black.copy(alpha = 0.1f),
+                        topLeft = rect.topLeft,
+                        size = rect.size,
+                    )
                 }
             }
         }
