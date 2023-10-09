@@ -75,12 +75,10 @@ internal fun BarGraph(
     LaunchedEffect(latestUiState.items) {
         textMeasureCache.updateItems(latestUiState.items)
     }
-
-    val yLabelMaxWidth by derivedStateOf {
-        with(density) {
-            textMeasureCache.minTextMeasureResult.size.width
-                .coerceAtLeast(textMeasureCache.maxTextMeasureResult.size.width)
-                .plus(8.dp.toPx())
+    val yLabelAndPaddingWidth by remember(density) {
+        derivedStateOf {
+            textMeasureCache.yLabelMaxWidth
+                .plus(with(density) { 8.dp.toPx() })
         }
     }
 
@@ -88,13 +86,13 @@ internal fun BarGraph(
         var cursorPosition by remember { mutableStateOf(Offset.Zero) }
         val graphWidth by remember(density, maxWidth) {
             derivedStateOf {
-                with(density) { maxWidth.toPx() } - yLabelMaxWidth
+                with(density) { maxWidth.toPx() } - yLabelAndPaddingWidth
             }
         }
         val graphHeight by remember(maxHeight, density) {
             mutableStateOf(with(density) { maxHeight.toPx() })
         }
-        val graphBaseX by remember { derivedStateOf { yLabelMaxWidth } }
+        val graphBaseX by remember { derivedStateOf { yLabelAndPaddingWidth } }
 
         val spaceWidth by remember(config) {
             derivedStateOf {
@@ -292,6 +290,11 @@ private class TextMeasureCache(
                 textMeasurer.measure("${item.month}")
             }
         }
+    }
+
+    val yLabelMaxWidth by derivedStateOf {
+        minTextMeasureResult.size.width
+            .coerceAtLeast(maxTextMeasureResult.size.width)
     }
 }
 
