@@ -1,17 +1,23 @@
 package net.matsudamper.money.frontend.common.ui.layout.graph
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Constraints
@@ -35,12 +41,12 @@ public data class BarGraphUiState(
     )
 }
 
-@OptIn(ExperimentalTextApi::class)
 @Composable
 internal fun BarGraph(
     modifier: Modifier = Modifier,
     uiState: BarGraphUiState,
     contentColor: Color = MaterialTheme.colorScheme.secondary,
+    containerColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
 ) {
     val minTotalValue = remember(uiState.items) {
         uiState.items.minOfOrNull { it.total } ?: 0
@@ -63,8 +69,15 @@ internal fun BarGraph(
         )
     }
     Row(modifier = modifier) {
+        var position by remember { mutableStateOf(Offset.Zero) }
         Canvas(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize()
+                .pointerInput(Unit) {
+                    awaitEachGesture {
+                        val pointer = awaitPointerEvent()
+                        position = pointer.changes.firstOrNull()?.position ?: return@awaitEachGesture
+                    }
+                },
         ) {
             if (uiState.items.isEmpty()) return@Canvas
 
@@ -142,6 +155,24 @@ internal fun BarGraph(
                 color = contentColor,
                 topLeft = Offset(0f, 0f),
             )
+            uiState.items.forEachIndexed { index, _ ->
+                val x = graphBaseX + (spaceWidth + barWidth).times(index)
+
+                val leftPadding = if (index != 0) spaceWidth / 2f else 0f
+                val rightPadding = if (index != uiState.items.lastIndex) spaceWidth / 2f else 0f
+
+                drawRect(
+                    color = if (index % 2 == 0) Color.Blue else Color.Yellow,
+                    topLeft = Offset(
+                        x = x - leftPadding,
+                        y = 0f,
+                    ),
+                    size = Size(
+                        width = barWidth + leftPadding + rightPadding,
+                        height = size.height,
+                    ),
+                )
+            }
             uiState.items.forEachIndexed { index, periodData ->
                 val x = graphBaseX + (spaceWidth + barWidth).times(index)
                 var beforeY = graphYHeight
