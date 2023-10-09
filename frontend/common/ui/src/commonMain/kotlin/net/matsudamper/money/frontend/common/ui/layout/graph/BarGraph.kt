@@ -143,8 +143,12 @@ internal fun BarGraph(
                 .pointerInput(Unit) {
                     awaitEachGesture {
                         val pointer = awaitPointerEvent()
-                        val changes = pointer.changes
-                        cursorPosition = changes.firstOrNull()?.position ?: return@awaitEachGesture
+                        cursorPosition = pointer.changes.firstOrNull()?.position ?: return@awaitEachGesture
+                    }
+                }
+                .pointerInput(Unit) {
+                    awaitEachGesture {
+                        val pointer = awaitPointerEvent()
 
                         when (pointer.type) {
                             PointerEventType.Press -> {
@@ -153,7 +157,7 @@ internal fun BarGraph(
                                     val releasePointer = awaitPointerEvent()
                                     when (releasePointer.type) {
                                         PointerEventType.Release -> {
-                                            for (change in changes) {
+                                            for (change in releasePointer.changes) {
                                                 val clickedIndex = graphRangeRects.indexOfFirst { it.contains(change.position) }
                                                     .takeIf { it >= 0 }
                                                     ?: continue
