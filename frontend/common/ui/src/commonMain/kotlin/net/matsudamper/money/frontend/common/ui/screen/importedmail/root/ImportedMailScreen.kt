@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -61,15 +60,16 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
+import net.matsudamper.money.frontend.common.ui.layout.UrlMenuDialog
 import net.matsudamper.money.frontend.common.ui.lib.applyHtml
 
 public data class MailScreenUiState(
     val loadingState: LoadingState,
     val confirmDialog: AlertDialog?,
+    val urlMenuDialog: UrlMenuDialog?,
     val event: Event,
 ) {
     public sealed interface LoadingState {
-
         public data object Loading : LoadingState
         public data object Error : LoadingState
         public data class Loaded(
@@ -120,10 +120,23 @@ public data class MailScreenUiState(
         val text: String,
         val event: ClickableEvent,
     )
+
     @Immutable
     public interface ClickableEvent {
         public fun onClickUrl(url: String)
         public fun onLongClickUrl(text: String)
+    }
+
+    public data class UrlMenuDialog(
+        val url: String,
+        val event: UrlMenuDialogEvent,
+    )
+
+    @Immutable
+    public interface UrlMenuDialogEvent {
+        public fun onClickOpen()
+        public fun onClickCopy()
+        public fun onDismissRequest()
     }
 
     @Immutable
@@ -154,6 +167,14 @@ public fun ImportedMailScreen(
             onClickPositive = { uiState.confirmDialog.onClickPositive() },
             onClickNegative = { uiState.confirmDialog.onClickNegative() },
             onDismissRequest = { uiState.confirmDialog.onDismissRequest() },
+        )
+    }
+    if (uiState.urlMenuDialog != null) {
+        UrlMenuDialog(
+            url = uiState.urlMenuDialog.url,
+            onClickOpen = { uiState.urlMenuDialog.event.onClickOpen() },
+            onClickCopy = { uiState.urlMenuDialog.event.onClickCopy() },
+            onDismissRequest = { uiState.urlMenuDialog.event.onDismissRequest() },
         )
     }
     Scaffold(
@@ -544,7 +565,7 @@ private fun MoneyUsageSuggestCard(
                                         text.getUrlAnnotations(index, index).forEach {
                                             items.description.event.onClickUrl(it.item.url)
                                         }
-                                    }
+                                    },
                                 )
                             },
                             text = text,
@@ -555,7 +576,7 @@ private fun MoneyUsageSuggestCard(
                             ),
                             onTextLayout = {
                                 layoutResult = it
-                            }
+                            },
                         )
                     }
                 }

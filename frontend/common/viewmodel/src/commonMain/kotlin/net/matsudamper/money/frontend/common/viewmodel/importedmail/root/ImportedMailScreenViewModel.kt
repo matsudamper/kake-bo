@@ -80,6 +80,7 @@ public class ImportedMailScreenViewModel(
             loadingState = MailScreenUiState.LoadingState.Loading,
             event = event,
             confirmDialog = null,
+            urlMenuDialog = null,
         ),
     ).also { uiStateFlow ->
         coroutineScope.launch {
@@ -87,6 +88,7 @@ public class ImportedMailScreenViewModel(
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         confirmDialog = viewModelState.confirmDialog,
+                        urlMenuDialog = viewModelState.urlMenuDialog,
                         loadingState = when (val apolloResponse = viewModelState.apolloResponse) {
                             is ApolloResponseState.Failure -> {
                                 MailScreenUiState.LoadingState.Error
@@ -251,13 +253,49 @@ public class ImportedMailScreenViewModel(
         private val text: String,
     ): MailScreenUiState.ClickableEvent, EqualsImpl(text) {
         override fun onClickUrl(url: String) {
-            coroutineScope.launch {
-                viewModelEventSender.send {
-                    it.openWeb(text)
-                }
+
+            val dialog = MailScreenUiState.UrlMenuDialog(
+                url = url,
+                event = object : MailScreenUiState.UrlMenuDialogEvent {
+                    override fun onClickOpen() {
+                        coroutineScope.launch {
+                            viewModelEventSender.send {
+                                it.openWeb(text)
+                            }
+                        }
+                        dismiss()
+                    }
+
+                    override fun onClickCopy() {
+                        coroutineScope.launch {
+                            viewModelEventSender.send {
+                                it.copyToClipboard(text)
+                            }
+                        }
+                        dismiss()
+                    }
+
+                    override fun onDismissRequest() {
+                        dismiss()
+                    }
+
+                    private fun dismiss() {
+                        viewModelStateFlow.update {
+                            it.copy(
+                                urlMenuDialog = null,
+                            )
+                        }
+                    }
+                },
+            )
+            viewModelStateFlow.update {
+                it.copy(
+                    urlMenuDialog = dialog,
+                )
             }
         }
 
+        // スマホだと長押しが効かない: 1.5.10-rc01
         override fun onLongClickUrl(text: String) {
             coroutineScope.launch {
                 viewModelEventSender.send {
@@ -279,5 +317,6 @@ public class ImportedMailScreenViewModel(
         val isLoading: Boolean = true,
         val apolloResponse: ApolloResponseState<ApolloResponse<ImportedMailScreenQuery.Data>> = ApolloResponseState.loading(),
         val confirmDialog: MailScreenUiState.AlertDialog? = null,
+        val urlMenuDialog: MailScreenUiState.UrlMenuDialog? = null,
     )
 }
