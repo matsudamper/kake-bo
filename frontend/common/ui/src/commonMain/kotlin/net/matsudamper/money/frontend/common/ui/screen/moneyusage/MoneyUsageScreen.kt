@@ -59,7 +59,6 @@ import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.layout.UrlClickableText
 import net.matsudamper.money.frontend.common.ui.layout.UrlMenuDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
-import net.matsudamper.money.frontend.common.ui.screen.importedmail.root.MailScreenUiState
 
 public data class MoneyUsageScreenUiState(
     val event: Event,
@@ -160,7 +159,6 @@ public data class MoneyUsageScreenUiState(
         public fun onClickCopy()
         public fun onDismissRequest()
     }
-
 
     @Immutable
     public interface Event {

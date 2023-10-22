@@ -1,7 +1,7 @@
 package net.matsudamper.money.frontend.common.viewmodel.lib
 
 public abstract class EqualsImpl(
-    public vararg val values: Any
+    public vararg val values: Any,
 ) {
     override fun equals(other: Any?): Boolean {
         if (other !is EqualsImpl) {

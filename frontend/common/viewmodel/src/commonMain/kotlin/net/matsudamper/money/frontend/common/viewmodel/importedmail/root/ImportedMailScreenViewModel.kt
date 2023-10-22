@@ -251,9 +251,8 @@ public class ImportedMailScreenViewModel(
     }
     private inner class ClickableEventImpl(
         private val text: String,
-    ): MailScreenUiState.ClickableEvent, EqualsImpl(text) {
+    ) : MailScreenUiState.ClickableEvent, EqualsImpl(text) {
         override fun onClickUrl(url: String) {
-
             val dialog = MailScreenUiState.UrlMenuDialog(
                 url = url,
                 event = object : MailScreenUiState.UrlMenuDialogEvent {

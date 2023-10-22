@@ -14,7 +14,6 @@ import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
-import net.matsudamper.money.frontend.common.ui.screen.importedmail.root.MailScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.moneyusage.MoneyUsageScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
