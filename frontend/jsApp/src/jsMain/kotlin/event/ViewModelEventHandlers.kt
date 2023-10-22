@@ -245,6 +245,14 @@ data class ViewModelEventHandlers(
                     override fun navigateBack() {
                         navController.back()
                     }
+
+                    override fun copyUrl(text: String) {
+                        window.navigator.clipboard.writeText(text)
+                    }
+
+                    override fun openUrl(text: String) {
+                        window.open(text)
+                    }
                 },
             )
         }
