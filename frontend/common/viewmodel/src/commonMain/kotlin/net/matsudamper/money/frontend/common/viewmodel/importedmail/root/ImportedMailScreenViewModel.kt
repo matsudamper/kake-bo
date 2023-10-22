@@ -12,6 +12,7 @@ import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.importedmail.root.MailScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
@@ -153,13 +154,7 @@ public class ImportedMailScreenViewModel(
                     description = run {
                         MailScreenUiState.Clickable(
                             text = suggestUsage.description,
-                            onClickUrl = { url ->
-                                coroutineScope.launch {
-                                    viewModelEventSender.send {
-                                        it.openWeb(url)
-                                    }
-                                }
-                            },
+                            event = ClickableEventImpl(suggestUsage.description),
                         )
                     },
                     dateTime = run dateTime@{
@@ -252,12 +247,32 @@ public class ImportedMailScreenViewModel(
             }
         }
     }
+    private inner class ClickableEventImpl(
+        private val text: String,
+    ): MailScreenUiState.ClickableEvent, EqualsImpl(text) {
+        override fun onClickUrl(url: String) {
+            coroutineScope.launch {
+                viewModelEventSender.send {
+                    it.openWeb(text)
+                }
+            }
+        }
+
+        override fun onLongClickUrl(text: String) {
+            coroutineScope.launch {
+                viewModelEventSender.send {
+                    it.copyToClipboard(text)
+                }
+            }
+        }
+    }
 
     public interface Event {
         public fun navigateToBack()
         public fun navigateToHome()
         public fun navigate(screenStructure: ScreenStructure)
         public fun openWeb(url: String)
+        public fun copyToClipboard(text: String)
     }
 
     private data class ViewModelState(

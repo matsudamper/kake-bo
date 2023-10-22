@@ -170,6 +170,10 @@ data class ViewModelEventHandlers(
                     override fun openWeb(url: String) {
                         window.open(url)
                     }
+
+                    override fun copyToClipboard(text: String) {
+                        window.navigator.clipboard.writeText(text)
+                    }
                 },
             )
         }

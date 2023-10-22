@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.ui.screen.importedmail.root
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -45,11 +46,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.ScrollButtons
@@ -115,8 +118,13 @@ public data class MailScreenUiState(
 
     public data class Clickable(
         val text: String,
-        val onClickUrl: (String) -> Unit,
+        val event: ClickableEvent,
     )
+    @Immutable
+    public interface ClickableEvent {
+        public fun onClickUrl(url: String)
+        public fun onLongClickUrl(text: String)
+    }
 
     @Immutable
     public interface LoadedEvent {
@@ -521,18 +529,33 @@ private fun MoneyUsageSuggestCard(
                             AnnotatedString(items.description.text)
                                 .applyHtml(color)
                         }
-                        ClickableText(
+                        var layoutResult: TextLayoutResult? by remember { mutableStateOf(null) }
+                        Text(
+                            modifier = Modifier.pointerInput(items.description.event) {
+                                detectTapGestures(
+                                    onLongPress = { offset ->
+                                        val index = layoutResult?.getOffsetForPosition(offset) ?: return@detectTapGestures
+                                        text.getUrlAnnotations(index, index).forEach {
+                                            items.description.event.onLongClickUrl(it.item.url)
+                                        }
+                                    },
+                                    onTap = { offset ->
+                                        val index = layoutResult?.getOffsetForPosition(offset) ?: return@detectTapGestures
+                                        text.getUrlAnnotations(index, index).forEach {
+                                            items.description.event.onClickUrl(it.item.url)
+                                        }
+                                    }
+                                )
+                            },
                             text = text,
                             style = LocalTextStyle.current.merge(
                                 SpanStyle(
                                     color = LocalContentColor.current,
                                 ),
                             ),
-                            onClick = { index ->
-                                text.getUrlAnnotations(index, index).forEach {
-                                    items.description.onClickUrl(it.item.url)
-                                }
-                            },
+                            onTextLayout = {
+                                layoutResult = it
+                            }
                         )
                     }
                 }
