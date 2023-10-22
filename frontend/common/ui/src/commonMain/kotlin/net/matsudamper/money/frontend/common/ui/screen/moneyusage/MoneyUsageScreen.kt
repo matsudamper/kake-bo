@@ -56,7 +56,10 @@ import net.matsudamper.money.frontend.common.ui.layout.CalendarDialog
 import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButton
 import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButtonDefaults
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
+import net.matsudamper.money.frontend.common.ui.layout.UrlClickableText
+import net.matsudamper.money.frontend.common.ui.layout.UrlMenuDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.screen.importedmail.root.MailScreenUiState
 
 public data class MoneyUsageScreenUiState(
     val event: Event,
@@ -64,6 +67,7 @@ public data class MoneyUsageScreenUiState(
     val confirmDialog: ConfirmDialog?,
     val textInputDialog: TextInputDialog?,
     val calendarDialog: CalendarDialog?,
+    val urlMenuDialog: UrlMenuDialog?,
     val categorySelectDialog: CategorySelectDialogUiState?,
 ) {
     public data class CalendarDialog(
@@ -90,8 +94,8 @@ public data class MoneyUsageScreenUiState(
     @Immutable
     public sealed interface LoadingState {
 
-        public object Loading : LoadingState
-        public object Error : LoadingState
+        public data object Loading : LoadingState
+        public data object Error : LoadingState
         public data class Loaded(
             val moneyUsage: MoneyUsage,
             val linkedMails: ImmutableList<MailItem>,
@@ -101,7 +105,7 @@ public data class MoneyUsageScreenUiState(
 
     public data class MoneyUsage(
         val title: String,
-        val description: String,
+        val description: Clickable,
         val amount: String,
         val category: String,
         val dateTime: String,
@@ -134,6 +138,30 @@ public data class MoneyUsageScreenUiState(
         public fun onClickDelete()
     }
 
+    public data class Clickable(
+        val text: String,
+        val event: ClickableEvent,
+    )
+
+    @Immutable
+    public interface ClickableEvent {
+        public fun onClickUrl(url: String)
+        public fun onLongClickUrl(text: String)
+    }
+
+    public data class UrlMenuDialog(
+        val url: String,
+        val event: UrlMenuDialogEvent,
+    )
+
+    @Immutable
+    public interface UrlMenuDialogEvent {
+        public fun onClickOpen()
+        public fun onClickCopy()
+        public fun onDismissRequest()
+    }
+
+
     @Immutable
     public interface Event {
         public fun onViewInitialized()
@@ -150,6 +178,14 @@ public fun MoneyUsageScreen(
 ) {
     LaunchedEffect(uiState.event) {
         uiState.event.onViewInitialized()
+    }
+    if (uiState.urlMenuDialog != null) {
+        UrlMenuDialog(
+            url = uiState.urlMenuDialog.url,
+            onClickOpen = { uiState.urlMenuDialog.event.onClickOpen() },
+            onClickCopy = { uiState.urlMenuDialog.event.onClickCopy() },
+            onDismissRequest = { uiState.urlMenuDialog.event.onDismissRequest() },
+        )
     }
     if (uiState.confirmDialog != null) {
         AlertDialog(
@@ -476,8 +512,10 @@ private fun MoneyUsage(
                 Text("説明")
             },
             content = {
-                Text(
-                    text = uiState.description,
+                UrlClickableText(
+                    text = uiState.description.text,
+                    onClickUrl = { uiState.description.event.onClickUrl(it) },
+                    onLongClickUrl = { uiState.description.event.onLongClickUrl(it) },
                 )
             },
             onClickChange = {

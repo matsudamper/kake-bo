@@ -14,8 +14,10 @@ import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
+import net.matsudamper.money.frontend.common.ui.screen.importedmail.root.MailScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.moneyusage.MoneyUsageScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
+import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
@@ -85,6 +87,7 @@ public class MoneyUsageScreenViewModel(
             textInputDialog = null,
             calendarDialog = null,
             categorySelectDialog = null,
+            urlMenuDialog = null,
         ),
     ).also { uiStateFlow ->
         coroutineScope.launch {
@@ -107,7 +110,10 @@ public class MoneyUsageScreenViewModel(
                                 moneyUsage = MoneyUsageScreenUiState.MoneyUsage(
                                     title = moneyUsage.title,
                                     amount = "${Formatter.formatMoney(moneyUsage.amount)}円",
-                                    description = moneyUsage.description,
+                                    description = MoneyUsageScreenUiState.Clickable(
+                                        text = moneyUsage.description,
+                                        event = ClickableEventImpl(moneyUsage.description),
+                                    ),
                                     dateTime = moneyUsage.date.toString(),
                                     category = run category@{
                                         val subCategory = moneyUsage.moneyUsageSubCategory ?: return@category "未指定"
@@ -145,6 +151,7 @@ public class MoneyUsageScreenViewModel(
                         textInputDialog = viewModelState.textInputDialog,
                         calendarDialog = viewModelState.calendarDialog,
                         categorySelectDialog = viewModelState.categorySelectDialog,
+                        urlMenuDialog = viewModelState.urlMenuDialog,
                     )
                 }
             }
@@ -326,9 +333,65 @@ public class MoneyUsageScreenViewModel(
         }
     }
 
+    private inner class ClickableEventImpl(text: String) : MoneyUsageScreenUiState.ClickableEvent, EqualsImpl(text) {
+        override fun onClickUrl(url: String) {
+            val dialog = MoneyUsageScreenUiState.UrlMenuDialog(
+                url = url,
+                event = object : MoneyUsageScreenUiState.UrlMenuDialogEvent {
+                    override fun onClickOpen() {
+                        coroutineScope.launch {
+                            eventSender.send {
+                                it.openUrl(url)
+                            }
+                        }
+                        dismiss()
+                    }
+
+                    override fun onClickCopy() {
+                        coroutineScope.launch {
+                            eventSender.send {
+                                it.copyUrl(url)
+                            }
+                        }
+                        dismiss()
+                    }
+
+                    override fun onDismissRequest() {
+                        dismiss()
+                    }
+
+                    private fun dismiss() {
+                        viewModelStateFlow.update {
+                            it.copy(
+                                urlMenuDialog = null,
+                            )
+                        }
+                    }
+                },
+            )
+            coroutineScope.launch {
+                viewModelStateFlow.update {
+                    it.copy(
+                        urlMenuDialog = dialog,
+                    )
+                }
+            }
+        }
+
+        override fun onLongClickUrl(text: String) {
+            coroutineScope.launch {
+                eventSender.send {
+                    it.copyUrl(text)
+                }
+            }
+        }
+    }
+
     public interface Event {
         public fun navigate(structure: ScreenStructure)
         public fun navigateBack()
+        public fun openUrl(text: String)
+        public fun copyUrl(text: String)
     }
 
     private data class ViewModelState(
@@ -337,5 +400,6 @@ public class MoneyUsageScreenViewModel(
         val textInputDialog: MoneyUsageScreenUiState.TextInputDialog? = null,
         val calendarDialog: MoneyUsageScreenUiState.CalendarDialog? = null,
         val categorySelectDialog: CategorySelectDialogUiState? = null,
+        val urlMenuDialog: MoneyUsageScreenUiState.UrlMenuDialog? = null,
     )
 }

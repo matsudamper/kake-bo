@@ -60,6 +60,7 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
+import net.matsudamper.money.frontend.common.ui.layout.UrlClickableText
 import net.matsudamper.money.frontend.common.ui.layout.UrlMenuDialog
 import net.matsudamper.money.frontend.common.ui.lib.applyHtml
 
@@ -545,38 +546,10 @@ private fun MoneyUsageSuggestCard(
                         Text("説明")
                     }
                     item {
-                        val color = MaterialTheme.colorScheme.primary
-                        val text = remember(items.description.text) {
-                            AnnotatedString(items.description.text)
-                                .applyHtml(color)
-                        }
-                        var layoutResult: TextLayoutResult? by remember { mutableStateOf(null) }
-                        Text(
-                            modifier = Modifier.pointerInput(items.description.event) {
-                                detectTapGestures(
-                                    onLongPress = { offset ->
-                                        val index = layoutResult?.getOffsetForPosition(offset) ?: return@detectTapGestures
-                                        text.getUrlAnnotations(index, index).forEach {
-                                            items.description.event.onLongClickUrl(it.item.url)
-                                        }
-                                    },
-                                    onTap = { offset ->
-                                        val index = layoutResult?.getOffsetForPosition(offset) ?: return@detectTapGestures
-                                        text.getUrlAnnotations(index, index).forEach {
-                                            items.description.event.onClickUrl(it.item.url)
-                                        }
-                                    },
-                                )
-                            },
-                            text = text,
-                            style = LocalTextStyle.current.merge(
-                                SpanStyle(
-                                    color = LocalContentColor.current,
-                                ),
-                            ),
-                            onTextLayout = {
-                                layoutResult = it
-                            },
+                        UrlClickableText(
+                            text = items.description.text,
+                            onClickUrl = { items.description.event.onClickUrl(it) },
+                            onLongClickUrl = { items.description.event.onLongClickUrl(it) },
                         )
                     }
                 }
