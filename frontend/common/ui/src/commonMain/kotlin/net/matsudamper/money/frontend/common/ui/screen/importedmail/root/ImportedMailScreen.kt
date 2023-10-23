@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -95,6 +94,7 @@ public data class MailScreenUiState(
         val date: String,
         val event: LinkedUsageEvent,
     )
+
     @Immutable
     public interface LinkedUsageEvent {
         public fun onClick()
@@ -268,50 +268,24 @@ private fun MainContent(
         contentAlignment = Alignment.TopCenter,
     ) {
         val height = this.maxHeight
-        Column(
+        LazyColumn(
+            state = lazyListState,
+            contentPadding = PaddingValues(
+                bottom = scrollButtonSize,
+            ),
             modifier = Modifier.fillMaxWidth()
                 .padding(horizontal = 24.dp)
                 .widthIn(max = 700.dp),
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
-            MailSection(
-                uiState = uiState,
-            )
-            Spacer(modifier = Modifier.height(24.dp))
-            SuggestSection(
-                uiState = uiState,
-                lazyListState = lazyListState,
-                contentPadding = PaddingValues(
-                    bottom = scrollButtonSize,
-                ),
-            )
-        }
-
-        ScrollButtons(
-            modifier = Modifier
-                .onSizeChanged {
-                    scrollButtonSize = with(density) { it.height.toDp() }
-                }
-                .align(Alignment.BottomEnd)
-                .padding(ScrollButtonsDefaults.padding)
-                .height(ScrollButtonsDefaults.height),
-            scrollState = lazyListState,
-            scrollSize = with(density) { height.toPx() } * 0.4f,
-        )
-    }
-}
-
-@Composable
-private fun SuggestSection(
-    uiState: MailScreenUiState.LoadingState.Loaded,
-    contentPadding: PaddingValues,
-    lazyListState: LazyListState,
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        LazyColumn(
-            state = lazyListState,
-            contentPadding = contentPadding,
-        ) {
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+                MailSection(
+                    uiState = uiState,
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+            }
             if (uiState.usage.isNotEmpty()) {
                 item {
                     Text(
@@ -330,45 +304,58 @@ private fun SuggestSection(
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                 }
-            }
-            item {
-                Text(
-                    modifier = Modifier.padding(horizontal = 12.dp),
-                    text = "解析結果",
-                    style = MaterialTheme.typography.headlineLarge,
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-            if (uiState.usageSuggest.isEmpty()) {
                 item {
-                    UsageSuggestEmptyContent(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClickRegister = { uiState.event.onClickRegister() },
+                    Text(
+                        modifier = Modifier.padding(horizontal = 12.dp),
+                        text = "解析結果",
+                        style = MaterialTheme.typography.headlineLarge,
                     )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
-            } else {
-                items(uiState.usageSuggest) { item ->
-                    MoneyUsageSuggestCard(
-                        modifier = Modifier.fillMaxWidth(),
-                        items = item,
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row {
-                        Spacer(modifier = Modifier.weight(1f))
-                        OutlinedButton(
-                            onClick = { item.event.onClickRegister() },
-                        ) {
-                            Text("登録")
-                        }
+                if (uiState.usageSuggest.isEmpty()) {
+                    item {
+                        UsageSuggestEmptyContent(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClickRegister = { uiState.event.onClickRegister() },
+                        )
                     }
-                    Spacer(modifier = Modifier.height(16.dp))
+                } else {
+                    items(uiState.usageSuggest) { item ->
+                        MoneyUsageSuggestCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            items = item,
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Row {
+                            Spacer(modifier = Modifier.weight(1f))
+                            OutlinedButton(
+                                onClick = { item.event.onClickRegister() },
+                            ) {
+                                Text("登録")
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
                 }
             }
         }
+
+        ScrollButtons(
+            modifier = Modifier
+                .onSizeChanged {
+                    scrollButtonSize = with(density) { it.height.toDp() }
+                }
+                .align(Alignment.BottomEnd)
+                .padding(ScrollButtonsDefaults.padding)
+                .height(ScrollButtonsDefaults.height),
+            scrollState = lazyListState,
+            scrollSize = with(density) { height.toPx() } * 0.4f,
+        )
     }
 }
+
 
 @Composable
 private fun MailSection(uiState: MailScreenUiState.LoadingState.Loaded) {
@@ -441,7 +428,7 @@ private fun LinkedMoneyUsageCard(
         modifier = modifier
             .clickable {
                 uiState.event.onClick()
-            }
+            },
     ) {
         GridColumn(
             modifier = Modifier.fillMaxWidth()
