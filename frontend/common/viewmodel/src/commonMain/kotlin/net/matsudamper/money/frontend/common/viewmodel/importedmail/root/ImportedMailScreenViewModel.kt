@@ -134,7 +134,7 @@ public class ImportedMailScreenViewModel(
                         "${category.name} / ${subCategory.name}"
                     },
                     date = Formatter.formatDateTime(it.date),
-                    event = object: MailScreenUiState.LinkedUsageEvent {
+                    event = object : MailScreenUiState.LinkedUsageEvent {
                         override fun onClick() {
                             coroutineScope.launch {
                                 viewModelEventSender.send { event ->
@@ -146,7 +146,7 @@ public class ImportedMailScreenViewModel(
                                 }
                             }
                         }
-                    }
+                    },
                 )
             }.toImmutableList(),
             usageSuggest = mail.suggestUsages.mapIndexed { index, suggestUsage ->

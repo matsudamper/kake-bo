@@ -356,7 +356,6 @@ private fun MainContent(
     }
 }
 
-
 @Composable
 private fun MailSection(uiState: MailScreenUiState.LoadingState.Loaded) {
     Column(modifier = Modifier.fillMaxWidth()) {
