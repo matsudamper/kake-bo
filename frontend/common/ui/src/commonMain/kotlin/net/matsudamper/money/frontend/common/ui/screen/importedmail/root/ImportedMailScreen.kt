@@ -93,7 +93,12 @@ public data class MailScreenUiState(
         val category: String?,
         val amount: String?,
         val date: String,
+        val event: LinkedUsageEvent,
     )
+    @Immutable
+    public interface LinkedUsageEvent {
+        public fun onClick()
+    }
 
     public data class UsageSuggest(
         val title: String,
@@ -432,7 +437,12 @@ private fun LinkedMoneyUsageCard(
     modifier: Modifier = Modifier,
     uiState: MailScreenUiState.LinkedUsage,
 ) {
-    Card(modifier = modifier) {
+    Card(
+        modifier = modifier
+            .clickable {
+                uiState.event.onClick()
+            }
+    ) {
         GridColumn(
             modifier = Modifier.fillMaxWidth()
                 .padding(12.dp),
