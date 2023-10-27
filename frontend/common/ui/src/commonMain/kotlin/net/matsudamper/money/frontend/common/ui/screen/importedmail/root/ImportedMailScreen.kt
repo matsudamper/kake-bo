@@ -304,40 +304,40 @@ private fun MainContent(
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                 }
+            }
+            item {
+                Text(
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                    text = "解析結果",
+                    style = MaterialTheme.typography.headlineLarge,
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+            }
+            if (uiState.usageSuggest.isEmpty()) {
                 item {
-                    Text(
-                        modifier = Modifier.padding(horizontal = 12.dp),
-                        text = "解析結果",
-                        style = MaterialTheme.typography.headlineLarge,
+                    UsageSuggestEmptyContent(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClickRegister = { uiState.event.onClickRegister() },
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
-                    Spacer(modifier = Modifier.height(12.dp))
                 }
-                if (uiState.usageSuggest.isEmpty()) {
-                    item {
-                        UsageSuggestEmptyContent(
-                            modifier = Modifier.fillMaxWidth(),
-                            onClickRegister = { uiState.event.onClickRegister() },
-                        )
-                    }
-                } else {
-                    items(uiState.usageSuggest) { item ->
-                        MoneyUsageSuggestCard(
-                            modifier = Modifier.fillMaxWidth(),
-                            items = item,
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Row {
-                            Spacer(modifier = Modifier.weight(1f))
-                            OutlinedButton(
-                                onClick = { item.event.onClickRegister() },
-                            ) {
-                                Text("登録")
-                            }
+            } else {
+                items(uiState.usageSuggest) { item ->
+                    MoneyUsageSuggestCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        items = item,
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row {
+                        Spacer(modifier = Modifier.weight(1f))
+                        OutlinedButton(
+                            onClick = { item.event.onClickRegister() },
+                        ) {
+                            Text("登録")
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
                     }
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
             }
         }
