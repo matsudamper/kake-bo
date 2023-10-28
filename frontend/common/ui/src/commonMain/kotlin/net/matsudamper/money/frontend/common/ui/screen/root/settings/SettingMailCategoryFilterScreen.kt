@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.ui.screen.root.settings
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -10,8 +11,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -23,11 +26,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.ui.ScrollButtons
+import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
@@ -127,11 +138,12 @@ public fun SettingMailCategoryFiltersScreen(
             title = {
                 Text("メールカテゴリフィルタ一覧")
             },
-        ) {
+        ) { paddingValues ->
             when (val loadingState = uiState.loadingState) {
                 is SettingMailCategoryFilterScreenUiState.LoadingState.Loading -> {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize()
+                            .padding(paddingValues),
                     ) {
                         CircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center),
@@ -143,12 +155,14 @@ public fun SettingMailCategoryFiltersScreen(
                     LoadedContent(
                         modifier = Modifier.fillMaxSize(),
                         uiState = loadingState,
+                        contentPadding = paddingValues,
                     )
                 }
 
                 SettingMailCategoryFilterScreenUiState.LoadingState.Error -> {
                     LoadingErrorContent(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize()
+                            .padding(paddingValues),
                         onClickRetry = uiState.event::onClickRetry,
                     )
                 }
@@ -161,27 +175,49 @@ public fun SettingMailCategoryFiltersScreen(
 private fun LoadedContent(
     modifier: Modifier = Modifier,
     uiState: SettingMailCategoryFilterScreenUiState.LoadingState.Loaded,
+    contentPadding: PaddingValues,
 ) {
-    Column(modifier = modifier) {
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Spacer(modifier = Modifier.weight(1f))
-            OutlinedButton(onClick = { uiState.event.onClickAdd() }) {
-                Icon(Icons.Default.Add, contentDescription = null)
-                Text("追加")
-            }
-        }
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            contentPadding = PaddingValues(8.dp),
+    val density = LocalDensity.current
+    val lazyListState = rememberLazyListState()
+    BoxWithConstraints(modifier = modifier) {
+        val height by rememberUpdatedState(maxHeight)
+        var scrollButtonSize by remember { mutableStateOf(0.dp) }
+        Column(
+            modifier = Modifier.fillMaxSize()
+                .padding(contentPadding),
         ) {
-            items(uiState.filters) { item ->
-                SettingListMenuItemButton(onClick = { item.event.onClick() }) {
-                    Text(item.title)
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Spacer(modifier = Modifier.weight(1f))
+                OutlinedButton(onClick = { uiState.event.onClickAdd() }) {
+                    Icon(Icons.Default.Add, contentDescription = null)
+                    Text("追加")
+                }
+            }
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                state = lazyListState,
+                contentPadding = PaddingValues(8.dp),
+            ) {
+                items(uiState.filters) { item ->
+                    SettingListMenuItemButton(onClick = { item.event.onClick() }) {
+                        Text(item.title)
+                    }
                 }
             }
         }
+        ScrollButtons(
+            modifier = Modifier
+                .onSizeChanged {
+                    scrollButtonSize = with(density) { it.height.toDp() }
+                }
+                .align(Alignment.BottomEnd)
+                .padding(ScrollButtonsDefaults.padding)
+                .height(ScrollButtonsDefaults.height),
+            scrollState = lazyListState,
+            scrollSize = with(density) { height.toPx() } * 0.4f,
+        )
     }
 }

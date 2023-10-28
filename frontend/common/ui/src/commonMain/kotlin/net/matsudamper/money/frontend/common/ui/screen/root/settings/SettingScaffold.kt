@@ -29,10 +29,11 @@ public fun SettingScaffold(
 
     Column(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = settingHorizontalPadding),
+            .fillMaxWidth(),
     ) {
         Row(
+            modifier = Modifier
+                .padding(horizontal = settingHorizontalPadding),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
@@ -50,7 +51,8 @@ public fun SettingScaffold(
             menu()
         }
         Divider(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth()
+                .padding(horizontal = settingHorizontalPadding),
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
         )
         Box(
@@ -58,17 +60,20 @@ public fun SettingScaffold(
             contentAlignment = Alignment.Center,
         ) {
             BoxWithConstraints(
-                modifier = Modifier
-                    .padding(horizontal = 24.dp),
+                modifier = Modifier,
             ) {
                 val max = 700.dp
                 val width = maxWidth
 
                 val paddingValues = remember(max, width) {
                     if (max > width) {
-                        PaddingValues()
+                        PaddingValues(
+                            horizontal = settingHorizontalPadding + 24.dp,
+                        )
                     } else {
-                        PaddingValues(horizontal = (width - max) / 2)
+                        PaddingValues(
+                            horizontal = (width - max) / 2 + (settingHorizontalPadding + 24.dp),
+                        )
                     }
                 }
                 content(paddingValues)
