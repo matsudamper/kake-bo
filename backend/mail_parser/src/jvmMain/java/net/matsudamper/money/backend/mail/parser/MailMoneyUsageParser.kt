@@ -8,6 +8,7 @@ import net.matsudamper.money.backend.mail.parser.services.ESekiReserveUsegeServi
 import net.matsudamper.money.backend.mail.parser.services.EkiNetUsageServices
 import net.matsudamper.money.backend.mail.parser.services.FanzaDojinUsageServices
 import net.matsudamper.money.backend.mail.parser.services.GooglePlayUsageService
+import net.matsudamper.money.backend.mail.parser.services.JapanTsushinUsageServices
 import net.matsudamper.money.backend.mail.parser.services.MacdonaldsMobileOrderUsageService
 import net.matsudamper.money.backend.mail.parser.services.MovieTicketUsageService
 import net.matsudamper.money.backend.mail.parser.services.PayPalUsageService
@@ -49,6 +50,7 @@ public class MailMoneyUsageParser {
             BicCameraUsageServices,
             BookWalkerUsageServices,
             EkiNetUsageServices,
+            JapanTsushinUsageServices,
         )
             .mapNotNull {
                 runCatching {

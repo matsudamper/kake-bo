@@ -76,6 +76,9 @@ public enum class MoneyUsageServiceType(
         id = 19,
         displayName = "えきねっと",
     ),
-
+    JapanTsushin(
+        id = 20,
+        displayName = "日本通信",
+    ),
     ;
 }
