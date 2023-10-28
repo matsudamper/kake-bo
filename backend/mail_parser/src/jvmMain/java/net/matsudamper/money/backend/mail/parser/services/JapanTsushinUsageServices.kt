@@ -55,7 +55,7 @@ internal object JapanTsushinUsageServices : MoneyUsageServices {
                     }
                 }.trim(),
                 service = MoneyUsageServiceType.JapanTsushin,
-                dateTime = date,
+                dateTime = forwardedInfo?.date ?: date,
             ),
         )
     }
