@@ -38,7 +38,7 @@ internal object NttEastBillingUsageServices : MoneyUsageServices {
                     }
                 }.trim(),
                 service = MoneyUsageServiceType.NttEastAtBilling,
-                dateTime = date,
+                dateTime = forwardedInfo?.date ?: date,
             ),
         )
     }
