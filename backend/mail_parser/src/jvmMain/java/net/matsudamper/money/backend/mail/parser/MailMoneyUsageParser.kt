@@ -2,6 +2,7 @@ package net.matsudamper.money.backend.mail.parser
 
 import java.time.LocalDateTime
 import net.matsudamper.money.backend.mail.parser.services.AmazonCoJpUsageServices
+import net.matsudamper.money.backend.mail.parser.services.AuEasyPaymentUsageServices
 import net.matsudamper.money.backend.mail.parser.services.BicCameraUsageServices
 import net.matsudamper.money.backend.mail.parser.services.BookWalkerUsageServices
 import net.matsudamper.money.backend.mail.parser.services.ESekiReserveUsegeService
@@ -51,6 +52,7 @@ public class MailMoneyUsageParser {
             BookWalkerUsageServices,
             EkiNetUsageServices,
             JapanTsushinUsageServices,
+            AuEasyPaymentUsageServices,
         )
             .mapNotNull {
                 runCatching {

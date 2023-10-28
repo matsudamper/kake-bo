@@ -80,5 +80,9 @@ public enum class MoneyUsageServiceType(
         id = 20,
         displayName = "日本通信",
     ),
+    AuEasyPayment(
+        id = 21,
+        displayName = "auかんたん決済",
+    ),
     ;
 }
