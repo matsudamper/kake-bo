@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
@@ -45,13 +47,18 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
+import net.matsudamper.money.frontend.common.ui.ScrollButtons
+import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -282,18 +289,20 @@ public fun ImportedMailFilterCategoryScreen(
                     },
                 )
             },
-        ) {
+        ) { paddingValues ->
             when (val state = uiState.loadingState) {
                 is ImportedMailFilterCategoryScreenUiState.LoadingState.Error -> {
                     LoadingErrorContent(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize()
+                            .padding(paddingValues),
                         onClickRetry = { uiState.event.onViewInitialized() },
                     )
                 }
 
                 is ImportedMailFilterCategoryScreenUiState.LoadingState.Loading -> {
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize()
+                            .padding(paddingValues),
                     ) {
                         CircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center),
@@ -305,6 +314,7 @@ public fun ImportedMailFilterCategoryScreen(
                     LoadedContent(
                         modifier = Modifier.fillMaxSize(),
                         uiState = state,
+                        contentPadding = paddingValues,
                     )
                 }
             }
@@ -358,133 +368,159 @@ private fun Menu(
 private fun LoadedContent(
     modifier: Modifier = Modifier,
     uiState: ImportedMailFilterCategoryScreenUiState.LoadingState.Loaded,
+    contentPadding: PaddingValues,
 ) {
-    LazyColumn(modifier = modifier) {
-        item {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = uiState.title,
-                    style = MaterialTheme.typography.titleLarge,
-                )
-                OutlinedButton(
-                    modifier = Modifier.padding(8.dp),
-                    onClick = { uiState.event.onClickNameChange() },
+    val density = LocalDensity.current
+    BoxWithConstraints(
+        modifier = modifier,
+    ) {
+        val height by rememberUpdatedState(maxHeight)
+        val lazyListState = rememberLazyListState()
+        var scrollButtonSize by remember { mutableStateOf(0.dp) }
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = lazyListState,
+            contentPadding = contentPadding,
+        ) {
+            item {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text("変更")
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = uiState.title,
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                    OutlinedButton(
+                        modifier = Modifier.padding(8.dp),
+                        onClick = { uiState.event.onClickNameChange() },
+                    ) {
+                        Text("変更")
+                    }
                 }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Column {
-                Text(
-                    modifier = Modifier.padding(8.dp),
-                    text = "次のカテゴリを適用する",
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+                Column {
+                    Text(
+                        modifier = Modifier.padding(8.dp),
+                        text = "次のカテゴリを適用する",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(8.dp),
+                            text = buildString {
+                                if (uiState.category != null) {
+                                    append("${uiState.category.category} / ${uiState.category.subCategory}")
+                                } else {
+                                    append("未設定")
+                                }
+                            },
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        OutlinedButton(
+                            modifier = Modifier.padding(8.dp),
+                            onClick = { uiState.event.onClickCategoryChange() },
+                        ) {
+                            Text("変更")
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
                         modifier = Modifier.padding(8.dp),
-                        text = buildString {
-                            if (uiState.category != null) {
-                                append("${uiState.category.category} / ${uiState.category.subCategory}")
-                            } else {
-                                append("未設定")
-                            }
-                        },
-                        style = MaterialTheme.typography.bodyMedium,
+                        text = "条件",
+                        style = MaterialTheme.typography.titleMedium,
                     )
+                    run {
+                        var visibleDropDown by remember { mutableStateOf(false) }
+                        DropDownButton(
+                            modifier = Modifier.padding(8.dp),
+                            item = {
+                                Text(uiState.operator.name)
+                            },
+                            visibleDropDown = visibleDropDown,
+                            onDismissRequest = {
+                                visibleDropDown = false
+                            },
+                            onClick = {
+                                visibleDropDown = !visibleDropDown
+                            },
+                            dropDown = {
+                                Column(modifier = Modifier.width(IntrinsicSize.Max)) {
+                                    immutableListOf(
+                                        ImportedMailFilterCategoryScreenUiState.Operator.AND,
+                                        ImportedMailFilterCategoryScreenUiState.Operator.OR,
+                                    ).forEach { operator ->
+                                        Box(
+                                            modifier = Modifier.fillMaxWidth()
+                                                .clickable {
+                                                    visibleDropDown = false
+                                                    uiState.event.onSelectedOperator(operator)
+                                                }
+                                                .padding(8.dp),
+                                        ) {
+                                            Text(text = operator.getDisplayText())
+                                        }
+                                    }
+                                }
+                            },
+                            contentDescription = "演算子を選択",
+                        )
+                    }
                     Spacer(modifier = Modifier.weight(1f))
                     OutlinedButton(
                         modifier = Modifier.padding(8.dp),
-                        onClick = { uiState.event.onClickCategoryChange() },
+                        onClick = { uiState.event.onClickAddCondition() },
                     ) {
-                        Text("変更")
+                        Icon(Icons.Default.Add, contentDescription = null)
+                        Text("追加")
                     }
                 }
+                Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
             }
-            Spacer(modifier = Modifier.height(16.dp))
+            if (uiState.conditions.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth()
+                            .height(200.dp),
+                    ) {
+                        Text(
+                            modifier = Modifier.align(Alignment.Center),
+                            text = "条件がありません",
+                        )
+                    }
+                }
+            } else {
+                items(uiState.conditions) { item ->
+                    ConditionCard(
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        item = item,
+                    )
+                }
+            }
+        }
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    modifier = Modifier.padding(8.dp),
-                    text = "条件",
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                run {
-                    var visibleDropDown by remember { mutableStateOf(false) }
-                    DropDownButton(
-                        modifier = Modifier.padding(8.dp),
-                        item = {
-                            Text(uiState.operator.name)
-                        },
-                        visibleDropDown = visibleDropDown,
-                        onDismissRequest = {
-                            visibleDropDown = false
-                        },
-                        onClick = {
-                            visibleDropDown = !visibleDropDown
-                        },
-                        dropDown = {
-                            Column(modifier = Modifier.width(IntrinsicSize.Max)) {
-                                immutableListOf(
-                                    ImportedMailFilterCategoryScreenUiState.Operator.AND,
-                                    ImportedMailFilterCategoryScreenUiState.Operator.OR,
-                                ).forEach { operator ->
-                                    Box(
-                                        modifier = Modifier.fillMaxWidth()
-                                            .clickable {
-                                                visibleDropDown = false
-                                                uiState.event.onSelectedOperator(operator)
-                                            }
-                                            .padding(8.dp),
-                                    ) {
-                                        Text(text = operator.getDisplayText())
-                                    }
-                                }
-                            }
-                        },
-                        contentDescription = "演算子を選択",
-                    )
+        ScrollButtons(
+            modifier = Modifier
+                .onSizeChanged {
+                    scrollButtonSize = with(density) { it.height.toDp() }
                 }
-                Spacer(modifier = Modifier.weight(1f))
-                OutlinedButton(
-                    modifier = Modifier.padding(8.dp),
-                    onClick = { uiState.event.onClickAddCondition() },
-                ) {
-                    Icon(Icons.Default.Add, contentDescription = null)
-                    Text("追加")
-                }
-            }
-            Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
-        }
-        if (uiState.conditions.isEmpty()) {
-            item {
-                Box(
-                    modifier = Modifier.fillMaxWidth()
-                        .height(200.dp),
-                ) {
-                    Text(
-                        modifier = Modifier.align(Alignment.Center),
-                        text = "条件がありません",
-                    )
-                }
-            }
-        } else {
-            items(uiState.conditions) { item ->
-                ConditionCard(
-                    modifier = Modifier.fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    item = item,
-                )
-            }
-        }
+                .align(Alignment.BottomEnd)
+                .padding(ScrollButtonsDefaults.padding)
+                .height(ScrollButtonsDefaults.height),
+            scrollState = lazyListState,
+            scrollSize = with(density) { height.toPx() } * 0.4f,
+        )
     }
 }
 
