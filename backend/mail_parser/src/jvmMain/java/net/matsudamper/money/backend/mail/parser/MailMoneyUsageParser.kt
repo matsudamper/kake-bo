@@ -12,6 +12,8 @@ import net.matsudamper.money.backend.mail.parser.services.GooglePlayUsageService
 import net.matsudamper.money.backend.mail.parser.services.JapanTsushinUsageServices
 import net.matsudamper.money.backend.mail.parser.services.MacdonaldsMobileOrderUsageService
 import net.matsudamper.money.backend.mail.parser.services.MovieTicketUsageService
+import net.matsudamper.money.backend.mail.parser.services.NintendoChargeUsageServices
+import net.matsudamper.money.backend.mail.parser.services.NintendoProductBuyUsageServices
 import net.matsudamper.money.backend.mail.parser.services.PayPalUsageService
 import net.matsudamper.money.backend.mail.parser.services.PostCoffeeSubscriptionUsageServices
 import net.matsudamper.money.backend.mail.parser.services.PostCoffeeUsageServices
@@ -53,6 +55,8 @@ public class MailMoneyUsageParser {
             EkiNetUsageServices,
             JapanTsushinUsageServices,
             AuEasyPaymentUsageServices,
+            NintendoProductBuyUsageServices,
+            NintendoChargeUsageServices,
         )
             .mapNotNull {
                 runCatching {

@@ -84,5 +84,9 @@ public enum class MoneyUsageServiceType(
         id = 21,
         displayName = "auかんたん決済",
     ),
+    Nintendo(
+        id = 22,
+        displayName = "任天堂",
+    ),
     ;
 }
