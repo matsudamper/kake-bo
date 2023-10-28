@@ -24,6 +24,7 @@ import net.matsudamper.money.backend.mail.parser.services.ShunsuguUsageService
 import net.matsudamper.money.backend.mail.parser.services.SteamUsageService
 import net.matsudamper.money.backend.mail.parser.services.UberEatsUsageService
 import net.matsudamper.money.backend.mail.parser.services.YodobashiUsageService
+import net.matsudamper.money.backend.mail.parser.services.YoutubeSuperChatUsageServices
 
 public class MailMoneyUsageParser {
     public fun parse(
@@ -57,6 +58,7 @@ public class MailMoneyUsageParser {
             AuEasyPaymentUsageServices,
             NintendoProductBuyUsageServices,
             NintendoChargeUsageServices,
+            YoutubeSuperChatUsageServices,
         )
             .mapNotNull {
                 runCatching {
