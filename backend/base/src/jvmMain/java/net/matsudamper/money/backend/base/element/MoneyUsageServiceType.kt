@@ -88,5 +88,9 @@ public enum class MoneyUsageServiceType(
         id = 22,
         displayName = "任天堂",
     ),
+    NttEastAtBilling(
+        id = 23,
+        displayName = "@ビリング",
+    ),
     ;
 }
