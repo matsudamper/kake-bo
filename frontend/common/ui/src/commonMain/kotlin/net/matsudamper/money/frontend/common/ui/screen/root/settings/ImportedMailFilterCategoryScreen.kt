@@ -87,8 +87,8 @@ public data class ImportedMailFilterCategoryScreenUiState(
 
     @Immutable
     public sealed interface LoadingState {
-        public object Loading : LoadingState
-        public object Error : LoadingState
+        public data object Loading : LoadingState
+        public data object Error : LoadingState
         public data class Loaded(
             val title: String,
             val category: Category?,
