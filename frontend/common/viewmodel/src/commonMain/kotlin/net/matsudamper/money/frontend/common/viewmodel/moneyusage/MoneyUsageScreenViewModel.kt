@@ -113,7 +113,7 @@ public class MoneyUsageScreenViewModel(
                                         text = moneyUsage.description,
                                         event = ClickableEventImpl(moneyUsage.description),
                                     ),
-                                    dateTime = moneyUsage.date.toString(),
+                                    dateTime = Formatter.formatDateTime(moneyUsage.date),
                                     category = run category@{
                                         val subCategory = moneyUsage.moneyUsageSubCategory ?: return@category "未指定"
                                         val category = subCategory.category
