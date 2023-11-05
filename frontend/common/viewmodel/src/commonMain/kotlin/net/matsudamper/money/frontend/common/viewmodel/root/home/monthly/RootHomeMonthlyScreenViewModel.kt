@@ -48,7 +48,6 @@ public class RootHomeMonthlyScreenViewModel(
             rootHomeTabUiState = tabViewModel.uiStateFlow.value,
             event = object : RootHomeMonthlyScreenUiState.Event {
                 override suspend fun onViewInitialized() {
-
                 }
             },
         ),
@@ -69,7 +68,6 @@ public class RootHomeMonthlyScreenViewModel(
 
     public interface Event {
         public fun navigate(screen: ScreenStructure)
-
     }
 
     private data class ViewModelState(

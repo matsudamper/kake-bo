@@ -78,5 +78,4 @@ private fun LoadedContent(
     loadingState: RootHomeMonthlyScreenUiState.LoadingState.Loaded,
     modifier: Modifier = Modifier,
 ) {
-
 }
