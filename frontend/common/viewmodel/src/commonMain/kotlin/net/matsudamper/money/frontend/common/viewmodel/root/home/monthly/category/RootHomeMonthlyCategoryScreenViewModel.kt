@@ -183,40 +183,13 @@ public class RootHomeMonthlyCategoryScreenViewModel(
 
     private fun fetch() {
         monthlyCategoryResultState.add { results ->
-            when (val lastResponseState = results.lastOrNull()?.flow?.value) {
-                null -> {
-                    val date = LocalDate(
-                        year = viewModelStateFlow.value.year,
-                        monthNumber = viewModelStateFlow.value.month,
-                        dayOfMonth = 1,
-                    )
-                    MonthlyCategoryScreenListQuery(
-                        cursor = Optional.present(null),
-                        size = 50,
-                        category = viewModelStateFlow.value.categoryId,
-                        sinceDateTime = Optional.present(
-                            LocalDateTime(
-                                date = date,
-                                time = LocalTime(0, 0),
-                            ),
-                        ),
-                        untilDateTime = Optional.present(
-                            LocalDateTime(
-                                date = date.plus(1, DateTimeUnit.MONTH),
-                                time = LocalTime(0, 0),
-                            ),
-                        ),
-                    )
-                }
+            val cursor: String? = when (val lastResponseState = results.lastOrNull()?.flow?.value) {
+                null -> null
 
                 is ApolloResponseState.Success -> {
                     val moneyUsage = lastResponseState.value.data?.user?.moneyUsages ?: return@add null
                     if (moneyUsage.hasMore) {
-                        MonthlyCategoryScreenListQuery(
-                            cursor = Optional.present(moneyUsage.cursor),
-                            size = 50,
-                            category = viewModelStateFlow.value.categoryId,
-                        )
+                        moneyUsage.cursor
                     } else {
                         null
                     }
@@ -226,6 +199,28 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                 is ApolloResponseState.Loading,
                 -> return@add null
             }
+            val date = LocalDate(
+                year = viewModelStateFlow.value.year,
+                monthNumber = viewModelStateFlow.value.month,
+                dayOfMonth = 1,
+            )
+            MonthlyCategoryScreenListQuery(
+                cursor = Optional.present(cursor),
+                size = 50,
+                category = viewModelStateFlow.value.categoryId,
+                sinceDateTime = Optional.present(
+                    LocalDateTime(
+                        date = date,
+                        time = LocalTime(0, 0),
+                    ),
+                ),
+                untilDateTime = Optional.present(
+                    LocalDateTime(
+                        date = date.plus(1, DateTimeUnit.MONTH),
+                        time = LocalTime(0, 0),
+                    ),
+                ),
+            )
         }
     }
 
