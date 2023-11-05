@@ -66,12 +66,20 @@ public data class RootHomeMonthlyCategoryScreenUiState(
     public sealed interface LoadingState {
         public data class Loaded(
             val items: List<Item>,
+            val hasMoreItem: Boolean,
+            val event: LoadedEvent,
         ) : LoadingState
 
         public data object Loading : LoadingState
         public data object Error : LoadingState
     }
 
+    @Immutable
+    public interface LoadedEvent {
+        public fun loadMore()
+    }
+
+    @Immutable
     public interface Event {
         public fun onViewInitialized()
     }
@@ -186,6 +194,16 @@ private fun LoadedContent(
                                 )
                             }
                         }
+                    }
+                }
+            }
+            if (loadingState.hasMoreItem) {
+                item {
+                    LaunchedEffect(Unit) {
+                        loadingState.event.loadMore()
+                    }
+                    Box(modifier = Modifier.padding(vertical = 16.dp)) {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
                 }
             }

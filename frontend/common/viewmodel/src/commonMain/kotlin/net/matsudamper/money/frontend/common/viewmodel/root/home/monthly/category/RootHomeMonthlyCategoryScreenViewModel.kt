@@ -53,6 +53,11 @@ public class RootHomeMonthlyCategoryScreenViewModel(
         fetchPolicy = FetchPolicy.CacheFirst,
         coroutineScope = coroutineScope,
     )
+    private val loadedEvent = object : RootHomeMonthlyCategoryScreenUiState.LoadedEvent {
+        override fun loadMore() {
+            fetch()
+        }
+    }
 
     public val uiStateFlow: StateFlow<RootHomeMonthlyCategoryScreenUiState> = MutableStateFlow(
         RootHomeMonthlyCategoryScreenUiState(
@@ -101,7 +106,6 @@ public class RootHomeMonthlyCategoryScreenViewModel(
     ).also { uiStateFlow ->
         coroutineScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
-                viewModelState.categoryId
                 val state = when (viewModelState.apolloResponses.firstOrNull()) {
                     is ApolloResponseState.Failure -> {
                         RootHomeMonthlyCategoryScreenUiState.LoadingState.Error
@@ -120,6 +124,10 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                             }.map { node ->
                                 createItem(node)
                             },
+                            event = loadedEvent,
+                            hasMoreItem = viewModelState.apolloResponses.lastOrNull()
+                                ?.getSuccessOrNull()?.value
+                                ?.data?.user?.moneyUsages?.hasMore != false,
                         )
                     }
                 }
