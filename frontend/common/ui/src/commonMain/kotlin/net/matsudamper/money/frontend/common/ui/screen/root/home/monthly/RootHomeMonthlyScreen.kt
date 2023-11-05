@@ -157,7 +157,7 @@ private fun LoadedContent(
                 Text(
                     text = "TODO ここに円グラフ",
                     modifier = Modifier.fillMaxWidth()
-                        .padding(16.dp)
+                        .padding(16.dp),
                 )
             }
             items(loadingState.items) { item ->

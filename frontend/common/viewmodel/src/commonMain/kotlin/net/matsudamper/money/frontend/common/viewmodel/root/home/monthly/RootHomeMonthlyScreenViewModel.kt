@@ -234,8 +234,10 @@ public class RootHomeMonthlyScreenViewModel(
     }
 
     private fun createSinceLocalDateTime(): LocalDateTime {
-        val tmp = (viewModelStateFlow.value.argument.date
-            ?: Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date)
+        val tmp = (
+            viewModelStateFlow.value.argument.date
+                ?: Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+            )
 
         return LocalDateTime(
             date = LocalDate(
