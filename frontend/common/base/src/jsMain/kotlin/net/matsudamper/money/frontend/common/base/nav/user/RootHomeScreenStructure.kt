@@ -1,7 +1,6 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.internal.JSJoda.YearMonth
 import net.matsudamper.money.element.MoneyUsageCategoryId
 
 public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
@@ -157,8 +156,8 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
 
         override fun createUrl(): String {
             return direction.placeholderUrl
-                .replace("{${MONTH_KEY}}", "${year}-${month}")
-                .replace("{${CATEGORY_KEY}}", categoryId.value.toString())
+                .replace("{$MONTH_KEY}", "$year-$month")
+                .replace("{$CATEGORY_KEY}", categoryId.value.toString())
         }
 
         override fun equalScreen(other: ScreenStructure): Boolean {
