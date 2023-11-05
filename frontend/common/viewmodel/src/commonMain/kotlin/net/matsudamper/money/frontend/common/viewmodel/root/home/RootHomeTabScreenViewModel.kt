@@ -62,6 +62,7 @@ public class RootHomeTabScreenViewModel(
             viewModelState.copy(
                 contentTYpe = when (current) {
                     is RootHomeScreenStructure.Monthly -> RootHomeTabScreenScaffoldUiState.ContentType.Monthly
+                    is RootHomeScreenStructure.MonthlyCategory -> RootHomeTabScreenScaffoldUiState.ContentType.Monthly
                     is RootHomeScreenStructure.Period -> RootHomeTabScreenScaffoldUiState.ContentType.Period
                 },
             )

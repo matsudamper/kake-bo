@@ -23,7 +23,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.UrlPlaceHolderParser
 public class ScreenNavControllerImpl(
     initial: ScreenStructure,
 ) : ScreenNavController<ScreenStructure> {
-    private val directions = Screens.values().toList()
+    private val directions = Screens.entries
     private val parser = UrlPlaceHolderParser(directions)
     private var screenState: ScreenState by mutableStateOf(
         ScreenState(
@@ -200,6 +200,13 @@ public class ScreenNavControllerImpl(
                         MoneyUsageId(id)
                     },
                 )
+            }
+
+            Screens.HomeMonthlyCategory -> {
+                RootHomeScreenStructure.MonthlyCategory.create(
+                    pathParams = pathParams,
+                    queryParams = queryParams,
+                ) ?: ScreenStructure.NotFound
             }
         }
     }

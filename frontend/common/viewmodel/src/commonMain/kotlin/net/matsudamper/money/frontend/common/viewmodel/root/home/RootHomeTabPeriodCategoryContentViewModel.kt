@@ -217,7 +217,17 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                             total = amount,
                             event = object : BarGraphUiState.PeriodDataEvent {
                                 override fun onClick() {
-                                    println("onClick: $yearMonth")
+                                    coroutineScope.launch {
+                                        eventSender.send {
+                                            it.navigate(
+                                                RootHomeScreenStructure.MonthlyCategory(
+                                                    year = yearMonth.year,
+                                                    month = yearMonth.month,
+                                                    categoryId = categoryId,
+                                                ),
+                                            )
+                                        }
+                                    }
                                 }
                             },
                         )
