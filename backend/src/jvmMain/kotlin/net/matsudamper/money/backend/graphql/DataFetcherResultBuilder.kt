@@ -14,7 +14,7 @@ class DataFetcherResultBuilder<T>(
     }
 
     companion object {
-        fun <T> buildNullBalue(): DataFetcherResult<T>? {
+        fun <T> buildNullValue(): DataFetcherResult<T>? {
             return DataFetcherResult.newResult<T>()
                 .data(null)
                 .build()

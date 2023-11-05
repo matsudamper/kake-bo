@@ -262,7 +262,7 @@ class UserResolverImpl : UserResolver {
                 )
                 .onFailure {
                     it.printStackTrace()
-                }.getOrNull() ?: return@supplyAsync DataFetcherResultBuilder.buildNullBalue()
+                }.getOrNull() ?: return@supplyAsync DataFetcherResultBuilder.buildNullValue()
 
             val result = results.firstOrNull { it.categoryId == id }
 

@@ -50,7 +50,7 @@ class MoneyUsageAnalyticsResolverImpl : MoneyUsageAnalyticsResolver {
                 )
                 .onFailure {
                     it.printStackTrace()
-                }.getOrNull() ?: return@supplyAsync DataFetcherResultBuilder.buildNullBalue()
+                }.getOrNull() ?: return@supplyAsync DataFetcherResultBuilder.buildNullValue()
 
             DataFetcherResultBuilder.nullable(
                 value = results.map {
