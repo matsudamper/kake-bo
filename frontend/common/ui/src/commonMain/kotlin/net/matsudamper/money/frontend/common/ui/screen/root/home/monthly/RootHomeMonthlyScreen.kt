@@ -153,6 +153,13 @@ private fun LoadedContent(
                     style = MaterialTheme.typography.titleMedium,
                 )
             }
+            item {
+                Text(
+                    text = "TODO ここに円グラフ",
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(16.dp)
+                )
+            }
             items(loadingState.items) { item ->
                 Card(
                     modifier = Modifier.padding(vertical = 2.dp),
