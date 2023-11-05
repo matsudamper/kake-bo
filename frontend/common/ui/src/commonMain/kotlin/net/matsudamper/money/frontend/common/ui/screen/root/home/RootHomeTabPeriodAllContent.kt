@@ -47,7 +47,6 @@ public data class RootHomeTabPeriodAllContentUiState(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 public fun RootHomeTabPeriodAllScreen(
     modifier: Modifier = Modifier,
