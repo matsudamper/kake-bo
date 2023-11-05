@@ -551,7 +551,7 @@ private fun MoneyUsageSection(
                         },
                     ),
             ) {
-                ProvideTextStyle(MaterialTheme.typography.bodyLarge) {
+                ProvideTextStyle(MaterialTheme.typography.bodyMedium) {
                     content()
                 }
             }

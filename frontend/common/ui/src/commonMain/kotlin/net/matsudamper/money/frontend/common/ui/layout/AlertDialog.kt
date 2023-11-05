@@ -73,7 +73,7 @@ internal fun AlertDialog(
 
                 if (description != null) {
                     Spacer(Modifier.height(8.dp))
-                    ProvideTextStyle(MaterialTheme.typography.bodyLarge) {
+                    ProvideTextStyle(MaterialTheme.typography.bodyMedium) {
                         Box(modifier = Modifier.padding(horizontal = 12.dp)) {
                             description()
                         }

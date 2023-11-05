@@ -10,6 +10,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.createFontFamilyResolver
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 public fun CustomTheme(content: @Composable () -> Unit) {
@@ -36,9 +38,21 @@ public fun CustomTheme(content: @Composable () -> Unit) {
             titleLarge = MaterialTheme.typography.titleLarge.applyCustomFontFamily(),
             titleMedium = MaterialTheme.typography.titleMedium.applyCustomFontFamily(),
             titleSmall = MaterialTheme.typography.titleSmall.applyCustomFontFamily(),
-            bodyLarge = MaterialTheme.typography.bodyLarge.applyCustomFontFamily(),
-            bodyMedium = MaterialTheme.typography.bodyMedium.applyCustomFontFamily(),
-            bodySmall = MaterialTheme.typography.bodySmall.applyCustomFontFamily(),
+            bodyLarge = MaterialTheme.typography.bodyLarge.merge(
+                TextStyle(
+                    fontSize = 22.sp
+                )
+            ).applyCustomFontFamily(),
+            bodyMedium = MaterialTheme.typography.bodyMedium.merge(
+                TextStyle(
+                    fontSize = 18.sp
+                )
+            ).applyCustomFontFamily(),
+            bodySmall = MaterialTheme.typography.bodySmall.merge(
+                TextStyle(
+                    fontSize = 14.sp
+                )
+            ).applyCustomFontFamily(),
             labelLarge = MaterialTheme.typography.labelLarge.applyCustomFontFamily(),
             labelMedium = MaterialTheme.typography.labelMedium.applyCustomFontFamily(),
             labelSmall = MaterialTheme.typography.labelSmall.applyCustomFontFamily(),

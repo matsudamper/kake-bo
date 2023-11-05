@@ -1,19 +1,40 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.home
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.ScrollButtons
+import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
@@ -66,22 +87,10 @@ public fun RootHomeMonthlyCategoryScreen(
     ) {
         when (val loadingState = uiState.loadingState) {
             is RootHomeMonthlyCategoryScreenUiState.LoadingState.Loaded -> {
-                LazyColumn(
+                LoadedContent(
                     modifier = Modifier.fillMaxWidth(),
-                ) {
-                    item {
-                        Text(
-                            modifier = Modifier.padding(8.dp),
-                            text = uiState.title,
-                        )
-                    }
-                    items(loadingState.items) {
-                        Row {
-                            Text(it.title)
-                            Text(it.amount)
-                        }
-                    }
-                }
+                    loadingState = loadingState,
+                )
             }
 
             RootHomeMonthlyCategoryScreenUiState.LoadingState.Loading -> {
@@ -97,5 +106,60 @@ public fun RootHomeMonthlyCategoryScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun LoadedContent(
+    loadingState: RootHomeMonthlyCategoryScreenUiState.LoadingState.Loaded,
+    modifier: Modifier = Modifier,
+) {
+    val density = LocalDensity.current
+    BoxWithConstraints(
+        modifier = modifier,
+    ) {
+        val lazyListState = rememberLazyListState()
+        val height by rememberUpdatedState(maxHeight)
+        var scrollButtonHeight by remember { mutableIntStateOf(0) }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            state = lazyListState,
+            contentPadding = PaddingValues(
+                bottom = with(density) { scrollButtonHeight.toDp() } + 8.dp,
+                top = 8.dp,
+                start = 8.dp,
+                end = 8.dp,
+            )
+        ) {
+            items(loadingState.items) {
+                Card(modifier = Modifier.padding(vertical = 4.dp)) {
+                    ProvideTextStyle(
+                        MaterialTheme.typography.bodyMedium,
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(8.dp),
+                        ) {
+                            Text(it.title)
+                            Spacer(modifier = Modifier.weight(1f))
+                            Text(
+                                modifier = Modifier.widthIn(min = 100.dp),
+                                text = it.amount,
+                                textAlign = TextAlign.End,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        ScrollButtons(
+            modifier = Modifier.align(Alignment.BottomEnd)
+                .padding(ScrollButtonsDefaults.padding)
+                .height(ScrollButtonsDefaults.height)
+                .onSizeChanged {
+                    scrollButtonHeight = it.height
+                },
+            scrollState = lazyListState,
+            scrollSize = with(density) { height.toPx() } * 0.4f,
+        )
     }
 }

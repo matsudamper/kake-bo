@@ -268,7 +268,7 @@ private fun Section(
     title: @Composable () -> Unit,
     titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
     description: @Composable () -> Unit,
-    descriptionStyle: TextStyle = MaterialTheme.typography.bodyLarge,
+    descriptionStyle: TextStyle = MaterialTheme.typography.bodyMedium,
 ) {
     Row(modifier.padding(vertical = 12.dp)) {
         Column(

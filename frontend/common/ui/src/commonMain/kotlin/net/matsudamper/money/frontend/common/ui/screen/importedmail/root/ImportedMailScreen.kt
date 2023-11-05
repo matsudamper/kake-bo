@@ -403,7 +403,7 @@ private fun UsageSuggestEmptyContent(
     ) {
         Text(
             text = "解析できませんでした",
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyMedium,
         )
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedButton(
