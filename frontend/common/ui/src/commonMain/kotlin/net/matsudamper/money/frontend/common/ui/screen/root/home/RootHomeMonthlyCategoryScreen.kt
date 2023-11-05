@@ -2,6 +2,8 @@ package net.matsudamper.money.frontend.common.ui.screen.root.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -52,8 +54,10 @@ public data class RootHomeMonthlyCategoryScreenUiState(
         val title: String,
         val amount: String,
         val subCategory: String,
+        val date: String,
         val event: Event,
     ) {
+
         @Immutable
         public interface Event {
             public fun onClick()
@@ -150,26 +154,38 @@ private fun LoadedContent(
                     ProvideTextStyle(
                         MaterialTheme.typography.bodyMedium,
                     ) {
-                        Row(
+                        Column(
                             modifier = Modifier.padding(12.dp),
                         ) {
                             Text(
-                                modifier = Modifier.weight(1f),
-                                text = item.title,
-                                maxLines = 3,
+                                text = item.date,
                             )
-                            Text(
-                                modifier = Modifier.requiredWidthIn(min = 80.dp),
-                                text = item.subCategory,
-                                maxLines = 1,
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(
-                                modifier = Modifier.requiredWidthIn(min = 60.dp),
-                                maxLines = 1,
-                                text = item.amount,
-                                textAlign = TextAlign.End,
-                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Row {
+                                Text(
+                                    modifier = Modifier.weight(1f),
+                                    text = item.title,
+                                    maxLines = 3,
+                                )
+                                Text(
+                                    modifier = Modifier
+                                        .align(Alignment.Bottom)
+                                        .height(IntrinsicSize.Max)
+                                        .requiredWidthIn(min = 80.dp),
+                                    text = item.subCategory,
+                                    maxLines = 1,
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    modifier = Modifier
+                                        .align(Alignment.Bottom)
+                                        .height(IntrinsicSize.Max)
+                                        .requiredWidthIn(min = 60.dp),
+                                    maxLines = 1,
+                                    text = item.amount,
+                                    textAlign = TextAlign.End,
+                                )
+                            }
                         }
                     }
                 }

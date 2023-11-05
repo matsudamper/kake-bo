@@ -12,6 +12,7 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
+import kotlinx.datetime.internal.JSJoda.DateTimeFormatter
 import kotlinx.datetime.plus
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
@@ -118,7 +119,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                             items = viewModelState.apolloResponses.flatMap {
                                 it.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.nodes.orEmpty()
                             }.map { node ->
-                                  createItem(node)
+                                createItem(node)
                             },
                         )
                     }
@@ -144,6 +145,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
             title = node.title,
             amount = "${Formatter.formatMoney(node.amount)}円",
             subCategory = node.moneyUsageSubCategory?.name.orEmpty(),
+            date = Formatter.formatDateTime(node.date),
             event = object : RootHomeMonthlyCategoryScreenUiState.Item.Event {
                 override fun onClick() {
                     coroutineScope.launch {
@@ -156,7 +158,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                         }
                     }
                 }
-            }
+            },
         )
     }
 

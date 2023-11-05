@@ -14,6 +14,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.internal.JSJoda.DateTimeFormatter
 import kotlinx.datetime.todayIn
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -22,6 +23,7 @@ import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsa
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
+import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 
 public class AddMoneyUsageViewModel(
     private val coroutineScope: CoroutineScope,
@@ -296,15 +298,7 @@ public class AddMoneyUsageViewModel(
                             selectedDate = viewModelState.usageDate,
                         ).takeIf { viewModelState.showCalendarDialog },
                         date = run {
-                            val dayOfWeek = when (viewModelState.usageDate.dayOfWeek) {
-                                DayOfWeek.MONDAY -> "月"
-                                DayOfWeek.TUESDAY -> "火"
-                                DayOfWeek.WEDNESDAY -> "水"
-                                DayOfWeek.THURSDAY -> "木"
-                                DayOfWeek.FRIDAY -> "金"
-                                DayOfWeek.SATURDAY -> "土"
-                                DayOfWeek.SUNDAY -> "日"
-                            }
+                            val dayOfWeek = Formatter.dayOfWeekToJapanese(viewModelState.usageDate.dayOfWeek)
                             "${viewModelState.usageDate.year}-${viewModelState.usageDate.monthNumber}-${viewModelState.usageDate.dayOfMonth} ($dayOfWeek)"
                         },
                         title = viewModelState.usageTitle,
