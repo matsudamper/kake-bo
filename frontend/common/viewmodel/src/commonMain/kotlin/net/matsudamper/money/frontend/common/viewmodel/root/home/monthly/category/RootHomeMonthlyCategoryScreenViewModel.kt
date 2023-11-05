@@ -117,11 +117,24 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                         RootHomeMonthlyCategoryScreenUiState.LoadingState.Loaded(
                             items = viewModelState.apolloResponses.flatMap {
                                 it.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.nodes.orEmpty()
-                            }.map {
+                            }.map { node ->
                                 RootHomeMonthlyCategoryScreenUiState.Item(
-                                    title = it.title,
-                                    amount = "${Formatter.formatMoney(it.amount)}円",
-                                    subCategory = it.moneyUsageSubCategory?.name.orEmpty(),
+                                    title = node.title,
+                                    amount = "${Formatter.formatMoney(node.amount)}円",
+                                    subCategory = node.moneyUsageSubCategory?.name.orEmpty(),
+                                    event = object : RootHomeMonthlyCategoryScreenUiState.Item.Event {
+                                        override fun onClick() {
+                                            coroutineScope.launch {
+                                                eventSender.send {
+                                                    it.navigate(
+                                                        ScreenStructure.MoneyUsage(
+                                                            id = node.id,
+                                                        ),
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
                                 )
                             },
                         )

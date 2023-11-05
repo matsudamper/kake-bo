@@ -15,10 +15,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -48,7 +50,13 @@ public data class RootHomeMonthlyCategoryScreenUiState(
         val title: String,
         val amount: String,
         val subCategory: String,
-    )
+        val event: Event,
+    ) {
+        @Immutable
+        public interface Event {
+            public fun onClick()
+        }
+    }
 
     public sealed interface LoadingState {
         public data class Loaded(
@@ -107,6 +115,7 @@ public fun RootHomeMonthlyCategoryScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LoadedContent(
     loadingState: RootHomeMonthlyCategoryScreenUiState.LoadingState.Loaded,
@@ -129,19 +138,24 @@ private fun LoadedContent(
                 end = 8.dp,
             ),
         ) {
-            items(loadingState.items) {
-                Card(modifier = Modifier.padding(vertical = 4.dp)) {
+            items(loadingState.items) { item ->
+                Card(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    onClick = {
+                        item.event.onClick()
+                    }
+                ) {
                     ProvideTextStyle(
                         MaterialTheme.typography.bodyMedium,
                     ) {
                         Row(
                             modifier = Modifier.padding(8.dp),
                         ) {
-                            Text(it.title)
+                            Text(item.title)
                             Spacer(modifier = Modifier.weight(1f))
                             Text(
                                 modifier = Modifier.widthIn(min = 100.dp),
-                                text = it.amount,
+                                text = item.amount,
                                 textAlign = TextAlign.End,
                             )
                         }
