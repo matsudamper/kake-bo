@@ -169,14 +169,13 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
                 pathParams: Map<String, String>,
                 queryParams: Map<String, List<String>>,
             ): MonthlyCategory? {
-                val category = queryParams[CATEGORY_KEY]
-                    ?.firstOrNull()
+                val category = pathParams[CATEGORY_KEY]
                     ?.toIntOrNull()
                     ?: return null
                 val year: Int
                 val month: Int
                 run {
-                    val list = queryParams[MONTH_KEY]?.firstOrNull()
+                    val list = pathParams[MONTH_KEY]
                         ?.split("-")
                         ?: return null
                     year = list.getOrNull(0)?.toIntOrNull() ?: return null
