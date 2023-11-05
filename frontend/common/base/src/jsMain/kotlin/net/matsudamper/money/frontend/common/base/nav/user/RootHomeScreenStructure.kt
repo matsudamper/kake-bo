@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.internal.JSJoda.YearMonth
 import net.matsudamper.money.element.MoneyUsageCategoryId
 
 public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
@@ -148,16 +149,19 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
     }
 
     public data class MonthlyCategory(
-        val year: Int,
-        val month: Int,
         val categoryId: MoneyUsageCategoryId,
+        val yearMonth: YearMonth,
     ) : RootHomeScreenStructure {
         override val direction: Screens = Screens.HomeMonthlyCategory
 
         override fun createUrl(): String {
             return direction.placeholderUrl
-                .replace("{${MONTH_KEY}}", "$year-$month")
+                .replace("{${MONTH_KEY}}", "${yearMonth.year()}-${yearMonth.monthValue()}")
                 .replace("{${CATEGORY_KEY}}", categoryId.value.toString())
+        }
+
+        override fun equalScreen(other: ScreenStructure): Boolean {
+            return other is MonthlyCategory
         }
 
         public companion object {
@@ -172,18 +176,18 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
                 val category = pathParams[CATEGORY_KEY]
                     ?.toIntOrNull()
                     ?: return null
-                val year: Int
-                val month: Int
-                run {
+                val yearMonth = run {
                     val list = pathParams[MONTH_KEY]
                         ?.split("-")
                         ?: return null
-                    year = list.getOrNull(0)?.toIntOrNull() ?: return null
-                    month = list.getOrNull(1)?.toIntOrNull() ?: return null
+
+                    YearMonth.of(
+                        year = list.getOrNull(0)?.toIntOrNull() ?: return null,
+                        monthOrNumber = list.getOrNull(1)?.toIntOrNull() ?: return null
+                    )
                 }
                 return MonthlyCategory(
-                    year = year,
-                    month = month,
+                    yearMonth = yearMonth,
                     categoryId = MoneyUsageCategoryId(category),
                 )
             }

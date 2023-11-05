@@ -12,6 +12,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.internal.JSJoda.YearMonth
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo3.api.ApolloResponse
@@ -221,9 +222,11 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                                         eventSender.send {
                                             it.navigate(
                                                 RootHomeScreenStructure.MonthlyCategory(
-                                                    year = yearMonth.year,
-                                                    month = yearMonth.month,
                                                     categoryId = categoryId,
+                                                    yearMonth = YearMonth.of(
+                                                        year = yearMonth.year,
+                                                        monthOrNumber = yearMonth.month,
+                                                    ),
                                                 ),
                                             )
                                         }
