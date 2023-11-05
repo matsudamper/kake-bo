@@ -1,7 +1,6 @@
 package screen
 
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -14,6 +13,7 @@ import event.ViewModelEventHandlers
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlyCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreen
@@ -33,6 +33,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodAllContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodCategoryContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenApi
+import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.category.RootHomeMonthlyCategoryScreenViewModel
 
 @Composable
 internal fun RootNavContent(
@@ -116,7 +117,25 @@ internal fun RootNavContent(
                     }
 
                     is RootHomeScreenStructure.MonthlyCategory -> {
-                        Text("$current")
+                        val monthlyCategoryViewModel = remember {
+                            RootHomeMonthlyCategoryScreenViewModel(
+                                argument = current,
+                                coroutineScope = rootCoroutineScope,
+                                loginCheckUseCase = loginCheckUseCase,
+                            )
+                        }
+                        LaunchedEffect(monthlyCategoryViewModel.eventHandler) {
+                            viewModelEventHandlers.handle(monthlyCategoryViewModel.eventHandler)
+                        }
+                        LaunchedEffect(monthlyCategoryViewModel, current) {
+                            monthlyCategoryViewModel.updateStructure(current)
+                        }
+
+                        RootHomeMonthlyCategoryScreen(
+                            modifier = Modifier.fillMaxSize(),
+                            uiState = monthlyCategoryViewModel.uiStateFlow.collectAsState().value,
+                            scaffoldListener = rootScreenScaffoldListener,
+                        )
                     }
                 }
             }
