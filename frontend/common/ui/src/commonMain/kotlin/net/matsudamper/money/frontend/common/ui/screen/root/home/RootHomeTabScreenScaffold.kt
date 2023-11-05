@@ -45,13 +45,14 @@ public data class RootHomeTabScreenScaffoldUiState(
 public fun RootHomeTabScreenScaffold(
     uiState: RootHomeTabScreenScaffoldUiState,
     scaffoldListener: RootScreenScaffoldListener,
+    modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     LaunchedEffect(uiState.event) {
         uiState.event.onViewInitialized()
     }
     RootScreenScaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize(),
         currentScreen = RootScreenTab.Home,
         listener = scaffoldListener,
         topBar = {

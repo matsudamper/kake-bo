@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
@@ -16,6 +17,7 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlyCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodCategoryScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.home.monthly.RootHomeMonthlyScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportMailScreenUiState
@@ -33,6 +35,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodAllContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodCategoryContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenApi
+import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.RootHomeMonthlyScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.category.RootHomeMonthlyCategoryScreenViewModel
 
 @Composable
@@ -62,6 +65,25 @@ internal fun RootNavContent(
                 when (current) {
                     is RootHomeScreenStructure.Monthly -> {
                         holder.SaveableStateProvider(RootHomeScreenStructure.Monthly::class) {
+                            val coroutineScope = rememberCoroutineScope()
+                            val viewModel = remember {
+                                RootHomeMonthlyScreenViewModel(
+                                    coroutineScope = coroutineScope,
+                                    loginCheckUseCase = loginCheckUseCase,
+                                    argument = current,
+                                )
+                            }
+                            LaunchedEffect(viewModel, current) {
+                                viewModel.updateStructure(current)
+                            }
+                            LaunchedEffect(viewModel.eventHandler) {
+                                viewModelEventHandlers.handle(viewModel.eventHandler)
+                            }
+                            RootHomeMonthlyScreen(
+                                modifier = Modifier,
+                                scaffoldListener = rootScreenScaffoldListener,
+                                uiState = viewModel.uiStateFlow.collectAsState().value,
+                            )
                         }
                     }
 
