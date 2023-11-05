@@ -9,12 +9,10 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
-import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.internal.JSJoda.DateTimeFormatter
 import kotlinx.datetime.todayIn
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
