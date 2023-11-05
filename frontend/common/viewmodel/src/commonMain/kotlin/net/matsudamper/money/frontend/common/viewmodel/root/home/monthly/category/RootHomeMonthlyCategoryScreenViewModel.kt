@@ -118,24 +118,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                             items = viewModelState.apolloResponses.flatMap {
                                 it.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.nodes.orEmpty()
                             }.map { node ->
-                                RootHomeMonthlyCategoryScreenUiState.Item(
-                                    title = node.title,
-                                    amount = "${Formatter.formatMoney(node.amount)}円",
-                                    subCategory = node.moneyUsageSubCategory?.name.orEmpty(),
-                                    event = object : RootHomeMonthlyCategoryScreenUiState.Item.Event {
-                                        override fun onClick() {
-                                            coroutineScope.launch {
-                                                eventSender.send {
-                                                    it.navigate(
-                                                        ScreenStructure.MoneyUsage(
-                                                            id = node.id,
-                                                        ),
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    }
-                                )
+                                  createItem(node)
                             },
                         )
                     }
@@ -154,6 +137,27 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                 )
             }
         }
+    }
+
+    private fun createItem(node: MonthlyCategoryScreenListQuery.Node): RootHomeMonthlyCategoryScreenUiState.Item {
+        return RootHomeMonthlyCategoryScreenUiState.Item(
+            title = node.title,
+            amount = "${Formatter.formatMoney(node.amount)}円",
+            subCategory = node.moneyUsageSubCategory?.name.orEmpty(),
+            event = object : RootHomeMonthlyCategoryScreenUiState.Item.Event {
+                override fun onClick() {
+                    coroutineScope.launch {
+                        eventSender.send {
+                            it.navigate(
+                                ScreenStructure.MoneyUsage(
+                                    id = node.id,
+                                ),
+                            )
+                        }
+                    }
+                }
+            }
+        )
     }
 
     public fun updateStructure(current: RootHomeScreenStructure.MonthlyCategory) {
