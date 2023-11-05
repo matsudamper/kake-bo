@@ -73,12 +73,12 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                     coroutineScope.launch {
                         viewModelStateFlow.map { viewModelState ->
                             viewModelState.categoryId
-                        }.stateIn(this).collectLatest {
+                        }.stateIn(this).collectLatest { categoryId ->
                             val collector = ApolloResponseCollector.create(
                                 apolloClient = apolloClient,
                                 fetchPolicy = FetchPolicy.CacheFirst,
                                 query = MonthlyCategoryScreenQuery(
-                                    id = it,
+                                    id = categoryId,
                                 ),
                             )
                             collector.fetch(this)
