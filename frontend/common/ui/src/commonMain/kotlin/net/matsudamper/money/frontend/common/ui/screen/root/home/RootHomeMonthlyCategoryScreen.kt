@@ -202,7 +202,10 @@ private fun LoadedContent(
                     LaunchedEffect(Unit) {
                         loadingState.event.loadMore()
                     }
-                    Box(modifier = Modifier.padding(vertical = 16.dp)) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                    ) {
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
                 }
