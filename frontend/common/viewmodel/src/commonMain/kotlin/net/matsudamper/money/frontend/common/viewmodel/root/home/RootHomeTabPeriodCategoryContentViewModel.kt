@@ -223,10 +223,8 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                                             it.navigate(
                                                 RootHomeScreenStructure.MonthlyCategory(
                                                     categoryId = categoryId,
-                                                    yearMonth = YearMonth.of(
-                                                        year = yearMonth.year,
-                                                        monthOrNumber = yearMonth.month,
-                                                    ),
+                                                    year = yearMonth.year,
+                                                    month = yearMonth.month,
                                                 ),
                                             )
                                         }

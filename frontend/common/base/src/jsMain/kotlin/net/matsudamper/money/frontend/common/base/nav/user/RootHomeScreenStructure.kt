@@ -150,13 +150,14 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
 
     public data class MonthlyCategory(
         val categoryId: MoneyUsageCategoryId,
-        val yearMonth: YearMonth,
+        val year: Int,
+        val month: Int,
     ) : RootHomeScreenStructure {
         override val direction: Screens = Screens.HomeMonthlyCategory
 
         override fun createUrl(): String {
             return direction.placeholderUrl
-                .replace("{${MONTH_KEY}}", "${yearMonth.year()}-${yearMonth.monthValue()}")
+                .replace("{${MONTH_KEY}}", "${year}-${month}")
                 .replace("{${CATEGORY_KEY}}", categoryId.value.toString())
         }
 
@@ -176,18 +177,19 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
                 val category = pathParams[CATEGORY_KEY]
                     ?.toIntOrNull()
                     ?: return null
-                val yearMonth = run {
+                val year: Int
+                val month: Int
+                run {
                     val list = pathParams[MONTH_KEY]
                         ?.split("-")
                         ?: return null
 
-                    YearMonth.of(
-                        year = list.getOrNull(0)?.toIntOrNull() ?: return null,
-                        monthOrNumber = list.getOrNull(1)?.toIntOrNull() ?: return null
-                    )
+                    year = list.getOrNull(0)?.toIntOrNull() ?: return null
+                    month = list.getOrNull(1)?.toIntOrNull() ?: return null
                 }
                 return MonthlyCategory(
-                    yearMonth = yearMonth,
+                    year = year,
+                    month = month,
                     categoryId = MoneyUsageCategoryId(category),
                 )
             }

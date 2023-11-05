@@ -1,0 +1,41 @@
+query MonthlyCategoryScreen($id: MoneyUsageCategoryId!) {
+    user {
+        moneyUsageCategory(id: $id) {
+            id
+            name
+        }
+    }
+}
+
+query MonthlyCategoryScreenList(
+    $cursor: String,
+    $size: Int!,
+    $category: MoneyUsageCategoryId!
+    $sinceDateTime: LocalDateTime,
+    $untilDateTime: LocalDateTime
+) {
+    user {
+        moneyUsages(query: {
+            cursor: $cursor
+            size: $size
+            filter: {
+                category: [$category]
+                sinceDateTime: $sinceDateTime
+                untilDateTime: $untilDateTime
+            }
+            isAsc: true
+        }) {
+            cursor
+            hasMore
+            nodes {
+                id
+                title
+                amount
+                moneyUsageSubCategory {
+                    id
+                    name
+                }
+            }
+        }
+    }
+}
