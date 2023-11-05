@@ -65,36 +65,10 @@ public fun RootHomeTabPeriodCategoryScreen(
         ) {
             when (val loadingState = uiState.loadingState) {
                 is RootHomeTabPeriodCategoryContentUiState.LoadingState.Loaded -> {
-                    Column(modifier = modifier) {
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Card {
-                            BarGraph(
-                                modifier = Modifier
-                                    .padding(16.dp)
-                                    .fillMaxWidth()
-                                    .height(500.dp),
-                                uiState = loadingState.graphItems,
-                                contentColor = LocalContentColor.current,
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            GraphTitleChips(
-                                modifier = Modifier.padding(horizontal = 16.dp),
-                                items = loadingState.graphTitleItems,
-                            )
-                        }
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Card {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                loadingState.monthTotalItems.forEach {
-                                    Row {
-                                        Text(it.title)
-                                        Spacer(modifier = Modifier.widthIn(min = 8.dp).weight(1f))
-                                        Text(it.amount)
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    LoadedContent(
+                        modifier = Modifier.fillMaxSize(),
+                        loadingState = loadingState,
+                    )
                 }
 
                 RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading -> {
@@ -108,6 +82,43 @@ public fun RootHomeTabPeriodCategoryScreen(
                         modifier = modifier,
                         onClickRetry = { /* TODO */ },
                     )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun LoadedContent(
+    modifier: Modifier = Modifier,
+    loadingState: RootHomeTabPeriodCategoryContentUiState.LoadingState.Loaded,
+) {
+    Column(modifier = modifier) {
+        Spacer(modifier = Modifier.height(12.dp))
+        Card {
+            BarGraph(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .height(500.dp),
+                uiState = loadingState.graphItems,
+                contentColor = LocalContentColor.current,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            GraphTitleChips(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                items = loadingState.graphTitleItems,
+            )
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        Card {
+            Column(modifier = Modifier.padding(16.dp)) {
+                loadingState.monthTotalItems.forEach {
+                    Row {
+                        Text(it.title)
+                        Spacer(modifier = Modifier.widthIn(min = 8.dp).weight(1f))
+                        Text(it.amount)
+                    }
                 }
             }
         }

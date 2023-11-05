@@ -61,9 +61,11 @@ public fun CustomTheme(content: @Composable () -> Unit) {
             LocalFontFamilyResolver provides remember {
                 createFontFamilyResolver()
             },
-            LocalTextStyle provides LocalTextStyle.current.copy(
-                fontFamily = rememberCustomFontFamily(),
-            ),
+            LocalTextStyle provides LocalTextStyle.current.merge(
+                TextStyle(
+                    fontFamily = rememberCustomFontFamily(),
+                ),
+            ).merge(MaterialTheme.typography.bodyMedium),
         ) {
             content()
         }

@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredWidthIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -140,21 +142,31 @@ private fun LoadedContent(
         ) {
             items(loadingState.items) { item ->
                 Card(
-                    modifier = Modifier.padding(vertical = 4.dp),
+                    modifier = Modifier.padding(vertical = 2.dp),
                     onClick = {
                         item.event.onClick()
-                    }
+                    },
                 ) {
                     ProvideTextStyle(
                         MaterialTheme.typography.bodyMedium,
                     ) {
                         Row(
-                            modifier = Modifier.padding(8.dp),
+                            modifier = Modifier.padding(12.dp),
                         ) {
-                            Text(item.title)
-                            Spacer(modifier = Modifier.weight(1f))
                             Text(
-                                modifier = Modifier.widthIn(min = 100.dp),
+                                modifier = Modifier.weight(1f),
+                                text = item.title,
+                                maxLines = 3,
+                            )
+                            Text(
+                                modifier = Modifier.requiredWidthIn(min = 80.dp),
+                                text = item.subCategory,
+                                maxLines = 1,
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                modifier = Modifier.requiredWidthIn(min = 60.dp),
+                                maxLines = 1,
                                 text = item.amount,
                                 textAlign = TextAlign.End,
                             )
