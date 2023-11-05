@@ -35,4 +35,14 @@ internal object Formatter {
             append(dateTime.minute.toString().padStart(2, padChar = '0'))
         }
     }
+    fun formatDayOfMonthDateTime(dateTime: LocalDateTime): String {
+        return buildString {
+            append("${dateTime.dayOfMonth}日")
+            append("(${dayOfWeekToJapanese(dateTime.date.dayOfWeek)})")
+            append(" ")
+            append(dateTime.hour.toString().padStart(2, padChar = '0'))
+            append(":")
+            append(dateTime.minute.toString().padStart(2, padChar = '0'))
+        }
+    }
 }

@@ -1,0 +1,52 @@
+query MonthlyScreen(
+    $sinceDateTime: LocalDateTime!,
+    $untilDateTime: LocalDateTime!
+) {
+    user {
+        moneyUsageAnalytics(query: {
+            sinceDateTime: $sinceDateTime,
+            untilDateTime: $untilDateTime
+        }) {
+            totalAmount
+            byCategories {
+                totalAmount
+                category {
+                    id
+                    name
+                }
+            }
+        }
+    }
+}
+
+query MonthlyScreenList(
+    $cursor: String,
+    $size: Int!,
+    $sinceDateTime: LocalDateTime,
+    $untilDateTime: LocalDateTime
+) {
+    user {
+        moneyUsages(query: {
+            cursor: $cursor
+            size: $size
+            filter: {
+                sinceDateTime: $sinceDateTime
+                untilDateTime: $untilDateTime
+            }
+            isAsc: true
+        }) {
+            cursor
+            hasMore
+            nodes {
+                id
+                title
+                amount
+                date
+                moneyUsageSubCategory {
+                    id
+                    name
+                }
+            }
+        }
+    }
+}
