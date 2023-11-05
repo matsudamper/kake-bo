@@ -28,6 +28,8 @@ input MoneyUsagesQuery {
 }
 
 input MoneyUsagesQueryFilter {
+    category: [MoneyUsageCategoryId!]
+    subCategory: [MoneyUsageSubCategoryId!]
     sinceDateTime: LocalDateTime
     untilDateTime: LocalDateTime
 }

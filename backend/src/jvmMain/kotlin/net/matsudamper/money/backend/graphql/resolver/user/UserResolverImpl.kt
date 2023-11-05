@@ -124,6 +124,8 @@ class UserResolverImpl : UserResolver {
                     },
                     sinceDateTime = query.filter?.sinceDateTime,
                     untilDateTime = query.filter?.untilDateTime,
+                    categoryIds = query.filter?.category.orEmpty(),
+                    subCategoryIds = query.filter?.subCategory.orEmpty(),
                 )
             val result = when (results) {
                 is MoneyUsageRepository.GetMoneyUsageByQueryResult.Failed -> throw results.error

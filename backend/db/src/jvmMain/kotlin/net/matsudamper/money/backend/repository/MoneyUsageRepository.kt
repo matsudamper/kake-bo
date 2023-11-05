@@ -4,18 +4,21 @@ import java.lang.IllegalStateException
 import java.time.LocalDateTime
 import net.matsudamper.money.backend.DbConnectionImpl
 import net.matsudamper.money.backend.element.UserId
+import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsagesRecord
 import net.matsudamper.money.element.ImportedMailId
+import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import org.jooq.impl.DSL
 import org.jooq.kotlin.and
 
 class MoneyUsageRepository {
-    private val usage = JMoneyUsages.MONEY_USAGES
-    private val relation = JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION
+    private val jUsage = JMoneyUsages.MONEY_USAGES
+    private val jSubCategory = JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES
+    private val jRelation = JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION
 
     fun addMailRelation(
         userId: UserId,
@@ -28,11 +31,11 @@ class MoneyUsageRepository {
                 run {
                     val count = DSL.using(connection)
                         .select(DSL.count())
-                        .from(usage)
+                        .from(jUsage)
                         .where(
                             DSL.value(true)
-                                .and(usage.USER_ID.eq(userId.value))
-                                .and(usage.MONEY_USAGE_ID.eq(usageId.id)),
+                                .and(jUsage.USER_ID.eq(userId.value))
+                                .and(jUsage.MONEY_USAGE_ID.eq(usageId.id)),
                         )
                         .execute()
                     if (count != 1) {
@@ -42,11 +45,11 @@ class MoneyUsageRepository {
                 run {
                     val count = DSL.using(connection)
                         .select(DSL.count())
-                        .from(relation)
+                        .from(jRelation)
                         .where(
                             DSL.value(true)
-                                .and(relation.USER_ID.eq(userId.value))
-                                .and(relation.USER_MAIL_ID.eq(importedMailId.id)),
+                                .and(jRelation.USER_ID.eq(userId.value))
+                                .and(jRelation.USER_MAIL_ID.eq(importedMailId.id)),
                         )
                         .execute()
                     if (count != 1) {
@@ -55,10 +58,10 @@ class MoneyUsageRepository {
                 }
 
                 DSL.using(connection)
-                    .insertInto(relation)
-                    .set(relation.USER_ID, userId.value)
-                    .set(relation.USER_MAIL_ID, importedMailId.id)
-                    .set(relation.MONEY_USAGE_ID, usageId.id)
+                    .insertInto(jRelation)
+                    .set(jRelation.USER_ID, userId.value)
+                    .set(jRelation.USER_MAIL_ID, importedMailId.id)
+                    .set(jRelation.MONEY_USAGE_ID, usageId.id)
                     .execute() == 1
             }
         }.onFailure {
@@ -80,14 +83,14 @@ class MoneyUsageRepository {
         return runCatching {
             DbConnectionImpl.use { connection ->
                 val results = DSL.using(connection)
-                    .insertInto(usage)
-                    .set(usage.USER_ID, userId.value)
-                    .set(usage.TITLE, title)
-                    .set(usage.DESCRIPTION, description)
-                    .set(usage.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId?.id)
-                    .set(usage.DATETIME, date)
-                    .set(usage.AMOUNT, amount)
-                    .returningResult(usage)
+                    .insertInto(jUsage)
+                    .set(jUsage.USER_ID, userId.value)
+                    .set(jUsage.TITLE, title)
+                    .set(jUsage.DESCRIPTION, description)
+                    .set(jUsage.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId?.id)
+                    .set(jUsage.DATETIME, date)
+                    .set(jUsage.AMOUNT, amount)
+                    .returningResult(jUsage)
                     .fetch()
 
                 if (results.size != 1) {
@@ -112,26 +115,33 @@ class MoneyUsageRepository {
         isAsc: Boolean,
         sinceDateTime: LocalDateTime?,
         untilDateTime: LocalDateTime?,
+        categoryIds: List<MoneyUsageCategoryId>,
+        subCategoryIds: List<MoneyUsageSubCategoryId>,
     ): GetMoneyUsageByQueryResult {
         return runCatching {
             DbConnectionImpl.use { connection ->
                 val results = DSL.using(connection)
                     .select(
-                        usage.MONEY_USAGE_ID,
-                        usage.DATETIME,
+                        jUsage.MONEY_USAGE_ID,
+                        jUsage.DATETIME,
                     )
-                    .from(usage)
+                    .from(jUsage)
+                    .leftJoin(jSubCategory).on(
+                        jSubCategory.MONEY_USAGE_SUB_CATEGORY_ID
+                            .eq(jUsage.MONEY_USAGE_SUB_CATEGORY_ID)
+                            .and(jUsage.USER_ID.eq(userId.value)),
+                    )
                     .where(
                         DSL.value(true)
-                            .and(usage.USER_ID.eq(userId.value))
+                            .and(jUsage.USER_ID.eq(userId.value))
                             .and(
                                 when (cursor?.lastId) {
                                     null -> DSL.value(true)
                                     else -> if (isAsc) {
-                                        DSL.row(usage.DATETIME, usage.MONEY_USAGE_ID)
+                                        DSL.row(jUsage.DATETIME, jUsage.MONEY_USAGE_ID)
                                             .greaterThan(cursor.date, cursor.lastId.id)
                                     } else {
-                                        DSL.row(usage.DATETIME, usage.MONEY_USAGE_ID)
+                                        DSL.row(jUsage.DATETIME, jUsage.MONEY_USAGE_ID)
                                             .lessThan(cursor.date, cursor.lastId.id)
                                     }
                                 },
@@ -139,30 +149,44 @@ class MoneyUsageRepository {
                             .and(
                                 when (sinceDateTime) {
                                     null -> DSL.value(true)
-                                    else -> usage.DATETIME.greaterOrEqual(sinceDateTime)
+                                    else -> jUsage.DATETIME.greaterOrEqual(sinceDateTime)
                                 },
                             )
                             .and(
                                 when (untilDateTime) {
                                     null -> DSL.value(true)
-                                    else -> usage.DATETIME.lessThan(untilDateTime)
+                                    else -> jUsage.DATETIME.lessThan(untilDateTime)
+                                },
+                            )
+                            .and(
+                                if (categoryIds.isEmpty()) {
+                                    DSL.value(true)
+                                } else {
+                                    jSubCategory.MONEY_USAGE_CATEGORY_ID.`in`(categoryIds.map { it.value })
+                                },
+                            )
+                            .and(
+                                if (subCategoryIds.isEmpty()) {
+                                    DSL.value(true)
+                                } else {
+                                    jUsage.MONEY_USAGE_SUB_CATEGORY_ID.`in`(subCategoryIds.map { it.id })
                                 },
                             ),
                     )
                     .orderBy(
                         if (isAsc) {
-                            usage.DATETIME.asc()
+                            jUsage.DATETIME.asc()
                         } else {
-                            usage.DATETIME.desc()
+                            jUsage.DATETIME.desc()
                         },
                     )
                     .limit(size)
                     .fetch()
 
                 val resultMoneyUsageIds = results.map { result ->
-                    MoneyUsageId(result.get(usage.MONEY_USAGE_ID)!!)
+                    MoneyUsageId(result.get(jUsage.MONEY_USAGE_ID)!!)
                 }
-                val lastDate = results.lastOrNull()?.get(usage.DATETIME)
+                val lastDate = results.lastOrNull()?.get(jUsage.DATETIME)
                 val cursorLastId = resultMoneyUsageIds.lastOrNull()
                 GetMoneyUsageByQueryResult.Success(
                     ids = resultMoneyUsageIds,
@@ -186,11 +210,11 @@ class MoneyUsageRepository {
         return runCatching {
             DbConnectionImpl.use { connection ->
                 val results = DSL.using(connection)
-                    .selectFrom(usage)
+                    .selectFrom(jUsage)
                     .where(
                         DSL.value(true)
-                            .and(usage.USER_ID.eq(userId.value))
-                            .and(usage.MONEY_USAGE_ID.`in`(ids.map { it.id })),
+                            .and(jUsage.USER_ID.eq(userId.value))
+                            .and(jUsage.MONEY_USAGE_ID.`in`(ids.map { it.id })),
                     )
                     .fetch()
 
@@ -203,13 +227,13 @@ class MoneyUsageRepository {
 
     private fun mapMoneyUsage(result: JMoneyUsagesRecord): Usage {
         return Usage(
-            id = MoneyUsageId(result.get(usage.MONEY_USAGE_ID)!!),
-            userId = UserId(result.get(usage.USER_ID)!!),
-            title = result.get(usage.TITLE)!!,
-            description = result.get(usage.DESCRIPTION)!!,
-            subCategoryId = result.get(usage.MONEY_USAGE_SUB_CATEGORY_ID)?.let { MoneyUsageSubCategoryId(it) },
-            date = result.get(usage.DATETIME)!!,
-            amount = result.get(usage.AMOUNT)!!,
+            id = MoneyUsageId(result.get(jUsage.MONEY_USAGE_ID)!!),
+            userId = UserId(result.get(jUsage.USER_ID)!!),
+            title = result.get(jUsage.TITLE)!!,
+            description = result.get(jUsage.DESCRIPTION)!!,
+            subCategoryId = result.get(jUsage.MONEY_USAGE_SUB_CATEGORY_ID)?.let { MoneyUsageSubCategoryId(it) },
+            date = result.get(jUsage.DATETIME)!!,
+            amount = result.get(jUsage.AMOUNT)!!,
         )
     }
 
@@ -220,16 +244,16 @@ class MoneyUsageRepository {
         return runCatching {
             DbConnectionImpl.use { connection ->
                 DSL.using(connection)
-                    .select(usage)
-                    .from(relation)
-                    .join(usage).on(
-                        relation.MONEY_USAGE_ID.eq(usage.MONEY_USAGE_ID)
-                            .and(usage.USER_ID.eq(userId.value)),
+                    .select(jUsage)
+                    .from(jRelation)
+                    .join(jUsage).on(
+                        jRelation.MONEY_USAGE_ID.eq(jUsage.MONEY_USAGE_ID)
+                            .and(jUsage.USER_ID.eq(userId.value)),
                     )
                     .where(
                         DSL.value(true)
-                            .and(relation.USER_ID.eq(userId.value))
-                            .and(relation.USER_MAIL_ID.eq(importedMailId.id)),
+                            .and(jRelation.USER_ID.eq(userId.value))
+                            .and(jRelation.USER_MAIL_ID.eq(importedMailId.id)),
                     )
                     .fetch()
                     .map {
@@ -251,11 +275,11 @@ class MoneyUsageRepository {
 
                     if (
                         context
-                            .deleteFrom(usage)
+                            .deleteFrom(jUsage)
                             .where(
                                 DSL.value(true)
-                                    .and(usage.USER_ID.eq(userId.value))
-                                    .and(usage.MONEY_USAGE_ID.eq(usageId.id)),
+                                    .and(jUsage.USER_ID.eq(userId.value))
+                                    .and(jUsage.MONEY_USAGE_ID.eq(usageId.id)),
                             )
                             .execute() != 1
                     ) {
@@ -264,11 +288,11 @@ class MoneyUsageRepository {
                     }
 
                     context
-                        .deleteFrom(relation)
+                        .deleteFrom(jRelation)
                         .where(
                             DSL.value(true)
-                                .and(relation.USER_ID.eq(userId.value))
-                                .and(relation.MONEY_USAGE_ID.eq(usageId.id)),
+                                .and(jRelation.USER_ID.eq(userId.value))
+                                .and(jRelation.MONEY_USAGE_ID.eq(usageId.id)),
                         )
                         .execute()
 
@@ -297,29 +321,29 @@ class MoneyUsageRepository {
         return runCatching {
             DbConnectionImpl.use { connection ->
                 DSL.using(connection)
-                    .update(usage)
-                    .set(usage.MONEY_USAGE_ID, usageId.id)
+                    .update(jUsage)
+                    .set(jUsage.MONEY_USAGE_ID, usageId.id)
                     .apply {
                         if (title != null) {
-                            set(usage.TITLE, title)
+                            set(jUsage.TITLE, title)
                         }
                         if (description != null) {
-                            set(usage.DESCRIPTION, description)
+                            set(jUsage.DESCRIPTION, description)
                         }
                         if (subCategoryId != null) {
-                            set(usage.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId.id)
+                            set(jUsage.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId.id)
                         }
                         if (date != null) {
-                            set(usage.DATETIME, date)
+                            set(jUsage.DATETIME, date)
                         }
                         if (amount != null) {
-                            set(usage.AMOUNT, amount)
+                            set(jUsage.AMOUNT, amount)
                         }
                     }
                     .where(
                         DSL.value(true)
-                            .and(usage.USER_ID.eq(userId.value))
-                            .and(usage.MONEY_USAGE_ID.eq(usageId.id)),
+                            .and(jUsage.USER_ID.eq(userId.value))
+                            .and(jUsage.MONEY_USAGE_ID.eq(usageId.id)),
                     )
                     .limit(1)
                     .execute() == 1
