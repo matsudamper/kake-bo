@@ -59,7 +59,7 @@ internal object RakutenOfflineUsageService : MoneyUsageServices {
             MoneyUsage(
                 title = "$title",
                 price = price,
-                description = "",
+                description = "$title",
                 service = MoneyUsageServiceType.RakutenPay,
                 dateTime = parsedDate ?: date,
             ),
