@@ -23,9 +23,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,6 +35,7 @@ import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.layout.CalendarDialog
 import net.matsudamper.money.frontend.common.ui.layout.NumberInput
+import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
 
 public data class AddMoneyUsageScreenUiState(
@@ -52,8 +51,8 @@ public data class AddMoneyUsageScreenUiState(
     val numberInputDialog: NumberInputDialog?,
 ) {
     public data class NumberInputDialog(
-        val value: Int,
-        val onChangeValue: (Int) -> Unit,
+        val value: NumberInputValue,
+        val onChangeValue: (NumberInputValue) -> Unit,
         val dismissRequest: () -> Unit,
     )
 
@@ -237,8 +236,8 @@ public fun AddMoneyUsageScreen(
 
 @Composable
 private fun NumberInputDialog(
-    value: Int,
-    onChangeValue: (Int) -> Unit,
+    value: NumberInputValue,
+    onChangeValue: (NumberInputValue) -> Unit,
     dismissRequest: () -> Unit,
 ) {
     Box(

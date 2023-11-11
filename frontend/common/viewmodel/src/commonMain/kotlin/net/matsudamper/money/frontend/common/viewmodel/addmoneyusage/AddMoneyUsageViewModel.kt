@@ -17,6 +17,7 @@ import kotlinx.datetime.todayIn
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
+import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -119,7 +120,7 @@ public class AddMoneyUsageViewModel(
                     )
                 }
             }
-            val onChangeValue: (Int) -> Unit = { amount ->
+            val onChangeValue: (NumberInputValue) -> Unit = { amount ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         usageAmount = amount,
@@ -193,7 +194,7 @@ public class AddMoneyUsageViewModel(
                     date = date,
                     time = viewModelStateFlow.value.usageTime,
                 ),
-                amount = viewModelStateFlow.value.usageAmount,
+                amount = viewModelStateFlow.value.usageAmount.value,
                 subCategoryId = viewModelStateFlow.value.usageCategorySet?.subCategoryId,
                 importedMailId = viewModelStateFlow.value.importedMailId,
             )
@@ -252,7 +253,9 @@ public class AddMoneyUsageViewModel(
                     viewModelStateFlow.update {
                         it.copy(
                             importedMailId = importedMailId,
-                            usageAmount = suggestUsage.amount ?: 0,
+                            usageAmount = NumberInputValue.default(
+                                value = suggestUsage.amount ?: 0
+                            ),
                             usageDate = suggestUsage.dateTime?.date ?: it.usageDate,
                             usageTime = suggestUsage.dateTime?.time ?: it.usageTime,
                             usageTitle = suggestUsage.title,
@@ -303,7 +306,7 @@ public class AddMoneyUsageViewModel(
                         description = viewModelState.usageDescription,
                         fullScreenTextInputDialog = viewModelState.textInputDialog,
                         numberInputDialog = viewModelState.numberInputDialog,
-                        amount = viewModelState.usageAmount.toString(),
+                        amount = viewModelState.usageAmount.value.toDouble().toString(),
                         category = run category@{
                             val default = "未選択"
                             val categorySet = viewModelState.usageCategorySet
@@ -328,7 +331,7 @@ public class AddMoneyUsageViewModel(
         val usageTime: LocalTime = LocalTime(0, 0, 0, 0),
         val usageTitle: String = "",
         val usageDescription: String = "",
-        val usageAmount: Int = 0,
+        val usageAmount: NumberInputValue = NumberInputValue.default(),
         val numberInputDialog: AddMoneyUsageScreenUiState.NumberInputDialog? = null,
         val showCalendarDialog: Boolean = false,
         val textInputDialog: AddMoneyUsageScreenUiState.FullScreenTextInputDialog? = null,
