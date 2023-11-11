@@ -61,7 +61,6 @@ import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
 import screen.RootNavContent
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Content(
     globalEventSender: EventSender<GlobalEvent>,
