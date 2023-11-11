@@ -112,29 +112,13 @@ internal fun BarGraph(
                 }
             }
         }
-
-        val graphRangeRects by remember {
-            derivedStateOf {
-                latestUiState.items.indices.map { index ->
-                    val x = graphBaseX + (spaceWidth + barWidth).times(index)
-
-                    val leftPadding = if (index != 0) spaceWidth / 2f else 0f
-                    val rightPadding = if (index != latestUiState.items.lastIndex) spaceWidth / 2f else 0f
-                    val topLeft = Offset(
-                        x = x - leftPadding,
-                        y = 0f,
-                    )
-                    val size = Size(
-                        width = barWidth + leftPadding + rightPadding,
-                        height = graphHeight,
-                    )
-                    Rect(
-                        offset = topLeft,
-                        size = size,
-                    )
-                }
-            }
-        }
+        val graphRangeRects = createGraphRangeRects(
+            graphBaseX = graphBaseX,
+            barWidth = barWidth,
+            spaceWidth = spaceWidth,
+            latestUiState = latestUiState,
+            graphHeight = graphHeight,
+        )
 
         Canvas(
             modifier = Modifier.fillMaxSize()
@@ -144,7 +128,7 @@ internal fun BarGraph(
                         cursorPosition = pointer.changes.firstOrNull()?.position ?: return@awaitEachGesture
                     }
                 }
-                .pointerInput(Unit) {
+                .pointerInput(graphRangeRects) {
                     awaitEachGesture {
                         val pointer = awaitPointerEvent()
 
@@ -251,6 +235,35 @@ internal fun BarGraph(
                 }
             }
         }
+    }
+}
+
+@Composable
+@Stable
+private fun createGraphRangeRects(
+    graphBaseX: Float,
+    barWidth: Float,
+    spaceWidth: Float,
+    latestUiState: BarGraphUiState,
+    graphHeight: Float,
+): List<Rect> {
+    return latestUiState.items.indices.map { index ->
+        val x = graphBaseX + (spaceWidth + barWidth).times(index)
+
+        val leftPadding = if (index != 0) spaceWidth / 2f else 0f
+        val rightPadding = if (index != latestUiState.items.lastIndex) spaceWidth / 2f else 0f
+        val topLeft = Offset(
+            x = x - leftPadding,
+            y = 0f,
+        )
+        val size = Size(
+            width = barWidth + leftPadding + rightPadding,
+            height = graphHeight,
+        )
+        Rect(
+            offset = topLeft,
+            size = size,
+        )
     }
 }
 
