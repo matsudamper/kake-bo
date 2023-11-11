@@ -14,6 +14,7 @@ import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
+import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.screen.moneyusage.MoneyUsageScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
@@ -87,6 +88,7 @@ public class MoneyUsageScreenViewModel(
             calendarDialog = null,
             categorySelectDialog = null,
             urlMenuDialog = null,
+            numberInputDialog = null,
         ),
     ).also { uiStateFlow ->
         coroutineScope.launch {
@@ -151,6 +153,7 @@ public class MoneyUsageScreenViewModel(
                         calendarDialog = viewModelState.calendarDialog,
                         categorySelectDialog = viewModelState.categorySelectDialog,
                         urlMenuDialog = viewModelState.urlMenuDialog,
+                        numberInputDialog = viewModelState.numberInputDialog,
                     )
                 }
             }
@@ -250,6 +253,46 @@ public class MoneyUsageScreenViewModel(
             }
 
             override fun onClickAmountChange() {
+                viewModelStateFlow.value = viewModelStateFlow.value.copy(
+                    numberInputDialog = MoneyUsageScreenUiState.NumberInputDialog(
+                        value = NumberInputValue.default(
+                            value = item.amount,
+                        ),
+                        onChangeValue = { value ->
+                            viewModelStateFlow.value = viewModelStateFlow.value.copy(
+                                numberInputDialog = viewModelStateFlow.value.numberInputDialog?.copy(
+                                    value = value,
+                                ),
+                            )
+                        },
+                        dismissRequest = {
+                            val value = viewModelStateFlow.value.numberInputDialog?.value
+                            viewModelStateFlow.value = viewModelStateFlow.value.copy(
+                                numberInputDialog = null,
+                            )
+                            value ?: return@NumberInputDialog
+                            coroutineScope.launch {
+                                val isSuccess = runCatching {
+                                    api.updateUsage(
+                                        id = moneyUsageId,
+                                        amount = value.value,
+                                    )
+                                }.fold(
+                                    onSuccess = { it },
+                                    onFailure = { false },
+                                )
+
+                                if (isSuccess) {
+                                    viewModelStateFlow.value = viewModelStateFlow.value.copy(
+                                        numberInputDialog = null,
+                                    )
+                                } else {
+                                    // TODO
+                                }
+                            }
+                        },
+                    ),
+                )
             }
 
             override fun onClickDescription() {
@@ -400,5 +443,6 @@ public class MoneyUsageScreenViewModel(
         val calendarDialog: MoneyUsageScreenUiState.CalendarDialog? = null,
         val categorySelectDialog: CategorySelectDialogUiState? = null,
         val urlMenuDialog: MoneyUsageScreenUiState.UrlMenuDialog? = null,
+        val numberInputDialog: MoneyUsageScreenUiState.NumberInputDialog? = null,
     )
 }

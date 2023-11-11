@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import kotlinx.datetime.LocalDate
 import net.matsudamper.money.frontend.common.base.ImmutableList
@@ -56,9 +57,12 @@ import net.matsudamper.money.frontend.common.ui.layout.CalendarDialog
 import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButton
 import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButtonDefaults
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
+import net.matsudamper.money.frontend.common.ui.layout.NumberInput
+import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.layout.UrlClickableText
 import net.matsudamper.money.frontend.common.ui.layout.UrlMenuDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreenUiState
 
 public data class MoneyUsageScreenUiState(
     val event: Event,
@@ -67,6 +71,7 @@ public data class MoneyUsageScreenUiState(
     val textInputDialog: TextInputDialog?,
     val calendarDialog: CalendarDialog?,
     val urlMenuDialog: UrlMenuDialog?,
+    val numberInputDialog: NumberInputDialog?,
     val categorySelectDialog: CategorySelectDialogUiState?,
 ) {
     public data class CalendarDialog(
@@ -88,6 +93,12 @@ public data class MoneyUsageScreenUiState(
         val description: String?,
         val onConfirm: () -> Unit,
         val onDismiss: () -> Unit,
+    )
+
+    public data class NumberInputDialog(
+        val value: NumberInputValue,
+        val onChangeValue: (NumberInputValue) -> Unit,
+        val dismissRequest: () -> Unit,
     )
 
     @Immutable
@@ -219,6 +230,16 @@ public fun MoneyUsageScreen(
             uiState = uiState.categorySelectDialog,
         )
     }
+    if (uiState.numberInputDialog != null) {
+        Dialog(onDismissRequest = { uiState.numberInputDialog.dismissRequest() }) {
+            NumberInput(
+                value = uiState.numberInputDialog.value,
+                onChangeValue = { uiState.numberInputDialog.onChangeValue(it) },
+                dismissRequest = { uiState.numberInputDialog.dismissRequest() },
+            )
+        }
+    }
+
     KakeboScaffold(
         modifier = modifier,
         topBar = {
