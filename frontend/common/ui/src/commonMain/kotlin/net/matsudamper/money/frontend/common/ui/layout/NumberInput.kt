@@ -26,8 +26,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlin.math.ceil
 import kotlin.math.pow
-import kotlin.math.roundToInt
-import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue.Operator.*
 
 public data class NumberInputValue(
     val value: Int,
@@ -118,7 +116,7 @@ public fun NumberInput(
                         modifier = Modifier.weight(1f),
                         text = "÷",
                         onClick = {
-                            onChangeValue(value.copy(operator = Divide))
+                            onChangeValue(value.copy(operator = NumberInputValue.Operator.Divide))
                         },
                     )
                 }
@@ -150,7 +148,7 @@ public fun NumberInput(
                         modifier = Modifier.weight(1f),
                         text = "×",
                         onClick = {
-                            onChangeValue(value.copy(operator = Multiply))
+                            onChangeValue(value.copy(operator = NumberInputValue.Operator.Multiply))
                         },
                     )
                 }
@@ -182,7 +180,7 @@ public fun NumberInput(
                         modifier = Modifier.weight(1f),
                         text = "-",
                         onClick = {
-                            onChangeValue(value.copy(operator = Minus))
+                            onChangeValue(value.copy(operator = NumberInputValue.Operator.Minus))
                         },
                     )
                 }
@@ -214,7 +212,7 @@ public fun NumberInput(
                         modifier = Modifier.weight(1f),
                         text = "+",
                         onClick = {
-                            onChangeValue(value.copy(operator = Add))
+                            onChangeValue(value.copy(operator = NumberInputValue.Operator.Add))
                         },
                     )
                 }
@@ -261,17 +259,17 @@ private fun calc(value: NumberInputValue): NumberInputValue {
     }
     return NumberInputValue(
         value = when (value.operator) {
-            Add -> value.value + value.right
-            Minus -> value.value - value.right
-            Multiply -> value.value * value.right
-            Divide -> value.value / value.right
+            NumberInputValue.Operator.Add -> value.value + value.right
+            NumberInputValue.Operator.Minus -> value.value - value.right
+            NumberInputValue.Operator.Multiply -> value.value * value.right
+            NumberInputValue.Operator.Divide -> value.value / value.right
             null -> value.value
         },
         right = null,
         operator = null,
     )
 }
-private fun roundCalcToInt(float: Float) : Int {
+private fun roundCalcToInt(float: Float): Int {
     val floor = kotlin.math.floor((float * 10)) / 10f
     return ceil(floor).toInt()
 }
@@ -338,10 +336,10 @@ private fun createText(value: NumberInputValue): String {
         append(value.value)
         append(
             when (value.operator) {
-                Add -> " + "
-                Minus -> " - "
-                Multiply -> " × "
-                Divide -> " ÷ "
+                NumberInputValue.Operator.Add -> " + "
+                NumberInputValue.Operator.Minus -> " - "
+                NumberInputValue.Operator.Multiply -> " × "
+                NumberInputValue.Operator.Divide -> " ÷ "
                 null -> return@buildString
             },
         )

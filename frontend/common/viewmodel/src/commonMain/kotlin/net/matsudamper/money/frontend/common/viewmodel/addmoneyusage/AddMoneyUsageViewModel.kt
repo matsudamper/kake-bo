@@ -254,7 +254,7 @@ public class AddMoneyUsageViewModel(
                         it.copy(
                             importedMailId = importedMailId,
                             usageAmount = NumberInputValue.default(
-                                value = suggestUsage.amount ?: 0
+                                value = suggestUsage.amount ?: 0,
                             ),
                             usageDate = suggestUsage.dateTime?.date ?: it.usageDate,
                             usageTime = suggestUsage.dateTime?.time ?: it.usageTime,
