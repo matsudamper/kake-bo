@@ -94,7 +94,7 @@ internal fun BarGraph(
         }
         val graphBaseX by remember { derivedStateOf { yLabelAndPaddingWidth } }
 
-        val spaceWidth by remember(config) {
+        val spaceWidth by remember(config, /* 何故か更新されないので追加 */ graphWidth) {
             derivedStateOf {
                 if ((config.maxBarWidth * latestUiState.items.size) + (config.minSpaceWidth * latestUiState.items.size - 1) <= graphWidth) {
                     (graphWidth - (config.maxBarWidth * latestUiState.items.size)) / (latestUiState.items.size - 1)
