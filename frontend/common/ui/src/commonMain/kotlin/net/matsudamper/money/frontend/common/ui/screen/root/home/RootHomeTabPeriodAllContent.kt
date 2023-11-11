@@ -1,13 +1,17 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.home
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -15,8 +19,11 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
@@ -64,33 +71,31 @@ public fun RootHomeTabPeriodAllScreen(
         ) {
             when (val loadingState = uiState.loadingState) {
                 is RootHomeTabPeriodAllContentUiState.LoadingState.Loaded -> {
-                    Card(modifier = modifier) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                        ) {
-                            BarGraph(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(600.dp),
-                                uiState = loadingState.barGraph,
-                                contentColor = LocalContentColor.current,
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
-                            GraphTitleChips(
-                                modifier = Modifier.fillMaxWidth(),
-                                items = loadingState.totalBarColorTextMapping,
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Card {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            loadingState.monthTotalItems.forEach {
-                                Row {
-                                    Text(it.title)
-                                    Spacer(modifier = Modifier.widthIn(min = 8.dp).weight(1f))
-                                    Text(it.amount)
-                                }
+                    BoxWithConstraints {
+                        val width by rememberUpdatedState(maxWidth)
+                        if (width > 800.dp) {
+                            Row {
+                                GraphCard(
+                                    loadingState = loadingState,
+                                    modifier = Modifier.weight(1f),
+                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                MonthlyTotalCard(
+                                    loadingState = loadingState,
+                                    modifier = Modifier,
+                                )
+                            }
+                        } else {
+                            Column {
+                                GraphCard(
+                                    loadingState = loadingState,
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                MonthlyTotalCard(
+                                    loadingState = loadingState,
+                                    modifier = Modifier.fillMaxWidth(),
+                                )
                             }
                         }
                     }
@@ -108,6 +113,54 @@ public fun RootHomeTabPeriodAllScreen(
                         onClickRetry = {
                             // TODO
                         },
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun GraphCard(
+    loadingState: RootHomeTabPeriodAllContentUiState.LoadingState.Loaded,
+    modifier: Modifier = Modifier,
+) {
+    Card(modifier = modifier) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+        ) {
+            BarGraph(
+                modifier = Modifier
+                    .height(600.dp),
+                uiState = loadingState.barGraph,
+                contentColor = LocalContentColor.current,
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            GraphTitleChips(
+                modifier = Modifier,
+                items = loadingState.totalBarColorTextMapping,
+            )
+        }
+    }
+}
+
+@Composable
+private fun MonthlyTotalCard(
+    loadingState: RootHomeTabPeriodAllContentUiState.LoadingState.Loaded,
+    modifier: Modifier = Modifier,
+) {
+    Card(modifier = modifier.width(intrinsicSize = IntrinsicSize.Min)) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            loadingState.monthTotalItems.forEach {
+                Row {
+                    Text(
+                        text = it.title,
+                        maxLines = 1,
+                    )
+                    Spacer(modifier = Modifier.widthIn(min = 16.dp).weight(1f))
+                    Text(
+                        text = it.amount,
+                        maxLines = 1,
                     )
                 }
             }
