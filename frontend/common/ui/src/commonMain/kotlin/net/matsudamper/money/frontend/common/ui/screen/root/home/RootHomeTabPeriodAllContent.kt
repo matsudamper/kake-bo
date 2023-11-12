@@ -26,8 +26,8 @@ import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.layout.graph.BarGraph
-import net.matsudamper.money.frontend.common.ui.layout.graph.BarGraphUiState
+import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraph
+import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
 
 public data class RootHomeTabPeriodAllContentUiState(
     val rootHomeTabUiState: RootHomeTabScreenScaffoldUiState,
