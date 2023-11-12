@@ -25,6 +25,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeri
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
+import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
@@ -264,12 +265,29 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                     RootHomeTabPeriodUiState.MonthTotalItem(
                         title = "${yearMonth.year}/${yearMonth.month.toString().padStart(2, '0')}",
                         amount = Formatter.formatMoney(result.totalAmount ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error) + "円",
+                        event = MonthTotalItemEvent(yearMonth),
                     )
                 }.toImmutableList(),
             )
         }
 
         return loadingState
+    }
+
+    private inner class MonthTotalItemEvent(
+        private val yearMonth: ViewModelState.YearMonth,
+    ) : RootHomeTabPeriodUiState.MonthTotalItem.Event, EqualsImpl(yearMonth) {
+        override fun onClick() {
+            coroutineScope.launch {
+                eventSender.send {
+                    it.navigate(
+                        RootHomeScreenStructure.Monthly(
+                            date = LocalDate(yearMonth.year, yearMonth.month, 1),
+                        ),
+                    )
+                }
+            }
+        }
     }
 
     private fun fetchCategory(

@@ -26,6 +26,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeri
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodUiState
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
+import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
@@ -288,9 +289,26 @@ public class RootHomeTabPeriodAllContentViewModel(
                             ?: return null,
                     ) + "円",
                     title = "${yearMonth.year}/${yearMonth.month.toString().padStart(2, '0')}",
+                    event = MonthTotalItemEvent(yearMonth),
                 )
             }.toImmutableList(),
         )
+    }
+
+    private inner class MonthTotalItemEvent(
+        private val yearMonth: ViewModelState.YearMonth,
+    ) : RootHomeTabPeriodUiState.MonthTotalItem.Event, EqualsImpl(yearMonth) {
+        override fun onClick() {
+            coroutineScope.launch {
+                eventSender.send {
+                    it.navigate(
+                        RootHomeScreenStructure.Monthly(
+                            date = LocalDate(yearMonth.year, yearMonth.month, 1),
+                        ),
+                    )
+                }
+            }
+        }
     }
 
     public fun updateStructure(current: RootHomeScreenStructure.Period) {

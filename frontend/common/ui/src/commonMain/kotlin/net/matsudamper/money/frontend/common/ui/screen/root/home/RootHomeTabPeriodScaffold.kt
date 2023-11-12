@@ -58,7 +58,13 @@ public data class RootHomeTabPeriodUiState(
     public data class MonthTotalItem(
         val title: String,
         val amount: String,
-    )
+        val event: Event,
+    ) {
+        @Immutable
+        public interface Event {
+            public fun onClick()
+        }
+    }
 
     public data class MonthSubCategoryItem(
         val title: String,

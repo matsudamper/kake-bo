@@ -1,10 +1,10 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -24,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
@@ -75,29 +77,33 @@ public fun RootHomeTabPeriodAllScreen(
                     BoxWithConstraints {
                         val width by rememberUpdatedState(maxWidth)
                         if (width > 800.dp) {
-                            FlowRow {
-                                Card(modifier = Modifier.padding(bottom = 12.dp)) {
-                                    Row(
-                                        modifier = Modifier.padding(16.dp),
+                            Card(modifier = Modifier) {
+                                Row(
+                                    modifier = Modifier.padding(16.dp),
+                                ) {
+                                    BarGraph(
+                                        modifier = Modifier
+                                            .height(600.dp),
+                                        uiState = loadingState.barGraph,
+                                        contentColor = LocalContentColor.current,
+                                    )
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column(
+                                        modifier = Modifier
+                                            .width(IntrinsicSize.Min)
+                                            .widthIn(max = 400.dp),
                                     ) {
-                                        BarGraph(
-                                            modifier = Modifier
-                                                .height(600.dp),
-                                            uiState = loadingState.barGraph,
-                                            contentColor = LocalContentColor.current,
+                                        MonthlyTotal(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            loadingState = loadingState,
                                         )
-                                        Spacer(modifier = Modifier.width(12.dp))
+                                        Spacer(modifier = Modifier.height(12.dp))
                                         GraphTitleChips(
-                                            modifier = Modifier.widthIn(max = 400.dp),
+                                            modifier = Modifier.fillMaxWidth(),
                                             items = loadingState.totalBarColorTextMapping,
                                         )
                                     }
                                 }
-                                Spacer(modifier = Modifier.width(12.dp))
-                                MonthlyTotalCard(
-                                    loadingState = loadingState,
-                                    modifier = Modifier,
-                                )
                             }
                         } else {
                             Column {
@@ -120,10 +126,13 @@ public fun RootHomeTabPeriodAllScreen(
                                     }
                                 }
                                 Spacer(modifier = Modifier.height(12.dp))
-                                MonthlyTotalCard(
-                                    loadingState = loadingState,
-                                    modifier = Modifier.fillMaxWidth(),
-                                )
+                                Card(modifier = modifier.width(intrinsicSize = IntrinsicSize.Min)) {
+                                    MonthlyTotal(
+                                        loadingState = loadingState,
+                                        modifier = Modifier.fillMaxWidth()
+                                            .padding(16.dp),
+                                    )
+                                }
                             }
                         }
                     }
@@ -149,24 +158,27 @@ public fun RootHomeTabPeriodAllScreen(
 }
 
 @Composable
-private fun MonthlyTotalCard(
+private fun MonthlyTotal(
     loadingState: RootHomeTabPeriodAllContentUiState.LoadingState.Loaded,
     modifier: Modifier = Modifier,
 ) {
-    Card(modifier = modifier.width(intrinsicSize = IntrinsicSize.Min)) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            loadingState.monthTotalItems.forEach {
-                Row {
-                    Text(
-                        text = it.title,
-                        maxLines = 1,
-                    )
-                    Spacer(modifier = Modifier.widthIn(min = 16.dp).weight(1f))
-                    Text(
-                        text = it.amount,
-                        maxLines = 1,
-                    )
-                }
+    Column(modifier = modifier) {
+        loadingState.monthTotalItems.forEach { item ->
+            Row(
+                modifier = Modifier
+                    .clip(MaterialTheme.shapes.medium)
+                    .clickable { item.event.onClick() }
+                    .padding(8.dp),
+            ) {
+                Text(
+                    text = item.title,
+                    maxLines = 1,
+                )
+                Spacer(modifier = Modifier.widthIn(min = 16.dp).weight(1f))
+                Text(
+                    text = item.amount,
+                    maxLines = 1,
+                )
             }
         }
     }
