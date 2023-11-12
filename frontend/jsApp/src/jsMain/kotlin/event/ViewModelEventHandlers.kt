@@ -99,6 +99,10 @@ data class ViewModelEventHandlers(
                     override fun navigate(structure: ScreenStructure) {
                         navController.navigate(structure)
                     }
+
+                    override fun open(url: String) {
+                        window.open(url)
+                    }
                 },
             )
         }

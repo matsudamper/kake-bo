@@ -54,6 +54,14 @@ public class SettingViewModel(
                         }
                     }
                 }
+
+                override fun onClickGitHub() {
+                    coroutineScope.launch {
+                        backgroundEventSender.send {
+                            it.open("https://github.com/matsudamper/kake-bo")
+                        }
+                    }
+                }
             },
         ),
     ).asStateFlow()
@@ -89,5 +97,6 @@ public class SettingViewModel(
         public fun navigateToImapConfig()
         public fun navigateToCategoriesConfig()
         public fun navigate(structure: ScreenStructure)
+        public fun open(url: String)
     }
 }
