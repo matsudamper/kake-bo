@@ -11,6 +11,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -29,8 +30,10 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
 
 public data class BarGraphUiState(
@@ -75,51 +78,26 @@ internal fun BarGraph(
     LaunchedEffect(latestUiState.items) {
         textMeasureCache.updateItems(latestUiState.items)
     }
-    val yLabelAndPaddingWidth by remember(density) {
-        derivedStateOf {
-            textMeasureCache.yLabelMaxWidth
-                .plus(with(density) { 8.dp.toPx() })
-        }
-    }
 
     BoxWithConstraints(modifier = modifier) {
         var cursorPosition by remember { mutableStateOf(Offset.Zero) }
-        val graphWidth by remember(density, maxWidth) {
-            derivedStateOf {
-                with(density) { maxWidth.toPx() } - yLabelAndPaddingWidth
-            }
+        val measureState = remember(density, config) {
+            GraphMeasureState(
+                density = density,
+                config = config,
+                textMeasureCache = textMeasureCache,
+            )
         }
-        val graphHeight by remember(maxHeight, density) {
-            mutableStateOf(with(density) { maxHeight.toPx() })
+        LaunchedEffect(maxWidth, maxHeight) {
+            measureState.update(
+                width = maxWidth,
+                height = maxHeight,
+            )
         }
-        val graphBaseX by remember { derivedStateOf { yLabelAndPaddingWidth } }
-
-        val spaceWidth by remember(config, /* 何故か更新されないので追加 */ graphWidth) {
-            derivedStateOf {
-                if ((config.maxBarWidth * latestUiState.items.size) + (config.minSpaceWidth * latestUiState.items.size - 1) <= graphWidth) {
-                    (graphWidth - (config.maxBarWidth * latestUiState.items.size)) / (latestUiState.items.size - 1)
-                } else {
-                    config.minSpaceWidth
-                }
-            }
+        LaunchedEffect(latestUiState.items.size) {
+            measureState.size(latestUiState.items.size)
         }
-        val barWidth by remember(config) {
-            derivedStateOf {
-                if (config.maxBarWidth * latestUiState.items.size + spaceWidth * (latestUiState.items.size - 1) <= graphWidth) {
-                    config.maxBarWidth
-                } else {
-                    (graphWidth - spaceWidth * (latestUiState.items.size - 1)) / latestUiState.items.size
-                }
-            }
-        }
-        val graphRangeRects = createGraphRangeRects(
-            graphBaseX = graphBaseX,
-            barWidth = barWidth,
-            spaceWidth = spaceWidth,
-            latestUiState = latestUiState,
-            graphHeight = graphHeight,
-        )
-
+        val measureResult = measureState.measure()
         Canvas(
             modifier = Modifier.fillMaxSize()
                 .pointerInput(Unit) {
@@ -128,7 +106,7 @@ internal fun BarGraph(
                         cursorPosition = pointer.changes.firstOrNull()?.position ?: return@awaitEachGesture
                     }
                 }
-                .pointerInput(graphRangeRects) {
+                .pointerInput(measureResult.graphRangeRects) {
                     awaitEachGesture {
                         val pointer = awaitPointerEvent()
 
@@ -140,7 +118,7 @@ internal fun BarGraph(
                                     when (releasePointer.type) {
                                         PointerEventType.Release -> {
                                             for (change in releasePointer.changes) {
-                                                val clickedIndex = graphRangeRects.indexOfFirst { it.contains(change.position) }
+                                                val clickedIndex = measureResult.graphRangeRects.indexOfFirst { it.contains(change.position) }
                                                     .takeIf { it >= 0 }
                                                     ?: continue
                                                 latestUiState.items.getOrNull(clickedIndex)?.event?.onClick()
@@ -162,8 +140,7 @@ internal fun BarGraph(
             if (latestUiState.items.isEmpty()) return@Canvas
             if (textMeasureCache.initialized.not()) return@Canvas
 
-            val multilineLabel =
-                (spaceWidth + barWidth) <= (textMeasureCache.xLabels.maxOfOrNull { it.size.width } ?: 0).plus(8.dp.toPx())
+            val multilineLabel = (measureResult.spaceWidth + measureResult.barWidth) <= (textMeasureCache.xLabels.maxOfOrNull { it.size.width } ?: 0).plus(8.dp.toPx())
 
             val maxLabelHeight = textMeasureCache.xLabels.maxOfOrNull { it.size.height } ?: 0
             val labelBoxHeight = (maxLabelHeight)
@@ -186,9 +163,9 @@ internal fun BarGraph(
                     textLayoutResult = item,
                     color = contentColor,
                     topLeft = Offset(
-                        x = graphBaseX
-                            .plus((spaceWidth + barWidth) * index)
-                            .plus(barWidth / 2)
+                        x = measureResult.graphBaseX
+                            .plus((measureResult.spaceWidth + measureResult.barWidth) * index)
+                            .plus(measureResult.barWidth / 2)
                             .minus(item.size.width / 2),
                         y = y,
                     ),
@@ -205,7 +182,7 @@ internal fun BarGraph(
                 topLeft = Offset(0f, 0f),
             )
             latestUiState.items.forEachIndexed { index, periodData ->
-                val x = graphBaseX + (spaceWidth + barWidth).times(index)
+                val x = measureResult.graphBaseX + (measureResult.spaceWidth + measureResult.barWidth).times(index)
                 var beforeY = graphYHeight
 
                 periodData.items.forEach { item ->
@@ -217,7 +194,7 @@ internal fun BarGraph(
                             y = beforeY - itemHeight,
                         ),
                         size = Size(
-                            width = barWidth,
+                            width = measureResult.barWidth,
                             height = itemHeight,
                         ),
                     )
@@ -225,7 +202,7 @@ internal fun BarGraph(
                 }
             }
 
-            graphRangeRects.forEach { rect ->
+            measureResult.graphRangeRects.forEach { rect ->
                 if (rect.contains(cursorPosition)) {
                     drawRect(
                         color = Color.Black.copy(alpha = 0.1f),
@@ -238,33 +215,77 @@ internal fun BarGraph(
     }
 }
 
-@Composable
-@Stable
-private fun createGraphRangeRects(
-    graphBaseX: Float,
-    barWidth: Float,
-    spaceWidth: Float,
-    latestUiState: BarGraphUiState,
-    graphHeight: Float,
-): List<Rect> {
-    return latestUiState.items.indices.map { index ->
-        val x = graphBaseX + (spaceWidth + barWidth).times(index)
+private class GraphMeasureState(
+    val density: Density,
+    val config: Config,
+    textMeasureCache: TextMeasureCache,
+) {
+    fun update(width: Dp, height: Dp) {
+        graphWidth = with(density) { width.toPx() }
+        graphHeight = with(density) { height.toPx() }
+    }
 
-        val leftPadding = if (index != 0) spaceWidth / 2f else 0f
-        val rightPadding = if (index != latestUiState.items.lastIndex) spaceWidth / 2f else 0f
-        val topLeft = Offset(
-            x = x - leftPadding,
-            y = 0f,
-        )
-        val size = Size(
-            width = barWidth + leftPadding + rightPadding,
-            height = graphHeight,
-        )
-        Rect(
-            offset = topLeft,
-            size = size,
+    private var itemSize by mutableStateOf(0)
+    fun size(size: Int) {
+        this.itemSize = size
+    }
+
+    private var graphWidth: Float by mutableFloatStateOf(0f)
+    private var graphHeight: Float by mutableFloatStateOf(0f)
+
+    private val yLabelAndPaddingWidth by derivedStateOf {
+        textMeasureCache.yLabelMaxWidth
+            .plus(with(density) { 8.dp.toPx() })
+    }
+    val graphBaseX by derivedStateOf { yLabelAndPaddingWidth }
+
+    fun measure(): MeasureResult {
+        val graphWidth = graphWidth - yLabelAndPaddingWidth
+        val spaceWidth = if ((config.maxBarWidth * itemSize) + (config.minSpaceWidth * itemSize - 1) <= graphWidth) {
+            (graphWidth - (config.maxBarWidth * itemSize)) / (itemSize - 1)
+        } else {
+            config.minSpaceWidth
+        }
+
+        val barWidth = if (config.maxBarWidth * itemSize + spaceWidth * (itemSize - 1) <= graphWidth) {
+            config.maxBarWidth
+        } else {
+            (graphWidth - spaceWidth * (itemSize - 1)) / itemSize
+        }
+
+        val graphRangeRects = (0 until itemSize).map { index ->
+            val x = graphBaseX + (spaceWidth + barWidth).times(index)
+
+            val leftPadding = if (index != 0) spaceWidth / 2f else 0f
+            val rightPadding = if (index != (itemSize - 1)) spaceWidth / 2f else 0f
+            val topLeft = Offset(
+                x = x - leftPadding,
+                y = 0f,
+            )
+            val size = Size(
+                width = barWidth + leftPadding + rightPadding,
+                height = graphHeight,
+            )
+            Rect(
+                offset = topLeft,
+                size = size,
+            )
+        }.toImmutableList()
+
+        return MeasureResult(
+            graphBaseX = graphBaseX,
+            spaceWidth = spaceWidth,
+            barWidth = barWidth,
+            graphRangeRects = graphRangeRects,
         )
     }
+
+    data class MeasureResult(
+        val graphBaseX: Float,
+        val spaceWidth: Float,
+        val barWidth: Float,
+        val graphRangeRects: ImmutableList<Rect>,
+    )
 }
 
 @Stable
