@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -17,9 +18,8 @@ internal class BarGraphMeasureState(
     val config: BarGraphConfig,
     textMeasureCache: BarGraphTextMeasureCache,
 ) {
-    fun update(width: Dp, height: Dp) {
-        containerWidth = with(density) { width.toPx() }
-        containerHeight = with(density) { height.toPx() }
+    fun update(constraints: Constraints) {
+        this.containerConstraints = constraints
     }
 
     fun size(size: Int) {
@@ -28,9 +28,23 @@ internal class BarGraphMeasureState(
 
     private var itemSize by mutableStateOf(0)
 
-    private var containerWidth: Float by mutableFloatStateOf(0f)
-    private val graphWidth: Float by derivedStateOf { containerWidth - yLabelAndPaddingWidth }
-    private var containerHeight: Float by mutableFloatStateOf(0f)
+    private var containerConstraints: Constraints by mutableStateOf(Constraints())
+    val containerWidth: Float by derivedStateOf {
+        val minWidth = when (itemSize) {
+            0,
+            1,
+            -> config.maxBarWidth + config.defaultSpaceWidth
+
+            else -> {
+                (config.maxBarWidth * itemSize) + (config.defaultSpaceWidth * (itemSize - 1)) + yLabelAndPaddingWidth
+            }
+        }
+        (containerConstraints.minWidth.toFloat())
+            .coerceAtLeast(minimumValue = minWidth)
+            .coerceAtMost(maximumValue = containerConstraints.maxWidth.toFloat())
+    }
+    val graphWidth: Float by derivedStateOf { containerWidth - yLabelAndPaddingWidth }
+    private val containerHeight: Float by derivedStateOf { containerConstraints.maxHeight.toFloat() }
 
     private val yLabelAndPaddingWidth by derivedStateOf {
         textMeasureCache.yLabelMaxWidth

@@ -3,7 +3,10 @@ package net.matsudamper.money.frontend.common.ui.layout.graph.bar
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -32,6 +35,7 @@ internal class BarGraphConfig(
 ) {
     val maxBarWidth = with(density) { 42.dp.toPx() }
     val minSpaceWidth = with(density) { 2.dp.toPx() }
+    val defaultSpaceWidth = with(density) { 16.dp.toPx() }
     val multilineLabelHeightPadding = with(density) { 4.dp.toPx() }
     val graphAndLabelPadding = with(density) { 8.dp.toPx() }
 }
@@ -88,17 +92,17 @@ internal fun BarGraph(
                 textMeasureCache = textMeasureCache,
             )
         }
-        LaunchedEffect(maxWidth, maxHeight) {
+        LaunchedEffect(constraints) {
             measureState.update(
-                width = maxWidth,
-                height = maxHeight,
+                constraints = constraints,
             )
         }
         LaunchedEffect(latestUiState.items.size) {
             measureState.size(latestUiState.items.size)
         }
         Canvas(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxHeight()
+                .width(with(density) { measureState.containerWidth.toDp() })
                 .pointerInput(Unit) {
                     awaitEachGesture {
                         val pointer = awaitPointerEvent()
