@@ -3,6 +3,8 @@ package net.matsudamper.money.frontend.common.ui.screen.root.home
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -50,6 +52,7 @@ public data class RootHomeTabPeriodAllContentUiState(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 public fun RootHomeTabPeriodAllScreen(
     modifier: Modifier = Modifier,
@@ -72,11 +75,24 @@ public fun RootHomeTabPeriodAllScreen(
                     BoxWithConstraints {
                         val width by rememberUpdatedState(maxWidth)
                         if (width > 800.dp) {
-                            Row {
-                                GraphCard(
-                                    loadingState = loadingState,
-                                    modifier = Modifier.weight(1f),
-                                )
+                            FlowRow {
+                                Card(modifier = Modifier.padding(bottom = 12.dp)) {
+                                    Row(
+                                        modifier = Modifier.padding(16.dp),
+                                    ) {
+                                        BarGraph(
+                                            modifier = Modifier
+                                                .height(600.dp),
+                                            uiState = loadingState.barGraph,
+                                            contentColor = LocalContentColor.current,
+                                        )
+                                        Spacer(modifier = Modifier.width(12.dp))
+                                        GraphTitleChips(
+                                            modifier = Modifier.widthIn(max = 400.dp),
+                                            items = loadingState.totalBarColorTextMapping,
+                                        )
+                                    }
+                                }
                                 Spacer(modifier = Modifier.width(12.dp))
                                 MonthlyTotalCard(
                                     loadingState = loadingState,
@@ -85,10 +101,24 @@ public fun RootHomeTabPeriodAllScreen(
                             }
                         } else {
                             Column {
-                                GraphCard(
-                                    loadingState = loadingState,
-                                    modifier = Modifier.fillMaxWidth(),
-                                )
+                                Card(modifier = Modifier) {
+                                    Column(
+                                        modifier = Modifier.padding(16.dp),
+                                    ) {
+                                        BarGraph(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(600.dp),
+                                            uiState = loadingState.barGraph,
+                                            contentColor = LocalContentColor.current,
+                                        )
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        GraphTitleChips(
+                                            modifier = Modifier,
+                                            items = loadingState.totalBarColorTextMapping,
+                                        )
+                                    }
+                                }
                                 Spacer(modifier = Modifier.height(12.dp))
                                 MonthlyTotalCard(
                                     loadingState = loadingState,
@@ -114,30 +144,6 @@ public fun RootHomeTabPeriodAllScreen(
                     )
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun GraphCard(
-    loadingState: RootHomeTabPeriodAllContentUiState.LoadingState.Loaded,
-    modifier: Modifier = Modifier,
-) {
-    Card(modifier = modifier) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-        ) {
-            BarGraph(
-                modifier = Modifier
-                    .height(600.dp),
-                uiState = loadingState.barGraph,
-                contentColor = LocalContentColor.current,
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            GraphTitleChips(
-                modifier = Modifier,
-                items = loadingState.totalBarColorTextMapping,
-            )
         }
     }
 }
