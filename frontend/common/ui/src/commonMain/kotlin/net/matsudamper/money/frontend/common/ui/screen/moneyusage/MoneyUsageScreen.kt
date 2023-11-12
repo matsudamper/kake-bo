@@ -44,6 +44,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import kotlinx.datetime.LocalDate
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
@@ -404,8 +405,10 @@ private fun UsageMenuPopup(
     onClickDelete: () -> Unit,
 ) {
     Popup(
-        focusable = true,
         onDismissRequest = onDismissRequest,
+        properties = PopupProperties(focusable = true),
+        onPreviewKeyEvent = { false },
+        onKeyEvent = { false },
     ) {
         Card(
             elevation = CardDefaults.cardElevation(

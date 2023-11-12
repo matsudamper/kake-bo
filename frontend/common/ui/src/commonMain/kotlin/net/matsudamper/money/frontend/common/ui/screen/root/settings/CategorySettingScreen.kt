@@ -44,6 +44,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
@@ -279,10 +280,12 @@ private fun SubCategoryItem(
             if (showMenu) {
                 Popup(
                     alignment = Alignment.CenterEnd,
-                    focusable = true,
                     onDismissRequest = {
                         showMenu = false
                     },
+                    properties = PopupProperties(focusable = true),
+                    onPreviewKeyEvent = { false },
+                    onKeyEvent = { false },
                 ) {
                     Card(
                         elevation = CardDefaults.cardElevation(

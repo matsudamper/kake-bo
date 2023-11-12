@@ -49,6 +49,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import net.matsudamper.money.frontend.common.base.ImmutableList
@@ -280,10 +281,12 @@ private fun Filter(
             if (visiblePopup) {
                 Popup(
                     alignment = Alignment.BottomStart,
-                    focusable = true,
                     onDismissRequest = {
                         visiblePopup = false
                     },
+                    properties = PopupProperties(focusable = true),
+                    onPreviewKeyEvent = { false },
+                    onKeyEvent = { false },
                 ) {
                     Card(
                         elevation = CardDefaults.cardElevation(
