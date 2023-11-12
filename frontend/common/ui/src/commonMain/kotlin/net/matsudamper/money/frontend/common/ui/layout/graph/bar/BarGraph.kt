@@ -107,7 +107,7 @@ internal fun BarGraph(
                         cursorPosition = pointer.changes.firstOrNull()?.position ?: return@awaitEachGesture
                     }
                 }
-                .pointerInput(measureState.graphRangeRects) {
+                .pointerInput(measureState.getGraphRangeRectsKey()) {
                     awaitEachGesture {
                         val pointer = awaitPointerEvent()
 

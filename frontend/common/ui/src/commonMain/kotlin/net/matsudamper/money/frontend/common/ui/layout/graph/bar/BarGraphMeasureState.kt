@@ -1,9 +1,14 @@
 package net.matsudamper.money.frontend.common.ui.layout.graph.bar
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -41,7 +46,7 @@ internal class BarGraphMeasureState(
             .coerceAtLeast(minimumValue = minWidth)
             .coerceAtMost(maximumValue = containerConstraints.maxWidth.toFloat())
     }
-    val graphWidth: Float by derivedStateOf { containerWidth - yLabelAndPaddingWidth }
+    private val graphWidth: Float by derivedStateOf { containerWidth - yLabelAndPaddingWidth }
     private val containerHeight: Float by derivedStateOf { containerConstraints.maxHeight.toFloat() }
 
     private val yLabelAndPaddingWidth by derivedStateOf {
@@ -64,6 +69,16 @@ internal class BarGraphMeasureState(
         } else {
             (graphWidth - spaceWidth * (itemSize - 1)) / itemSize
         }
+    }
+
+    /**
+     * まだスナップショットが作成されていないのでエラーになるので、コード上すぐに必要な値を遅延して取得できるようにする
+     * Reading a state that was created after the snapsho…en or in a snapshot that has not yet been applied
+     */
+    @Stable
+    @Composable
+    fun getGraphRangeRectsKey(): Any? {
+        return remember { snapshotFlow { graphRangeRects } }.collectAsState(null).value
     }
 
     val graphRangeRects by derivedStateOf {
