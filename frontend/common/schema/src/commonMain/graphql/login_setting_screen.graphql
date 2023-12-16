@@ -1,0 +1,7 @@
+mutation SettingScreenAddFido(
+    $input: RegisterFidoInput!
+) {
+    userMutation {
+        registerFido(input: $input)
+    }
+}
