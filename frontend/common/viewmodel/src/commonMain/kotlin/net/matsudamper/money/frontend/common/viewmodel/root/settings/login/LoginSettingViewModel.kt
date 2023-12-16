@@ -1,15 +1,18 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.settings.login
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.matsudamper.money.frontend.common.base.navigator.CredentialModel
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.LoginSettingScreenUiState
 
 public class LoginSettingViewModel(
     private val coroutineScope: CoroutineScope,
+    private val api: LoginSettingScreenApi,
 ) {
     public val uiStateFlow: StateFlow<LoginSettingScreenUiState> = MutableStateFlow(
         LoginSettingScreenUiState(
@@ -40,6 +43,13 @@ public class LoginSettingViewModel(
                 domain = "TODO.com",
             )
             console.log(result)
+            result ?: return@launch
+            withContext(Dispatchers.Default) {
+                api.addFido(
+                    base64AttestationObject = result.attestationObjectBase64,
+                    base64ClientDataJson = result.clientDataJSONBase64,
+                )
+            }
         }
     }
 }
