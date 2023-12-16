@@ -36,6 +36,7 @@ public data class RootSettingScreenUiState(
         public fun onClickCategoryButton()
         public fun onClickMailFilter()
         public fun onClickGitHub()
+        public fun onClickLoginSetting()
     }
 }
 
@@ -128,6 +129,11 @@ private fun MainContent(
                     onClick = { uiState.event.onClickMailFilter() },
                 ) {
                     Text("メールフィルター")
+                }
+                SettingListMenuItemButton(
+                    onClick = { uiState.event.onClickLoginSetting() },
+                ) {
+                    Text("ログイン設定")
                 }
                 SettingListMenuItemButton(
                     onClick = { uiState.event.onClickGitHub() },

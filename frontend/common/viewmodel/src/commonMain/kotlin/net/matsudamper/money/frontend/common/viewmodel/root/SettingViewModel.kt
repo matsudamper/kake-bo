@@ -29,6 +29,16 @@ public class SettingViewModel(
                 override fun onResume() {
                 }
 
+                override fun onClickLoginSetting() {
+                    coroutineScope.launch {
+                        backgroundEventSender.send {
+                            it.navigate(
+                                ScreenStructure.Root.Settings.Login,
+                            )
+                        }
+                    }
+                }
+
                 override fun onClickImapButton() {
                     coroutineScope.launch {
                         backgroundEventSender.send {

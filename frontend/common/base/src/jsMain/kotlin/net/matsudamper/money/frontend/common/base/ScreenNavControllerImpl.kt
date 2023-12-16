@@ -121,10 +121,12 @@ public class ScreenNavControllerImpl(
                 pathParams = pathParams,
                 queryParams = queryParams,
             )
+
             Screens.Home, Screens.HomeRedirect -> RootHomeScreenStructure.PeriodAnalytics.create(
                 pathParams = pathParams,
                 queryParams = queryParams,
             )
+
             Screens.HomePeriodCategory -> RootHomeScreenStructure.PeriodCategory.create(
                 pathParams = pathParams,
                 queryParams = queryParams,
@@ -137,6 +139,10 @@ public class ScreenNavControllerImpl(
                 id = this.pathParams["id"]?.toIntOrNull()?.let { MoneyUsageCategoryId(it) }
                     ?: return ScreenStructure.NotFound,
             )
+
+            Screens.SettingsLogin -> {
+                ScreenStructure.Root.Settings.Login
+            }
 
             Screens.UsageList -> ScreenStructure.Root.Usage.List()
             Screens.UsageCalendar -> ScreenStructure.Root.Usage.Calendar()

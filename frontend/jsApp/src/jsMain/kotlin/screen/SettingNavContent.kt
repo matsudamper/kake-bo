@@ -14,6 +14,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImapConfigScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImportedMailFilterCategoryScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.settings.LoginSettingScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.RootSettingScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoriesScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoryScreen
@@ -27,6 +28,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfil
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters.ImportedMailCategoryFilterScreenPagingModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters.SettingImportedMailCategoryFilterApi
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters.SettingMailCategoryFiltersViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.login.LoginSettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingScreenCategoryApi
@@ -154,6 +156,22 @@ internal fun SettingNavContent(
                 }
 
                 ImportedMailFilterCategoryScreen(
+                    modifier = Modifier.fillMaxSize(),
+                    uiState = viewModel.uiStateFlow.collectAsState().value,
+                    rootScreenScaffoldListener = rootScreenScaffoldListener,
+                )
+            }
+        }
+
+        ScreenStructure.Root.Settings.Login -> {
+            holder.SaveableStateProvider(state::class.toString()) {
+                val viewModel = remember(coroutineScope) {
+                    LoginSettingViewModel(
+                        coroutineScope = coroutineScope,
+                    )
+                }
+
+                LoginSettingScreen(
                     modifier = Modifier.fillMaxSize(),
                     uiState = viewModel.uiStateFlow.collectAsState().value,
                     rootScreenScaffoldListener = rootScreenScaffoldListener,

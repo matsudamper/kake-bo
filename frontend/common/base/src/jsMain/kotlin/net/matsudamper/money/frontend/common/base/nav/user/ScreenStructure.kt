@@ -13,6 +13,10 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                 override val direction: Screens = Screens.Settings
             }
 
+            public data object Login : Settings {
+                override val direction: Screens = Screens.SettingsLogin
+            }
+
             public data object Imap : Settings {
                 override val direction: Screens = Screens.SettingsImap
             }
