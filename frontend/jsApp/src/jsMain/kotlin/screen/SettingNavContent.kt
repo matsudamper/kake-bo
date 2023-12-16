@@ -28,6 +28,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfil
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters.ImportedMailCategoryFilterScreenPagingModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters.SettingImportedMailCategoryFilterApi
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters.SettingMailCategoryFiltersViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.login.LoginSettingScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.login.LoginSettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
@@ -168,6 +169,7 @@ internal fun SettingNavContent(
                 val viewModel = remember(coroutineScope) {
                     LoginSettingViewModel(
                         coroutineScope = coroutineScope,
+                        api = LoginSettingScreenApi(),
                     )
                 }
 
