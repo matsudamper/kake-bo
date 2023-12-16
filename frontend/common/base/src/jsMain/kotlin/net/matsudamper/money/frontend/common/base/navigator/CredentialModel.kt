@@ -12,7 +12,7 @@ public object CredentialModel {
         type: Type,
         challenge: String,
         domain: String,
-    ): CreateResult {
+    ): CreateResult? {
         val id = Uint8Array(userId.toString().encodeToByteArray().toTypedArray())
         val options = CredentialsContainerCreateOptions(
             publicKey = CredentialsContainerCreatePublicKeyOptions(
@@ -42,9 +42,11 @@ public object CredentialModel {
                 ),
             ),
         )
-        val result = navigator.credentials.create(
-            options,
-        ).await()
+        val result = runCatching {
+            navigator.credentials.create(
+                options,
+            ).await()
+        }.getOrNull() ?: return null
 
         val attestationObjectBase64 = buildList {
             val uint8Array = Uint8Array(result.response.attestationObject)
