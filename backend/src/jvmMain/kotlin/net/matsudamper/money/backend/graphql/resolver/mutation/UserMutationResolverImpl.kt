@@ -13,6 +13,7 @@ import net.matsudamper.money.backend.graphql.converter.toDbElement
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
 import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
+import net.matsudamper.money.backend.lib.FIDOModel
 import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.repository.MoneyUsageRepository
 import net.matsudamper.money.backend.repository.MoneyUsageSubCategoryRepository
@@ -506,7 +507,13 @@ class UserMutationResolverImpl : UserMutationResolver {
         input: QlRegisterFidoInput,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Boolean>> {
-        TODO()
+        return CompletableFuture.supplyAsync {
+            FIDOModel().verify(
+                base64AttestationObject = input.base64AttestationObject,
+                base64ClientDataJSON = input.base64ClientDataJson,
+            )
+            true
+        }.toDataFetcher()
     }
 
     override fun deleteImportedMail(
