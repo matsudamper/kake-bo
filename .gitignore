@@ -1,6 +1,7 @@
 # db data
 /data/
 kotlin-js-store
+/script
 
 .env
 local.env
