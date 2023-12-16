@@ -1,7 +1,9 @@
 package net.matsudamper.money.frontend.common.base.navigator
 
 import kotlinx.coroutines.await
+import io.ktor.util.encodeBase64
 import org.khronos.webgl.Uint8Array
+import org.khronos.webgl.get
 
 public object CredentialModel {
     public suspend fun create(
@@ -10,7 +12,7 @@ public object CredentialModel {
         type: Type,
         challenge: String,
         domain: String,
-    ): CredentialsContainerCreateResult {
+    ): CreateResult {
         val id = Uint8Array(userId.toString().encodeToByteArray().toTypedArray())
         val options = CredentialsContainerCreateOptions(
             publicKey = CredentialsContainerCreatePublicKeyOptions(
@@ -43,8 +45,30 @@ public object CredentialModel {
         val result = navigator.credentials.create(
             options,
         ).await()
-        return result
+
+        val attestationObjectBase64 = buildList {
+            val uint8Array = Uint8Array(result.response.attestationObject)
+            for (index in 0 until result.response.attestationObject.byteLength) {
+                add(uint8Array[index])
+            }
+        }.toByteArray().encodeBase64()
+        val clientDataJSONBase64 = buildList {
+            val uint8Array = Uint8Array(result.response.clientDataJSON)
+            for (index in 0 until result.response.clientDataJSON.byteLength) {
+                add(uint8Array[index])
+            }
+        }.toByteArray().encodeBase64()
+
+        return CreateResult(
+            attestationObjectBase64 = attestationObjectBase64,
+            clientDataJSONBase64 = clientDataJSONBase64,
+        )
     }
+
+    public data class CreateResult(
+        val attestationObjectBase64: String,
+        val clientDataJSONBase64: String,
+    )
 
     public enum class Type {
         PLATFORM,
