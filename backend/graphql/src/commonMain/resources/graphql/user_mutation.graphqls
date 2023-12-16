@@ -24,6 +24,13 @@ type UserMutation {
     addImportedMailCategoryFilterCondition(input: AddImportedMailCategoryFilterConditionInput!): ImportedMailCategoryFilter
     updateImportedMailCategoryFilterCondition(input: UpdateImportedMailCategoryFilterConditionInput!): ImportedMailCategoryCondition
     deleteImportedMailCategoryFilterCondition(id: ImportedMailCategoryFilterConditionId!): Boolean!
+
+    registerFido(input: RegisterFidoInput!): Boolean!
+}
+
+input RegisterFidoInput {
+    base64AttestationObject: String!
+    base64ClientDataJson: String!
 }
 
 input UpdateUsageQuery {
