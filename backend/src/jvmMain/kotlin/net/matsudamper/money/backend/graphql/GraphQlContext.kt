@@ -71,6 +71,9 @@ class GraphQlContext(
             domain = host,
             path = ".",
             secure = ServerEnv.isSecure,
+            extensions = mapOf(
+                "SameSite" to "Strict",
+            )
         )
     }
 }
