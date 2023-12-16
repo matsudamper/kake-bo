@@ -17,6 +17,7 @@ import io.ktor.server.http.content.staticFiles
 import io.ktor.server.plugins.callloging.CallLogging
 import io.ktor.server.plugins.compression.Compression
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.forwardedheaders.ForwardedHeaders
 import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import io.ktor.server.request.path
@@ -60,6 +61,10 @@ fun Application.myApplicationModule() {
             json = ObjectMapper.kotlinxSerialization,
             contentType = ContentType.Application.Json,
         )
+    }
+    install(CORS) {
+        allowHost(host = ServerEnv.domain!!, schemes = listOf("https"))
+        allowNonSimpleContentTypes = true
     }
     install(CallLogging) {
         level = Level.INFO

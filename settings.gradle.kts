@@ -66,6 +66,7 @@ dependencyResolutionManagement {
             library("ktor.server.core", "io.ktor:ktor-server-core:$ktorVersion")
             library("ktor.server.engine", "io.ktor:ktor-server-cio:$ktorVersion")
             library("ktor.server.statusPages", "io.ktor:ktor-server-status-pages:$ktorVersion")
+            library("ktor.server.cors", "io.ktor:ktor-server-cors:$ktorVersion")
             library("ktor.server.defaultHeaders", "io.ktor:ktor-server-default-headers:$ktorVersion")
             library("ktor.server.fowardedHeader", "io.ktor:ktor-server-forwarded-header:$ktorVersion")
             library("ktor.server.compression", "io.ktor:ktor-server-compression:$ktorVersion")

@@ -35,6 +35,7 @@ kotlin {
                 implementation(libs.ktor.client.core)
                 implementation(libs.ktor.client.cio)
                 implementation(libs.ktor.server.statusPages)
+                implementation(libs.ktor.server.cors)
                 implementation(libs.ktor.server.defaultHeaders)
                 implementation(libs.ktor.server.fowardedHeader)
                 implementation(libs.ktor.serialization.json)
