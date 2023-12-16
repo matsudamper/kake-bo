@@ -34,6 +34,11 @@ type DeleteMailResult {
     isSuccess: Boolean!
 }
 
+type FidoInfo {
+    challenge: String!
+    domain: String!
+}
+
 type ImportMailResult {
     isSuccess: Boolean!
 }
@@ -161,6 +166,7 @@ type SubCategoriesConnection {
 }
 
 type User {
+    fidoInfo: FidoInfo
     importedMailAttributes: ImportedMailAttributes!
     importedMailCategoryFilter(id: ImportedMailCategoryFilterId!): ImportedMailCategoryFilter
     importedMailCategoryFilters(query: ImportedMailCategoryFiltersQuery!): ImportedMailCategoryFiltersConnection
@@ -221,6 +227,7 @@ type UserMutation {
     deleteSubCategory(id: MoneyUsageSubCategoryId!): Boolean!
     deleteUsage(id: MoneyUsageId!): Boolean!
     importMail(mailIds: [MailId!]!): ImportMailResult!
+    registerFido(input: RegisterFidoInput!): Boolean!
     settingsMutation: SettingsMutation
     updateCategory(id: MoneyUsageCategoryId!, query: UpdateCategoryQuery!): MoneyUsageCategory!
     updateImportedMailCategoryFilter(input: UpdateImportedMailCategoryFilterInput!): ImportedMailCategoryFilter
@@ -389,6 +396,11 @@ input MoneyUsagesQueryFilter {
     sinceDateTime: LocalDateTime
     subCategory: [MoneyUsageSubCategoryId!]
     untilDateTime: LocalDateTime
+}
+
+input RegisterFidoInput {
+    base64AttestationObject: String!
+    base64ClientDataJson: String!
 }
 
 input UpdateCategoryQuery {
