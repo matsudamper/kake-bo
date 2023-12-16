@@ -59,7 +59,7 @@ class UserIdVerifyUseCase(
             secure = ServerEnv.isSecure,
             extensions = mapOf(
                 "SameSite" to "Strict",
-            )
+            ),
         )
     }
 }
