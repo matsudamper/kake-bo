@@ -17,21 +17,29 @@ public class LoginSettingViewModel(
                 override fun onClickBack() {
                 }
 
-                override fun onClickRegister() {
-                    coroutineScope.launch {
-                        val result = CredentialModel.create(
-                            userId = 1,
-                            name = "test",
-                            type = CredentialModel.Type.PLATFORM,
-                            challenge = "test",
-                            domain = "TODO.com",
-                        )
-                        console.log(result)
-                    }
+                override fun onClickPlatform() {
+                    createDido(CredentialModel.Type.PLATFORM)
+                }
+
+                override fun onClickCrossPlatform() {
+                    createDido(CredentialModel.Type.CROSS_PLATFORM)
                 }
             },
         ),
     ).also {
 
     }.asStateFlow()
+
+    private fun createDido(type: CredentialModel.Type) {
+        coroutineScope.launch {
+            val result = CredentialModel.create(
+                userId = 1,
+                name = "test",
+                type = type,
+                challenge = "test",
+                domain = "TODO.com",
+            )
+            console.log(result)
+        }
+    }
 }
