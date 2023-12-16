@@ -41,6 +41,7 @@ import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilter
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
+import net.matsudamper.money.graphql.model.QlRegisterFidoInput
 import net.matsudamper.money.graphql.model.QlSettingsMutation
 import net.matsudamper.money.graphql.model.QlUpdateCategoryQuery
 import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterConditionInput
@@ -498,6 +499,14 @@ class UserMutationResolverImpl : UserMutationResolver {
             )
             isSuccess
         }.toDataFetcher()
+    }
+
+    override fun registerFido(
+        userMutation: QlUserMutation,
+        input: QlRegisterFidoInput,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<Boolean>> {
+        TODO()
     }
 
     override fun deleteImportedMail(
