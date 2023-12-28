@@ -21,11 +21,11 @@ public class LoginSettingViewModel(
                 }
 
                 override fun onClickPlatform() {
-                    createDido(CredentialModel.Type.PLATFORM)
+                    createFido(CredentialModel.Type.PLATFORM)
                 }
 
                 override fun onClickCrossPlatform() {
-                    createDido(CredentialModel.Type.CROSS_PLATFORM)
+                    createFido(CredentialModel.Type.CROSS_PLATFORM)
                 }
             },
         ),
@@ -33,7 +33,7 @@ public class LoginSettingViewModel(
 
     }.asStateFlow()
 
-    private fun createDido(type: CredentialModel.Type) {
+    private fun createFido(type: CredentialModel.Type) {
         coroutineScope.launch {
             val result = CredentialModel.create(
                 userId = 1,
