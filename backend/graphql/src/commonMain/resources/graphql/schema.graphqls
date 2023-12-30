@@ -5,5 +5,4 @@ schema {
 
 type Query {
     user: User
-    fidoInfo: FidoInfo
 }

@@ -35,7 +35,6 @@ import net.matsudamper.money.backend.graphql.resolver.mutation.AdminMutationReso
 import net.matsudamper.money.backend.graphql.resolver.mutation.MutationResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.mutation.SettingsMutationResolverResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.mutation.UserMutationResolverImpl
-import net.matsudamper.money.backend.graphql.resolver.setting.FidoInfoResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.user.UserResolverImpl
 import net.matsudamper.money.backend.graphql.schema.GraphqlSchemaModule
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
@@ -160,7 +159,6 @@ object MoneyGraphQlSchema {
                 ImportedMailAttributesResolverImpl(),
                 ImportedMailResolverImpl(),
                 MoneyUsageSuggestResolverImpl(),
-                FidoInfoResolverImpl(),
             )
             .options(
                 @Suppress("OPT_IN_USAGE")

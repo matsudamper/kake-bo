@@ -4,6 +4,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.graphql.DataFetcherResultBuilder
@@ -16,6 +17,7 @@ import net.matsudamper.money.backend.repository.MoneyUsageRepository
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.graphql.model.QlFidoAddInfo
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilter
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersConnection
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersQuery
@@ -40,6 +42,21 @@ class UserResolverImpl : UserResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlUserSettings>> {
         return CompletableFuture.completedFuture(QlUserSettings()).toDataFetcher()
+    }
+
+    override fun fidoAddInfo(user: QlUser, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlFidoAddInfo>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+        val userNameFuture = context.dataLoaders.userNameDataLoader.get(env)
+            .load(userId)
+        return CompletableFuture.allOf(userNameFuture).thenApplyAsync {
+            QlFidoAddInfo(
+                id = userId.value.toString(),
+                name = userNameFuture.get(),
+                challenge = "test", // TODO challenge
+                domain = ServerEnv.domain!!,
+            )
+        }.toDataFetcher()
     }
 
     /**

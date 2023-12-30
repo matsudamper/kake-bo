@@ -1,4 +1,6 @@
-type FidoInfo {
-    challenge: String! @lazy
-    domain: String! @lazy
+type FidoAddInfo {
+    id: String!
+    name: String!
+    challenge: String!
+    domain: String!
 }

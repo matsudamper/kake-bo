@@ -1,6 +1,7 @@
 type User {
     isLoggedIn: Boolean!
     settings: UserSettings! @lazy
+    fidoAddInfo: FidoAddInfo! @lazy
     userMailAttributes: UserMailAttributes!
     importedMailAttributes: ImportedMailAttributes!
     moneyUsage(id: MoneyUsageId!): MoneyUsage @lazy

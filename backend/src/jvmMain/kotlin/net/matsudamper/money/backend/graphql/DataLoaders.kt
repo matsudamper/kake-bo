@@ -14,6 +14,7 @@ import net.matsudamper.money.backend.dataloader.MoneyUsageAssociateByImportedMai
 import net.matsudamper.money.backend.dataloader.MoneyUsageCategoryDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageSubCategoryDataLoaderDefine
+import net.matsudamper.money.backend.dataloader.UserNameDataLoaderDefine
 import net.matsudamper.money.backend.di.RepositoryFactory
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderRegistry
@@ -61,6 +62,10 @@ class DataLoaders(
 
     val moneyUsageAnalyticsBySubCategoryLoader by register {
         MoneyUsageAnalyticsBySubCategoryLoader(repositoryFactory, userIdVerifyUseCase)
+    }
+
+    val userNameDataLoader by register {
+        UserNameDataLoaderDefine(repositoryFactory.createUserNameRepository())
     }
 
     private fun <K, V> register(
