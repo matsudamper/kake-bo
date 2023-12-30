@@ -11,10 +11,27 @@ internal external interface Navigator {
 }
 
 internal external interface CredentialsContainer {
-    fun get(options: dynamic): Promise<dynamic>
+    fun get(options: CredentialsContainerCreateOptions): Promise<PublicKeyCredential>
     fun create(options: CredentialsContainerCreateOptions): Promise<CredentialsContainerCreateResult>
     fun store(credential: dynamic): Promise<dynamic>
     fun preventSilentAccess(): Promise<Unit>
+}
+
+@Suppress("OPT_IN_USAGE")
+@JsExport
+public class PublicKeyCredential(
+    public val rawId: ArrayBuffer,
+    public val response: AuthenticatorAssertionResponse,
+    public val authenticatorAttachment: dynamic,
+    public val id: String,
+    public val type: String,
+) {
+    public data class AuthenticatorAssertionResponse(
+        val authenticatorData: ArrayBuffer,
+        val clientDataJSON: ArrayBuffer,
+        val signature: ArrayBuffer,
+        val userHandle: ArrayBuffer,
+    )
 }
 
 @Suppress("OPT_IN_USAGE")
