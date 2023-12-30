@@ -6,6 +6,7 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
+import net.matsudamper.money.graphql.model.QlFidoInfo
 import net.matsudamper.money.graphql.model.QlImportedMailAttributes
 import net.matsudamper.money.graphql.model.QlUser
 import net.matsudamper.money.graphql.model.QlUserMailAttributes
@@ -22,5 +23,9 @@ class QueryResolverImpl : QueryResolver {
                 importedMailAttributes = QlImportedMailAttributes(),
             ),
         ).toDataFetcher()
+    }
+
+    override fun fidoInfo(env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlFidoInfo?>> {
+        TODO("Not yet implemented")
     }
 }

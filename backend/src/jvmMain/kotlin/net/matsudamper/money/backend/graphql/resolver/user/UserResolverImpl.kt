@@ -209,10 +209,6 @@ class UserResolverImpl : UserResolver {
         }.toDataFetcher()
     }
 
-    override fun fidoInfo(user: QlUser, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlFidoInfo?>> {
-        TODO("Not yet implemented")
-    }
-
     override fun moneyUsage(
         user: QlUser,
         id: MoneyUsageId,
