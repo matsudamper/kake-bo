@@ -6,7 +6,7 @@ import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
 
-public object CredentialModel {
+public object WebAuthModel {
     public suspend fun create(
         userId: Long,
         name: String,

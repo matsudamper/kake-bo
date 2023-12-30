@@ -7,8 +7,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import net.matsudamper.money.frontend.common.base.navigator.CredentialModel
+import net.matsudamper.money.frontend.common.base.navigator.WebAuthModel
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.LoginSettingScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.shared.FidoApi
 
 public class LoginSettingViewModel(
     private val coroutineScope: CoroutineScope,
@@ -21,11 +22,11 @@ public class LoginSettingViewModel(
                 }
 
                 override fun onClickPlatform() {
-                    createFido(CredentialModel.Type.PLATFORM)
+                    createFido(WebAuthModel.Type.PLATFORM)
                 }
 
                 override fun onClickCrossPlatform() {
-                    createFido(CredentialModel.Type.CROSS_PLATFORM)
+                    createFido(WebAuthModel.Type.CROSS_PLATFORM)
                 }
             },
         ),
@@ -33,7 +34,7 @@ public class LoginSettingViewModel(
 
     }.asStateFlow()
 
-    private fun createFido(type: CredentialModel.Type) {
+    private fun createFido(type: WebAuthModel.Type) {
         coroutineScope.launch {
             val result = CredentialModel.create(
                 userId = 1,
