@@ -94,4 +94,17 @@ public class LoginScreenViewModel(
         val userName: TextFieldValue = TextFieldValue(),
         val password: TextFieldValue = TextFieldValue(),
     )
+    /**
+     * TODO FIDO Login implementation
+     * console.log(createResult)
+     *             createResult ?: return@launch
+     *             val getResult = CredentialModel.get(
+     *                 userId = 1,
+     *                 name = "test",
+     *                 type = type,
+     *                 challenge = "test", // TODO challenge
+     *                 domain = "domain",
+     *             ) ?: return@launch
+     *             console.log(getResult)
+     */
 }
