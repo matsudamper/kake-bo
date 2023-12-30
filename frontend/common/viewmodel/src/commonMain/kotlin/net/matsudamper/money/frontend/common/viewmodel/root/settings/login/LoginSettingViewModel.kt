@@ -7,8 +7,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.navigator.WebAuthModel
+import net.matsudamper.money.frontend.common.base.session.CookieStorage
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.LoginSettingScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.shared.FidoApi
 
 public class LoginSettingViewModel(
@@ -16,10 +20,16 @@ public class LoginSettingViewModel(
     private val api: LoginSettingScreenApi,
     private val fidoApi: FidoApi,
 ) {
+    private val eventSender = EventSender<Event>()
+    public val eventHandler: EventHandler<Event> = eventSender.asHandler()
+
     public val uiStateFlow: StateFlow<LoginSettingScreenUiState> = MutableStateFlow(
         LoginSettingScreenUiState(
             event = object : LoginSettingScreenUiState.Event {
                 override fun onClickBack() {
+                    coroutineScope.launch {
+                        eventSender.send { it.navigate(ScreenStructure.Root.Settings.Root) }
+                    }
                 }
 
                 override fun onClickPlatform() {
@@ -28,6 +38,13 @@ public class LoginSettingViewModel(
 
                 override fun onClickCrossPlatform() {
                     createFido(WebAuthModel.Type.CROSS_PLATFORM)
+                }
+
+                override fun onClickLogout() {
+                    // TODO logout
+                    coroutineScope.launch {
+                        eventSender.send { it.navigate(ScreenStructure.Login) }
+                    }
                 }
             },
         ),
@@ -68,5 +85,10 @@ public class LoginSettingViewModel(
                 }
             }
         }
+    }
+
+    public interface Event {
+        public fun showToast(text: String)
+        public fun navigate(structure: ScreenStructure)
     }
 }

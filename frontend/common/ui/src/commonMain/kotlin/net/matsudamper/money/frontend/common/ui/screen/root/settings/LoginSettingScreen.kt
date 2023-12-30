@@ -1,20 +1,33 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
@@ -29,6 +42,7 @@ public data class LoginSettingScreenUiState(
         public fun onClickBack()
         public fun onClickPlatform()
         public fun onClickCrossPlatform()
+        public fun onClickLogout()
     }
 }
 
@@ -63,18 +77,89 @@ public fun LoginSettingScreen(
         },
         listener = rootScreenScaffoldListener,
     ) {
-        Column {
-            Button(
-                onClick = { uiState.event.onClickPlatform() },
+        SettingScaffold(
+            title = {
+                Text("ログイン設定")
+            },
+        ) { paddingValues ->
+            LazyColumn(
+                modifier = Modifier.padding(paddingValues),
             ) {
-                Text("PLATFORM")
-            }
-            Spacer(modifier = Modifier.height(32.dp))
-            Button(
-                onClick = { uiState.event.onClickCrossPlatform() },
-            ) {
-                Text("CROSS_PLATFORM")
+                item {
+                    SettingSmallSection(
+                        title = {
+                            Text("ログイン方法の追加")
+                        },
+                    ) {
+                        Column {
+                            Row {
+                                TextButton(
+                                    onClick = { uiState.event.onClickPlatform() },
+                                ) {
+                                    Text("PLATFORM")
+                                }
+                                Spacer(modifier = Modifier.width(16.dp))
+                                TextButton(
+                                    onClick = { uiState.event.onClickCrossPlatform() },
+                                ) {
+                                    Text("CROSS_PLATFORM")
+                                }
+                            }
+                        }
+                    }
+                }
+                item {
+                    SettingSmallSection(
+                        title = {
+                            Text("その他")
+                        },
+                    ) {
+                        SettingListMenuItemButton(
+                            modifier = Modifier.fillMaxWidth(),
+                            titleStyle = MaterialTheme.typography.titleLarge.merge(
+                                TextStyle(
+                                    color = MaterialTheme.colorScheme.error,
+                                ),
+                            ),
+                            onClick = { uiState.event.onClickLogout() },
+                        ) {
+                            Text("ログアウト")
+                        }
+                    }
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun SettingSmallSection(
+    title: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Column(modifier = modifier) {
+        ProvideTextStyle(
+            MaterialTheme.typography.titleMedium,
+        ) {
+            Box(
+                modifier = Modifier
+                    .padding(
+                        top = 16.dp,
+                        bottom = 8.dp,
+                    )
+                    .padding(
+                        horizontal = 16.dp,
+                    ),
+            ) {
+                title()
+            }
+        }
+        Divider(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        content()
     }
 }

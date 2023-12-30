@@ -175,6 +175,10 @@ internal fun SettingNavContent(
                     )
                 }
 
+                LaunchedEffect(viewModelEventHandlers, viewModel.eventHandler) {
+                    viewModelEventHandlers.handle(viewModel.eventHandler)
+                }
+
                 LoginSettingScreen(
                     modifier = Modifier.fillMaxSize(),
                     uiState = viewModel.uiStateFlow.collectAsState().value,

@@ -27,6 +27,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewM
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailLinkViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilter.ImportedMailFilterCategoryViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters.SettingMailCategoryFiltersViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.login.LoginSettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalendarViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageListViewModel
@@ -358,6 +359,22 @@ data class ViewModelEventHandlers(
                 object : RootHomeMonthlyScreenViewModel.Event {
                     override fun navigate(screen: ScreenStructure) {
                         navController.navigate(screen)
+                    }
+                },
+            )
+        }
+    }
+
+    suspend fun handle(handler: EventHandler<LoginSettingViewModel.Event>) {
+        coroutineScope {
+            handler.collect(
+                object : LoginSettingViewModel.Event {
+                    override fun navigate(structure: ScreenStructure) {
+                        navController.navigate(structure)
+                    }
+
+                    override fun showToast(text: String) {
+                        window.alert(text)
                     }
                 },
             )
