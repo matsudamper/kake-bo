@@ -2,7 +2,7 @@ package net.matsudamper.money.backend.graphql.usecase
 
 import kotlinx.coroutines.runBlocking
 import net.matsudamper.money.backend.di.RepositoryFactory
-import net.matsudamper.money.backend.element.UserId
+import net.matsudamper.money.element.UserId
 import net.matsudamper.money.element.MailId
 
 class DeleteMailUseCase(

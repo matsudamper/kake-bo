@@ -4,7 +4,7 @@ import net.matsudamper.money.backend.DbConnection
 import net.matsudamper.money.backend.element.ImportedMailCategoryFilterConditionType
 import net.matsudamper.money.backend.element.ImportedMailCategoryFilterDatasourceType
 import net.matsudamper.money.backend.element.ImportedMailFilterCategoryConditionOperator
-import net.matsudamper.money.backend.element.UserId
+import net.matsudamper.money.element.UserId
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditions
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilters
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionsRecord

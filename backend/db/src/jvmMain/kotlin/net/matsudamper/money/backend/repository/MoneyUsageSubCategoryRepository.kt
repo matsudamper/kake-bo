@@ -1,7 +1,7 @@
 package net.matsudamper.money.backend.repository
 
 import net.matsudamper.money.backend.DbConnectionImpl
-import net.matsudamper.money.backend.element.UserId
+import net.matsudamper.money.element.UserId
 import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsageCategoriesRecord

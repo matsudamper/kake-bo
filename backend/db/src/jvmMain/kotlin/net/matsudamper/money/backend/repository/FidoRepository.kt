@@ -1,8 +1,8 @@
 package net.matsudamper.money.backend.repository
 
 import net.matsudamper.money.backend.DbConnection
-import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.db.schema.tables.JWebAuthAuthenticator
+import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 
 class FidoRepository(

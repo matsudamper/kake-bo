@@ -7,7 +7,7 @@ import io.ktor.server.request.host
 import io.ktor.util.date.GMTDate
 import net.matsudamper.money.backend.CookieKeys
 import net.matsudamper.money.backend.base.ServerEnv
-import net.matsudamper.money.backend.element.UserId
+import net.matsudamper.money.element.UserId
 import net.matsudamper.money.backend.element.UserSessionId
 import net.matsudamper.money.backend.repository.UserSessionRepository
 

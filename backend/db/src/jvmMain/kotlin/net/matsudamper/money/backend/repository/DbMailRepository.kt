@@ -2,13 +2,13 @@ package net.matsudamper.money.backend.repository
 
 import java.time.LocalDateTime
 import net.matsudamper.money.backend.DbConnection
-import net.matsudamper.money.backend.element.UserId
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
 import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.records.JUserMailsRecord
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 import org.jooq.kotlin.and
 

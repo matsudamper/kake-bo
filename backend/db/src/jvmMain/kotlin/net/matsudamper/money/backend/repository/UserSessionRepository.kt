@@ -3,7 +3,7 @@ package net.matsudamper.money.backend.repository
 import java.time.LocalDateTime
 import java.util.*
 import net.matsudamper.money.backend.DbConnectionImpl
-import net.matsudamper.money.backend.element.UserId
+import net.matsudamper.money.element.UserId
 import net.matsudamper.money.backend.element.UserSessionId
 import net.matsudamper.money.db.schema.tables.JUserSessions
 import org.jooq.impl.DSL

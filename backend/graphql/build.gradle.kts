@@ -69,7 +69,7 @@ val graphqlCodegen = tasks.named<io.github.kobylynskyi.graphql.codegen.gradle.Gr
         queryResolver = "graphql.kickstart.tools.GraphQLQueryResolver"
     }
     customTypesMapping = mutableMapOf(
-        "UserId" to "Int",
+        "UserId" to "net.matsudamper.money.element.UserId",
         "MailId" to "net.matsudamper.money.element.MailId",
         "MoneyUsageCategoryId" to "net.matsudamper.money.element.MoneyUsageCategoryId",
         "MoneyUsageSubCategoryId" to "net.matsudamper.money.element.MoneyUsageSubCategoryId",

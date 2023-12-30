@@ -2,7 +2,7 @@ package net.matsudamper.money.backend.repository
 
 import java.time.LocalDateTime
 import net.matsudamper.money.backend.DbConnection
-import net.matsudamper.money.backend.element.UserId
+import net.matsudamper.money.element.UserId
 import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
