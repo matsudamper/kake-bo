@@ -105,7 +105,7 @@ public fun LoginSettingScreen(
                     ) {
                         SessionSection(
                             modifier = Modifier.fillMaxWidth()
-                                .height(500.dp),
+                                .height(280.dp),
                         )
                     }
                 }
