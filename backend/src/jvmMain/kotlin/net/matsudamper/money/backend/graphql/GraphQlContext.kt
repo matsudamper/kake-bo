@@ -38,6 +38,7 @@ class GraphQlContext(
     }
 
     fun verifyUserSession(): UserId = userIdVerifyUseCase.verifyUserSession()
+    fun getSessionInfo() = userIdVerifyUseCase.getSessionInfo()
 
     fun clearUserSession() {
         userIdVerifyUseCase.clearUserSession()

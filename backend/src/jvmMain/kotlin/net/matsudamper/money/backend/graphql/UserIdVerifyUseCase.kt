@@ -16,17 +16,33 @@ class UserIdVerifyUseCase(
     private val userSessionRepository: UserSessionRepository = UserSessionRepository(),
 ) {
     private val host get() = ServerEnv.domain ?: call.request.host()
-    private var verifyUserSessionResult: UserSessionRepository.VerifySessionResult.Success? = null
+    private var verifyUserSessionResult: UserSessionRepository.VerifySessionResult? = null
 
     fun verifyUserSession(): UserId {
-        val verifyUserSessionResult = verifyUserSessionResult
-        if (verifyUserSessionResult != null) return verifyUserSessionResult.userId
+        return when (val info = getSessionInfo()) {
+            is UserSessionRepository.VerifySessionResult.Failure -> {
+                throw GraphqlMoneyException.SessionNotVerify()
+            }
 
-        val userSessionString = getCookie(CookieKeys.userSessionId) ?: throw GraphqlMoneyException.SessionNotVerify()
+            is UserSessionRepository.VerifySessionResult.Success -> {
+                info.userId
+            }
+        }
+    }
+
+    fun getSessionInfo(): UserSessionRepository.VerifySessionResult {
+        val verifyUserSessionResult = verifyUserSessionResult
+        if (verifyUserSessionResult != null) return verifyUserSessionResult
+        val userSessionString = getCookie(CookieKeys.userSessionId)
+        if (userSessionString == null) {
+            this.verifyUserSessionResult = UserSessionRepository.VerifySessionResult.Failure
+            return UserSessionRepository.VerifySessionResult.Failure
+        }
 
         when (val userSessionResult = userSessionRepository.verifySession(UserSessionId(userSessionString))) {
             is UserSessionRepository.VerifySessionResult.Failure -> {
-                throw GraphqlMoneyException.SessionNotVerify()
+                this.verifyUserSessionResult = UserSessionRepository.VerifySessionResult.Failure
+                return UserSessionRepository.VerifySessionResult.Failure
             }
 
             is UserSessionRepository.VerifySessionResult.Success -> {
@@ -38,10 +54,11 @@ class UserIdVerifyUseCase(
                     expires = GMTDate(userSessionResult.expire.toEpochSecond(ZoneOffset.UTC) * 1000),
                 )
 
-                return userSessionResult.userId
+                return userSessionResult
             }
         }
     }
+
 
     /**
      * @return isSuccess

@@ -155,6 +155,7 @@ type Mutation {
 }
 
 type Query {
+    isLoggedIn: Boolean!
     user: User
 }
 
@@ -171,7 +172,6 @@ type User {
     importedMailAttributes: ImportedMailAttributes!
     importedMailCategoryFilter(id: ImportedMailCategoryFilterId!): ImportedMailCategoryFilter
     importedMailCategoryFilters(query: ImportedMailCategoryFiltersQuery!): ImportedMailCategoryFiltersConnection
-    isLoggedIn: Boolean!
     moneyUsage(id: MoneyUsageId!): MoneyUsage
     moneyUsageAnalytics(query: MoneyUsageAnalyticsQuery!): MoneyUsageAnalytics!
     moneyUsageAnalyticsByCategory(id: MoneyUsageCategoryId!, query: MoneyUsageAnalyticsQuery!): MoneyUsageAnalyticsByCategory

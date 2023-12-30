@@ -97,6 +97,6 @@ class UserSessionRepository {
             val expire: LocalDateTime,
         ) : VerifySessionResult
 
-        object Failure : VerifySessionResult
+        data object Failure : VerifySessionResult
     }
 }

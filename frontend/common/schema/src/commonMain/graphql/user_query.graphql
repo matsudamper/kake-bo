@@ -1,7 +1,5 @@
 query UserIsLoggedIn {
-    user {
-        isLoggedIn
-    }
+    isLoggedIn
 }
 
 

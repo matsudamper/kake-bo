@@ -29,7 +29,6 @@ class GraphqlUserLoginQuery(
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
                 .data
-                ?.user
                 ?.isLoggedIn
         }.fold(
             onSuccess = { it == true },

@@ -1,5 +1,4 @@
 type User {
-    isLoggedIn: Boolean!
     settings: UserSettings! @lazy
     userMailAttributes: UserMailAttributes!
     importedMailAttributes: ImportedMailAttributes!

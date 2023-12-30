@@ -4,5 +4,6 @@ schema {
 }
 
 type Query {
+    isLoggedIn: Boolean! @lazy
     user: User
 }
