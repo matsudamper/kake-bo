@@ -45,23 +45,26 @@ kotlin {
 
 tasks.create("generateDbCode") {
     doLast {
-        val localProperties = Properties().also {
+        val localProperties = Properties().also { properties ->
             val propertiesFile = File("$rootDir/local.properties")
             if (propertiesFile.exists()) {
-                it.load(propertiesFile.inputStream())
+                properties.load(propertiesFile.inputStream())
             }
         }
+        val dbUser = System.getenv("DB_USER")?.takeIf { it.isNotBlank() }
+            ?: localProperties.getProperty("DB_USER")
+            ?: error("DB_USER is not set")
+        val dbPass = System.getenv("DB_PASS")?.takeIf { it.isNotBlank() }
+            ?: localProperties.getProperty("DB_PASS")
+            ?: error("DB_PASS is not set")
         GenerationTool.generate(
             Configuration()
                 .withJdbc(
                     Jdbc()
                         .withDriver("org.mariadb.jdbc.Driver")
                         .withUrl("jdbc:mariadb://localhost:3306/money")
-                        .withUser("root")
-                        .withPassword(
-                            System.getenv("DB_PASS").takeIf { it.isNotBlank() }
-                                ?: localProperties.getProperty("DB_PASS")!!,
-                        ),
+                        .withUser(dbUser)
+                        .withPassword(dbPass),
                 )
                 .withGenerator(
                     Generator()
