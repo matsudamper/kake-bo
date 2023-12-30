@@ -34,9 +34,11 @@ type DeleteMailResult {
     isSuccess: Boolean!
 }
 
-type FidoInfo {
+type FidoAddInfo {
     challenge: String!
     domain: String!
+    id: String!
+    name: String!
 }
 
 type ImportMailResult {
@@ -153,7 +155,6 @@ type Mutation {
 }
 
 type Query {
-    fidoInfo: FidoInfo
     user: User
 }
 
@@ -240,6 +241,7 @@ type UserMutation {
 }
 
 type UserSettings {
+    fidoAddInfo: FidoAddInfo!
     imapConfig: UserImapConfig
 }
 
