@@ -27,13 +27,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
@@ -59,8 +56,8 @@ public data class SettingMailCategoryFilterScreenUiState(
 
     public sealed interface LoadingState {
 
-        public object Loading : LoadingState
-        public object Error : LoadingState
+        public data object Loading : LoadingState
+        public data object Error : LoadingState
         public data class Loaded(
             val filters: ImmutableList<Item>,
             val isError: Boolean,
@@ -181,7 +178,6 @@ private fun LoadedContent(
     val lazyListState = rememberLazyListState()
     BoxWithConstraints(modifier = modifier) {
         val height by rememberUpdatedState(maxHeight)
-        var scrollButtonSize by remember { mutableStateOf(0.dp) }
         Column(
             modifier = Modifier.fillMaxSize()
                 .padding(contentPadding),
@@ -210,9 +206,6 @@ private fun LoadedContent(
         }
         ScrollButtons(
             modifier = Modifier
-                .onSizeChanged {
-                    scrollButtonSize = with(density) { it.height.toDp() }
-                }
                 .align(Alignment.BottomEnd)
                 .padding(ScrollButtonsDefaults.padding)
                 .height(ScrollButtonsDefaults.height),
