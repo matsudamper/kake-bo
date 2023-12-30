@@ -49,6 +49,7 @@ import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterCon
 import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterInput
 import net.matsudamper.money.graphql.model.QlUpdateSubCategoryQuery
 import net.matsudamper.money.graphql.model.QlUpdateUsageQuery
+import net.matsudamper.money.graphql.model.QlUserFidoLoginInput
 import net.matsudamper.money.graphql.model.QlUserLoginResult
 import net.matsudamper.money.graphql.model.QlUserMutation
 import net.matsudamper.money.graphql.model.UserMutationResolver
@@ -92,6 +93,10 @@ class UserMutationResolverImpl : UserMutationResolver {
                 }
             }
         }.toDataFetcher()
+    }
+
+    override fun userFidoLogin(userMutation: QlUserMutation, userFidoLoginInput: QlUserFidoLoginInput, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlUserLoginResult>> {
+        TODO("Not yet implemented")
     }
 
     override fun settingsMutation(
