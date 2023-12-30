@@ -4,7 +4,6 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
-import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.graphql.DataFetcherResultBuilder
@@ -17,7 +16,6 @@ import net.matsudamper.money.backend.repository.MoneyUsageRepository
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
-import net.matsudamper.money.graphql.model.QlFidoAddInfo
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilter
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersConnection
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersQuery

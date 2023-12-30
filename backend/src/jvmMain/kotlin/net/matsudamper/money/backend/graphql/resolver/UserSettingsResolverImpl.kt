@@ -9,7 +9,6 @@ import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.repository.UserConfigRepository
 import net.matsudamper.money.graphql.model.QlFidoAddInfo
-import net.matsudamper.money.graphql.model.QlUser
 import net.matsudamper.money.graphql.model.QlUserImapConfig
 import net.matsudamper.money.graphql.model.QlUserSettings
 import net.matsudamper.money.graphql.model.UserSettingsResolver
