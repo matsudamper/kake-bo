@@ -44,21 +44,6 @@ class UserResolverImpl : UserResolver {
         return CompletableFuture.completedFuture(QlUserSettings()).toDataFetcher()
     }
 
-    override fun fidoAddInfo(user: QlUser, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlFidoAddInfo>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
-        val userNameFuture = context.dataLoaders.userNameDataLoader.get(env)
-            .load(userId)
-        return CompletableFuture.allOf(userNameFuture).thenApplyAsync {
-            QlFidoAddInfo(
-                id = userId.value.toString(),
-                name = userNameFuture.get(),
-                challenge = "test", // TODO challenge
-                domain = ServerEnv.domain!!,
-            )
-        }.toDataFetcher()
-    }
-
     /**
      * TODO: Paging
      */

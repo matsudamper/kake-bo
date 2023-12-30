@@ -1,5 +1,6 @@
 type UserSettings {
     imapConfig: UserImapConfig @lazy
+    fidoAddInfo: FidoAddInfo! @lazy
 }
 
 type UserImapConfig {
