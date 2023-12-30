@@ -95,6 +95,15 @@ class UserMutationResolverImpl : UserMutationResolver {
         }.toDataFetcher()
     }
 
+    override fun logout(userMutation: QlUserMutation, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+
+        return CompletableFuture.supplyAsync {
+            context.clearUserSession()
+            true
+        }.toDataFetcher()
+    }
+
     override fun userFidoLogin(userMutation: QlUserMutation, userFidoLoginInput: QlUserFidoLoginInput, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlUserLoginResult>> {
         TODO("Not yet implemented")
     }

@@ -11,6 +11,15 @@ import org.jooq.impl.DSL
 class UserSessionRepository {
     private val userSessions = JUserSessions.USER_SESSIONS
 
+    fun clearSession(sessionId: UserSessionId) {
+        DbConnectionImpl.use {
+            DSL.using(it)
+                .deleteFrom(userSessions)
+                .where(userSessions.SESSION_ID.eq(sessionId.id))
+                .execute()
+        }
+    }
+
     fun createSession(userId: UserId): CreateSessionResult {
         val result = DbConnectionImpl.use {
             DSL.using(it)

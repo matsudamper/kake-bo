@@ -227,6 +227,7 @@ type UserMutation {
     deleteSubCategory(id: MoneyUsageSubCategoryId!): Boolean!
     deleteUsage(id: MoneyUsageId!): Boolean!
     importMail(mailIds: [MailId!]!): ImportMailResult!
+    logout: Boolean!
     registerFido(input: RegisterFidoInput!): Boolean!
     settingsMutation: SettingsMutation
     updateCategory(id: MoneyUsageCategoryId!, query: UpdateCategoryQuery!): MoneyUsageCategory!

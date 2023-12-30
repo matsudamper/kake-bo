@@ -5,3 +5,9 @@ mutation SettingScreenAddFido(
         registerFido(input: $input)
     }
 }
+
+mutation LoginSettingScreenLogout {
+    userMutation {
+        logout
+    }
+}

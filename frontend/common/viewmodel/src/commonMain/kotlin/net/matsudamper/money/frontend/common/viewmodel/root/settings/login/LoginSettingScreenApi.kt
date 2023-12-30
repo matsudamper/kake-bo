@@ -8,6 +8,7 @@ import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import net.matsudamper.money.frontend.graphql.AddCategoryMutation
 import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.GraphqlClient
+import net.matsudamper.money.frontend.graphql.LoginSettingScreenLogoutMutation
 import net.matsudamper.money.frontend.graphql.SettingScreenAddFidoMutation
 import net.matsudamper.money.frontend.graphql.type.AddCategoryInput
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoriesInput
@@ -16,6 +17,15 @@ import net.matsudamper.money.frontend.graphql.type.RegisterFidoInput
 public class LoginSettingScreenApi(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
+    public suspend fun logout(): Boolean {
+        return runCatching {
+            apolloClient
+                .mutation(
+                    LoginSettingScreenLogoutMutation()
+                ).execute().data?.userMutation?.logout
+        }.getOrNull() ?: false
+    }
+
     public suspend fun addFido(
         base64AttestationObject: String,
         base64ClientDataJson: String,

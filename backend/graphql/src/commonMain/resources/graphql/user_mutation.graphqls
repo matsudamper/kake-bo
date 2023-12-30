@@ -2,6 +2,7 @@ type UserMutation {
     userLogin(name: String!, password: String!): UserLoginResult!
     userFidoLogin(userFidoLoginInput: UserFidoLoginInput!): UserLoginResult!
     settingsMutation: SettingsMutation @lazy
+    logout: Boolean! @lazy
 
     importMail(mailIds: [MailId!]!): ImportMailResult!
     deleteImportedMail(id: ImportedMailId!): Boolean!

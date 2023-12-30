@@ -39,6 +39,10 @@ class GraphQlContext(
 
     fun verifyUserSession(): UserId = userIdVerifyUseCase.verifyUserSession()
 
+    fun clearUserSession() {
+        userIdVerifyUseCase.clearUserSession()
+    }
+
     fun setAdminSessionCookie(value: String, expires: LocalDateTime) {
         setCookie(
             key = CookieKeys.adminSessionId,

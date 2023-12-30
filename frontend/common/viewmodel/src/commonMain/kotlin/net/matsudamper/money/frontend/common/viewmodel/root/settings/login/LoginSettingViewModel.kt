@@ -9,7 +9,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.navigator.WebAuthModel
-import net.matsudamper.money.frontend.common.base.session.CookieStorage
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.LoginSettingScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -41,9 +40,13 @@ public class LoginSettingViewModel(
                 }
 
                 override fun onClickLogout() {
-                    // TODO logout
                     coroutineScope.launch {
-                        eventSender.send { it.navigate(ScreenStructure.Login) }
+                        val result = api.logout()
+                        if (result) {
+                            eventSender.send { it.navigate(ScreenStructure.Login) }
+                        } else {
+                            eventSender.send { it.showToast("ログアウトに失敗しました") }
+                        }
                     }
                 }
             },
@@ -57,7 +60,8 @@ public class LoginSettingViewModel(
             val fidoInfo = fidoApi.getFidoInfo()
                 .getOrNull()?.data?.fidoInfo
             if (fidoInfo == null) {
-                TODO("error")
+                showAddFidoFailToast()
+                return@launch
             }
 
             val createResult = WebAuthModel.create(
@@ -69,21 +73,30 @@ public class LoginSettingViewModel(
             )
 
             if (createResult == null) {
-                TODO("Error")
+                showAddFidoFailToast()
+                return@launch
             }
 
-            withContext(Dispatchers.Default) {
-                val result = api.addFido(
+            val result = withContext(Dispatchers.Default) {
+                api.addFido(
                     base64AttestationObject = createResult.attestationObjectBase64,
                     base64ClientDataJson = createResult.clientDataJSONBase64,
                 )
-                val registerFidoResult = result?.data?.userMutation?.registerFido
-                if (registerFidoResult == null || registerFidoResult.not()) {
-                    TODO("Error")
-                } else {
-                    // TODO success notification
-                }
             }
+
+            val registerFidoResult = result?.data?.userMutation?.registerFido
+            if (registerFidoResult == null || registerFidoResult.not()) {
+                showAddFidoFailToast()
+            } else {
+                eventSender.send { it.showToast("追加しました") }
+                // TODO update list
+            }
+        }
+    }
+
+    private fun showAddFidoFailToast() {
+        coroutineScope.launch {
+            eventSender.send { it.showToast("追加に失敗しました") }
         }
     }
 
