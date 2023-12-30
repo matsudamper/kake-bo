@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Divider
@@ -109,6 +110,18 @@ public fun LoginSettingScreen(
                 item {
                     SettingSmallSection(
                         title = {
+                            Text("セッション一覧")
+                        },
+                    ) {
+                        SessionSection(
+                            modifier = Modifier.fillMaxWidth()
+                                .height(500.dp),
+                        )
+                    }
+                }
+                item {
+                    SettingSmallSection(
+                        title = {
                             Text("その他")
                         },
                     ) {
@@ -126,6 +139,19 @@ public fun LoginSettingScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun SessionSection(
+    modifier: Modifier = Modifier,
+) {
+    LazyColumn(
+        modifier = modifier,
+    ) {
+        items((0 until 5).toList()) {
+            Text("TODO: $it")
         }
     }
 }
