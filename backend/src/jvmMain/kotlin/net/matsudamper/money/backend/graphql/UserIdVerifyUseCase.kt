@@ -59,7 +59,6 @@ class UserIdVerifyUseCase(
         }
     }
 
-
     /**
      * @return isSuccess
      */
