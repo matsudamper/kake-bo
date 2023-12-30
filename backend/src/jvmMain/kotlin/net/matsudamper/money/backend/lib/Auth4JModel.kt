@@ -15,7 +15,6 @@ import com.webauthn4j.data.client.Origin
 import com.webauthn4j.server.ServerProperty
 import net.matsudamper.money.backend.base.ServerEnv
 
-
 class Auth4JModel {
     private val decoder = Base64.getDecoder()
     private val serverProperty = ServerProperty(

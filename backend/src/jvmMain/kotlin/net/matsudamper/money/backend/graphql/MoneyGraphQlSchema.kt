@@ -45,7 +45,6 @@ import net.matsudamper.money.element.MailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
-import net.matsudamper.money.graphql.model.FidoInfoResolver
 
 object MoneyGraphQlSchema {
     private fun getDebugSchemaFiles(): List<String> {

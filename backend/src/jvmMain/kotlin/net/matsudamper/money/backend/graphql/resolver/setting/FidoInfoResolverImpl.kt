@@ -6,7 +6,7 @@ import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.graphql.model.FidoInfoResolver
 import net.matsudamper.money.graphql.model.QlFidoInfo
 
-class FidoInfoResolverImpl: FidoInfoResolver {
+class FidoInfoResolverImpl : FidoInfoResolver {
     override fun challenge(fidoInfo: QlFidoInfo, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<String>> {
         TODO("Not yet implemented")
     }

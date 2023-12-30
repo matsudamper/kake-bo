@@ -52,7 +52,6 @@ public class LoginSettingViewModel(
             },
         ),
     ).also {
-
     }.asStateFlow()
 
     private fun createFido(type: WebAuthModel.Type) {

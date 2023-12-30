@@ -102,7 +102,6 @@ public object WebAuthModel {
                 ),
             ),
         )
-
     }
 
     public data class CreateResult(
