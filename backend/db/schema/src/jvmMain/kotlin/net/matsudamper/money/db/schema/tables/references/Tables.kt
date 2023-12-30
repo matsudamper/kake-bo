@@ -20,6 +20,7 @@ import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
 import net.matsudamper.money.db.schema.tables.JUserPasswords
 import net.matsudamper.money.db.schema.tables.JUserSessions
 import net.matsudamper.money.db.schema.tables.JUsers
+import net.matsudamper.money.db.schema.tables.JWebAuthAuthenticator
 
 
 
@@ -102,3 +103,8 @@ val USER_SESSIONS: JUserSessions = JUserSessions.USER_SESSIONS
  * The table <code>money.users</code>.
  */
 val USERS: JUsers = JUsers.USERS
+
+/**
+ * The table <code>money.web_auth_authenticator</code>.
+ */
+val WEB_AUTH_AUTHENTICATOR: JWebAuthAuthenticator = JWebAuthAuthenticator.WEB_AUTH_AUTHENTICATOR

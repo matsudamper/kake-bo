@@ -22,6 +22,7 @@ import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
 import net.matsudamper.money.db.schema.tables.JUserPasswords
 import net.matsudamper.money.db.schema.tables.JUserSessions
 import net.matsudamper.money.db.schema.tables.JUsers
+import net.matsudamper.money.db.schema.tables.JWebAuthAuthenticator
 
 import org.jooq.Catalog
 import org.jooq.Table
@@ -122,6 +123,11 @@ open class JMoney : SchemaImpl("money", DefaultCatalog.DEFAULT_CATALOG) {
      */
     val USERS: JUsers get() = JUsers.USERS
 
+    /**
+     * The table <code>money.web_auth_authenticator</code>.
+     */
+    val WEB_AUTH_AUTHENTICATOR: JWebAuthAuthenticator get() = JWebAuthAuthenticator.WEB_AUTH_AUTHENTICATOR
+
     override fun getCatalog(): Catalog = DefaultCatalog.DEFAULT_CATALOG
 
     override fun getTables(): List<Table<*>> = listOf(
@@ -140,6 +146,7 @@ open class JMoney : SchemaImpl("money", DefaultCatalog.DEFAULT_CATALOG) {
         JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA,
         JUserPasswords.USER_PASSWORDS,
         JUserSessions.USER_SESSIONS,
-        JUsers.USERS
+        JUsers.USERS,
+        JWebAuthAuthenticator.WEB_AUTH_AUTHENTICATOR
     )
 }

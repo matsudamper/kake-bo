@@ -14,6 +14,7 @@ import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
 import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
 import net.matsudamper.money.backend.lib.Auth4JModel
+import net.matsudamper.money.backend.lib.AuthenticatorConverter
 import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.repository.MoneyUsageRepository
 import net.matsudamper.money.backend.repository.MoneyUsageSubCategoryRepository
@@ -521,6 +522,10 @@ class UserMutationResolverImpl : UserMutationResolver {
         input: QlRegisterFidoInput,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val fidoRepository = context.repositoryFactory.createFidoRepository()
+        val userId = context.verifyUserSession()
+
         return CompletableFuture.supplyAsync {
             val auth4JModel = Auth4JModel()
             val authenticator = auth4JModel.register(
@@ -528,10 +533,16 @@ class UserMutationResolverImpl : UserMutationResolver {
                 base64ClientDataJSON = input.base64ClientDataJson.toByteArray(),
                 clientExtensionsJSON = null,
             )
+            val base64Result = AuthenticatorConverter.convertToBase64(authenticator)
 
-            // TODO save
-            authenticator
-
+            fidoRepository.addFido(
+                name = input.displayName,
+                userId = userId,
+                attestationStatement = base64Result.base64AttestationStatement,
+                attestationStatementFormat = base64Result.attestationStatementFormat,
+                attestedCredentialData = base64Result.base64AttestedCredentialData,
+                counter = base64Result.counter,
+            )
             true
         }.toDataFetcher()
     }

@@ -78,6 +78,7 @@ public class LoginSettingViewModel(
 
             val result = withContext(Dispatchers.Default) {
                 api.addFido(
+                    displayName = "TODO",
                     base64AttestationObject = createResult.attestationObjectBase64,
                     base64ClientDataJson = createResult.clientDataJSONBase64,
                 )

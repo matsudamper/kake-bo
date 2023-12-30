@@ -22,6 +22,7 @@ public class LoginSettingScreenApi(
     }
 
     public suspend fun addFido(
+        displayName: String,
         base64AttestationObject: String,
         base64ClientDataJson: String,
     ): ApolloResponse<SettingScreenAddFidoMutation.Data>? {
@@ -30,7 +31,7 @@ public class LoginSettingScreenApi(
                 .mutation(
                     SettingScreenAddFidoMutation(
                         RegisterFidoInput(
-                            displayName = "TODO",
+                            displayName = displayName,
                             base64AttestationObject = base64AttestationObject,
                             base64ClientDataJson = base64ClientDataJson,
                         ),

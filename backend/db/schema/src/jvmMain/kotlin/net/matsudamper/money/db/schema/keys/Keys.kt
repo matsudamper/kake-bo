@@ -20,6 +20,7 @@ import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
 import net.matsudamper.money.db.schema.tables.JUserPasswords
 import net.matsudamper.money.db.schema.tables.JUserSessions
 import net.matsudamper.money.db.schema.tables.JUsers
+import net.matsudamper.money.db.schema.tables.JWebAuthAuthenticator
 import net.matsudamper.money.db.schema.tables.records.JAdminSessionsRecord
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionOperatorTypeRecord
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionTypeRecord
@@ -36,6 +37,7 @@ import net.matsudamper.money.db.schema.tables.records.JUserPasswordExtendDataRec
 import net.matsudamper.money.db.schema.tables.records.JUserPasswordsRecord
 import net.matsudamper.money.db.schema.tables.records.JUserSessionsRecord
 import net.matsudamper.money.db.schema.tables.records.JUsersRecord
+import net.matsudamper.money.db.schema.tables.records.JWebAuthAuthenticatorRecord
 
 import org.jooq.UniqueKey
 import org.jooq.impl.DSL
@@ -64,3 +66,5 @@ val KEY_USER_PASSWORDS_PRIMARY: UniqueKey<JUserPasswordsRecord> = Internal.creat
 val KEY_USER_SESSIONS_PRIMARY: UniqueKey<JUserSessionsRecord> = Internal.createUniqueKey(JUserSessions.USER_SESSIONS, DSL.name("KEY_user_sessions_PRIMARY"), arrayOf(JUserSessions.USER_SESSIONS.SESSION_ID), true)
 val KEY_USERS_PRIMARY: UniqueKey<JUsersRecord> = Internal.createUniqueKey(JUsers.USERS, DSL.name("KEY_users_PRIMARY"), arrayOf(JUsers.USERS.USER_ID), true)
 val KEY_USERS_USER_NAME_UNIQUE: UniqueKey<JUsersRecord> = Internal.createUniqueKey(JUsers.USERS, DSL.name("KEY_users_user_name_unique"), arrayOf(JUsers.USERS.USER_NAME), true)
+val KEY_WEB_AUTH_AUTHENTICATOR_PRIMARY: UniqueKey<JWebAuthAuthenticatorRecord> = Internal.createUniqueKey(JWebAuthAuthenticator.WEB_AUTH_AUTHENTICATOR, DSL.name("KEY_web_auth_authenticator_PRIMARY"), arrayOf(JWebAuthAuthenticator.WEB_AUTH_AUTHENTICATOR.ID), true)
+val KEY_WEB_AUTH_AUTHENTICATOR_USER_ID_AND_NAME: UniqueKey<JWebAuthAuthenticatorRecord> = Internal.createUniqueKey(JWebAuthAuthenticator.WEB_AUTH_AUTHENTICATOR, DSL.name("KEY_web_auth_authenticator_user_id_and_name"), arrayOf(JWebAuthAuthenticator.WEB_AUTH_AUTHENTICATOR.USER_ID, JWebAuthAuthenticator.WEB_AUTH_AUTHENTICATOR.NAME), true)
