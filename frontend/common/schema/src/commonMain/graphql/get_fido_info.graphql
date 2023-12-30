@@ -1,0 +1,6 @@
+query GetFidoInfo {
+    fidoInfo {
+        challenge
+        domain
+    }
+}

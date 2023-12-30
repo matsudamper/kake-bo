@@ -14,6 +14,7 @@ import net.matsudamper.money.frontend.common.viewmodel.shared.FidoApi
 public class LoginSettingViewModel(
     private val coroutineScope: CoroutineScope,
     private val api: LoginSettingScreenApi,
+    private val fidoApi: FidoApi,
 ) {
     public val uiStateFlow: StateFlow<LoginSettingScreenUiState> = MutableStateFlow(
         LoginSettingScreenUiState(
@@ -36,20 +37,35 @@ public class LoginSettingViewModel(
 
     private fun createFido(type: WebAuthModel.Type) {
         coroutineScope.launch {
-            val result = CredentialModel.create(
+            val fidoInfo = fidoApi.getFidoInfo()
+                .getOrNull()?.data?.fidoInfo
+            if (fidoInfo == null) {
+                TODO("error")
+            }
+
+            val createResult = WebAuthModel.create(
                 userId = 1,
                 name = "test",
                 type = type,
-                challenge = "test",
-                domain = "TODO.com",
+                challenge = fidoInfo.challenge,
+                domain = fidoInfo.domain,
             )
-            console.log(result)
-            result ?: return@launch
+
+            if (createResult == null) {
+                TODO("Error")
+            }
+
             withContext(Dispatchers.Default) {
-                api.addFido(
-                    base64AttestationObject = result.attestationObjectBase64,
-                    base64ClientDataJson = result.clientDataJSONBase64,
+                val result = api.addFido(
+                    base64AttestationObject = createResult.attestationObjectBase64,
+                    base64ClientDataJson = createResult.clientDataJSONBase64,
                 )
+                val registerFidoResult = result?.data?.userMutation?.registerFido
+                if (registerFidoResult == null || registerFidoResult.not()) {
+                    TODO("Error")
+                } else {
+                    // TODO success notification
+                }
             }
         }
     }

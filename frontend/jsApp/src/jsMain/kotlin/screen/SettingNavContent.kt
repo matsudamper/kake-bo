@@ -33,6 +33,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.settings.login.Login
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingScreenCategoryApi
+import net.matsudamper.money.frontend.common.viewmodel.shared.FidoApi
 import net.matsudamper.money.frontend.graphql.GraphqlUserConfigQuery
 
 @Composable
@@ -170,6 +171,7 @@ internal fun SettingNavContent(
                     LoginSettingViewModel(
                         coroutineScope = coroutineScope,
                         api = LoginSettingScreenApi(),
+                        fidoApi = FidoApi(),
                     )
                 }
 
