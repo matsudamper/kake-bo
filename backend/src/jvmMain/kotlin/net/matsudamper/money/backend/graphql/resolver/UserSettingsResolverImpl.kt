@@ -9,6 +9,7 @@ import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.repository.UserConfigRepository
 import net.matsudamper.money.graphql.model.QlFidoAddInfo
+import net.matsudamper.money.graphql.model.QlRegisteredFidoInfo
 import net.matsudamper.money.graphql.model.QlUserImapConfig
 import net.matsudamper.money.graphql.model.QlUserSettings
 import net.matsudamper.money.graphql.model.UserSettingsResolver
@@ -42,6 +43,21 @@ class UserSettingsResolverImpl : UserSettingsResolver {
                 challenge = "test", // TODO challenge
                 domain = ServerEnv.domain!!,
             )
+        }.toDataFetcher()
+    }
+
+    override fun registeredFidoList(userSettings: QlUserSettings, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<List<QlRegisteredFidoInfo>>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+        val fidoRepository = context.repositoryFactory.createFidoRepository()
+
+        return CompletableFuture.supplyAsync {
+            fidoRepository.getFidoNames(userId).map {
+                QlRegisteredFidoInfo(
+                    id = it.fidoId,
+                    name = it.name,
+                )
+            }
         }.toDataFetcher()
     }
 }

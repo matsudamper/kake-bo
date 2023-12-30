@@ -1,3 +1,14 @@
+query LoginSettingScreen {
+    user {
+        settings {
+            registeredFidoList {
+                id
+                name
+            }
+        }
+    }
+}
+
 mutation SettingScreenAddFido(
     $input: RegisterFidoInput!
 ) {
@@ -11,6 +22,7 @@ mutation LoginSettingScreenLogout {
         logout
     }
 }
+
 query LoginSettingScreenGetFidoInfo {
     user {
         settings {

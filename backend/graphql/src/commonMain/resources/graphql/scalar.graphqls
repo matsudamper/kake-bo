@@ -9,3 +9,4 @@ scalar ImportedMailCategoryFilterConditionId
 scalar LocalDateTime
 scalar OffsetDateTime
 scalar Long
+scalar FidoId

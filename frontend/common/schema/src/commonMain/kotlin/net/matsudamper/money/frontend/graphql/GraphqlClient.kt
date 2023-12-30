@@ -22,6 +22,8 @@ import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterId 
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterConditionId as ApolloImportedMailCategoryFilterConditionId
 import net.matsudamper.money.frontend.graphql.type.Long as ApolloLong
+import net.matsudamper.money.frontend.graphql.type.FidoId as ApolloFidoId
+import net.matsudamper.money.element.FidoId
 
 
 object GraphqlClient {
@@ -55,6 +57,17 @@ object GraphqlClient {
                 },
                 deserialize = {
                     MailId(it)
+                },
+            ),
+        )
+        .addCustomScalarAdapter(
+            ApolloFidoId.type,
+            CustomIntAdapter(
+                serialize = {
+                    it.value
+                },
+                deserialize = {
+                    FidoId(it)
                 },
             ),
         )

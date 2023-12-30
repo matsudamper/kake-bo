@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -32,9 +33,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.ScrollButtons
 import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -44,7 +47,18 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 
 public data class LoginSettingScreenUiState(
     val event: Event,
+    val fidoList: ImmutableList<Fido>,
 ) {
+    public data class Fido(
+        val name: String,
+        val event: Event,
+    ) {
+        @Immutable
+        public interface Event {
+            public fun onClickDelete()
+        }
+    }
+
     @Immutable
     public interface Event {
         public fun onClickBack()
@@ -108,6 +122,7 @@ public fun LoginSettingScreen(
                     ) {
                         FidoSection(
                             modifier = Modifier.fillMaxWidth(),
+                            fidoList = uiState.fidoList,
                             onClickPlatform = { uiState.event.onClickPlatform() },
                             onClickCrossPlatform = { uiState.event.onClickCrossPlatform() },
                         )
@@ -160,12 +175,13 @@ public fun LoginSettingScreen(
 
 @Composable
 private fun FidoSection(
+    fidoList: ImmutableList<LoginSettingScreenUiState.Fido>,
     onClickPlatform: () -> Unit,
     onClickCrossPlatform: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
-        Row {
+        Row(modifier = Modifier.fillMaxWidth()) {
             Spacer(modifier = Modifier.weight(1f))
             TextButton(
                 onClick = { onClickPlatform() },
@@ -177,6 +193,29 @@ private fun FidoSection(
                 onClick = { onClickCrossPlatform() },
             ) {
                 Text("CROSS_PLATFORM")
+            }
+        }
+        LazyColumn(
+            modifier = Modifier.fillMaxWidth()
+                .weight(1f),
+        ) {
+            items(fidoList) { fido ->
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                        .clip(MaterialTheme.shapes.medium)
+                        .background(MaterialTheme.colorScheme.surface),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = fido.name,
+                    )
+                    IconButton(
+                        onClick = { fido.event.onClickDelete() },
+                    ) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "delete")
+                    }
+                }
             }
         }
     }

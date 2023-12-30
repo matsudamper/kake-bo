@@ -71,6 +71,7 @@ val graphqlCodegen = tasks.named<io.github.kobylynskyi.graphql.codegen.gradle.Gr
     customTypesMapping = mutableMapOf(
         "UserId" to "net.matsudamper.money.element.UserId",
         "MailId" to "net.matsudamper.money.element.MailId",
+        "FidoId" to "net.matsudamper.money.element.FidoId",
         "MoneyUsageCategoryId" to "net.matsudamper.money.element.MoneyUsageCategoryId",
         "MoneyUsageSubCategoryId" to "net.matsudamper.money.element.MoneyUsageSubCategoryId",
         "ImportedMailId" to "net.matsudamper.money.element.ImportedMailId",

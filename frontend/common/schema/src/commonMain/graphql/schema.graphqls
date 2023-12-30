@@ -159,6 +159,11 @@ type Query {
     user: User
 }
 
+type RegisteredFidoInfo {
+    id: FidoId!
+    name: String!
+}
+
 type SettingsMutation {
     updateImapConfig(config: UpdateUserImapConfigInput!): UserImapConfig
 }
@@ -243,6 +248,7 @@ type UserMutation {
 type UserSettings {
     fidoAddInfo: FidoAddInfo!
     imapConfig: UserImapConfig
+    registeredFidoList: [RegisteredFidoInfo!]!
 }
 
 enum AddSubCategoryError {
@@ -295,6 +301,8 @@ enum UserMailError {
     MailConfigNotFound
     MailServerNotConnected
 }
+
+scalar FidoId
 
 scalar ImportedMailCategoryFilterConditionId
 

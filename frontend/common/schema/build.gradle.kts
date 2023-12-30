@@ -29,6 +29,7 @@ apollo {
     service("money") {
         packageName.set("net.matsudamper.money.frontend.graphql")
         mapScalar("MailId", "net.matsudamper.money.element.MailId")
+        mapScalar("FidoId", "net.matsudamper.money.element.FidoId")
         mapScalar("ImportedMailId", "net.matsudamper.money.element.ImportedMailId")
         mapScalar("ImportedMailCategoryFilterId", "net.matsudamper.money.element.ImportedMailCategoryFilterId")
         mapScalar("Long", "kotlin.Long")

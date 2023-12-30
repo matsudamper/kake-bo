@@ -1,6 +1,12 @@
 type UserSettings {
     imapConfig: UserImapConfig @lazy
     fidoAddInfo: FidoAddInfo! @lazy
+    registeredFidoList: [RegisteredFidoInfo!]! @lazy
+}
+
+type RegisteredFidoInfo {
+    id: FidoId!
+    name: String!
 }
 
 type UserImapConfig {
