@@ -90,21 +90,11 @@ public fun LoginSettingScreen(
                             Text("ログイン方法の追加")
                         },
                     ) {
-                        Column {
-                            Row {
-                                TextButton(
-                                    onClick = { uiState.event.onClickPlatform() },
-                                ) {
-                                    Text("PLATFORM")
-                                }
-                                Spacer(modifier = Modifier.width(16.dp))
-                                TextButton(
-                                    onClick = { uiState.event.onClickCrossPlatform() },
-                                ) {
-                                    Text("CROSS_PLATFORM")
-                                }
-                            }
-                        }
+                        FidoSection(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClickPlatform = { uiState.event.onClickPlatform() },
+                            onClickCrossPlatform = { uiState.event.onClickCrossPlatform() },
+                        )
                     }
                 }
                 item {
@@ -138,6 +128,30 @@ public fun LoginSettingScreen(
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FidoSection(
+    onClickPlatform: () -> Unit,
+    onClickCrossPlatform: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column {
+        Row {
+            Spacer(modifier = Modifier.weight(1f))
+            TextButton(
+                onClick = { onClickPlatform() },
+            ) {
+                Text("PLATFORM")
+            }
+            Spacer(modifier = Modifier.width(16.dp))
+            TextButton(
+                onClick = { onClickCrossPlatform() },
+            ) {
+                Text("CROSS_PLATFORM")
             }
         }
     }
