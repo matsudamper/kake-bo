@@ -12,8 +12,6 @@ type User {
     moneyUsages(query: MoneyUsagesQuery!): MoneyUsagesConnection @lazy
     importedMailCategoryFilters(query: ImportedMailCategoryFiltersQuery!): ImportedMailCategoryFiltersConnection @lazy
     importedMailCategoryFilter(id: ImportedMailCategoryFilterId!): ImportedMailCategoryFilter @lazy
-
-    fidoInfo: FidoInfo @lazy
 }
 
 type MoneyUsagesConnection {
@@ -63,9 +61,4 @@ type MoneyUsage {
 
     linkedMail: [ImportedMail!] @lazy
     moneyUsageSubCategory: MoneyUsageSubCategory @lazy
-}
-
-type FidoInfo {
-    challenge: String! @lazy
-    domain: String! @lazy
 }

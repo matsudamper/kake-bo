@@ -1,5 +1,6 @@
 type UserMutation {
     userLogin(name: String!, password: String!): UserLoginResult!
+    userFidoLogin(userFidoLoginInput: UserFidoLoginInput!): UserLoginResult!
     settingsMutation: SettingsMutation @lazy
 
     importMail(mailIds: [MailId!]!): ImportMailResult!
@@ -26,6 +27,14 @@ type UserMutation {
     deleteImportedMailCategoryFilterCondition(id: ImportedMailCategoryFilterConditionId!): Boolean!
 
     registerFido(input: RegisterFidoInput!): Boolean!
+}
+
+input UserFidoLoginInput {
+    credentialId: String!
+    base64AuthenticatorData: String!
+    base64Signature: String!
+    base64ClientDataJson: String!
+    base64UserHandle: String!
 }
 
 input RegisterFidoInput {
