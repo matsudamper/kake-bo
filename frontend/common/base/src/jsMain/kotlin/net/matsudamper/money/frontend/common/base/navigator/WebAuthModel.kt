@@ -8,14 +8,14 @@ import org.khronos.webgl.get
 
 public object WebAuthModel {
     public suspend fun create(
-        userId: Long,
+        id: String,
         name: String,
         type: Type,
         challenge: String,
         domain: String,
     ): CreateResult? {
         val options = createOption(
-            userId = userId,
+            userId = id,
             name = name,
             type = type,
             challenge = challenge,
@@ -37,7 +37,7 @@ public object WebAuthModel {
     }
 
     public suspend fun get(
-        userId: Long,
+        userId: String,
         name: String,
         type: Type,
         challenge: String,
@@ -67,13 +67,13 @@ public object WebAuthModel {
     }
 
     private fun createOption(
-        userId: Long,
+        userId: String,
         name: String,
         type: Type,
         challenge: String,
         domain: String,
     ): CredentialsContainerCreateOptions {
-        val id = Uint8Array(userId.toString().encodeToByteArray().toTypedArray())
+        val id = Uint8Array(userId.encodeToByteArray().toTypedArray())
         return CredentialsContainerCreateOptions(
             publicKey = CredentialsContainerCreatePublicKeyOptions(
                 challenge = Uint8Array(challenge.encodeToByteArray().toTypedArray()),

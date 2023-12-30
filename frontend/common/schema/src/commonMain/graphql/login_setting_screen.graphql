@@ -11,3 +11,15 @@ mutation LoginSettingScreenLogout {
         logout
     }
 }
+query LoginSettingScreenGetFidoInfo {
+    user {
+        settings {
+            fidoAddInfo {
+                id
+                name
+                challenge
+                domain
+            }
+        }
+    }
+}

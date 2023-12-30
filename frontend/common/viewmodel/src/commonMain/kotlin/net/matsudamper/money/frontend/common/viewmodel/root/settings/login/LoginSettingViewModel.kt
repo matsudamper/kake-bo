@@ -57,15 +57,15 @@ public class LoginSettingViewModel(
     private fun createFido(type: WebAuthModel.Type) {
         coroutineScope.launch {
             val fidoInfo = fidoApi.getFidoInfo()
-                .getOrNull()?.data?.fidoInfo
+                .getOrNull()?.data?.user?.settings?.fidoAddInfo
             if (fidoInfo == null) {
                 showAddFidoFailToast()
                 return@launch
             }
 
             val createResult = WebAuthModel.create(
-                userId = 1,
-                name = "test",
+                id = fidoInfo.id,
+                name = fidoInfo.name,
                 type = type,
                 challenge = fidoInfo.challenge,
                 domain = fidoInfo.domain,
