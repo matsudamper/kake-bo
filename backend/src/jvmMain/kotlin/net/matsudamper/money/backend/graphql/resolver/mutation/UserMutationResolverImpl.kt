@@ -13,7 +13,7 @@ import net.matsudamper.money.backend.graphql.converter.toDbElement
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
 import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
-import net.matsudamper.money.backend.lib.FIDOModel
+import net.matsudamper.money.backend.lib.Auth4JModel
 import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.repository.MoneyUsageRepository
 import net.matsudamper.money.backend.repository.MoneyUsageSubCategoryRepository
@@ -508,10 +508,16 @@ class UserMutationResolverImpl : UserMutationResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Boolean>> {
         return CompletableFuture.supplyAsync {
-            FIDOModel().verify(
-                base64AttestationObject = input.base64AttestationObject,
-                base64ClientDataJSON = input.base64ClientDataJson,
+            val auth4JModel = Auth4JModel()
+            val authenticator = auth4JModel.register(
+                base64AttestationObject = input.base64AttestationObject.toByteArray(),
+                base64ClientDataJSON = input.base64ClientDataJson.toByteArray(),
+                clientExtensionsJSON = null,
             )
+
+            // TODO save
+            authenticator
+
             true
         }.toDataFetcher()
     }

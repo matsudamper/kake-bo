@@ -29,7 +29,7 @@ kotlin {
                 implementation(libs.kotlin.serialization.json)
                 implementation(libs.kotlin.coroutines.core)
                 implementation(libs.logback.classic)
-                implementation(libs.yubico.webauthn)
+                implementation(libs.webauth4jCore)
 
                 implementation(libs.ktor.server.core)
                 implementation(libs.ktor.server.engine)
