@@ -139,7 +139,7 @@ private fun FidoSection(
     onClickCrossPlatform: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Column {
+    Column(modifier = modifier) {
         Row {
             Spacer(modifier = Modifier.weight(1f))
             TextButton(
