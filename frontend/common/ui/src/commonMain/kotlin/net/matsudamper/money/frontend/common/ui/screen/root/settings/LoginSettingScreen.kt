@@ -137,7 +137,7 @@ public fun LoginSettingScreen(
 private fun FidoSection(
     onClickPlatform: () -> Unit,
     onClickCrossPlatform: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column {
         Row {
