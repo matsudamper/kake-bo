@@ -153,6 +153,7 @@ type Mutation {
 }
 
 type Query {
+    fidoInfo: FidoInfo
     user: User
 }
 
@@ -166,7 +167,6 @@ type SubCategoriesConnection {
 }
 
 type User {
-    fidoInfo: FidoInfo
     importedMailAttributes: ImportedMailAttributes!
     importedMailCategoryFilter(id: ImportedMailCategoryFilterId!): ImportedMailCategoryFilter
     importedMailCategoryFilters(query: ImportedMailCategoryFiltersQuery!): ImportedMailCategoryFiltersConnection
@@ -234,6 +234,7 @@ type UserMutation {
     updateImportedMailCategoryFilterCondition(input: UpdateImportedMailCategoryFilterConditionInput!): ImportedMailCategoryCondition
     updateSubCategory(id: MoneyUsageSubCategoryId!, query: UpdateSubCategoryQuery!): MoneyUsageSubCategory!
     updateUsage(query: UpdateUsageQuery!): MoneyUsage!
+    userFidoLogin(userFidoLoginInput: UserFidoLoginInput!): UserLoginResult!
     userLogin(name: String!, password: String!): UserLoginResult!
 }
 
@@ -440,4 +441,12 @@ input UpdateUserImapConfigInput {
     password: String
     port: Int
     userName: String
+}
+
+input UserFidoLoginInput {
+    base64AuthenticatorData: String!
+    base64ClientDataJson: String!
+    base64Signature: String!
+    base64UserHandle: String!
+    credentialId: String!
 }
