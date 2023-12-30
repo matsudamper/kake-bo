@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.ui.screen.root.settings
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,10 +17,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.ScrollButtons
+import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
@@ -104,43 +111,61 @@ private fun MainContent(
             )
         }
         Spacer(modifier = Modifier.height(32.dp))
-        Column(
-            Modifier
-                .then(settingPaddingModifier)
-                .padding(horizontal = 8.dp)
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState()),
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Box(
+            modifier = Modifier.fillMaxWidth(),
         ) {
+            val scrollState = rememberScrollState()
+            var scrollContainerHeightPx by remember { mutableIntStateOf(0) }
             Column(
-                modifier = Modifier.widthIn(max = 700.dp),
+                Modifier
+                    .then(settingPaddingModifier)
+                    .padding(horizontal = 8.dp)
+                    .fillMaxWidth()
+                    .onSizeChanged {
+                        scrollContainerHeightPx = it.height
+                    }
+                    .verticalScroll(scrollState),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                SettingListMenuItemButton(
-                    onClick = { uiState.event.onClickImapButton() },
+                Column(
+                    modifier = Modifier.widthIn(max = 700.dp),
                 ) {
-                    Text("IMAP接続設定")
-                }
-                SettingListMenuItemButton(
-                    onClick = { uiState.event.onClickCategoryButton() },
-                ) {
-                    Text("カテゴリ編集")
-                }
-                SettingListMenuItemButton(
-                    onClick = { uiState.event.onClickMailFilter() },
-                ) {
-                    Text("メールフィルター")
-                }
-                SettingListMenuItemButton(
-                    onClick = { uiState.event.onClickLoginSetting() },
-                ) {
-                    Text("ログイン設定")
-                }
-                SettingListMenuItemButton(
-                    onClick = { uiState.event.onClickGitHub() },
-                ) {
-                    Text("GitHub")
+                    SettingListMenuItemButton(
+                        onClick = { uiState.event.onClickImapButton() },
+                    ) {
+                        Text("IMAP接続設定")
+                    }
+                    SettingListMenuItemButton(
+                        onClick = { uiState.event.onClickCategoryButton() },
+                    ) {
+                        Text("カテゴリ編集")
+                    }
+                    SettingListMenuItemButton(
+                        onClick = { uiState.event.onClickMailFilter() },
+                    ) {
+                        Text("メールフィルター")
+                    }
+                    SettingListMenuItemButton(
+                        onClick = { uiState.event.onClickLoginSetting() },
+                    ) {
+                        Text("ログイン設定")
+                    }
+                    SettingListMenuItemButton(
+                        onClick = { uiState.event.onClickGitHub() },
+                    ) {
+                        Text("GitHub")
+                    }
                 }
             }
+
+            ScrollButtons(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(ScrollButtonsDefaults.padding)
+                    .height(ScrollButtonsDefaults.height),
+                scrollState = scrollState,
+                scrollSize = scrollContainerHeightPx * 0.4f,
+            )
         }
     }
 }
