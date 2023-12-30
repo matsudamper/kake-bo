@@ -112,7 +112,9 @@ private fun MainContent(
         }
         Spacer(modifier = Modifier.height(32.dp))
         Box(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
         ) {
             val scrollState = rememberScrollState()
             var scrollContainerHeightPx by remember { mutableIntStateOf(0) }
@@ -120,7 +122,7 @@ private fun MainContent(
                 Modifier
                     .then(settingPaddingModifier)
                     .padding(horizontal = 8.dp)
-                    .fillMaxWidth()
+                    .fillMaxSize()
                     .onSizeChanged {
                         scrollContainerHeightPx = it.height
                     }
