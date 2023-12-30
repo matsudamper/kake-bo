@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
@@ -24,12 +25,18 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.ui.ScrollButtons
+import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
@@ -42,7 +49,7 @@ public data class SettingCategoriesScreenUiState(
     val showCategoryNameInput: Boolean,
 ) {
     public sealed interface LoadingState {
-        public object Loading : LoadingState
+        public data object Loading : LoadingState
         public data class Loaded(
             val item: ImmutableList<CategoryItem>,
         ) : LoadingState
@@ -132,43 +139,60 @@ public fun MainContent(
     ) { paddingValues ->
         when (val state = uiState.loadingState) {
             is SettingCategoriesScreenUiState.LoadingState.Loaded -> {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(
-                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                    ),
-                ) {
-                    item {
-                        Spacer(Modifier.height(24.dp))
-                    }
-                    stickyHeader {
-                        Row {
-                            Spacer(modifier = Modifier.weight(1f))
-                            OutlinedButton(
-                                onClick = { uiState.event.onClickAddCategoryButton() },
-                                modifier = Modifier.padding(horizontal = 24.dp),
-                            ) {
-                                Icon(Icons.Default.Add, contentDescription = null)
-                                Text(text = "カテゴリーを追加")
+                Box(modifier = Modifier.fillMaxSize()) {
+                    val lazyListState = rememberLazyListState()
+                    var listHeightPx by remember { mutableIntStateOf(0) }
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize()
+                            .onSizeChanged {
+                                listHeightPx = it.height
+                            },
+                        contentPadding = PaddingValues(
+                            start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                            end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                        ),
+                        state = lazyListState,
+                    ) {
+                        item {
+                            Spacer(Modifier.height(24.dp))
+                        }
+                        stickyHeader {
+                            Row {
+                                Spacer(modifier = Modifier.weight(1f))
+                                OutlinedButton(
+                                    onClick = { uiState.event.onClickAddCategoryButton() },
+                                    modifier = Modifier.padding(horizontal = 24.dp),
+                                ) {
+                                    Icon(Icons.Default.Add, contentDescription = null)
+                                    Text(text = "カテゴリーを追加")
+                                }
                             }
                         }
-                    }
-                    items(state.item) { item ->
-                        SettingListMenuItemButton(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            onClick = { item.event.onClick() },
-                        ) {
-                            Text(
-                                modifier = Modifier,
-                                text = item.name,
-                            )
+                        items(state.item) { item ->
+                            SettingListMenuItemButton(
+                                modifier = Modifier
+                                    .fillMaxWidth(),
+                                onClick = { item.event.onClick() },
+                            ) {
+                                Text(
+                                    modifier = Modifier,
+                                    text = item.name,
+                                )
+                            }
+                        }
+                        item {
+                            Spacer(Modifier.height(24.dp))
                         }
                     }
-                    item {
-                        Spacer(Modifier.height(24.dp))
-                    }
+
+                    ScrollButtons(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(ScrollButtonsDefaults.padding)
+                            .height(ScrollButtonsDefaults.height),
+                        scrollState = lazyListState,
+                        scrollSize = listHeightPx * 0.4f,
+                    )
                 }
             }
 
