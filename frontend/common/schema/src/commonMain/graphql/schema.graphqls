@@ -405,6 +405,7 @@ input MoneyUsagesQueryFilter {
 input RegisterFidoInput {
     base64AttestationObject: String!
     base64ClientDataJson: String!
+    displayName: String!
 }
 
 input UpdateCategoryQuery {

@@ -30,6 +30,7 @@ public class LoginSettingScreenApi(
                 .mutation(
                     SettingScreenAddFidoMutation(
                         RegisterFidoInput(
+                            displayName = "TODO",
                             base64AttestationObject = base64AttestationObject,
                             base64ClientDataJson = base64ClientDataJson,
                         ),

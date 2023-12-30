@@ -39,6 +39,7 @@ input UserFidoLoginInput {
 }
 
 input RegisterFidoInput {
+    displayName: String!
     base64AttestationObject: String!
     base64ClientDataJson: String!
 }
