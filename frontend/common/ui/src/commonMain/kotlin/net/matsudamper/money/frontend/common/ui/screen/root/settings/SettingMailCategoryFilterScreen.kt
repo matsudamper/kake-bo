@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,6 +34,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.ScrollButtons
@@ -175,15 +178,24 @@ private fun LoadedContent(
     contentPadding: PaddingValues,
 ) {
     val density = LocalDensity.current
+    val layoutDirection = LocalLayoutDirection.current
     val lazyListState = rememberLazyListState()
     BoxWithConstraints(modifier = modifier) {
         val height by rememberUpdatedState(maxHeight)
         Column(
             modifier = Modifier.fillMaxSize()
-                .padding(contentPadding),
+                .padding(
+                    top = contentPadding.calculateTopPadding(),
+                ),
         ) {
             Spacer(modifier = Modifier.height(8.dp))
-            Row(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth()
+                    .padding(
+                        start = contentPadding.calculateStartPadding(layoutDirection),
+                        end = contentPadding.calculateEndPadding(layoutDirection),
+                    ),
+            ) {
                 Spacer(modifier = Modifier.weight(1f))
                 OutlinedButton(onClick = { uiState.event.onClickAdd() }) {
                     Icon(Icons.Default.Add, contentDescription = null)
@@ -195,7 +207,11 @@ private fun LoadedContent(
                     .weight(1f)
                     .fillMaxWidth(),
                 state = lazyListState,
-                contentPadding = PaddingValues(8.dp),
+                contentPadding = PaddingValues(
+                    start = contentPadding.calculateStartPadding(layoutDirection),
+                    end = contentPadding.calculateEndPadding(layoutDirection),
+                    bottom = contentPadding.calculateBottomPadding(),
+                ),
             ) {
                 items(uiState.filters) { item ->
                     SettingListMenuItemButton(onClick = { item.event.onClick() }) {
