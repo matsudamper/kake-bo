@@ -25,6 +25,8 @@ public object WebAuthModel {
             navigator.credentials.create(
                 options,
             ).await()
+        }.onFailure {
+            it.printStackTrace()
         }.getOrNull() ?: return null
 
         val attestationObjectBase64 = result.response.attestationObject.toBase64()
@@ -55,6 +57,8 @@ public object WebAuthModel {
             navigator.credentials.get(
                 options,
             ).await()
+        }.onFailure {
+            it.printStackTrace()
         }.getOrNull() ?: return null
         console.log(result)
         return GetResult(
