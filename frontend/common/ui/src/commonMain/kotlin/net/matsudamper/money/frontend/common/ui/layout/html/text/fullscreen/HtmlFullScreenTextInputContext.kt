@@ -29,9 +29,11 @@ public class HtmlFullScreenTextInputContext {
 
     public data class TextState(
         val title: String,
+        val name: String,
         val textComplete: (String) -> Unit,
         val canceled: () -> Unit,
         val default: String,
         val isMultiline: Boolean,
+        val inputType: String,
     )
 }

@@ -1,3 +1,6 @@
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.window.CanvasBasedWindow

@@ -19,6 +19,7 @@ public fun CustomTheme(content: @Composable () -> Unit) {
             primary = Color(0xff8BC34A),
             onPrimary = Color.White, // Color(0xff444654),
             background = CustomColors.backgroundColor,
+            onBackground = Color.White,
             surface = CustomColors.backgroundColor,
             onSurface = Color.White,
             onSecondary = Color.Green,

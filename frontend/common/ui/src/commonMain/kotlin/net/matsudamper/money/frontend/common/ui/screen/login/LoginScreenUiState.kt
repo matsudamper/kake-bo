@@ -6,13 +6,28 @@ import androidx.compose.ui.text.input.TextFieldValue
 public data class LoginScreenUiState(
     val userName: TextFieldValue,
     val password: TextFieldValue,
+    val textInputDialog: TextInputDialogUiState?,
     val listener: Listener,
 ) {
+    public data class TextInputDialogUiState(
+        val title: String,
+        val name: String,
+        val text: String,
+        val inputType: String,
+        val onComplete: (String) -> Unit,
+        val onConfirm: () -> Unit,
+        val onCancel: () -> Unit,
+    )
+
     @Immutable
     public interface Listener {
         public fun onPasswordChange(value: TextFieldValue)
         public fun onUserNameChange(value: TextFieldValue)
         public fun onClickLogin()
         public fun onClickNavigateAdmin()
+        public fun onClickUserNameTextField()
+        public fun onClickPasswordTextField()
+        public fun onClickSecurityKeyLogin()
+        public fun onClickDeviceKeyLogin()
     }
 }

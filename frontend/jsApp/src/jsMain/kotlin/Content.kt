@@ -309,6 +309,7 @@ fun Content(
                     }
                     val uiState: LoginScreenUiState = viewModel.uiStateFlow.collectAsState().value
                     LoginScreen(
+                        modifier = Modifier.fillMaxSize(),
                         uiState = uiState,
                     )
                 }

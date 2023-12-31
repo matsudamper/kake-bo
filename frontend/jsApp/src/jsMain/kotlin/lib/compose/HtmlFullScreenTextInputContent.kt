@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import kotlinx.browser.document
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInputContext
 import org.jetbrains.compose.web.attributes.InputType
+import org.jetbrains.compose.web.attributes.name
 import org.jetbrains.compose.web.attributes.placeholder
 import org.jetbrains.compose.web.css.AlignItems
 import org.jetbrains.compose.web.css.Color
@@ -86,6 +87,7 @@ internal fun HtmlFullScreenTextInputContent(
                 TextArea(
                     attrs = {
                         id(inputId)
+                        name(value.name)
                         style {
                             width(100.percent)
                             height(10.em)
@@ -98,7 +100,7 @@ internal fun HtmlFullScreenTextInputContent(
                 )
             } else {
                 Input(
-                    type = InputType.Text,
+                    type = InputType.InputTypeWithStringValue(value.inputType),
                     attrs = {
                         id(inputId)
                         style {
