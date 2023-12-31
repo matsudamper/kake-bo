@@ -50,7 +50,7 @@ public fun CustomTheme(
 
 @Composable
 private fun getTypography(isSmartPhone: Boolean): Typography {
-    val scale = if (isSmartPhone) 1.2f else 1.0f
+    val scale = if (isSmartPhone) 1.1f else 1.0f
 
     return Typography(
         displayLarge = MaterialTheme.typography.displayLarge
