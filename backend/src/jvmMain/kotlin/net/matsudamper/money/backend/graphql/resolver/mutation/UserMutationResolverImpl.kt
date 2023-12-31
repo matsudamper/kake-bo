@@ -8,7 +8,6 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import com.webauthn4j.WebAuthnManager
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine

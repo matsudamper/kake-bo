@@ -94,7 +94,7 @@ class Auth4JModel {
     private fun verify(
         authenticator: Authenticator,
         request: AuthenticationRequest,
-    ) : AuthenticationData  {
+    ): AuthenticationData {
         val webAuthnManager = WebAuthnManager.createNonStrictWebAuthnManager()
 
         val result = webAuthnManager.validate(
