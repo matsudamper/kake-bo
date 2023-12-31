@@ -17,7 +17,9 @@ class UserIdVerifyUseCase(
 ) {
     private val host get() = ServerEnv.domain ?: call.request.host()
     private var verifyUserSessionResult: UserSessionRepository.VerifySessionResult? = null
-
+    private val cookieExtensions = mapOf(
+        "SameSite" to "Strict",
+    )
     fun verifyUserSession(): UserId {
         return when (val info = getSessionInfo()) {
             is UserSessionRepository.VerifySessionResult.Failure -> {
@@ -79,6 +81,7 @@ class UserIdVerifyUseCase(
             expires = GMTDate(),
             domain = null,
             path = null,
+            extensions = cookieExtensions,
         )
     }
 
@@ -98,9 +101,7 @@ class UserIdVerifyUseCase(
             domain = host,
             path = ".",
             secure = ServerEnv.isSecure,
-            extensions = mapOf(
-                "SameSite" to "Strict",
-            ),
+            extensions = cookieExtensions,
         )
     }
 }
