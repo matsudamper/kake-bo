@@ -20,8 +20,8 @@ import org.jetbrains.compose.web.css.FlexDirection
 import org.jetbrains.compose.web.css.Position
 import org.jetbrains.compose.web.css.backgroundColor
 import org.jetbrains.compose.web.css.color
+import org.jetbrains.compose.web.css.cssRem
 import org.jetbrains.compose.web.css.display
-import org.jetbrains.compose.web.css.em
 import org.jetbrains.compose.web.css.flexDirection
 import org.jetbrains.compose.web.css.flexGrow
 import org.jetbrains.compose.web.css.height
@@ -156,8 +156,8 @@ internal fun JsCompose(
                     Button(
                         attrs = {
                             style {
-                                height(4.em)
-                                padding(1.em)
+                                height(4.cssRem)
+                                padding(1.cssRem)
                                 width(100.percent)
                             }
                             onClick {

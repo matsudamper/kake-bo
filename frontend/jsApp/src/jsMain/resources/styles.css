@@ -7,6 +7,10 @@ html, body {
     overflow: hidden;
     margin: 0 !important;
     padding: 0 !important;
+    font-size: 16px;
+    @media screen and (max-width:750px) {
+        font-size: 24px;
+    }
 }
 
 ::-webkit-scrollbar {

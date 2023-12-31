@@ -19,12 +19,13 @@ import org.jetbrains.compose.web.css.JustifyContent
 import org.jetbrains.compose.web.css.alignItems
 import org.jetbrains.compose.web.css.backgroundColor
 import org.jetbrains.compose.web.css.color
+import org.jetbrains.compose.web.css.cssRem
 import org.jetbrains.compose.web.css.display
-import org.jetbrains.compose.web.css.em
 import org.jetbrains.compose.web.css.flexDirection
 import org.jetbrains.compose.web.css.fontSize
 import org.jetbrains.compose.web.css.height
 import org.jetbrains.compose.web.css.justifyContent
+import org.jetbrains.compose.web.css.marginBottom
 import org.jetbrains.compose.web.css.marginTop
 import org.jetbrains.compose.web.css.minus
 import org.jetbrains.compose.web.css.padding
@@ -36,10 +37,12 @@ import org.jetbrains.compose.web.css.times
 import org.jetbrains.compose.web.css.vh
 import org.jetbrains.compose.web.css.vw
 import org.jetbrains.compose.web.css.width
+import org.jetbrains.compose.web.dom.AttrBuilderContext
 import org.jetbrains.compose.web.dom.Div
 import org.jetbrains.compose.web.dom.Input
 import org.jetbrains.compose.web.dom.Text
 import org.jetbrains.compose.web.dom.TextArea
+import org.w3c.dom.HTMLElement
 
 @Composable
 internal fun HtmlFullScreenTextInputContent(
@@ -77,25 +80,34 @@ internal fun HtmlFullScreenTextInputContent(
                 attrs = {
                     style {
                         color(Color.white)
+                        marginBottom(0.5.cssRem)
                     }
                 },
             ) {
                 Text(value.title)
             }
             val inputId = "id_$id"
+
+            val inputAreaAttr: AttrBuilderContext<HTMLElement> = {
+                style {
+                    padding(0.5.cssRem)
+                    width(100.percent - (0.5.cssRem * 2))
+                    fontSize(1.cssRem)
+                }
+            }
             if (value.isMultiline) {
                 TextArea(
                     attrs = {
                         id(inputId)
                         name(value.name)
                         style {
-                            width(100.percent)
-                            height(10.em)
+                            height(10.cssRem)
                         }
                         placeholder(value.title)
                         onChange {
                             text = it.value
                         }
+                        inputAreaAttr()
                     },
                 )
             } else {
@@ -103,18 +115,17 @@ internal fun HtmlFullScreenTextInputContent(
                     type = InputType.InputTypeWithStringValue(value.inputType),
                     attrs = {
                         id(inputId)
-                        style {
-                            fontSize(1.1.em)
-                            padding(0.2.em)
-                            width(100.percent)
-                        }
+                        name(value.name)
+                        style {}
                         placeholder(value.title)
                         onChange {
                             text = it.value
                         }
+                        inputAreaAttr()
                     },
                 )
             }
+
             LaunchedEffect(value.default) {
                 val input = document.querySelector("#$inputId")!!
                 text = value.default
@@ -124,7 +135,7 @@ internal fun HtmlFullScreenTextInputContent(
             Div(
                 attrs = {
                     style {
-                        marginTop(0.5.em)
+                        marginTop(0.5.cssRem)
                         display(DisplayStyle.Flex)
                         flexDirection(FlexDirection.Row)
                         alignItems(AlignItems.Center)
@@ -144,7 +155,7 @@ internal fun HtmlFullScreenTextInputContent(
                 Div(
                     attrs = {
                         style {
-                            width(1.em)
+                            width(1.cssRem)
                         }
                     },
                 )

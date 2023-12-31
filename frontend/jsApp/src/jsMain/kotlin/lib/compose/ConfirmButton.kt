@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import org.jetbrains.compose.web.css.Color
 import org.jetbrains.compose.web.css.backgroundColor
 import org.jetbrains.compose.web.css.borderRadius
+import org.jetbrains.compose.web.css.cssRem
 import org.jetbrains.compose.web.css.em
 import org.jetbrains.compose.web.css.fontSize
 import org.jetbrains.compose.web.css.padding
@@ -20,10 +21,10 @@ internal fun ConfirmButton(
         attrs = {
             attrs?.invoke(this)
             style {
-                borderRadius(0.2.em)
-                padding(0.3.em, 0.6.em)
-                fontSize(1.1.em)
+                borderRadius(0.2.cssRem)
+                padding(0.5.cssRem, 1.cssRem)
                 backgroundColor(Color.white)
+                fontSize(1.cssRem)
             }
         },
     ) {
