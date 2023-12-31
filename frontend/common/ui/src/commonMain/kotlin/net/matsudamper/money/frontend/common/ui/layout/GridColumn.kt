@@ -15,7 +15,6 @@ import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastMap
 
 @Composable
 internal fun GridColumn(
@@ -53,7 +52,7 @@ internal fun GridColumn(
                         }
                     }
 
-                    val rowMeasurables = rowGroup.fastMap { item ->
+                    val rowMeasurables = rowGroup.map { item ->
                         item.measure(
                             Constraints(
                                 minWidth = 0,

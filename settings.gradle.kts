@@ -50,7 +50,7 @@ dependencyResolutionManagement {
             library("kotlin.serialization.json", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
 
             plugin("compose", "org.jetbrains.compose").version(extra["compose.version"] as String)
-            library("compose.material3", "org.jetbrains.compose.material3:material3:1.4.0")
+            library("compose.material3", "org.jetbrains.compose.material3:material3:1.6.0-alpha01")
 
             library("graphqlJava.extendedScalars", "com.graphql-java:graphql-java-extended-scalars:20.2")
             library("graphqlJava", "com.graphql-java:graphql-java:21.0")
