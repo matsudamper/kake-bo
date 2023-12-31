@@ -71,7 +71,7 @@ public fun LoginScreen(
                     .widthIn(max = 400.dp)
                     .fillMaxWidth(),
             ) {
-                val textFieldTextStyle = MaterialTheme.typography.bodySmall
+                val textFieldTextStyle = MaterialTheme.typography.bodyMedium
                     .merge(
                         TextStyle(
                             fontFamily = rememberCustomFontFamily(),
@@ -114,7 +114,6 @@ public fun LoginScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun UserIdInput(
     onNextClick: () -> Unit,
@@ -134,6 +133,7 @@ private fun UserIdInput(
                 ) {
                     Text(
                         text = "Next",
+                        style = MaterialTheme.typography.labelMedium,
                         fontFamily = rememberCustomFontFamily(),
                     )
                 }
@@ -187,6 +187,7 @@ private fun PasswordInput(
                     Text(
                         text = "セキュリティキーでログイン",
                         fontFamily = rememberCustomFontFamily(),
+                        style = MaterialTheme.typography.labelMedium,
                     )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
@@ -197,6 +198,7 @@ private fun PasswordInput(
                     Text(
                         text = "スマホのロックでログイン",
                         fontFamily = rememberCustomFontFamily(),
+                        style = MaterialTheme.typography.labelMedium,
                     )
                 }
             }
@@ -266,7 +268,7 @@ private fun LoginContainer(
                 modifier = Modifier.weight(1f),
                 fontFamily = rememberCustomFontFamily(),
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleLarge,
                 text = "ログイン",
             )
         }
