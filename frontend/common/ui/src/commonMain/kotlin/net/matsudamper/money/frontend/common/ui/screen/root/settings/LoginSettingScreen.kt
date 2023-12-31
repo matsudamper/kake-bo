@@ -18,11 +18,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -121,7 +123,8 @@ public fun LoginSettingScreen(
                         },
                     ) {
                         FidoSection(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth()
+                                .height(280.dp),
                             fidoList = uiState.fidoList,
                             onClickPlatform = { uiState.event.onClickPlatform() },
                             onClickCrossPlatform = { uiState.event.onClickCrossPlatform() },
@@ -200,20 +203,29 @@ private fun FidoSection(
                 .weight(1f),
         ) {
             items(fidoList) { fido ->
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                        .clip(MaterialTheme.shapes.medium)
-                        .background(MaterialTheme.colorScheme.surface),
-                    verticalAlignment = Alignment.CenterVertically,
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = MaterialTheme.shapes.medium,
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 ) {
-                    Text(
-                        modifier = Modifier.weight(1f),
-                        text = fido.name,
-                    )
-                    IconButton(
-                        onClick = { fido.event.onClickDelete() },
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(
+                                horizontal = 12.dp,
+                                vertical = 8.dp,
+                            ),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "delete")
+                        Text(
+                            modifier = Modifier.weight(1f),
+                            text = fido.name,
+                        )
+                        IconButton(
+                            onClick = { fido.event.onClickDelete() },
+                        ) {
+                            Icon(Icons.Default.Close, contentDescription = "delete")
+                        }
                     }
                 }
             }
