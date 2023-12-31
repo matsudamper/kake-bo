@@ -7,6 +7,7 @@ type UserSettings {
 type RegisteredFidoInfo {
     id: FidoId!
     name: String!
+    base64CredentialId: String!
 }
 
 type UserImapConfig {

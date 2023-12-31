@@ -116,6 +116,9 @@ public class LoginSettingViewModel(
                 type = type,
                 challenge = fidoInfo.challenge,
                 domain = fidoInfo.domain,
+                excludeCredentialId = viewModelStateFlow.value.apolloResponse?.data?.user?.settings?.registeredFidoList.orEmpty().map {
+                    it.base64CredentialId
+                }
             )
 
             if (createResult == null) {

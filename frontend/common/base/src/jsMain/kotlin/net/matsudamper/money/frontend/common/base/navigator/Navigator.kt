@@ -52,6 +52,7 @@ public data class CredentialsContainerCreateResult(
     public data class Response(
         public val attestationObject: ArrayBuffer,
         public val clientDataJSON: ArrayBuffer,
+        public val transports: Array<String> = arrayOf(),
     )
 }
 
@@ -66,9 +67,8 @@ public class CredentialsContainerCreatePublicKeyOptions(
     public val authenticatorSelection: AuthenticatorSelection,
 ) {
     public class ExcludeCredential(
-        public val id: Uint8Array,
+        public val id: ByteArray,
         public val type: String,
-        public val transports: Array<String>,
     )
 
     public data class Rp(

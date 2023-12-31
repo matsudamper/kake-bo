@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.base.navigator
 
 import kotlinx.coroutines.await
+import io.ktor.util.decodeBase64Bytes
 import io.ktor.util.encodeBase64
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
@@ -13,6 +14,7 @@ public object WebAuthModel {
         type: Type,
         challenge: String,
         domain: String,
+        excludeCredentialId: List<String>,
     ): CreateResult? {
         val options = createOption(
             userId = id,
@@ -20,6 +22,12 @@ public object WebAuthModel {
             type = type,
             challenge = challenge,
             domain = domain,
+            excludeCredentials = excludeCredentialId.map {
+                CredentialsContainerCreatePublicKeyOptions.ExcludeCredential(
+                    id = it.decodeBase64Bytes(),
+                    type = "public-key",
+                )
+            },
         )
         val result = runCatching {
             navigator.credentials.create(
@@ -51,6 +59,7 @@ public object WebAuthModel {
             type = type,
             challenge = challenge,
             domain = domain,
+            excludeCredentials = emptyList(),
         )
 
         val result = runCatching {
@@ -76,6 +85,7 @@ public object WebAuthModel {
         type: Type,
         challenge: String,
         domain: String,
+        excludeCredentials: List<CredentialsContainerCreatePublicKeyOptions.ExcludeCredential>,
     ): CredentialsContainerCreateOptions {
         val id = Uint8Array(userId.encodeToByteArray().toTypedArray())
         return CredentialsContainerCreateOptions(
@@ -91,7 +101,7 @@ public object WebAuthModel {
                     CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -257), // RS256
                     CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -8), // Ed25519
                 ),
-                excludeCredentials = arrayOf(),
+                excludeCredentials = excludeCredentials.toTypedArray(),
                 authenticatorSelection = CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection(
                     authenticatorAttachment = when (type) {
                         Type.PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_PLATFORM

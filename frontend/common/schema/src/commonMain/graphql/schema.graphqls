@@ -160,6 +160,7 @@ type Query {
 }
 
 type RegisteredFidoInfo {
+    base64CredentialId: String!
     id: FidoId!
     name: String!
 }

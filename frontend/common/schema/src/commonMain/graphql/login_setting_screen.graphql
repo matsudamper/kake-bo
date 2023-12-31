@@ -4,6 +4,7 @@ query LoginSettingScreen {
             registeredFidoList {
                 id
                 name
+                base64CredentialId
             }
         }
     }
