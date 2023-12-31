@@ -14,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -133,7 +132,6 @@ private fun UserIdInput(
                 ) {
                     Text(
                         text = "Next",
-                        style = MaterialTheme.typography.labelMedium,
                         fontFamily = rememberCustomFontFamily(),
                     )
                 }
@@ -187,7 +185,6 @@ private fun PasswordInput(
                     Text(
                         text = "セキュリティキーでログイン",
                         fontFamily = rememberCustomFontFamily(),
-                        style = MaterialTheme.typography.labelMedium,
                     )
                 }
                 Spacer(modifier = Modifier.height(4.dp))
@@ -198,7 +195,6 @@ private fun PasswordInput(
                     Text(
                         text = "スマホのロックでログイン",
                         fontFamily = rememberCustomFontFamily(),
-                        style = MaterialTheme.typography.labelMedium,
                     )
                 }
             }
