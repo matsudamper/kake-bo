@@ -29,8 +29,8 @@ object AuthenticatorConverter {
         )
     }
 
-    fun convertFromBase64(base64Authenticator: Base64Authenticator) {
-        AuthenticatorImpl(
+    fun convertFromBase64(base64Authenticator: Base64Authenticator): Authenticator {
+        return AuthenticatorImpl(
             attestedCredentialDataConverter.convert(
                 base64Decoder.decode(base64Authenticator.base64AttestedCredentialData),
             ),

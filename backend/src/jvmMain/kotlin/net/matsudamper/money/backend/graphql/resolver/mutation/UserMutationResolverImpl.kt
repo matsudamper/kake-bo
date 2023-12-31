@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.graphql.resolver.mutation
 
+import java.util.Base64
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import kotlinx.coroutines.delay
@@ -107,8 +108,19 @@ class UserMutationResolverImpl : UserMutationResolver {
         }.toDataFetcher()
     }
 
-    override fun userFidoLogin(userMutation: QlUserMutation, userFidoLoginInput: QlUserFidoLoginInput, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlUserLoginResult>> {
-        TODO("Not yet implemented")
+    override fun userFidoLogin(
+        userMutation: QlUserMutation,
+        userFidoLoginInput: QlUserFidoLoginInput,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlUserLoginResult>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        context.repositoryFactory.createFidoRepository()
+        return CompletableFuture.supplyAsync {
+
+            QlUserLoginResult(
+                isSuccess = false,
+            )
+        }.toDataFetcher()
     }
 
     override fun settingsMutation(
@@ -550,6 +562,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                 fidoInfo = QlRegisteredFidoInfo(
                     id = addedItem.fidoId,
                     name = addedItem.name,
+                    base64CredentialId = Base64.getEncoder().encodeToString(authenticator.attestedCredentialData.credentialId),
                 ),
             )
         }.toDataFetcher()

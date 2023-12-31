@@ -44,11 +44,21 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
+import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
 
 public data class LoginSettingScreenUiState(
     val event: Event,
     val fidoList: ImmutableList<Fido>,
+    val textInputDialogState: TextInputDialogState?,
 ) {
+    public data class TextInputDialogState(
+        val title: String,
+        val text: String,
+        val type: String,
+        val onConfirm: (String) -> Unit,
+        val onCancel: () -> Unit,
+    )
+
     public data class Fido(
         val name: String,
         val event: Event,
@@ -74,6 +84,15 @@ public fun LoginSettingScreen(
     rootScreenScaffoldListener: RootScreenScaffoldListener,
     modifier: Modifier = Modifier,
 ) {
+    uiState.textInputDialogState?.also { textInputDialogState ->
+        HtmlFullScreenTextInput(
+            title = textInputDialogState.title,
+            default = textInputDialogState.text,
+            inputType = textInputDialogState.type,
+            onComplete = { textInputDialogState.onConfirm(it) },
+            canceled = { textInputDialogState.onCancel() },
+        )
+    }
     RootScreenScaffold(
         modifier = modifier,
         currentScreen = RootScreenTab.Settings,

@@ -6,9 +6,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
@@ -28,7 +30,8 @@ public class LoginSettingViewModel(
 ) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
         ViewModelState(
-            apolloResponse = null,
+            apolloScreenResponse = null,
+            textInputDialogState = null,
         ),
     )
     private val eventSender = EventSender<Event>()
@@ -37,6 +40,7 @@ public class LoginSettingViewModel(
     public val uiStateFlow: StateFlow<LoginSettingScreenUiState> = MutableStateFlow(
         LoginSettingScreenUiState(
             fidoList = immutableListOf(),
+            textInputDialogState = null,
             event = object : LoginSettingScreenUiState.Event {
                 override fun onClickBack() {
                     coroutineScope.launch {
@@ -70,7 +74,7 @@ public class LoginSettingViewModel(
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         fidoList = run fidoList@{
-                            val fidoList = viewModelState.apolloResponse
+                            val fidoList = viewModelState.apolloScreenResponse
                                 ?.data?.user?.settings?.registeredFidoList
                             if (fidoList == null) {
                                 return@fidoList immutableListOf()
@@ -83,6 +87,7 @@ public class LoginSettingViewModel(
                                 )
                             }.toImmutableList()
                         },
+                        textInputDialogState = viewModelState.textInputDialogState,
                     )
                 }
             }
@@ -94,7 +99,7 @@ public class LoginSettingViewModel(
             api.getScreen().collectLatest { apolloResponse ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
-                        apolloResponse = apolloResponse,
+                        apolloScreenResponse = apolloResponse,
                     )
                 }
             }
@@ -116,32 +121,74 @@ public class LoginSettingViewModel(
                 type = type,
                 challenge = fidoInfo.challenge,
                 domain = fidoInfo.domain,
-                base64ExcludeCredentialIdList = viewModelStateFlow.value.apolloResponse?.data?.user?.settings?.registeredFidoList.orEmpty().map {
+                base64ExcludeCredentialIdList = viewModelStateFlow.value.apolloScreenResponse?.data?.user?.settings?.registeredFidoList.orEmpty().map {
                     it.base64CredentialId
-                }
+                },
             )
 
             if (createResult == null) {
                 showAddFidoFailToast()
                 return@launch
             }
+            val onConfirm: (String) -> Unit = { name ->
+                coroutineScope.launch onConfirm@{
+                    if (name.isBlank()) {
+                        eventSender.send { it.showToast("入力してください") }
+                        return@onConfirm
+                    }
+                    val result = withContext(Dispatchers.Default) {
+                        api.addFido(
+                            displayName = name,
+                            base64AttestationObject = createResult.attestationObjectBase64,
+                            base64ClientDataJson = createResult.clientDataJSONBase64,
+                        )
+                    }
 
-            val result = withContext(Dispatchers.Default) {
-                api.addFido(
-                    displayName = "TODO",
-                    base64AttestationObject = createResult.attestationObjectBase64,
-                    base64ClientDataJson = createResult.clientDataJSONBase64,
+                    val registerFidoResult = result?.data?.userMutation?.registerFido
+                    if (registerFidoResult?.fidoInfo == null) {
+                        showAddFidoFailToast()
+                    } else {
+                        eventSender.send { it.showToast("追加しました") }
+                        // TODO update list
+                    }
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(
+                            textInputDialogState = null,
+                        )
+                    }
+                }
+            }
+            val onCancel: () -> Unit = {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        textInputDialogState = null,
+                    )
+                }
+            }
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    textInputDialogState = LoginSettingScreenUiState.TextInputDialogState(
+                        title = "キーの名前を入力してください",
+                        text = "",
+                        onConfirm = onConfirm,
+                        onCancel = onCancel,
+                        type = "text",
+                    ),
                 )
             }
-
-            val registerFidoResult = result?.data?.userMutation?.registerFido
-            if (registerFidoResult?.fidoInfo == null) {
-                showAddFidoFailToast()
-            } else {
-                eventSender.send { it.showToast("追加しました") }
-                // TODO update list
-            }
         }
+    }
+
+    private fun createFidoTextInputDialogState(): LoginSettingScreenUiState.TextInputDialogState {
+        val onConfirm: (String) -> Unit = {}
+        val onCancel: () -> Unit = {}
+        return LoginSettingScreenUiState.TextInputDialogState(
+            title = "キーの名前を入力してください",
+            text = "",
+            onConfirm = onConfirm,
+            onCancel = onCancel,
+            type = "text",
+        )
     }
 
     private fun showAddFidoFailToast() {
@@ -159,7 +206,8 @@ public class LoginSettingViewModel(
     }
 
     private data class ViewModelState(
-        val apolloResponse: ApolloResponse<LoginSettingScreenQuery.Data>?,
+        val apolloScreenResponse: ApolloResponse<LoginSettingScreenQuery.Data>?,
+        val textInputDialogState: LoginSettingScreenUiState.TextInputDialogState?,
     )
 
     public interface Event {
