@@ -1,8 +1,8 @@
 package net.matsudamper.money.backend.repository
 
 import net.matsudamper.money.backend.DbConnectionImpl
-import net.matsudamper.money.element.UserId
 import net.matsudamper.money.db.schema.tables.JUsers
+import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 
 class UserNameRepository {

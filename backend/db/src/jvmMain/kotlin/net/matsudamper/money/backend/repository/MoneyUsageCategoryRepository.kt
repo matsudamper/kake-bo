@@ -1,10 +1,10 @@
 package net.matsudamper.money.backend.repository
 
 import net.matsudamper.money.backend.DbConnectionImpl
-import net.matsudamper.money.element.UserId
 import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsageCategoriesRecord
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 import org.jooq.kotlin.and
 

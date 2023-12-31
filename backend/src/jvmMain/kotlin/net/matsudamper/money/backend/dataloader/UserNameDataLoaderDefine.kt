@@ -1,8 +1,8 @@
 package net.matsudamper.money.backend.dataloader
 
 import java.util.concurrent.CompletableFuture
-import net.matsudamper.money.element.UserId
 import net.matsudamper.money.backend.repository.UserNameRepository
+import net.matsudamper.money.element.UserId
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
 

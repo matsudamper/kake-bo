@@ -4,7 +4,6 @@ import net.matsudamper.money.backend.DbConnection
 import net.matsudamper.money.backend.element.ImportedMailCategoryFilterConditionType
 import net.matsudamper.money.backend.element.ImportedMailCategoryFilterDatasourceType
 import net.matsudamper.money.backend.element.ImportedMailFilterCategoryConditionOperator
-import net.matsudamper.money.element.UserId
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditions
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilters
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionsRecord
@@ -12,6 +11,7 @@ import net.matsudamper.money.db.schema.tables.records.JCategoryMailFiltersRecord
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 import org.jooq.kotlin.and
 

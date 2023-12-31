@@ -6,12 +6,12 @@ import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 import net.matsudamper.money.backend.DbConnectionImpl
 import net.matsudamper.money.backend.base.ServerEnv
-import net.matsudamper.money.element.UserId
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
 import net.matsudamper.money.db.schema.tables.JUserPasswords
 import net.matsudamper.money.db.schema.tables.JUsers
 import net.matsudamper.money.db.schema.tables.records.JUserPasswordExtendDataRecord
 import net.matsudamper.money.db.schema.tables.records.JUserPasswordsRecord
+import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 
 class UserLoginRepository {
