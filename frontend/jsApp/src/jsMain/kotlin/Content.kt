@@ -62,6 +62,7 @@ import screen.RootNavContent
 
 @Composable
 fun Content(
+    modifier: Modifier = Modifier,
     globalEventSender: EventSender<GlobalEvent>,
     composeSizeProvider: () -> MutableStateFlow<IntSize>,
 ) {
@@ -202,7 +203,7 @@ fun Content(
     }
 
     Scaffold(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .onSizeChanged {
                 composeSizeProvider().value = it

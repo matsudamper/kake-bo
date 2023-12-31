@@ -13,7 +13,10 @@ import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.unit.sp
 
 @Composable
-public fun CustomTheme(content: @Composable () -> Unit) {
+public fun CustomTheme(
+    isSmartPhone: Boolean,
+    content: @Composable () -> Unit,
+) {
     MaterialTheme(
         colorScheme = MaterialTheme.colorScheme.copy(
             primary = Color(0xff8BC34A),
@@ -28,35 +31,7 @@ public fun CustomTheme(content: @Composable () -> Unit) {
             surfaceVariant = CustomColors.surfaceColor, // Card
             error = Color(0xffFF6075),
         ),
-        typography = Typography(
-            displayLarge = MaterialTheme.typography.displayLarge.applyCustomFontFamily(),
-            displayMedium = MaterialTheme.typography.displayMedium.applyCustomFontFamily(),
-            displaySmall = MaterialTheme.typography.displaySmall.applyCustomFontFamily(),
-            headlineLarge = MaterialTheme.typography.headlineLarge.applyCustomFontFamily(),
-            headlineMedium = MaterialTheme.typography.headlineMedium.applyCustomFontFamily(),
-            headlineSmall = MaterialTheme.typography.headlineSmall.applyCustomFontFamily(),
-            titleLarge = MaterialTheme.typography.titleLarge.applyCustomFontFamily(),
-            titleMedium = MaterialTheme.typography.titleMedium.applyCustomFontFamily(),
-            titleSmall = MaterialTheme.typography.titleSmall.applyCustomFontFamily(),
-            bodyLarge = MaterialTheme.typography.bodyLarge.merge(
-                TextStyle(
-                    fontSize = 22.sp,
-                ),
-            ).applyCustomFontFamily(),
-            bodyMedium = MaterialTheme.typography.bodyMedium.merge(
-                TextStyle(
-                    fontSize = 18.sp,
-                ),
-            ).applyCustomFontFamily(),
-            bodySmall = MaterialTheme.typography.bodySmall.merge(
-                TextStyle(
-                    fontSize = 14.sp,
-                ),
-            ).applyCustomFontFamily(),
-            labelLarge = MaterialTheme.typography.labelLarge.applyCustomFontFamily(),
-            labelMedium = MaterialTheme.typography.labelMedium.applyCustomFontFamily(),
-            labelSmall = MaterialTheme.typography.labelSmall.applyCustomFontFamily(),
-        ),
+        typography = getTypography(isSmartPhone = isSmartPhone),
     ) {
         CompositionLocalProvider(
             LocalFontFamilyResolver provides remember {
@@ -71,6 +46,95 @@ public fun CustomTheme(content: @Composable () -> Unit) {
             content()
         }
     }
+}
+
+@Composable
+private fun getTypography(isSmartPhone: Boolean): Typography {
+    val scale = if (isSmartPhone) 1.2f else 1.0f
+
+    return Typography(
+        displayLarge = MaterialTheme.typography.displayLarge
+            .applyFontScale(scale)
+            .applyCustomFontFamily(),
+        displayMedium = MaterialTheme.typography.displayMedium
+            .applyFontScale(scale)
+            .applyCustomFontFamily(),
+        displaySmall = MaterialTheme.typography.displaySmall
+            .applyFontScale(scale)
+            .applyCustomFontFamily(),
+        headlineLarge = MaterialTheme.typography.headlineLarge
+            .applyFontScale(scale)
+            .applyCustomFontFamily(),
+        headlineMedium = MaterialTheme.typography.headlineMedium
+            .applyFontScale(scale)
+            .applyCustomFontFamily(),
+        headlineSmall = MaterialTheme.typography.headlineSmall
+            .applyFontScale(scale)
+            .applyCustomFontFamily(),
+        titleLarge = MaterialTheme.typography.titleLarge
+            .applyFontScale(scale)
+            .applyCustomFontFamily(),
+        titleMedium = MaterialTheme.typography.titleMedium
+            .applyFontScale(scale)
+            .applyCustomFontFamily(),
+        titleSmall = MaterialTheme.typography.titleSmall
+            .applyFontScale(scale)
+            .applyCustomFontFamily(),
+        bodyLarge = MaterialTheme.typography.bodyLarge
+            .merge(
+                TextStyle(
+                    fontSize = 22.sp,
+                ),
+            )
+            .applyFontScale(scale)
+            .applyCustomFontFamily(),
+        bodyMedium = MaterialTheme.typography.bodyMedium
+            .merge(
+                TextStyle(
+                    fontSize = 18.sp,
+                ),
+            )
+            .applyFontScale(scale)
+            .applyCustomFontFamily(),
+        bodySmall = MaterialTheme.typography.bodySmall
+            .merge(
+                TextStyle(
+                    fontSize = 14.sp,
+                ),
+            )
+            .applyFontScale(scale)
+            .applyCustomFontFamily(),
+        labelLarge = MaterialTheme.typography.labelLarge
+            .merge(
+                TextStyle(
+                    fontSize = 18.sp,
+                ),
+            )
+            .applyFontScale(scale)
+            .applyCustomFontFamily(),
+        labelMedium = MaterialTheme.typography.labelMedium
+            .merge(
+                TextStyle(
+                    fontSize = 16.sp,
+                ),
+            )
+            .applyFontScale(scale)
+            .applyCustomFontFamily(),
+        labelSmall = MaterialTheme.typography.labelSmall
+            .merge(
+                TextStyle(
+                    fontSize = 14.sp,
+                ),
+            )
+            .applyFontScale(scale)
+            .applyCustomFontFamily(),
+    )
+}
+
+private fun TextStyle.applyFontScale(scale: Float): TextStyle {
+    return copy(
+        fontSize = fontSize * scale,
+    )
 }
 
 @Composable

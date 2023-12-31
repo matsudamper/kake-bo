@@ -1,8 +1,13 @@
-
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.CanvasBasedWindow
 import kotlinx.coroutines.flow.MutableStateFlow
 import lib.compose.JsCompose
@@ -25,8 +30,15 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
             title = "家計簿",
         ) {
             NormalizeInputKeyCapture {
-                CustomTheme {
+                var widthPx by remember { mutableIntStateOf(0) }
+                val density = LocalDensity.current
+                CustomTheme(
+                    isSmartPhone = with(density) { widthPx.toDp() < 640.dp },
+                ) {
                     Content(
+                        modifier = Modifier.onSizeChanged {
+                            widthPx = it.width
+                        },
                         globalEventSender = globalEventSender,
                         composeSizeProvider = { composeSize },
                     )
