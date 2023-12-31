@@ -4,9 +4,11 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.repository.UserSessionRepository
+import net.matsudamper.money.graphql.model.QlFidoLoginInfo
 import net.matsudamper.money.graphql.model.QlImportedMailAttributes
 import net.matsudamper.money.graphql.model.QlUser
 import net.matsudamper.money.graphql.model.QlUserMailAttributes
@@ -33,5 +35,14 @@ class QueryResolverImpl : QueryResolver {
                 is UserSessionRepository.VerifySessionResult.Success -> true
             }
         }.toDataFetcher()
+    }
+
+    override fun fidoLoginInfo(env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlFidoLoginInfo>> {
+        return CompletableFuture.completedFuture(
+            QlFidoLoginInfo(
+                challenge = "test", // TODO challenge
+                domain = ServerEnv.domain!!,
+            ),
+        ).toDataFetcher()
     }
 }

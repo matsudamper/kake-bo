@@ -10,14 +10,18 @@ import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.user.JsScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.base.navigator.WebAuthModel
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
+import net.matsudamper.money.frontend.common.viewmodel.login.LoginScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
+import net.matsudamper.money.frontend.graphql.type.UserFidoLoginInput
 
 public class LoginScreenViewModel(
     private val coroutineScope: CoroutineScope,
     private val graphqlQuery: GraphqlUserLoginQuery,
+    private val screenApi: LoginScreenApi,
     private val navController: JsScreenNavController,
     private val globalEventSender: EventSender<GlobalEvent>,
 ) {
@@ -119,9 +123,17 @@ public class LoginScreenViewModel(
                 }
 
                 override fun onClickSecurityKeyLogin() {
+                    login(
+                        userName = viewModelStateFlow.value.userName.text,
+                        type = WebAuthModel.Type.CROSS_PLATFORM,
+                    )
                 }
 
                 override fun onClickDeviceKeyLogin() {
+                    login(
+                        userName = viewModelStateFlow.value.userName.text,
+                        type = WebAuthModel.Type.PLATFORM,
+                    )
                 }
             },
         ),
@@ -150,22 +162,61 @@ public class LoginScreenViewModel(
         }
     }
 
+    private fun login(
+        userName: String,
+        type: WebAuthModel.Type,
+    ) {
+        coroutineScope.launch {
+            val fidoInfo = screenApi.fidoLoginInfo()
+                .data?.fidoLoginInfo
+
+            if (fidoInfo == null) {
+                globalEventSender.send {
+                    it.showSnackBar("ログインに失敗しました")
+                }
+                return@launch
+            }
+
+            val webAuthResult = WebAuthModel.get(
+                userId = userName,
+                name = userName,
+                type = type,
+                challenge = fidoInfo.challenge,
+                domain = fidoInfo.domain,
+            )
+            if (webAuthResult == null) {
+                globalEventSender.send {
+                    it.showSnackBar("ログインに失敗しました")
+                }
+                return@launch
+            }
+            val loginResult = graphqlQuery.webAuthLogin(
+                input = UserFidoLoginInput(
+                    base64AuthenticatorData = webAuthResult.base64AuthenticatorData,
+                    base64ClientDataJson = webAuthResult.base64ClientDataJSON,
+                    base64Signature = webAuthResult.base64Signature,
+                    base64UserHandle = webAuthResult.base64UserHandle,
+                    credentialId = webAuthResult.credentialId,
+                    userName = userName,
+                ),
+            )
+
+            if (loginResult.data?.userMutation?.userFidoLogin?.isSuccess == true) {
+                navController.navigate(RootHomeScreenStructure.Home)
+                globalEventSender.send {
+                    it.showSnackBar("ログインしました")
+                }
+            } else {
+                globalEventSender.send {
+                    it.showSnackBar("ログインに失敗しました")
+                }
+            }
+        }
+    }
+
     private data class ViewModelState(
         val userName: TextFieldValue = TextFieldValue(),
         val password: TextFieldValue = TextFieldValue(),
         val textInputDialogUiState: LoginScreenUiState.TextInputDialogUiState? = null,
     )
-    /**
-     * TODO FIDO Login implementation
-     * console.log(createResult)
-     *             createResult ?: return@launch
-     *             val getResult = CredentialModel.get(
-     *                 userId = 1,
-     *                 name = "test",
-     *                 type = type,
-     *                 challenge = "test", // TODO challenge
-     *                 domain = "domain",
-     *             ) ?: return@launch
-     *             console.log(getResult)
-     */
 }

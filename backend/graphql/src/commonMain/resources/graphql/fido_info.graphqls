@@ -4,3 +4,8 @@ type FidoAddInfo {
     challenge: String!
     domain: String!
 }
+
+type FidoLoginInfo {
+    challenge: String!
+    domain: String!
+}

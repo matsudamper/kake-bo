@@ -46,6 +46,7 @@ import net.matsudamper.money.frontend.common.viewmodel.importedmail.plain.Import
 import net.matsudamper.money.frontend.common.viewmodel.importedmail.root.ImportedMailScreenGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.importedmail.root.ImportedMailScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
+import net.matsudamper.money.frontend.common.viewmodel.login.LoginScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScreenViewModelApi
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
@@ -306,6 +307,7 @@ fun Content(
                             navController = navController,
                             graphqlQuery = GraphqlUserLoginQuery(),
                             globalEventSender = globalEventSender,
+                            screenApi = LoginScreenApi(),
                         )
                     }
                     val uiState: LoginScreenUiState = viewModel.uiStateFlow.collectAsState().value

@@ -1,20 +1,20 @@
 package net.matsudamper.money.backend.dataloader
 
 import java.util.concurrent.CompletableFuture
-import net.matsudamper.money.backend.repository.UserNameRepository
+import net.matsudamper.money.backend.repository.UserRepository
 import net.matsudamper.money.element.UserId
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
 
 class UserNameDataLoaderDefine(
-    private val userNameRepository: UserNameRepository,
+    private val userRepository: UserRepository,
 ) : DataLoaderDefine<UserId, String> {
     override val key: String = this::class.java.name
 
     override fun getDataLoader(): DataLoader<UserId, String> {
         return DataLoaderFactory.newMappedDataLoader { keys, _ ->
             CompletableFuture.supplyAsync {
-                val results = userNameRepository.getUserName(keys.toList())
+                val results = userRepository.getUserName(keys.toList())
                 keys.associateWith { results[it] }
             }
         }

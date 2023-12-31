@@ -3,8 +3,12 @@ package net.matsudamper.money.backend.graphql.resolver.mutation
 import java.util.Base64
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
+import com.webauthn4j.WebAuthnManager
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
@@ -114,12 +118,53 @@ class UserMutationResolverImpl : UserMutationResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlUserLoginResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        context.repositoryFactory.createFidoRepository()
+        val fidoRepository = context.repositoryFactory.createFidoRepository()
+        val userRepository = context.repositoryFactory.createUserNameRepository()
         return CompletableFuture.supplyAsync {
+            runBlocking {
+                minExecutionTime(1000) {
+                    val requestUserId = userRepository.getUserId(userName = userFidoLoginInput.userName)
+                        ?: return@minExecutionTime QlUserLoginResult(
+                            isSuccess = false,
+                        )
+                    val fidoList = fidoRepository.getFidoList(requestUserId)
+                    for (fido in fidoList) {
+                        val authenticator = AuthenticatorConverter.convertFromBase64(
+                            base64Authenticator = AuthenticatorConverter.Base64Authenticator(
+                                base64AttestationStatement = fido.attestedStatement,
+                                attestationStatementFormat = fido.attestedStatementFormat,
+                                base64AttestedCredentialData = fido.attestedCredentialData,
+                                counter = fido.counter, // TODO update counter
+                            ),
+                        )
+                        runCatching {
+                            Auth4JModel().verify(
+                                authenticator = authenticator,
+                                credentialId = userFidoLoginInput.credentialId.toByteArray(),
+                                base64UserHandle = userFidoLoginInput.base64UserHandle.toByteArray(),
+                                base64AuthenticatorData = userFidoLoginInput.base64AuthenticatorData.toByteArray(),
+                                base64ClientDataJSON = userFidoLoginInput.base64ClientDataJson.toByteArray(),
+                                clientExtensionJSON = null,
+                                base64Signature = userFidoLoginInput.base64Signature.toByteArray(),
+                            )
+                        }.onFailure {
+                            it.printStackTrace()
+                        }.getOrNull() ?: continue
 
-            QlUserLoginResult(
-                isSuccess = false,
-            )
+                        val createSessionResult = UserSessionRepository().createSession(requestUserId)
+                        context.setUserSessionCookie(
+                            createSessionResult.sessionId.id,
+                            createSessionResult.expire,
+                        )
+                        return@minExecutionTime QlUserLoginResult(
+                            isSuccess = true,
+                        )
+                    }
+                    QlUserLoginResult(
+                        isSuccess = false,
+                    )
+                }
+            }
         }.toDataFetcher()
     }
 
@@ -635,7 +680,11 @@ class UserMutationResolverImpl : UserMutationResolver {
     }
 }
 
-private suspend fun <T> minExecutionTime(minMillSecond: Long, block: () -> T): T {
+@OptIn(ExperimentalContracts::class)
+private suspend fun <T> minExecutionTime(minMillSecond: Long, block: suspend () -> T): T {
+    contract {
+        callsInPlace(block, InvocationKind.EXACTLY_ONCE)
+    }
     val startTime = System.currentTimeMillis()
     val result = block()
     while (true) {

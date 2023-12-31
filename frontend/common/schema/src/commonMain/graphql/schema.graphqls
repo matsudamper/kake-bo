@@ -41,6 +41,11 @@ type FidoAddInfo {
     name: String!
 }
 
+type FidoLoginInfo {
+    challenge: String!
+    domain: String!
+}
+
 type ImportMailResult {
     isSuccess: Boolean!
 }
@@ -155,6 +160,7 @@ type Mutation {
 }
 
 type Query {
+    fidoLoginInfo: FidoLoginInfo!
     isLoggedIn: Boolean!
     user: User
 }
@@ -466,4 +472,5 @@ input UserFidoLoginInput {
     base64Signature: String!
     base64UserHandle: String!
     credentialId: String!
+    userName: String!
 }

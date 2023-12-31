@@ -4,6 +4,7 @@ import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
+import net.matsudamper.money.frontend.graphql.type.UserFidoLoginInput
 
 class GraphqlUserLoginQuery(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
@@ -18,6 +19,16 @@ class GraphqlUserLoginQuery(
                     userName = userName,
                     password = password,
                 ),
+            )
+            .execute()
+    }
+
+    suspend fun webAuthLogin(
+        input: UserFidoLoginInput,
+    ): ApolloResponse<UserWebAuthnLoginMutation.Data> {
+        return apolloClient
+            .mutation(
+                UserWebAuthnLoginMutation(input = input),
             )
             .execute()
     }

@@ -6,6 +6,14 @@ mutation UserLogin($userName: String!,$password: String!) {
     }
 }
 
+mutation UserWebAuthnLogin($input: UserFidoLoginInput!) {
+    userMutation {
+        userFidoLogin(userFidoLoginInput: $input) {
+            isSuccess
+        }
+    }
+}
+
 mutation SetImapConfig($config: UpdateUserImapConfigInput!) {
     userMutation {
         settingsMutation {

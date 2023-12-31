@@ -193,7 +193,7 @@ private fun PasswordInput(
                     onClick = { onClickDeviceKeyLogin() },
                 ) {
                     Text(
-                        text = "スマホのロックでログイン",
+                        text = "デバイスのロックでログイン",
                         fontFamily = rememberCustomFontFamily(),
                     )
                 }

@@ -1,0 +1,6 @@
+query LoginScreenFidoInfo {
+    fidoLoginInfo {
+        domain
+        challenge
+    }
+}

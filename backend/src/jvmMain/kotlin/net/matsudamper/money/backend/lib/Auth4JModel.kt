@@ -4,6 +4,7 @@ import java.util.Base64
 import com.webauthn4j.WebAuthnManager
 import com.webauthn4j.authenticator.Authenticator
 import com.webauthn4j.authenticator.AuthenticatorImpl
+import com.webauthn4j.data.AuthenticationData
 import com.webauthn4j.data.AuthenticationParameters
 import com.webauthn4j.data.AuthenticationRequest
 import com.webauthn4j.data.PublicKeyCredentialParameters
@@ -76,7 +77,7 @@ class Auth4JModel {
         base64ClientDataJSON: ByteArray,
         clientExtensionJSON: String?,
         base64Signature: ByteArray,
-    ) {
+    ): AuthenticationData {
         return verify(
             authenticator = authenticator,
             request = AuthenticationRequest(
@@ -93,7 +94,7 @@ class Auth4JModel {
     private fun verify(
         authenticator: Authenticator,
         request: AuthenticationRequest,
-    ) {
+    ) : AuthenticationData  {
         val webAuthnManager = WebAuthnManager.createNonStrictWebAuthnManager()
 
         val result = webAuthnManager.validate(
@@ -106,6 +107,6 @@ class Auth4JModel {
                 false,
             ),
         )
-        println("result: $result")
+        return result
     }
 }

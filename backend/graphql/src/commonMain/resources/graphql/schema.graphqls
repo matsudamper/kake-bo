@@ -6,4 +6,5 @@ schema {
 type Query {
     isLoggedIn: Boolean! @lazy
     user: User
+    fidoLoginInfo: FidoLoginInfo! @lazy
 }
