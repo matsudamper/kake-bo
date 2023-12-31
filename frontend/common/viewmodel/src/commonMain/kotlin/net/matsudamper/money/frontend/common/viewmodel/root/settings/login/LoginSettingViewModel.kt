@@ -149,7 +149,7 @@ public class LoginSettingViewModel(
                         showAddFidoFailToast()
                     } else {
                         eventSender.send { it.showToast("追加しました") }
-                        // TODO update list
+                        api.getScreen().first()
                     }
                     viewModelStateFlow.update { viewModelState ->
                         viewModelState.copy(

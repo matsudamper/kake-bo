@@ -20,7 +20,8 @@ public class LoginSettingScreenApi(
             .query(
                 LoginSettingScreenQuery(),
             )
-            .watch()
+            .fetchPolicy(FetchPolicy.NetworkFirst)
+            .watch(fetchThrows = true)
     }
 
     public suspend fun logout(): Boolean {
