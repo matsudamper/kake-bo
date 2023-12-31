@@ -14,7 +14,7 @@ public object WebAuthModel {
         type: Type,
         challenge: String,
         domain: String,
-        excludeCredentialId: List<String>,
+        base64ExcludeCredentialIdList: List<String>,
     ): CreateResult? {
         val options = createOption(
             userId = id,
@@ -22,7 +22,7 @@ public object WebAuthModel {
             type = type,
             challenge = challenge,
             domain = domain,
-            excludeCredentials = excludeCredentialId.map {
+            excludeCredentials = base64ExcludeCredentialIdList.map {
                 CredentialsContainerCreatePublicKeyOptions.ExcludeCredential(
                     id = it.decodeBase64Bytes(),
                     type = "public-key",
