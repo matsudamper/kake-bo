@@ -13,7 +13,12 @@ mutation SettingScreenAddFido(
     $input: RegisterFidoInput!
 ) {
     userMutation {
-        registerFido(input: $input)
+        registerFido(input: $input) {
+            fidoInfo {
+                id
+                name
+            }
+        }
     }
 }
 

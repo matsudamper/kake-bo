@@ -44,6 +44,8 @@ import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
 import net.matsudamper.money.graphql.model.QlRegisterFidoInput
+import net.matsudamper.money.graphql.model.QlRegisteredFidoInfo
+import net.matsudamper.money.graphql.model.QlRegisteredFidoResult
 import net.matsudamper.money.graphql.model.QlSettingsMutation
 import net.matsudamper.money.graphql.model.QlUpdateCategoryQuery
 import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterConditionInput
@@ -521,7 +523,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         userMutation: QlUserMutation,
         input: QlRegisterFidoInput,
         env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<Boolean>> {
+    ): CompletionStage<DataFetcherResult<QlRegisteredFidoResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val fidoRepository = context.repositoryFactory.createFidoRepository()
         val userId = context.verifyUserSession()
@@ -535,15 +537,21 @@ class UserMutationResolverImpl : UserMutationResolver {
             )
             val base64Result = AuthenticatorConverter.convertToBase64(authenticator)
 
-            fidoRepository.addFido(
+            val addedItem = fidoRepository.addFido(
                 name = input.displayName,
                 userId = userId,
                 attestationStatement = base64Result.base64AttestationStatement,
                 attestationStatementFormat = base64Result.attestationStatementFormat,
                 attestedCredentialData = base64Result.base64AttestedCredentialData,
                 counter = base64Result.counter,
+                authenticatorExtensions = null,
             )
-            true
+            QlRegisteredFidoResult(
+                fidoInfo = QlRegisteredFidoInfo(
+                    id = addedItem.fidoId,
+                    name = addedItem.name,
+                ),
+            )
         }.toDataFetcher()
     }
 

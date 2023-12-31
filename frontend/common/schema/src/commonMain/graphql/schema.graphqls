@@ -164,6 +164,10 @@ type RegisteredFidoInfo {
     name: String!
 }
 
+type RegisteredFidoResult {
+    fidoInfo: RegisteredFidoInfo
+}
+
 type SettingsMutation {
     updateImapConfig(config: UpdateUserImapConfigInput!): UserImapConfig
 }
@@ -234,7 +238,7 @@ type UserMutation {
     deleteUsage(id: MoneyUsageId!): Boolean!
     importMail(mailIds: [MailId!]!): ImportMailResult!
     logout: Boolean!
-    registerFido(input: RegisterFidoInput!): Boolean!
+    registerFido(input: RegisterFidoInput!): RegisteredFidoResult!
     settingsMutation: SettingsMutation
     updateCategory(id: MoneyUsageCategoryId!, query: UpdateCategoryQuery!): MoneyUsageCategory!
     updateImportedMailCategoryFilter(input: UpdateImportedMailCategoryFilterInput!): ImportedMailCategoryFilter

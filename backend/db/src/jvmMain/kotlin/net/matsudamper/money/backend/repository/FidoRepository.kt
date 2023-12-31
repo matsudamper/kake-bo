@@ -17,9 +17,10 @@ class FidoRepository(
         attestationStatementFormat: String,
         attestedCredentialData: String,
         counter: Long,
-    ) {
-        dbConnection.use {
-            DSL.using(it)
+        authenticatorExtensions: String?,
+    ): FidoNameResult {
+        return dbConnection.use {
+            val result = DSL.using(it)
                 .insertInto(webAuthAuthenticator)
                 .set(webAuthAuthenticator.NAME, name)
                 .set(webAuthAuthenticator.USER_ID, userId.value)
@@ -27,7 +28,14 @@ class FidoRepository(
                 .set(webAuthAuthenticator.ATTESTATION_STATEMENT_FORMAT, attestationStatementFormat)
                 .set(webAuthAuthenticator.ATTESTED_CREDENTIAL_DATA, attestedCredentialData)
                 .set(webAuthAuthenticator.COUNTER, counter)
-                .execute()
+                .set(webAuthAuthenticator.AUTHENTICATOR_EXTENSIONS, authenticatorExtensions)
+                .returning(webAuthAuthenticator.ID, webAuthAuthenticator.NAME)
+                .fetchOne()!!
+
+            FidoNameResult(
+                fidoId = FidoId(result.get<Int>(webAuthAuthenticator.ID)),
+                name = result.get<String>(webAuthAuthenticator.NAME),
+            )
         }
     }
 
