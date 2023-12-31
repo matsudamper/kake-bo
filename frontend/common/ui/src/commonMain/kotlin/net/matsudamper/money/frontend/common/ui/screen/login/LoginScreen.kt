@@ -221,7 +221,7 @@ private fun PasswordInput(
                             onClick = { onClickLogin() },
                         ) {
                             Icon(
-                                modifier = Modifier,
+                                modifier = Modifier.padding(4.dp),
                                 imageVector = Icons.Default.ArrowForward,
                                 contentDescription = "login",
                                 tint = LocalContentColor.current,
