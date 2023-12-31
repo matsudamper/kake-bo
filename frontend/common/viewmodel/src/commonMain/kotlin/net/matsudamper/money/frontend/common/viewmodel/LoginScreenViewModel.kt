@@ -131,7 +131,9 @@ public class LoginScreenViewModel(
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         userName = viewModelState.userName,
-                        password = viewModelState.password,
+                        password = TextFieldValue(
+                            "●".repeat(viewModelState.password.text.length),
+                        ),
                         textInputDialog = viewModelState.textInputDialogUiState,
                     )
                 }
