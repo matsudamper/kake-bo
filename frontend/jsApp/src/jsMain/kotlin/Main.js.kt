@@ -1,3 +1,4 @@
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -30,15 +31,9 @@ fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
             title = "家計簿",
         ) {
             NormalizeInputKeyCapture {
-                var widthPx by remember { mutableIntStateOf(0) }
-                val density = LocalDensity.current
-                CustomTheme(
-                    isSmartPhone = with(density) { widthPx.toDp() < 640.dp },
-                ) {
+                CustomTheme {
                     Content(
-                        modifier = Modifier.onSizeChanged {
-                            widthPx = it.width
-                        },
+                        modifier = Modifier.fillMaxSize(),
                         globalEventSender = globalEventSender,
                         composeSizeProvider = { composeSize },
                     )
