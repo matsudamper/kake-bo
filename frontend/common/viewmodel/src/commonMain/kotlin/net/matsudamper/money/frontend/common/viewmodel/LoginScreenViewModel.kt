@@ -30,18 +30,6 @@ public class LoginScreenViewModel(
             password = TextFieldValue(),
             textInputDialog = null,
             listener = object : LoginScreenUiState.Listener {
-                override fun onPasswordChange(value: TextFieldValue) {
-                    viewModelStateFlow.update {
-                        it.copy(password = value)
-                    }
-                }
-
-                override fun onUserNameChange(value: TextFieldValue) {
-                    viewModelStateFlow.update {
-                        it.copy(userName = value)
-                    }
-                }
-
                 override fun onClickLogin() {
                     coroutineScope.launch {
                         val result = runCatching {

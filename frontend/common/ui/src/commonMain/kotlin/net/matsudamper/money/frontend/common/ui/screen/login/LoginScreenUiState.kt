@@ -21,8 +21,6 @@ public data class LoginScreenUiState(
 
     @Immutable
     public interface Listener {
-        public fun onPasswordChange(value: TextFieldValue)
-        public fun onUserNameChange(value: TextFieldValue)
         public fun onClickLogin()
         public fun onClickNavigateAdmin()
         public fun onClickUserNameTextField()
