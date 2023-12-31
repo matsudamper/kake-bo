@@ -133,7 +133,7 @@ public class LoginSettingViewModel(
             }
 
             val registerFidoResult = result?.data?.userMutation?.registerFido
-            if (registerFidoResult == null || registerFidoResult.fidoInfo != null) {
+            if (registerFidoResult?.fidoInfo == null) {
                 showAddFidoFailToast()
             } else {
                 eventSender.send { it.showToast("追加しました") }
