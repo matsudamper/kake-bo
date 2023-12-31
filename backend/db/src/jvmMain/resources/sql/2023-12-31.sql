@@ -6,7 +6,7 @@ CREATE TABLE web_auth_authenticator
     attestation_statement        TEXT NOT NULL,
     attestation_statement_format TEXT NOT NULL,
     attested_credential_data     TEXT NOT NULL,
-    authenticator_extensions     TEXT NOT NULL,
+    authenticator_extensions     TEXT,
     counter                      BIGINT  NOT NULL,
     created_at                   DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at                   DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

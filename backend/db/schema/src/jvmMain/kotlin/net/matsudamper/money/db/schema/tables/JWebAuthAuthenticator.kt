@@ -103,7 +103,7 @@ open class JWebAuthAuthenticator(
      * The column
      * <code>money.web_auth_authenticator.authenticator_extensions</code>.
      */
-    val AUTHENTICATOR_EXTENSIONS: TableField<JWebAuthAuthenticatorRecord, String?> = createField(DSL.name("authenticator_extensions"), SQLDataType.CLOB.nullable(false), this, "")
+    val AUTHENTICATOR_EXTENSIONS: TableField<JWebAuthAuthenticatorRecord, String?> = createField(DSL.name("authenticator_extensions"), SQLDataType.CLOB.defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.CLOB)), this, "")
 
     /**
      * The column <code>money.web_auth_authenticator.counter</code>.
