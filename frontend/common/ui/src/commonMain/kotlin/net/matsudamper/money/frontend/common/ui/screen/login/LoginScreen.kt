@@ -217,11 +217,9 @@ private fun PasswordInput(
                     maxLines = 1,
                     trailingIcon = {
                         IconButton(
-                            modifier = Modifier,
                             onClick = { onClickLogin() },
                         ) {
                             Icon(
-                                modifier = Modifier.padding(4.dp),
                                 imageVector = Icons.Default.ArrowForward,
                                 contentDescription = "login",
                                 tint = LocalContentColor.current,
