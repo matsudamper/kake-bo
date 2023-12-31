@@ -5,7 +5,6 @@ import org.jetbrains.compose.web.css.Color
 import org.jetbrains.compose.web.css.backgroundColor
 import org.jetbrains.compose.web.css.borderRadius
 import org.jetbrains.compose.web.css.cssRem
-import org.jetbrains.compose.web.css.em
 import org.jetbrains.compose.web.css.fontSize
 import org.jetbrains.compose.web.css.padding
 import org.jetbrains.compose.web.dom.AttrBuilderContext
