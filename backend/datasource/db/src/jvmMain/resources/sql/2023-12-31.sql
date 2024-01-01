@@ -12,3 +12,10 @@ CREATE TABLE web_auth_authenticator
     updated_at                   DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT user_id_and_name UNIQUE (user_id, name)
 );
+
+ALTER TABLE user_sessions
+    ADD COLUMN latest_accessed_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+
+UPDATE user_sessions
+set latest_accessed_at = DATE_SUB(expire_datetime, INTERVAL 7 DAY)
+where 1;
