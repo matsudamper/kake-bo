@@ -1,6 +1,5 @@
 package net.matsudamper.money.backend.graphql.resolver
 
-import java.time.ZoneOffset
 import java.util.Base64
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
@@ -14,7 +13,6 @@ import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.lib.ChallengeModel
 import net.matsudamper.money.graphql.model.QlFidoAddInfo
 import net.matsudamper.money.graphql.model.QlRegisteredFidoInfo
-import net.matsudamper.money.graphql.model.QlSession
 import net.matsudamper.money.graphql.model.QlUserImapConfig
 import net.matsudamper.money.graphql.model.QlUserSettings
 import net.matsudamper.money.graphql.model.UserSettingsResolver

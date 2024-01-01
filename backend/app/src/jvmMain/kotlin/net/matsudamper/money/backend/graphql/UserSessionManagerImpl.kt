@@ -34,10 +34,12 @@ internal class UserSessionManagerImpl(
             return UserSessionRepository.VerifySessionResult.Failure
         }
 
-        when (val userSessionResult = userSessionRepository.verifySession(
-            sessionId = UserSessionId(userSessionString),
-            expireDay = ServerVariables.USER_SESSION_EXPIRE_DAY,
-        )) {
+        when (
+            val userSessionResult = userSessionRepository.verifySession(
+                sessionId = UserSessionId(userSessionString),
+                expireDay = ServerVariables.USER_SESSION_EXPIRE_DAY,
+            )
+        ) {
             is UserSessionRepository.VerifySessionResult.Failure -> {
                 this.verifyUserSessionResult = UserSessionRepository.VerifySessionResult.Failure
                 return UserSessionRepository.VerifySessionResult.Failure
