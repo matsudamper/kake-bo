@@ -29,6 +29,17 @@ type UserMutation {
 
     registerFido(input: RegisterFidoInput!): RegisteredFidoResult!
     deleteFido(id: FidoId!): DeleteFidoResult!
+    deleteSession(name: String!): DeleteSessionResult!
+    changeSessionName(name: String!): ChangeSessionNameResult!
+}
+
+type ChangeSessionNameResult {
+    isSuccess: Boolean!
+    session: Session
+}
+
+type DeleteSessionResult {
+    isSuccess: Boolean!
 }
 
 type DeleteFidoResult {

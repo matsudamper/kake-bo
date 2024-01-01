@@ -36,15 +36,16 @@ internal class GraphQlContext(
     fun verifyUserSessionAndGetUserId(): UserId = userSessionManager.verifyUserSession()
     fun verifyUserSessionAndGetSessionInfo(): SessionInfo {
         val userId = userSessionManager.verifyUserSession()
-        val sessionId = cookieManager.getUserSessionId()!!
+        val sessionId = UserSessionId(cookieManager.getUserSessionId()!!)
         val currentSessionInfo = repositoryFactory.userSessionRepository()
-            .getSessionInfo(UserSessionId(sessionId))
+            .getSessionInfo(sessionId)
             ?: throw GraphqlMoneyException.SessionNotVerify()
 
         return SessionInfo(
             userId = userId,
             sessionName = currentSessionInfo.name,
             latestAccess = currentSessionInfo.latestAccess,
+            sessionId = sessionId,
         )
     }
 

@@ -125,6 +125,37 @@ class UserSessionRepository {
         }
     }
 
+    fun deleteSession(userId: UserId, sessionName: String, currentSessionName: String): Boolean {
+        return DbConnectionImpl.use {
+            DSL.using(it)
+                .deleteFrom(userSessions)
+                .where(
+                    userSessions.USER_ID.eq(userId.value),
+                    userSessions.NAME.eq(sessionName),
+                    userSessions.NAME.notEqual(currentSessionName),
+                )
+                .limit(1)
+                .execute() > 0
+        }
+    }
+
+    fun changeSessionName(sessionId: UserSessionId, name: String): SessionInfo? {
+        val result = DbConnectionImpl.use {
+            DSL.using(it)
+                .update(userSessions)
+                .set(userSessions.NAME, name)
+                .where(userSessions.SESSION_ID.eq(sessionId.id))
+                .limit(1)
+                .returningResult(userSessions.LATEST_ACCESSED_AT)
+                .fetchOne()
+        } ?: return null
+
+        return SessionInfo(
+            latestAccess = result.get<LocalDateTime>(userSessions.LATEST_ACCESSED_AT),
+            name = name,
+        )
+    }
+
     data class CreateSessionResult(
         val sessionId: UserSessionId,
         val latestAccess: LocalDateTime,

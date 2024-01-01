@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.graphql.resolver.mutation
 
+import java.time.ZoneOffset
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import kotlin.contracts.ExperimentalContracts
@@ -42,9 +43,11 @@ import net.matsudamper.money.graphql.model.QlAddSubCategoryError
 import net.matsudamper.money.graphql.model.QlAddSubCategoryInput
 import net.matsudamper.money.graphql.model.QlAddSubCategoryResult
 import net.matsudamper.money.graphql.model.QlAddUsageQuery
+import net.matsudamper.money.graphql.model.QlChangeSessionNameResult
 import net.matsudamper.money.graphql.model.QlDeleteFidoResult
 import net.matsudamper.money.graphql.model.QlDeleteMailResult
 import net.matsudamper.money.graphql.model.QlDeleteMailResultError
+import net.matsudamper.money.graphql.model.QlDeleteSessionResult
 import net.matsudamper.money.graphql.model.QlImportMailResult
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryCondition
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilter
@@ -54,6 +57,7 @@ import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
 import net.matsudamper.money.graphql.model.QlRegisterFidoInput
 import net.matsudamper.money.graphql.model.QlRegisteredFidoInfo
 import net.matsudamper.money.graphql.model.QlRegisteredFidoResult
+import net.matsudamper.money.graphql.model.QlSession
 import net.matsudamper.money.graphql.model.QlSettingsMutation
 import net.matsudamper.money.graphql.model.QlUpdateCategoryQuery
 import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterConditionInput
@@ -129,6 +133,46 @@ class UserMutationResolverImpl : UserMutationResolver {
             val isSuccess = fidoRepository.deleteFido(userId, id)
             QlDeleteFidoResult(
                 isSuccess = isSuccess,
+            )
+        }.toDataFetcher()
+    }
+
+    override fun deleteSession(userMutation: QlUserMutation, name: String, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlDeleteSessionResult>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userSessionRepository = UserSessionRepository()
+        val sessionInfo = context.verifyUserSessionAndGetSessionInfo()
+
+        return CompletableFuture.supplyAsync {
+            val isSuccess = userSessionRepository.deleteSession(
+                userId = sessionInfo.userId,
+                sessionName = name,
+                currentSessionName = sessionInfo.sessionName,
+            )
+            QlDeleteSessionResult(
+                isSuccess = isSuccess,
+            )
+        }.toDataFetcher()
+    }
+
+    override fun changeSessionName(userMutation: QlUserMutation, name: String, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlChangeSessionNameResult>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userSessionRepository = UserSessionRepository()
+        val sessionInfo = context.verifyUserSessionAndGetSessionInfo()
+
+        return CompletableFuture.supplyAsync {
+            val result = userSessionRepository.changeSessionName(
+                sessionId = sessionInfo.sessionId,
+                name = name,
+            )
+            QlChangeSessionNameResult(
+                isSuccess = result != null,
+                session = run session@{
+                    result ?: return@session null
+                    QlSession(
+                        name = result.name,
+                        lastAccess = result.latestAccess.atOffset(ZoneOffset.UTC),
+                    )
+                },
             )
         }.toDataFetcher()
     }

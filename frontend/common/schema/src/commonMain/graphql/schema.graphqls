@@ -29,12 +29,21 @@ type AdminMutation {
     adminLogin(password: String!): AdminLoginResult!
 }
 
+type ChangeSessionNameResult {
+    isSuccess: Boolean!
+    session: Session
+}
+
 type DeleteFidoResult {
     isSuccess: Boolean!
 }
 
 type DeleteMailResult {
     error: DeleteMailResultError
+    isSuccess: Boolean!
+}
+
+type DeleteSessionResult {
     isSuccess: Boolean!
 }
 
@@ -251,11 +260,13 @@ type UserMutation {
     addImportedMailCategoryFilterCondition(input: AddImportedMailCategoryFilterConditionInput!): ImportedMailCategoryFilter
     addSubCategory(input: AddSubCategoryInput!): AddSubCategoryResult!
     addUsage(usage: AddUsageQuery!): MoneyUsage!
+    changeSessionName(name: String!): ChangeSessionNameResult!
     deleteFido(id: FidoId!): DeleteFidoResult!
     deleteImportedMail(id: ImportedMailId!): Boolean!
     deleteImportedMailCategoryFilter(id: ImportedMailCategoryFilterId!): Boolean!
     deleteImportedMailCategoryFilterCondition(id: ImportedMailCategoryFilterConditionId!): Boolean!
     deleteMail(mailIds: [MailId!]!): DeleteMailResult!
+    deleteSession(name: String!): DeleteSessionResult!
     deleteSubCategory(id: MoneyUsageSubCategoryId!): Boolean!
     deleteUsage(id: MoneyUsageId!): Boolean!
     importMail(mailIds: [MailId!]!): ImportMailResult!

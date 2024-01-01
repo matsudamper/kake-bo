@@ -5,6 +5,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,6 +24,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +38,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,6 +48,8 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.ScrollButtons
 import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
@@ -63,7 +69,14 @@ public data class LoginSettingScreenUiState(
     public data class Session(
         val name: String,
         val lastAccess: String,
-    )
+        val event: Event,
+    ) {
+        @Immutable
+        public interface Event {
+            public fun onClickDelete()
+            public fun onClickNameChange()
+        }
+    }
 
     public data class TextInputDialogState(
         val title: String,
@@ -324,6 +337,8 @@ private fun SessionSection(
             SessionItem(
                 session = currentSession,
                 modifier = Modifier.fillMaxWidth(),
+                onClickDelete = null,
+                onClickNameChange = { currentSession.event.onClickNameChange() },
             )
         }
         item { Spacer(modifier = Modifier.height(8.dp)) }
@@ -346,6 +361,8 @@ private fun SessionSection(
                 session = session,
                 modifier = Modifier.fillMaxWidth()
                     .padding(horizontal = itemHorizontalPadding),
+                onClickDelete = { session.event.onClickDelete() },
+                onClickNameChange = { session.event.onClickNameChange() },
             )
         }
     }
@@ -354,6 +371,8 @@ private fun SessionSection(
 @Composable
 private fun SessionItem(
     session: LoginSettingScreenUiState.Session,
+    onClickDelete: (() -> Unit)?,
+    onClickNameChange: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -384,10 +403,56 @@ private fun SessionItem(
                     Text("最終アクセス: ${session.lastAccess}")
                 }
             }
+            var visibleMenu by remember { mutableStateOf(false) }
             IconButton(
-                onClick = { },
+                onClick = { visibleMenu = !visibleMenu },
             ) {
                 Icon(Icons.Default.MoreVert, contentDescription = "open menu")
+                if (visibleMenu) {
+                    Popup(
+                        onDismissRequest = { visibleMenu = false },
+                        properties = PopupProperties(focusable = true),
+                        onPreviewKeyEvent = { false },
+                        onKeyEvent = { false },
+                    ) {
+                        Card(
+                            modifier = Modifier.width(IntrinsicSize.Max),
+                            elevation = CardDefaults.cardElevation(
+                                defaultElevation = 8.dp,
+                            ),
+                        ) {
+                            Column(
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                Text(
+                                    modifier = Modifier.fillMaxWidth()
+                                        .clickable {
+                                            visibleMenu = false
+                                            onClickNameChange()
+                                        }
+                                        .padding(12.dp),
+                                    text = "名前の変更",
+                                )
+                            }
+                            if (onClickDelete != null) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    Text(
+                                        modifier = Modifier.fillMaxWidth()
+                                            .clickable {
+                                                visibleMenu = false
+                                                onClickDelete()
+                                            }
+                                            .padding(12.dp),
+                                        color = MaterialTheme.colorScheme.error,
+                                        text = "削除",
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

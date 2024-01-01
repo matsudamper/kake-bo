@@ -49,6 +49,26 @@ mutation LoginSettingScreenLogout {
     }
 }
 
+mutation LoginSettingScreenChangeSessionName(
+    $name: String!
+) {
+    userMutation {
+        changeSessionName(name: $name) {
+            isSuccess
+        }
+    }
+}
+
+mutation LoginSettingScreenDeleteSession(
+    $name: String!
+) {
+    userMutation {
+        deleteSession(name: $name) {
+            isSuccess
+        }
+    }
+}
+
 query LoginSettingScreenGetFidoInfo {
     user {
         settings {

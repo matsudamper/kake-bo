@@ -109,6 +109,7 @@ public class LoginSettingViewModel(
                                         lastAccess = Formatter.formatDateTime(
                                             session.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
                                         ),
+                                        event = SessionEventImpl(name = session.name),
                                     )
                                 }.toImmutableList()
                         },
@@ -122,6 +123,7 @@ public class LoginSettingViewModel(
                                 lastAccess = Formatter.formatDateTime(
                                     currentSession.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
                                 ),
+                                event = SessionEventImpl(name = currentSession.name),
                             )
                         },
                         textInputDialogState = viewModelState.textInputDialogState,
@@ -220,6 +222,62 @@ public class LoginSettingViewModel(
     private fun showAddFidoFailToast() {
         coroutineScope.launch {
             eventSender.send { it.showToast("追加に失敗しました") }
+        }
+    }
+
+    private fun closeTextInputDialog() {
+        viewModelStateFlow.update { viewModelState ->
+            viewModelState.copy(
+                textInputDialogState = null,
+            )
+        }
+    }
+
+    private inner class SessionEventImpl(
+        private val name: String,
+    ) : LoginSettingScreenUiState.Session.Event, EqualsImpl(name) {
+        override fun onClickDelete() {
+            coroutineScope.launch {
+                val result = api.deleteSession(name)
+                if (result) {
+                    eventSender.send { it.showToast("削除しました") }
+                    api.getScreen().first()
+                } else {
+                    eventSender.send { it.showToast("削除に失敗しました") }
+                }
+                api.getScreen().first()
+            }
+        }
+
+        override fun onClickNameChange() {
+            val dialogState = LoginSettingScreenUiState.TextInputDialogState(
+                title = "名前を入力してください",
+                text = name,
+                onConfirm = {
+                    changeName(it)
+                    closeTextInputDialog()
+                },
+                onCancel = {
+                    closeTextInputDialog()
+                },
+                type = "text",
+            )
+            viewModelStateFlow.update {
+                it.copy(
+                    textInputDialogState = dialogState,
+                )
+            }
+        }
+
+        private fun changeName(name: String) {
+            coroutineScope.launch {
+                val result = api.changeSessionName(name)
+                if (result) {
+                    api.getScreen().first()
+                } else {
+                    eventSender.send { it.showToast("変更に失敗しました") }
+                }
+            }
         }
     }
 

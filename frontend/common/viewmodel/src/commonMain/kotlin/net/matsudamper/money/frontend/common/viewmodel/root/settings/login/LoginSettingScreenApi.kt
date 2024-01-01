@@ -8,6 +8,8 @@ import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import com.apollographql.apollo3.cache.normalized.watch
 import net.matsudamper.money.element.FidoId
 import net.matsudamper.money.frontend.graphql.GraphqlClient
+import net.matsudamper.money.frontend.graphql.LoginSettingScreenChangeSessionNameMutation
+import net.matsudamper.money.frontend.graphql.LoginSettingScreenDeleteSessionMutation
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenLogoutMutation
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenQuery
 import net.matsudamper.money.frontend.graphql.SettingScreenAddFidoMutation
@@ -68,6 +70,28 @@ public class LoginSettingScreenApi(
                 )
                 .execute()
                 .data?.userMutation?.deleteFido?.isSuccess
+        }.getOrNull() ?: false
+    }
+
+    public suspend fun deleteSession(name: String): Boolean {
+        return runCatching {
+            apolloClient
+                .mutation(
+                    LoginSettingScreenDeleteSessionMutation(name),
+                )
+                .execute()
+                .data?.userMutation?.deleteSession?.isSuccess
+        }.getOrNull() ?: false
+    }
+
+    public suspend fun changeSessionName(name: String): Boolean {
+        return runCatching {
+            apolloClient
+                .mutation(
+                    LoginSettingScreenChangeSessionNameMutation(name),
+                )
+                .execute()
+                .data?.userMutation?.changeSessionName?.isSuccess
         }.getOrNull() ?: false
     }
 }
