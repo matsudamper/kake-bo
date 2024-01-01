@@ -9,6 +9,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.base.ServerVariables
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageRepository
@@ -95,7 +96,8 @@ class UserMutationResolverImpl : UserMutationResolver {
                     val createSessionResult = UserSessionRepository().createSession(loginResult.uerId)
                     context.setUserSessionCookie(
                         createSessionResult.sessionId.id,
-                        createSessionResult.expire,
+                        createSessionResult.latestAccess
+                            .plusDays(ServerVariables.USER_SESSION_EXPIRE_DAY),
                     )
                     QlUserLoginResult(
                         isSuccess = true,
@@ -185,7 +187,8 @@ class UserMutationResolverImpl : UserMutationResolver {
                         val createSessionResult = UserSessionRepository().createSession(requestUserId)
                         context.setUserSessionCookie(
                             createSessionResult.sessionId.id,
-                            createSessionResult.expire,
+                            createSessionResult.latestAccess
+                                .plusDays(ServerVariables.USER_SESSION_EXPIRE_DAY),
                         )
                         return@minExecutionTime QlUserLoginResult(
                             isSuccess = true,

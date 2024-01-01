@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend.datasource.db.repository
 
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.*
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.backend.datasource.db.element.UserSessionId
@@ -26,14 +27,13 @@ class UserSessionRepository {
                 .insertInto(userSessions)
                 .set(userSessions.USER_ID, userId.value)
                 .set(userSessions.SESSION_ID, UUID.randomUUID().toString().replace("-", ""))
-                .set(userSessions.EXPIRE_DATETIME, getNewExpire())
-                .returningResult(userSessions.SESSION_ID, userSessions.EXPIRE_DATETIME)
+                .returningResult(userSessions.SESSION_ID, userSessions.LATEST_ACCESSED_AT)
                 .fetchOne()
         }
 
         return CreateSessionResult(
             sessionId = UserSessionId(result!!.value1()!!),
-            expire = result.value2()!!,
+            latestAccess = result.get<LocalDateTime>(userSessions.LATEST_ACCESSED_AT),
         )
     }
 
@@ -67,7 +67,7 @@ class UserSessionRepository {
 
                 DSL.using(config)
                     .update(userSessions)
-                    .set(userSessions.EXPIRE_DATETIME, getNewExpire())
+                    .set(userSessions.LATEST_ACCESSED_AT, LocalDateTime.now(ZoneOffset.UTC))
                     .where(userSessions.SESSION_ID.eq(sessionId.id))
                     .returningResult(userSessions.USER_ID, userSessions.SESSION_ID, userSessions.EXPIRE_DATETIME)
                     .fetchOne()
