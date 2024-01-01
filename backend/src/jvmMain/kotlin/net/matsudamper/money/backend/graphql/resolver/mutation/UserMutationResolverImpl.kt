@@ -165,8 +165,6 @@ class UserMutationResolverImpl : UserMutationResolver {
                                 clientExtensionJSON = null,
                                 base64Signature = userFidoLoginInput.base64Signature.toByteArray(),
                             )
-                        }.onFailure {
-                            it.printStackTrace()
                         }.getOrNull() ?: continue
 
                         fidoRepository.updateCounter(

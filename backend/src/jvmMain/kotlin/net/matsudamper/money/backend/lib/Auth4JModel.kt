@@ -14,6 +14,7 @@ import com.webauthn4j.data.RegistrationRequest
 import com.webauthn4j.data.attestation.statement.COSEAlgorithmIdentifier
 import com.webauthn4j.data.client.Origin
 import com.webauthn4j.server.ServerProperty
+import com.webauthn4j.validator.exception.ValidationException
 import net.matsudamper.money.backend.base.ServerEnv
 
 class Auth4JModel {
@@ -97,16 +98,23 @@ class Auth4JModel {
     ): AuthenticationData {
         val webAuthnManager = WebAuthnManager.createNonStrictWebAuthnManager()
 
-        val result = webAuthnManager.validate(
-            webAuthnManager.parse(request),
-            AuthenticationParameters(
-                serverProperty,
-                authenticator,
-                null,
-                true,
-                false,
-            ),
-        )
+        val result = runCatching {
+            webAuthnManager.validate(
+                webAuthnManager.parse(request),
+                AuthenticationParameters(
+                    serverProperty,
+                    authenticator,
+                    null,
+                    true,
+                    false,
+                ),
+            )
+        }.onFailure {
+            when (it) {
+                is ValidationException -> Unit
+                else -> it.printStackTrace()
+            }
+        }.getOrThrow()
         return result
     }
 }
