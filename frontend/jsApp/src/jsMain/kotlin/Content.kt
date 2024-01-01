@@ -8,9 +8,12 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
@@ -70,11 +73,14 @@ fun Content(
     composeSizeProvider: () -> MutableStateFlow<IntSize>,
 ) {
     val rootCoroutineScope = rememberCoroutineScope()
-    val hostState = remember { SnackbarHostState() }
+    var hostState by remember { mutableStateOf(SnackbarHostState()) }
     val globalEvent: GlobalEvent = remember(hostState, rootCoroutineScope) {
         object : GlobalEvent {
             override fun showSnackBar(message: String) {
                 console.error("show: $message")
+
+                // 二回目が表示されないのでstate自体を作成し直す
+                hostState = SnackbarHostState()
                 rootCoroutineScope.launch {
                     hostState.showSnackbar(
                         message = message,
