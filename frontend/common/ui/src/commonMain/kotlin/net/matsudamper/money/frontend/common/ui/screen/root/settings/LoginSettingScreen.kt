@@ -22,7 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -298,7 +298,8 @@ private fun SessionSection(
     currentSession: LoginSettingScreenUiState.Session,
     sessionList: ImmutableList<LoginSettingScreenUiState.Session>,
 ) {
-    val itemPadding = 4.dp
+    val itemHorizontalPadding = 4.dp
+    val titleVerticalPadding = 8.dp
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(
@@ -307,7 +308,10 @@ private fun SessionSection(
     ) {
         item {
             Text(
-                modifier = Modifier.padding(itemPadding),
+                modifier = Modifier.padding(
+                    horizontal = itemHorizontalPadding,
+                    vertical = titleVerticalPadding,
+                ),
                 text = "現在のセッション",
                 style = MaterialTheme.typography.titleSmall,
             )
@@ -316,16 +320,19 @@ private fun SessionSection(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
             )
         }
-        item { Spacer(modifier = Modifier.height(8.dp)) }
         item {
             SessionItem(
                 session = currentSession,
                 modifier = Modifier.fillMaxWidth(),
             )
         }
+        item { Spacer(modifier = Modifier.height(8.dp)) }
         item {
             Text(
-                modifier = Modifier.padding(itemPadding),
+                modifier = Modifier.padding(
+                    horizontal = itemHorizontalPadding,
+                    vertical = titleVerticalPadding,
+                ),
                 text = "その他のセッション",
                 style = MaterialTheme.typography.titleSmall,
             )
@@ -338,7 +345,7 @@ private fun SessionSection(
             SessionItem(
                 session = session,
                 modifier = Modifier.fillMaxWidth()
-                    .padding(horizontal = itemPadding),
+                    .padding(horizontal = itemHorizontalPadding),
             )
         }
     }
@@ -380,7 +387,7 @@ private fun SessionItem(
             IconButton(
                 onClick = { },
             ) {
-                Icon(Icons.Default.Menu, contentDescription = "open menu")
+                Icon(Icons.Default.MoreVert, contentDescription = "open menu")
             }
         }
     }
