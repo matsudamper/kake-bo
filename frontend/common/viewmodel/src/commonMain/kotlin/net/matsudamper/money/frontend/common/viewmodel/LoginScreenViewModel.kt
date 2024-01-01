@@ -42,17 +42,7 @@ public class LoginScreenViewModel(
                                 password = viewModelStateFlow.value.password.text,
                             )
                         }.getOrNull()
-
-                        if (result?.data?.userMutation?.userLogin?.isSuccess == true) {
-                            navController.navigate(RootHomeScreenStructure.Home)
-                            globalEventSender.send {
-                                it.showSnackBar("ログインしました")
-                            }
-                        } else {
-                            globalEventSender.send {
-                                it.showSnackBar("ログインに失敗しました")
-                            }
-                        }
+                        postLogin(isSuccess = result?.data?.userMutation?.userLogin?.isSuccess == true)
                     }
                 }
 
@@ -153,6 +143,19 @@ public class LoginScreenViewModel(
         }
     }.asStateFlow()
 
+    private suspend fun postLogin(isSuccess: Boolean) {
+        if (isSuccess) {
+            navController.navigate(RootHomeScreenStructure.Home)
+            globalEventSender.send {
+                it.showSnackBar("ログインしました")
+            }
+        } else {
+            globalEventSender.send {
+                it.showSnackBar("ログインに失敗しました")
+            }
+        }
+    }
+
     init {
         coroutineScope.launch {
             val isLoggedIn = graphqlQuery.isLoggedIn()
@@ -200,17 +203,7 @@ public class LoginScreenViewModel(
                     userName = userName,
                 ),
             )
-
-            if (loginResult.data?.userMutation?.userFidoLogin?.isSuccess == true) {
-                navController.navigate(RootHomeScreenStructure.Home)
-                globalEventSender.send {
-                    it.showSnackBar("ログインしました")
-                }
-            } else {
-                globalEventSender.send {
-                    it.showSnackBar("ログインに失敗しました")
-                }
-            }
+            postLogin(isSuccess = loginResult.data?.userMutation?.userFidoLogin?.isSuccess == true)
         }
     }
 
