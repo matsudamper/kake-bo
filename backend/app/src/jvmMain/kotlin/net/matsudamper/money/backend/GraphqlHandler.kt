@@ -27,7 +27,6 @@ class GraphqlHandler(
     fun handle(requestText: String): String {
         val request = jacksonObjectMapper().readValue<GraphQlRequest>(requestText)
 
-        val repositoryFactory = RepositoryFactoryImpl()
         val dataLoaderRegistryBuilder = DataLoaderRegistry.Builder()
         val userSessionManager = UserSessionManagerImpl(
             cookieManager = cookieManager,
@@ -138,5 +137,9 @@ class GraphqlHandler(
         }
 
         return graphqlMoneyExceptions
+    }
+
+    companion object {
+        private val repositoryFactory = RepositoryFactoryImpl()
     }
 }
