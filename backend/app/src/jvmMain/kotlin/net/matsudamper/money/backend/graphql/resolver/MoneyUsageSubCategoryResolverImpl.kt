@@ -17,7 +17,7 @@ class MoneyUsageSubCategoryResolverImpl : MoneyUsageSubCategoryResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<String>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         val subCategoryLoader = context.dataLoaders.moneyUsageSubCategoryDataLoader.get(env)
             .load(
                 MoneyUsageSubCategoryDataLoaderDefine.Key(
@@ -36,7 +36,7 @@ class MoneyUsageSubCategoryResolverImpl : MoneyUsageSubCategoryResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsageCategory>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
 
         val subCategoryLoader = context.dataLoaders.moneyUsageSubCategoryDataLoader.get(env)
             .load(

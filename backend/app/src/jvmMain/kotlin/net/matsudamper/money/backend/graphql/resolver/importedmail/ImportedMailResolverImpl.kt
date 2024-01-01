@@ -22,7 +22,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<String>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
 
         return context.dataLoaders.importedMailDataLoader.get(env)
             .load(
@@ -40,7 +40,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<String>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
 
         return context.dataLoaders.importedMailDataLoader.get(env)
             .load(
@@ -58,7 +58,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<String?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         return context.dataLoaders.importedMailDataLoader.get(env)
             .load(
                 ImportedMailDataLoaderDefine.Key(
@@ -73,7 +73,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
 
     override fun hasPlain(importedMail: QlImportedMail, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<Boolean>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         return context.dataLoaders.importedMailDataLoader.get(env)
             .load(
                 ImportedMailDataLoaderDefine.Key(
@@ -90,7 +90,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<String?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         return context.dataLoaders.importedMailDataLoader.get(env)
             .load(
                 ImportedMailDataLoaderDefine.Key(
@@ -104,7 +104,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
 
     override fun hasHtml(importedMail: QlImportedMail, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<Boolean>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         return context.dataLoaders.importedMailDataLoader.get(env)
             .load(
                 ImportedMailDataLoaderDefine.Key(
@@ -121,7 +121,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<LocalDateTime>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
 
         return context.dataLoaders.importedMailDataLoader.get(env)
             .load(
@@ -139,7 +139,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<List<QlMoneyUsageSuggest>>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
 
         return context.dataLoaders.importedMailDataLoader.get(env).load(
             ImportedMailDataLoaderDefine.Key(
@@ -187,7 +187,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<List<QlMoneyUsage>>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
 
         val moneyUsageLoader = context.dataLoaders.moneyUsageDataLoader.get(env)
 

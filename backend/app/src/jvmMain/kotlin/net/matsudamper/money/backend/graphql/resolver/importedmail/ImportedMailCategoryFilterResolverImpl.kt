@@ -20,7 +20,7 @@ import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
 class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolver {
     override fun title(importedMailCategoryFilter: QlImportedMailCategoryFilter, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<String>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         val future = getImportedMailCategoryFilterFuture(
             context = context,
             userId = userId,
@@ -35,7 +35,7 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
 
     override fun subCategory(importedMailCategoryFilter: QlImportedMailCategoryFilter, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlMoneyUsageSubCategory?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         val future = getImportedMailCategoryFilterFuture(
             context = context,
             userId = userId,
@@ -54,7 +54,7 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
 
     override fun orderNumber(importedMailCategoryFilter: QlImportedMailCategoryFilter, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<Int>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         val future = getImportedMailCategoryFilterFuture(
             context = context,
             userId = userId,
@@ -69,7 +69,7 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
 
     override fun operator(importedMailCategoryFilter: QlImportedMailCategoryFilter, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlImportedMailFilterCategoryConditionOperator>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         val future = getImportedMailCategoryFilterFuture(
             context = context,
             userId = userId,
@@ -87,7 +87,7 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
 
     override fun conditions(importedMailCategoryFilter: QlImportedMailCategoryFilter, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<List<QlImportedMailCategoryCondition>?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
 
         val dataLoader = context.dataLoaders.importedMailCategoryFilterConditionDataLoader.get(env)
 

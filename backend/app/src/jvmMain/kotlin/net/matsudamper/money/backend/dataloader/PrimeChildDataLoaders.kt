@@ -10,7 +10,7 @@ fun CompletableFuture<List<MailFilterRepository.MailFilter>>.primeChildDataLoade
     env: DataFetchingEnvironment,
 ): CompletableFuture<List<MailFilterRepository.MailFilter>> {
     val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-    val userId = context.verifyUserSession()
+    val userId = context.verifyUserSessionAndGetUserId()
     return thenApply { items ->
         items.forEach { item ->
             context.dataLoaders.importedMailCategoryFilterDataLoader.get(env)
@@ -32,7 +32,7 @@ fun CompletableFuture<List<MailFilterRepository.Condition>>.primeChildDataLoader
     env: DataFetchingEnvironment,
 ): CompletableFuture<List<MailFilterRepository.Condition>> {
     val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-    val userId = context.verifyUserSession()
+    val userId = context.verifyUserSessionAndGetUserId()
 
     return thenApply { items ->
         items.forEach { item ->

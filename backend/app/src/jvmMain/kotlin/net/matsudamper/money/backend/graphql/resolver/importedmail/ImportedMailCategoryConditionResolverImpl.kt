@@ -18,7 +18,7 @@ import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilterDataSourc
 class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionResolver {
     override fun text(importedMailCategoryCondition: QlImportedMailCategoryCondition, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<String>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        context.verifyUserSession()
+        context.verifyUserSessionAndGetUserId()
 
         val future = getFuture(
             env = env,
@@ -35,7 +35,7 @@ class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionR
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFilterDataSourceType>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        context.verifyUserSession()
+        context.verifyUserSessionAndGetUserId()
 
         val future = getFuture(
             env = env,
@@ -59,7 +59,7 @@ class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionR
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFilterConditionType>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        context.verifyUserSession()
+        context.verifyUserSessionAndGetUserId()
 
         val future = getFuture(
             env = env,
@@ -78,7 +78,7 @@ class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionR
 
     private fun getFuture(env: DataFetchingEnvironment, importedMailCategoryCondition: QlImportedMailCategoryCondition): CompletableFuture<MailFilterRepository.Condition> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         return context.dataLoaders.importedMailCategoryFilterConditionDataLoader.get(env)
             .load(
                 ImportedMailCategoryFilterConditionDataLoaderDefine.Key(

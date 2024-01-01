@@ -22,7 +22,7 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<String>> {
         val context = getContext(env)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         return getMoneyUsageFutureResult(
             context = context,
             env = env,
@@ -38,7 +38,7 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<String>> {
         val context = getContext(env)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         return getMoneyUsageFutureResult(
             context = context,
             env = env,
@@ -54,7 +54,7 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<LocalDateTime>> {
         val context = getContext(env)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         return getMoneyUsageFutureResult(
             context = context,
             env = env,
@@ -70,7 +70,7 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Int>> {
         val context = getContext(env)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         return getMoneyUsageFutureResult(
             context = context,
             env = env,
@@ -86,7 +86,7 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsageSubCategory?>> {
         val context = getContext(env)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         return getMoneyUsageFutureResult(
             context = context,
             env = env,
@@ -105,7 +105,7 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<List<QlImportedMail>?>> {
         val context = getContext(env)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
 
         return context.dataLoaders.moneyUsageAssociateByImportedMailDataLoader.get(env)
             .load(

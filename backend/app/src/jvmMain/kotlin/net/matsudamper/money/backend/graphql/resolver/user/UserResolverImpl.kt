@@ -51,7 +51,7 @@ class UserResolverImpl : UserResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsageCategoriesConnection?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
             val result = context.repositoryFactory.createMoneyUsageCategoryRepository()
@@ -82,7 +82,7 @@ class UserResolverImpl : UserResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsageCategory?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        context.verifyUserSession()
+        context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.completedFuture(
             QlMoneyUsageCategory(id = id),
@@ -95,7 +95,7 @@ class UserResolverImpl : UserResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsageSubCategory?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        context.verifyUserSession()
+        context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.completedFuture(
             QlMoneyUsageSubCategory(id = input.id),
@@ -108,7 +108,7 @@ class UserResolverImpl : UserResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsagesConnection?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
             val results = context.repositoryFactory.createMoneyUsageRepository()
@@ -154,7 +154,7 @@ class UserResolverImpl : UserResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFiltersConnection?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         val dataLoader = context.dataLoaders.importedMailCategoryFilterDataLoader.get(env)
 
         return CompletableFuture.allOf().thenApplyAsync {
@@ -199,7 +199,7 @@ class UserResolverImpl : UserResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFilter?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        context.verifyUserSession()
+        context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.allOf().thenApplyAsync {
             QlImportedMailCategoryFilter(
@@ -214,7 +214,7 @@ class UserResolverImpl : UserResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsage?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         val moneyUsageFuture = context.dataLoaders.moneyUsageDataLoader.get(env)
             .load(
                 MoneyUsageDataLoaderDefine.Key(
@@ -253,7 +253,7 @@ class UserResolverImpl : UserResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsageAnalyticsByCategory?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
             val results = context.repositoryFactory.createMoneyUsageAnalyticsRepository()

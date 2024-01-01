@@ -23,7 +23,7 @@ class MoneyUsageSuggestResolverImpl : MoneyUsageSuggestResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlMoneyUsageSubCategory?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         val localContext = env.getLocalContext<MoneyUsageSuggestLocalContext>()
 
         val importedMailFuture = context.dataLoaders.importedMailDataLoader.get(env).load(

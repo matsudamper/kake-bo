@@ -22,7 +22,7 @@ class MoneyUsageAnalyticsResolverImpl : MoneyUsageAnalyticsResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Long?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
             context.repositoryFactory.createMoneyUsageAnalyticsRepository()
@@ -39,7 +39,7 @@ class MoneyUsageAnalyticsResolverImpl : MoneyUsageAnalyticsResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<List<QlMoneyUsageAnalyticsByCategory>?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
             val results = context.repositoryFactory.createMoneyUsageAnalyticsRepository()

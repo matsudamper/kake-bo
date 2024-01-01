@@ -26,7 +26,7 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlUserMailConnection>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
             fun createError(error: QlUserMailError): QlUserMailConnection {
@@ -89,7 +89,7 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Int?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
             val imapConfig = UserConfigRepository().getImapConfig(userId) ?: return@supplyAsync null

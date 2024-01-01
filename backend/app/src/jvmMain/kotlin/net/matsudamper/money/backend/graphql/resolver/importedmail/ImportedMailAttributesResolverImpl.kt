@@ -23,7 +23,7 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<Int?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
             context.repositoryFactory.createDbMailRepository()
@@ -40,7 +40,7 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportedMailConnection>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         return CompletableFuture.supplyAsync {
             val cursor = query.cursor?.let { ImportedMailAttributesMailsQueryCursor.fromString(it) }
             val mailResult = context.repositoryFactory.createDbMailRepository()
@@ -77,7 +77,7 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlImportedMail?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        context.verifyUserSession()
+        context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
             QlImportedMail(

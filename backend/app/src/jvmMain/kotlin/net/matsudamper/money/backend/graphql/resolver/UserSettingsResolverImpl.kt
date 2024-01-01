@@ -22,7 +22,7 @@ import net.matsudamper.money.graphql.model.UserSettingsResolver
 class UserSettingsResolverImpl : UserSettingsResolver {
     override fun imapConfig(userSettings: QlUserSettings, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlUserImapConfig?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
             val result = UserConfigRepository().getImapConfig(userId) ?: return@supplyAsync null
@@ -38,7 +38,7 @@ class UserSettingsResolverImpl : UserSettingsResolver {
 
     override fun fidoAddInfo(userSettings: QlUserSettings, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlFidoAddInfo>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         val userNameFuture = context.dataLoaders.userNameDataLoader.get(env)
             .load(userId)
         val challengeRepository = context.repositoryFactory.createChallengeRepository()
@@ -54,7 +54,7 @@ class UserSettingsResolverImpl : UserSettingsResolver {
 
     override fun registeredFidoList(userSettings: QlUserSettings, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<List<QlRegisteredFidoInfo>>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         val fidoRepository = context.repositoryFactory.createFidoRepository()
 
         return CompletableFuture.supplyAsync {
@@ -80,7 +80,7 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<List<QlSession>>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         val userSessionRepository = context.repositoryFactory.userSessionRepository()
 
         return CompletableFuture.supplyAsync {

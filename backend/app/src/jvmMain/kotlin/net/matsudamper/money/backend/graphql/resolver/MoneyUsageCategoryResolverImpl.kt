@@ -20,7 +20,7 @@ class MoneyUsageCategoryResolverImpl : MoneyUsageCategoryResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<String>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
 
         val categoryLoader = context.dataLoaders.moneyUsageCategoryDataLoaderDefine.get(env)
             .load(
@@ -44,7 +44,7 @@ class MoneyUsageCategoryResolverImpl : MoneyUsageCategoryResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlSubCategoriesConnection?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
             val result = context.repositoryFactory.createMoneyUsageSubCategoryRepository()

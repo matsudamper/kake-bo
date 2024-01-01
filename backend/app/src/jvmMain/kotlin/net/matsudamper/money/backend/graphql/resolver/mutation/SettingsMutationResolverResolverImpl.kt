@@ -19,7 +19,7 @@ class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlUserImapConfig?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSession()
+        val userId = context.verifyUserSessionAndGetUserId()
         return CompletableFuture.supplyAsync {
             UserConfigRepository().updateImapConfig(
                 userId = userId,

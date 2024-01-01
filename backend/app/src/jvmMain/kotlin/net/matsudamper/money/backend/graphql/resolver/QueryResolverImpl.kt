@@ -18,7 +18,7 @@ import net.matsudamper.money.graphql.model.QueryResolver
 class QueryResolverImpl : QueryResolver {
     override fun user(env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlUser?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        context.verifyUserSession()
+        context.verifyUserSessionAndGetUserId()
         return CompletableFuture.completedFuture(
             QlUser(
                 userMailAttributes = QlUserMailAttributes(),
