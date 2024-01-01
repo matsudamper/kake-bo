@@ -37,7 +37,10 @@ class UserSessionRepository {
         )
     }
 
-    fun verifySession(sessionId: UserSessionId): VerifySessionResult {
+    fun verifySession(
+        sessionId: UserSessionId,
+        expireDay: Long,
+    ): VerifySessionResult {
         // UserIdを取得し、全ての古いSessionを削除する
         DbConnectionImpl.use {
             val userId = DSL.using(it)
@@ -50,7 +53,8 @@ class UserSessionRepository {
                 .deleteFrom(userSessions)
                 .where(
                     userSessions.USER_ID.eq(userId),
-                    userSessions.EXPIRE_DATETIME.lt(LocalDateTime.now()),
+                    DSL.localDateTimeAdd(userSessions.LATEST_ACCESSED_AT, expireDay)
+                        .lessThan(LocalDateTime.now(ZoneOffset.UTC)),
                 )
                 .execute()
         }
@@ -69,7 +73,7 @@ class UserSessionRepository {
                     .update(userSessions)
                     .set(userSessions.LATEST_ACCESSED_AT, LocalDateTime.now(ZoneOffset.UTC))
                     .where(userSessions.SESSION_ID.eq(sessionId.id))
-                    .returningResult(userSessions.USER_ID, userSessions.SESSION_ID, userSessions.EXPIRE_DATETIME)
+                    .returningResult(userSessions.USER_ID, userSessions.SESSION_ID, userSessions.LATEST_ACCESSED_AT)
                     .fetchOne()
             }
         }
@@ -78,8 +82,8 @@ class UserSessionRepository {
 
         return VerifySessionResult.Success(
             userId = UserId(userId),
-            sessionId = UserSessionId(result.value2()!!),
-            expire = result.value3()!!,
+            sessionId = UserSessionId(result.get<String>(userSessions.SESSION_ID)),
+            latestAccess = result.get<LocalDateTime>(userSessions.LATEST_ACCESSED_AT),
         )
     }
 
@@ -135,7 +139,7 @@ class UserSessionRepository {
         data class Success(
             val userId: UserId,
             val sessionId: UserSessionId,
-            val expire: LocalDateTime,
+            val latestAccess: LocalDateTime,
         ) : VerifySessionResult
 
         data object Failure : VerifySessionResult

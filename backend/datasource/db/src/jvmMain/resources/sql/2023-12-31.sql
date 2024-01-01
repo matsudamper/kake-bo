@@ -22,3 +22,5 @@ where 1;
 
 ALTER TABLE user_sessions ADD COLUMN name varchar(36) NOT NULL DEFAULT (UUID());
 ALTER TABLE user_sessions ADD CONSTRAINT user_id_and_name UNIQUE (user_id, name);
+
+ALTER TABLE user_sessions DROP COLUMN expire_datetime;

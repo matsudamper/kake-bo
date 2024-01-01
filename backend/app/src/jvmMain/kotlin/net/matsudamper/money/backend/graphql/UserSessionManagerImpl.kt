@@ -2,6 +2,7 @@ package net.matsudamper.money.backend.graphql
 
 import java.time.ZoneOffset
 import net.matsudamper.money.backend.base.CookieManager
+import net.matsudamper.money.backend.base.ServerVariables
 import net.matsudamper.money.backend.datasource.db.element.UserSessionId
 import net.matsudamper.money.backend.datasource.db.repository.UserSessionRepository
 import net.matsudamper.money.element.UserId
@@ -33,7 +34,10 @@ internal class UserSessionManagerImpl(
             return UserSessionRepository.VerifySessionResult.Failure
         }
 
-        when (val userSessionResult = userSessionRepository.verifySession(UserSessionId(userSessionString))) {
+        when (val userSessionResult = userSessionRepository.verifySession(
+            sessionId = UserSessionId(userSessionString),
+            expireDay = ServerVariables.USER_SESSION_EXPIRE_DAY,
+        )) {
             is UserSessionRepository.VerifySessionResult.Failure -> {
                 this.verifyUserSessionResult = UserSessionRepository.VerifySessionResult.Failure
                 return UserSessionRepository.VerifySessionResult.Failure
@@ -44,7 +48,8 @@ internal class UserSessionManagerImpl(
 
                 cookieManager.setUserSession(
                     idValue = userSessionResult.sessionId.id,
-                    expires = userSessionResult.expire.atOffset(ZoneOffset.UTC),
+                    expires = userSessionResult.latestAccess.atOffset(ZoneOffset.UTC)
+                        .plusDays(ServerVariables.USER_SESSION_EXPIRE_DAY),
                 )
 
                 return userSessionResult
