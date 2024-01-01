@@ -2,6 +2,7 @@ package net.matsudamper.money.backend.di
 
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.backend.base.ServerEnv
+import net.matsudamper.money.backend.base.ServerVariables
 import net.matsudamper.money.backend.datasource.challenge.ChallengeRepository
 import net.matsudamper.money.backend.datasource.challenge.ChallengeRepositoryProvider
 import net.matsudamper.money.backend.mail.MailRepository
@@ -99,6 +100,7 @@ class RepositoryFactoryImpl : RepositoryFactory {
         ChallengeRepositoryProvider.provideRedisRepository(
             host = ServerEnv.redisHost,
             port = ServerEnv.redisPort,
+            index = ServerVariables.REDIS_INDEX_CHALLENGE,
         )
     } else {
         ChallengeRepositoryProvider.provideLocalRepository()
