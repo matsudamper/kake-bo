@@ -16,6 +16,7 @@ kotlin {
                 implementation(project(":backend:graphql"))
                 implementation(project(":backend:datasource:db"))
                 implementation(project(":backend:datasource:mail"))
+                implementation(project(":backend:datasource:inmemory"))
                 implementation(project(":backend:feature:mail_parser"))
                 implementation(project(":backend:feature:fido"))
 
