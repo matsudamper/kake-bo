@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -21,7 +23,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,7 +31,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
@@ -40,6 +40,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
@@ -96,6 +98,7 @@ public fun LoginSettingScreen(
     rootScreenScaffoldListener: RootScreenScaffoldListener,
     modifier: Modifier = Modifier,
 ) {
+    val layoutDirection = LocalLayoutDirection.current
     uiState.textInputDialogState?.also { textInputDialogState ->
         HtmlFullScreenTextInput(
             title = textInputDialogState.title,
@@ -135,6 +138,7 @@ public fun LoginSettingScreen(
                 Text("ログイン設定")
             },
         ) { paddingValues ->
+            var scrollButtonHeightPx by remember { mutableIntStateOf(0) }
             val lazyListState = rememberLazyListState()
             var listHeightPx by remember { mutableIntStateOf(0) }
             LazyColumn(
@@ -142,7 +146,14 @@ public fun LoginSettingScreen(
                     .onSizeChanged {
                         listHeightPx = it.height
                     },
-                contentPadding = paddingValues,
+                contentPadding = PaddingValues(
+                    start = paddingValues.calculateStartPadding(layoutDirection),
+                    end = paddingValues.calculateEndPadding(layoutDirection),
+                    top = paddingValues.calculateTopPadding(),
+                    bottom = paddingValues.calculateBottomPadding()
+                        .plus(24.dp)
+                        .plus(with(LocalDensity.current) { scrollButtonHeightPx.toDp() }),
+                ),
                 state = lazyListState,
             ) {
                 item {
@@ -185,7 +196,7 @@ public fun LoginSettingScreen(
                     ) {
                         SettingListMenuItemButton(
                             modifier = Modifier.fillMaxWidth(),
-                            titleStyle = MaterialTheme.typography.titleLarge.merge(
+                            titleStyle = MaterialTheme.typography.bodyMedium.merge(
                                 TextStyle(
                                     color = MaterialTheme.colorScheme.error,
                                 ),
@@ -200,6 +211,7 @@ public fun LoginSettingScreen(
 
             ScrollButtons(
                 modifier = Modifier
+                    .onSizeChanged { scrollButtonHeightPx = it.height }
                     .align(Alignment.BottomEnd)
                     .padding(ScrollButtonsDefaults.padding)
                     .height(ScrollButtonsDefaults.height),
