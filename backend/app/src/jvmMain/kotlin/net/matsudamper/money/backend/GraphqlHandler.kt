@@ -13,7 +13,7 @@ import graphql.validation.ValidationError
 import net.matsudamper.money.backend.base.CookieManager
 import net.matsudamper.money.backend.base.ObjectMapper
 import net.matsudamper.money.backend.di.RepositoryFactoryImpl
-import net.matsudamper.money.backend.exception.GraphQlMultiException
+import net.matsudamper.money.backend.graphql.exception.GraphQlMultiException
 import net.matsudamper.money.backend.graphql.DataLoaders
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.GraphqlMoneyException

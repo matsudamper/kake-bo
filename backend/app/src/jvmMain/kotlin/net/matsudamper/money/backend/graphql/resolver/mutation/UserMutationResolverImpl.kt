@@ -10,7 +10,7 @@ import kotlinx.coroutines.runBlocking
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
-import net.matsudamper.money.backend.exception.GraphqlExceptions
+import net.matsudamper.money.backend.graphql.exception.GraphqlExceptions
 import net.matsudamper.money.backend.fido.Auth4JModel
 import net.matsudamper.money.backend.fido.AuthenticatorConverter
 import net.matsudamper.money.backend.graphql.GraphQlContext

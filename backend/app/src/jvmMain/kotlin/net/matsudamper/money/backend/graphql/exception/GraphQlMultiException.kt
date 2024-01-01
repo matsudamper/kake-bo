@@ -1,4 +1,4 @@
-package net.matsudamper.money.backend.exception
+package net.matsudamper.money.backend.graphql.exception
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.io.PrintWriter
