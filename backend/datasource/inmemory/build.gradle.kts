@@ -1,0 +1,30 @@
+plugins {
+    alias(libs.plugins.kotlin.multiplatform)
+}
+
+kotlin {
+    jvm {
+        withJava()
+    }
+    jvmToolchain(17)
+    sourceSets {
+        val jvmMain by getting {
+            dependencies {
+                implementation(project(":shared"))
+                implementation(project(":backend:base"))
+
+                implementation(kotlin("stdlib"))
+                implementation(kotlin("reflect"))
+                implementation(libs.kotlin.coroutines.core)
+                implementation(libs.kotlin.serialization.json)
+
+                implementation(libs.jedis)
+            }
+        }
+        val jvmTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
+    }
+}
