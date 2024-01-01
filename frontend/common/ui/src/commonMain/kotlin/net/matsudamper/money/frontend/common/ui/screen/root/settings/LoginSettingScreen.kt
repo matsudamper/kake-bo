@@ -5,6 +5,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -49,8 +51,15 @@ import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.Html
 public data class LoginSettingScreenUiState(
     val event: Event,
     val fidoList: ImmutableList<Fido>,
+    val currentSession: Session?,
+    val sessionList: ImmutableList<Session>,
     val textInputDialogState: TextInputDialogState?,
 ) {
+    public data class Session(
+        val name: String,
+        val lastAccess: String,
+    )
+
     public data class TextInputDialogState(
         val title: String,
         val text: String,
@@ -150,14 +159,19 @@ public fun LoginSettingScreen(
                 }
                 item {
                     SettingSmallSection(
+                        modifier = Modifier.fillMaxWidth()
+                            .height(480.dp),
                         title = {
                             Text("セッション一覧")
                         },
                     ) {
-                        SessionSection(
-                            modifier = Modifier.fillMaxWidth()
-                                .height(280.dp),
-                        )
+                        if (uiState.currentSession != null) {
+                            SessionSection(
+                                modifier = Modifier.fillMaxWidth(),
+                                currentSession = uiState.currentSession,
+                                sessionList = uiState.sessionList,
+                            )
+                        }
                     }
                 }
                 item {
@@ -253,12 +267,88 @@ private fun FidoSection(
 @Composable
 private fun SessionSection(
     modifier: Modifier = Modifier,
+    currentSession: LoginSettingScreenUiState.Session,
+    sessionList: ImmutableList<LoginSettingScreenUiState.Session>,
 ) {
     LazyColumn(
         modifier = modifier,
+        contentPadding = PaddingValues(
+            horizontal = 8.dp,
+        ),
     ) {
-        items((0 until 5).toList()) {
-            Text("TODO: $it")
+        item {
+            Text(
+                modifier = Modifier.padding(
+                    vertical = 4.dp,
+                ),
+                text = "現在のセッション",
+            )
+            Divider(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            )
+        }
+        item {
+            SessionItem(
+                session = currentSession,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+        item {
+            Text(
+                modifier = Modifier.padding(
+                    vertical = 4.dp,
+                ),
+                text = "その他のセッション",
+            )
+            Divider(
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            )
+        }
+        items(sessionList) { session ->
+            SessionItem(
+                session = session,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
+}
+
+@Composable
+private fun SessionItem(
+    session: LoginSettingScreenUiState.Session,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier
+            .padding(
+                top = 8.dp,
+            ),
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(
+                modifier = Modifier.weight(1f)
+                    .padding(
+                        horizontal = 12.dp,
+                        vertical = 8.dp,
+                    ),
+            ) {
+                Text(session.name)
+                Spacer(modifier = Modifier.height(4.dp))
+                Text("最終アクセス: ${session.lastAccess}")
+            }
+            IconButton(
+                onClick = { },
+            ) {
+                Icon(Icons.Default.Menu, contentDescription = "open menu")
+            }
         }
     }
 }

@@ -6,6 +6,16 @@ query LoginSettingScreen {
                 name
                 base64CredentialId
             }
+            sessionAttributes {
+                currentSession {
+                    name
+                    lastAccess
+                }
+                sessions {
+                    name
+                    lastAccess
+                }
+            }
         }
     }
 }

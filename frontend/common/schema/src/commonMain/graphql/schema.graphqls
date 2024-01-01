@@ -179,6 +179,16 @@ type RegisteredFidoResult {
     fidoInfo: RegisteredFidoInfo
 }
 
+type Session {
+    lastAccess: OffsetDateTime!
+    name: String!
+}
+
+type SessionAttributes {
+    currentSession: Session!
+    sessions: [Session!]!
+}
+
 type SettingsMutation {
     updateImapConfig(config: UpdateUserImapConfigInput!): UserImapConfig
 }
@@ -265,6 +275,7 @@ type UserSettings {
     fidoAddInfo: FidoAddInfo!
     imapConfig: UserImapConfig
     registeredFidoList: [RegisteredFidoInfo!]!
+    sessionAttributes: SessionAttributes!
 }
 
 enum AddSubCategoryError {

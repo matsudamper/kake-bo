@@ -10,6 +10,11 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.internal.JSJoda.DateTimeFormatter
+import kotlinx.datetime.internal.JSJoda.DateTimeFormatterBuilder
+import kotlinx.datetime.internal.JSJoda.Locale
+import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
@@ -19,6 +24,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.settings.LoginSettin
 import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
+import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.common.viewmodel.shared.FidoApi
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenQuery
 
@@ -40,6 +46,8 @@ public class LoginSettingViewModel(
         LoginSettingScreenUiState(
             fidoList = immutableListOf(),
             textInputDialogState = null,
+            sessionList = immutableListOf(),
+            currentSession = null,
             event = object : LoginSettingScreenUiState.Event {
                 override fun onClickBack() {
                     coroutineScope.launch {
@@ -70,6 +78,9 @@ public class LoginSettingViewModel(
     ).also { uiStateFlow ->
         coroutineScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
+                val currentSession = viewModelState.apolloScreenResponse
+                    ?.data?.user?.settings?.sessionAttributes?.currentSession
+
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         fidoList = run fidoList@{
@@ -85,6 +96,36 @@ public class LoginSettingViewModel(
                                     event = FidoEventImpl(fido),
                                 )
                             }.toImmutableList()
+                        },
+                        sessionList = run sessionList@{
+                            val sessionList = viewModelState.apolloScreenResponse
+                                ?.data?.user?.settings?.sessionAttributes?.sessions
+                            if (sessionList == null) {
+                                return@sessionList immutableListOf()
+                            }
+
+                            sessionList
+                                .filterNot { it.name == currentSession?.name }
+                                .map { session ->
+                                    LoginSettingScreenUiState.Session(
+                                        name = session.name,
+                                        lastAccess = Formatter.formatDateTime(
+                                            session.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
+                                        ),
+                                    )
+                                }.toImmutableList()
+                        },
+                        currentSession = run currentSession@{
+                            if (currentSession == null) {
+                                return@currentSession null
+                            }
+
+                            LoginSettingScreenUiState.Session(
+                                name = currentSession.name,
+                                lastAccess = Formatter.formatDateTime(
+                                    currentSession.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
+                                ),
+                            )
                         },
                         textInputDialogState = viewModelState.textInputDialogState,
                     )
