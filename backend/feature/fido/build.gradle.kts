@@ -1,5 +1,4 @@
 plugins {
-    id("application")
     kotlin("multiplatform")
 }
 
