@@ -79,6 +79,7 @@ fun Content(
                     hostState.showSnackbar(
                         message = message,
                         duration = SnackbarDuration.Short,
+                        withDismissAction = true,
                     )
                 }
             }
