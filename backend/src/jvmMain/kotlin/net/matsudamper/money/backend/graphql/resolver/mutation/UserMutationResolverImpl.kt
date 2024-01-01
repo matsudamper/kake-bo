@@ -24,6 +24,7 @@ import net.matsudamper.money.backend.repository.MoneyUsageRepository
 import net.matsudamper.money.backend.repository.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.repository.UserLoginRepository
 import net.matsudamper.money.backend.repository.UserSessionRepository
+import net.matsudamper.money.element.FidoId
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
@@ -108,6 +109,16 @@ class UserMutationResolverImpl : UserMutationResolver {
         return CompletableFuture.supplyAsync {
             context.clearUserSession()
             true
+        }.toDataFetcher()
+    }
+
+    override fun remoteFido(userMutation: QlUserMutation, id: FidoId, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val fidoRepository = context.repositoryFactory.createFidoRepository()
+        val userId = context.verifyUserSession()
+
+        return CompletableFuture.supplyAsync {
+            fidoRepository.deleteFido(userId, id)
         }.toDataFetcher()
     }
 

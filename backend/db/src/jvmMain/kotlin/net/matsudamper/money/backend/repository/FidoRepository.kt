@@ -73,6 +73,21 @@ class FidoRepository(
         }
     }
 
+    /**
+     * @return isSuccess
+     */
+    fun deleteFido(userId: UserId, id: FidoId): Boolean {
+        return dbConnection.use {
+            val result = DSL.using(it)
+                .deleteFrom(webAuthAuthenticator)
+                .where(webAuthAuthenticator.USER_ID.eq(userId.value))
+                .and(webAuthAuthenticator.ID.eq(id.value))
+                .execute()
+
+            result == 1
+        }
+    }
+
     data class RegisterdFido(
         val fidoId: FidoId,
         val name: String,
