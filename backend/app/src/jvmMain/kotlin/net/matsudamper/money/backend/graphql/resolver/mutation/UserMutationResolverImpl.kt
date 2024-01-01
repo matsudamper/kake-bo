@@ -139,6 +139,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val fidoRepository = context.repositoryFactory.createFidoRepository()
         val userRepository = context.repositoryFactory.createUserNameRepository()
+        val challengeRepository = context.repositoryFactory.createChallengeRepository()
         return CompletableFuture.supplyAsync {
             runBlocking {
                 minExecutionTime(1000) {
@@ -155,7 +156,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                             counter = fido.counter,
                         )
                         runCatching {
-                            if (ChallengeModel().validateChallenge(
+                            if (ChallengeModel(challengeRepository).validateChallenge(
                                     challenge = userFidoLoginInput.challenge,
                                 ).not()
                             ) {
@@ -614,9 +615,10 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val fidoRepository = context.repositoryFactory.createFidoRepository()
         val userId = context.verifyUserSession()
+        val challengeRepository = context.repositoryFactory.createChallengeRepository()
 
         return CompletableFuture.supplyAsync {
-            if (ChallengeModel().validateChallenge(
+            if (ChallengeModel(challengeRepository).validateChallenge(
                     challenge = input.challenge,
                 ).not()
             ) {

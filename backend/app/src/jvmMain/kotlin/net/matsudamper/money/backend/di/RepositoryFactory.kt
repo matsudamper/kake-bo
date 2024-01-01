@@ -1,6 +1,9 @@
 package net.matsudamper.money.backend.di
 
 import net.matsudamper.money.backend.DbConnectionImpl
+import net.matsudamper.money.backend.base.ServerEnv
+import net.matsudamper.money.backend.datasource.challenge.ChallengeRepository
+import net.matsudamper.money.backend.datasource.challenge.ChallengeRepositoryProvider
 import net.matsudamper.money.backend.mail.MailRepository
 import net.matsudamper.money.backend.repository.DbMailRepository
 import net.matsudamper.money.backend.repository.FidoRepository
@@ -29,6 +32,7 @@ interface RepositoryFactory {
     fun createMoneyUsageAnalyticsRepository(): MoneyUsageAnalyticsRepository
     fun createUserNameRepository(): UserRepository
     fun createFidoRepository(): FidoRepository
+    fun createChallengeRepository(): ChallengeRepository
 }
 
 class RepositoryFactoryImpl : RepositoryFactory {
@@ -89,5 +93,18 @@ class RepositoryFactoryImpl : RepositoryFactory {
     private val fidoRepository = FidoRepository(dbConnection = DbConnectionImpl)
     override fun createFidoRepository(): FidoRepository {
         return fidoRepository
+    }
+
+    private val challengeRepository: ChallengeRepository = if (ServerEnv.enableRedis) {
+        ChallengeRepositoryProvider.provideRedisRepository(
+            host = ServerEnv.redisHost,
+            port = ServerEnv.redisPort,
+        )
+    } else {
+        ChallengeRepositoryProvider.provideLocalRepository()
+    }
+
+    override fun createChallengeRepository(): ChallengeRepository {
+        return challengeRepository
     }
 }

@@ -39,11 +39,12 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         val userId = context.verifyUserSession()
         val userNameFuture = context.dataLoaders.userNameDataLoader.get(env)
             .load(userId)
+        val challengeRepository = context.repositoryFactory.createChallengeRepository()
         return CompletableFuture.allOf(userNameFuture).thenApplyAsync {
             QlFidoAddInfo(
                 id = userId.value.toString(),
                 name = userNameFuture.get(),
-                challenge = ChallengeModel().generateChallenge(),
+                challenge = ChallengeModel(challengeRepository).generateChallenge(),
                 domain = ServerEnv.domain!!,
             )
         }.toDataFetcher()

@@ -39,9 +39,11 @@ class QueryResolverImpl : QueryResolver {
     }
 
     override fun fidoLoginInfo(env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlFidoLoginInfo>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val challengeRepository = context.repositoryFactory.createChallengeRepository()
         return CompletableFuture.completedFuture(
             QlFidoLoginInfo(
-                challenge = ChallengeModel().generateChallenge(),
+                challenge = ChallengeModel(challengeRepository).generateChallenge(),
                 domain = ServerEnv.domain!!,
             ),
         ).toDataFetcher()
