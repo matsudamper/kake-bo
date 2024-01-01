@@ -140,6 +140,7 @@ public class LoginSettingViewModel(
                             displayName = name,
                             base64AttestationObject = createResult.attestationObjectBase64,
                             base64ClientDataJson = createResult.clientDataJSONBase64,
+                            challenge = fidoInfo.challenge,
                         )
                     }
 

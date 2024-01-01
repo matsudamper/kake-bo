@@ -429,6 +429,7 @@ input MoneyUsagesQueryFilter {
 input RegisterFidoInput {
     base64AttestationObject: String!
     base64ClientDataJson: String!
+    challenge: String!
     displayName: String!
 }
 
@@ -476,6 +477,7 @@ input UserFidoLoginInput {
     base64ClientDataJson: String!
     base64Signature: String!
     base64UserHandle: String!
+    challenge: String!
     credentialId: String!
     userName: String!
 }

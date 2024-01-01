@@ -39,6 +39,7 @@ public class LoginSettingScreenApi(
         displayName: String,
         base64AttestationObject: String,
         base64ClientDataJson: String,
+        challenge: String,
     ): ApolloResponse<SettingScreenAddFidoMutation.Data>? {
         return runCatching {
             apolloClient
@@ -48,6 +49,7 @@ public class LoginSettingScreenApi(
                             displayName = displayName,
                             base64AttestationObject = base64AttestationObject,
                             base64ClientDataJson = base64ClientDataJson,
+                            challenge = challenge,
                         ),
                     ),
                 )

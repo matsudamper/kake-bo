@@ -201,6 +201,7 @@ public class LoginScreenViewModel(
                     base64UserHandle = webAuthResult.base64UserHandle,
                     credentialId = webAuthResult.credentialId,
                     userName = userName,
+                    challenge = fidoInfo.challenge,
                 ),
             )
             postLogin(isSuccess = loginResult.data?.userMutation?.userFidoLogin?.isSuccess == true)
