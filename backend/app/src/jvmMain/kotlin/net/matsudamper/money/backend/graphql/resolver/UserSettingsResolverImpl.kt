@@ -86,7 +86,7 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         return CompletableFuture.supplyAsync {
             userSessionRepository.getSessions(userId).map { session ->
                 QlSession(
-                    name = "TODO",
+                    name = session.name,
                     lastAccess = session.latestAccess.atOffset(ZoneOffset.UTC),
                 )
             }

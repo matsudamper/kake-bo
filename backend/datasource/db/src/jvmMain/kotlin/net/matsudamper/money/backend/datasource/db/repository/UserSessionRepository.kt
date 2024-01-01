@@ -86,13 +86,18 @@ class UserSessionRepository {
     fun getSessions(userId: UserId): List<SessionInfo> {
         return DbConnectionImpl.use {
             DSL.using(it)
-                .select(userSessions.SESSION_ID, userSessions.LATEST_ACCESSED_AT)
+                .select(
+                    userSessions.SESSION_ID,
+                    userSessions.LATEST_ACCESSED_AT,
+                    userSessions.NAME,
+                )
                 .from(userSessions)
                 .where(userSessions.USER_ID.eq(userId.value))
                 .fetch()
                 .map { record ->
                     SessionInfo(
                         latestAccess = record.get<LocalDateTime>(userSessions.LATEST_ACCESSED_AT),
+                        name = record.get<String>(userSessions.NAME),
                     )
                 }
         }
@@ -104,6 +109,7 @@ class UserSessionRepository {
     )
 
     data class SessionInfo(
+        val name: String,
         val latestAccess: LocalDateTime,
     )
 

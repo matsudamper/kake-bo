@@ -12,6 +12,7 @@ import kotlin.collections.List
 import net.matsudamper.money.db.schema.JMoney
 import net.matsudamper.money.db.schema.indexes.USER_SESSIONS_USER_ID
 import net.matsudamper.money.db.schema.keys.KEY_USER_SESSIONS_PRIMARY
+import net.matsudamper.money.db.schema.keys.KEY_USER_SESSIONS_USER_ID_AND_NAME
 import net.matsudamper.money.db.schema.tables.records.JUserSessionsRecord
 
 import org.jooq.Field
@@ -20,7 +21,7 @@ import org.jooq.Index
 import org.jooq.Name
 import org.jooq.Record
 import org.jooq.Records
-import org.jooq.Row5
+import org.jooq.Row6
 import org.jooq.Schema
 import org.jooq.SelectField
 import org.jooq.Table
@@ -91,6 +92,11 @@ open class JUserSessions(
      */
     val LATEST_ACCESSED_AT: TableField<JUserSessionsRecord, LocalDateTime?> = createField(DSL.name("latest_accessed_at"), SQLDataType.LOCALDATETIME(0).defaultValue(DSL.field(DSL.raw("current_timestamp()"), SQLDataType.LOCALDATETIME)), this, "")
 
+    /**
+     * The column <code>money.user_sessions.name</code>.
+     */
+    val NAME: TableField<JUserSessionsRecord, String?> = createField(DSL.name("name"), SQLDataType.VARCHAR(36).nullable(false).defaultValue(DSL.field(DSL.raw("uuid()"), SQLDataType.VARCHAR)), this, "")
+
     private constructor(alias: Name, aliased: Table<JUserSessionsRecord>?): this(alias, null, null, aliased, null)
     private constructor(alias: Name, aliased: Table<JUserSessionsRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, aliased, parameters)
 
@@ -113,6 +119,7 @@ open class JUserSessions(
     override fun getSchema(): Schema? = if (aliased()) null else JMoney.MONEY
     override fun getIndexes(): List<Index> = listOf(USER_SESSIONS_USER_ID)
     override fun getPrimaryKey(): UniqueKey<JUserSessionsRecord> = KEY_USER_SESSIONS_PRIMARY
+    override fun getUniqueKeys(): List<UniqueKey<JUserSessionsRecord>> = listOf(KEY_USER_SESSIONS_USER_ID_AND_NAME)
     override fun `as`(alias: String): JUserSessions = JUserSessions(DSL.name(alias), this)
     override fun `as`(alias: Name): JUserSessions = JUserSessions(alias, this)
     override fun `as`(alias: Table<*>): JUserSessions = JUserSessions(alias.getQualifiedName(), this)
@@ -133,18 +140,18 @@ open class JUserSessions(
     override fun rename(name: Table<*>): JUserSessions = JUserSessions(name.getQualifiedName(), null)
 
     // -------------------------------------------------------------------------
-    // Row5 type methods
+    // Row6 type methods
     // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row5<String?, Int?, LocalDateTime?, LocalDateTime?, LocalDateTime?> = super.fieldsRow() as Row5<String?, Int?, LocalDateTime?, LocalDateTime?, LocalDateTime?>
+    override fun fieldsRow(): Row6<String?, Int?, LocalDateTime?, LocalDateTime?, LocalDateTime?, String?> = super.fieldsRow() as Row6<String?, Int?, LocalDateTime?, LocalDateTime?, LocalDateTime?, String?>
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
      */
-    fun <U> mapping(from: (String?, Int?, LocalDateTime?, LocalDateTime?, LocalDateTime?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
+    fun <U> mapping(from: (String?, Int?, LocalDateTime?, LocalDateTime?, LocalDateTime?, String?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
 
     /**
      * Convenience mapping calling {@link SelectField#convertFrom(Class,
      * Function)}.
      */
-    fun <U> mapping(toType: Class<U>, from: (String?, Int?, LocalDateTime?, LocalDateTime?, LocalDateTime?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
+    fun <U> mapping(toType: Class<U>, from: (String?, Int?, LocalDateTime?, LocalDateTime?, LocalDateTime?, String?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
 }
