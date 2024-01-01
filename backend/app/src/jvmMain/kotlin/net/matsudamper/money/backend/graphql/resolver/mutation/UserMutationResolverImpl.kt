@@ -148,6 +148,13 @@ class UserMutationResolverImpl : UserMutationResolver {
                             isSuccess = false,
                         )
                     val fidoList = fidoRepository.getFidoList(requestUserId)
+                    if (ChallengeModel(challengeRepository).validateChallenge(
+                            challenge = userFidoLoginInput.challenge,
+                        ).not()
+                    ) {
+                        throw GraphqlExceptions.BadRequest("challenge is invalid")
+                    }
+
                     for (fido in fidoList) {
                         val authenticator = AuthenticatorConverter.convertFromBase64(
                             base64AttestationStatement = fido.attestedStatement,
@@ -156,13 +163,6 @@ class UserMutationResolverImpl : UserMutationResolver {
                             counter = fido.counter,
                         )
                         runCatching {
-                            if (ChallengeModel(challengeRepository).validateChallenge(
-                                    challenge = userFidoLoginInput.challenge,
-                                ).not()
-                            ) {
-                                throw GraphqlExceptions.BadRequest("challenge is invalid")
-                            }
-
                             Auth4JModel(
                                 challenge = userFidoLoginInput.challenge,
                             ).verify(
