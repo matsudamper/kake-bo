@@ -19,10 +19,10 @@ import net.matsudamper.money.backend.di.RepositoryFactory
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderRegistry
 
-class DataLoaders(
+internal class DataLoaders(
     val repositoryFactory: RepositoryFactory,
     private val dataLoaderRegistryBuilder: DataLoaderRegistry.Builder = DataLoaderRegistry.Builder(),
-    private val userIdVerifyUseCase: UserIdVerifyUseCase,
+    private val userSessionManager: UserSessionManagerImpl,
 ) {
 
     val importedMailDataLoader by register {
@@ -61,7 +61,7 @@ class DataLoaders(
     }
 
     val moneyUsageAnalyticsBySubCategoryLoader by register {
-        MoneyUsageAnalyticsBySubCategoryLoader(repositoryFactory, userIdVerifyUseCase)
+        MoneyUsageAnalyticsBySubCategoryLoader(repositoryFactory, userSessionManager)
     }
 
     val userNameDataLoader by register {

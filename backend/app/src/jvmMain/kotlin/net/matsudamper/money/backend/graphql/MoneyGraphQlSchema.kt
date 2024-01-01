@@ -185,7 +185,7 @@ object MoneyGraphQlSchema {
             .makeExecutableSchema()
     }
 
-    internal val graphql = GraphQL.newGraphQL(schema)
+    public val graphql = GraphQL.newGraphQL(schema)
         .queryExecutionStrategy(AsyncExecutionStrategy())
         .build()
 

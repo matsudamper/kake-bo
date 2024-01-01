@@ -10,8 +10,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
-import io.ktor.server.plugins.BadRequestException
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
+import net.matsudamper.money.backend.exception.GraphqlExceptions
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.converter.toDBElement
 import net.matsudamper.money.backend.graphql.converter.toDbElement
@@ -162,7 +162,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                                     challenge = userFidoLoginInput.challenge,
                                 ).not()
                             ) {
-                                throw BadRequestException("challenge is invalid")
+                                throw GraphqlExceptions.BadRequest("challenge is invalid")
                             }
 
                             Auth4JModel(
@@ -623,7 +623,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                     challenge = input.challenge,
                 ).not()
             ) {
-                throw BadRequestException("challenge is invalid")
+                throw GraphqlExceptions.BadRequest("challenge is invalid")
             }
             val auth4JModel = Auth4JModel(
                 challenge = input.challenge,

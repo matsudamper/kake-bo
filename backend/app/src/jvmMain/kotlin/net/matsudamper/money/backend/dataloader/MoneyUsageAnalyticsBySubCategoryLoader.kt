@@ -5,15 +5,15 @@ import java.util.concurrent.CompletableFuture
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import net.matsudamper.money.backend.di.RepositoryFactory
-import net.matsudamper.money.backend.graphql.UserIdVerifyUseCase
+import net.matsudamper.money.backend.graphql.UserSessionManagerImpl
 import net.matsudamper.money.backend.repository.MoneyUsageAnalyticsRepository
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
 
-class MoneyUsageAnalyticsBySubCategoryLoader(
+internal class MoneyUsageAnalyticsBySubCategoryLoader(
     private val repositoryFactory: RepositoryFactory,
-    private val userIdVerifyUseCase: UserIdVerifyUseCase,
+    private val userSessionManager: UserSessionManagerImpl,
 ) : DataLoaderDefine<MoneyUsageAnalyticsBySubCategoryLoader.Key, MoneyUsageAnalyticsRepository.TotalAmountBySubCategory> {
     override val key: String = this::class.java.name
 
@@ -22,7 +22,7 @@ class MoneyUsageAnalyticsBySubCategoryLoader(
             CompletableFuture.supplyAsync {
                 runBlocking {
                     val repository = repositoryFactory.createMoneyUsageAnalyticsRepository()
-                    val userId = userIdVerifyUseCase.verifyUserSession()
+                    val userId = userSessionManager.verifyUserSession()
 
                     val results = keys.groupBy {
                         GroupKey(

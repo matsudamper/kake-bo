@@ -10,8 +10,7 @@ import graphql.GraphQLError
 import graphql.InvalidSyntaxError
 import graphql.execution.NonNullableFieldWasNullError
 import graphql.validation.ValidationError
-import io.ktor.server.application.ApplicationCall
-import io.ktor.server.request.receiveStream
+import net.matsudamper.money.backend.base.CookieManager
 import net.matsudamper.money.backend.base.ObjectMapper
 import net.matsudamper.money.backend.di.RepositoryFactoryImpl
 import net.matsudamper.money.backend.exception.GraphQlMultiException
@@ -19,29 +18,31 @@ import net.matsudamper.money.backend.graphql.DataLoaders
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.GraphqlMoneyException
 import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
-import net.matsudamper.money.backend.graphql.UserIdVerifyUseCase
+import net.matsudamper.money.backend.graphql.UserSessionManagerImpl
 import org.dataloader.DataLoaderRegistry
 
+
 class GraphqlHandler(
-    private val call: ApplicationCall,
+    private val cookieManager: CookieManager,
 ) {
-    suspend fun handle(): String {
-        val requestText = call.receiveStream().bufferedReader().readText()
+    fun handle(requestText: String): String {
         val request = jacksonObjectMapper().readValue<GraphQlRequest>(requestText)
 
         val repositoryFactory = RepositoryFactoryImpl()
         val dataLoaderRegistryBuilder = DataLoaderRegistry.Builder()
-        val userIdVerifyUseCase = UserIdVerifyUseCase(call)
+        val userSessionManager = UserSessionManagerImpl(
+            cookieManager = cookieManager,
+        )
         val dataLoaders = DataLoaders(
             repositoryFactory = repositoryFactory,
             dataLoaderRegistryBuilder = dataLoaderRegistryBuilder,
-            userIdVerifyUseCase = userIdVerifyUseCase,
+            userSessionManager = userSessionManager,
         )
         val graphqlContext = GraphQlContext(
-            call = call,
+            cookieManager = cookieManager,
             repositoryFactory = repositoryFactory,
             dataLoaders = dataLoaders,
-            userIdVerifyUseCase = userIdVerifyUseCase,
+            userSessionManager = userSessionManager,
         )
         val executionInputBuilder = ExecutionInput.newExecutionInput()
             .dataLoaderRegistry(

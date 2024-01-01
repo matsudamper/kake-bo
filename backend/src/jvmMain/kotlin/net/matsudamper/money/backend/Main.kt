@@ -21,6 +21,7 @@ import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.forwardedheaders.ForwardedHeaders
 import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import io.ktor.server.request.path
+import io.ktor.server.request.receiveStream
 import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.accept
@@ -90,7 +91,11 @@ fun Application.myApplicationModule() {
                     contentType = ContentType.Application.Json,
                 ) {
                     return@respondText withTimeout(5.seconds) {
-                        GraphqlHandler(call = call).handle()
+                        GraphqlHandler(
+                            cookieManager = CookieManagerImpl(call = call),
+                        ).handle(
+                             requestText = call.receiveStream().bufferedReader().readText()
+                        )
                     }
                 }
             }

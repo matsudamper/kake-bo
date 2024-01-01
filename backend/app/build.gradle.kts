@@ -4,9 +4,6 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
 }
 
-base.archivesName.set("money")
-group = "net.matsudamper.money.backend"
-
 kotlin {
     jvm {
         withJava()
@@ -18,26 +15,18 @@ kotlin {
                 implementation(project(":shared"))
                 implementation(project(":backend:base"))
                 implementation(project(":backend:graphql"))
-                implementation(project(":backend:app"))
+                implementation(project(":backend:datasource:db"))
+                implementation(project(":backend:datasource:mail"))
+                implementation(project(":backend:feature:mail_parser"))
 
                 implementation(kotlin("stdlib"))
+                implementation(libs.graphqlJava.extendedScalars)
+                implementation(libs.graphqlJava)
                 implementation(libs.jackson.jsr310)
                 implementation(libs.kotlin.serialization.json)
                 implementation(libs.kotlin.coroutines.core)
                 implementation(libs.logback.classic)
-
-                implementation(libs.ktor.server.core)
-                implementation(libs.ktor.server.engine)
-                implementation(libs.ktor.client.core)
-                implementation(libs.ktor.client.cio)
-                implementation(libs.ktor.server.statusPages)
-                implementation(libs.ktor.server.cors)
-                implementation(libs.ktor.server.defaultHeaders)
-                implementation(libs.ktor.server.fowardedHeader)
-                implementation(libs.ktor.serialization.json)
-                implementation(libs.ktor.server.contentNegotiation)
-                implementation(libs.ktor.server.callLogging)
-                implementation(libs.ktor.server.compression)
+                implementation(libs.webauth4jCore)
             }
         }
         val jvmTest by getting {
@@ -48,10 +37,6 @@ kotlin {
             }
         }
     }
-}
-
-application {
-    mainClass.set("net.matsudamper.money.backend.Main")
 }
 
 tasks.withType<Test>().configureEach {

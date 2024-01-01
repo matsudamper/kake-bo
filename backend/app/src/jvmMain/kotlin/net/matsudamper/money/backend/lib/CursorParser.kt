@@ -1,9 +1,6 @@
 package net.matsudamper.money.backend.lib
 
-import io.ktor.util.decodeBase64String
-import io.ktor.util.encodeBase64
-
-object CursorParser {
+internal object CursorParser {
     fun createToString(keyValues: Map<String, String>): String {
         return keyValues.map { (key, value) ->
             val key64 = key.encodeBase64().replace("=", "")

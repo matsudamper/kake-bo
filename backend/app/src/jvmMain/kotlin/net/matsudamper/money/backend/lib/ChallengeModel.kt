@@ -2,9 +2,6 @@ package net.matsudamper.money.backend.lib
 
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
-import io.ktor.util.decodeBase64Bytes
-import io.ktor.util.decodeBase64String
-import io.ktor.util.encodeBase64
 import net.matsudamper.money.backend.base.ServerEnv
 
 /**
@@ -43,7 +40,7 @@ class ChallengeModel(
                 throw IllegalArgumentException("Invalid challenge: [$challenge]")
             }
             randomText = it[0].decodeBase64String()
-            hashedRandomText = it[1].decodeBase64Bytes()
+            hashedRandomText = it[1].decodeBase64()
         }
 
         val hashedRandomText2 = mac.doFinal(randomText.encodeToByteArray())
