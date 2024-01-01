@@ -13,7 +13,7 @@ kotlin {
             dependencies {
                 implementation(project(":shared"))
                 implementation(project(":backend:base"))
-                implementation(project(":backend:db:schema"))
+                implementation(project(":backend:datasource:db:schema"))
 
                 implementation(kotlin("stdlib"))
                 implementation(kotlin("reflect"))

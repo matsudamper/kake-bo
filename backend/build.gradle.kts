@@ -18,8 +18,8 @@ kotlin {
                 implementation(project(":shared"))
                 implementation(project(":backend:base"))
                 implementation(project(":backend:graphql"))
-                implementation(project(":backend:db"))
-                implementation(project(":backend:mail"))
+                implementation(project(":backend:datasource:db"))
+                implementation(project(":backend:datasource:mail"))
                 implementation(project(":backend:feature:mail_parser"))
 
                 implementation(kotlin("stdlib"))
