@@ -17,13 +17,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -216,16 +219,28 @@ private fun FidoSection(
 ) {
     Column(modifier = modifier) {
         Row(modifier = Modifier.fillMaxWidth()) {
+            val buttonPadding = PaddingValues(
+                top = 8.dp,
+                bottom = 8.dp,
+                start = 18.dp,
+                end = 24.dp,
+            )
             Spacer(modifier = Modifier.weight(1f))
-            TextButton(
+            OutlinedButton(
+                contentPadding = buttonPadding,
                 onClick = { onClickPlatform() },
             ) {
-                Text("PLATFORM")
+                Icon(Icons.Default.Add, contentDescription = null)
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(text = "PLATFORM")
             }
             Spacer(modifier = Modifier.width(16.dp))
-            TextButton(
+            OutlinedButton(
+                contentPadding = buttonPadding,
                 onClick = { onClickCrossPlatform() },
             ) {
+                Icon(Icons.Default.Add, contentDescription = null)
+                Spacer(modifier = Modifier.width(4.dp))
                 Text("CROSS_PLATFORM")
             }
         }
@@ -235,21 +250,22 @@ private fun FidoSection(
         ) {
             items(fidoList) { fido ->
                 Surface(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(top = 8.dp),
                     shape = MaterialTheme.shapes.medium,
                     color = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(
-                                horizontal = 12.dp,
-                                vertical = 8.dp,
-                            ),
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(1f)
+                                .padding(
+                                    vertical = 8.dp,
+                                    horizontal = 12.dp,
+                                ),
                             text = fido.name,
                         )
                         IconButton(
@@ -270,6 +286,7 @@ private fun SessionSection(
     currentSession: LoginSettingScreenUiState.Session,
     sessionList: ImmutableList<LoginSettingScreenUiState.Session>,
 ) {
+    val itemPadding = 4.dp
     LazyColumn(
         modifier = modifier,
         contentPadding = PaddingValues(
@@ -278,16 +295,16 @@ private fun SessionSection(
     ) {
         item {
             Text(
-                modifier = Modifier.padding(
-                    vertical = 4.dp,
-                ),
+                modifier = Modifier.padding(itemPadding),
                 text = "現在のセッション",
+                style = MaterialTheme.typography.titleSmall,
             )
             Divider(
                 modifier = Modifier.fillMaxWidth(),
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
             )
         }
+        item { Spacer(modifier = Modifier.height(8.dp)) }
         item {
             SessionItem(
                 session = currentSession,
@@ -296,10 +313,9 @@ private fun SessionSection(
         }
         item {
             Text(
-                modifier = Modifier.padding(
-                    vertical = 4.dp,
-                ),
+                modifier = Modifier.padding(itemPadding),
                 text = "その他のセッション",
+                style = MaterialTheme.typography.titleSmall,
             )
             Divider(
                 modifier = Modifier.fillMaxWidth(),
@@ -309,7 +325,8 @@ private fun SessionSection(
         items(sessionList) { session ->
             SessionItem(
                 session = session,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth()
+                    .padding(horizontal = itemPadding),
             )
         }
     }
@@ -325,7 +342,7 @@ private fun SessionItem(
             .padding(
                 top = 8.dp,
             ),
-        shape = MaterialTheme.shapes.medium,
+        shape = MaterialTheme.shapes.small,
         color = MaterialTheme.colorScheme.primaryContainer,
         contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
     ) {
@@ -333,16 +350,20 @@ private fun SessionItem(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column(
-                modifier = Modifier.weight(1f)
-                    .padding(
-                        horizontal = 12.dp,
-                        vertical = 8.dp,
-                    ),
+            ProvideTextStyle(
+                MaterialTheme.typography.bodySmall,
             ) {
-                Text(session.name)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text("最終アクセス: ${session.lastAccess}")
+                Column(
+                    modifier = Modifier.weight(1f)
+                        .padding(
+                            horizontal = 12.dp,
+                            vertical = 8.dp,
+                        ),
+                ) {
+                    Text(session.name)
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text("最終アクセス: ${session.lastAccess}")
+                }
             }
             IconButton(
                 onClick = { },

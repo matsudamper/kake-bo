@@ -69,46 +69,16 @@ private fun getTypography(): Typography {
         titleSmall = MaterialTheme.typography.titleSmall
             .applyCustomFontFamily(),
         bodyLarge = MaterialTheme.typography.bodyLarge
-            .merge(
-                TextStyle(
-                    fontSize = 22.sp,
-                ),
-            )
             .applyCustomFontFamily(),
         bodyMedium = MaterialTheme.typography.bodyMedium
-            .merge(
-                TextStyle(
-                    fontSize = 18.sp,
-                ),
-            )
             .applyCustomFontFamily(),
         bodySmall = MaterialTheme.typography.bodySmall
-            .merge(
-                TextStyle(
-                    fontSize = 14.sp,
-                ),
-            )
             .applyCustomFontFamily(),
         labelLarge = MaterialTheme.typography.labelLarge
-            .merge(
-                TextStyle(
-                    fontSize = 18.sp,
-                ),
-            )
             .applyCustomFontFamily(),
         labelMedium = MaterialTheme.typography.labelMedium
-            .merge(
-                TextStyle(
-                    fontSize = 16.sp,
-                ),
-            )
             .applyCustomFontFamily(),
         labelSmall = MaterialTheme.typography.labelSmall
-            .merge(
-                TextStyle(
-                    fontSize = 14.sp,
-                ),
-            )
             .applyCustomFontFamily(),
     )
 }
