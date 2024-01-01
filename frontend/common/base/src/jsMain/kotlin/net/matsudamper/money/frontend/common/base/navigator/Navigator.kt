@@ -13,8 +13,6 @@ internal external interface Navigator {
 internal external interface CredentialsContainer {
     fun get(options: CredentialsContainerCreateOptions): Promise<PublicKeyCredential>
     fun create(options: CredentialsContainerCreateOptions): Promise<CredentialsContainerCreateResult>
-    fun store(credential: dynamic): Promise<dynamic>
-    fun preventSilentAccess(): Promise<Unit>
 }
 
 @Suppress("OPT_IN_USAGE")
