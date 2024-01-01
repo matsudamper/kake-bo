@@ -174,7 +174,7 @@ fun Content(
         }
     }
 
-    LaunchedEffect(globalEventSender) {
+    LaunchedEffect(globalEventSender, globalEvent) {
         globalEventSender.asHandler().collect(
             globalEvent,
         )
