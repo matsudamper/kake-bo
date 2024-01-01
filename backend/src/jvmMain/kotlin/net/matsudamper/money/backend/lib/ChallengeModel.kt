@@ -5,6 +5,9 @@ import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 import net.matsudamper.money.backend.base.ServerEnv
 
+/**
+ * https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html#alternative-using-a-double-submit-cookie-pattern
+ */
 class ChallengeModel(
     private val challengeSecretByteArray: ByteArray = ServerEnv.challengeSecret.toByteArray(),
 ) {
