@@ -78,7 +78,7 @@ class UserIdVerifyUseCase(
             value = "",
             encoding = CookieEncoding.URI_ENCODING,
             maxAge = 0L,
-            expires = GMTDate(),
+            expires = GMTDate.START,
             domain = null,
             path = null,
             extensions = cookieExtensions,
