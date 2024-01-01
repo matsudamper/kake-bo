@@ -98,8 +98,8 @@ class RepositoryFactoryImpl : RepositoryFactory {
 
     private val challengeRepository: ChallengeRepository = if (ServerEnv.enableRedis) {
         ChallengeRepositoryProvider.provideRedisRepository(
-            host = ServerEnv.redisHost,
-            port = ServerEnv.redisPort,
+            host = ServerEnv.redisHost!!,
+            port = ServerEnv.redisPort!!,
             index = ServerVariables.REDIS_INDEX_CHALLENGE,
         )
     } else {

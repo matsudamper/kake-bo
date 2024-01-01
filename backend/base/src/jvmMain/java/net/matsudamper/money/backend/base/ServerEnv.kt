@@ -19,6 +19,6 @@ public object ServerEnv {
     public val userPasswordPepper: String = System.getenv("USER_PASSWORD_PEPPER")!!
 
     public val enableRedis: Boolean = System.getenv("ENABLE_REDIS")?.toBooleanStrictOrNull() ?: false
-    public val redisHost: String = System.getenv("REDIS_HOST")!!
-    public val redisPort: Int = System.getenv("REDIS_PORT")!!.toInt()
+    public val redisHost: String? = System.getenv("REDIS_HOST").takeIf { it.isNotBlank() }
+    public val redisPort: Int? = System.getenv("REDIS_PORT")?.toInt()
 }
