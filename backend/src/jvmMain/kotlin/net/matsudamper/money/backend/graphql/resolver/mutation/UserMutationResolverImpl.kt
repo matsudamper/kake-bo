@@ -40,6 +40,7 @@ import net.matsudamper.money.graphql.model.QlAddSubCategoryError
 import net.matsudamper.money.graphql.model.QlAddSubCategoryInput
 import net.matsudamper.money.graphql.model.QlAddSubCategoryResult
 import net.matsudamper.money.graphql.model.QlAddUsageQuery
+import net.matsudamper.money.graphql.model.QlDeleteFidoResult
 import net.matsudamper.money.graphql.model.QlDeleteMailResult
 import net.matsudamper.money.graphql.model.QlDeleteMailResultError
 import net.matsudamper.money.graphql.model.QlImportMailResult
@@ -112,13 +113,20 @@ class UserMutationResolverImpl : UserMutationResolver {
         }.toDataFetcher()
     }
 
-    override fun deleteFido(userMutation: QlUserMutation, id: FidoId, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<Boolean>> {
+    override fun deleteFido(
+        userMutation: QlUserMutation,
+        id: FidoId,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlDeleteFidoResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val fidoRepository = context.repositoryFactory.createFidoRepository()
         val userId = context.verifyUserSession()
 
         return CompletableFuture.supplyAsync {
-            fidoRepository.deleteFido(userId, id)
+            val isSuccess = fidoRepository.deleteFido(userId, id)
+            QlDeleteFidoResult(
+                isSuccess = isSuccess,
+            )
         }.toDataFetcher()
     }
 

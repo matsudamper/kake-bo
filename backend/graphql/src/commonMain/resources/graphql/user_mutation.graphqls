@@ -28,7 +28,11 @@ type UserMutation {
     deleteImportedMailCategoryFilterCondition(id: ImportedMailCategoryFilterConditionId!): Boolean!
 
     registerFido(input: RegisterFidoInput!): RegisteredFidoResult!
-    deleteFido(id: FidoId!): Boolean!
+    deleteFido(id: FidoId!): DeleteFidoResult!
+}
+
+type DeleteFidoResult {
+    isSuccess: Boolean!
 }
 
 type RegisteredFidoResult {
