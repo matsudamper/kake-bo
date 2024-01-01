@@ -112,7 +112,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         }.toDataFetcher()
     }
 
-    override fun remoteFido(userMutation: QlUserMutation, id: FidoId, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<Boolean>> {
+    override fun deleteFido(userMutation: QlUserMutation, id: FidoId, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<Boolean>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val fidoRepository = context.repositoryFactory.createFidoRepository()
         val userId = context.verifyUserSession()
