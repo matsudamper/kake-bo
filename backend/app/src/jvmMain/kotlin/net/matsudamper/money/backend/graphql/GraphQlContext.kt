@@ -2,8 +2,10 @@ package net.matsudamper.money.backend.graphql
 
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import net.matsudamper.money.backend.SessionInfo
 import net.matsudamper.money.backend.base.CookieManager
 import net.matsudamper.money.backend.datasource.db.element.AdminSession
+import net.matsudamper.money.backend.datasource.db.element.UserSessionId
 import net.matsudamper.money.backend.datasource.db.repository.AdminSessionRepository
 import net.matsudamper.money.backend.di.RepositoryFactory
 import net.matsudamper.money.element.UserId
@@ -32,6 +34,20 @@ internal class GraphQlContext(
     }
 
     fun verifyUserSessionAndGetUserId(): UserId = userSessionManager.verifyUserSession()
+    fun verifyUserSessionAndGetSessionInfo(): SessionInfo {
+        val userId = userSessionManager.verifyUserSession()
+        val sessionId = cookieManager.getUserSessionId()!!
+        val currentSessionInfo = repositoryFactory.userSessionRepository()
+            .getSessionInfo(UserSessionId(sessionId))
+            ?: throw GraphqlMoneyException.SessionNotVerify()
+
+        return SessionInfo(
+            userId = userId,
+            sessionName = currentSessionInfo.name,
+            latestAccess = currentSessionInfo.latestAccess,
+        )
+    }
+
     fun getSessionInfo() = userSessionManager.getSessionInfo()
 
     fun clearUserSession() {

@@ -23,6 +23,7 @@ import net.matsudamper.money.backend.graphql.resolver.MoneyUsageResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageSubCategoryResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageSuggestResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.QueryResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.SessionAttributesResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserMailAttributesResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.UserSettingsResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.analytics.MoneyUsageAnalyticsByCategoryResolverImpl
@@ -165,6 +166,7 @@ object MoneyGraphQlSchema {
                 ImportedMailAttributesResolverImpl(),
                 ImportedMailResolverImpl(),
                 MoneyUsageSuggestResolverImpl(),
+                SessionAttributesResolverImpl(),
             )
             .options(
                 @Suppress("OPT_IN_USAGE")

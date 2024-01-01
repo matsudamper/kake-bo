@@ -83,6 +83,24 @@ class UserSessionRepository {
         )
     }
 
+    fun getSessionInfo(sessionId: UserSessionId): SessionInfo? {
+        val result = DbConnectionImpl.use {
+            DSL.using(it)
+                .select(
+                    userSessions.LATEST_ACCESSED_AT,
+                    userSessions.NAME,
+                )
+                .from(userSessions)
+                .where(userSessions.SESSION_ID.eq(sessionId.id))
+                .fetchOne()
+        } ?: return null
+
+        return SessionInfo(
+            latestAccess = result.get<LocalDateTime>(userSessions.LATEST_ACCESSED_AT),
+            name = result.get<String>(userSessions.NAME),
+        )
+    }
+
     fun getSessions(userId: UserId): List<SessionInfo> {
         return DbConnectionImpl.use {
             DSL.using(it)

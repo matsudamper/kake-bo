@@ -74,22 +74,4 @@ class UserSettingsResolverImpl : UserSettingsResolver {
             }
         }.toDataFetcher()
     }
-
-    override fun sessions(
-        userSettings: QlUserSettings,
-        env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<List<QlSession>>> {
-        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userId = context.verifyUserSessionAndGetUserId()
-        val userSessionRepository = context.repositoryFactory.userSessionRepository()
-
-        return CompletableFuture.supplyAsync {
-            userSessionRepository.getSessions(userId).map { session ->
-                QlSession(
-                    name = session.name,
-                    lastAccess = session.latestAccess.atOffset(ZoneOffset.UTC),
-                )
-            }
-        }.toDataFetcher()
-    }
 }

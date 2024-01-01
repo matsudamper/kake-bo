@@ -30,6 +30,7 @@ import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategoryInput
 import net.matsudamper.money.graphql.model.QlMoneyUsagesConnection
 import net.matsudamper.money.graphql.model.QlMoneyUsagesQuery
+import net.matsudamper.money.graphql.model.QlSessionAttributes
 import net.matsudamper.money.graphql.model.QlUser
 import net.matsudamper.money.graphql.model.QlUserSettings
 import net.matsudamper.money.graphql.model.UserResolver
@@ -39,7 +40,7 @@ class UserResolverImpl : UserResolver {
         user: QlUser,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlUserSettings>> {
-        return CompletableFuture.completedFuture(QlUserSettings()).toDataFetcher()
+        return CompletableFuture.completedFuture(QlUserSettings(QlSessionAttributes())).toDataFetcher()
     }
 
     /**

@@ -2,6 +2,11 @@ type UserSettings {
     imapConfig: UserImapConfig @lazy
     fidoAddInfo: FidoAddInfo! @lazy
     registeredFidoList: [RegisteredFidoInfo!]! @lazy
+    sessionAttributes: SessionAttributes!
+}
+
+type SessionAttributes {
+    currentSession: Session! @lazy
     sessions: [Session!]! @lazy
 }
 
