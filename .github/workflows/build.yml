@@ -1,15 +1,16 @@
-name: Pull Request Check
+name: Build And Test
 on:
   push:
     branches:
       - main
   pull_request:
 
+concurrency:
+  group: build-and-test-${{ github.head_ref || github.sha }}
+  cancel-in-progress: true
+
 jobs:
   build_and_test:
-    concurrency:
-      group: pull-request-check-${{ github.ref }}
-      cancel-in-progress: true
     runs-on: ubuntu-latest
     env:
       GRADLE_OPTS: -Dkotlin.compiler.execution.strategy=in-process -Dkotlin.incremental=false -Dorg.gradle.workers.max=2 -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx4500m"
