@@ -13,7 +13,7 @@ include(":frontend:common:viewmodel")
 include(":frontend:common:schema")
 include(":backend:db:schema")
 include(":backend:mail")
-include(":backend:mail_parser")
+include(":backend:feature:mail_parser")
 
 include(":shared")
 

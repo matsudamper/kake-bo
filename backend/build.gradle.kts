@@ -20,7 +20,7 @@ kotlin {
                 implementation(project(":backend:graphql"))
                 implementation(project(":backend:db"))
                 implementation(project(":backend:mail"))
-                implementation(project(":backend:mail_parser"))
+                implementation(project(":backend:feature:mail_parser"))
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.graphqlJava.extendedScalars)
