@@ -1,7 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
 rootProject.name = "money"
-include(":backend:db")
 include(":backend:base")
 include(":backend:graphql")
 include(":backend")
