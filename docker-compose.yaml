@@ -1,6 +1,11 @@
 version: "3"
 
 services:
+  redis:
+    restart: always
+    image: redis:latest
+    volumes:
+      - ./redis:/redis
   money:
     image: ghcr.io/matsudamper/kake-bo:latest
     env_file:
