@@ -6,10 +6,10 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.primeChildDataLoader
-import net.matsudamper.money.backend.element.ImportedMailCategoryFilterConditionType
-import net.matsudamper.money.backend.element.ImportedMailCategoryFilterDatasourceType
-import net.matsudamper.money.backend.element.ImportedMailFilterCategoryConditionOperator.AND
-import net.matsudamper.money.backend.element.ImportedMailFilterCategoryConditionOperator.OR
+import net.matsudamper.money.backend.datasource.db.element.ImportedMailCategoryFilterConditionType
+import net.matsudamper.money.backend.datasource.db.element.ImportedMailCategoryFilterDatasourceType
+import net.matsudamper.money.backend.datasource.db.element.ImportedMailFilterCategoryConditionOperator.AND
+import net.matsudamper.money.backend.datasource.db.element.ImportedMailFilterCategoryConditionOperator.OR
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageSuggestLocalContext
 import net.matsudamper.money.backend.graphql.toDataFetcher

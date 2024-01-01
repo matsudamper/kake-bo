@@ -1,6 +1,6 @@
-package net.matsudamper.money.backend.repository
+package net.matsudamper.money.backend.datasource.db.repository
 
-import net.matsudamper.money.backend.DbConnection
+import net.matsudamper.money.backend.datasource.db.DbConnection
 import net.matsudamper.money.db.schema.tables.JWebAuthAuthenticator
 import net.matsudamper.money.element.FidoId
 import net.matsudamper.money.element.UserId

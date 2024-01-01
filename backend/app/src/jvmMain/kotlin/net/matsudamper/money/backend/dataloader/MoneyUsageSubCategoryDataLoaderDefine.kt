@@ -2,7 +2,7 @@ package net.matsudamper.money.backend.dataloader
 
 import java.util.concurrent.CompletableFuture
 import net.matsudamper.money.backend.di.RepositoryFactory
-import net.matsudamper.money.backend.repository.MoneyUsageSubCategoryRepository
+import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.UserId

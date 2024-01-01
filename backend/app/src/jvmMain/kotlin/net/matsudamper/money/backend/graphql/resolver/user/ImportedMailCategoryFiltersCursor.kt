@@ -1,7 +1,7 @@
 package net.matsudamper.money.backend.graphql.resolver.user
 
 import net.matsudamper.money.backend.lib.CursorParser
-import net.matsudamper.money.backend.repository.MailFilterRepository
+import net.matsudamper.money.backend.datasource.db.repository.MailFilterRepository
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 
 internal class ImportedMailCategoryFiltersCursor(

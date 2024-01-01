@@ -1,6 +1,6 @@
 package net.matsudamper.money.backend.graphql.converter
 
-import net.matsudamper.money.backend.element.ImportedMailCategoryFilterConditionType
+import net.matsudamper.money.backend.datasource.db.element.ImportedMailCategoryFilterConditionType
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilterConditionType
 
 public fun QlImportedMailCategoryFilterConditionType.toDbElement(): ImportedMailCategoryFilterConditionType {

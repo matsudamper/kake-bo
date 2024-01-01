@@ -11,8 +11,8 @@ import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsByCategoryLocalContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsLocalContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
-import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
-import net.matsudamper.money.backend.repository.MoneyUsageRepository
+import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageCategoryRepository
+import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageRepository
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId

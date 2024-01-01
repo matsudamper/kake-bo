@@ -4,8 +4,8 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import net.matsudamper.money.backend.base.CookieManager
 import net.matsudamper.money.backend.di.RepositoryFactory
-import net.matsudamper.money.backend.element.AdminSession
-import net.matsudamper.money.backend.repository.AdminSessionRepository
+import net.matsudamper.money.backend.datasource.db.element.AdminSession
+import net.matsudamper.money.backend.datasource.db.repository.AdminSessionRepository
 import net.matsudamper.money.element.UserId
 
 internal class GraphQlContext(

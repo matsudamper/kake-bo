@@ -2,7 +2,7 @@ package net.matsudamper.money.backend.graphql.resolver.importedmail
 
 import java.time.LocalDateTime
 import net.matsudamper.money.backend.lib.CursorParser
-import net.matsudamper.money.backend.repository.DbMailRepository
+import net.matsudamper.money.backend.datasource.db.repository.DbMailRepository
 import net.matsudamper.money.element.ImportedMailId
 
 internal data class ImportedMailAttributesMailsQueryCursor(

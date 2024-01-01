@@ -1,8 +1,8 @@
-package net.matsudamper.money.backend.repository
+package net.matsudamper.money.backend.datasource.db.repository
 
 import java.lang.IllegalStateException
 import java.time.LocalDateTime
-import net.matsudamper.money.backend.DbConnectionImpl
+import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation

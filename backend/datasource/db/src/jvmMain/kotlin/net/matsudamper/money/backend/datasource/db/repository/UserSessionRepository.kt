@@ -1,9 +1,9 @@
-package net.matsudamper.money.backend.repository
+package net.matsudamper.money.backend.datasource.db.repository
 
 import java.time.LocalDateTime
 import java.util.*
-import net.matsudamper.money.backend.DbConnectionImpl
-import net.matsudamper.money.backend.element.UserSessionId
+import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
+import net.matsudamper.money.backend.datasource.db.element.UserSessionId
 import net.matsudamper.money.db.schema.tables.JUserSessions
 import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL

@@ -1,6 +1,6 @@
 package net.matsudamper.money.backend.usecase
 
-import net.matsudamper.money.backend.repository.AdminRepository
+import net.matsudamper.money.backend.datasource.db.repository.AdminRepository
 
 class AddUserUseCase(
     private val adminRepository: AdminRepository = AdminRepository(),

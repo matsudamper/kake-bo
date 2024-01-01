@@ -2,8 +2,8 @@ package net.matsudamper.money.backend.graphql
 
 import java.time.ZoneOffset
 import net.matsudamper.money.backend.base.CookieManager
-import net.matsudamper.money.backend.element.UserSessionId
-import net.matsudamper.money.backend.repository.UserSessionRepository
+import net.matsudamper.money.backend.datasource.db.element.UserSessionId
+import net.matsudamper.money.backend.datasource.db.repository.UserSessionRepository
 import net.matsudamper.money.element.UserId
 
 internal class UserSessionManagerImpl(

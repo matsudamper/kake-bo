@@ -10,7 +10,7 @@ import net.matsudamper.money.backend.fido.AuthenticatorConverter
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.lib.ChallengeModel
-import net.matsudamper.money.backend.repository.UserConfigRepository
+import net.matsudamper.money.backend.datasource.db.repository.UserConfigRepository
 import net.matsudamper.money.graphql.model.QlFidoAddInfo
 import net.matsudamper.money.graphql.model.QlRegisteredFidoInfo
 import net.matsudamper.money.graphql.model.QlUserImapConfig

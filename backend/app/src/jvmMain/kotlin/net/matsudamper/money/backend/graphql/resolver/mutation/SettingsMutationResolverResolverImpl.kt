@@ -6,7 +6,7 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
-import net.matsudamper.money.backend.repository.UserConfigRepository
+import net.matsudamper.money.backend.datasource.db.repository.UserConfigRepository
 import net.matsudamper.money.graphql.model.QlSettingsMutation
 import net.matsudamper.money.graphql.model.QlUpdateUserImapConfigInput
 import net.matsudamper.money.graphql.model.QlUserImapConfig

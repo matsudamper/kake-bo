@@ -1,4 +1,4 @@
-package net.matsudamper.money.backend.dsl
+package net.matsudamper.money.backend.datasource.db.dsl
 
 import java.time.LocalDateTime
 import java.time.ZoneId

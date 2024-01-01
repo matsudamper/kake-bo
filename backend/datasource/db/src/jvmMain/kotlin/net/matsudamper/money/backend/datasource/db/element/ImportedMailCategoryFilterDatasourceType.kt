@@ -1,4 +1,4 @@
-package net.matsudamper.money.backend.element
+package net.matsudamper.money.backend.datasource.db.element
 
 enum class ImportedMailCategoryFilterDatasourceType(internal val dbValue: Int) {
     MailTitle(0),

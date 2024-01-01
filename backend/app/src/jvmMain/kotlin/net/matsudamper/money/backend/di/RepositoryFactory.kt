@@ -1,19 +1,19 @@
 package net.matsudamper.money.backend.di
 
-import net.matsudamper.money.backend.DbConnectionImpl
+import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.datasource.challenge.ChallengeRepository
 import net.matsudamper.money.backend.datasource.challenge.ChallengeRepositoryProvider
 import net.matsudamper.money.backend.mail.MailRepository
-import net.matsudamper.money.backend.repository.DbMailRepository
-import net.matsudamper.money.backend.repository.FidoRepository
-import net.matsudamper.money.backend.repository.MailFilterRepository
-import net.matsudamper.money.backend.repository.MoneyUsageAnalyticsRepository
-import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
-import net.matsudamper.money.backend.repository.MoneyUsageRepository
-import net.matsudamper.money.backend.repository.MoneyUsageSubCategoryRepository
-import net.matsudamper.money.backend.repository.UserConfigRepository
-import net.matsudamper.money.backend.repository.UserRepository
+import net.matsudamper.money.backend.datasource.db.repository.DbMailRepository
+import net.matsudamper.money.backend.datasource.db.repository.FidoRepository
+import net.matsudamper.money.backend.datasource.db.repository.MailFilterRepository
+import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageAnalyticsRepository
+import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageCategoryRepository
+import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageRepository
+import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageSubCategoryRepository
+import net.matsudamper.money.backend.datasource.db.repository.UserConfigRepository
+import net.matsudamper.money.backend.datasource.db.repository.UserRepository
 
 interface RepositoryFactory {
     fun createMailRepository(

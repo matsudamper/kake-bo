@@ -20,11 +20,11 @@ import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
 import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
 import net.matsudamper.money.backend.lib.ChallengeModel
-import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
-import net.matsudamper.money.backend.repository.MoneyUsageRepository
-import net.matsudamper.money.backend.repository.MoneyUsageSubCategoryRepository
-import net.matsudamper.money.backend.repository.UserLoginRepository
-import net.matsudamper.money.backend.repository.UserSessionRepository
+import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageCategoryRepository
+import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageRepository
+import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageSubCategoryRepository
+import net.matsudamper.money.backend.datasource.db.repository.UserLoginRepository
+import net.matsudamper.money.backend.datasource.db.repository.UserSessionRepository
 import net.matsudamper.money.element.FidoId
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId

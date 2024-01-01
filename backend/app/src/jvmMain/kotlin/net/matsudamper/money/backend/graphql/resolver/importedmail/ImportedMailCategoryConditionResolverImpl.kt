@@ -5,11 +5,11 @@ import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterConditionDataLoaderDefine
-import net.matsudamper.money.backend.element.ImportedMailCategoryFilterConditionType
-import net.matsudamper.money.backend.element.ImportedMailCategoryFilterDatasourceType
+import net.matsudamper.money.backend.datasource.db.element.ImportedMailCategoryFilterConditionType
+import net.matsudamper.money.backend.datasource.db.element.ImportedMailCategoryFilterDatasourceType
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
-import net.matsudamper.money.backend.repository.MailFilterRepository
+import net.matsudamper.money.backend.datasource.db.repository.MailFilterRepository
 import net.matsudamper.money.graphql.model.ImportedMailCategoryConditionResolver
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryCondition
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilterConditionType

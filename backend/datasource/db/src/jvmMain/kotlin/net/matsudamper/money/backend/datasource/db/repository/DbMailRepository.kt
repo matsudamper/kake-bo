@@ -1,7 +1,7 @@
-package net.matsudamper.money.backend.repository
+package net.matsudamper.money.backend.datasource.db.repository
 
 import java.time.LocalDateTime
-import net.matsudamper.money.backend.DbConnection
+import net.matsudamper.money.backend.datasource.db.DbConnection
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
 import net.matsudamper.money.db.schema.tables.JUserMails

@@ -1,7 +1,7 @@
-package net.matsudamper.money.backend.repository
+package net.matsudamper.money.backend.datasource.db.repository
 
-import net.matsudamper.money.backend.DbConnectionImpl
-import net.matsudamper.money.backend.element.ImapConfig
+import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
+import net.matsudamper.money.backend.datasource.db.element.ImapConfig
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
 import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL

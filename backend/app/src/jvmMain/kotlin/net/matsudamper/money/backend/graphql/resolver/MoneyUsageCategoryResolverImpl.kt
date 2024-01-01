@@ -7,7 +7,7 @@ import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.MoneyUsageCategoryDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
-import net.matsudamper.money.backend.repository.MoneyUsageSubCategoryRepository
+import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.graphql.model.MoneyUsageCategoryResolver
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory

@@ -1,9 +1,9 @@
-package net.matsudamper.money.backend.repository
+package net.matsudamper.money.backend.datasource.db.repository
 
-import net.matsudamper.money.backend.DbConnection
-import net.matsudamper.money.backend.element.ImportedMailCategoryFilterConditionType
-import net.matsudamper.money.backend.element.ImportedMailCategoryFilterDatasourceType
-import net.matsudamper.money.backend.element.ImportedMailFilterCategoryConditionOperator
+import net.matsudamper.money.backend.datasource.db.DbConnection
+import net.matsudamper.money.backend.datasource.db.element.ImportedMailCategoryFilterConditionType
+import net.matsudamper.money.backend.datasource.db.element.ImportedMailCategoryFilterDatasourceType
+import net.matsudamper.money.backend.datasource.db.element.ImportedMailFilterCategoryConditionOperator
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditions
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilters
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionsRecord

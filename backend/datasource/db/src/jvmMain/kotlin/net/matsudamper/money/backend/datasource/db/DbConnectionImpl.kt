@@ -1,4 +1,4 @@
-package net.matsudamper.money.backend
+package net.matsudamper.money.backend.datasource.db
 
 import java.sql.Connection
 import com.zaxxer.hikari.HikariConfig
