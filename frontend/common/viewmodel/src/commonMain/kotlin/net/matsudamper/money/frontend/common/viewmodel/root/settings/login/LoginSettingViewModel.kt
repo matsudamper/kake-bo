@@ -196,11 +196,19 @@ public class LoginSettingViewModel(
         }
     }
 
-    private class FidoEventImpl(
+    private inner class FidoEventImpl(
         private val item: LoginSettingScreenQuery.RegisteredFidoList,
     ) : LoginSettingScreenUiState.Fido.Event, EqualsImpl(item) {
         override fun onClickDelete() {
-            TODO(item.toString())
+            coroutineScope.launch {
+                val result = api.deleteFido(item.id)
+                if (result) {
+                    eventSender.send { it.showToast("「${item.name}」を削除しました") }
+                    api.getScreen().first()
+                } else {
+                    eventSender.send { it.showToast("「${item.name}」の削除に失敗しました") }
+                }
+            }
         }
     }
 

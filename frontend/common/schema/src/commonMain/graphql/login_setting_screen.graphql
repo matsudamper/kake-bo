@@ -23,6 +23,16 @@ mutation SettingScreenAddFido(
     }
 }
 
+mutation SettingScreenDeleteFido(
+    $id: FidoId!
+) {
+    userMutation {
+        deleteFido(id: $id) {
+            isSuccess
+        }
+    }
+}
+
 mutation LoginSettingScreenLogout {
     userMutation {
         logout

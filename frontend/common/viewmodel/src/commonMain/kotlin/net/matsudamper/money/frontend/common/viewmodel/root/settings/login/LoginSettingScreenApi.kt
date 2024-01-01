@@ -6,10 +6,12 @@ import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import com.apollographql.apollo3.cache.normalized.watch
+import net.matsudamper.money.element.FidoId
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenLogoutMutation
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenQuery
 import net.matsudamper.money.frontend.graphql.SettingScreenAddFidoMutation
+import net.matsudamper.money.frontend.graphql.SettingScreenDeleteFidoMutation
 import net.matsudamper.money.frontend.graphql.type.RegisterFidoInput
 
 public class LoginSettingScreenApi(
@@ -54,5 +56,16 @@ public class LoginSettingScreenApi(
         }.onFailure {
             it.printStackTrace()
         }.getOrNull()
+    }
+
+    public suspend fun deleteFido(id: FidoId): Boolean {
+        return runCatching {
+            apolloClient
+                .mutation(
+                    SettingScreenDeleteFidoMutation(id),
+                )
+                .execute()
+                .data?.userMutation?.deleteFido?.isSuccess
+        }.getOrNull() ?: false
     }
 }
