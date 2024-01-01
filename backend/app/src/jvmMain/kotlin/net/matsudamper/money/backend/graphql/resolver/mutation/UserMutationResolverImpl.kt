@@ -1,6 +1,5 @@
 package net.matsudamper.money.backend.graphql.resolver.mutation
 
-import java.util.Base64
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import kotlin.contracts.ExperimentalContracts
@@ -12,14 +11,14 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.exception.GraphqlExceptions
+import net.matsudamper.money.backend.fido.Auth4JModel
+import net.matsudamper.money.backend.fido.AuthenticatorConverter
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.converter.toDBElement
 import net.matsudamper.money.backend.graphql.converter.toDbElement
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
 import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
-import net.matsudamper.money.backend.lib.Auth4JModel
-import net.matsudamper.money.backend.lib.AuthenticatorConverter
 import net.matsudamper.money.backend.lib.ChallengeModel
 import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.repository.MoneyUsageRepository
@@ -150,12 +149,10 @@ class UserMutationResolverImpl : UserMutationResolver {
                     val fidoList = fidoRepository.getFidoList(requestUserId)
                     for (fido in fidoList) {
                         val authenticator = AuthenticatorConverter.convertFromBase64(
-                            base64Authenticator = AuthenticatorConverter.Base64Authenticator(
-                                base64AttestationStatement = fido.attestedStatement,
-                                attestationStatementFormat = fido.attestedStatementFormat,
-                                base64AttestedCredentialData = fido.attestedCredentialData,
-                                counter = fido.counter,
-                            ),
+                            base64AttestationStatement = fido.attestedStatement,
+                            attestationStatementFormat = fido.attestedStatementFormat,
+                            base64AttestedCredentialData = fido.attestedCredentialData,
+                            counter = fido.counter,
                         )
                         runCatching {
                             if (ChallengeModel().validateChallenge(
@@ -628,12 +625,11 @@ class UserMutationResolverImpl : UserMutationResolver {
             val auth4JModel = Auth4JModel(
                 challenge = input.challenge,
             )
-            val authenticator = auth4JModel.register(
+            val base64Result = auth4JModel.register(
                 base64AttestationObject = input.base64AttestationObject.toByteArray(),
                 base64ClientDataJSON = input.base64ClientDataJson.toByteArray(),
                 clientExtensionsJSON = null,
             )
-            val base64Result = AuthenticatorConverter.convertToBase64(authenticator)
 
             val addedItem = fidoRepository.addFido(
                 name = input.displayName,
@@ -648,7 +644,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                 fidoInfo = QlRegisteredFidoInfo(
                     id = addedItem.fidoId,
                     name = addedItem.name,
-                    base64CredentialId = Base64.getEncoder().encodeToString(authenticator.attestedCredentialData.credentialId),
+                    base64CredentialId = base64Result.base64CredentialId,
                 ),
             )
         }.toDataFetcher()

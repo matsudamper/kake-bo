@@ -6,9 +6,9 @@ import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.base.ServerEnv
+import net.matsudamper.money.backend.fido.AuthenticatorConverter
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
-import net.matsudamper.money.backend.lib.AuthenticatorConverter
 import net.matsudamper.money.backend.lib.ChallengeModel
 import net.matsudamper.money.backend.repository.UserConfigRepository
 import net.matsudamper.money.graphql.model.QlFidoAddInfo
@@ -57,18 +57,16 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         return CompletableFuture.supplyAsync {
             fidoRepository.getFidoList(userId).map { fidoResult ->
                 val authenticator = AuthenticatorConverter.convertFromBase64(
-                    AuthenticatorConverter.Base64Authenticator(
-                        base64AttestationStatement = fidoResult.attestedStatement,
-                        attestationStatementFormat = fidoResult.attestedStatementFormat,
-                        base64AttestedCredentialData = fidoResult.attestedCredentialData,
-                        counter = fidoResult.counter,
-                    ),
+                    base64AttestationStatement = fidoResult.attestedStatement,
+                    attestationStatementFormat = fidoResult.attestedStatementFormat,
+                    base64AttestedCredentialData = fidoResult.attestedCredentialData,
+                    counter = fidoResult.counter,
                 )
 
                 QlRegisteredFidoInfo(
                     id = fidoResult.fidoId,
                     name = fidoResult.name,
-                    base64CredentialId = Base64.getEncoder().encodeToString(authenticator.attestedCredentialData.credentialId),
+                    base64CredentialId = Base64.getEncoder().encodeToString(authenticator.credentialId),
                 )
             }
         }.toDataFetcher()

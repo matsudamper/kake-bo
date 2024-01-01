@@ -1,7 +1,6 @@
 plugins {
     id("application")
     kotlin("multiplatform")
-    alias(libs.plugins.kotlin.serialization)
 }
 
 kotlin {
@@ -14,19 +13,10 @@ kotlin {
             dependencies {
                 implementation(project(":shared"))
                 implementation(project(":backend:base"))
-                implementation(project(":backend:graphql"))
-                implementation(project(":backend:datasource:db"))
-                implementation(project(":backend:datasource:mail"))
-                implementation(project(":backend:feature:mail_parser"))
-                implementation(project(":backend:feature:fido"))
 
                 implementation(kotlin("stdlib"))
-                implementation(libs.graphqlJava.extendedScalars)
-                implementation(libs.graphqlJava)
-                implementation(libs.jackson.jsr310)
-                implementation(libs.kotlin.serialization.json)
                 implementation(libs.kotlin.coroutines.core)
-                implementation(libs.logback.classic)
+                implementation(libs.webauth4jCore)
             }
         }
         val jvmTest by getting {
