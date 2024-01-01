@@ -17,12 +17,14 @@ import com.webauthn4j.server.ServerProperty
 import com.webauthn4j.validator.exception.ValidationException
 import net.matsudamper.money.backend.base.ServerEnv
 
-class Auth4JModel {
+class Auth4JModel(
+    challenge: String,
+) {
     private val decoder = Base64.getDecoder()
     private val serverProperty = ServerProperty(
         Origin("https://${ServerEnv.domain!!}"),
         ServerEnv.domain!!,
-        { "test".toByteArray() }, // TODO challenge
+        { challenge.toByteArray() },
         null,
     )
 

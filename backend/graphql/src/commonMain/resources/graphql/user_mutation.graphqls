@@ -42,6 +42,7 @@ type RegisteredFidoResult {
 input UserFidoLoginInput {
     credentialId: String!
     userName: String!
+    challenge: String!
     base64AuthenticatorData: String!
     base64Signature: String!
     base64ClientDataJson: String!
@@ -50,6 +51,7 @@ input UserFidoLoginInput {
 
 input RegisterFidoInput {
     displayName: String!
+    challenge: String!
     base64AttestationObject: String!
     base64ClientDataJson: String!
 }

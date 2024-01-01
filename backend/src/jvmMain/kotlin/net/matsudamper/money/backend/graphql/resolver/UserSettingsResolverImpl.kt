@@ -9,6 +9,7 @@ import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.lib.AuthenticatorConverter
+import net.matsudamper.money.backend.lib.ChallengeModel
 import net.matsudamper.money.backend.repository.UserConfigRepository
 import net.matsudamper.money.graphql.model.QlFidoAddInfo
 import net.matsudamper.money.graphql.model.QlRegisteredFidoInfo
@@ -42,7 +43,7 @@ class UserSettingsResolverImpl : UserSettingsResolver {
             QlFidoAddInfo(
                 id = userId.value.toString(),
                 name = userNameFuture.get(),
-                challenge = "test", // TODO challenge
+                challenge = ChallengeModel().generateChallenge(),
                 domain = ServerEnv.domain!!,
             )
         }.toDataFetcher()

@@ -10,6 +10,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import io.ktor.server.plugins.BadRequestException
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.converter.toDBElement
@@ -19,6 +20,7 @@ import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
 import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
 import net.matsudamper.money.backend.lib.Auth4JModel
 import net.matsudamper.money.backend.lib.AuthenticatorConverter
+import net.matsudamper.money.backend.lib.ChallengeModel
 import net.matsudamper.money.backend.repository.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.repository.MoneyUsageRepository
 import net.matsudamper.money.backend.repository.MoneyUsageSubCategoryRepository
@@ -156,7 +158,16 @@ class UserMutationResolverImpl : UserMutationResolver {
                             ),
                         )
                         runCatching {
-                            Auth4JModel().verify(
+                            if (ChallengeModel().validateChallenge(
+                                    challenge = userFidoLoginInput.challenge,
+                                ).not()
+                            ) {
+                                throw BadRequestException("challenge is invalid")
+                            }
+
+                            Auth4JModel(
+                                challenge = userFidoLoginInput.challenge,
+                            ).verify(
                                 authenticator = authenticator,
                                 credentialId = userFidoLoginInput.credentialId.toByteArray(),
                                 base64UserHandle = userFidoLoginInput.base64UserHandle.toByteArray(),
@@ -608,7 +619,15 @@ class UserMutationResolverImpl : UserMutationResolver {
         val userId = context.verifyUserSession()
 
         return CompletableFuture.supplyAsync {
-            val auth4JModel = Auth4JModel()
+            if (ChallengeModel().validateChallenge(
+                    challenge = input.challenge,
+                ).not()
+            ) {
+                throw BadRequestException("challenge is invalid")
+            }
+            val auth4JModel = Auth4JModel(
+                challenge = input.challenge,
+            )
             val authenticator = auth4JModel.register(
                 base64AttestationObject = input.base64AttestationObject.toByteArray(),
                 base64ClientDataJSON = input.base64ClientDataJson.toByteArray(),

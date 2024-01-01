@@ -7,6 +7,7 @@ import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
+import net.matsudamper.money.backend.lib.ChallengeModel
 import net.matsudamper.money.backend.repository.UserSessionRepository
 import net.matsudamper.money.graphql.model.QlFidoLoginInfo
 import net.matsudamper.money.graphql.model.QlImportedMailAttributes
@@ -40,7 +41,7 @@ class QueryResolverImpl : QueryResolver {
     override fun fidoLoginInfo(env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlFidoLoginInfo>> {
         return CompletableFuture.completedFuture(
             QlFidoLoginInfo(
-                challenge = "test", // TODO challenge
+                challenge = ChallengeModel().generateChallenge(),
                 domain = ServerEnv.domain!!,
             ),
         ).toDataFetcher()
