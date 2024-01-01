@@ -2,7 +2,7 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.matsudamper.money.backend.repository.AdminRepository
+import net.matsudamper.money.backend.datasource.db.repository.AdminRepository
 import net.matsudamper.money.backend.usecase.AddUserUseCase
 
 class AddUserUseCaseTest : DescribeSpec(
@@ -29,6 +29,7 @@ class AddUserUseCaseTest : DescribeSpec(
                                     AddUserUseCase.Result.Errors.UserNameLength,
                                     AddUserUseCase.Result.Errors.UserNameValidation,
                                     -> it::class.java.name
+
                                     is AddUserUseCase.Result.Errors.PasswordValidation -> {
                                         "error char: ${it.errorChar.joinToString(",")}"
                                     }
@@ -36,6 +37,7 @@ class AddUserUseCaseTest : DescribeSpec(
                             }
                             throw IllegalStateException(errorText)
                         }
+
                         is AddUserUseCase.Result.Success -> Unit
                     }
                     verify { operation.addUser(any(), any()) }
