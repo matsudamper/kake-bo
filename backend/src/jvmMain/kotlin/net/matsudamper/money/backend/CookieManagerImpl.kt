@@ -1,7 +1,6 @@
 package net.matsudamper.money.backend
 
 import java.time.OffsetDateTime
-import io.ktor.http.CookieEncoding
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.request.host
 import io.ktor.server.util.toGMTDate

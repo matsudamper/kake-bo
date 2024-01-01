@@ -21,7 +21,6 @@ import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
 import net.matsudamper.money.backend.graphql.UserSessionManagerImpl
 import org.dataloader.DataLoaderRegistry
 
-
 class GraphqlHandler(
     private val cookieManager: CookieManager,
 ) {

@@ -94,7 +94,7 @@ fun Application.myApplicationModule() {
                         GraphqlHandler(
                             cookieManager = CookieManagerImpl(call = call),
                         ).handle(
-                             requestText = call.receiveStream().bufferedReader().readText()
+                            requestText = call.receiveStream().bufferedReader().readText(),
                         )
                     }
                 }
