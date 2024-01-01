@@ -4,9 +4,9 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.datasource.db.repository.DbMailRepository
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
-import net.matsudamper.money.backend.datasource.db.repository.DbMailRepository
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.graphql.model.ImportedMailAttributesResolver
 import net.matsudamper.money.graphql.model.QlImportedMail

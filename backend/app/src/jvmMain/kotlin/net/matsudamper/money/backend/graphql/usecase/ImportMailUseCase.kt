@@ -4,9 +4,9 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import net.matsudamper.money.backend.datasource.db.repository.DbMailRepository
 import net.matsudamper.money.backend.di.RepositoryFactory
 import net.matsudamper.money.backend.mail.MailRepository
-import net.matsudamper.money.backend.datasource.db.repository.DbMailRepository
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.element.UserId
 

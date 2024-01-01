@@ -7,10 +7,10 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.datasource.db.repository.UserConfigRepository
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.mail.MailRepository
-import net.matsudamper.money.backend.datasource.db.repository.UserConfigRepository
 import net.matsudamper.money.graphql.model.QlMailQuery
 import net.matsudamper.money.graphql.model.QlUserMail
 import net.matsudamper.money.graphql.model.QlUserMailAttributes

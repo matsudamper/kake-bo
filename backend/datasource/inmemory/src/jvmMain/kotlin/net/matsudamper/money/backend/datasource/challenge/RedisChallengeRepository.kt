@@ -16,7 +16,8 @@ internal class RedisChallengeRepository(
     override fun set(key: String, expire: Duration) {
         useJedis { jedis ->
             jedis.set(
-                key, "",
+                key,
+                "",
                 SetParams().also { params ->
                     params.px(expire.inWholeMilliseconds)
                 },

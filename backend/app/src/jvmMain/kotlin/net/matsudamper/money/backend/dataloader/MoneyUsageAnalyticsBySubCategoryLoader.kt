@@ -4,9 +4,9 @@ import java.time.LocalDateTime
 import java.util.concurrent.CompletableFuture
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageAnalyticsRepository
 import net.matsudamper.money.backend.di.RepositoryFactory
 import net.matsudamper.money.backend.graphql.UserSessionManagerImpl
-import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageAnalyticsRepository
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory

@@ -1,8 +1,8 @@
 package net.matsudamper.money.backend.dataloader
 
 import java.util.concurrent.CompletableFuture
-import net.matsudamper.money.backend.di.RepositoryFactory
 import net.matsudamper.money.backend.datasource.db.repository.MailFilterRepository
+import net.matsudamper.money.backend.di.RepositoryFactory
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.UserId
 import net.matsudamper.money.lib.flatten
