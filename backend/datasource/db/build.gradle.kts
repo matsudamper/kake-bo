@@ -19,7 +19,7 @@ kotlin {
                 implementation(kotlin("reflect"))
                 implementation(libs.kotlin.serialization.json)
 
-                val jooqVersion = "3.18.5"
+                val jooqVersion = "3.19.1"
                 implementation("org.jooq:jooq:$jooqVersion")
                 implementation("org.jooq:jooq-kotlin:$jooqVersion")
 
