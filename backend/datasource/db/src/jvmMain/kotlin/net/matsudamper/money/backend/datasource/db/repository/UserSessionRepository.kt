@@ -87,7 +87,7 @@ class UserSessionRepository {
 
     data class CreateSessionResult(
         val sessionId: UserSessionId,
-        val expire: LocalDateTime,
+        val latestAccess: LocalDateTime,
     )
 
     sealed interface VerifySessionResult {
