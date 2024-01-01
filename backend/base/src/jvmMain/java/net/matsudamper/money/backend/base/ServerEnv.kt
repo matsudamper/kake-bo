@@ -17,4 +17,7 @@ public object ServerEnv {
     public val adminPassword: String = System.getenv()["ADMIN_PASSWORD"]!!
 
     public val userPasswordPepper: String = System.getenv("USER_PASSWORD_PEPPER")!!
+
+    public val challengeSecret: String = System.getenv()["CHALLENGE_SECRET"]!!
+        .takeIf { it.isNotEmpty() }!!
 }
