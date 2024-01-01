@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.graphql.resolver
 
+import java.time.ZoneOffset
 import java.util.Base64
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
@@ -13,6 +14,7 @@ import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.lib.ChallengeModel
 import net.matsudamper.money.graphql.model.QlFidoAddInfo
 import net.matsudamper.money.graphql.model.QlRegisteredFidoInfo
+import net.matsudamper.money.graphql.model.QlSession
 import net.matsudamper.money.graphql.model.QlUserImapConfig
 import net.matsudamper.money.graphql.model.QlUserSettings
 import net.matsudamper.money.graphql.model.UserSettingsResolver
@@ -68,6 +70,24 @@ class UserSettingsResolverImpl : UserSettingsResolver {
                     id = fidoResult.fidoId,
                     name = fidoResult.name,
                     base64CredentialId = Base64.getEncoder().encodeToString(authenticator.credentialId),
+                )
+            }
+        }.toDataFetcher()
+    }
+
+    override fun sessions(
+        userSettings: QlUserSettings,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<List<QlSession>>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSession()
+        val userSessionRepository = context.repositoryFactory.userSessionRepository()
+
+        return CompletableFuture.supplyAsync {
+            userSessionRepository.getSessions(userId).map { session ->
+                QlSession(
+                    name = "TODO",
+                    lastAccess = session.latestAccess.atOffset(ZoneOffset.UTC),
                 )
             }
         }.toDataFetcher()

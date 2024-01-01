@@ -83,10 +83,27 @@ class UserSessionRepository {
         )
     }
 
-    private fun getNewExpire() = LocalDateTime.now().plusDays(7)
+    fun getSessions(userId: UserId): List<SessionInfo> {
+        return DbConnectionImpl.use {
+            DSL.using(it)
+                .select(userSessions.SESSION_ID, userSessions.LATEST_ACCESSED_AT)
+                .from(userSessions)
+                .where(userSessions.USER_ID.eq(userId.value))
+                .fetch()
+                .map { record ->
+                    SessionInfo(
+                        latestAccess = record.get<LocalDateTime>(userSessions.LATEST_ACCESSED_AT),
+                    )
+                }
+        }
+    }
 
     data class CreateSessionResult(
         val sessionId: UserSessionId,
+        val latestAccess: LocalDateTime,
+    )
+
+    data class SessionInfo(
         val latestAccess: LocalDateTime,
     )
 

@@ -2,6 +2,12 @@ type UserSettings {
     imapConfig: UserImapConfig @lazy
     fidoAddInfo: FidoAddInfo! @lazy
     registeredFidoList: [RegisteredFidoInfo!]! @lazy
+    sessions: [Session!]! @lazy
+}
+
+type Session {
+    name: String!
+    lastAccess: OffsetDateTime!
 }
 
 type RegisteredFidoInfo {
