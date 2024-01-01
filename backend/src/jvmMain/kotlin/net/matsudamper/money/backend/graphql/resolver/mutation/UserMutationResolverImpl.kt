@@ -152,7 +152,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                                 base64AttestationStatement = fido.attestedStatement,
                                 attestationStatementFormat = fido.attestedStatementFormat,
                                 base64AttestedCredentialData = fido.attestedCredentialData,
-                                counter = fido.counter, // TODO update counter
+                                counter = fido.counter,
                             ),
                         )
                         runCatching {
@@ -168,6 +168,12 @@ class UserMutationResolverImpl : UserMutationResolver {
                         }.onFailure {
                             it.printStackTrace()
                         }.getOrNull() ?: continue
+
+                        fidoRepository.updateCounter(
+                            fidoId = fido.fidoId,
+                            counter = authenticator.counter,
+                            userId = requestUserId,
+                        )
 
                         val createSessionResult = UserSessionRepository().createSession(requestUserId)
                         context.setUserSessionCookie(

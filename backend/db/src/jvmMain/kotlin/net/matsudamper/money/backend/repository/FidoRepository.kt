@@ -88,6 +88,19 @@ class FidoRepository(
         }
     }
 
+    fun updateCounter(fidoId: FidoId, userId: UserId, counter: Long) {
+        dbConnection.use {
+            DSL.using(it)
+                .update(webAuthAuthenticator)
+                .set(webAuthAuthenticator.COUNTER, counter)
+                .where(
+                    webAuthAuthenticator.USER_ID.eq(userId.value)
+                        .and(webAuthAuthenticator.ID.eq(fidoId.value)),
+                )
+                .execute()
+        }
+    }
+
     data class RegisterdFido(
         val fidoId: FidoId,
         val name: String,
