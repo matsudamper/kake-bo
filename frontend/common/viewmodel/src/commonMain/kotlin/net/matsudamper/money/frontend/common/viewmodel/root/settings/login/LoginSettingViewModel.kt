@@ -178,18 +178,6 @@ public class LoginSettingViewModel(
         }
     }
 
-    private fun createFidoTextInputDialogState(): LoginSettingScreenUiState.TextInputDialogState {
-        val onConfirm: (String) -> Unit = {}
-        val onCancel: () -> Unit = {}
-        return LoginSettingScreenUiState.TextInputDialogState(
-            title = "キーの名前を入力してください",
-            text = "",
-            onConfirm = onConfirm,
-            onCancel = onCancel,
-            type = "text",
-        )
-    }
-
     private fun showAddFidoFailToast() {
         coroutineScope.launch {
             eventSender.send { it.showToast("追加に失敗しました") }
