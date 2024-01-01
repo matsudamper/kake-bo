@@ -19,7 +19,7 @@ class ChallengeModelTest : DescribeSpec(
             }
             it("空のテキストでvalidateが通らない") {
                 challengeModel.validateChallenge(
-                    Base64.getEncoder().encodeToString(".".encodeToByteArray()),
+                    ".",
                 ).shouldBeFalse()
             }
         }
