@@ -40,7 +40,7 @@ internal class CookieManagerImpl(
         setCookie(
             key = CookieKeys.userSessionId,
             value = "",
-            expires = OffsetDateTime.MIN,
+            expires = OffsetDateTime.now(),
         )
     }
 
