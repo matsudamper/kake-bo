@@ -18,14 +18,10 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -101,7 +97,6 @@ public data class RootUsageCalendarScreenUiState(
     @Immutable
     public interface Event {
         public fun onViewInitialized()
-        public fun onClickAdd()
     }
 }
 
@@ -137,16 +132,6 @@ public fun RootUsageCalendarScreen(
                         },
                     horizontalAlignment = Alignment.End,
                 ) {
-                    FloatingActionButton(
-                        modifier = Modifier
-                            .padding(bottom = 12.dp, end = 12.dp),
-                        onClick = { uiState.event.onClickAdd() },
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "add money usage",
-                        )
-                    }
                     ScrollButtons(
                         modifier = Modifier
                             .padding(ScrollButtonsDefaults.padding)

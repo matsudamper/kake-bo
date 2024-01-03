@@ -44,14 +44,6 @@ public class RootUsageListViewModel(
                 override fun onViewInitialized() {
                     fetch()
                 }
-
-                override fun onClickAdd() {
-                    coroutineScope.launch {
-                        viewModelEventSender.send {
-                            it.navigate(ScreenStructure.AddMoneyUsage())
-                        }
-                    }
-                }
             },
         ),
     ).also { uiStateFlow ->

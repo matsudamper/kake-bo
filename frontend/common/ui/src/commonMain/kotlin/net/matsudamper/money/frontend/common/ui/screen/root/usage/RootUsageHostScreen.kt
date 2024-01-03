@@ -7,22 +7,22 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -94,6 +94,7 @@ public data class RootUsageHostScreenUiState(
         public fun onClickList()
         public fun onClickSearchBox()
         public fun onClickSearchBoxClear()
+        public fun onClickAdd()
     }
 }
 
@@ -144,11 +145,40 @@ public fun RootUsageHostScreen(
         content = {
             Column {
                 Spacer(modifier = Modifier.height(12.dp))
-                SearchBox(
-                    text = uiState.searchText,
-                    onClick = { uiState.event.onClickSearchBox() },
-                    onClickClear = { uiState.event.onClickSearchBoxClear() },
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .padding(horizontal = 12.dp),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .weight(1f),
+                    ) {
+                        SearchBox(
+                            modifier = Modifier
+                                .widthIn(max = 600.dp),
+                            text = uiState.searchText,
+                            onClick = { uiState.event.onClickSearchBox() },
+                            onClickClear = { uiState.event.onClickSearchBoxClear() },
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    FloatingActionButton(
+                        modifier = Modifier,
+                        onClick = { uiState.event.onClickAdd() },
+                        elevation = FloatingActionButtonDefaults.elevation(
+                            0.dp,
+                            0.dp,
+                            0.dp,
+                            0.dp,
+                        ),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "add money usage",
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.height(12.dp))
                 content()
             }
@@ -164,10 +194,7 @@ private fun SearchBox(
     onClickClear: () -> Unit,
 ) {
     Surface(
-        modifier = modifier
-            .padding(horizontal = 12.dp)
-            .widthIn(max = 600.dp)
-            .fillMaxWidth(),
+        modifier = modifier,
         shape = CircleShape,
         color = MaterialTheme.colorScheme.surfaceVariant,
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,

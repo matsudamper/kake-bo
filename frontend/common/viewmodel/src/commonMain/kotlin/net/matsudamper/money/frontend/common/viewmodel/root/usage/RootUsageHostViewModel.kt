@@ -47,6 +47,14 @@ public class RootUsageHostViewModel(
             }
         }
 
+        override fun onClickAdd() {
+            coroutineScope.launch {
+                rootNavigationEventSender.send {
+                    it.navigate(ScreenStructure.AddMoneyUsage())
+                }
+            }
+        }
+
         override fun onClickCalendar() {
             coroutineScope.launch {
                 rootNavigationEventSender.send {

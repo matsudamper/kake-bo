@@ -45,14 +45,6 @@ public class RootUsageCalendarViewModel(
                 override fun onViewInitialized() {
                     pagingModel.fetch()
                 }
-
-                override fun onClickAdd() {
-                    coroutineScope.launch {
-                        viewModelEventSender.send {
-                            it.navigate(ScreenStructure.AddMoneyUsage())
-                        }
-                    }
-                }
             },
         ),
     ).also { uiStateFlow ->
