@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
@@ -41,11 +43,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.ui.ScrollButtons
+import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
@@ -72,7 +78,7 @@ public data class SettingCategoryScreenUiState(
     }
 
     public sealed interface LoadingState {
-        public object Loading : LoadingState
+        public data object Loading : LoadingState
         public data class Loaded(
             val item: ImmutableList<SubCategoryItem>,
         ) : LoadingState
@@ -174,7 +180,6 @@ public fun SettingCategoryScreen(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 public fun MainContent(
     modifier: Modifier,
@@ -190,45 +195,12 @@ public fun MainContent(
     ) { paddingValues ->
         when (val state = uiState.loadingState) {
             is SettingCategoryScreenUiState.LoadingState.Loaded -> {
-                LazyColumn(
+                LoadedContent(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(
-                        start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                        end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                    ),
-                ) {
-                    item {
-                        Spacer(Modifier.height(24.dp))
-                    }
-                    stickyHeader {
-                        HeaderSection(
-                            modifier = Modifier.fillMaxWidth(),
-                            categoryName = uiState.categoryName,
-                            onClickChangeCategoryNameButton = {
-                                uiState.event.onClickChangeCategoryName()
-                            },
-                            oonClickSubCategoryButton = {
-                                uiState.event.onClickAddSubCategoryButton()
-                            },
-                        )
-                    }
-                    item {
-                        Spacer(Modifier.height(12.dp))
-                    }
-                    items(
-                        items = state.item,
-                    ) { item ->
-                        SubCategoryItem(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp),
-                            item = item,
-                        )
-                    }
-                    item {
-                        Spacer(Modifier.height(24.dp))
-                    }
-                }
+                    paddingValues = paddingValues,
+                    loadedState = state,
+                    uiState = uiState,
+                )
             }
 
             is SettingCategoryScreenUiState.LoadingState.Loading -> {
@@ -241,6 +213,74 @@ public fun MainContent(
                 }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun LoadedContent(
+    paddingValues: PaddingValues,
+    uiState: SettingCategoryScreenUiState,
+    loadedState: SettingCategoryScreenUiState.LoadingState.Loaded,
+    modifier: Modifier = Modifier,
+) {
+    val density = LocalDensity.current
+    var scrollButtonHeight by remember { mutableStateOf(0.dp) }
+    BoxWithConstraints {
+        val containerHeight = maxHeight
+        val lazyListState = rememberLazyListState()
+        LazyColumn(
+            modifier = modifier,
+            contentPadding = PaddingValues(
+                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                bottom = scrollButtonHeight,
+            ),
+            state = lazyListState,
+        ) {
+            item {
+                Spacer(Modifier.height(24.dp))
+            }
+            stickyHeader {
+                HeaderSection(
+                    modifier = Modifier.fillMaxWidth(),
+                    categoryName = uiState.categoryName,
+                    onClickChangeCategoryNameButton = {
+                        uiState.event.onClickChangeCategoryName()
+                    },
+                    oonClickSubCategoryButton = {
+                        uiState.event.onClickAddSubCategoryButton()
+                    },
+                )
+            }
+            item {
+                Spacer(Modifier.height(12.dp))
+            }
+            items(
+                items = loadedState.item,
+            ) { item ->
+                SubCategoryItem(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    item = item,
+                )
+            }
+            item {
+                Spacer(Modifier.height(24.dp))
+            }
+        }
+
+        ScrollButtons(
+            modifier = Modifier.align(Alignment.BottomEnd)
+                .padding(ScrollButtonsDefaults.padding)
+                .height(ScrollButtonsDefaults.height)
+                .onSizeChanged {
+                    scrollButtonHeight = with(density) { it.height.toDp() }
+                },
+            scrollState = lazyListState,
+            scrollSize = with(density) { containerHeight.toPx() } * 0.4f,
+        )
     }
 }
 
