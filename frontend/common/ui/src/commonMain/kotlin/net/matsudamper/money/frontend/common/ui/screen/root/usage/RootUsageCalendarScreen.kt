@@ -47,6 +47,7 @@ import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 
 public data class RootUsageCalendarScreenUiState(
     val event: Event,
+    val hostScreenUiState: RootUsageHostScreenUiState,
     val loadingState: LoadingState,
 ) {
     @Immutable

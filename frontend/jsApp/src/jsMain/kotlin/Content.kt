@@ -61,7 +61,9 @@ import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScre
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.ImportedMailListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalendarPagingModel
+import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalendarViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageListViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
@@ -281,24 +283,35 @@ fun Content(
                             globalEventSender = globalEventSender,
                             loginCheckUseCase = loginCheckUseCase,
                             globalEvent = globalEvent,
-                            rootUsageHostUiStateProvider = {
-                                rootUsageHostViewModel.uiStateFlow.collectAsState().value
-                            },
                             usageCalendarUiStateProvider = {
-                                LaunchedEffect(rootUsageHostViewModel.calendarViewModel.viewModelEventHandler) {
-                                    viewModelEventHandlers.handle(
-                                        handler = rootUsageHostViewModel.calendarViewModel.viewModelEventHandler,
+                                val coroutineScope = rememberCoroutineScope()
+                                val viewModel = remember {
+                                    RootUsageCalendarViewModel(
+                                        coroutineScope = coroutineScope,
+                                        rootUsageHostViewModel = rootUsageHostViewModel,
                                     )
                                 }
-                                rootUsageHostViewModel.calendarViewModel.uiStateFlow.collectAsState().value
+                                LaunchedEffect(viewModel.viewModelEventHandler) {
+                                    viewModelEventHandlers.handle(
+                                        handler = viewModel.viewModelEventHandler,
+                                    )
+                                }
+                                viewModel.uiStateFlow.collectAsState().value
                             },
                             usageListUiStateProvider = {
-                                LaunchedEffect(rootUsageHostViewModel.listViewModel.viewModelEventHandler) {
-                                    viewModelEventHandlers.handle(
-                                        handler = rootUsageHostViewModel.listViewModel.viewModelEventHandler,
+                                val coroutineScope = rememberCoroutineScope()
+                                val viewModel = remember {
+                                    RootUsageListViewModel(
+                                        coroutineScope = coroutineScope,
+                                        rootUsageHostViewModel = rootUsageHostViewModel,
                                     )
                                 }
-                                rootUsageHostViewModel.listViewModel.uiStateFlow.collectAsState().value
+                                LaunchedEffect(viewModel.viewModelEventHandler) {
+                                    viewModelEventHandlers.handle(
+                                        handler = viewModel.viewModelEventHandler,
+                                    )
+                                }
+                                viewModel.uiStateFlow.collectAsState().value
                             },
                             importMailLinkScreenUiStateProvider = {
                                 LaunchedEffect(mailImportViewModel.eventHandler) {

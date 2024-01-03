@@ -15,36 +15,14 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
 public class RootUsageHostViewModel(
     private val coroutineScope: CoroutineScope,
-    pagingModel: RootUsageCalendarPagingModel,
+    public val pagingModel: RootUsageCalendarPagingModel,
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
-
-    public val calendarViewModel: RootUsageCalendarViewModel = RootUsageCalendarViewModel(
-        coroutineScope = coroutineScope,
-        pagingModel = pagingModel,
-    )
-    public val listViewModel: RootUsageListViewModel = RootUsageListViewModel(
-        coroutineScope = coroutineScope,
-    )
 
     private val rootNavigationEventSender = EventSender<RootNavigationEvent>()
     public val rootNavigationEventHandler: EventHandler<RootNavigationEvent> = rootNavigationEventSender.asHandler()
     private val event = object : RootUsageHostScreenUiState.Event {
         override suspend fun onViewInitialized() {
-            coroutineScope {
-                launch {
-                    calendarViewModel.viewModelStateFlow.collectLatest { calendarViewModelState ->
-                        viewModelStateFlow.update { viewModelState ->
-                            viewModelState.copy(
-                                calendarHeader = RootUsageHostScreenUiState.Header.Calendar(
-                                    title = "${calendarViewModelState.displayMonth.year}/${calendarViewModelState.displayMonth.monthNumber}",
-                                    event = calendarHeaderEvent,
-                                ),
-                            )
-                        }
-                    }
-                }
-            }
         }
 
         override fun onClickAdd() {
@@ -145,13 +123,13 @@ public class RootUsageHostViewModel(
         }
     }.asStateFlow()
 
-    private val calendarHeaderEvent = object : RootUsageHostScreenUiState.HeaderCalendarEvent {
-        override fun onClickPrevMonth() {
-            calendarViewModel.prevMonth()
-        }
-
-        override fun onClickNextMonth() {
-            calendarViewModel.nextMonth()
+    public fun updateHeader(
+        calendarHeader: RootUsageHostScreenUiState.Header.Calendar?,
+    ) {
+        viewModelStateFlow.update {
+            it.copy(
+                calendarHeader = calendarHeader,
+            )
         }
     }
 

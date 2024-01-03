@@ -42,7 +42,9 @@ import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 public data class RootUsageListScreenUiState(
     val event: Event,
     val loadingState: LoadingState,
+    val hostScreenUiState: RootUsageHostScreenUiState,
 ) {
+
     @Immutable
     public sealed interface LoadingState {
         public object Loading : LoadingState

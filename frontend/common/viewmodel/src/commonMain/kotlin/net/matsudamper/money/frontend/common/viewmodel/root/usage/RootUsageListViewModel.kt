@@ -26,6 +26,7 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
 public class RootUsageListViewModel(
     private val coroutineScope: CoroutineScope,
     apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    rootUsageHostViewModel: RootUsageHostViewModel,
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
@@ -40,6 +41,7 @@ public class RootUsageListViewModel(
     public val uiStateFlow: StateFlow<RootUsageListScreenUiState> = MutableStateFlow(
         RootUsageListScreenUiState(
             loadingState = RootUsageListScreenUiState.LoadingState.Loading,
+            hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
             event = object : RootUsageListScreenUiState.Event {
                 override fun onViewInitialized() {
                     fetch()
@@ -47,6 +49,16 @@ public class RootUsageListViewModel(
             },
         ),
     ).also { uiStateFlow ->
+        coroutineScope.launch {
+            rootUsageHostViewModel.uiStateFlow
+                .collectLatest { hostUiState ->
+                    uiStateFlow.update { uiState ->
+                        uiState.copy(
+                            hostScreenUiState = hostUiState,
+                        )
+                    }
+                }
+        }
         coroutineScope.launch {
             viewModelStateFlow
                 .collectLatest { viewModelState ->

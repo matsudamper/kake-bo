@@ -16,38 +16,67 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
-import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalendarScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
-import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.UsageCalendarScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class RootUsageCalendarViewModel(
     private val coroutineScope: CoroutineScope,
-    private val pagingModel: RootUsageCalendarPagingModel,
-    apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    private val rootUsageHostViewModel: RootUsageHostViewModel,
 ) {
     internal val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
+    private val calendarHeaderEvent = object : RootUsageHostScreenUiState.HeaderCalendarEvent {
+        override fun onClickPrevMonth() {
+            prevMonth()
+        }
+
+        override fun onClickNextMonth() {
+            nextMonth()
+        }
+    }
+
     public val uiStateFlow: StateFlow<RootUsageCalendarScreenUiState> = MutableStateFlow(
         RootUsageCalendarScreenUiState(
             loadingState = RootUsageCalendarScreenUiState.LoadingState.Loading,
+            hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
             event = object : RootUsageCalendarScreenUiState.Event {
                 override fun onViewInitialized() {
-                    pagingModel.fetch()
+                    rootUsageHostViewModel.pagingModel.fetch()
                 }
             },
         ),
     ).also { uiStateFlow ->
+        coroutineScope.launch {
+            rootUsageHostViewModel.uiStateFlow.collectLatest {
+                uiStateFlow.update { uiState ->
+                    uiState.copy(
+                        hostScreenUiState = it,
+                    )
+                }
+            }
+        }
+        coroutineScope.launch {
+            viewModelStateFlow.collectLatest {
+                val calendarViewModelState = it
+                rootUsageHostViewModel.updateHeader(
+                    RootUsageHostScreenUiState.Header.Calendar(
+                        title = "${calendarViewModelState.displayMonth.year}/${calendarViewModelState.displayMonth.monthNumber}",
+                        event = calendarHeaderEvent,
+                    ),
+                )
+            }
+        }
         coroutineScope.launch {
             viewModelStateFlow
                 .collectLatest { viewModelState ->
@@ -144,7 +173,7 @@ public class RootUsageCalendarViewModel(
                                 calendarCells = cells,
                                 event = object : RootUsageCalendarScreenUiState.LoadedEvent {
                                     override fun loadMore() {
-                                        pagingModel.fetch()
+                                        rootUsageHostViewModel.pagingModel.fetch()
                                     }
                                 },
                             ),
@@ -155,9 +184,9 @@ public class RootUsageCalendarViewModel(
     }.asStateFlow()
 
     init {
-        pagingModel.changeMonth(viewModelStateFlow.value.displayMonth)
+        rootUsageHostViewModel.pagingModel.changeMonth(viewModelStateFlow.value.displayMonth)
         coroutineScope.launch {
-            pagingModel.flow.collectLatest { responseStates ->
+            rootUsageHostViewModel.pagingModel.flow.collectLatest { responseStates ->
                 viewModelStateFlow.update {
                     it.copy(
                         results = responseStates,
@@ -166,10 +195,10 @@ public class RootUsageCalendarViewModel(
             }
         }
         coroutineScope.launch {
-            pagingModel.flow.map { it.lastOrNull()?.getSuccessOrNull() }
+            rootUsageHostViewModel.pagingModel.flow.map { it.lastOrNull()?.getSuccessOrNull() }
                 .collectLatest {
                     if (it?.value?.data?.user?.moneyUsages?.hasMore == true) {
-                        pagingModel.fetch()
+                        rootUsageHostViewModel.pagingModel.fetch()
                     }
                 }
         }
@@ -178,23 +207,23 @@ public class RootUsageCalendarViewModel(
     internal fun prevMonth() {
         viewModelStateFlow.update {
             val month = it.displayMonth.minus(1, DateTimeUnit.MONTH)
-            pagingModel.changeMonth(month)
+            rootUsageHostViewModel.pagingModel.changeMonth(month)
             it.copy(
                 displayMonth = month,
             )
         }
-        pagingModel.fetch()
+        rootUsageHostViewModel.pagingModel.fetch()
     }
 
     internal fun nextMonth() {
         viewModelStateFlow.update {
             val month = it.displayMonth.plus(1, DateTimeUnit.MONTH)
-            pagingModel.changeMonth(month)
+            rootUsageHostViewModel.pagingModel.changeMonth(month)
             it.copy(
                 displayMonth = month,
             )
         }
-        pagingModel.fetch()
+        rootUsageHostViewModel.pagingModel.fetch()
     }
 
     public interface Event {

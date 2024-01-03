@@ -4,10 +4,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
 import event.ViewModelEventHandlers
@@ -49,7 +52,6 @@ internal fun RootNavContent(
     globalEventSender: EventSender<GlobalEvent>,
     loginCheckUseCase: LoginCheckUseCase,
     homeMailTabScreenUiStateProvider: @Composable () -> HomeMailTabScreenUiState,
-    rootUsageHostUiStateProvider: @Composable () -> RootUsageHostScreenUiState,
     usageListUiStateProvider: @Composable () -> RootUsageListScreenUiState,
     usageCalendarUiStateProvider: @Composable () -> RootUsageCalendarScreenUiState,
     importMailScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Imported) -> ImportedMailListScreenUiState,
@@ -165,26 +167,35 @@ internal fun RootNavContent(
 
         is ScreenStructure.Root.Usage -> {
             tabHolder.SaveableStateProvider(ScreenStructure.Root.Usage::class.toString()) {
-                val hostUiState = rootUsageHostUiStateProvider()
-                RootUsageHostScreen(
-                    modifier = Modifier.fillMaxSize(),
-                    uiState = hostUiState,
-                    listener = rootScreenScaffoldListener,
-                ) {
-                    when (current) {
-                        is ScreenStructure.Root.Usage.Calendar -> {
-                            usageHost.SaveableStateProvider(current::class.toString()) {
-                                val uiState = usageCalendarUiStateProvider()
+                val rootScreen = remember {
+                    movableContentOf { rootUiState: RootUsageHostScreenUiState, content: @Composable () -> Unit ->
+                        RootUsageHostScreen(
+                            modifier = Modifier.fillMaxSize(),
+                            uiState = rootUiState,
+                            listener = rootScreenScaffoldListener,
+                        ) {
+                            content()
+                        }
+                    }
+                }
+
+                when (current) {
+                    is ScreenStructure.Root.Usage.Calendar -> {
+                        usageHost.SaveableStateProvider(current::class.toString()) {
+                            val uiState = usageCalendarUiStateProvider()
+                            rootScreen(uiState.hostScreenUiState) {
                                 RootUsageCalendarScreen(
                                     modifier = Modifier.fillMaxSize(),
                                     uiState = uiState,
                                 )
                             }
                         }
+                    }
 
-                        is ScreenStructure.Root.Usage.List -> {
-                            usageHost.SaveableStateProvider(current::class.toString()) {
-                                val uiState = usageListUiStateProvider()
+                    is ScreenStructure.Root.Usage.List -> {
+                        usageHost.SaveableStateProvider(current::class.toString()) {
+                            val uiState = usageListUiStateProvider()
+                            rootScreen(uiState.hostScreenUiState) {
                                 RootUsageListScreen(
                                     modifier = Modifier.fillMaxSize(),
                                     uiState = uiState,
