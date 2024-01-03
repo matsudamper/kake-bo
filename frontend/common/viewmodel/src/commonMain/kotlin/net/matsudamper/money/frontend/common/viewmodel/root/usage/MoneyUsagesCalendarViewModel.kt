@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.usage
 
-import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext

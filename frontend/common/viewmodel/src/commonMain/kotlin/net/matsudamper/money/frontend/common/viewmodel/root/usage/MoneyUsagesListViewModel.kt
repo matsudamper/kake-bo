@@ -45,7 +45,7 @@ public class MoneyUsagesListViewModel(
             hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
             event = object : RootUsageListScreenUiState.Event {
                 override suspend fun onViewInitialized() {
-                    CoroutineScope(currentCoroutineContext()).launch  {
+                    CoroutineScope(currentCoroutineContext()).launch {
                         launch {
                             pagingModel.fetch()
                         }
