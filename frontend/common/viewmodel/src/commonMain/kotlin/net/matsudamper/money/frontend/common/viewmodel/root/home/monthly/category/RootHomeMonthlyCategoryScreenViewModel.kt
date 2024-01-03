@@ -55,7 +55,9 @@ public class RootHomeMonthlyCategoryScreenViewModel(
     )
     private val loadedEvent = object : RootHomeMonthlyCategoryScreenUiState.LoadedEvent {
         override fun loadMore() {
-            fetch()
+            coroutineScope.launch {
+                fetch()
+            }
         }
     }
 
@@ -86,7 +88,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                                     id = categoryId,
                                 ),
                             )
-                            collector.fetch(this)
+                            collector.fetch()
                             collector.flow.collectLatest { responseState ->
                                 val categoryName = responseState.getSuccessOrNull()?.value?.data?.user?.moneyUsageCategory?.name
                                 viewModelStateFlow.update { viewModelState ->
@@ -97,7 +99,9 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                             }
                         }
                     }
-                    fetch()
+                    coroutineScope.launch {
+                        fetch()
+                    }
                 }
             },
             loadingState = RootHomeMonthlyCategoryScreenUiState.LoadingState.Loading,
@@ -178,10 +182,12 @@ public class RootHomeMonthlyCategoryScreenViewModel(
             )
         }
         monthlyCategoryResultState.clear()
-        fetch()
+        coroutineScope.launch {
+            fetch()
+        }
     }
 
-    private fun fetch() {
+    private suspend fun fetch() {
         monthlyCategoryResultState.add { results ->
             val cursor: String? = when (val lastResponseState = results.lastOrNull()?.flow?.value) {
                 null -> null

@@ -1,11 +1,26 @@
 package net.matsudamper.money.frontend.graphql.lib
 
+import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onSubscription
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.apollographql.apollo3.ApolloClient
@@ -16,40 +31,40 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 class ApolloPagingResponseCollector<D : Query.Data>(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
-    private val coroutineScope: CoroutineScope,
     private val fetchPolicy: FetchPolicy = FetchPolicy.NetworkOnly,
 ) {
     private val collectorFlow: MutableStateFlow<List<ApolloResponseCollector<D>>> =
         MutableStateFlow(listOf())
 
     private val _flow: MutableStateFlow<List<ApolloResponseState<ApolloResponse<D>>>> = MutableStateFlow(listOf())
-    public val flow: StateFlow<List<ApolloResponseState<ApolloResponse<D>>>> = _flow.asStateFlow()
 
-    init {
-        coroutineScope.launch {
-            collectorFlow.collectLatest { collectors ->
-                combine(collectors.map { it.flow }) {
-                    it.toList()
-                }.collectLatest {
-                    _flow.value = it
-                }
-            }
+    val flow: Flow<List<ApolloResponseState<ApolloResponse<D>>>> = MutableSharedFlow<List<ApolloResponseState<ApolloResponse<D>>>>()
+        .onSubscription {
+            emitAll(
+                combine(
+                    collectorFlow
+                        .map { collectors ->
+                            collectors.map { it.flow }
+                        },
+                ) { flows ->
+                    flows.toList().flatten().map { it.value }
+                },
+            )
+        }
+
+    val lastValue: List<ApolloResponseState<ApolloResponse<D>>> get() = collectorFlow.value.map { it.flow.value }
+
+    suspend fun lastRetry() {
+        when (collectorFlow.value.lastOrNull()?.flow?.value) {
+            is ApolloResponseState.Failure -> collectorFlow.value.lastOrNull()?.fetch()
+            is ApolloResponseState.Loading,
+            is ApolloResponseState.Success,
+            null,
+            -> Unit
         }
     }
 
-    fun lastRetry() {
-        coroutineScope.launch {
-            when (collectorFlow.value.lastOrNull()?.flow?.value) {
-                is ApolloResponseState.Failure -> collectorFlow.value.lastOrNull()?.fetch(this)
-                is ApolloResponseState.Loading,
-                is ApolloResponseState.Success,
-                null,
-                -> Unit
-            }
-        }
-    }
-
-    fun add(
+    suspend fun add(
         queryBlock: (List<ApolloResponseCollector<D>>) -> Query<D>?,
     ) {
         var collector: ApolloResponseCollector<D>? = null
@@ -66,8 +81,8 @@ class ApolloPagingResponseCollector<D : Query.Data>(
             collector = tmp
             collectors + tmp
         }
-        coroutineScope.launch {
-            collector?.fetch(this)
+        coroutineScope {
+            collector?.fetch()
         }
     }
 
@@ -91,7 +106,6 @@ class ApolloPagingResponseCollector<D : Query.Data>(
         ): ApolloPagingResponseCollector<D> {
             return ApolloPagingResponseCollector(
                 apolloClient = apolloClient,
-                coroutineScope = coroutineScope,
                 fetchPolicy = fetchPolicy,
             )
         }

@@ -132,7 +132,9 @@ public class MoneyUsagesListViewModel(
                                 items = items,
                                 event = object : RootUsageListScreenUiState.LoadedEvent {
                                     override fun loadMore() {
-                                        pagingModel.fetch()
+                                        coroutineScope.launch {
+                                            pagingModel.fetch()
+                                        }
                                     }
                                 },
                             ),

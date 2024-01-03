@@ -64,13 +64,13 @@ public class MoneyUsageScreenViewModel(
             event = object : MoneyUsageScreenUiState.Event {
                 override fun onViewInitialized() {
                     coroutineScope.launch {
-                        apolloCollector.fetch(this)
+                        apolloCollector.fetch()
                     }
                 }
 
                 override fun onClickRetry() {
                     coroutineScope.launch {
-                        apolloCollector.fetch(this)
+                        apolloCollector.fetch()
                     }
                 }
 

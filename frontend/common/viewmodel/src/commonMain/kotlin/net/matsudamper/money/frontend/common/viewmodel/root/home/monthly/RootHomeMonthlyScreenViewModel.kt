@@ -71,7 +71,7 @@ public class RootHomeMonthlyScreenViewModel(
     }
     private val loadedEvent = object : RootHomeMonthlyScreenUiState.LoadedEvent {
         override fun loadMore() {
-            fetch()
+            coroutineScope.launch { fetch() }
         }
     }
     public val uiStateFlow: StateFlow<RootHomeMonthlyScreenUiState> = MutableStateFlow(
@@ -192,15 +192,19 @@ public class RootHomeMonthlyScreenViewModel(
         tabViewModel.updateScreenStructure(current)
 
         monthlyListState.clear()
-        fetch()
+        coroutineScope.launch {
+            fetch()
+        }
     }
 
-    private fun fetch() {
+    private suspend fun fetch() {
         monthlyListState.add {
-            val cursor: String? = when (val lastState = monthlyListState.flow.value.lastOrNull()) {
+            val cursor: String? = when (val lastState = monthlyListState.lastValue.lastOrNull()) {
                 is ApolloResponseState.Loading -> return@add null
                 is ApolloResponseState.Failure -> {
-                    monthlyListState.lastRetry()
+                    coroutineScope.launch {
+                        monthlyListState.lastRetry()
+                    }
                     return@add null
                 }
 
@@ -209,7 +213,9 @@ public class RootHomeMonthlyScreenViewModel(
                 is ApolloResponseState.Success -> {
                     val result = lastState.value.data?.user?.moneyUsages
                     if (result == null) {
-                        monthlyListState.lastRetry()
+                        coroutineScope.launch {
+                            monthlyListState.lastRetry()
+                        }
                         return@add null
                     }
                     if (result.hasMore.not()) return@add null

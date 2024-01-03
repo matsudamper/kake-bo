@@ -186,7 +186,9 @@ public class MoneyUsagesCalendarViewModel(
                                 calendarCells = cells,
                                 event = object : RootUsageCalendarScreenUiState.LoadedEvent {
                                     override fun loadMore() {
-                                        rootUsageHostViewModel.calendarPagingModel.fetch()
+                                        coroutineScope.launch {
+                                            rootUsageHostViewModel.calendarPagingModel.fetch()
+                                        }
                                     }
                                 },
                             ),
@@ -225,7 +227,9 @@ public class MoneyUsagesCalendarViewModel(
                 displayMonth = month,
             )
         }
-        rootUsageHostViewModel.calendarPagingModel.fetch()
+        coroutineScope.launch {
+            rootUsageHostViewModel.calendarPagingModel.fetch()
+        }
     }
 
     internal fun nextMonth() {
@@ -236,7 +240,9 @@ public class MoneyUsagesCalendarViewModel(
                 displayMonth = month,
             )
         }
-        rootUsageHostViewModel.calendarPagingModel.fetch()
+        coroutineScope.launch {
+            rootUsageHostViewModel.calendarPagingModel.fetch()
+        }
     }
 
     public interface Event {

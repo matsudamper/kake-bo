@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.viewmodel.root.usage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -18,7 +19,7 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryFilter
 
 public class RootUsageCalendarPagingModel(
-    coroutineScope: CoroutineScope,
+    private val coroutineScope: CoroutineScope,
     apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
     private val modelStateFlow = MutableStateFlow(ModelState())
@@ -30,7 +31,7 @@ public class RootUsageCalendarPagingModel(
 
     internal val flow = paging.flow
 
-    internal fun fetch() {
+    internal suspend fun fetch() {
         val selectedMonth = modelStateFlow.value.selectedMonth ?: return
         val searchText = modelStateFlow.value.searchText
         paging.add { collectors ->
@@ -38,7 +39,9 @@ public class RootUsageCalendarPagingModel(
             when (val lastState = collectors.lastOrNull()?.flow?.value) {
                 is ApolloResponseState.Loading -> return@add null
                 is ApolloResponseState.Failure -> {
-                    paging.lastRetry()
+                    coroutineScope.launch {
+                        paging.lastRetry()
+                    }
                     return@add null
                 }
 
@@ -49,7 +52,9 @@ public class RootUsageCalendarPagingModel(
                 is ApolloResponseState.Success -> {
                     val result = lastState.value.data?.user?.moneyUsages
                     if (result == null) {
-                        paging.lastRetry()
+                        coroutineScope.launch {
+                            paging.lastRetry()
+                        }
                         return@add null
                     }
                     if (result.hasMore.not()) return@add null

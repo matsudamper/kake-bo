@@ -70,7 +70,7 @@ public class ImportedMailFilterCategoryViewModel(
             event = object : ImportedMailFilterCategoryScreenUiState.Event {
                 override fun onViewInitialized() {
                     coroutineScope.launch {
-                        apiResponseCollector.fetch(this)
+                        apiResponseCollector.fetch()
                     }
                 }
 
@@ -271,7 +271,7 @@ public class ImportedMailFilterCategoryViewModel(
                                                                 ),
                                                             )
                                                         }
-                                                        apiResponseCollector.fetch(this)
+                                                        apiResponseCollector.fetch()
                                                     } else {
                                                         snackbarEventState.show(
                                                             SnackbarEventState.Event(

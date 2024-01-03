@@ -129,7 +129,9 @@ internal class CategorySelectDialogViewModel(
         ) {
             // TODO ページング
             // TODO error handling
-            apolloResponseCollector.fetch(coroutineScope)
+            coroutineScope.launch {
+                apolloResponseCollector.fetch()
+            }
         }
         if (subCategory != null && categoryId != null && viewModelStateFlow.value.subCategories[categoryId] == null) {
             fetchSubCategories(categoryId)
@@ -150,7 +152,7 @@ internal class CategorySelectDialogViewModel(
         val beforeItem = subCategoriesFlow.value[id]
         if (beforeItem != null) {
             coroutineScope.launch {
-                beforeItem.fetch(this)
+                beforeItem.fetch()
             }
             return
         }
@@ -171,7 +173,7 @@ internal class CategorySelectDialogViewModel(
         }
 
         coroutineScope.launch {
-            collector.fetch(this)
+            collector.fetch()
         }
     }
 
