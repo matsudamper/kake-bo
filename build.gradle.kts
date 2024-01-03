@@ -33,7 +33,7 @@ allprojects {
         filter {
             exclude { project.path == ":backend:datasource:db:schema" }
             exclude { project.path == ":backend:graphql" }
-            exclude { project.path == ":frontend:common:schema" }
+            exclude { project.path == ":frontend:common:graphql:schema" }
             exclude { it.file.path.contains("generated") }
         }
     }

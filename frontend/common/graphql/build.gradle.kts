@@ -12,7 +12,7 @@ kotlin {
             dependencies {
                 implementation(project(":shared"))
                 implementation(project(":frontend:common:base"))
-                api(project(":frontend:common:schema"))
+                api(project(":frontend:common:graphql:schema"))
 
                 api(libs.apollo.runtime)
                 implementation(libs.kotlin.datetime)
