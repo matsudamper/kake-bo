@@ -2,21 +2,29 @@ package net.matsudamper.money.frontend.common.ui.screen.root.home
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
@@ -40,12 +48,12 @@ public data class RootHomeTabScreenScaffoldUiState(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun RootHomeTabScreenScaffold(
     uiState: RootHomeTabScreenScaffoldUiState,
     scaffoldListener: RootScreenScaffoldListener,
     modifier: Modifier = Modifier,
+    menu: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
     LaunchedEffect(uiState.event) {
@@ -58,42 +66,89 @@ public fun RootHomeTabScreenScaffold(
         topBar = {
             KakeBoTopAppBar(
                 title = {
-                    Text(
-                        modifier = Modifier.clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                        ) {
-                            scaffoldListener.kakeboScaffoldListener.onClickTitle()
-                        },
-                        text = "家計簿",
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            modifier = Modifier.clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                            ) {
+                                scaffoldListener.kakeboScaffoldListener.onClickTitle()
+                            },
+                            text = "家計簿",
+                        )
+                        menu()
+                    }
                 },
+                menu = {
+                    Menu(
+                        modifier = Modifier.padding(horizontal = 24.dp),
+                        contentType = uiState.contentType,
+                        onClickPeriod = uiState.event::onClickPeriod,
+                        onClickMonth = uiState.event::onClickMonth,
+                    )
+                }
             )
         },
         content = {
-            Column(modifier = Modifier.fillMaxSize()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                        .padding(12.dp),
-                ) {
-                    FilterChip(
-                        selected = uiState.contentType == RootHomeTabScreenScaffoldUiState.ContentType.Period,
-                        onClick = { uiState.event.onClickPeriod() },
-                        label = {
-                            Text("期間")
-                        },
-                    )
-                    Spacer(modifier = Modifier.widthIn(12.dp))
-                    FilterChip(
-                        selected = uiState.contentType == RootHomeTabScreenScaffoldUiState.ContentType.Monthly,
-                        onClick = { uiState.event.onClickMonth() },
-                        label = {
-                            Text("月別")
-                        },
-                    )
-                }
-                content()
-            }
+            content()
         },
     )
+}
+
+@Composable
+private fun Menu(
+    modifier: Modifier = Modifier,
+    contentType: RootHomeTabScreenScaffoldUiState.ContentType,
+    onClickPeriod: () -> Unit,
+    onClickMonth: () -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Box(modifier = modifier) {
+        OutlinedButton(
+            modifier = Modifier
+                .semantics(true) {
+                    contentDescription = "表示タイプ変更"
+                }
+                .align(Alignment.CenterEnd),
+            shape = RoundedCornerShape(8.dp),
+            onClick = { expanded = !expanded },
+        ) {
+            when (contentType) {
+                RootHomeTabScreenScaffoldUiState.ContentType.Period -> {
+                    Text(text = "期間")
+                }
+
+                RootHomeTabScreenScaffoldUiState.ContentType.Monthly -> {
+                    Text(text = "月別")
+                }
+            }
+            Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+        }
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            DropdownMenuItem(
+                onClick = {
+                    expanded = false
+                    onClickPeriod()
+                },
+                text = {
+                    Text(text = "期間")
+                },
+            )
+            DropdownMenuItem(
+                onClick = {
+                    expanded = false
+                    onClickMonth()
+                },
+                text = {
+                    Text(text = "月別")
+                },
+            )
+        }
+    }
 }

@@ -14,7 +14,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -52,37 +51,31 @@ public fun RootHomeTabPeriodCategoryScreen(
     uiState: RootHomeTabPeriodCategoryContentUiState,
     scaffoldListener: RootScreenScaffoldListener,
 ) {
-    LaunchedEffect(Unit) {
-        uiState.event.onViewInitialized()
-    }
-    RootHomeTabScreenScaffold(
-        uiState = uiState.rootHomeTabUiState,
+    RootHomeTabPeriodScaffold(
+        modifier = Modifier.fillMaxSize(),
+        uiState = uiState.rootHomeTabPeriodUiState,
+        homeUiState = uiState.rootHomeTabUiState,
         scaffoldListener = scaffoldListener,
     ) {
-        RootHomeTabPeriodScaffold(
-            modifier = Modifier.fillMaxSize(),
-            uiState = uiState.rootHomeTabPeriodUiState,
-        ) {
-            when (val loadingState = uiState.loadingState) {
-                is RootHomeTabPeriodCategoryContentUiState.LoadingState.Loaded -> {
-                    LoadedContent(
-                        modifier = Modifier.fillMaxSize(),
-                        loadingState = loadingState,
-                    )
-                }
+        when (val loadingState = uiState.loadingState) {
+            is RootHomeTabPeriodCategoryContentUiState.LoadingState.Loaded -> {
+                LoadedContent(
+                    modifier = Modifier.fillMaxSize(),
+                    loadingState = loadingState,
+                )
+            }
 
-                RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading -> {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    }
+            RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading -> {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                 }
+            }
 
-                RootHomeTabPeriodCategoryContentUiState.LoadingState.Error -> {
-                    LoadingErrorContent(
-                        modifier = modifier,
-                        onClickRetry = { /* TODO */ },
-                    )
-                }
+            RootHomeTabPeriodCategoryContentUiState.LoadingState.Error -> {
+                LoadingErrorContent(
+                    modifier = modifier,
+                    onClickRetry = { /* TODO */ },
+                )
             }
         }
     }

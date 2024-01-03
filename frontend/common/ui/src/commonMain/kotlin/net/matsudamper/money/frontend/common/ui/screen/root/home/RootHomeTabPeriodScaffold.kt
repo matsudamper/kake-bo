@@ -1,7 +1,6 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.home
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,13 +31,14 @@ import net.matsudamper.money.frontend.common.ui.ScrollButtons
 import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
+import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 
 public data class RootHomeTabPeriodUiState(
     val loadingState: LoadingState,
     val event: Event,
 ) {
+    @Immutable
     public sealed interface LoadingState {
-
         public data class Loaded(
             val rangeText: String,
             val between: String,
@@ -83,73 +83,93 @@ public data class RootHomeTabPeriodUiState(
 
 @Composable
 public fun RootHomeTabPeriodScaffold(
-    modifier: Modifier = Modifier,
     uiState: RootHomeTabPeriodUiState,
+    homeUiState: RootHomeTabScreenScaffoldUiState,
+    scaffoldListener: RootScreenScaffoldListener,
+    modifier: Modifier = Modifier,
+    menu: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
 ) {
+    val density = LocalDensity.current
     LaunchedEffect(uiState.event) {
         uiState.event.onViewInitialized()
     }
-    BoxWithConstraints(modifier = modifier) {
-        when (uiState.loadingState) {
-            RootHomeTabPeriodUiState.LoadingState.Loading -> {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center),
-                )
-            }
+    LaunchedEffect(homeUiState.event) {
+        homeUiState.event.onViewInitialized()
+    }
 
-            RootHomeTabPeriodUiState.LoadingState.Error -> {
-                LoadingErrorContent(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClickRetry = {
-                        uiState.event.onClickRetry()
-                    },
-                )
-            }
-
-            is RootHomeTabPeriodUiState.LoadingState.Loaded -> {
-                val height = this.maxHeight
-                val scrollState = rememberScrollState()
-                val density = LocalDensity.current
-                var scrollBarHeight by remember { mutableIntStateOf(0) }
-                Column(
-                    modifier = Modifier
-                        .verticalScroll(scrollState)
-                        .padding(horizontal = 24.dp),
-                ) {
-                    RootHomePeriodSection(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClickPreviousMonth = { uiState.event.onClickPreviousMonth() },
-                        onClickNextMonth = { uiState.event.onClickNextMonth() },
-                        betweenText = {
-                            Text(uiState.loadingState.between)
-                        },
-                        rangeText = {
-                            Text(uiState.loadingState.rangeText)
-                        },
-                        onClickRange = { range -> uiState.event.onClickRange(range) },
+    RootHomeTabScreenScaffold(
+        modifier = modifier,
+        uiState = homeUiState,
+        scaffoldListener = scaffoldListener,
+        menu = menu,
+    ) {
+        var containerHeight by remember { mutableStateOf(0.dp) }
+        Box(
+            modifier = Modifier
+                .onSizeChanged {
+                    containerHeight = with(density) { it.height.toDp() }
+                },
+        ) {
+            when (uiState.loadingState) {
+                RootHomeTabPeriodUiState.LoadingState.Loading -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center),
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    BetweenLoaded(
-                        uiState = uiState.loadingState,
-                        content = content,
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Spacer(modifier = Modifier.height(with(density) { scrollBarHeight.toDp() }))
                 }
-                ScrollButtons(
-                    modifier = Modifier
-                        .onSizeChanged {
-                            scrollBarHeight = it.height
-                        }
-                        .align(Alignment.BottomEnd)
-                        .padding(ScrollButtonsDefaults.padding)
-                        .height(ScrollButtonsDefaults.height),
-                    scrollState = scrollState,
-                    scrollSize = with(density) {
-                        height.toPx() * 0.4f
-                    },
-                )
+
+                RootHomeTabPeriodUiState.LoadingState.Error -> {
+                    LoadingErrorContent(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClickRetry = {
+                            uiState.event.onClickRetry()
+                        },
+                    )
+                }
+
+                is RootHomeTabPeriodUiState.LoadingState.Loaded -> {
+                    val scrollState = rememberScrollState()
+                    var scrollBarHeight by remember { mutableIntStateOf(0) }
+                    Column(
+                        modifier = Modifier
+                            .verticalScroll(scrollState)
+                            .padding(horizontal = 24.dp),
+                    ) {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        RootHomePeriodSection(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClickPreviousMonth = { uiState.event.onClickPreviousMonth() },
+                            onClickNextMonth = { uiState.event.onClickNextMonth() },
+                            betweenText = {
+                                Text(uiState.loadingState.between)
+                            },
+                            rangeText = {
+                                Text(uiState.loadingState.rangeText)
+                            },
+                            onClickRange = { range -> uiState.event.onClickRange(range) },
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        BetweenLoaded(
+                            uiState = uiState.loadingState,
+                            content = content,
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(with(density) { scrollBarHeight.toDp() }))
+                    }
+                    ScrollButtons(
+                        modifier = Modifier
+                            .onSizeChanged {
+                                scrollBarHeight = it.height
+                            }
+                            .align(Alignment.BottomEnd)
+                            .padding(ScrollButtonsDefaults.padding)
+                            .height(ScrollButtonsDefaults.height),
+                        scrollState = scrollState,
+                        scrollSize = with(density) {
+                            containerHeight.toPx() * 0.4f
+                        },
+                    )
+                }
             }
         }
     }

@@ -2,9 +2,7 @@ package net.matsudamper.money.frontend.common.ui.screen.root.home
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,12 +18,15 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
@@ -54,104 +55,124 @@ public data class RootHomeTabPeriodAllContentUiState(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 public fun RootHomeTabPeriodAllScreen(
     modifier: Modifier = Modifier,
     uiState: RootHomeTabPeriodAllContentUiState,
     scaffoldListener: RootScreenScaffoldListener,
 ) {
-    LaunchedEffect(Unit) {
-        uiState.event.onViewInitialized()
-    }
-    RootHomeTabScreenScaffold(
-        uiState = uiState.rootHomeTabUiState,
+    RootHomeTabPeriodScaffold(
+        modifier = modifier.fillMaxSize(),
+        uiState = uiState.rootHomeTabPeriodUiState,
+        homeUiState = uiState.rootHomeTabUiState,
         scaffoldListener = scaffoldListener,
     ) {
-        RootHomeTabPeriodScaffold(
-            modifier = Modifier.fillMaxSize(),
-            uiState = uiState.rootHomeTabPeriodUiState,
+        when (val loadingState = uiState.loadingState) {
+            is RootHomeTabPeriodAllContentUiState.LoadingState.Loaded -> {
+                var containerWidth by remember { mutableStateOf(0.dp) }
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .onSizeChanged { containerWidth = it.width.dp },
+                ) {
+                    val width by rememberUpdatedState(containerWidth)
+                    if (width > 800.dp) {
+                        LargeContent(
+                            loadingState = loadingState,
+                            modifier = Modifier,
+                        )
+                    } else {
+                        SmallContent(
+                            loadingState = loadingState,
+                            modifier = Modifier,
+                        )
+                    }
+                }
+            }
+
+            RootHomeTabPeriodAllContentUiState.LoadingState.Loading -> {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                }
+            }
+
+            RootHomeTabPeriodAllContentUiState.LoadingState.Error -> {
+                LoadingErrorContent(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClickRetry = {
+                        // TODO
+                    },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun SmallContent(
+    loadingState: RootHomeTabPeriodAllContentUiState.LoadingState.Loaded,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        Card(modifier = Modifier) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+            ) {
+                BarGraph(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(600.dp),
+                    uiState = loadingState.barGraph,
+                    contentColor = LocalContentColor.current,
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                GraphTitleChips(
+                    modifier = Modifier,
+                    items = loadingState.totalBarColorTextMapping,
+                )
+            }
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        Card(modifier = modifier.width(intrinsicSize = IntrinsicSize.Min)) {
+            MonthlyTotal(
+                loadingState = loadingState,
+                modifier = Modifier.fillMaxWidth()
+                    .padding(16.dp),
+            )
+        }
+    }
+}
+
+@Composable
+private fun LargeContent(
+    loadingState: RootHomeTabPeriodAllContentUiState.LoadingState.Loaded,
+    modifier: Modifier = Modifier,
+) {
+    Card(modifier = modifier) {
+        Row(
+            modifier = Modifier.padding(16.dp),
         ) {
-            when (val loadingState = uiState.loadingState) {
-                is RootHomeTabPeriodAllContentUiState.LoadingState.Loaded -> {
-                    BoxWithConstraints {
-                        val width by rememberUpdatedState(maxWidth)
-                        if (width > 800.dp) {
-                            Card(modifier = Modifier) {
-                                Row(
-                                    modifier = Modifier.padding(16.dp),
-                                ) {
-                                    BarGraph(
-                                        modifier = Modifier
-                                            .height(600.dp),
-                                        uiState = loadingState.barGraph,
-                                        contentColor = LocalContentColor.current,
-                                    )
-                                    Spacer(modifier = Modifier.width(12.dp))
-                                    Column(
-                                        modifier = Modifier
-                                            .width(IntrinsicSize.Min)
-                                            .widthIn(max = 400.dp),
-                                    ) {
-                                        MonthlyTotal(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            loadingState = loadingState,
-                                        )
-                                        Spacer(modifier = Modifier.height(12.dp))
-                                        GraphTitleChips(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            items = loadingState.totalBarColorTextMapping,
-                                        )
-                                    }
-                                }
-                            }
-                        } else {
-                            Column {
-                                Card(modifier = Modifier) {
-                                    Column(
-                                        modifier = Modifier.padding(16.dp),
-                                    ) {
-                                        BarGraph(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(600.dp),
-                                            uiState = loadingState.barGraph,
-                                            contentColor = LocalContentColor.current,
-                                        )
-                                        Spacer(modifier = Modifier.height(12.dp))
-                                        GraphTitleChips(
-                                            modifier = Modifier,
-                                            items = loadingState.totalBarColorTextMapping,
-                                        )
-                                    }
-                                }
-                                Spacer(modifier = Modifier.height(12.dp))
-                                Card(modifier = modifier.width(intrinsicSize = IntrinsicSize.Min)) {
-                                    MonthlyTotal(
-                                        loadingState = loadingState,
-                                        modifier = Modifier.fillMaxWidth()
-                                            .padding(16.dp),
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-                RootHomeTabPeriodAllContentUiState.LoadingState.Loading -> {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    }
-                }
-
-                RootHomeTabPeriodAllContentUiState.LoadingState.Error -> {
-                    LoadingErrorContent(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClickRetry = {
-                            // TODO
-                        },
-                    )
-                }
+            BarGraph(
+                modifier = Modifier
+                    .height(600.dp),
+                uiState = loadingState.barGraph,
+                contentColor = LocalContentColor.current,
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column(
+                modifier = Modifier
+                    .width(IntrinsicSize.Min)
+                    .widthIn(max = 400.dp),
+            ) {
+                MonthlyTotal(
+                    modifier = Modifier.fillMaxWidth(),
+                    loadingState = loadingState,
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                GraphTitleChips(
+                    modifier = Modifier.fillMaxWidth(),
+                    items = loadingState.totalBarColorTextMapping,
+                )
             }
         }
     }
