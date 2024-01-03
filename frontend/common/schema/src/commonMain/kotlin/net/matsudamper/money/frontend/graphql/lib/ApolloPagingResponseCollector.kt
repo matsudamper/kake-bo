@@ -1,14 +1,12 @@
 package net.matsudamper.money.frontend.graphql.lib
 
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flattenConcat
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.flow.update
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
@@ -25,19 +23,13 @@ class ApolloPagingResponseCollector<D : Query.Data>(
 
     private val _flow: MutableStateFlow<List<ApolloResponseState<ApolloResponse<D>>>> = MutableStateFlow(listOf())
 
-    val flow: Flow<List<ApolloResponseState<ApolloResponse<D>>>> = MutableSharedFlow<List<ApolloResponseState<ApolloResponse<D>>>>()
-        .onSubscription {
-            emitAll(
-                combine(
-                    collectorFlow
-                        .map { collectors ->
-                            collectors.map { it.flow }
-                        },
-                ) { flows ->
-                    flows.toList().flatten().map { it.value }
-                },
-            )
-        }
+    @OptIn(FlowPreview::class)
+    fun getFlow(): Flow<List<ApolloResponseState<ApolloResponse<D>>>> {
+        return collectorFlow
+            .map { collectors ->
+                combine(collectors.map { it.flow }) { it.toList() }
+            }.flattenConcat()
+    }
 
     val lastValue: List<ApolloResponseState<ApolloResponse<D>>> get() = collectorFlow.value.map { it.flow.value }
 

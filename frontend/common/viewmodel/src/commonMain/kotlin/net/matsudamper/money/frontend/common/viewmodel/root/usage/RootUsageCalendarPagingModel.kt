@@ -28,7 +28,7 @@ public class RootUsageCalendarPagingModel(
         apolloClient = apolloClient,
     )
 
-    internal val flow = paging.flow
+    internal val flow = paging.getFlow()
 
     internal suspend fun fetch() {
         val selectedMonth = modelStateFlow.value.selectedMonth ?: return

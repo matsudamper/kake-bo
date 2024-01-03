@@ -103,7 +103,7 @@ public class RootHomeMonthlyScreenViewModel(
                         }
                     }
                     coroutineScope.launch {
-                        monthlyListState.flow.collectLatest { responses ->
+                        monthlyListState.getFlow().collectLatest { responses ->
                             viewModelStateFlow.value = viewModelStateFlow.value.copy(
                                 monthlyListResponses = responses,
                             )

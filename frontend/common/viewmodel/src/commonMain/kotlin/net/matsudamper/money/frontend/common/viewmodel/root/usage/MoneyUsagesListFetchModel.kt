@@ -21,7 +21,8 @@ public class MoneyUsagesListFetchModel(
     private val paging = ApolloPagingResponseCollector.create<UsageListScreenPagingQuery.Data>(
         apolloClient = apolloClient,
     )
-    internal val flow = paging.flow
+    internal val flow = paging.getFlow()
+    internal val lastValue get() = paging.lastValue
 
     internal suspend fun fetch() {
         val coroutineScope = CoroutineScope(coroutineContext)

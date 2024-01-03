@@ -18,7 +18,7 @@ public class ImportedMailCategoryFilterScreenPagingModel(
         apolloClient = apolloClient,
     )
 
-    internal val flow = pagingState.flow
+    internal val flow = pagingState.getFlow()
 
     internal fun clear() {
         pagingState.clear()

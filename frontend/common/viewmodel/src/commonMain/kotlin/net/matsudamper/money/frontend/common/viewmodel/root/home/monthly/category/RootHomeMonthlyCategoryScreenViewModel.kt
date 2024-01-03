@@ -68,7 +68,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                         loginCheckUseCase.check()
                     }
                     coroutineScope.launch {
-                        monthlyCategoryResultState.flow.collectLatest { results ->
+                        monthlyCategoryResultState.getFlow().collectLatest { results ->
                             viewModelStateFlow.update { viewModelState ->
                                 viewModelState.copy(
                                     apolloResponses = results,
