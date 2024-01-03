@@ -7,16 +7,23 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -36,12 +43,25 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
+import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
 
 public data class RootUsageHostScreenUiState(
     val type: Type,
     val header: Header,
+    val textInputUiState: TextInputUiState?,
+    val searchText: String,
     val event: Event,
 ) {
+    public data class TextInputUiState(
+        val title: String,
+        val default: String,
+        val inputType: String,
+        val textComplete: (String) -> Unit,
+        val canceled: () -> Unit,
+        val isMultiline: Boolean,
+        val name: String,
+    )
+
     public sealed interface Header {
         public data object None : Header
         public data class Calendar(
@@ -68,9 +88,11 @@ public data class RootUsageHostScreenUiState(
 
     @Immutable
     public interface Event {
-        public fun onViewInitialized()
+        public suspend fun onViewInitialized()
         public fun onClickCalendar()
         public fun onClickList()
+        public fun onClickSearchBox()
+        public fun onClickSearchBoxClear()
     }
 }
 
@@ -81,6 +103,18 @@ public fun RootUsageHostScreen(
     listener: RootScreenScaffoldListener,
     content: @Composable () -> Unit,
 ) {
+    uiState.textInputUiState?.also {
+        HtmlFullScreenTextInput(
+            title = it.title,
+            default = it.default,
+            inputType = it.inputType,
+            onComplete = it.textComplete,
+            canceled = it.canceled,
+            isMultiline = it.isMultiline,
+            name = it.name,
+        )
+    }
+
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
     }
@@ -107,9 +141,67 @@ public fun RootUsageHostScreen(
             )
         },
         content = {
-            content()
+            Column {
+                Spacer(modifier = Modifier.height(12.dp))
+                SearchBox(
+                    text = uiState.searchText,
+                    onClick = { uiState.event.onClickSearchBox() },
+                    onClickClear = { uiState.event.onClickSearchBoxClear() },
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                content()
+            }
         },
     )
+}
+
+@Composable
+private fun SearchBox(
+    text: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    onClickClear: () -> Unit,
+) {
+    Surface(
+        modifier = modifier
+            .padding(horizontal = 12.dp)
+            .widthIn(max = 600.dp)
+            .fillMaxWidth(),
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    ) {
+        Row(
+            modifier = Modifier
+                .clickable { onClick() }
+                .padding(
+                    horizontal = 12.dp,
+                    vertical = 8.dp,
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "search",
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                modifier = Modifier.weight(1f),
+                text = text.ifEmpty { "検索" },
+            )
+            if (text.isNotEmpty()) {
+                IconButton(
+                    onClick = { onClickClear() },
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = "clear",
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable

@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.usage
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -28,32 +29,89 @@ public class RootUsageHostViewModel(
 
     private val rootNavigationEventSender = EventSender<RootNavigationEvent>()
     public val rootNavigationEventHandler: EventHandler<RootNavigationEvent> = rootNavigationEventSender.asHandler()
+    private val event = object : RootUsageHostScreenUiState.Event {
+        override suspend fun onViewInitialized() {
+            coroutineScope {
+                launch {
+                    calendarViewModel.viewModelStateFlow.collectLatest { calendarViewModelState ->
+                        viewModelStateFlow.update { viewModelState ->
+                            viewModelState.copy(
+                                calendarHeader = RootUsageHostScreenUiState.Header.Calendar(
+                                    title = "${calendarViewModelState.displayMonth.year}/${calendarViewModelState.displayMonth.monthNumber}",
+                                    event = calendarHeaderEvent,
+                                ),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        override fun onClickCalendar() {
+            coroutineScope.launch {
+                rootNavigationEventSender.send {
+                    it.navigate(ScreenStructure.Root.Usage.Calendar())
+                }
+            }
+        }
+
+        override fun onClickList() {
+            coroutineScope.launch {
+                rootNavigationEventSender.send {
+                    it.navigate(ScreenStructure.Root.Usage.List())
+                }
+            }
+        }
+
+        override fun onClickSearchBox() {
+            viewModelStateFlow.update {
+                it.copy(
+                    textInputUiState = RootUsageHostScreenUiState.TextInputUiState(
+                        title = "検索",
+                        default = viewModelStateFlow.value.searchText,
+                        inputType = "text",
+                        textComplete = { text ->
+                            updateSSearchText(text)
+                            closeTextInput()
+                        },
+                        canceled = {
+                            closeTextInput()
+                        },
+                        isMultiline = false,
+                        name = "",
+                    ),
+                )
+            }
+        }
+
+        override fun onClickSearchBoxClear() {
+            updateSSearchText("")
+        }
+
+        private fun closeTextInput() {
+            viewModelStateFlow.update {
+                it.copy(
+                    textInputUiState = null,
+                )
+            }
+        }
+
+        private fun updateSSearchText(text: String) {
+            viewModelStateFlow.update {
+                it.copy(
+                    searchText = text,
+                )
+            }
+        }
+    }
 
     public val uiStateFlow: StateFlow<RootUsageHostScreenUiState> = MutableStateFlow(
         RootUsageHostScreenUiState(
             type = RootUsageHostScreenUiState.Type.Calendar,
             header = RootUsageHostScreenUiState.Header.None,
-            event = object : RootUsageHostScreenUiState.Event {
-                override fun onViewInitialized() {
-                    // TODO
-                }
-
-                override fun onClickCalendar() {
-                    coroutineScope.launch {
-                        rootNavigationEventSender.send {
-                            it.navigate(ScreenStructure.Root.Usage.Calendar())
-                        }
-                    }
-                }
-
-                override fun onClickList() {
-                    coroutineScope.launch {
-                        rootNavigationEventSender.send {
-                            it.navigate(ScreenStructure.Root.Usage.List())
-                        }
-                    }
-                }
-            },
+            textInputUiState = null,
+            searchText = "",
+            event = event,
         ),
     ).also { uiStateFlow ->
         coroutineScope.launch {
@@ -71,6 +129,8 @@ public class RootUsageHostViewModel(
                                 is ScreenStructure.Root.Usage.Calendar -> viewModelState.calendarHeader
                                 is ScreenStructure.Root.Usage.List -> RootUsageHostScreenUiState.Header.None
                             } ?: RootUsageHostScreenUiState.Header.None,
+                            textInputUiState = viewModelState.textInputUiState,
+                            searchText = viewModelState.searchText,
                         )
                     }
                 }
@@ -84,21 +144,6 @@ public class RootUsageHostViewModel(
 
         override fun onClickNextMonth() {
             calendarViewModel.nextMonth()
-        }
-    }
-
-    init {
-        coroutineScope.launch {
-            calendarViewModel.viewModelStateFlow.collectLatest { calendarViewModelState ->
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        calendarHeader = RootUsageHostScreenUiState.Header.Calendar(
-                            title = "${calendarViewModelState.displayMonth.year}/${calendarViewModelState.displayMonth.monthNumber}",
-                            event = calendarHeaderEvent,
-                        ),
-                    )
-                }
-            }
         }
     }
 
@@ -128,5 +173,7 @@ public class RootUsageHostViewModel(
     private data class ViewModelState(
         val screenStructure: ScreenStructure.Root.Usage? = null,
         val calendarHeader: RootUsageHostScreenUiState.Header.Calendar? = null,
+        val textInputUiState: RootUsageHostScreenUiState.TextInputUiState? = null,
+        val searchText: String = "",
     )
 }
