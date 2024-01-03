@@ -63,7 +63,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewM
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalendarPagingModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.MoneyUsagesCalendarViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageListViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.usage.MoneyUsagesListViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
@@ -301,7 +301,7 @@ fun Content(
                             usageListUiStateProvider = {
                                 val coroutineScope = rememberCoroutineScope()
                                 val viewModel = remember {
-                                    RootUsageListViewModel(
+                                    MoneyUsagesListViewModel(
                                         coroutineScope = coroutineScope,
                                         rootUsageHostViewModel = rootUsageHostViewModel,
                                     )

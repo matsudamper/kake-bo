@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.usage
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -10,7 +11,6 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
-import com.apollographql.apollo3.api.Optional
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListScreenUiState
@@ -19,32 +19,43 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.UsageListScreenPagingQuery
-import net.matsudamper.money.frontend.graphql.lib.ApolloPagingResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
-import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
 
-public class RootUsageListViewModel(
+public class MoneyUsagesListViewModel(
     private val coroutineScope: CoroutineScope,
     apolloClient: ApolloClient = GraphqlClient.apolloClient,
     rootUsageHostViewModel: RootUsageHostViewModel,
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
-    private val viewModelEventSender = EventSender<Event>()
-    public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
-
-    private val paging = ApolloPagingResponseCollector.create<UsageListScreenPagingQuery.Data>(
+    private val pagingModel = MoneyUsagesListFetchModel(
         apolloClient = apolloClient,
         coroutineScope = coroutineScope,
     )
+
+    private val viewModelEventSender = EventSender<Event>()
+    public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
     public val uiStateFlow: StateFlow<RootUsageListScreenUiState> = MutableStateFlow(
         RootUsageListScreenUiState(
             loadingState = RootUsageListScreenUiState.LoadingState.Loading,
             hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
             event = object : RootUsageListScreenUiState.Event {
-                override fun onViewInitialized() {
-                    fetch()
+                override suspend fun onViewInitialized() {
+                    coroutineScope {
+                        launch {
+                            pagingModel.fetch()
+                        }
+                        launch {
+                            pagingModel.flow.collectLatest { responseStates ->
+                                viewModelStateFlow.update {
+                                    it.copy(
+                                        results = responseStates,
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             },
         ),
@@ -121,7 +132,7 @@ public class RootUsageListViewModel(
                                 items = items,
                                 event = object : RootUsageListScreenUiState.LoadedEvent {
                                     override fun loadMore() {
-                                        fetch()
+                                        pagingModel.fetch()
                                     }
                                 },
                             ),
@@ -130,53 +141,6 @@ public class RootUsageListViewModel(
                 }
         }
     }.asStateFlow()
-
-    init {
-        coroutineScope.launch {
-            paging.flow.collectLatest { responseStates ->
-                viewModelStateFlow.update {
-                    it.copy(
-                        results = responseStates,
-                    )
-                }
-            }
-        }
-    }
-
-    private fun fetch() {
-        paging.add { collectors ->
-            val cursor: String?
-            when (val lastState = collectors.lastOrNull()?.flow?.value) {
-                is ApolloResponseState.Loading -> return@add null
-                is ApolloResponseState.Failure -> {
-                    paging.lastRetry()
-                    return@add null
-                }
-
-                null -> {
-                    cursor = null
-                }
-
-                is ApolloResponseState.Success -> {
-                    val result = lastState.value.data?.user?.moneyUsages
-                    if (result == null) {
-                        paging.lastRetry()
-                        return@add null
-                    }
-                    if (result.hasMore.not()) return@add null
-
-                    cursor = result.cursor
-                }
-            }
-            UsageListScreenPagingQuery(
-                query = MoneyUsagesQuery(
-                    cursor = Optional.present(cursor),
-                    size = 10,
-                    isAsc = false,
-                ),
-            )
-        }
-    }
 
     public interface Event {
         public fun navigate(screenStructure: ScreenStructure)

@@ -81,7 +81,7 @@ public data class RootUsageListScreenUiState(
 
     @Immutable
     public interface Event {
-        public fun onViewInitialized()
+        public suspend fun onViewInitialized()
     }
 }
 
