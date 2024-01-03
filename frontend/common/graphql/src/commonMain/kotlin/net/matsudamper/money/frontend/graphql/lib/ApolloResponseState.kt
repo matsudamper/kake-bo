@@ -2,13 +2,13 @@ package net.matsudamper.money.frontend.graphql.lib
 
 public sealed interface ApolloResponseState<T> {
     public class Loading<T> : ApolloResponseState<T> {
-        override fun toString() : String = this::class.simpleName.orEmpty()
+        override fun toString(): String = this::class.simpleName.orEmpty()
     }
     public class Success<T>(public val value: T) : ApolloResponseState<T> {
-        override fun toString() : String = "Success($value)"
+        override fun toString(): String = "Success($value)"
     }
     public class Failure<T>(public val throwable: Throwable) : ApolloResponseState<T> {
-        override fun toString() : String = "Failure($throwable)"
+        override fun toString(): String = "Failure($throwable)"
     }
 
     public companion object {

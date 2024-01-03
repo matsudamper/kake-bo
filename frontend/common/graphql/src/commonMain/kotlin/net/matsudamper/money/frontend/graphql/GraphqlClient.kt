@@ -7,24 +7,23 @@ import com.apollographql.apollo3.api.json.JsonReader
 import com.apollographql.apollo3.api.json.JsonWriter
 import com.apollographql.apollo3.cache.normalized.api.MemoryCacheFactory
 import com.apollographql.apollo3.cache.normalized.normalizedCache
+import net.matsudamper.money.element.FidoId
+import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
+import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.frontend.graphql.type.FidoId as ApolloFidoId
+import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterConditionId as ApolloImportedMailCategoryFilterConditionId
+import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterId as ApolloImportedMailCategoryFilterId
 import net.matsudamper.money.frontend.graphql.type.ImportedMailId as ApolloImportedMailId
+import net.matsudamper.money.frontend.graphql.type.Long as ApolloLong
 import net.matsudamper.money.frontend.graphql.type.MailId as ApolloMailId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoryId as ApolloMoneyUsageCategoryId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageId as ApolloMoneyUsageId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryId as ApolloMoneyUsageSubCategoryId
-import net.matsudamper.money.element.ImportedMailCategoryFilterId
-import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterId as ApolloImportedMailCategoryFilterId
-import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
-import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterConditionId as ApolloImportedMailCategoryFilterConditionId
-import net.matsudamper.money.frontend.graphql.type.Long as ApolloLong
-import net.matsudamper.money.frontend.graphql.type.FidoId as ApolloFidoId
-import net.matsudamper.money.element.FidoId
-
 
 object GraphqlClient {
     private val cacheFactory = MemoryCacheFactory(maxSizeBytes = 10 * 1024 * 1024)
