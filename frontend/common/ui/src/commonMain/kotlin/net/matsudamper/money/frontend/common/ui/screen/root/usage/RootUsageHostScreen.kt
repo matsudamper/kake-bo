@@ -3,12 +3,13 @@ package net.matsudamper.money.frontend.common.ui.screen.root.usage
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.onClick
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
@@ -42,7 +43,7 @@ public data class RootUsageHostScreenUiState(
     val event: Event,
 ) {
     public sealed interface Header {
-        public object None : Header
+        public data object None : Header
         public data class Calendar(
             val title: String,
             val event: HeaderCalendarEvent,
@@ -91,95 +92,17 @@ public fun RootUsageHostScreen(
         topBar = {
             KakeBoTopAppBar(
                 title = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            modifier = Modifier.clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                            ) {
-                                listener.kakeboScaffoldListener.onClickTitle()
-                            },
-                            text = "家計簿",
-                        )
-                        Spacer(modifier = Modifier.widthIn(12.dp))
-                        when (uiState.header) {
-                            is RootUsageHostScreenUiState.Header.Calendar -> {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Box(
-                                        modifier = Modifier.clip(CircleShape)
-                                            .clickable { uiState.header.event.onClickPrevMonth() }
-                                            .padding(8.dp),
-                                    ) {
-                                        Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "前の月")
-                                    }
-                                    Box(
-                                        modifier = Modifier
-                                            .clip(CircleShape)
-                                            .clickable { uiState.header.event.onClickNextMonth() }
-                                            .padding(8.dp),
-                                    ) {
-                                        Icon(Icons.Default.KeyboardArrowRight, contentDescription = "次の月")
-                                    }
-                                    Text(text = uiState.header.title)
-                                }
-                            }
-
-                            is RootUsageHostScreenUiState.Header.List -> {
-                            }
-
-                            is RootUsageHostScreenUiState.Header.None -> Unit
-                        }
-                    }
+                    TitleBar(
+                        header = uiState.header,
+                        onClickTitle = uiState.event::onClickCalendar,
+                    )
                 },
                 menu = {
-                    var expanded by remember { mutableStateOf(false) }
-                    Box(modifier = Modifier.padding(end = 8.dp)) {
-                        DropDownMenuButton(
-                            modifier = Modifier
-                                .semantics(true) {
-                                    contentDescription = "表示タイプ変更"
-                                }
-                                .align(Alignment.CenterEnd),
-                            onClick = { expanded = !expanded },
-                        ) {
-                            when (uiState.type) {
-                                RootUsageHostScreenUiState.Type.Calendar -> {
-                                    Text(text = "カレンダー")
-                                }
-
-                                RootUsageHostScreenUiState.Type.List -> {
-                                    Text(text = "リスト")
-                                }
-                            }
-                        }
-                        DropdownMenu(
-                            expanded = expanded,
-                            onDismissRequest = { expanded = false },
-                        ) {
-                            DropdownMenuItem(
-                                onClick = {
-                                    expanded = false
-                                    uiState.event.onClickCalendar()
-                                },
-                                text = {
-                                    Text(text = "カレンダー")
-                                },
-                            )
-                            DropdownMenuItem(
-                                onClick = {
-                                    expanded = false
-                                    uiState.event.onClickList()
-                                },
-                                text = {
-                                    Text(text = "リスト")
-                                },
-                            )
-                        }
-                    }
+                    Menu(
+                        type = uiState.type,
+                        onClickCalendar = uiState.event::onClickCalendar,
+                        onClickList = uiState.event::onClickList,
+                    )
                 },
             )
         },
@@ -187,4 +110,108 @@ public fun RootUsageHostScreen(
             content()
         },
     )
+}
+
+@Composable
+private fun TitleBar(
+    header: RootUsageHostScreenUiState.Header,
+    onClickTitle: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            modifier = Modifier.clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+            ) {
+                onClickTitle()
+            },
+            text = "家計簿",
+        )
+        Spacer(modifier = Modifier.widthIn(12.dp))
+        when (header) {
+            is RootUsageHostScreenUiState.Header.Calendar -> {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(
+                        modifier = Modifier.clip(CircleShape)
+                            .clickable { header.event.onClickPrevMonth() }
+                            .padding(8.dp),
+                    ) {
+                        Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "前の月")
+                    }
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .clickable { header.event.onClickNextMonth() }
+                            .padding(8.dp),
+                    ) {
+                        Icon(Icons.Default.KeyboardArrowRight, contentDescription = "次の月")
+                    }
+                    Text(text = header.title)
+                }
+            }
+
+            is RootUsageHostScreenUiState.Header.List -> {
+            }
+
+            is RootUsageHostScreenUiState.Header.None -> Unit
+        }
+    }
+}
+
+@Composable
+private fun Menu(
+    type: RootUsageHostScreenUiState.Type,
+    onClickCalendar: () -> Unit,
+    onClickList: () -> Unit,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Box(modifier = Modifier.padding(end = 8.dp)) {
+        DropDownMenuButton(
+            modifier = Modifier
+                .semantics(true) {
+                    contentDescription = "表示タイプ変更"
+                }
+                .align(Alignment.CenterEnd),
+            onClick = { expanded = !expanded },
+        ) {
+            when (type) {
+                RootUsageHostScreenUiState.Type.Calendar -> {
+                    Text(text = "カレンダー")
+                }
+
+                RootUsageHostScreenUiState.Type.List -> {
+                    Text(text = "リスト")
+                }
+            }
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            DropdownMenuItem(
+                onClick = {
+                    expanded = false
+                    onClickCalendar()
+                },
+                text = {
+                    Text(text = "カレンダー")
+                },
+            )
+            DropdownMenuItem(
+                onClick = {
+                    expanded = false
+                    onClickList()
+                },
+                text = {
+                    Text(text = "リスト")
+                },
+            )
+        }
+    }
 }
