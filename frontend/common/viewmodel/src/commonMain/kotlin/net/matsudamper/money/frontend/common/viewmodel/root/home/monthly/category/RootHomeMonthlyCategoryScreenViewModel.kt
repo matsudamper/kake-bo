@@ -51,7 +51,6 @@ public class RootHomeMonthlyCategoryScreenViewModel(
     private val monthlyCategoryResultState: ApolloPagingResponseCollector<MonthlyCategoryScreenListQuery.Data> = ApolloPagingResponseCollector.create(
         apolloClient = apolloClient,
         fetchPolicy = FetchPolicy.CacheFirst,
-        coroutineScope = coroutineScope,
     )
     private val loadedEvent = object : RootHomeMonthlyCategoryScreenUiState.LoadedEvent {
         override fun loadMore() {

@@ -30,7 +30,6 @@ public class MoneyUsagesListViewModel(
 
     private val pagingModel = MoneyUsagesListFetchModel(
         apolloClient = apolloClient,
-        coroutineScope = coroutineScope,
     )
 
     private val viewModelEventSender = EventSender<Event>()

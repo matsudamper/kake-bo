@@ -88,7 +88,6 @@ class ApolloPagingResponseCollector<D : Query.Data>(
     companion object {
         fun <D : Query.Data> create(
             apolloClient: ApolloClient,
-            coroutineScope: CoroutineScope,
             fetchPolicy: FetchPolicy = FetchPolicy.NetworkOnly,
         ): ApolloPagingResponseCollector<D> {
             return ApolloPagingResponseCollector(

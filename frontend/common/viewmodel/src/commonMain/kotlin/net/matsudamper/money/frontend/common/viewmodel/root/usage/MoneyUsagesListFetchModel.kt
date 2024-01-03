@@ -13,11 +13,9 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
 
 public class MoneyUsagesListFetchModel(
     apolloClient: ApolloClient = GraphqlClient.apolloClient,
-    coroutineScope: CoroutineScope,
 ) {
     private val paging = ApolloPagingResponseCollector.create<UsageListScreenPagingQuery.Data>(
         apolloClient = apolloClient,
-        coroutineScope = coroutineScope,
     )
     internal val flow = paging.flow
 

@@ -26,7 +26,6 @@ public class RootUsageCalendarPagingModel(
 
     private val paging = ApolloPagingResponseCollector.create<UsageCalendarScreenPagingQuery.Data>(
         apolloClient = apolloClient,
-        coroutineScope = coroutineScope,
     )
 
     internal val flow = paging.flow

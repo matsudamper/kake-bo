@@ -49,7 +49,6 @@ public class RootHomeMonthlyScreenViewModel(
     )
     private val monthlyListState: ApolloPagingResponseCollector<MonthlyScreenListQuery.Data> = ApolloPagingResponseCollector.create(
         apolloClient = apolloClient,
-        coroutineScope = coroutineScope,
     )
 
     private val eventSender = EventSender<Event>()
