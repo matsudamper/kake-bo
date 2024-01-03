@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -60,12 +61,20 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
 
 public data class LoginSettingScreenUiState(
-    val event: Event,
-    val fidoList: ImmutableList<Fido>,
-    val currentSession: Session?,
-    val sessionList: ImmutableList<Session>,
     val textInputDialogState: TextInputDialogState?,
+    val loadingState: LoadingState,
+    val event: Event,
 ) {
+    @Immutable
+    public sealed interface LoadingState {
+        public data object Loading : LoadingState
+        public data class Loaded(
+            val fidoList: ImmutableList<Fido>,
+            val currentSession: Session,
+            val sessionList: ImmutableList<Session>,
+        ) : LoadingState
+    }
+
     public data class Session(
         val name: String,
         val lastAccess: String,
@@ -111,7 +120,6 @@ public fun LoginSettingScreen(
     rootScreenScaffoldListener: RootScreenScaffoldListener,
     modifier: Modifier = Modifier,
 ) {
-    val layoutDirection = LocalLayoutDirection.current
     uiState.textInputDialogState?.also { textInputDialogState ->
         HtmlFullScreenTextInput(
             title = textInputDialogState.title,
@@ -151,87 +159,118 @@ public fun LoginSettingScreen(
                 Text("ログイン設定")
             },
         ) { paddingValues ->
-            var scrollButtonHeightPx by remember { mutableIntStateOf(0) }
-            val lazyListState = rememberLazyListState()
-            var listHeightPx by remember { mutableIntStateOf(0) }
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-                    .onSizeChanged {
-                        listHeightPx = it.height
-                    },
-                contentPadding = PaddingValues(
-                    start = paddingValues.calculateStartPadding(layoutDirection),
-                    end = paddingValues.calculateEndPadding(layoutDirection),
-                    top = paddingValues.calculateTopPadding(),
-                    bottom = paddingValues.calculateBottomPadding()
-                        .plus(24.dp)
-                        .plus(with(LocalDensity.current) { scrollButtonHeightPx.toDp() }),
-                ),
-                state = lazyListState,
-            ) {
-                item {
-                    SettingSmallSection(
-                        title = {
-                            Text("ログイン方法の追加")
-                        },
+            when (uiState.loadingState) {
+                is LoginSettingScreenUiState.LoadingState.Loaded -> {
+                    LoadedContent(
+                        uiState = uiState.loadingState,
+                        event = uiState.event,
+                        paddingValues = paddingValues,
+                    )
+                }
+
+                is LoginSettingScreenUiState.LoadingState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize()
+                            .padding(paddingValues),
+                        contentAlignment = Alignment.Center,
                     ) {
-                        FidoSection(
-                            modifier = Modifier.fillMaxWidth()
-                                .height(280.dp),
-                            fidoList = uiState.fidoList,
-                            onClickPlatform = { uiState.event.onClickPlatform() },
-                            onClickCrossPlatform = { uiState.event.onClickCrossPlatform() },
+                        CircularProgressIndicator(
+                            modifier = Modifier,
                         )
                     }
                 }
-                item {
-                    SettingSmallSection(
+            }
+        }
+    }
+}
+
+@Composable
+private fun LoadedContent(
+    uiState: LoginSettingScreenUiState.LoadingState.Loaded,
+    event: LoginSettingScreenUiState.Event,
+    paddingValues: PaddingValues,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier = modifier) {
+        val layoutDirection = LocalLayoutDirection.current
+        var scrollButtonHeightPx by remember { mutableIntStateOf(0) }
+        val lazyListState = rememberLazyListState()
+        var listHeightPx by remember { mutableIntStateOf(0) }
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+                .onSizeChanged {
+                    listHeightPx = it.height
+                },
+            contentPadding = PaddingValues(
+                start = paddingValues.calculateStartPadding(layoutDirection),
+                end = paddingValues.calculateEndPadding(layoutDirection),
+                top = paddingValues.calculateTopPadding(),
+                bottom = paddingValues.calculateBottomPadding()
+                    .plus(24.dp)
+                    .plus(with(LocalDensity.current) { scrollButtonHeightPx.toDp() }),
+            ),
+            state = lazyListState,
+        ) {
+            item {
+                SettingSmallSection(
+                    title = {
+                        Text("ログイン方法の追加")
+                    },
+                ) {
+                    FidoSection(
                         modifier = Modifier.fillMaxWidth()
-                            .height(480.dp),
-                        title = {
-                            Text("セッション一覧")
-                        },
-                    ) {
-                        if (uiState.currentSession != null) {
-                            SessionSection(
-                                modifier = Modifier.fillMaxWidth(),
-                                currentSession = uiState.currentSession,
-                                sessionList = uiState.sessionList,
-                            )
-                        }
-                    }
+                            .height(280.dp),
+                        fidoList = uiState.fidoList,
+                        onClickPlatform = { event.onClickPlatform() },
+                        onClickCrossPlatform = { event.onClickCrossPlatform() },
+                    )
                 }
-                item {
-                    SettingSmallSection(
-                        title = {
-                            Text("その他")
-                        },
-                    ) {
-                        SettingListMenuItemButton(
-                            modifier = Modifier.fillMaxWidth(),
-                            titleStyle = MaterialTheme.typography.bodyMedium.merge(
-                                TextStyle(
-                                    color = MaterialTheme.colorScheme.error,
-                                ),
+            }
+            item {
+                SettingSmallSection(
+                    modifier = Modifier.fillMaxWidth()
+                        .height(480.dp),
+                    title = {
+                        Text("セッション一覧")
+                    },
+                ) {
+                    SessionSection(
+                        modifier = Modifier.fillMaxWidth(),
+                        currentSession = uiState.currentSession,
+                        sessionList = uiState.sessionList,
+                    )
+                }
+            }
+            item {
+                SettingSmallSection(
+                    title = {
+                        Text("その他")
+                    },
+                ) {
+                    SettingListMenuItemButton(
+                        modifier = Modifier.fillMaxWidth(),
+                        titleStyle = MaterialTheme.typography.bodyMedium.merge(
+                            TextStyle(
+                                color = MaterialTheme.colorScheme.error,
                             ),
-                            onClick = { uiState.event.onClickLogout() },
-                        ) {
-                            Text("ログアウト")
-                        }
+                        ),
+                        onClick = { event.onClickLogout() },
+                    ) {
+                        Text("ログアウト")
                     }
                 }
             }
-
-            ScrollButtons(
-                modifier = Modifier
-                    .onSizeChanged { scrollButtonHeightPx = it.height }
-                    .align(Alignment.BottomEnd)
-                    .padding(ScrollButtonsDefaults.padding)
-                    .height(ScrollButtonsDefaults.height),
-                scrollState = lazyListState,
-                scrollSize = listHeightPx * 0.4f,
-            )
         }
+
+        ScrollButtons(
+            modifier = Modifier
+                .onSizeChanged { scrollButtonHeightPx = it.height }
+                .align(Alignment.BottomEnd)
+                .padding(ScrollButtonsDefaults.padding)
+                .height(ScrollButtonsDefaults.height),
+            scrollState = lazyListState,
+            scrollSize = listHeightPx * 0.4f,
+        )
     }
 }
 

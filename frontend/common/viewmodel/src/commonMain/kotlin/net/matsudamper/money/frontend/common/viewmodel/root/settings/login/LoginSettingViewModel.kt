@@ -41,10 +41,8 @@ public class LoginSettingViewModel(
 
     public val uiStateFlow: StateFlow<LoginSettingScreenUiState> = MutableStateFlow(
         LoginSettingScreenUiState(
-            fidoList = immutableListOf(),
             textInputDialogState = null,
-            sessionList = immutableListOf(),
-            currentSession = null,
+            loadingState = LoginSettingScreenUiState.LoadingState.Loading,
             event = object : LoginSettingScreenUiState.Event {
                 override fun onClickBack() {
                     coroutineScope.launch {
@@ -75,14 +73,15 @@ public class LoginSettingViewModel(
     ).also { uiStateFlow ->
         coroutineScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
-                val currentSession = viewModelState.apolloScreenResponse
-                    ?.data?.user?.settings?.sessionAttributes?.currentSession
+                val loadedState = run loaded@{
+                    val currentSession = viewModelState.apolloScreenResponse
+                        ?.data?.user?.settings?.sessionAttributes?.currentSession
+                        ?: return@loaded null
 
-                uiStateFlow.update { uiState ->
-                    uiState.copy(
+                    LoginSettingScreenUiState.LoadingState.Loaded(
                         fidoList = run fidoList@{
                             val fidoList = viewModelState.apolloScreenResponse
-                                ?.data?.user?.settings?.registeredFidoList
+                                .data?.user?.settings?.registeredFidoList
                             if (fidoList == null) {
                                 return@fidoList immutableListOf()
                             }
@@ -102,7 +101,7 @@ public class LoginSettingViewModel(
                             }
 
                             sessionList
-                                .filterNot { it.name == currentSession?.name }
+                                .filterNot { it.name == currentSession.name }
                                 .map { session ->
                                     LoginSettingScreenUiState.Session(
                                         name = session.name,
@@ -114,10 +113,6 @@ public class LoginSettingViewModel(
                                 }.toImmutableList()
                         },
                         currentSession = run currentSession@{
-                            if (currentSession == null) {
-                                return@currentSession null
-                            }
-
                             LoginSettingScreenUiState.Session(
                                 name = currentSession.name,
                                 lastAccess = Formatter.formatDateTime(
@@ -126,6 +121,11 @@ public class LoginSettingViewModel(
                                 event = SessionEventImpl(name = currentSession.name),
                             )
                         },
+                    )
+                }
+                uiStateFlow.update { uiState ->
+                    uiState.copy(
+                        loadingState = loadedState ?: LoginSettingScreenUiState.LoadingState.Loading,
                         textInputDialogState = viewModelState.textInputDialogState,
                     )
                 }
