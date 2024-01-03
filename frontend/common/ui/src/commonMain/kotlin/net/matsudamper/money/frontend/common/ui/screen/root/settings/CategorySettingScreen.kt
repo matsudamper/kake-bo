@@ -241,7 +241,7 @@ private fun LoadedContent(
             item {
                 Spacer(Modifier.height(24.dp))
             }
-            stickyHeader {
+            item {
                 HeaderSection(
                     modifier = Modifier.fillMaxWidth(),
                     categoryName = uiState.categoryName,
