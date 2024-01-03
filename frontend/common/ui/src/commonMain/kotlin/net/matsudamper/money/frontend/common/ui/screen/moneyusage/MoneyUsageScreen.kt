@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -40,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -47,6 +47,8 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import kotlinx.datetime.LocalDate
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.ui.ScrollButtons
+import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -55,8 +57,6 @@ import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.CalendarDialog
-import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButton
-import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButtonDefaults
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.layout.NumberInput
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
@@ -305,13 +305,14 @@ private fun LoadedContent(
     BoxWithConstraints(
         modifier = modifier,
     ) {
-        val height = maxHeight
+        val containerHeight = maxHeight
+        var scrollButtonHeight by remember { mutableStateOf(0.dp) }
         LazyColumn(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
                 .padding(horizontal = 12.dp),
             contentPadding = PaddingValues(
-                end = ElongatedScrollButtonDefaults.scrollButtonSize
-                    .plus(ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding * 2),
+                bottom = scrollButtonHeight + 8.dp,
             ),
             state = state,
         ) {
@@ -387,14 +388,14 @@ private fun LoadedContent(
                 }
             }
         }
-        ElongatedScrollButton(
+        ScrollButtons(
             modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .fillMaxHeight()
-                .padding(ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding)
-                .width(ElongatedScrollButtonDefaults.scrollButtonSize),
+                .onSizeChanged { scrollButtonHeight = with(density) { it.height.toDp() } }
+                .align(Alignment.BottomEnd)
+                .padding(ScrollButtonsDefaults.padding)
+                .height(ScrollButtonsDefaults.height),
             scrollState = state,
-            scrollSize = remember(density, height) { with(density) { (height * 0.7f).toPx() } },
+            scrollSize = remember(density, containerHeight) { with(density) { (containerHeight * 0.7f).toPx() } },
         )
     }
 }

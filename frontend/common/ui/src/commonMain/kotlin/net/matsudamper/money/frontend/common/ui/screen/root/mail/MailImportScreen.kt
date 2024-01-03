@@ -47,7 +47,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.matsudamper.money.frontend.common.ui.ScrollButtons
 import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
-import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButtonDefaults
 import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
@@ -164,8 +163,7 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                         items(uiState.mails) { item ->
                             MailContent(
                                 modifier = Modifier
-                                    .padding(vertical = 12.dp)
-                                    .padding(start = ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding),
+                                    .padding(vertical = 12.dp),
                                 uiState = item,
                             )
                         }
@@ -183,8 +181,7 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                             if (uiState.showLoadMore) {
                                 item {
                                     OutlinedButton(
-                                        modifier = Modifier.fillMaxWidth()
-                                            .padding(start = ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding),
+                                        modifier = Modifier.fillMaxWidth(),
                                         onClick = { uiState.event.onClickLoadMore() },
                                     ) {
                                         Text(
