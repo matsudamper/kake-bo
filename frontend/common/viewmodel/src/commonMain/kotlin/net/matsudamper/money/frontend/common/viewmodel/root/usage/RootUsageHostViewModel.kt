@@ -57,7 +57,7 @@ public class RootUsageHostViewModel(
                         default = mutableViewModelStateFlow.value.searchText,
                         inputType = "text",
                         textComplete = { text ->
-                            updateSSearchText(text)
+                            updateSearchText(text)
                             closeTextInput()
                         },
                         canceled = {
@@ -71,7 +71,7 @@ public class RootUsageHostViewModel(
         }
 
         override fun onClickSearchBoxClear() {
-            updateSSearchText("")
+            updateSearchText("")
         }
 
         private fun closeTextInput() {
@@ -82,7 +82,7 @@ public class RootUsageHostViewModel(
             }
         }
 
-        private fun updateSSearchText(text: String) {
+        private fun updateSearchText(text: String) {
             mutableViewModelStateFlow.update {
                 it.copy(
                     searchText = text,
