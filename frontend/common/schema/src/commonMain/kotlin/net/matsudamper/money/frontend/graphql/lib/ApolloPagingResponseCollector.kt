@@ -5,7 +5,9 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatten
 import kotlinx.coroutines.flow.flattenConcat
+import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import com.apollographql.apollo3.ApolloClient
@@ -28,7 +30,7 @@ class ApolloPagingResponseCollector<D : Query.Data>(
         return collectorFlow
             .map { collectors ->
                 combine(collectors.map { it.flow }) { it.toList() }
-            }.flattenConcat()
+            }.flattenMerge()
     }
 
     val lastValue: List<ApolloResponseState<ApolloResponse<D>>> get() = collectorFlow.value.map { it.flow.value }
