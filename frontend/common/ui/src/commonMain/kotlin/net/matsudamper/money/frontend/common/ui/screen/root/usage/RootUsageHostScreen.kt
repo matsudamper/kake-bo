@@ -10,15 +10,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.onClick
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -33,6 +30,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
@@ -140,13 +138,12 @@ public fun RootUsageHostScreen(
                 menu = {
                     var expanded by remember { mutableStateOf(false) }
                     Box(modifier = Modifier.padding(end = 8.dp)) {
-                        OutlinedButton(
+                        DropDownMenuButton(
                             modifier = Modifier
                                 .semantics(true) {
                                     contentDescription = "表示タイプ変更"
                                 }
                                 .align(Alignment.CenterEnd),
-                            shape = RoundedCornerShape(8.dp),
                             onClick = { expanded = !expanded },
                         ) {
                             when (uiState.type) {
@@ -158,7 +155,6 @@ public fun RootUsageHostScreen(
                                     Text(text = "リスト")
                                 }
                             }
-                            Icon(Icons.Default.ArrowDropDown, contentDescription = null)
                         }
                         DropdownMenu(
                             expanded = expanded,
