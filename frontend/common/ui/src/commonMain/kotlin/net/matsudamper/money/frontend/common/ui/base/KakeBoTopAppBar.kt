@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.ui.base
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.CustomColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,6 +43,11 @@ public fun KakeBoTopAppBar(
                 }
             },
         )
-        Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+        Divider(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(1.dp),
+            color = CustomColors.MenuDividerColor,
+        )
     }
 }
