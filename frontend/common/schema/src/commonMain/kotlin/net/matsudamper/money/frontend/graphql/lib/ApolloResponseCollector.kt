@@ -21,7 +21,6 @@ public class ApolloResponseCollector<D : Query.Data>(
     private val fetchThrows: Boolean,
     private val refetchThrows: Boolean,
     private val fetchPolicy: FetchPolicy,
-    private val debug: String = "",
 ) {
     private val _flow: MutableStateFlow<ApolloResponseState<ApolloResponse<D>>> = MutableStateFlow(
         ApolloResponseState.loading(),
@@ -45,7 +44,7 @@ public class ApolloResponseCollector<D : Query.Data>(
                         _flow.value = ApolloResponseState.failure(it)
                     }
                     .collect {
-                        println("collect: Hoge($debug)")
+                        println("collect: ${it.data})")
                         _flow.value = ApolloResponseState.success(it)
                     }
             }
@@ -63,14 +62,12 @@ public class ApolloResponseCollector<D : Query.Data>(
             fetchThrows: Boolean = true,
             refetchThrows: Boolean = false,
             fetchPolicy: FetchPolicy = FetchPolicy.CacheAndNetwork,
-            debug: String = "",
         ): ApolloResponseCollector<D> {
             return ApolloResponseCollector(
                 apolloClient = apolloClient,
                 query = query,
                 fetchThrows = fetchThrows,
                 refetchThrows = refetchThrows,
-                debug = debug,
                 fetchPolicy = fetchPolicy,
             )
         }

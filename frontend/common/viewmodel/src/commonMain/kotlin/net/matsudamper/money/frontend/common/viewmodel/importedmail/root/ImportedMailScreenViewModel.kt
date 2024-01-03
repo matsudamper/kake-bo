@@ -29,7 +29,7 @@ public class ImportedMailScreenViewModel(
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
-    private val apolloResponseCollector = api.get(id = importedMailId, "1")
+    private val apolloResponseCollector = api.get(id = importedMailId)
     private val event = object : MailScreenUiState.Event {
         override fun onClickRetry() {
             fetch()
@@ -262,6 +262,7 @@ public class ImportedMailScreenViewModel(
             }
         }
     }
+
     private inner class ClickableEventImpl(
         private val text: String,
     ) : MailScreenUiState.ClickableEvent, EqualsImpl(text) {

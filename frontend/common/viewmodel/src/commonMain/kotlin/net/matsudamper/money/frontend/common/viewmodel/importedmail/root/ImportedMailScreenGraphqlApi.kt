@@ -29,14 +29,12 @@ public class ImportedMailScreenGraphqlApi(
 
     public fun get(
         id: ImportedMailId,
-        debug: String,
     ): ApolloResponseCollector<ImportedMailScreenQuery.Data> {
         return ApolloResponseCollector.create(
             apolloClient = apolloClient,
             query = ImportedMailScreenQuery(
                 id = id,
             ),
-            debug = debug,
         )
     }
 }
