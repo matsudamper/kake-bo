@@ -18,7 +18,7 @@ kotlin {
                 implementation(project(":frontend:common:base"))
                 implementation(project(":frontend:common:ui"))
                 implementation(project(":frontend:common:viewmodel"))
-                implementation(project(":frontend:common:schema"))
+                implementation(project(":frontend:common:graphql"))
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.kotlin.serialization.json)
