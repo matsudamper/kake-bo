@@ -1,7 +1,9 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.usage
 
+import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -54,8 +56,10 @@ public class MoneyUsagesCalendarViewModel(
             hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
             event = object : RootUsageCalendarScreenUiState.Event {
                 override suspend fun onViewInitialized() {
-                    rootUsageHostViewModel.calendarPagingModel.fetch()
-                    coroutineScope {
+                    CoroutineScope(currentCoroutineContext()).launch {
+                        launch {
+                            rootUsageHostViewModel.calendarPagingModel.fetch()
+                        }
                         launch {
                             rootUsageHostViewModel.viewModelStateFlow.collectLatest { rootViewModelState ->
                                 delay(100)

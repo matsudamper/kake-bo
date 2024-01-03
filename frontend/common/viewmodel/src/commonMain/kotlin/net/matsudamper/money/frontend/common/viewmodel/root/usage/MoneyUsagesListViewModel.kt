@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.viewmodel.root.usage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,7 +45,7 @@ public class MoneyUsagesListViewModel(
             hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
             event = object : RootUsageListScreenUiState.Event {
                 override suspend fun onViewInitialized() {
-                    coroutineScope {
+                    CoroutineScope(currentCoroutineContext()).launch  {
                         launch {
                             pagingModel.fetch()
                         }
