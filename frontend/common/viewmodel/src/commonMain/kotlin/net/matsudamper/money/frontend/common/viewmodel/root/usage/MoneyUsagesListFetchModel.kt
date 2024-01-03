@@ -23,7 +23,7 @@ public class MoneyUsagesListFetchModel(
         val coroutineScope = CoroutineScope(coroutineContext)
         paging.add { collectors ->
             val cursor: String?
-            when (val lastState = collectors.lastOrNull()?.flow?.value.also { println("last state -> ${it?.getSuccessOrNull()?.value?.data}") }) {
+            when (val lastState = collectors.lastOrNull()?.flow?.value) {
                 is ApolloResponseState.Loading -> return@add null
                 is ApolloResponseState.Failure -> {
                     coroutineScope.launch {
@@ -38,20 +38,17 @@ public class MoneyUsagesListFetchModel(
 
                 is ApolloResponseState.Success -> {
                     val result = lastState.value.data?.user?.moneyUsages
-                    println("result -> $result")
                     if (result == null) {
                         coroutineScope.launch {
                             paging.lastRetry()
                         }
                         return@add null
                     }
-                    println("hasMore -> ${result.hasMore}")
                     if (result.hasMore.not()) return@add null
 
                     cursor = result.cursor
                 }
             }
-            println("cursor -> $cursor")
             UsageListScreenPagingQuery(
                 query = MoneyUsagesQuery(
                     cursor = Optional.present(cursor),
