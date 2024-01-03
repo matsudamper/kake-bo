@@ -18,6 +18,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -173,26 +174,34 @@ private fun SearchBox(
     ) {
         Row(
             modifier = Modifier
-                .clickable { onClick() }
-                .padding(
-                    horizontal = 12.dp,
-                    vertical = 8.dp,
-                ),
+                .clickable { onClick() },
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = "search",
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                modifier = Modifier.weight(1f),
-                text = text.ifEmpty { "検索" },
-            )
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(
+                        horizontal = 12.dp,
+                        vertical = 8.dp,
+                    ),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "search",
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = text.ifEmpty { "検索" },
+                )
+            }
             if (text.isNotEmpty()) {
-                IconButton(
-                    onClick = { onClickClear() },
-                    modifier = Modifier.fillMaxSize(),
+                Box(
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .clickable { onClickClear() }
+                        .padding(8.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Clear,
