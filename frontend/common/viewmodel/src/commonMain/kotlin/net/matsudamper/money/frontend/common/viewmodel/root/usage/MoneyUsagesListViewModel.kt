@@ -1,10 +1,13 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.usage
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -44,6 +47,15 @@ public class MoneyUsagesListViewModel(
                     coroutineScope {
                         launch {
                             pagingModel.fetch()
+                        }
+                        launch {
+                            rootUsageHostViewModel.viewModelStateFlow
+                                .buffer(Channel.RENDEZVOUS)
+                                .collectLatest {
+                                    delay(100)
+                                    pagingModel.changeText(it.searchText)
+                                    pagingModel.fetch()
+                                }
                         }
                         launch {
                             pagingModel.flow.collectLatest { responseStates ->

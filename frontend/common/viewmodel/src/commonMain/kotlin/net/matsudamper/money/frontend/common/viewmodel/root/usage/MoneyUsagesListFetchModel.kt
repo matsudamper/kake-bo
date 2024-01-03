@@ -2,6 +2,8 @@ package net.matsudamper.money.frontend.common.viewmodel.root.usage
 
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
@@ -10,10 +12,12 @@ import net.matsudamper.money.frontend.graphql.UsageListScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloPagingResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
+import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryFilter
 
 public class MoneyUsagesListFetchModel(
     apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
+    private val state = MutableStateFlow(State())
     private val paging = ApolloPagingResponseCollector.create<UsageListScreenPagingQuery.Data>(
         apolloClient = apolloClient,
     )
@@ -54,8 +58,27 @@ public class MoneyUsagesListFetchModel(
                     cursor = Optional.present(cursor),
                     size = 10,
                     isAsc = false,
+                    filter = Optional.present(
+                        MoneyUsagesQueryFilter(
+                            text = Optional.present(state.value.searchText),
+                        ),
+                    ),
                 ),
             )
         }
     }
+
+    public fun changeText(searchText: String?) {
+        if (state.value.searchText == searchText) return
+        state.update {
+            it.copy(
+                searchText = searchText,
+            )
+        }
+        paging.clear()
+    }
+
+    private data class State(
+        val searchText: String? = null,
+    )
 }
