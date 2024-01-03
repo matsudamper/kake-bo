@@ -100,6 +100,8 @@ public class MoneyUsagesCalendarViewModel(
                         state.getSuccessOrNull()?.value
                     }.flatMap {
                         it.data?.user?.moneyUsages?.nodes.orEmpty()
+                    }.filter { node ->
+                        node.date.date.month == viewModelState.displayMonth.month
                     }
 
                     val cells: ImmutableList<RootUsageCalendarScreenUiState.CalendarCell> = run cells@{
