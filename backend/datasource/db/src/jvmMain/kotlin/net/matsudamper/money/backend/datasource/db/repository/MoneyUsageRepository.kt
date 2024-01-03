@@ -117,6 +117,7 @@ class MoneyUsageRepository {
         untilDateTime: LocalDateTime?,
         categoryIds: List<MoneyUsageCategoryId>,
         subCategoryIds: List<MoneyUsageSubCategoryId>,
+        text: String?,
     ): GetMoneyUsageByQueryResult {
         return runCatching {
             DbConnectionImpl.use { connection ->
@@ -170,6 +171,15 @@ class MoneyUsageRepository {
                                     DSL.value(true)
                                 } else {
                                     jUsage.MONEY_USAGE_SUB_CATEGORY_ID.`in`(subCategoryIds.map { it.id })
+                                },
+                            )
+                            .and(
+                                when (text) {
+                                    null -> DSL.value(true)
+                                    else -> {
+                                        jUsage.TITLE.contains(text)
+                                            .or(jUsage.DESCRIPTION.contains(text))
+                                    }
                                 },
                             ),
                     )

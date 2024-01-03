@@ -445,6 +445,7 @@ input MoneyUsagesQueryFilter {
     category: [MoneyUsageCategoryId!]
     sinceDateTime: LocalDateTime
     subCategory: [MoneyUsageSubCategoryId!]
+    text: String
     untilDateTime: LocalDateTime
 }
 

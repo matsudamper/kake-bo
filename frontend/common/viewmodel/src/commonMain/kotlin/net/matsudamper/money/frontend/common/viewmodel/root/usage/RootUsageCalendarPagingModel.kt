@@ -7,7 +7,6 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
-import kotlinx.datetime.minus
 import kotlinx.datetime.plus
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.Optional
@@ -33,6 +32,7 @@ public class RootUsageCalendarPagingModel(
 
     internal fun fetch() {
         val selectedMonth = modelStateFlow.value.selectedMonth ?: return
+        val searchText = modelStateFlow.value.searchText
         paging.add { collectors ->
             val cursor: String?
             when (val lastState = collectors.lastOrNull()?.flow?.value) {
@@ -82,6 +82,7 @@ public class RootUsageCalendarPagingModel(
                                     LocalTime(0, 0),
                                 ),
                             ),
+                            text = Optional.present(searchText),
                         ),
                     ),
                     isAsc = true,
@@ -91,7 +92,9 @@ public class RootUsageCalendarPagingModel(
         }
     }
 
-    public fun changeMonth(month: LocalDate) {
+    public fun changeMonth(
+        month: LocalDate,
+    ) {
         modelStateFlow.update {
             it.copy(
                 selectedMonth = month,
@@ -100,7 +103,20 @@ public class RootUsageCalendarPagingModel(
         paging.clear()
     }
 
+    public fun changeSearchText(
+        text: String?,
+    ) {
+        if (modelStateFlow.value.searchText == text) return
+        modelStateFlow.update {
+            it.copy(
+                searchText = text,
+            )
+        }
+        paging.clear()
+    }
+
     private data class ModelState(
         val selectedMonth: LocalDate? = null,
+        val searchText: String? = null,
     )
 }

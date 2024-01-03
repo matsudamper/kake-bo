@@ -61,7 +61,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScre
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.ImportedMailListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalendarPagingModel
-import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalendarViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.usage.MoneyUsagesCalendarViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageListViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
@@ -138,7 +138,7 @@ fun Content(
     val rootUsageHostViewModel = remember {
         RootUsageHostViewModel(
             coroutineScope = rootCoroutineScope,
-            pagingModel = RootUsageCalendarPagingModel(
+            calendarPagingModel = RootUsageCalendarPagingModel(
                 coroutineScope = rootCoroutineScope,
             ),
         )
@@ -286,7 +286,7 @@ fun Content(
                             usageCalendarUiStateProvider = {
                                 val coroutineScope = rememberCoroutineScope()
                                 val viewModel = remember {
-                                    RootUsageCalendarViewModel(
+                                    MoneyUsagesCalendarViewModel(
                                         coroutineScope = coroutineScope,
                                         rootUsageHostViewModel = rootUsageHostViewModel,
                                     )

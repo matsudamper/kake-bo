@@ -1,7 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.usage
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,9 +14,10 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
 public class RootUsageHostViewModel(
     private val coroutineScope: CoroutineScope,
-    public val pagingModel: RootUsageCalendarPagingModel,
+    public val calendarPagingModel: RootUsageCalendarPagingModel,
 ) {
-    private val viewModelStateFlow = MutableStateFlow(ViewModelState())
+    private val mutableViewModelStateFlow = MutableStateFlow(ViewModelState())
+    public val viewModelStateFlow: StateFlow<ViewModelState> = mutableViewModelStateFlow.asStateFlow()
 
     private val rootNavigationEventSender = EventSender<RootNavigationEvent>()
     public val rootNavigationEventHandler: EventHandler<RootNavigationEvent> = rootNavigationEventSender.asHandler()
@@ -50,11 +50,11 @@ public class RootUsageHostViewModel(
         }
 
         override fun onClickSearchBox() {
-            viewModelStateFlow.update {
+            mutableViewModelStateFlow.update {
                 it.copy(
                     textInputUiState = RootUsageHostScreenUiState.TextInputUiState(
                         title = "検索",
-                        default = viewModelStateFlow.value.searchText,
+                        default = mutableViewModelStateFlow.value.searchText,
                         inputType = "text",
                         textComplete = { text ->
                             updateSSearchText(text)
@@ -75,7 +75,7 @@ public class RootUsageHostViewModel(
         }
 
         private fun closeTextInput() {
-            viewModelStateFlow.update {
+            mutableViewModelStateFlow.update {
                 it.copy(
                     textInputUiState = null,
                 )
@@ -83,7 +83,7 @@ public class RootUsageHostViewModel(
         }
 
         private fun updateSSearchText(text: String) {
-            viewModelStateFlow.update {
+            mutableViewModelStateFlow.update {
                 it.copy(
                     searchText = text,
                 )
@@ -101,7 +101,7 @@ public class RootUsageHostViewModel(
         ),
     ).also { uiStateFlow ->
         coroutineScope.launch {
-            viewModelStateFlow
+            mutableViewModelStateFlow
                 .collectLatest { viewModelState ->
                     viewModelState.screenStructure ?: return@collectLatest
 
@@ -126,7 +126,7 @@ public class RootUsageHostViewModel(
     public fun updateHeader(
         calendarHeader: RootUsageHostScreenUiState.Header.Calendar?,
     ) {
-        viewModelStateFlow.update {
+        mutableViewModelStateFlow.update {
             it.copy(
                 calendarHeader = calendarHeader,
             )
@@ -134,7 +134,7 @@ public class RootUsageHostViewModel(
     }
 
     public fun updateStructure(structure: ScreenStructure.Root.Usage) {
-        viewModelStateFlow.update {
+        mutableViewModelStateFlow.update {
             it.copy(
                 screenStructure = structure,
             )
@@ -145,7 +145,7 @@ public class RootUsageHostViewModel(
         coroutineScope.launch {
             rootNavigationEventSender.send {
                 it.navigate(
-                    viewModelStateFlow.value.screenStructure
+                    mutableViewModelStateFlow.value.screenStructure
                         ?: ScreenStructure.Root.Usage.Calendar(),
                 )
             }
@@ -156,7 +156,7 @@ public class RootUsageHostViewModel(
         public fun navigate(screenStructure: ScreenStructure)
     }
 
-    private data class ViewModelState(
+    public data class ViewModelState(
         val screenStructure: ScreenStructure.Root.Usage? = null,
         val calendarHeader: RootUsageHostScreenUiState.Header.Calendar? = null,
         val textInputUiState: RootUsageHostScreenUiState.TextInputUiState? = null,
