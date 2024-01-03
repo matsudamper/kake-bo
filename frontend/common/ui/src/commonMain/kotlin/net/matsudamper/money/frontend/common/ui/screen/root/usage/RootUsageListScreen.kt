@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -22,6 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
@@ -40,7 +42,11 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.ui.ScrollButtons
+import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButton
 import net.matsudamper.money.frontend.common.ui.layout.ElongatedScrollButtonDefaults
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
@@ -67,6 +73,7 @@ public data class RootUsageListScreenUiState(
             val category: String?,
             val event: ItemEvent,
         ) : Item
+
         public data class Title(
             val title: String,
         ) : Item
@@ -106,18 +113,15 @@ public fun RootUsageListScreen(
                 LoadedContent(
                     modifier = Modifier.fillMaxSize(),
                     uiState = uiState.loadingState,
-                    paddingValues = PaddingValues(
-                        end = ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding * 2 + ElongatedScrollButtonDefaults.scrollButtonSize,
-                    ),
+                    paddingValues = PaddingValues(),
                     lazyListState = lazyListState,
                 )
 
-                ElongatedScrollButton(
+                ScrollButtons(
                     modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .fillMaxHeight()
-                        .padding(ElongatedScrollButtonDefaults.scrollButtonHorizontalPadding)
-                        .width(ElongatedScrollButtonDefaults.scrollButtonSize),
+                        .align(Alignment.BottomEnd)
+                        .padding(ScrollButtonsDefaults.padding)
+                        .height(ScrollButtonsDefaults.height),
                     scrollState = lazyListState,
                     scrollSize = with(density) {
                         height.toPx() * 0.7f
@@ -178,6 +182,7 @@ private fun LoadedContent(
                         item = item,
                     )
                 }
+
                 is RootUsageListScreenUiState.Item.Usage -> {
                     ListItemUsage(
                         modifier = Modifier
