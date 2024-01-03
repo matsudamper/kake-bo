@@ -362,7 +362,7 @@ private fun SessionSection(
                 modifier = Modifier.fillMaxWidth()
                     .padding(horizontal = itemHorizontalPadding),
                 onClickDelete = { session.event.onClickDelete() },
-                onClickNameChange = { session.event.onClickNameChange() },
+                onClickNameChange = null,
             )
         }
     }
@@ -372,7 +372,7 @@ private fun SessionSection(
 private fun SessionItem(
     session: LoginSettingScreenUiState.Session,
     onClickDelete: (() -> Unit)?,
-    onClickNameChange: () -> Unit,
+    onClickNameChange: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -421,18 +421,20 @@ private fun SessionItem(
                                 defaultElevation = 8.dp,
                             ),
                         ) {
-                            Column(
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
-                                Text(
-                                    modifier = Modifier.fillMaxWidth()
-                                        .clickable {
-                                            visibleMenu = false
-                                            onClickNameChange()
-                                        }
-                                        .padding(12.dp),
-                                    text = "名前の変更",
-                                )
+                            if (onClickNameChange != null) {
+                                Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) {
+                                    Text(
+                                        modifier = Modifier.fillMaxWidth()
+                                            .clickable {
+                                                visibleMenu = false
+                                                onClickNameChange()
+                                            }
+                                            .padding(12.dp),
+                                        text = "名前の変更",
+                                    )
+                                }
                             }
                             if (onClickDelete != null) {
                                 Column(
