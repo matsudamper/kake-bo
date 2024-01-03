@@ -6,13 +6,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -26,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
@@ -83,12 +79,12 @@ public fun RootHomeTabScreenScaffold(
                 },
                 menu = {
                     Menu(
-                        modifier = Modifier.padding(horizontal = 24.dp),
+                        modifier = Modifier.padding(horizontal = 12.dp),
                         contentType = uiState.contentType,
                         onClickPeriod = uiState.event::onClickPeriod,
                         onClickMonth = uiState.event::onClickMonth,
                     )
-                }
+                },
             )
         },
         content = {
@@ -106,13 +102,12 @@ private fun Menu(
 ) {
     var expanded by remember { mutableStateOf(false) }
     Box(modifier = modifier) {
-        OutlinedButton(
+        DropDownMenuButton(
             modifier = Modifier
                 .semantics(true) {
                     contentDescription = "表示タイプ変更"
                 }
                 .align(Alignment.CenterEnd),
-            shape = RoundedCornerShape(8.dp),
             onClick = { expanded = !expanded },
         ) {
             when (contentType) {
@@ -124,7 +119,6 @@ private fun Menu(
                     Text(text = "月別")
                 }
             }
-            Icon(Icons.Default.ArrowDropDown, contentDescription = null)
         }
 
         DropdownMenu(

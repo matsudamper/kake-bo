@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.ui.screen.root.home
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -19,14 +20,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
@@ -69,12 +67,11 @@ public fun RootHomeTabPeriodAllScreen(
     ) {
         when (val loadingState = uiState.loadingState) {
             is RootHomeTabPeriodAllContentUiState.LoadingState.Loaded -> {
-                var containerWidth by remember { mutableStateOf(0.dp) }
-                Box(
+                BoxWithConstraints(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .onSizeChanged { containerWidth = it.width.dp },
+                        .fillMaxSize(),
                 ) {
+                    val containerWidth = maxWidth
                     val width by rememberUpdatedState(containerWidth)
                     if (width > 800.dp) {
                         LargeContent(
@@ -84,7 +81,7 @@ public fun RootHomeTabPeriodAllScreen(
                     } else {
                         SmallContent(
                             loadingState = loadingState,
-                            modifier = Modifier,
+                            modifier = Modifier.fillMaxWidth(),
                         )
                     }
                 }
@@ -133,7 +130,10 @@ private fun SmallContent(
             }
         }
         Spacer(modifier = Modifier.height(12.dp))
-        Card(modifier = modifier.width(intrinsicSize = IntrinsicSize.Min)) {
+        Card(
+            modifier = modifier
+                .width(intrinsicSize = IntrinsicSize.Min),
+        ) {
             MonthlyTotal(
                 loadingState = loadingState,
                 modifier = Modifier.fillMaxWidth()

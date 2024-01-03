@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.ui.screen.root.home
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -107,6 +108,7 @@ public fun RootHomeTabPeriodScaffold(
         var containerHeight by remember { mutableStateOf(0.dp) }
         Box(
             modifier = Modifier
+                .fillMaxSize()
                 .onSizeChanged {
                     containerHeight = with(density) { it.height.toDp() }
                 },
