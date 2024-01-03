@@ -55,6 +55,7 @@ import net.matsudamper.money.frontend.common.viewmodel.login.LoginScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScreenViewModelApi
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
+import net.matsudamper.money.frontend.common.viewmodel.root.RootViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.ImportedMailListViewModel
@@ -109,7 +110,13 @@ fun Content(
             graphqlQuery = GraphqlUserLoginQuery(),
         )
     }
-
+    val rootViewModel = remember {
+        RootViewModel(
+            loginCheckUseCase = loginCheckUseCase,
+            coroutineScope = rootCoroutineScope,
+            navController = navController,
+        )
+    }
     val importedMailListViewModel = remember {
         ImportedMailListViewModel(
             coroutineScope = rootCoroutineScope,
@@ -210,6 +217,9 @@ fun Content(
         viewModelEventHandlers.handle(
             handler = rootUsageHostViewModel.rootNavigationEventHandler,
         )
+    }
+    LaunchedEffect(navController.currentNavigation) {
+        rootViewModel.navigateChanged()
     }
 
     Scaffold(
@@ -335,7 +345,7 @@ fun Content(
                     val coroutineScope = rememberCoroutineScope()
                     val controller = rememberAdminScreenController()
 
-                    val rootViewModel = remember(coroutineScope, controller) {
+                    val adminRootViewModel = remember(coroutineScope, controller) {
                         AdminRootScreenViewModel(
                             controller = controller,
                             coroutineScope = coroutineScope,
@@ -356,7 +366,7 @@ fun Content(
                             loginViewModel.uiStateFlow.collectAsState().value
                         },
                         adminRootScreenUiStateProvider = {
-                            rootViewModel.uiStateFlow.collectAsState().value
+                            adminRootViewModel.uiStateFlow.collectAsState().value
                         },
                         adminAddUserUiStateProvider = {
                             val loginScreenCoroutineScope = rememberCoroutineScope()
