@@ -73,7 +73,7 @@ public class SettingMailCategoryFiltersViewModel(
             event = object : SettingMailCategoryFilterScreenUiState.Event {
                 override fun onClickRetry() {
                     coroutineScope.launch {
-                                            pagingModel.fetch()
+                        pagingModel.fetch()
                     }
                 }
 

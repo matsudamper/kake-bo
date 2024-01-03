@@ -11,7 +11,6 @@ import net.matsudamper.money.frontend.graphql.lib.ApolloPagingResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
 
-
 public class MoneyUsagesListFetchModel(
     apolloClient: ApolloClient = GraphqlClient.apolloClient,
     coroutineScope: CoroutineScope,
@@ -26,7 +25,7 @@ public class MoneyUsagesListFetchModel(
         val coroutineScope = CoroutineScope(coroutineContext)
         paging.add { collectors ->
             val cursor: String?
-            when (val lastState = collectors.lastOrNull()?.flow?.value.also { println("last state -> ${it?.getSuccessOrNull()?.value?.data.toString()}") }) {
+            when (val lastState = collectors.lastOrNull()?.flow?.value.also { println("last state -> ${it?.getSuccessOrNull()?.value?.data}") }) {
                 is ApolloResponseState.Loading -> return@add null
                 is ApolloResponseState.Failure -> {
                     coroutineScope.launch {
