@@ -65,7 +65,7 @@ internal class CategorySelectDialogViewModel(
 
     init {
         coroutineScope.launch {
-            apolloResponseCollector.flow.collectLatest { apolloResponseState ->
+            apolloResponseCollector.getFlow().collectLatest { apolloResponseState ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         categories = apolloResponseState,
@@ -75,7 +75,7 @@ internal class CategorySelectDialogViewModel(
         }
         coroutineScope.launch {
             subCategoriesFlow.collectLatest { map ->
-                combine(map.toList().map { pair -> pair.second.flow.map { pair.first to it } }) {
+                combine(map.toList().map { pair -> pair.second.getFlow().map { pair.first to it } }) {
                     it
                 }.collectLatest {
 

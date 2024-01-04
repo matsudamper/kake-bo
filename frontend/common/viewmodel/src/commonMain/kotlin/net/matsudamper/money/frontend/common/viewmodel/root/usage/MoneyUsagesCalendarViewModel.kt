@@ -1,7 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.usage
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,7 +54,28 @@ public class MoneyUsagesCalendarViewModel(
             hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
             event = object : RootUsageCalendarScreenUiState.Event {
                 override suspend fun onViewInitialized() {
+                    if (rootUsageHostViewModel.calendarPagingModel.hasSelectedMonth().not()) {
+                        rootUsageHostViewModel.calendarPagingModel.changeMonth(viewModelStateFlow.value.displayMonth)
+                    }
                     CoroutineScope(currentCoroutineContext()).launch {
+                        launch {
+                            rootUsageHostViewModel.calendarPagingModel.getFlow().map { it.lastOrNull()?.getSuccessOrNull() }
+                                .collectLatest {
+                                    if (it?.value?.data?.user?.moneyUsages?.hasMore == true) {
+                                        rootUsageHostViewModel.calendarPagingModel.fetch()
+                                    }
+                                }
+                        }
+                        launch {
+                            rootUsageHostViewModel.calendarPagingModel.getFlow().collectLatest { responseStates ->
+                                viewModelStateFlow.update {
+                                    it.copy(
+                                        results = responseStates,
+                                    )
+                                }
+                            }
+                        }
+
                         launch {
                             rootUsageHostViewModel.calendarPagingModel.fetch()
                         }
@@ -202,27 +222,6 @@ public class MoneyUsagesCalendarViewModel(
                 }
         }
     }.asStateFlow()
-
-    init {
-        rootUsageHostViewModel.calendarPagingModel.changeMonth(viewModelStateFlow.value.displayMonth)
-        coroutineScope.launch {
-            rootUsageHostViewModel.calendarPagingModel.flow.collectLatest { responseStates ->
-                viewModelStateFlow.update {
-                    it.copy(
-                        results = responseStates,
-                    )
-                }
-            }
-        }
-        coroutineScope.launch {
-            rootUsageHostViewModel.calendarPagingModel.flow.map { it.lastOrNull()?.getSuccessOrNull() }
-                .collectLatest {
-                    if (it?.value?.data?.user?.moneyUsages?.hasMore == true) {
-                        rootUsageHostViewModel.calendarPagingModel.fetch()
-                    }
-                }
-        }
-    }
 
     internal fun prevMonth() {
         viewModelStateFlow.update {

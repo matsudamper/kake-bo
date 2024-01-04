@@ -332,7 +332,7 @@ public class MoneyUsageScreenViewModel(
 
     init {
         coroutineScope.launch {
-            apolloCollector.flow.collectLatest { apolloResponseState ->
+            apolloCollector.getFlow().collectLatest { apolloResponseState ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         apolloResponseState = apolloResponseState,

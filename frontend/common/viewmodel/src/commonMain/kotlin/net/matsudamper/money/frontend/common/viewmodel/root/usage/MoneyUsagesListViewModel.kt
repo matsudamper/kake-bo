@@ -2,7 +2,6 @@ package net.matsudamper.money.frontend.common.viewmodel.root.usage
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,6 +33,7 @@ public class MoneyUsagesListViewModel(
 
     private val pagingModel = MoneyUsagesListFetchModel(
         apolloClient = apolloClient,
+        coroutineScope = coroutineScope,
     )
 
     private val viewModelEventSender = EventSender<Event>()
@@ -59,7 +59,7 @@ public class MoneyUsagesListViewModel(
                                 }
                         }
                         launch {
-                            pagingModel.flow.collectLatest { responseStates ->
+                            pagingModel.getFlow().collectLatest { responseStates ->
                                 viewModelStateFlow.update {
                                     it.copy(
                                         results = responseStates,

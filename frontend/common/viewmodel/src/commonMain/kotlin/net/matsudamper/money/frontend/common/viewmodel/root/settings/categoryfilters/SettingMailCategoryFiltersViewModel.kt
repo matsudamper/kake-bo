@@ -158,7 +158,7 @@ public class SettingMailCategoryFiltersViewModel(
 
     init {
         coroutineScope.launch {
-            pagingModel.flow.collectLatest { apolloResponseStates ->
+            pagingModel.getFlow().collectLatest { apolloResponseStates ->
                 viewModelStateFlow.update {
                     it.copy(
                         apolloResponseStates = apolloResponseStates,

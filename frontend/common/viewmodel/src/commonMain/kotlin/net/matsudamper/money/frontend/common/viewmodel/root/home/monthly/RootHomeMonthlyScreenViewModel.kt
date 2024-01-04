@@ -49,6 +49,7 @@ public class RootHomeMonthlyScreenViewModel(
     )
     private val monthlyListState: ApolloPagingResponseCollector<MonthlyScreenListQuery.Data> = ApolloPagingResponseCollector.create(
         apolloClient = apolloClient,
+        coroutineScope = coroutineScope,
     )
 
     private val eventSender = EventSender<Event>()
@@ -190,15 +191,14 @@ public class RootHomeMonthlyScreenViewModel(
         viewModelStateFlow.value = viewModelStateFlow.value.copy(argument = current)
         tabViewModel.updateScreenStructure(current)
 
-        monthlyListState.clear()
         coroutineScope.launch {
             fetch()
         }
     }
 
-    private suspend fun fetch() {
+    private fun fetch() {
         monthlyListState.add {
-            val cursor: String? = when (val lastState = monthlyListState.lastValue.lastOrNull()) {
+            val cursor: String? = when (val lastState = it.lastOrNull()?.flow?.value) {
                 is ApolloResponseState.Loading -> return@add null
                 is ApolloResponseState.Failure -> {
                     coroutineScope.launch {

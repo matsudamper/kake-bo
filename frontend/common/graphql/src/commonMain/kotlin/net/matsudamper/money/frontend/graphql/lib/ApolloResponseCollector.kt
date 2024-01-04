@@ -26,28 +26,31 @@ public class ApolloResponseCollector<D : Query.Data>(
         ApolloResponseState.loading(),
     )
     public val flow: StateFlow<ApolloResponseState<ApolloResponse<D>>> = _flow.asStateFlow()
+    fun getFlow(): StateFlow<ApolloResponseState<ApolloResponse<D>>> = flow
     private var job: Job = Job()
 
-    public suspend fun fetch() {
+    suspend fun fetch() {
+        fetch(CoroutineScope(currentCoroutineContext()))
+    }
+
+    public fun fetch(coroutineScope: CoroutineScope) {
         job.cancel()
-        CoroutineScope(currentCoroutineContext()).launch {
-            job = launch(coroutineContext) {
-                apolloClient
-                    .query(query)
-                    .fetchPolicy(fetchPolicy)
-                    .watch(
-                        fetchThrows = fetchThrows,
-                        refetchThrows = refetchThrows,
-                    )
-                    .catch {
-                        it.printStackTrace()
-                        _flow.value = ApolloResponseState.failure(it)
-                    }
-                    .collect {
-                        println("collect: ${it.data})")
-                        _flow.value = ApolloResponseState.success(it)
-                    }
-            }
+        job = coroutineScope.launch {
+            apolloClient
+                .query(query)
+                .fetchPolicy(fetchPolicy)
+                .watch(
+                    fetchThrows = fetchThrows,
+                    refetchThrows = refetchThrows,
+                )
+                .catch {
+                    it.printStackTrace()
+                    _flow.value = ApolloResponseState.failure(it)
+                }
+                .collect {
+                    println("collect: Data(${it.data})")
+                    _flow.value = ApolloResponseState.success(it)
+                }
         }
     }
 

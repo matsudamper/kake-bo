@@ -51,6 +51,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
     private val monthlyCategoryResultState: ApolloPagingResponseCollector<MonthlyCategoryScreenListQuery.Data> = ApolloPagingResponseCollector.create(
         apolloClient = apolloClient,
         fetchPolicy = FetchPolicy.CacheFirst,
+        coroutineScope = coroutineScope,
     )
     private val loadedEvent = object : RootHomeMonthlyCategoryScreenUiState.LoadedEvent {
         override fun loadMore() {
@@ -88,7 +89,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                                 ),
                             )
                             collector.fetch()
-                            collector.flow.collectLatest { responseState ->
+                            collector.getFlow().collectLatest { responseState ->
                                 val categoryName = responseState.getSuccessOrNull()?.value?.data?.user?.moneyUsageCategory?.name
                                 viewModelStateFlow.update { viewModelState ->
                                     viewModelState.copy(
@@ -180,15 +181,14 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                 categoryId = current.categoryId,
             )
         }
-        monthlyCategoryResultState.clear()
         coroutineScope.launch {
             fetch()
         }
     }
 
-    private suspend fun fetch() {
+    private fun fetch() {
         monthlyCategoryResultState.add { results ->
-            val cursor: String? = when (val lastResponseState = results.lastOrNull()?.flow?.value) {
+            val cursor: String? = when (val lastResponseState = viewModelStateFlow.value.apolloResponses.lastOrNull()) {
                 null -> null
 
                 is ApolloResponseState.Success -> {

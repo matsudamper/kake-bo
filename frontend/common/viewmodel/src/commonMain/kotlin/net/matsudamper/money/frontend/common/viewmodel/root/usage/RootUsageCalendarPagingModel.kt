@@ -1,7 +1,14 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.usage
 
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flattenMerge
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
@@ -10,6 +17,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.plus
 import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.UsageCalendarScreenPagingQuery
@@ -20,26 +28,50 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryFilter
 
 public class RootUsageCalendarPagingModel(
     private val coroutineScope: CoroutineScope,
-    apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
     private val modelStateFlow = MutableStateFlow(ModelState())
 
-    private val paging = ApolloPagingResponseCollector.create<UsageCalendarScreenPagingQuery.Data>(
-        apolloClient = apolloClient,
+    private val pagingFlow = MutableStateFlow(
+        ApolloPagingResponseCollector.create<UsageCalendarScreenPagingQuery.Data>(
+            apolloClient = apolloClient,
+            coroutineScope = coroutineScope,
+        ),
     )
 
-    internal val flow = paging.getFlow()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    internal fun getFlow(): Flow<List<ApolloResponseState<ApolloResponse<UsageCalendarScreenPagingQuery.Data>>>> {
+        return flow {
+            emitAll(
+                pagingFlow.mapLatest { collectors ->
+                    collectors.getFlow()
+                }.flattenMerge()
+                    .onEach {
+                        println("CalendarPaging: ${it.size}")
+                    },
+            )
+        }
+    }
 
-    internal suspend fun fetch() {
-        val selectedMonth = modelStateFlow.value.selectedMonth ?: return
-        val searchText = modelStateFlow.value.searchText
-        paging.add { collectors ->
+    internal fun fetch() {
+        fetch(
+            selectedMonth = modelStateFlow.value.selectedMonth,
+            searchText = modelStateFlow.value.searchText,
+        )
+    }
+
+    private fun fetch(
+        selectedMonth: LocalDate?,
+        searchText: String?,
+    ) {
+        selectedMonth ?: return
+        pagingFlow.value.add { responseStateList ->
             val cursor: String?
-            when (val lastState = collectors.lastOrNull()?.flow?.value) {
+            when (val lastState = responseStateList.lastOrNull()?.flow?.value) {
                 is ApolloResponseState.Loading -> return@add null
                 is ApolloResponseState.Failure -> {
                     coroutineScope.launch {
-                        paging.lastRetry()
+                        pagingFlow.value.lastRetry()
                     }
                     return@add null
                 }
@@ -52,7 +84,7 @@ public class RootUsageCalendarPagingModel(
                     val result = lastState.value.data?.user?.moneyUsages
                     if (result == null) {
                         coroutineScope.launch {
-                            paging.lastRetry()
+                            pagingFlow.value.lastRetry()
                         }
                         return@add null
                     }
@@ -61,6 +93,7 @@ public class RootUsageCalendarPagingModel(
                     cursor = result.cursor
                 }
             }
+            println("cursor: $cursor")
             UsageCalendarScreenPagingQuery(
                 query = MoneyUsagesQuery(
                     cursor = Optional.present(cursor),
@@ -90,7 +123,7 @@ public class RootUsageCalendarPagingModel(
                         ),
                     ),
                     isAsc = true,
-                    size = 50,
+                    size = 10,
                 ),
             )
         }
@@ -99,12 +132,16 @@ public class RootUsageCalendarPagingModel(
     public fun changeMonth(
         month: LocalDate,
     ) {
+        println("changeMonth: $month")
         modelStateFlow.update {
             it.copy(
                 selectedMonth = month,
             )
         }
-        paging.clear()
+        pagingFlow.value = ApolloPagingResponseCollector.create(
+            apolloClient = apolloClient,
+            coroutineScope = coroutineScope,
+        )
     }
 
     public fun changeSearchText(
@@ -116,7 +153,14 @@ public class RootUsageCalendarPagingModel(
                 searchText = text,
             )
         }
-        paging.clear()
+        pagingFlow.value = ApolloPagingResponseCollector.create(
+            apolloClient = apolloClient,
+            coroutineScope = coroutineScope,
+        )
+    }
+
+    public fun hasSelectedMonth(): Boolean {
+        return modelStateFlow.value.selectedMonth != null
     }
 
     private data class ModelState(

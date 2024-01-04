@@ -1,12 +1,11 @@
 package net.matsudamper.money.frontend.graphql.lib
 
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.currentCoroutineContext
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -18,34 +17,42 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 class ApolloPagingResponseCollector<D : Query.Data>(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    private val coroutineScope: CoroutineScope,
     private val fetchPolicy: FetchPolicy = FetchPolicy.NetworkOnly,
 ) {
     private val collectorFlow: MutableStateFlow<List<ApolloResponseCollector<D>>> =
         MutableStateFlow(listOf())
 
     private val _flow: MutableStateFlow<List<ApolloResponseState<ApolloResponse<D>>>> = MutableStateFlow(listOf())
+    public val flow: StateFlow<List<ApolloResponseState<ApolloResponse<D>>>> = _flow.asStateFlow()
 
-    @OptIn(FlowPreview::class)
-    fun getFlow(): Flow<List<ApolloResponseState<ApolloResponse<D>>>> {
-        return collectorFlow
-            .map { collectors ->
-                combine(collectors.map { it.flow }) { it.toList() }
-            }.flattenMerge()
-    }
+    fun getFlow(): StateFlow<List<ApolloResponseState<ApolloResponse<D>>>> = flow
 
-    val lastValue: List<ApolloResponseState<ApolloResponse<D>>> get() = collectorFlow.value.map { it.flow.value }
-
-    suspend fun lastRetry() {
-        when (collectorFlow.value.lastOrNull()?.flow?.value) {
-            is ApolloResponseState.Failure -> collectorFlow.value.lastOrNull()?.fetch()
-            is ApolloResponseState.Loading,
-            is ApolloResponseState.Success,
-            null,
-            -> Unit
+    init {
+        coroutineScope.launch {
+            collectorFlow.collectLatest { collectors ->
+                combine(collectors.map { it.flow }) {
+                    it.toList()
+                }.collectLatest {
+                    _flow.value = it
+                }
+            }
         }
     }
 
-    suspend fun add(
+    fun lastRetry() {
+        coroutineScope.launch {
+            when (collectorFlow.value.lastOrNull()?.flow?.value) {
+                is ApolloResponseState.Failure -> collectorFlow.value.lastOrNull()?.fetch(this)
+                is ApolloResponseState.Loading,
+                is ApolloResponseState.Success,
+                null,
+                -> Unit
+            }
+        }
+    }
+
+    fun add(
         queryBlock: (List<ApolloResponseCollector<D>>) -> Query<D>?,
     ) {
         var collector: ApolloResponseCollector<D>? = null
@@ -62,8 +69,8 @@ class ApolloPagingResponseCollector<D : Query.Data>(
             collector = tmp
             collectors + tmp
         }
-        CoroutineScope(currentCoroutineContext()).launch {
-            collector?.fetch()
+        coroutineScope.launch {
+            collector?.fetch(this)
         }
     }
 
@@ -82,10 +89,12 @@ class ApolloPagingResponseCollector<D : Query.Data>(
     companion object {
         fun <D : Query.Data> create(
             apolloClient: ApolloClient,
+            coroutineScope: CoroutineScope,
             fetchPolicy: FetchPolicy = FetchPolicy.NetworkOnly,
         ): ApolloPagingResponseCollector<D> {
             return ApolloPagingResponseCollector(
                 apolloClient = apolloClient,
+                coroutineScope = coroutineScope,
                 fetchPolicy = fetchPolicy,
             )
         }

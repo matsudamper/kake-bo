@@ -143,7 +143,7 @@ public class ImportedMailFilterCategoryViewModel(
 
     init {
         coroutineScope.launch {
-            apiResponseCollector.flow.collectLatest { response ->
+            apiResponseCollector.getFlow().collectLatest { response ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         apolloResponseState = response,

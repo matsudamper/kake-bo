@@ -237,7 +237,7 @@ public class ImportedMailScreenViewModel(
     init {
         fetch()
         coroutineScope.launch {
-            apolloResponseCollector.flow.collectLatest { response ->
+            apolloResponseCollector.getFlow().collectLatest { response ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         apolloResponse = response,

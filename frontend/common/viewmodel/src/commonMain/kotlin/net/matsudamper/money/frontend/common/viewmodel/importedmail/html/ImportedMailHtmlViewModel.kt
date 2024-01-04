@@ -94,7 +94,7 @@ public class ImportedMailHtmlViewModel(
     private fun fetch() {
         coroutineScope.launch {
             apolloResponseCollector.fetch()
-            apolloResponseCollector.flow.collectLatest { apolloResponseState ->
+            apolloResponseCollector.getFlow().collectLatest { apolloResponseState ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         apolloResponseState = apolloResponseState,

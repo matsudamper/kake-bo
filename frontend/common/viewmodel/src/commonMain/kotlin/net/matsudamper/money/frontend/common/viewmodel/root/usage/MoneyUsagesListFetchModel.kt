@@ -2,10 +2,17 @@ package net.matsudamper.money.frontend.common.viewmodel.root.usage
 
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flattenMerge
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.UsageListScreenPagingQuery
@@ -16,13 +23,31 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryFilter
 
 public class MoneyUsagesListFetchModel(
     apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    coroutineScope: CoroutineScope,
 ) {
     private val state = MutableStateFlow(State())
     private val paging = ApolloPagingResponseCollector.create<UsageListScreenPagingQuery.Data>(
         apolloClient = apolloClient,
+        coroutineScope = coroutineScope,
     )
-    internal val flow = paging.getFlow()
-    internal val lastValue get() = paging.lastValue
+
+    private val pagingFlow = MutableStateFlow(
+        ApolloPagingResponseCollector.create<UsageListScreenPagingQuery.Data>(
+            apolloClient = apolloClient,
+            coroutineScope = coroutineScope,
+        ),
+    )
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    internal suspend fun getFlow(): Flow<List<ApolloResponseState<ApolloResponse<UsageListScreenPagingQuery.Data>>>> {
+        return flow {
+            emitAll(
+                pagingFlow.mapLatest { collectors ->
+                    collectors.getFlow()
+                }.flattenMerge(),
+            )
+        }
+    }
 
     internal suspend fun fetch() {
         val coroutineScope = CoroutineScope(coroutineContext)
@@ -76,7 +101,6 @@ public class MoneyUsagesListFetchModel(
                 searchText = searchText,
             )
         }
-        paging.clear()
     }
 
     private data class State(
