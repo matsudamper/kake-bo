@@ -53,7 +53,7 @@ internal fun RootNavContent(
     loginCheckUseCase: LoginCheckUseCase,
     homeMailTabScreenUiStateProvider: @Composable () -> HomeMailTabScreenUiState,
     usageListUiStateProvider: @Composable () -> RootUsageListScreenUiState,
-    usageCalendarUiStateProvider: @Composable () -> RootUsageCalendarScreenUiState,
+    usageCalendarUiStateProvider: @Composable (ScreenStructure.Root.Usage.Calendar.YearMonth?) -> RootUsageCalendarScreenUiState,
     importMailScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Imported) -> ImportedMailListScreenUiState,
     importMailLinkScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Import) -> ImportMailScreenUiState,
     settingUiStateProvider: @Composable () -> RootSettingScreenUiState,
@@ -182,7 +182,7 @@ internal fun RootNavContent(
                 when (current) {
                     is ScreenStructure.Root.Usage.Calendar -> {
                         usageHost.SaveableStateProvider(current::class.toString()) {
-                            val uiState = usageCalendarUiStateProvider()
+                            val uiState = usageCalendarUiStateProvider(current.yearMonth)
                             rootScreen(uiState.hostScreenUiState) {
                                 RootUsageCalendarScreen(
                                     modifier = Modifier.fillMaxSize(),

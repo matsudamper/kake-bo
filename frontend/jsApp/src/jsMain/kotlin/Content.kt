@@ -283,12 +283,13 @@ fun Content(
                             globalEventSender = globalEventSender,
                             loginCheckUseCase = loginCheckUseCase,
                             globalEvent = globalEvent,
-                            usageCalendarUiStateProvider = {
+                            usageCalendarUiStateProvider = { yearMonth ->
                                 val coroutineScope = rememberCoroutineScope()
                                 val viewModel = remember {
                                     MoneyUsagesCalendarViewModel(
                                         coroutineScope = coroutineScope,
                                         rootUsageHostViewModel = rootUsageHostViewModel,
+                                        yearMonth = yearMonth,
                                     )
                                 }
                                 LaunchedEffect(viewModel.viewModelEventHandler) {

@@ -100,10 +100,44 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                 }
             }
 
-            public class Calendar : Usage {
+            public data class Calendar(
+                val yearMonth: YearMonth? = null,
+            ) : Usage {
                 override val direction: Screens = Screens.UsageCalendar
                 override fun equalScreen(other: ScreenStructure): Boolean {
                     return other is Calendar
+                }
+
+                override fun createUrl(): String {
+                    return if (yearMonth == null) {
+                        direction.placeholderUrl
+                    } else {
+                        buildString {
+                            append(direction.placeholderUrl)
+                            append("?")
+                            append("year=${yearMonth.year}&month=${yearMonth.month}")
+                        }
+                    }
+                }
+
+                public data class YearMonth(
+                    val year: Int,
+                    val month: Int,
+                )
+
+                public companion object {
+                    public fun fromQueryParams(queryParams: Map<String, kotlin.collections.List<String>>): Calendar {
+                        val year = queryParams["year"]?.firstOrNull()?.toIntOrNull()
+                            ?: return Calendar()
+                        val month = queryParams["month"]?.firstOrNull()?.toIntOrNull()
+                            ?: return Calendar()
+                        return Calendar(
+                            YearMonth(
+                                year = year,
+                                month = month,
+                            ),
+                        )
+                    }
                 }
             }
         }

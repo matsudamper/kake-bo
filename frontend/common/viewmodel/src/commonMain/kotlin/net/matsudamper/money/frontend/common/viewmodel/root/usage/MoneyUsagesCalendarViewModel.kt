@@ -32,8 +32,28 @@ import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 public class MoneyUsagesCalendarViewModel(
     private val coroutineScope: CoroutineScope,
     private val rootUsageHostViewModel: RootUsageHostViewModel,
+    private val yearMonth: ScreenStructure.Root.Usage.Calendar.YearMonth?,
 ) {
-    internal val viewModelStateFlow = MutableStateFlow(ViewModelState())
+    internal val viewModelStateFlow = MutableStateFlow(
+        ViewModelState(
+            displayMonth = run {
+                val currentLocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                if (yearMonth != null) {
+                    LocalDate(
+                        year = yearMonth.year,
+                        monthNumber = yearMonth.month,
+                        dayOfMonth = 1,
+                    )
+                } else {
+                    LocalDate(
+                        year = currentLocalDateTime.year,
+                        monthNumber = currentLocalDateTime.monthNumber,
+                        dayOfMonth = 1,
+                    )
+                }
+            },
+        ),
+    )
 
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
@@ -232,6 +252,16 @@ public class MoneyUsagesCalendarViewModel(
             )
         }
         coroutineScope.launch {
+            viewModelEventSender.send {
+                it.navigate(
+                    ScreenStructure.Root.Usage.Calendar(
+                        yearMonth = ScreenStructure.Root.Usage.Calendar.YearMonth(
+                            year = viewModelStateFlow.value.displayMonth.year,
+                            month = viewModelStateFlow.value.displayMonth.monthNumber,
+                        ),
+                    ),
+                )
+            }
             rootUsageHostViewModel.calendarPagingModel.fetch()
         }
     }
@@ -245,6 +275,16 @@ public class MoneyUsagesCalendarViewModel(
             )
         }
         coroutineScope.launch {
+            viewModelEventSender.send {
+                it.navigate(
+                    ScreenStructure.Root.Usage.Calendar(
+                        yearMonth = ScreenStructure.Root.Usage.Calendar.YearMonth(
+                            year = viewModelStateFlow.value.displayMonth.year,
+                            month = viewModelStateFlow.value.displayMonth.monthNumber,
+                        ),
+                    ),
+                )
+            }
             rootUsageHostViewModel.calendarPagingModel.fetch()
         }
     }

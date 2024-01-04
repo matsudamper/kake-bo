@@ -145,7 +145,9 @@ public class ScreenNavControllerImpl(
             }
 
             Screens.UsageList -> ScreenStructure.Root.Usage.List()
-            Screens.UsageCalendar -> ScreenStructure.Root.Usage.Calendar()
+            Screens.UsageCalendar -> ScreenStructure.Root.Usage.Calendar.fromQueryParams(
+                queryParams = queryParams,
+            )
             Screens.Login -> ScreenStructure.Login
             Screens.Admin -> ScreenStructure.Admin
             Screens.MailImport -> ScreenStructure.Root.Mail.Import
