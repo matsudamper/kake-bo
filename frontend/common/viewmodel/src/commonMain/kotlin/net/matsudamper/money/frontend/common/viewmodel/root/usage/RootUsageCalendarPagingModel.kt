@@ -123,7 +123,7 @@ public class RootUsageCalendarPagingModel(
                         ),
                     ),
                     isAsc = true,
-                    size = 10,
+                    size = 50,
                 ),
             )
         }
