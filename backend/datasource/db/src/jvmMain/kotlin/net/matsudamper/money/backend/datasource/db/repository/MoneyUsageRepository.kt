@@ -189,6 +189,11 @@ class MoneyUsageRepository {
                         } else {
                             jUsage.DATETIME.desc()
                         },
+                        if (isAsc) {
+                            jUsage.MONEY_USAGE_ID.asc()
+                        } else {
+                            jUsage.MONEY_USAGE_ID.desc()
+                        },
                     )
                     .limit(size)
                     .fetch()
