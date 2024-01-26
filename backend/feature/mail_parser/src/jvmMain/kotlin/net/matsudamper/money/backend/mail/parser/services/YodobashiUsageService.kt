@@ -60,11 +60,11 @@ internal object YodobashiUsageService : MoneyUsageServices {
                     ),
                 )
             }
-            val titleRegex = "^・「(.+)」$".toRegex()
+            val titleRegex = "^・「(.+)$".toRegex()
             val priceRegex = "合計.+?点(.+?)円".toRegex()
 
             var beforeTitle: String? = null
-            orderItemsLines.forEach { line ->
+            orderItemsLines.forEachIndexed { index, line ->
                 val titleResult = titleRegex.find(line)?.groupValues?.getOrNull(1)
                 val priceResult = priceRegex.find(line)?.groupValues?.getOrNull(1)
                     ?.mapNotNull { it.toString().toIntOrNull() }
@@ -84,7 +84,14 @@ internal object YodobashiUsageService : MoneyUsageServices {
                             ),
                         )
                     }
+
                     beforeTitle = titleResult
+                        .plus(
+                            orderItemsLines.drop(index + 1)
+                                .takeWhile { it.isNotBlank() }
+                                .joinToString("") { it.drop(2) } // remove "　　"
+                        )
+                        .dropLast(1) // remove "」"
                 } else if (priceResult != null) {
                     add(
                         MoneyUsage(
