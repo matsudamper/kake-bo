@@ -38,7 +38,13 @@ internal object MitsuiSumitomoCardUsageServices : MoneyUsageServices {
         }
         return listOf(
             MoneyUsage(
-                title = parsedName ?: forwardOriginal?.subject ?: subject,
+                title = run {
+                    if (DEFAULT_SUBJECT == subject) {
+                        parsedName ?: DEFAULT_SUBJECT
+                    } else {
+                        subject
+                    }
+                },
                 price = price,
                 description = "",
                 service = MoneyUsageServiceType.CreditCard,
@@ -66,4 +72,6 @@ internal object MitsuiSumitomoCardUsageServices : MoneyUsageServices {
         .appendValue(ChronoField.SECOND_OF_MINUTE, 1, 2, SignStyle.NOT_NEGATIVE)
         .optionalEnd()
         .toFormatter()
+
+    private const val DEFAULT_SUBJECT = "ご利用のお知らせ【三井住友カード】"
 }
