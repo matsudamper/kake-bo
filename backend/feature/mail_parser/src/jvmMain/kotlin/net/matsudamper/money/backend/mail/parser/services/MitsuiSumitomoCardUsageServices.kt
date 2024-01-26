@@ -26,7 +26,7 @@ internal object MitsuiSumitomoCardUsageServices : MoneyUsageServices {
         val parsedDate = run {
             val dateLine = lines[dateIndex]
             val dateString = dateLine.dropWhile { it != '：' }.drop(1).trim()
-            LocalDateTime.from(dateFormatter.parse(dateString),)
+            LocalDateTime.from(dateFormatter.parse(dateString))
         }
 
         val parsedName: String?

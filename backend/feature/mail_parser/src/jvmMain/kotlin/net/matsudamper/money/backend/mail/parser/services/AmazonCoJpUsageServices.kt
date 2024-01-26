@@ -59,7 +59,7 @@ internal object AmazonCoJpUsageServices : MoneyUsageServices {
             yield(
                 document.getElementsByTag("a")
                     .firstOrNull { it.text().contains("注文の詳細を表示する") }
-                    ?.attr("href")
+                    ?.attr("href"),
             )
             yield(
                 document
