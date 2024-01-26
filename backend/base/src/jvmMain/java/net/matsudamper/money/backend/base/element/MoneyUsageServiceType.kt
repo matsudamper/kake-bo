@@ -96,5 +96,9 @@ public enum class MoneyUsageServiceType(
         id = 24,
         displayName = "モンベル",
     ),
+    CreditCard(
+        id = 25,
+        displayName = "クレジットカード",
+    ),
     ;
 }
