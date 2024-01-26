@@ -92,5 +92,9 @@ public enum class MoneyUsageServiceType(
         id = 23,
         displayName = "@ビリング",
     ),
+    Mountbell(
+        id = 24,
+        displayName = "モンベル",
+    ),
     ;
 }
