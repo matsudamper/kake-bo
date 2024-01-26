@@ -53,8 +53,20 @@ internal object AmazonCoJpUsageServices : MoneyUsageServices {
             )
         }.filterNotNull().firstOrNull()
 
-        val url = Jsoup.parse(html).getElementsByClass("buttonComponentLink").attr("href")
-            .takeIf { it.isNotBlank() }
+        val url = sequence {
+            val document = Jsoup.parse(html)
+
+            yield(
+                document.getElementsByTag("a")
+                    .firstOrNull { it.text().contains("注文の詳細を表示する") }
+                    ?.attr("href")
+            )
+            yield(
+                document
+                    .getElementsByClass("buttonComponentLink").attr("href")
+                    .takeIf { it.isNotBlank() },
+            )
+        }.filterNotNull().firstOrNull()
 
         val mailDateTime = run {
             val result = """注文日： (\d{4})/(\d{2})/(\d{2})""".toRegex().find(plain) ?: return@run null
