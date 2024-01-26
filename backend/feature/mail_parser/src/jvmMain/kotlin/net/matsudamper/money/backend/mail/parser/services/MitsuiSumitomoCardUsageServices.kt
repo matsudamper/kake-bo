@@ -39,7 +39,7 @@ internal object MitsuiSumitomoCardUsageServices : MoneyUsageServices {
         return listOf(
             MoneyUsage(
                 title = run {
-                    if (DEFAULT_SUBJECT == subject) {
+                    if (subject.contains(DEFAULT_SUBJECT)) {
                         parsedName ?: DEFAULT_SUBJECT
                     } else {
                         subject
