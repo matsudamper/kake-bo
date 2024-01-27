@@ -10,6 +10,17 @@ internal object FanzaDojinUsageServices : MoneyUsageServices {
     override val displayName: String = "Fanza同人"
 
     override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): List<MoneyUsage> {
+        return parsePlain(
+            // plainが無く、htmlにplainが含まれている場合がある
+            plain = plain.takeIf { it.isNotBlank() } ?: html,
+            date = date,
+        )
+    }
+
+    private fun parsePlain(
+        plain: String,
+        date: LocalDateTime,
+    ): List<MoneyUsage> {
         val canHandle = sequence {
             yield(canHandledWithPlain(plain))
         }
