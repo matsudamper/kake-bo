@@ -17,7 +17,7 @@ internal object FanzaDojinUsageServices : MoneyUsageServices {
 
         val price = run price@{
             val result = "購入額.+?：.+?(.+?)円".toRegex().find(plain)
-                ?.groupValues?.getOrNull(1) ?: return@price null
+                ?.groupValues?.getOrNull(1)!!
 
             ParseUtil.getInt(result)
         }
