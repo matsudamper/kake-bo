@@ -48,16 +48,16 @@ public object SteamUsageService : MoneyUsageServices {
     ): List<MoneyUsage> {
         val document = Jsoup.parse(html)
         val parsedDate = document.getElementsByTag("tr").asSequence().filter { tr ->
-            tr.getElementsContainingText("発行日").isNotEmpty()
-                    && tr.getElementsByTag("td").count { it.hasText() } == 2
+            tr.getElementsContainingText("発行日").isNotEmpty() &&
+                tr.getElementsByTag("td").count { it.hasText() } == 2
         }.map {
             LocalDateTime.from(dateFormat.parse(it.lastElementChild()?.text()))
         }.firstOrNull()
         return document.getElementsByTag("table").asSequence()
             .filter {
-                it.getElementsByTag("strong").size == 2
-                        && it.getElementsByTag("img").isNotEmpty()
-                        && it.getElementsContainingText("合計").isNotEmpty()
+                it.getElementsByTag("strong").size == 2 &&
+                    it.getElementsByTag("img").isNotEmpty() &&
+                    it.getElementsContainingText("合計").isNotEmpty()
             }.map {
                 it.getElementsByTag("strong")
                     .map { strong -> strong.text() }
@@ -135,17 +135,17 @@ public object SteamUsageService : MoneyUsageServices {
 
     // 2024年1月1日 10時41分 JST
     private val dateFormat = DateTimeFormatterBuilder()
-            .appendValue(ChronoField.YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
-            .appendLiteral('年')
-            .appendValue(ChronoField.MONTH_OF_YEAR, 1,2, SignStyle.NOT_NEGATIVE)
-            .appendLiteral('月')
-            .appendValue(ChronoField.DAY_OF_MONTH, 1,2, SignStyle.NOT_NEGATIVE)
-            .appendLiteral('日')
-            .appendLiteral(' ')
-            .appendValue(ChronoField.HOUR_OF_DAY, 1, 2, SignStyle.NOT_NEGATIVE)
-            .appendLiteral('時')
-            .appendValue(ChronoField.MINUTE_OF_HOUR, 1, 2, SignStyle.NOT_NEGATIVE)
-            .appendLiteral('分')
-            .appendLiteral(" JST")
-            .toFormatter()
+        .appendValue(ChronoField.YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
+        .appendLiteral('年')
+        .appendValue(ChronoField.MONTH_OF_YEAR, 1, 2, SignStyle.NOT_NEGATIVE)
+        .appendLiteral('月')
+        .appendValue(ChronoField.DAY_OF_MONTH, 1, 2, SignStyle.NOT_NEGATIVE)
+        .appendLiteral('日')
+        .appendLiteral(' ')
+        .appendValue(ChronoField.HOUR_OF_DAY, 1, 2, SignStyle.NOT_NEGATIVE)
+        .appendLiteral('時')
+        .appendValue(ChronoField.MINUTE_OF_HOUR, 1, 2, SignStyle.NOT_NEGATIVE)
+        .appendLiteral('分')
+        .appendLiteral(" JST")
+        .toFormatter()
 }

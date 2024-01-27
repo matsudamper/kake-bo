@@ -89,7 +89,7 @@ internal object YodobashiUsageService : MoneyUsageServices {
                         .plus(
                             orderItemsLines.drop(index + 1)
                                 .takeWhile { it.isNotBlank() }
-                                .joinToString("") { it.drop(2) } // remove "　　"
+                                .joinToString("") { it.drop(2) }, // remove "　　"
                         )
                         .dropLast(1) // remove "」"
                 } else if (priceResult != null) {
