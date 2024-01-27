@@ -35,24 +35,43 @@ internal object RakutenUsageServices : MoneyUsageServices {
 
         val lines = ParseUtil.splitByNewLine(plain)
 
-        val storeName = run storeName@{
-            "この度は楽天市場内のショップ「\\*(.+?)\\*」をご利用いただきまして、誠にありがとうございます。".toRegex()
-                .find(plain)?.groupValues?.get(1)!!
-        }
+        val storeName = sequence {
+            val singleLine = plain.replace("\r\n", "").replace("\n", "")
+            yield(
+                run {
+                    val result = "この度は楽天市場内のショップ「(.+?)」をご利用いただきまして、誠にありがとうございます。".toRegex()
+                        .find(singleLine)
+                    result?.groupValues?.get(1)
+                },
+            )
+            yield(
+                run {
+                    val result = "この度は楽天市場内のショップ「\\*(.+?)\\*」をご利用いただきまして、誠にありがとうございます。".toRegex()
+                        .find(singleLine)
+                    result?.groupValues?.get(1)
+                },
+            )
+        }.filterNotNull().first()
 
         val totalPrice = run totalPrice@{
-            val priceIndex = lines.indexOfFirst { it.startsWith("*支払い金額*") }
+            val priceIndex = lines.indexOfFirst { it.startsWith("支払い金額") || it.startsWith("*支払い金額*") }
                 .takeIf { it >= 0 }!!
             ParseUtil.getInt(lines[priceIndex])!!
         }
 
         val orderDate = run orderDate@{
-            val prefix = "注文日時 "
-            val index = lines.indexOfFirst { it.startsWith(prefix) }
-                .takeIf { it >= 0 }!!
+            var prefix: String? = null
+            var index: Int? = null
+            for (checkPrefix in listOf("[日時]", "注文日時 ")) {
+                index = lines.indexOfFirst { it.startsWith(checkPrefix) }
+                    .takeIf { it >= 0 } ?: continue
+                prefix = checkPrefix
+            }
+            prefix!!
+            index!!
 
             val temporal = DateTimeFormatter.ISO_LOCAL_DATE_TIME
-                .parse(lines[index].drop(prefix.length).replace(" ", "T"))
+                .parse(lines[index].drop(prefix.length).trim().replace(" ", "T"))
 
             LocalDateTime.of(
                 LocalDate.of(
