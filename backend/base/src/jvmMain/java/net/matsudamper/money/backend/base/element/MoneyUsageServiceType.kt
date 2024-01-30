@@ -100,5 +100,9 @@ public enum class MoneyUsageServiceType(
         id = 25,
         displayName = "クレジットカード",
     ),
+    YouTubeMembership(
+        id = 26,
+        displayName = "YouTube Membership",
+    ),
     ;
 }

@@ -27,6 +27,7 @@ import net.matsudamper.money.backend.mail.parser.services.ShunsuguUsageService
 import net.matsudamper.money.backend.mail.parser.services.SteamUsageService
 import net.matsudamper.money.backend.mail.parser.services.UberEatsUsageService
 import net.matsudamper.money.backend.mail.parser.services.YodobashiUsageService
+import net.matsudamper.money.backend.mail.parser.services.YoutubeMembershipUsageServices
 import net.matsudamper.money.backend.mail.parser.services.YoutubeSuperChatUsageServices
 
 public class MailMoneyUsageParser {
@@ -62,6 +63,7 @@ public class MailMoneyUsageParser {
             NintendoProductBuyUsageServices,
             NintendoChargeUsageServices,
             YoutubeSuperChatUsageServices,
+            YoutubeMembershipUsageServices,
             NttEastBillingUsageServices,
             MountbellUsageServices,
             MitsuiSumitomoCardUsageServices,

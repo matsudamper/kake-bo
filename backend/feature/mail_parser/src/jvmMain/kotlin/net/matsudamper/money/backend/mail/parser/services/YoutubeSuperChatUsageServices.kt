@@ -7,77 +7,50 @@ import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
 import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 
 internal object YoutubeSuperChatUsageServices : MoneyUsageServices {
-    override val displayName: String = "YouTube"
+    override val displayName: String = "YouTube Membership"
 
     override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): List<MoneyUsage> {
-        val forwardedInfo = ParseUtil.parseForwarded(plain)
+        val forwardedOriginInfo = ParseUtil.parseForwarded(plain)
         val canHandle = sequence {
-            yield(canHandledWithFrom(forwardedInfo?.from ?: from))
-            yield(canHandledWithSubject(forwardedInfo?.subject ?: subject))
+            yield(canHandledWithFrom(forwardedOriginInfo?.from ?: from))
+            yield(canHandledWithSubject(forwardedOriginInfo?.subject ?: subject))
         }
         if (canHandle.all { it }.not()) return listOf()
 
         val plainLines = ParseUtil.splitByNewLine(plain)
 
-        var price: Int
-        var priceDescription: String?
-        run {
-            val index = plainLines.indexOfFirst { it == "*Total*" }
-                .takeIf { it >= 0 }
-            if (index == null) {
-                price = 0
-                priceDescription = null
-                return@run
-            }
-
-            val paidLine = plainLines.getOrNull(index + 1)
-            if (paidLine == null) {
-                price = 0
-                priceDescription = null
-                return@run
-            }
-
-            price = """\*¥(.+?)\*""".toRegex()
-                .find(paidLine)
-                ?.groupValues
-                ?.getOrNull(1)
-                ?.toIntOrNull()
-                ?: 0
-            priceDescription = plainLines.subList(index + 1, index + 3)
-                .joinToString("\n")
-                .takeIf { it.isNotBlank() }
+        val description = run {
+            val index = plainLines.indexOfFirst { it == "Membership details" }
+                .takeIf { it >= 0 }!!
+            val endIndex = index + plainLines.drop(index + 1).indexOfFirst { it.isBlank() }
+            plainLines.subList(index, endIndex).joinToString("\n")
         }
 
-        val channel = getNextLine(plainLines) {
-            it == "You've successfully made a Super Chat purchase from YouTube on the channel:"
+        val title: String = run {
+            val itemPrefix = "Item: "
+            val index = plainLines.indexOfFirst { it.startsWith(itemPrefix) }
+                .takeIf { it >= 0 } ?: return@run forwardedOriginInfo?.subject ?: subject
+
+            plainLines[index].drop(itemPrefix.length)
         }
-        val title = getNextLine(plainLines) {
-            it == "YouTube Super Chat"
+
+        val price = run {
+            val itemPrefix = "Price: "
+            val index = plainLines.indexOfFirst { it.startsWith(itemPrefix) }
+                .takeIf { it >= 0 } ?: return@run 0
+
+            ParseUtil.getInt(plainLines[index])
         }
 
         return listOf(
             MoneyUsage(
-                title = "YouTube Super Chat: ${channel.orEmpty()}",
+                title = title,
                 price = price,
-                description = buildString {
-                    if (title != null) {
-                        appendLine(title)
-                    }
-                    if (priceDescription != null) {
-                        appendLine(priceDescription)
-                    }
-                }.trim(),
-                service = MoneyUsageServiceType.YouTube,
-                dateTime = forwardedInfo?.date ?: date,
+                description = description,
+                service = MoneyUsageServiceType.YouTubeMembership,
+                dateTime = forwardedOriginInfo?.date ?: date,
             ),
         )
-    }
-
-    private fun getNextLine(lines: List<String>, block: (String) -> Boolean): String? {
-        val index = lines.indexOfFirst { block(it) }
-            .takeIf { it >= 0 } ?: return null
-
-        return lines.getOrNull(index + 1)
     }
 
     private fun canHandledWithFrom(from: String): Boolean {
@@ -85,6 +58,6 @@ internal object YoutubeSuperChatUsageServices : MoneyUsageServices {
     }
 
     private fun canHandledWithSubject(subject: String): Boolean {
-        return subject.startsWith("Your YouTube Super Chat receipt")
+        return subject.startsWith("Your membership to")
     }
 }
