@@ -56,7 +56,7 @@ dependencyResolutionManagement {
             library("compose.material3", "org.jetbrains.compose.material3:material3:1.6.0-alpha01")
 
             library("graphqlJava.extendedScalars", "com.graphql-java:graphql-java-extended-scalars:20.2")
-            library("graphqlJava", "com.graphql-java:graphql-java:21.0")
+            library("graphqlJava", "com.graphql-java:graphql-java:21.3")
             library("graphqlJavaKickstart.javaTools", "com.graphql-java-kickstart:graphql-java-tools:13.0.2")
             plugin("kobylynskyi.graphqlCodegen", "io.github.kobylynskyi.graphql.codegen").version("5.9.0")
 
