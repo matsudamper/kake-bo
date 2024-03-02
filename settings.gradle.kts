@@ -58,7 +58,7 @@ dependencyResolutionManagement {
             library("graphqlJava.extendedScalars", "com.graphql-java:graphql-java-extended-scalars:20.2")
             library("graphqlJava", "com.graphql-java:graphql-java:21.3")
             library("graphqlJavaKickstart.javaTools", "com.graphql-java-kickstart:graphql-java-tools:13.0.2")
-            plugin("kobylynskyi.graphqlCodegen", "io.github.kobylynskyi.graphql.codegen").version("5.9.0")
+            plugin("kobylynskyi.graphqlCodegen", "io.github.kobylynskyi.graphql.codegen").version("5.10.0")
 
             library("log4j.api", "org.slf4j:slf4j-api:2.0.12")
             library("logback.classic", "ch.qos.logback:logback-classic:1.4.8")
