@@ -42,13 +42,19 @@ class Main {
             // Initialize
             MoneyGraphQlSchema.graphql
 
-            embeddedServer(
+            val engine = embeddedServer(
                 CIO,
                 port = ServerEnv.port,
                 module = Application::myApplicationModule,
                 configure = {
                 },
-            ).start(wait = true)
+            )
+            Runtime.getRuntime().addShutdownHook(
+                Thread {
+                    engine.stop(1000, 1000)
+                },
+            )
+            engine.start(wait = true)
         }
     }
 }
@@ -118,6 +124,7 @@ fun Application.myApplicationModule() {
                                 )
                             }
                         }
+
                         accessPath == "/favicon.ico" -> {
                             cacheControl {
                                 listOf(
@@ -125,6 +132,7 @@ fun Application.myApplicationModule() {
                                 )
                             }
                         }
+
                         accessPath == "/skiko.wasm" -> {
                             cacheControl {
                                 listOf(
@@ -132,6 +140,7 @@ fun Application.myApplicationModule() {
                                 )
                             }
                         }
+
                         else -> Unit
                     }
                 }
