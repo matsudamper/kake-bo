@@ -3,12 +3,21 @@ package net.matsudamper.money.backend
 import kotlinx.serialization.Serializable
 import com.fasterxml.jackson.annotation.JsonProperty
 import net.matsudamper.money.backend.base.CookieManager
+import net.matsudamper.money.backend.base.mail_parser.MailParser
 
 class RegisterMailHandler(
-    private val cookieManager: CookieManager
+    private val cookieManager: CookieManager,
 ) {
-    fun handle(request: Request) : Response {
-        TODO()
+    fun handle(request: Request): Response {
+        val userId = cookieManager.getUserSessionId()
+        val result = MailParser.rawContentToResponse(request.raw)
+        return Response(
+            status = if (result.content.isEmpty()) {
+                Response.Status.ERROR
+            } else {
+                Response.Status.OK
+            }
+        )
     }
 
     @Serializable

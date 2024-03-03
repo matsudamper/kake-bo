@@ -2,12 +2,18 @@ package net.matsudamper.money.backend.base.mail_parser
 
 import java.time.Instant
 import jakarta.mail.Multipart
+import jakarta.mail.Session
 import jakarta.mail.internet.InternetAddress
 import jakarta.mail.internet.MimeMessage
 import jakarta.mail.internet.MimeMultipart
 import net.matsudamper.money.element.MailId
 
 public object MailParser {
+    public fun rawContentToResponse(rawContent: String): MailResult {
+        val message = MimeMessage(Session.getDefaultInstance(System.getProperties()), rawContent.byteInputStream())
+        return messageToResponse(message)
+    }
+
     public fun messageToResponse(message: MimeMessage): MailResult {
         val contents = when (val content = message.dataHandler.content) {
             is String,
