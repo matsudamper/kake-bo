@@ -15,7 +15,7 @@ include(":backend:app")
 include(":backend:datasource:db:schema")
 include(":backend:datasource:mail")
 include(":backend:datasource:inmemory")
-include(":backend:feature:mail_parser")
+include(":backend:feature:service_mail_parser")
 include(":backend:feature:fido")
 
 include(":shared")
