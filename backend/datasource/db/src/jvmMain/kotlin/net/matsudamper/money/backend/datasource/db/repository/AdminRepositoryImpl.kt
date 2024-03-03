@@ -48,8 +48,8 @@ class AdminRepositoryImpl : AdminRepository {
                                 .values(
                                     userResult.userId!!,
                                     "PBKDF2WithHmacSHA512",
-                                    ByteArray(32).also {
-                                        SecureRandom().nextBytes(it)
+                                    ByteArray(32).also { byteArray ->
+                                        SecureRandom().nextBytes(byteArray)
                                     },
                                     100000,
                                     512,

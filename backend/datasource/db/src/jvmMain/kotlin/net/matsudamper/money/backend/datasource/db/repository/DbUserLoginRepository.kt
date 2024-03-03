@@ -1,7 +1,7 @@
 package net.matsudamper.money.backend.datasource.db.repository
 
 import java.security.spec.KeySpec
-import java.util.*
+import java.util.Base64
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 import net.matsudamper.money.backend.app.interfaces.UserLoginRepository

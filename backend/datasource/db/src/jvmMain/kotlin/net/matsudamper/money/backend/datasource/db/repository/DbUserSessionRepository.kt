@@ -2,7 +2,7 @@ package net.matsudamper.money.backend.datasource.db.repository
 
 import java.time.LocalDateTime
 import java.time.ZoneOffset
-import java.util.*
+import java.util.UUID
 import net.matsudamper.money.backend.app.interfaces.UserSessionRepository
 import net.matsudamper.money.backend.app.interfaces.element.UserSessionId
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl

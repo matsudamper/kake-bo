@@ -68,7 +68,8 @@ class MoneyUsageCategoryResolverImpl : MoneyUsageCategoryResolver {
                                     id = it.moneyUsageSubCategoryId,
                                 )
                             },
-                        cursor = null, // TODO
+                        // TODO
+                        cursor = null,
                     )
                 }
             }

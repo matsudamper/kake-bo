@@ -10,7 +10,7 @@ import org.jooq.impl.DSL
 import org.jooq.kotlin.and
 
 class DbMoneyUsageCategoryRepository : MoneyUsageCategoryRepository {
-    private val CATEGORIES = JMoneyUsageCategories.MONEY_USAGE_CATEGORIES
+    private val categories = JMoneyUsageCategories.MONEY_USAGE_CATEGORIES
 
     override fun addCategory(
         userId: UserId,
@@ -20,7 +20,7 @@ class DbMoneyUsageCategoryRepository : MoneyUsageCategoryRepository {
             DbConnectionImpl.use { connection ->
                 val result =
                     DSL.using(connection)
-                        .insertInto(CATEGORIES)
+                        .insertInto(categories)
                         .set(
                             JMoneyUsageCategoriesRecord(
                                 userId = userId.value,
@@ -51,11 +51,11 @@ class DbMoneyUsageCategoryRepository : MoneyUsageCategoryRepository {
             DbConnectionImpl.use { connection ->
                 val records =
                     DSL.using(connection)
-                        .selectFrom(CATEGORIES)
+                        .selectFrom(categories)
                         .where(
-                            CATEGORIES.USER_ID.eq(userId.value)
+                            categories.USER_ID.eq(userId.value)
                                 .and(
-                                    CATEGORIES.MONEY_USAGE_CATEGORY_ID
+                                    categories.MONEY_USAGE_CATEGORY_ID
                                         .`in`(moneyUsageCategoryIds.map { it.value }),
                                 ),
                         )
@@ -80,9 +80,9 @@ class DbMoneyUsageCategoryRepository : MoneyUsageCategoryRepository {
             DbConnectionImpl.use { connection ->
                 val records =
                     DSL.using(connection)
-                        .selectFrom(CATEGORIES)
+                        .selectFrom(categories)
                         .where(
-                            CATEGORIES.USER_ID.eq(userId.value),
+                            categories.USER_ID.eq(userId.value),
                         )
                         .fetch()
 
@@ -108,12 +108,12 @@ class DbMoneyUsageCategoryRepository : MoneyUsageCategoryRepository {
         return DbConnectionImpl.use { connection ->
             if (name != null) {
                 DSL.using(connection)
-                    .update(CATEGORIES)
-                    .set(CATEGORIES.NAME, name)
+                    .update(categories)
+                    .set(categories.NAME, name)
                     .where(
                         DSL.value(true)
-                            .and(CATEGORIES.USER_ID.eq(userId.value))
-                            .and(CATEGORIES.MONEY_USAGE_CATEGORY_ID.eq(categoryId.value)),
+                            .and(categories.USER_ID.eq(userId.value))
+                            .and(categories.MONEY_USAGE_CATEGORY_ID.eq(categoryId.value)),
                     )
                     .limit(1)
                     .execute()

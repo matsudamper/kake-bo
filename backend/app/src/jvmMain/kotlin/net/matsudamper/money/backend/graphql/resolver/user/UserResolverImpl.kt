@@ -72,7 +72,8 @@ class UserResolverImpl : UserResolver {
                                     id = it.moneyUsageCategoryId,
                                 )
                             },
-                        cursor = null, // TODO
+                        // TODO
+                        cursor = null,
                     )
                 }
             }

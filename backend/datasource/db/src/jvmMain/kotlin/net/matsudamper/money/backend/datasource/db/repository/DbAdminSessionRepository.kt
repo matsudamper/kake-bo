@@ -1,6 +1,6 @@
 package net.matsudamper.money.backend.datasource.db.repository
 
-import java.util.*
+import java.util.UUID
 import net.matsudamper.money.backend.app.interfaces.AdminSessionRepository
 import net.matsudamper.money.backend.app.interfaces.element.AdminSession
 import net.matsudamper.money.backend.app.interfaces.element.AdminSessionId
