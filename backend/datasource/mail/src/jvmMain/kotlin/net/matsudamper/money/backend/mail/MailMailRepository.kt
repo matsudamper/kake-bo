@@ -8,7 +8,7 @@ import jakarta.mail.PasswordAuthentication
 import jakarta.mail.Session
 import net.matsudamper.money.backend.app.interfaces.MailRepository
 import net.matsudamper.money.backend.base.element.MailResult
-import net.matsudamper.money.backend.base.mail_parser.MailParser
+import net.matsudamper.money.backend.base.mailparser.MailParser
 import net.matsudamper.money.element.MailId
 import org.eclipse.angus.mail.imap.IMAPMessage
 

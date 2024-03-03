@@ -3,7 +3,7 @@ package net.matsudamper.money.backend
 import kotlinx.serialization.Serializable
 import com.fasterxml.jackson.annotation.JsonProperty
 import net.matsudamper.money.backend.base.CookieManager
-import net.matsudamper.money.backend.base.mail_parser.MailParser
+import net.matsudamper.money.backend.base.mailparser.MailParser
 
 class RegisterMailHandler(
     private val cookieManager: CookieManager,

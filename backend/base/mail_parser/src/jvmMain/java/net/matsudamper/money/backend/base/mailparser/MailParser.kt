@@ -1,4 +1,4 @@
-package net.matsudamper.money.backend.base.mail_parser
+package net.matsudamper.money.backend.base.mailparser
 
 import java.time.Instant
 import jakarta.mail.Multipart
