@@ -41,7 +41,8 @@ internal fun PolygonalLineGraph(
 
     Canvas(
         modifier
-            .padding(4.dp), // 点がはみ出さないように。計算入れるのが面倒なので全体に追加する
+            // 点がはみ出さないように。計算入れるのが面倒なので全体に追加する
+            .padding(4.dp),
     ) {
         if (graphItems.isEmpty()) return@Canvas
 

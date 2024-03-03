@@ -15,15 +15,15 @@ public val LocalHtmlRenderContext: ProvidableCompositionLocal<HtmlRenderContext>
 
 @Stable
 public class HtmlRenderContext {
-    private val _mutableStateFlow: MutableStateFlow<Map<String, RenderState>> = MutableStateFlow(mapOf())
-    public val stateFlow: StateFlow<Map<String, RenderState>> = _mutableStateFlow.asStateFlow()
+    private val mutableStateFlow: MutableStateFlow<Map<String, RenderState>> = MutableStateFlow(mapOf())
+    public val stateFlow: StateFlow<Map<String, RenderState>> = mutableStateFlow.asStateFlow()
 
     public fun add(
         id: String,
         html: String,
         onDismissRequest: () -> Unit,
     ) {
-        _mutableStateFlow.update {
+        mutableStateFlow.update {
             it.plus(
                 id to
                     RenderState(
@@ -36,7 +36,7 @@ public class HtmlRenderContext {
     }
 
     public fun remove(id: String) {
-        _mutableStateFlow.update {
+        mutableStateFlow.update {
             it.minus(id)
         }
     }

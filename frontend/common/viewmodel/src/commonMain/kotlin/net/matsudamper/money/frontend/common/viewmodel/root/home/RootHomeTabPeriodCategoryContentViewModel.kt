@@ -219,9 +219,15 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                                             categoryId = categoryId,
                                             yearMonth = yearMonth,
                                         )
-                                    val apolloResult = categoryResponseMap[key] ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading
-                                    val amount = apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.totalAmount ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
-                                    val subCategory = apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.bySubCategories ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
+                                    val apolloResult =
+                                        categoryResponseMap[key]
+                                            ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading
+                                    val amount =
+                                        apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.totalAmount
+                                            ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
+                                    val subCategory =
+                                        apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.bySubCategories
+                                            ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
 
                                     BarGraphUiState.PeriodData(
                                         year = yearMonth.year,

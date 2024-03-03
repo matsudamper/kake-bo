@@ -17,15 +17,19 @@ public fun CustomTheme(content: @Composable () -> Unit) {
         colorScheme =
             MaterialTheme.colorScheme.copy(
                 primary = Color(0xff8BC34A),
-                onPrimary = Color.White, // Color(0xff444654),
+                // Color(0xff444654),
+                onPrimary = Color.White,
                 background = CustomColors.backgroundColor,
                 onBackground = Color.White,
                 surface = CustomColors.backgroundColor,
                 onSurface = Color.White,
                 onSecondary = Color.Green,
-                onSurfaceVariant = Color.White, // Card->Text, Button->Icon/Text
-                outlineVariant = Color.LightGray, // Divider
-                surfaceVariant = CustomColors.surfaceColor, // Card
+                // Card->Text, Button->Icon/Text
+                onSurfaceVariant = Color.White,
+                // Divider
+                outlineVariant = Color.LightGray,
+                // Card
+                surfaceVariant = CustomColors.surfaceColor,
                 error = Color(0xffFF6075),
             ),
         typography = getTypography(),

@@ -17,14 +17,14 @@ public val LocalHtmlTextInputContext: ProvidableCompositionLocal<HtmlTextInputCo
     }
 
 public class HtmlTextInputContext {
-    private val _mutableStateFlow: MutableStateFlow<Map<Any, TextState>> = MutableStateFlow(mapOf())
-    public val stateFlow: StateFlow<Map<Any, TextState>> = _mutableStateFlow.asStateFlow()
+    private val mutableStateFlow: MutableStateFlow<Map<Any, TextState>> = MutableStateFlow(mapOf())
+    public val stateFlow: StateFlow<Map<Any, TextState>> = mutableStateFlow.asStateFlow()
 
     public fun setPosition(
         key: Any,
         positionInRoot: Offset,
     ) {
-        _mutableStateFlow.update { map ->
+        mutableStateFlow.update { map ->
             map + (key to map.getOrElse(key) { TextState() }.copy(position = positionInRoot))
         }
     }
@@ -34,7 +34,7 @@ public class HtmlTextInputContext {
         width: Int? = null,
         maxHeight: Int? = null,
     ) {
-        _mutableStateFlow.update { map ->
+        mutableStateFlow.update { map ->
             map + (
                 key to
                     map.getOrElse(key) { TextState() }.copy(
@@ -49,7 +49,7 @@ public class HtmlTextInputContext {
         key: Any,
         callback: (Size) -> Unit,
     ) {
-        _mutableStateFlow.update { map ->
+        mutableStateFlow.update { map ->
             map + (key to map.getOrElse(key) { TextState() }.copy(sizeCallback = callback))
         }
     }
@@ -58,7 +58,7 @@ public class HtmlTextInputContext {
         key: Any,
         color: Color,
     ) {
-        _mutableStateFlow.update { map ->
+        mutableStateFlow.update { map ->
             map + (key to map.getOrElse(key) { TextState() }.copy(color = color))
         }
     }
@@ -67,7 +67,7 @@ public class HtmlTextInputContext {
         key: Any,
         callback: (String) -> Unit,
     ) {
-        _mutableStateFlow.update { map ->
+        mutableStateFlow.update { map ->
             map + (key to map.getOrElse(key) { TextState() }.copy(textCallback = callback))
         }
     }
@@ -76,13 +76,13 @@ public class HtmlTextInputContext {
         id: Any,
         placeholder: String,
     ) {
-        _mutableStateFlow.update { map ->
+        mutableStateFlow.update { map ->
             map + (id to map.getOrElse(id) { TextState() }.copy(placeholder = placeholder))
         }
     }
 
     public fun remove(id: Any) {
-        _mutableStateFlow.update { map ->
+        mutableStateFlow.update { map ->
             map - id
         }
     }
@@ -91,7 +91,7 @@ public class HtmlTextInputContext {
         id: Any,
         type: KeyboardType,
     ) {
-        _mutableStateFlow.update { map ->
+        mutableStateFlow.update { map ->
             map + (
                 id to
                     map.getOrElse(id) { TextState() }.copy(

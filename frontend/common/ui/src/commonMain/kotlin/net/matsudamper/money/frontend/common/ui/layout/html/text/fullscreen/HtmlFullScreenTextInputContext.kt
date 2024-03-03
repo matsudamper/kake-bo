@@ -13,20 +13,20 @@ public val LocalHtmlFullScreenTextInputContext: ProvidableCompositionLocal<HtmlF
     }
 
 public class HtmlFullScreenTextInputContext {
-    private val _mutableStateFlow: MutableStateFlow<Map<String, TextState>> = MutableStateFlow(mapOf())
-    public val stateFlow: StateFlow<Map<String, TextState>> = _mutableStateFlow.asStateFlow()
+    private val mutableStateFlow: MutableStateFlow<Map<String, TextState>> = MutableStateFlow(mapOf())
+    public val stateFlow: StateFlow<Map<String, TextState>> = mutableStateFlow.asStateFlow()
 
     public fun set(
         id: String,
         textState: TextState,
     ) {
-        _mutableStateFlow.update { map ->
+        mutableStateFlow.update { map ->
             map + (id to map.getOrElse(id) { textState })
         }
     }
 
     public fun remove(id: String) {
-        _mutableStateFlow.update { map ->
+        mutableStateFlow.update { map ->
             map - id
         }
     }
