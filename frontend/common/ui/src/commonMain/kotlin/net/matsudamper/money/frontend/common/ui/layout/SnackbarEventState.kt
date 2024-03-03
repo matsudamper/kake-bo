@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 @Stable
 public class SnackbarEventState {
     private val state: Channel<suspend (Bridge) -> Unit> = Channel(Channel.UNLIMITED)
+
     public suspend fun show(event: Event): Result {
         var result: Result = Result.Dismiss
         state.send {

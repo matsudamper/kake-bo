@@ -24,14 +24,15 @@ public class MoneyUsageScreenViewModelApi(
             apolloClient
                 .mutation(
                     MoneyUsageScreenUpdateUsageMutation(
-                        query = UpdateUsageQuery(
-                            id = id,
-                            title = Optional.present(title),
-                            description = Optional.present(description),
-                            amount = Optional.present(amount),
-                            date = Optional.present(date),
-                            subCategoryId = Optional.present(subCategoryId),
-                        ),
+                        query =
+                            UpdateUsageQuery(
+                                id = id,
+                                title = Optional.present(title),
+                                description = Optional.present(description),
+                                amount = Optional.present(amount),
+                                date = Optional.present(date),
+                                subCategoryId = Optional.present(subCategoryId),
+                            ),
                     ),
                 )
                 .execute()

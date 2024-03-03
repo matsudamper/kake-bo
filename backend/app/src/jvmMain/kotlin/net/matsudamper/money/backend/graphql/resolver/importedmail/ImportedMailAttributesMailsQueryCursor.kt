@@ -9,23 +9,24 @@ internal data class ImportedMailAttributesMailsQueryCursor(
     val pagingInfo: ImportedMailRepository.PagingInfo,
 ) {
     fun toCursorString(): String {
-        val map = when (pagingInfo) {
-            is ImportedMailRepository.PagingInfo.CreatedDateTime -> {
-                mapOf(
-                    LAST_MAIL_ID_KEY to pagingInfo.importedMailId.id.toString(),
-                    CREATED_DATETIME_KEY to pagingInfo.time.toString(),
-                    TYPE_KEY to Type.CREATE_DATETIME.typeValue,
-                )
-            }
+        val map =
+            when (pagingInfo) {
+                is ImportedMailRepository.PagingInfo.CreatedDateTime -> {
+                    mapOf(
+                        LAST_MAIL_ID_KEY to pagingInfo.importedMailId.id.toString(),
+                        CREATED_DATETIME_KEY to pagingInfo.time.toString(),
+                        TYPE_KEY to Type.CREATE_DATETIME.typeValue,
+                    )
+                }
 
-            is ImportedMailRepository.PagingInfo.DateTime -> {
-                mapOf(
-                    LAST_MAIL_ID_KEY to pagingInfo.importedMailId.id.toString(),
-                    DATETIME_KEY to pagingInfo.time.toString(),
-                    TYPE_KEY to Type.DATETIME.typeValue,
-                )
+                is ImportedMailRepository.PagingInfo.DateTime -> {
+                    mapOf(
+                        LAST_MAIL_ID_KEY to pagingInfo.importedMailId.id.toString(),
+                        DATETIME_KEY to pagingInfo.time.toString(),
+                        TYPE_KEY to Type.DATETIME.typeValue,
+                    )
+                }
             }
-        }
 
         return CursorParser.createToString(map)
     }

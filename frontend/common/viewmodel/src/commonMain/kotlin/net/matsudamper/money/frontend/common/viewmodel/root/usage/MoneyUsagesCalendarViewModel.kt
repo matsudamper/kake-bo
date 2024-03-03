@@ -34,214 +34,229 @@ public class MoneyUsagesCalendarViewModel(
     private val rootUsageHostViewModel: RootUsageHostViewModel,
     private val yearMonth: ScreenStructure.Root.Usage.Calendar.YearMonth?,
 ) {
-    internal val viewModelStateFlow = MutableStateFlow(
-        ViewModelState(
-            displayMonth = run {
-                val currentLocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-                if (yearMonth != null) {
-                    LocalDate(
-                        year = yearMonth.year,
-                        monthNumber = yearMonth.month,
-                        dayOfMonth = 1,
-                    )
-                } else {
-                    LocalDate(
-                        year = currentLocalDateTime.year,
-                        monthNumber = currentLocalDateTime.monthNumber,
-                        dayOfMonth = 1,
-                    )
-                }
-            },
-        ),
-    )
+    internal val viewModelStateFlow =
+        MutableStateFlow(
+            ViewModelState(
+                displayMonth =
+                    run {
+                        val currentLocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                        if (yearMonth != null) {
+                            LocalDate(
+                                year = yearMonth.year,
+                                monthNumber = yearMonth.month,
+                                dayOfMonth = 1,
+                            )
+                        } else {
+                            LocalDate(
+                                year = currentLocalDateTime.year,
+                                monthNumber = currentLocalDateTime.monthNumber,
+                                dayOfMonth = 1,
+                            )
+                        }
+                    },
+            ),
+        )
 
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
-    private val calendarHeaderEvent = object : RootUsageHostScreenUiState.HeaderCalendarEvent {
-        override fun onClickPrevMonth() {
-            prevMonth()
+    private val calendarHeaderEvent =
+        object : RootUsageHostScreenUiState.HeaderCalendarEvent {
+            override fun onClickPrevMonth() {
+                prevMonth()
+            }
+
+            override fun onClickNextMonth() {
+                nextMonth()
+            }
         }
 
-        override fun onClickNextMonth() {
-            nextMonth()
-        }
-    }
+    public val uiStateFlow: StateFlow<RootUsageCalendarScreenUiState> =
+        MutableStateFlow(
+            RootUsageCalendarScreenUiState(
+                loadingState = RootUsageCalendarScreenUiState.LoadingState.Loading,
+                hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
+                event =
+                    object : RootUsageCalendarScreenUiState.Event {
+                        override suspend fun onViewInitialized() {
+                            if (rootUsageHostViewModel.calendarPagingModel.hasSelectedMonth().not()) {
+                                rootUsageHostViewModel.calendarPagingModel.changeMonth(viewModelStateFlow.value.displayMonth)
+                            }
+                            CoroutineScope(currentCoroutineContext()).launch {
+                                launch {
+                                    rootUsageHostViewModel.calendarPagingModel.getFlow().map { it.lastOrNull()?.getSuccessOrNull() }
+                                        .collectLatest {
+                                            if (it?.value?.data?.user?.moneyUsages?.hasMore == true) {
+                                                rootUsageHostViewModel.calendarPagingModel.fetch()
+                                            }
+                                        }
+                                }
+                                launch {
+                                    rootUsageHostViewModel.calendarPagingModel.getFlow().collectLatest { responseStates ->
+                                        viewModelStateFlow.update {
+                                            it.copy(
+                                                results = responseStates,
+                                            )
+                                        }
+                                    }
+                                }
 
-    public val uiStateFlow: StateFlow<RootUsageCalendarScreenUiState> = MutableStateFlow(
-        RootUsageCalendarScreenUiState(
-            loadingState = RootUsageCalendarScreenUiState.LoadingState.Loading,
-            hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
-            event = object : RootUsageCalendarScreenUiState.Event {
-                override suspend fun onViewInitialized() {
-                    if (rootUsageHostViewModel.calendarPagingModel.hasSelectedMonth().not()) {
-                        rootUsageHostViewModel.calendarPagingModel.changeMonth(viewModelStateFlow.value.displayMonth)
-                    }
-                    CoroutineScope(currentCoroutineContext()).launch {
-                        launch {
-                            rootUsageHostViewModel.calendarPagingModel.getFlow().map { it.lastOrNull()?.getSuccessOrNull() }
-                                .collectLatest {
-                                    if (it?.value?.data?.user?.moneyUsages?.hasMore == true) {
+                                launch {
+                                    rootUsageHostViewModel.calendarPagingModel.fetch()
+                                }
+                                launch {
+                                    rootUsageHostViewModel.viewModelStateFlow.collectLatest { rootViewModelState ->
+                                        delay(100)
+                                        rootUsageHostViewModel.calendarPagingModel.changeSearchText(
+                                            text = rootViewModelState.searchText,
+                                        )
                                         rootUsageHostViewModel.calendarPagingModel.fetch()
                                     }
                                 }
-                        }
-                        launch {
-                            rootUsageHostViewModel.calendarPagingModel.getFlow().collectLatest { responseStates ->
-                                viewModelStateFlow.update {
-                                    it.copy(
-                                        results = responseStates,
-                                    )
-                                }
                             }
                         }
-
-                        launch {
-                            rootUsageHostViewModel.calendarPagingModel.fetch()
-                        }
-                        launch {
-                            rootUsageHostViewModel.viewModelStateFlow.collectLatest { rootViewModelState ->
-                                delay(100)
-                                rootUsageHostViewModel.calendarPagingModel.changeSearchText(
-                                    text = rootViewModelState.searchText,
-                                )
-                                rootUsageHostViewModel.calendarPagingModel.fetch()
-                            }
-                        }
-                    }
-                }
-            },
-        ),
-    ).also { uiStateFlow ->
-        coroutineScope.launch {
-            rootUsageHostViewModel.uiStateFlow.collectLatest {
-                uiStateFlow.update { uiState ->
-                    uiState.copy(
-                        hostScreenUiState = it,
-                    )
-                }
-            }
-        }
-        coroutineScope.launch {
-            viewModelStateFlow.collectLatest {
-                val calendarViewModelState = it
-                rootUsageHostViewModel.updateHeader(
-                    RootUsageHostScreenUiState.Header.Calendar(
-                        title = "${calendarViewModelState.displayMonth.year}/${calendarViewModelState.displayMonth.monthNumber}",
-                        event = calendarHeaderEvent,
-                    ),
-                )
-            }
-        }
-        coroutineScope.launch {
-            viewModelStateFlow
-                .collectLatest { viewModelState ->
-                    val nodes = viewModelState.results.mapNotNull { state ->
-                        state.getSuccessOrNull()?.value
-                    }.flatMap {
-                        it.data?.user?.moneyUsages?.nodes.orEmpty()
-                    }.filter { node ->
-                        node.date.date.month == viewModelState.displayMonth.month
-                    }
-
-                    val cells: ImmutableList<RootUsageCalendarScreenUiState.CalendarCell> = run cells@{
-                        val dayGroup = nodes.groupBy { it.date.date.dayOfMonth }
-
-                        val firstDay = viewModelState.displayMonth
-                            .let { LocalDate(it.year, it.monthNumber, 1) }
-
-                        val daysOfMonth = run daysOfMonth@{
-                            buildList<LocalDate> {
-                                add(firstDay)
-                                while (last().month == firstDay.month) {
-                                    add(last().plus(DateTimeUnit.DayBased(1)))
-                                }
-                                removeLast()
-                            }
-                        }
-                        val padding = when (firstDay.dayOfWeek) {
-                            DayOfWeek.SUNDAY -> 0
-                            DayOfWeek.MONDAY -> 1
-                            DayOfWeek.TUESDAY -> 2
-                            DayOfWeek.WEDNESDAY -> 3
-                            DayOfWeek.THURSDAY -> 4
-                            DayOfWeek.FRIDAY -> 5
-                            DayOfWeek.SATURDAY -> 6
-                        }
-                        buildList {
-                            addAll(
-                                listOf(
-                                    DayOfWeek.SUNDAY,
-                                    DayOfWeek.MONDAY,
-                                    DayOfWeek.TUESDAY,
-                                    DayOfWeek.WEDNESDAY,
-                                    DayOfWeek.THURSDAY,
-                                    DayOfWeek.FRIDAY,
-                                    DayOfWeek.SATURDAY,
-                                ).map {
-                                    RootUsageCalendarScreenUiState.CalendarCell.DayOfWeek(
-                                        text = when (it) {
-                                            DayOfWeek.SUNDAY -> "日"
-                                            DayOfWeek.MONDAY -> "月"
-                                            DayOfWeek.TUESDAY -> "火"
-                                            DayOfWeek.WEDNESDAY -> "水"
-                                            DayOfWeek.THURSDAY -> "木"
-                                            DayOfWeek.FRIDAY -> "金"
-                                            DayOfWeek.SATURDAY -> "土"
-                                        },
-                                        dayOfWeek = it,
-                                    )
-                                },
-                            )
-                            addAll(
-                                (0 until padding).map {
-                                    RootUsageCalendarScreenUiState.CalendarCell.Empty
-                                },
-                            )
-                            addAll(
-                                daysOfMonth.map { localDate ->
-                                    val days = dayGroup[localDate.dayOfMonth].orEmpty()
-
-                                    RootUsageCalendarScreenUiState.CalendarCell.Day(
-                                        text = "${localDate.dayOfMonth}日",
-                                        isToday = localDate == viewModelState.today,
-                                        items = days.map { day ->
-                                            RootUsageCalendarScreenUiState.CalendarDayItem(
-                                                title = day.title,
-                                                event = object : RootUsageCalendarScreenUiState.CalendarDayEvent {
-                                                    override fun onClick() {
-                                                        coroutineScope.launch {
-                                                            viewModelEventSender.send {
-                                                                it.navigate(ScreenStructure.MoneyUsage(day.id))
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                            )
-                                        }.toImmutableList(),
-                                    )
-                                },
-                            )
-                        }
-                    }.toImmutableList()
-
+                    },
+            ),
+        ).also { uiStateFlow ->
+            coroutineScope.launch {
+                rootUsageHostViewModel.uiStateFlow.collectLatest {
                     uiStateFlow.update { uiState ->
                         uiState.copy(
-                            loadingState = RootUsageCalendarScreenUiState.LoadingState.Loaded(
-                                calendarCells = cells,
-                                event = object : RootUsageCalendarScreenUiState.LoadedEvent {
-                                    override fun loadMore() {
-                                        coroutineScope.launch {
-                                            rootUsageHostViewModel.calendarPagingModel.fetch()
-                                        }
-                                    }
-                                },
-                            ),
+                            hostScreenUiState = it,
                         )
                     }
                 }
-        }
-    }.asStateFlow()
+            }
+            coroutineScope.launch {
+                viewModelStateFlow.collectLatest {
+                    val calendarViewModelState = it
+                    rootUsageHostViewModel.updateHeader(
+                        RootUsageHostScreenUiState.Header.Calendar(
+                            title = "${calendarViewModelState.displayMonth.year}/${calendarViewModelState.displayMonth.monthNumber}",
+                            event = calendarHeaderEvent,
+                        ),
+                    )
+                }
+            }
+            coroutineScope.launch {
+                viewModelStateFlow
+                    .collectLatest { viewModelState ->
+                        val nodes =
+                            viewModelState.results.mapNotNull { state ->
+                                state.getSuccessOrNull()?.value
+                            }.flatMap {
+                                it.data?.user?.moneyUsages?.nodes.orEmpty()
+                            }.filter { node ->
+                                node.date.date.month == viewModelState.displayMonth.month
+                            }
+
+                        val cells: ImmutableList<RootUsageCalendarScreenUiState.CalendarCell> =
+                            run cells@{
+                                val dayGroup = nodes.groupBy { it.date.date.dayOfMonth }
+
+                                val firstDay =
+                                    viewModelState.displayMonth
+                                        .let { LocalDate(it.year, it.monthNumber, 1) }
+
+                                val daysOfMonth =
+                                    run daysOfMonth@{
+                                        buildList<LocalDate> {
+                                            add(firstDay)
+                                            while (last().month == firstDay.month) {
+                                                add(last().plus(DateTimeUnit.DayBased(1)))
+                                            }
+                                            removeLast()
+                                        }
+                                    }
+                                val padding =
+                                    when (firstDay.dayOfWeek) {
+                                        DayOfWeek.SUNDAY -> 0
+                                        DayOfWeek.MONDAY -> 1
+                                        DayOfWeek.TUESDAY -> 2
+                                        DayOfWeek.WEDNESDAY -> 3
+                                        DayOfWeek.THURSDAY -> 4
+                                        DayOfWeek.FRIDAY -> 5
+                                        DayOfWeek.SATURDAY -> 6
+                                    }
+                                buildList {
+                                    addAll(
+                                        listOf(
+                                            DayOfWeek.SUNDAY,
+                                            DayOfWeek.MONDAY,
+                                            DayOfWeek.TUESDAY,
+                                            DayOfWeek.WEDNESDAY,
+                                            DayOfWeek.THURSDAY,
+                                            DayOfWeek.FRIDAY,
+                                            DayOfWeek.SATURDAY,
+                                        ).map {
+                                            RootUsageCalendarScreenUiState.CalendarCell.DayOfWeek(
+                                                text =
+                                                    when (it) {
+                                                        DayOfWeek.SUNDAY -> "日"
+                                                        DayOfWeek.MONDAY -> "月"
+                                                        DayOfWeek.TUESDAY -> "火"
+                                                        DayOfWeek.WEDNESDAY -> "水"
+                                                        DayOfWeek.THURSDAY -> "木"
+                                                        DayOfWeek.FRIDAY -> "金"
+                                                        DayOfWeek.SATURDAY -> "土"
+                                                    },
+                                                dayOfWeek = it,
+                                            )
+                                        },
+                                    )
+                                    addAll(
+                                        (0 until padding).map {
+                                            RootUsageCalendarScreenUiState.CalendarCell.Empty
+                                        },
+                                    )
+                                    addAll(
+                                        daysOfMonth.map { localDate ->
+                                            val days = dayGroup[localDate.dayOfMonth].orEmpty()
+
+                                            RootUsageCalendarScreenUiState.CalendarCell.Day(
+                                                text = "${localDate.dayOfMonth}日",
+                                                isToday = localDate == viewModelState.today,
+                                                items =
+                                                    days.map { day ->
+                                                        RootUsageCalendarScreenUiState.CalendarDayItem(
+                                                            title = day.title,
+                                                            event =
+                                                                object : RootUsageCalendarScreenUiState.CalendarDayEvent {
+                                                                    override fun onClick() {
+                                                                        coroutineScope.launch {
+                                                                            viewModelEventSender.send {
+                                                                                it.navigate(ScreenStructure.MoneyUsage(day.id))
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                },
+                                                        )
+                                                    }.toImmutableList(),
+                                            )
+                                        },
+                                    )
+                                }
+                            }.toImmutableList()
+
+                        uiStateFlow.update { uiState ->
+                            uiState.copy(
+                                loadingState =
+                                    RootUsageCalendarScreenUiState.LoadingState.Loaded(
+                                        calendarCells = cells,
+                                        event =
+                                            object : RootUsageCalendarScreenUiState.LoadedEvent {
+                                                override fun loadMore() {
+                                                    coroutineScope.launch {
+                                                        rootUsageHostViewModel.calendarPagingModel.fetch()
+                                                    }
+                                                }
+                                            },
+                                    ),
+                            )
+                        }
+                    }
+            }
+        }.asStateFlow()
 
     internal fun prevMonth() {
         viewModelStateFlow.update {
@@ -255,10 +270,11 @@ public class MoneyUsagesCalendarViewModel(
             viewModelEventSender.send {
                 it.navigate(
                     ScreenStructure.Root.Usage.Calendar(
-                        yearMonth = ScreenStructure.Root.Usage.Calendar.YearMonth(
-                            year = viewModelStateFlow.value.displayMonth.year,
-                            month = viewModelStateFlow.value.displayMonth.monthNumber,
-                        ),
+                        yearMonth =
+                            ScreenStructure.Root.Usage.Calendar.YearMonth(
+                                year = viewModelStateFlow.value.displayMonth.year,
+                                month = viewModelStateFlow.value.displayMonth.monthNumber,
+                            ),
                     ),
                 )
             }
@@ -278,10 +294,11 @@ public class MoneyUsagesCalendarViewModel(
             viewModelEventSender.send {
                 it.navigate(
                     ScreenStructure.Root.Usage.Calendar(
-                        yearMonth = ScreenStructure.Root.Usage.Calendar.YearMonth(
-                            year = viewModelStateFlow.value.displayMonth.year,
-                            month = viewModelStateFlow.value.displayMonth.monthNumber,
-                        ),
+                        yearMonth =
+                            ScreenStructure.Root.Usage.Calendar.YearMonth(
+                                year = viewModelStateFlow.value.displayMonth.year,
+                                month = viewModelStateFlow.value.displayMonth.monthNumber,
+                            ),
                     ),
                 )
             }
@@ -296,13 +313,14 @@ public class MoneyUsagesCalendarViewModel(
     public data class ViewModelState(
         val results: List<ApolloResponseState<ApolloResponse<UsageCalendarScreenPagingQuery.Data>>> = listOf(),
         val today: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
-        val displayMonth: LocalDate = run {
-            val currentLocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-            LocalDate(
-                year = currentLocalDateTime.year,
-                monthNumber = currentLocalDateTime.monthNumber,
-                dayOfMonth = 1,
-            )
-        },
+        val displayMonth: LocalDate =
+            run {
+                val currentLocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                LocalDate(
+                    year = currentLocalDateTime.year,
+                    monthNumber = currentLocalDateTime.monthNumber,
+                    dayOfMonth = 1,
+                )
+            },
     )
 }

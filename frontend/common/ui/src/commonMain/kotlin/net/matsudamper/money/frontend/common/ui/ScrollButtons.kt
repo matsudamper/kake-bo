@@ -26,10 +26,11 @@ import kotlinx.coroutines.launch
 
 internal object ScrollButtonsDefaults {
     val height = 58.dp
-    val padding = PaddingValues(
-        end = 12.dp,
-        bottom = 12.dp,
-    )
+    val padding =
+        PaddingValues(
+            end = 12.dp,
+            bottom = 12.dp,
+        )
 }
 
 @Composable
@@ -37,15 +38,17 @@ internal fun ScrollButtons(
     modifier: Modifier = Modifier,
     scrollState: ScrollableState,
     scrollSize: Float,
-    animationSpec: AnimationSpec<Float> = spring(
-        stiffness = Spring.StiffnessLow,
-    ),
+    animationSpec: AnimationSpec<Float> =
+        spring(
+            stiffness = Spring.StiffnessLow,
+        ),
 ) {
     val coroutineScope = rememberCoroutineScope()
     Row(modifier = modifier) {
         Button(
-            modifier = Modifier.fillMaxHeight()
-                .aspectRatio(1f),
+            modifier =
+                Modifier.fillMaxHeight()
+                    .aspectRatio(1f),
             shape = CircleShape,
             contentPadding = PaddingValues(12.dp),
             onClick = {
@@ -58,16 +61,18 @@ internal fun ScrollButtons(
             },
         ) {
             Icon(
-                modifier = Modifier.fillMaxWidth()
-                    .aspectRatio(1f),
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .aspectRatio(1f),
                 imageVector = Icons.Default.KeyboardArrowUp,
                 contentDescription = null,
             )
         }
         Spacer(modifier = Modifier.width(8.dp))
         Button(
-            modifier = Modifier.fillMaxHeight()
-                .aspectRatio(1f),
+            modifier =
+                Modifier.fillMaxHeight()
+                    .aspectRatio(1f),
             shape = CircleShape,
             contentPadding = PaddingValues(12.dp),
             onClick = {
@@ -80,8 +85,9 @@ internal fun ScrollButtons(
             },
         ) {
             Icon(
-                modifier = Modifier.fillMaxWidth()
-                    .aspectRatio(1f),
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .aspectRatio(1f),
                 imageVector = Icons.Default.KeyboardArrowDown,
                 contentDescription = null,
             )

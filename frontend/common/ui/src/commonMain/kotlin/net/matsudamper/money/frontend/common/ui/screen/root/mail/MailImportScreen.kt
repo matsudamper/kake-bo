@@ -51,9 +51,7 @@ import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
 @Composable
-public fun MailImportScreen(
-    uiState: ImportMailScreenUiState,
-) {
+public fun MailImportScreen(uiState: ImportMailScreenUiState) {
     LaunchedEffect(uiState.event) {
         uiState.event.onViewInitialized()
     }
@@ -83,9 +81,10 @@ public fun MailImportScreen(
 @Composable
 private fun MailContent(uiState: ImportMailScreenUiState) {
     val density = LocalDensity.current
-    val firstLoadingFinished = remember(uiState.isLoading, uiState.mails) {
-        uiState.mails.isNotEmpty() || uiState.isLoading.not()
-    }
+    val firstLoadingFinished =
+        remember(uiState.isLoading, uiState.mails) {
+            uiState.mails.isNotEmpty() || uiState.isLoading.not()
+        }
     var scrollBarHeight by remember { mutableIntStateOf(0) }
     var containerHeight by remember { mutableIntStateOf(0) }
     val lazyListState = rememberLazyListState()
@@ -102,14 +101,16 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                         contentAlignment = Alignment.Center,
                     ) {
                         Button(
-                            modifier = Modifier.padding(12.dp)
-                                .widthIn(max = 500.dp)
-                                .fillMaxWidth(),
+                            modifier =
+                                Modifier.padding(12.dp)
+                                    .widthIn(max = 500.dp)
+                                    .fillMaxWidth(),
                             onClick = { uiState.event.onClickImport() },
-                            elevation = ButtonDefaults.buttonElevation(
-                                defaultElevation = 4.dp,
-                                pressedElevation = 8.dp,
-                            ),
+                            elevation =
+                                ButtonDefaults.buttonElevation(
+                                    defaultElevation = 4.dp,
+                                    pressedElevation = 8.dp,
+                                ),
                             shape = CircleShape,
                         ) {
                             Text(
@@ -121,13 +122,14 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                     }
 
                     ScrollButtons(
-                        modifier = Modifier
-                            .onSizeChanged {
-                                scrollBarHeight = it.height
-                            }
-                            .align(Alignment.Bottom)
-                            .padding(ScrollButtonsDefaults.padding)
-                            .height(ScrollButtonsDefaults.height),
+                        modifier =
+                            Modifier
+                                .onSizeChanged {
+                                    scrollBarHeight = it.height
+                                }
+                                .align(Alignment.Bottom)
+                                .padding(ScrollButtonsDefaults.padding)
+                                .height(ScrollButtonsDefaults.height),
                         scrollState = lazyListState,
                         scrollSize = containerHeight * 0.4f,
                     )
@@ -137,8 +139,9 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
     ) { paddingValues ->
         if (firstLoadingFinished.not()) {
             Box(
-                modifier = Modifier.fillMaxSize()
-                    .padding(paddingValues),
+                modifier =
+                    Modifier.fillMaxSize()
+                        .padding(paddingValues),
                 contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator()
@@ -148,31 +151,35 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                 modifier = Modifier.fillMaxSize(),
             ) {
                 LaunchedEffect(maxHeight) {
-                    containerHeight = with(density) {
-                        maxHeight.roundToPx()
-                    }
+                    containerHeight =
+                        with(density) {
+                            maxHeight.roundToPx()
+                        }
                 }
                 Row(modifier = Modifier.fillMaxSize()) {
                     LazyColumn(
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .weight(1f),
+                        modifier =
+                            Modifier
+                                .fillMaxHeight()
+                                .weight(1f),
                         state = lazyListState,
                         contentPadding = paddingValues,
                     ) {
                         items(uiState.mails) { item ->
                             MailContent(
-                                modifier = Modifier
-                                    .padding(vertical = 12.dp),
+                                modifier =
+                                    Modifier
+                                        .padding(vertical = 12.dp),
                                 uiState = item,
                             )
                         }
                         if (uiState.isLoading) {
                             item {
                                 Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(12.dp),
+                                    modifier =
+                                        Modifier
+                                            .fillMaxWidth()
+                                            .padding(12.dp),
                                 ) {
                                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                                 }
@@ -200,23 +207,23 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
 }
 
 @Composable
-private fun MailDeleteConfirmDialog(
-    uiState: ImportMailScreenUiState.MailDeleteDialog,
-) {
+private fun MailDeleteConfirmDialog(uiState: ImportMailScreenUiState.MailDeleteDialog) {
     Box(
-        modifier = Modifier.fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.8f))
-            .clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) {
-                uiState.event.onDismiss()
-            },
+        modifier =
+            Modifier.fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.8f))
+                .clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) {
+                    uiState.event.onDismiss()
+                },
         contentAlignment = Alignment.Center,
     ) {
         Card {
             Column(
-                modifier = Modifier
-                    .padding(24.dp)
-                    .width(IntrinsicSize.Max)
-                    .widthIn(max = 500.dp),
+                modifier =
+                    Modifier
+                        .padding(24.dp)
+                        .width(IntrinsicSize.Max)
+                        .widthIn(max = 500.dp),
             ) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
@@ -233,8 +240,9 @@ private fun MailDeleteConfirmDialog(
                     Spacer(Modifier.height(24.dp))
                 }
                 Row(
-                    modifier = Modifier.align(Alignment.End)
-                        .height(intrinsicSize = IntrinsicSize.Min),
+                    modifier =
+                        Modifier.align(Alignment.End)
+                            .height(intrinsicSize = IntrinsicSize.Min),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (uiState.isLoading) {
@@ -275,18 +283,21 @@ private fun MailContent(
     Card(
         modifier = modifier,
         onClick = { uiState.event.onClick() },
-        colors = if (uiState.isSelected) {
-            CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primary
-                    .copy(alpha = 0.1f),
-            )
-        } else {
-            CardDefaults.cardColors()
-        },
+        colors =
+            if (uiState.isSelected) {
+                CardDefaults.cardColors(
+                    containerColor =
+                        MaterialTheme.colorScheme.primary
+                            .copy(alpha = 0.1f),
+                )
+            } else {
+                CardDefaults.cardColors()
+            },
     ) {
         Row(
-            modifier = Modifier.padding(12.dp)
-                .height(IntrinsicSize.Min),
+            modifier =
+                Modifier.padding(12.dp)
+                    .height(IntrinsicSize.Min),
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(

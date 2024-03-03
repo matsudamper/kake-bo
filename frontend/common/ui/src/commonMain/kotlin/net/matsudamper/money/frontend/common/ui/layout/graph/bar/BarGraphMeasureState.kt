@@ -33,15 +33,16 @@ internal class BarGraphMeasureState(
 
     private var containerConstraints: Constraints by mutableStateOf(Constraints())
     val containerWidth: Float by derivedStateOf {
-        val minWidth = when (itemSize) {
-            0,
-            1,
-            -> config.maxBarWidth + config.defaultSpaceWidth
+        val minWidth =
+            when (itemSize) {
+                0,
+                1,
+                -> config.maxBarWidth + config.defaultSpaceWidth
 
-            else -> {
-                (config.maxBarWidth * itemSize) + (config.defaultSpaceWidth * (itemSize - 1)) + yLabelAndPaddingWidth
+                else -> {
+                    (config.maxBarWidth * itemSize) + (config.defaultSpaceWidth * (itemSize - 1)) + yLabelAndPaddingWidth
+                }
             }
-        }
         (containerConstraints.minWidth.toFloat())
             .coerceAtLeast(minimumValue = minWidth)
             .coerceAtMost(maximumValue = containerConstraints.maxWidth.toFloat())
@@ -87,14 +88,16 @@ internal class BarGraphMeasureState(
 
             val leftPadding = if (index != 0) spaceWidth / 2f else 0f
             val rightPadding = if (index != (itemSize - 1)) spaceWidth / 2f else 0f
-            val topLeft = Offset(
-                x = x - leftPadding,
-                y = 0f,
-            )
-            val size = Size(
-                width = barWidth + leftPadding + rightPadding,
-                height = containerHeight,
-            )
+            val topLeft =
+                Offset(
+                    x = x - leftPadding,
+                    y = 0f,
+                )
+            val size =
+                Size(
+                    width = barWidth + leftPadding + rightPadding,
+                    height = containerHeight,
+                )
             Rect(
                 offset = topLeft,
                 size = size,

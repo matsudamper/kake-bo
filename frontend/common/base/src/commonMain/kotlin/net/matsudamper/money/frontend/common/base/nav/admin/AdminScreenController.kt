@@ -9,8 +9,11 @@ import kotlinx.coroutines.flow.update
 
 public interface AdminScreenController {
     public fun navigateToLogin()
+
     public fun navigateToRoot()
+
     public fun navigateToAddUser()
+
     public fun popBackStack()
 }
 

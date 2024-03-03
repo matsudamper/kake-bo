@@ -82,10 +82,11 @@ object MoneyGraphQlSchema {
     }
 
     private val schema by lazy {
-        val schemaFiles = run {
-            getSchemaFiles().takeIf { it.isNotEmpty() }
-                ?: getDebugSchemaFiles()
-        }
+        val schemaFiles =
+            run {
+                getSchemaFiles().takeIf { it.isNotEmpty() }
+                    ?: getDebugSchemaFiles()
+            }
         println("==========schema==========")
         schemaFiles.forEach {
             println(it)
@@ -171,25 +172,28 @@ object MoneyGraphQlSchema {
             .options(
                 @Suppress("OPT_IN_USAGE")
                 SchemaParserOptions.defaultOptions().copy(
-                    objectMapperProvider = PerFieldConfiguringObjectMapperProvider { mapper, _ ->
-                        mapper.registerModule(
-                            JavaTimeModule(),
-                        )
-                    },
-                    fieldVisibility = if (ServerEnv.isDebug) {
-                        null
-                    } else {
-                        NoIntrospectionGraphqlFieldVisibility.NO_INTROSPECTION_FIELD_VISIBILITY
-                    },
+                    objectMapperProvider =
+                        PerFieldConfiguringObjectMapperProvider { mapper, _ ->
+                            mapper.registerModule(
+                                JavaTimeModule(),
+                            )
+                        },
+                    fieldVisibility =
+                        if (ServerEnv.isDebug) {
+                            null
+                        } else {
+                            NoIntrospectionGraphqlFieldVisibility.NO_INTROSPECTION_FIELD_VISIBILITY
+                        },
                 ),
             )
             .build()
             .makeExecutableSchema()
     }
 
-    public val graphql = GraphQL.newGraphQL(schema)
-        .queryExecutionStrategy(AsyncExecutionStrategy())
-        .build()
+    public val graphql =
+        GraphQL.newGraphQL(schema)
+            .queryExecutionStrategy(AsyncExecutionStrategy())
+            .build()
 
     private fun <T> createStringScalarType(
         name: String,
@@ -242,13 +246,22 @@ object MoneyGraphQlSchema {
     object LocalDateTimeCoercing : Coercing<LocalDateTime, String> {
         @Suppress("UNCHECKED_CAST")
         private val coercing = Scalars.GraphQLString.coercing as Coercing<String, String>
-        override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): String? {
+
+        override fun serialize(
+            dataFetcherResult: Any,
+            graphQLContext: GraphQLContext,
+            locale: Locale,
+        ): String? {
             return coercing.serialize(dataFetcherResult, graphQLContext, locale)?.let {
                 it
             }
         }
 
-        override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): LocalDateTime? {
+        override fun parseValue(
+            input: Any,
+            graphQLContext: GraphQLContext,
+            locale: Locale,
+        ): LocalDateTime? {
             return coercing.parseValue(input, graphQLContext, locale)?.let {
                 LocalDateTime.parse(it)
             }
@@ -265,7 +278,11 @@ object MoneyGraphQlSchema {
             }
         }
 
-        override fun valueToLiteral(input: Any, graphQLContext: GraphQLContext, locale: Locale): Value<*> {
+        override fun valueToLiteral(
+            input: Any,
+            graphQLContext: GraphQLContext,
+            locale: Locale,
+        ): Value<*> {
             return coercing.valueToLiteral(input, graphQLContext, locale)
         }
     }
@@ -276,13 +293,21 @@ class ValueClassCoercing<Inner, Outer>(
     private val deserialize: (Outer) -> Inner,
 ) : Coercing<Inner, Outer> {
     @Suppress("UNCHECKED_CAST")
-    override fun serialize(dataFetcherResult: Any, graphQLContext: GraphQLContext, locale: Locale): Outer? {
+    override fun serialize(
+        dataFetcherResult: Any,
+        graphQLContext: GraphQLContext,
+        locale: Locale,
+    ): Outer? {
         val inner = dataFetcherResult as? Inner
         return inner?.let(serialize)
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun parseValue(input: Any, graphQLContext: GraphQLContext, locale: Locale): Inner? {
+    override fun parseValue(
+        input: Any,
+        graphQLContext: GraphQLContext,
+        locale: Locale,
+    ): Inner? {
         val outer = input as? Outer
         return outer?.let(deserialize)
     }
@@ -296,7 +321,11 @@ class ValueClassCoercing<Inner, Outer>(
         throw NotImplementedError("parseLiteral.input -> $input")
     }
 
-    override fun valueToLiteral(input: Any, graphQLContext: GraphQLContext, locale: Locale): Value<*> {
+    override fun valueToLiteral(
+        input: Any,
+        graphQLContext: GraphQLContext,
+        locale: Locale,
+    ): Value<*> {
         throw NotImplementedError("valueToLiteral.input -> $input")
     }
 }

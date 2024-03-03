@@ -18,7 +18,6 @@ import net.matsudamper.money.graphql.model.QlUserMailError
 import net.matsudamper.money.graphql.model.UserMailAttributesResolver
 
 class UserMailAttributesResolverImpl : UserMailAttributesResolver {
-
     override fun mails(
         userMailAttributes: QlUserMailAttributes,
         mailQuery: QlMailQuery,
@@ -37,49 +36,54 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
                 )
             }
 
-            val imapConfig = userConfigRepository.getImapConfig(userId)
-                ?: return@supplyAsync createError(QlUserMailError.InternalServerError)
+            val imapConfig =
+                userConfigRepository.getImapConfig(userId)
+                    ?: return@supplyAsync createError(QlUserMailError.InternalServerError)
 
             val host = imapConfig.host ?: return@supplyAsync createError(QlUserMailError.MailConfigNotFound)
             val port = imapConfig.port ?: return@supplyAsync createError(QlUserMailError.MailConfigNotFound)
             val userName = imapConfig.userName ?: return@supplyAsync createError(QlUserMailError.MailConfigNotFound)
             val password = imapConfig.password ?: return@supplyAsync createError(QlUserMailError.MailConfigNotFound)
-            val cursor = mailQuery.cursor?.let {
-                UserMailQueryCursor.fromString(it) ?: throw IllegalStateException("cursor parse failed: $it")
-            }
+            val cursor =
+                mailQuery.cursor?.let {
+                    UserMailQueryCursor.fromString(it) ?: throw IllegalStateException("cursor parse failed: $it")
+                }
 
-            val mails = context.diContainer.createMailRepository(
-                host = host,
-                port = port,
-                userName = userName,
-                password = password,
-            ).getMails(
-                size = mailQuery.size,
-                offset = cursor?.offset ?: 0,
-            )
+            val mails =
+                context.diContainer.createMailRepository(
+                    host = host,
+                    port = port,
+                    userName = userName,
+                    password = password,
+                ).getMails(
+                    size = mailQuery.size,
+                    offset = cursor?.offset ?: 0,
+                )
 
             QlUserMailConnection(
                 error = null,
-                usrMails = mails.map { mail ->
-                    val html = mail.content.filterIsInstance<MailResult.Content.Html>()
-                    val text = mail.content.filterIsInstance<MailResult.Content.Text>()
+                usrMails =
+                    mails.map { mail ->
+                        val html = mail.content.filterIsInstance<MailResult.Content.Html>()
+                        val text = mail.content.filterIsInstance<MailResult.Content.Text>()
 
-                    // TODO: mail.forwardedForの先頭を見て、許可されているメールだけを取り込むようにする
-                    QlUserMail(
-                        id = mail.messageID,
-                        plain = text.getOrNull(0)?.text,
-                        html = html.getOrNull(0)?.html,
-                        time = OffsetDateTime.ofInstant(mail.sendDate, ZoneOffset.UTC),
-                        subject = mail.subject,
-                        sender = mail.sender,
-                        from = mail.from,
-                    )
-                },
-                cursor = if (mails.isEmpty()) {
-                    null
-                } else {
-                    UserMailQueryCursor(mails.size + (cursor?.offset ?: 0)).createCursorString()
-                },
+                        // TODO: mail.forwardedForの先頭を見て、許可されているメールだけを取り込むようにする
+                        QlUserMail(
+                            id = mail.messageID,
+                            plain = text.getOrNull(0)?.text,
+                            html = html.getOrNull(0)?.html,
+                            time = OffsetDateTime.ofInstant(mail.sendDate, ZoneOffset.UTC),
+                            subject = mail.subject,
+                            sender = mail.sender,
+                            from = mail.from,
+                        )
+                    },
+                cursor =
+                    if (mails.isEmpty()) {
+                        null
+                    } else {
+                        UserMailQueryCursor(mails.size + (cursor?.offset ?: 0)).createCursorString()
+                    },
             )
         }.toDataFetcher()
     }
@@ -120,15 +124,18 @@ private class UserMailQueryCursor(
         private const val OFFSET_KEY = "offset"
         private val decoder = Base64.getDecoder()
         private val encoder = Base64.getEncoder()
+
         fun fromString(cursor: String): UserMailQueryCursor? {
-            val keyValues = decoder.decode(cursor).toString(Charsets.UTF_8)
-                .split("&")
-                .map {
-                    val keyValue = it.split("=")
-                    keyValue.getOrNull(0) to keyValue.getOrNull(1)
-                }
-            val offsetValue = keyValues.firstOrNull { it.first == OFFSET_KEY }
-                ?.second?.toIntOrNull() ?: return null
+            val keyValues =
+                decoder.decode(cursor).toString(Charsets.UTF_8)
+                    .split("&")
+                    .map {
+                        val keyValue = it.split("=")
+                        keyValue.getOrNull(0) to keyValue.getOrNull(1)
+                    }
+            val offsetValue =
+                keyValues.firstOrNull { it.first == OFFSET_KEY }
+                    ?.second?.toIntOrNull() ?: return null
             return UserMailQueryCursor(
                 offset = offsetValue,
             )

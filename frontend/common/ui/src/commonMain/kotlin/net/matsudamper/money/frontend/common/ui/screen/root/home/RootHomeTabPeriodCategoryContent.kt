@@ -29,10 +29,11 @@ public data class RootHomeTabPeriodCategoryContentUiState(
     val rootHomeTabPeriodUiState: RootHomeTabPeriodUiState,
     val event: Event,
 ) {
-
     public sealed interface LoadingState {
         public data object Error : LoadingState
+
         public data object Loading : LoadingState
+
         public data class Loaded(
             val graphItems: BarGraphUiState,
             val graphTitleItems: ImmutableList<GraphTitleChipUiState>,
@@ -90,10 +91,11 @@ private fun LoadedContent(
         Spacer(modifier = Modifier.height(12.dp))
         Card {
             BarGraph(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth()
-                    .height(500.dp),
+                modifier =
+                    Modifier
+                        .padding(16.dp)
+                        .fillMaxWidth()
+                        .height(500.dp),
                 uiState = loadingState.graphItems,
                 contentColor = LocalContentColor.current,
             )

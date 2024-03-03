@@ -16,9 +16,8 @@ internal class BarGraphTextMeasureCache(
     private val textMeasurer: TextMeasurer,
 ) {
     private var items: ImmutableList<BarGraphUiState.PeriodData> by mutableStateOf(immutableListOf())
-    fun updateItems(
-        items: ImmutableList<BarGraphUiState.PeriodData>,
-    ) {
+
+    fun updateItems(items: ImmutableList<BarGraphUiState.PeriodData>) {
         this.items = items
     }
 

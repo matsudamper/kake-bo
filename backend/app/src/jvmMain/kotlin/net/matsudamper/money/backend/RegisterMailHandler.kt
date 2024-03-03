@@ -12,11 +12,12 @@ class RegisterMailHandler(
         val userId = cookieManager.getUserSessionId()
         val result = MailParser.rawContentToResponse(request.raw)
         return Response(
-            status = if (result.content.isEmpty()) {
-                Response.Status.ERROR
-            } else {
-                Response.Status.OK
-            },
+            status =
+                if (result.content.isEmpty()) {
+                    Response.Status.ERROR
+                } else {
+                    Response.Status.OK
+                },
         )
     }
 

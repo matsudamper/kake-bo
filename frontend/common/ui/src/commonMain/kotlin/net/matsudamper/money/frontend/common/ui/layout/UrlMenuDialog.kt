@@ -31,41 +31,48 @@ internal fun UrlMenuDialog(
         onDismissRequest = onDismissRequest,
         content = {
             Card(
-                modifier = Modifier
-                    .width(intrinsicSize = IntrinsicSize.Min)
-                    .widthIn(min = 500.dp, max = 700.dp),
+                modifier =
+                    Modifier
+                        .width(intrinsicSize = IntrinsicSize.Min)
+                        .widthIn(min = 500.dp, max = 700.dp),
             ) {
                 Column(
-                    modifier = Modifier
-                        .padding(24.dp),
+                    modifier =
+                        Modifier
+                            .padding(24.dp),
                 ) {
                     Text(
                         text = url,
-                        style = TextStyle(
-                            fontSize = 14.sp,
-                            fontFamily = rememberCustomFontFamily(),
-                        ),
+                        style =
+                            TextStyle(
+                                fontSize = 14.sp,
+                                fontFamily = rememberCustomFontFamily(),
+                            ),
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Divider(modifier = Modifier.fillMaxWidth())
-                    val modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                    val style = TextStyle(
-                        fontSize = 18.sp,
-                        fontFamily = rememberCustomFontFamily(),
-                    )
+                    val modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    val style =
+                        TextStyle(
+                            fontSize = 18.sp,
+                            fontFamily = rememberCustomFontFamily(),
+                        )
                     Text(
-                        modifier = Modifier
-                            .clickable { onClickOpen() }
-                            .then(modifier),
+                        modifier =
+                            Modifier
+                                .clickable { onClickOpen() }
+                                .then(modifier),
                         text = "開く",
                         style = style,
                     )
                     Text(
-                        modifier = Modifier
-                            .clickable { onClickCopy() }
-                            .then(modifier),
+                        modifier =
+                            Modifier
+                                .clickable { onClickCopy() }
+                                .then(modifier),
                         text = "コピー",
                         style = style,
                     )

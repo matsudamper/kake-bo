@@ -21,30 +21,35 @@ class DbUserLoginRepository : UserLoginRepository {
     private val userPasswordExtendData = JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA
     private val bases64Encoder = Base64.getEncoder()
 
-    override fun login(userName: String, passwords: String): UserLoginRepository.Result {
-        val result = DbConnectionImpl.use {
-            DSL.using(it)
-                .select(userPasswords, userPasswordExtendData)
-                .from(user)
-                .join(userPasswords)
-                .on(userPasswords.USER_ID.eq(user.USER_ID))
-                .join(userPasswordExtendData)
-                .on(userPasswordExtendData.USER_ID.eq(userPasswords.USER_ID))
-                .where(
-                    user.USER_NAME.eq(userName),
-                )
-                .fetchOne()
-        } ?: return UserLoginRepository.Result.Failure
+    override fun login(
+        userName: String,
+        passwords: String,
+    ): UserLoginRepository.Result {
+        val result =
+            DbConnectionImpl.use {
+                DSL.using(it)
+                    .select(userPasswords, userPasswordExtendData)
+                    .from(user)
+                    .join(userPasswords)
+                    .on(userPasswords.USER_ID.eq(user.USER_ID))
+                    .join(userPasswordExtendData)
+                    .on(userPasswordExtendData.USER_ID.eq(userPasswords.USER_ID))
+                    .where(
+                        user.USER_NAME.eq(userName),
+                    )
+                    .fetchOne()
+            } ?: return UserLoginRepository.Result.Failure
 
         val userPasswordRecord: JUserPasswordsRecord = result.value1()
         val userPasswordExtendDataRecord: JUserPasswordExtendDataRecord = result.value2()
 
-        val spec: KeySpec = PBEKeySpec(
-            passwords.plus(ServerEnv.userPasswordPepper).toCharArray(),
-            userPasswordExtendDataRecord.salt!!,
-            userPasswordExtendDataRecord.iterationCount!!,
-            userPasswordExtendDataRecord.keyLength!!,
-        )
+        val spec: KeySpec =
+            PBEKeySpec(
+                passwords.plus(ServerEnv.userPasswordPepper).toCharArray(),
+                userPasswordExtendDataRecord.salt!!,
+                userPasswordExtendDataRecord.iterationCount!!,
+                userPasswordExtendDataRecord.keyLength!!,
+            )
         val factory = SecretKeyFactory.getInstance(userPasswordExtendDataRecord.algorithm!!)
         val hashedPassword = factory.generateSecret(spec).encoded
 

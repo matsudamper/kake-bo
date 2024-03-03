@@ -13,13 +13,12 @@ import androidx.compose.ui.Modifier
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-public fun NotFoundScreen(
-    paddingValues: PaddingValues,
-) {
+public fun NotFoundScreen(paddingValues: PaddingValues) {
     Scaffold(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(paddingValues),
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
     ) { paddingValues1 ->
         Box(Modifier.padding(paddingValues1)) {
             Text(

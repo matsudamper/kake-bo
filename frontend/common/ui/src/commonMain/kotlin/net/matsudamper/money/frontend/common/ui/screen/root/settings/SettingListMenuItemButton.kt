@@ -22,11 +22,12 @@ internal fun SettingListMenuItemButton(
     text: @Composable () -> Unit,
 ) {
     Box(
-        modifier = modifier.fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium)
-            .clickable { onClick() }
-            .padding(horizontal = 8.dp)
-            .padding(vertical = 16.dp),
+        modifier =
+            modifier.fillMaxWidth()
+                .clip(MaterialTheme.shapes.medium)
+                .clickable { onClick() }
+                .padding(horizontal = 8.dp)
+                .padding(vertical = 16.dp),
         contentAlignment = Alignment.CenterStart,
     ) {
         ProvideTextStyle(

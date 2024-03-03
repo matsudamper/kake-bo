@@ -26,34 +26,37 @@ internal fun UrlClickableText(
     onLongClickUrl: (String) -> Unit,
 ) {
     val color = MaterialTheme.colorScheme.primary
-    val annotatedText = remember(text) {
-        AnnotatedString(text)
-            .applyHtml(color)
-    }
+    val annotatedText =
+        remember(text) {
+            AnnotatedString(text)
+                .applyHtml(color)
+        }
     var layoutResult: TextLayoutResult? by remember { mutableStateOf(null) }
     Text(
-        modifier = Modifier.pointerInput(onClickUrl, onLongClickUrl) {
-            detectTapGestures(
-                onLongPress = { offset ->
-                    val index = layoutResult?.getOffsetForPosition(offset) ?: return@detectTapGestures
-                    annotatedText.getUrlAnnotations(index, index).forEach {
-                        onLongClickUrl(it.item.url)
-                    }
-                },
-                onTap = { offset ->
-                    val index = layoutResult?.getOffsetForPosition(offset) ?: return@detectTapGestures
-                    annotatedText.getUrlAnnotations(index, index).forEach {
-                        onClickUrl(it.item.url)
-                    }
-                },
-            )
-        },
+        modifier =
+            Modifier.pointerInput(onClickUrl, onLongClickUrl) {
+                detectTapGestures(
+                    onLongPress = { offset ->
+                        val index = layoutResult?.getOffsetForPosition(offset) ?: return@detectTapGestures
+                        annotatedText.getUrlAnnotations(index, index).forEach {
+                            onLongClickUrl(it.item.url)
+                        }
+                    },
+                    onTap = { offset ->
+                        val index = layoutResult?.getOffsetForPosition(offset) ?: return@detectTapGestures
+                        annotatedText.getUrlAnnotations(index, index).forEach {
+                            onClickUrl(it.item.url)
+                        }
+                    },
+                )
+            },
         text = annotatedText,
-        style = LocalTextStyle.current.merge(
-            SpanStyle(
-                color = LocalContentColor.current,
+        style =
+            LocalTextStyle.current.merge(
+                SpanStyle(
+                    color = LocalContentColor.current,
+                ),
             ),
-        ),
         onTextLayout = {
             layoutResult = it
         },

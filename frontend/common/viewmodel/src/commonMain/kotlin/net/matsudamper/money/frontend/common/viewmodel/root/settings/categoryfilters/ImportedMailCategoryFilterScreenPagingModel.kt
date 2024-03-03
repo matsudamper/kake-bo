@@ -19,10 +19,11 @@ public class ImportedMailCategoryFilterScreenPagingModel(
     apolloClient: ApolloClient = GraphqlClient.apolloClient,
     private val coroutineScope: CoroutineScope,
 ) {
-    private val pagingState = ApolloPagingResponseCollector<ImportedMailCategoryFiltersScreenPagingQuery.Data>(
-        apolloClient = apolloClient,
-        coroutineScope = coroutineScope,
-    )
+    private val pagingState =
+        ApolloPagingResponseCollector<ImportedMailCategoryFiltersScreenPagingQuery.Data>(
+            apolloClient = apolloClient,
+            coroutineScope = coroutineScope,
+        )
 
     internal suspend fun getFlow(): Flow<List<ApolloResponseState<ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data>>>> {
         return flow {
@@ -75,10 +76,11 @@ public class ImportedMailCategoryFilterScreenPagingModel(
                 }
 
                 ImportedMailCategoryFiltersScreenPagingQuery(
-                    query = ImportedMailCategoryFiltersQuery(
-                        cursor = Optional.present(cursor),
-                        isAsc = true,
-                    ),
+                    query =
+                        ImportedMailCategoryFiltersQuery(
+                            cursor = Optional.present(cursor),
+                            isAsc = true,
+                        ),
                 )
             },
         )

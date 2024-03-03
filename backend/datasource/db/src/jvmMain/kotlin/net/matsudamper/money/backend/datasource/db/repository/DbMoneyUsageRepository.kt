@@ -30,29 +30,31 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
             DbConnectionImpl.use { connection ->
                 // 自分のものか確認する
                 run {
-                    val count = DSL.using(connection)
-                        .select(DSL.count())
-                        .from(jUsage)
-                        .where(
-                            DSL.value(true)
-                                .and(jUsage.USER_ID.eq(userId.value))
-                                .and(jUsage.MONEY_USAGE_ID.eq(usageId.id)),
-                        )
-                        .execute()
+                    val count =
+                        DSL.using(connection)
+                            .select(DSL.count())
+                            .from(jUsage)
+                            .where(
+                                DSL.value(true)
+                                    .and(jUsage.USER_ID.eq(userId.value))
+                                    .and(jUsage.MONEY_USAGE_ID.eq(usageId.id)),
+                            )
+                            .execute()
                     if (count != 1) {
                         return@use false
                     }
                 }
                 run {
-                    val count = DSL.using(connection)
-                        .select(DSL.count())
-                        .from(jRelation)
-                        .where(
-                            DSL.value(true)
-                                .and(jRelation.USER_ID.eq(userId.value))
-                                .and(jRelation.USER_MAIL_ID.eq(importedMailId.id)),
-                        )
-                        .execute()
+                    val count =
+                        DSL.using(connection)
+                            .select(DSL.count())
+                            .from(jRelation)
+                            .where(
+                                DSL.value(true)
+                                    .and(jRelation.USER_ID.eq(userId.value))
+                                    .and(jRelation.USER_MAIL_ID.eq(importedMailId.id)),
+                            )
+                            .execute()
                     if (count != 1) {
                         return@use false
                     }
@@ -83,16 +85,17 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
     ): MoneyUsageRepository.AddResult {
         return runCatching {
             DbConnectionImpl.use { connection ->
-                val results = DSL.using(connection)
-                    .insertInto(jUsage)
-                    .set(jUsage.USER_ID, userId.value)
-                    .set(jUsage.TITLE, title)
-                    .set(jUsage.DESCRIPTION, description)
-                    .set(jUsage.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId?.id)
-                    .set(jUsage.DATETIME, date)
-                    .set(jUsage.AMOUNT, amount)
-                    .returningResult(jUsage)
-                    .fetch()
+                val results =
+                    DSL.using(connection)
+                        .insertInto(jUsage)
+                        .set(jUsage.USER_ID, userId.value)
+                        .set(jUsage.TITLE, title)
+                        .set(jUsage.DESCRIPTION, description)
+                        .set(jUsage.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId?.id)
+                        .set(jUsage.DATETIME, date)
+                        .set(jUsage.AMOUNT, amount)
+                        .returningResult(jUsage)
+                        .fetch()
 
                 if (results.size != 1) {
                     throw IllegalStateException("failed to insert")
@@ -122,96 +125,100 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
     ): MoneyUsageRepository.GetMoneyUsageByQueryResult {
         return runCatching {
             DbConnectionImpl.use { connection ->
-                val results = DSL.using(connection)
-                    .select(
-                        jUsage.MONEY_USAGE_ID,
-                        jUsage.DATETIME,
-                    )
-                    .from(jUsage)
-                    .leftJoin(jSubCategory).on(
-                        jSubCategory.MONEY_USAGE_SUB_CATEGORY_ID
-                            .eq(jUsage.MONEY_USAGE_SUB_CATEGORY_ID)
-                            .and(jUsage.USER_ID.eq(userId.value)),
-                    )
-                    .where(
-                        DSL.value(true)
-                            .and(jUsage.USER_ID.eq(userId.value))
-                            .and(
-                                when (cursor?.lastId) {
-                                    null -> DSL.value(true)
-                                    else -> if (isAsc) {
-                                        DSL.row(jUsage.DATETIME, jUsage.MONEY_USAGE_ID)
-                                            .greaterThan(cursor.date, cursor.lastId.id)
+                val results =
+                    DSL.using(connection)
+                        .select(
+                            jUsage.MONEY_USAGE_ID,
+                            jUsage.DATETIME,
+                        )
+                        .from(jUsage)
+                        .leftJoin(jSubCategory).on(
+                            jSubCategory.MONEY_USAGE_SUB_CATEGORY_ID
+                                .eq(jUsage.MONEY_USAGE_SUB_CATEGORY_ID)
+                                .and(jUsage.USER_ID.eq(userId.value)),
+                        )
+                        .where(
+                            DSL.value(true)
+                                .and(jUsage.USER_ID.eq(userId.value))
+                                .and(
+                                    when (cursor?.lastId) {
+                                        null -> DSL.value(true)
+                                        else ->
+                                            if (isAsc) {
+                                                DSL.row(jUsage.DATETIME, jUsage.MONEY_USAGE_ID)
+                                                    .greaterThan(cursor.date, cursor.lastId.id)
+                                            } else {
+                                                DSL.row(jUsage.DATETIME, jUsage.MONEY_USAGE_ID)
+                                                    .lessThan(cursor.date, cursor.lastId.id)
+                                            }
+                                    },
+                                )
+                                .and(
+                                    when (sinceDateTime) {
+                                        null -> DSL.value(true)
+                                        else -> jUsage.DATETIME.greaterOrEqual(sinceDateTime)
+                                    },
+                                )
+                                .and(
+                                    when (untilDateTime) {
+                                        null -> DSL.value(true)
+                                        else -> jUsage.DATETIME.lessThan(untilDateTime)
+                                    },
+                                )
+                                .and(
+                                    if (categoryIds.isEmpty()) {
+                                        DSL.value(true)
                                     } else {
-                                        DSL.row(jUsage.DATETIME, jUsage.MONEY_USAGE_ID)
-                                            .lessThan(cursor.date, cursor.lastId.id)
-                                    }
-                                },
-                            )
-                            .and(
-                                when (sinceDateTime) {
-                                    null -> DSL.value(true)
-                                    else -> jUsage.DATETIME.greaterOrEqual(sinceDateTime)
-                                },
-                            )
-                            .and(
-                                when (untilDateTime) {
-                                    null -> DSL.value(true)
-                                    else -> jUsage.DATETIME.lessThan(untilDateTime)
-                                },
-                            )
-                            .and(
-                                if (categoryIds.isEmpty()) {
-                                    DSL.value(true)
-                                } else {
-                                    jSubCategory.MONEY_USAGE_CATEGORY_ID.`in`(categoryIds.map { it.value })
-                                },
-                            )
-                            .and(
-                                if (subCategoryIds.isEmpty()) {
-                                    DSL.value(true)
-                                } else {
-                                    jUsage.MONEY_USAGE_SUB_CATEGORY_ID.`in`(subCategoryIds.map { it.id })
-                                },
-                            )
-                            .and(
-                                when (text) {
-                                    null -> DSL.value(true)
-                                    else -> {
-                                        jUsage.TITLE.contains(text)
-                                            .or(jUsage.DESCRIPTION.contains(text))
-                                    }
-                                },
-                            ),
-                    )
-                    .orderBy(
-                        if (isAsc) {
-                            jUsage.DATETIME.asc()
-                        } else {
-                            jUsage.DATETIME.desc()
-                        },
-                        if (isAsc) {
-                            jUsage.MONEY_USAGE_ID.asc()
-                        } else {
-                            jUsage.MONEY_USAGE_ID.desc()
-                        },
-                    )
-                    .limit(size)
-                    .fetch()
+                                        jSubCategory.MONEY_USAGE_CATEGORY_ID.`in`(categoryIds.map { it.value })
+                                    },
+                                )
+                                .and(
+                                    if (subCategoryIds.isEmpty()) {
+                                        DSL.value(true)
+                                    } else {
+                                        jUsage.MONEY_USAGE_SUB_CATEGORY_ID.`in`(subCategoryIds.map { it.id })
+                                    },
+                                )
+                                .and(
+                                    when (text) {
+                                        null -> DSL.value(true)
+                                        else -> {
+                                            jUsage.TITLE.contains(text)
+                                                .or(jUsage.DESCRIPTION.contains(text))
+                                        }
+                                    },
+                                ),
+                        )
+                        .orderBy(
+                            if (isAsc) {
+                                jUsage.DATETIME.asc()
+                            } else {
+                                jUsage.DATETIME.desc()
+                            },
+                            if (isAsc) {
+                                jUsage.MONEY_USAGE_ID.asc()
+                            } else {
+                                jUsage.MONEY_USAGE_ID.desc()
+                            },
+                        )
+                        .limit(size)
+                        .fetch()
 
-                val resultMoneyUsageIds = results.map { result ->
-                    MoneyUsageId(result.get(jUsage.MONEY_USAGE_ID)!!)
-                }
+                val resultMoneyUsageIds =
+                    results.map { result ->
+                        MoneyUsageId(result.get(jUsage.MONEY_USAGE_ID)!!)
+                    }
                 val lastDate = results.lastOrNull()?.get(jUsage.DATETIME)
                 val cursorLastId = resultMoneyUsageIds.lastOrNull()
                 MoneyUsageRepository.GetMoneyUsageByQueryResult.Success(
                     ids = resultMoneyUsageIds,
-                    cursor = run cursor@{
-                        MoneyUsageRepository.GetMoneyUsageByQueryResult.Cursor(
-                            lastId = cursorLastId ?: return@cursor null,
-                            date = lastDate ?: return@cursor null,
-                        )
-                    },
+                    cursor =
+                        run cursor@{
+                            MoneyUsageRepository.GetMoneyUsageByQueryResult.Cursor(
+                                lastId = cursorLastId ?: return@cursor null,
+                                date = lastDate ?: return@cursor null,
+                            )
+                        },
                 )
             }
         }.fold(
@@ -222,17 +229,21 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
         )
     }
 
-    override fun getMoneyUsage(userId: UserId, ids: List<MoneyUsageId>): Result<List<MoneyUsageRepository.Usage>> {
+    override fun getMoneyUsage(
+        userId: UserId,
+        ids: List<MoneyUsageId>,
+    ): Result<List<MoneyUsageRepository.Usage>> {
         return runCatching {
             DbConnectionImpl.use { connection ->
-                val results = DSL.using(connection)
-                    .selectFrom(jUsage)
-                    .where(
-                        DSL.value(true)
-                            .and(jUsage.USER_ID.eq(userId.value))
-                            .and(jUsage.MONEY_USAGE_ID.`in`(ids.map { it.id })),
-                    )
-                    .fetch()
+                val results =
+                    DSL.using(connection)
+                        .selectFrom(jUsage)
+                        .where(
+                            DSL.value(true)
+                                .and(jUsage.USER_ID.eq(userId.value))
+                                .and(jUsage.MONEY_USAGE_ID.`in`(ids.map { it.id })),
+                        )
+                        .fetch()
 
                 results.map { result ->
                     mapMoneyUsage(result = result)

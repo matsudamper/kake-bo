@@ -47,16 +47,15 @@ public class SettingScreenCategoryApi(
         }.getOrNull()
     }
 
-    public suspend fun addCategory(
-        name: String,
-    ): ApolloResponse<AddCategoryMutation.Data>? {
+    public suspend fun addCategory(name: String): ApolloResponse<AddCategoryMutation.Data>? {
         return runCatching {
             apolloClient
                 .mutation(
                     AddCategoryMutation(
-                        category = AddCategoryInput(
-                            name = name,
-                        ),
+                        category =
+                            AddCategoryInput(
+                                name = name,
+                            ),
                     ),
                 )
                 .execute()
@@ -71,28 +70,28 @@ public class SettingScreenCategoryApi(
             apolloClient
                 .mutation(
                     AddSubCategoryMutation(
-                        category = AddSubCategoryInput(
-                            categoryId = categoryId,
-                            name = name,
-                        ),
+                        category =
+                            AddSubCategoryInput(
+                                categoryId = categoryId,
+                                name = name,
+                            ),
                     ),
                 )
                 .execute()
         }.getOrNull()
     }
 
-    public suspend fun getSubCategoriesPaging(
-        id: MoneyUsageCategoryId,
-    ): ApolloResponse<CategorySettingScreenSubCategoriesPagingQuery.Data>? {
+    public suspend fun getSubCategoriesPaging(id: MoneyUsageCategoryId): ApolloResponse<CategorySettingScreenSubCategoriesPagingQuery.Data>? {
         return runCatching {
             apolloClient
                 .query(
                     CategorySettingScreenSubCategoriesPagingQuery(
                         categoryId = id,
-                        query = MoneyUsageSubCategoryQuery(
-                            cursor = Optional.present(null),
-                            size = 100,
-                        ),
+                        query =
+                            MoneyUsageSubCategoryQuery(
+                                cursor = Optional.present(null),
+                                size = 100,
+                            ),
                     ),
                 )
                 .fetchPolicy(FetchPolicy.NetworkOnly)
@@ -111,9 +110,10 @@ public class SettingScreenCategoryApi(
                 .mutation(
                     UpdateCategoryMutation(
                         id = id,
-                        query = UpdateCategoryQuery(
-                            name = Optional.present(name),
-                        ),
+                        query =
+                            UpdateCategoryQuery(
+                                name = Optional.present(name),
+                            ),
                     ),
                 )
                 .execute()
@@ -134,15 +134,19 @@ public class SettingScreenCategoryApi(
             }
     }
 
-    public suspend fun updateSubCategory(id: MoneyUsageSubCategoryId, name: String): ApolloResponse<UpdateSubCategoryMutation.Data>? {
+    public suspend fun updateSubCategory(
+        id: MoneyUsageSubCategoryId,
+        name: String,
+    ): ApolloResponse<UpdateSubCategoryMutation.Data>? {
         return runCatching {
             apolloClient
                 .mutation(
                     UpdateSubCategoryMutation(
                         id = id,
-                        query = UpdateSubCategoryQuery(
-                            name = Optional.present(name),
-                        ),
+                        query =
+                            UpdateSubCategoryQuery(
+                                name = Optional.present(name),
+                            ),
                     ),
                 )
                 .execute()

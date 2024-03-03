@@ -7,7 +7,11 @@ object ChallengeRepositoryProvider {
         return LocalChallengeRepository()
     }
 
-    fun provideRedisRepository(host: String, port: Int, index: Int): ChallengeRepository {
+    fun provideRedisRepository(
+        host: String,
+        port: Int,
+        index: Int,
+    ): ChallengeRepository {
         return RedisChallengeRepository(host, port, index)
     }
 }

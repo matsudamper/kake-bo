@@ -103,9 +103,10 @@ public data class MoneyUsageScreenUiState(
 
     @Immutable
     public sealed interface LoadingState {
-
         public data object Loading : LoadingState
+
         public data object Error : LoadingState
+
         public data class Loaded(
             val moneyUsage: MoneyUsage,
             val linkedMails: ImmutableList<MailItem>,
@@ -132,9 +133,13 @@ public data class MoneyUsageScreenUiState(
     @Immutable
     public interface MoneyUsageEvent {
         public fun onClickTitleChange()
+
         public fun onClickDateChange()
+
         public fun onClickCategoryChange()
+
         public fun onClickDescription()
+
         public fun onClickAmountChange()
     }
 
@@ -156,6 +161,7 @@ public data class MoneyUsageScreenUiState(
     @Immutable
     public interface ClickableEvent {
         public fun onClickUrl(url: String)
+
         public fun onLongClickUrl(text: String)
     }
 
@@ -167,14 +173,18 @@ public data class MoneyUsageScreenUiState(
     @Immutable
     public interface UrlMenuDialogEvent {
         public fun onClickOpen()
+
         public fun onClickCopy()
+
         public fun onDismissRequest()
     }
 
     @Immutable
     public interface Event {
         public fun onViewInitialized()
+
         public fun onClickRetry()
+
         public fun onClickBack()
     }
 }
@@ -251,12 +261,13 @@ public fun MoneyUsageScreen(
                 },
                 title = {
                     Text(
-                        modifier = Modifier.clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                        ) {
-                            kakeboScaffoldListener.onClickTitle()
-                        },
+                        modifier =
+                            Modifier.clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                            ) {
+                                kakeboScaffoldListener.onClickTitle()
+                            },
                         text = "家計簿",
                     )
                 },
@@ -266,18 +277,20 @@ public fun MoneyUsageScreen(
         when (val state = uiState.loadingState) {
             is MoneyUsageScreenUiState.LoadingState.Loaded -> {
                 LoadedContent(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(paddingValues),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(paddingValues),
                     uiState = state,
                 )
             }
 
             is MoneyUsageScreenUiState.LoadingState.Loading -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()
@@ -308,12 +321,14 @@ private fun LoadedContent(
         val containerHeight = maxHeight
         var scrollButtonHeight by remember { mutableStateOf(0.dp) }
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 12.dp),
-            contentPadding = PaddingValues(
-                bottom = scrollButtonHeight + 8.dp,
-            ),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 12.dp),
+            contentPadding =
+                PaddingValues(
+                    bottom = scrollButtonHeight + 8.dp,
+                ),
             state = state,
         ) {
             item {
@@ -321,8 +336,9 @@ private fun LoadedContent(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        modifier = Modifier.padding(12.dp)
-                            .weight(1f),
+                        modifier =
+                            Modifier.padding(12.dp)
+                                .weight(1f),
                         text = "使用用途",
                         style = MaterialTheme.typography.titleLarge,
                     )
@@ -345,12 +361,14 @@ private fun LoadedContent(
                 Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
 
                 Card(
-                    modifier = Modifier
-                        .padding(12.dp),
+                    modifier =
+                        Modifier
+                            .padding(12.dp),
                 ) {
                     MoneyUsage(
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(12.dp),
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .padding(12.dp),
                         uiState = uiState.moneyUsage,
                     )
                 }
@@ -366,13 +384,15 @@ private fun LoadedContent(
             if (uiState.linkedMails.isNotEmpty()) {
                 items(uiState.linkedMails) { mail ->
                     Card(
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(8.dp),
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .padding(8.dp),
                         onClick = { mail.event.onClick() },
                     ) {
                         MailContent(
-                            modifier = Modifier.fillMaxWidth()
-                                .padding(12.dp),
+                            modifier =
+                                Modifier.fillMaxWidth()
+                                    .padding(12.dp),
                             uiState = mail,
                         )
                     }
@@ -389,11 +409,12 @@ private fun LoadedContent(
             }
         }
         ScrollButtons(
-            modifier = Modifier
-                .onSizeChanged { scrollButtonHeight = with(density) { it.height.toDp() } }
-                .align(Alignment.BottomEnd)
-                .padding(ScrollButtonsDefaults.padding)
-                .height(ScrollButtonsDefaults.height),
+            modifier =
+                Modifier
+                    .onSizeChanged { scrollButtonHeight = with(density) { it.height.toDp() } }
+                    .align(Alignment.BottomEnd)
+                    .padding(ScrollButtonsDefaults.padding)
+                    .height(ScrollButtonsDefaults.height),
             scrollState = state,
             scrollSize = remember(density, containerHeight) { with(density) { (containerHeight * 0.7f).toPx() } },
         )
@@ -412,19 +433,21 @@ private fun UsageMenuPopup(
         onKeyEvent = { false },
     ) {
         Card(
-            elevation = CardDefaults.cardElevation(
-                defaultElevation = 8.dp,
-            ),
+            elevation =
+                CardDefaults.cardElevation(
+                    defaultElevation = 8.dp,
+                ),
         ) {
             Column(
                 modifier = Modifier.width(IntrinsicSize.Max),
             ) {
                 Text(
-                    modifier = Modifier.fillMaxWidth()
-                        .clickable {
-                            onClickDelete()
-                        }
-                        .padding(12.dp),
+                    modifier =
+                        Modifier.fillMaxWidth()
+                            .clickable {
+                                onClickDelete()
+                            }
+                            .padding(12.dp),
                     color = MaterialTheme.colorScheme.error,
                     text = "削除",
                 )
@@ -581,13 +604,14 @@ private fun MoneyUsageSection(
             }
 
             OutlinedButton(
-                modifier = Modifier.align(
-                    if (multiline) {
-                        Alignment.Bottom
-                    } else {
-                        Alignment.CenterVertically
-                    },
-                ),
+                modifier =
+                    Modifier.align(
+                        if (multiline) {
+                            Alignment.Bottom
+                        } else {
+                            Alignment.CenterVertically
+                        },
+                    ),
                 onClick = {
                     onClickChange()
                 },

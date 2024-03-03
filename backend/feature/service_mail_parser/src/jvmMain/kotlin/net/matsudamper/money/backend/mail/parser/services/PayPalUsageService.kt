@@ -13,82 +13,98 @@ import org.jsoup.nodes.Element
 internal object PayPalUsageService : MoneyUsageServices {
     override val displayName: String = "PayPal"
 
-    override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): List<MoneyUsage> {
-        val canHandle = sequence {
-            yield(canHandledWithFrom(from))
-            yield(canHandledWithHtml(plain))
-        }
+    override fun parse(
+        subject: String,
+        from: String,
+        html: String,
+        plain: String,
+        date: LocalDateTime,
+    ): List<MoneyUsage> {
+        val canHandle =
+            sequence {
+                yield(canHandledWithFrom(from))
+                yield(canHandledWithHtml(plain))
+            }
         if (canHandle.any { it }.not()) return listOf()
 
         val document = Jsoup.parse(html)
         val priceRawText: String?
-        val price = run price@{
-            val texts = document.select("strong").toList()
-                .asSequence()
-                .filter { it.text() == "合計" }
-                .mapNotNull { it.getParentElement("tr") }
-                .flatMap { it.select("span") }
-                .map { it.text() }
+        val price =
+            run price@{
+                val texts =
+                    document.select("strong").toList()
+                        .asSequence()
+                        .filter { it.text() == "合計" }
+                        .mapNotNull { it.getParentElement("tr") }
+                        .flatMap { it.select("span") }
+                        .map { it.text() }
 
-            priceRawText = texts
-                .filterNot { it.contains("合計") }
-                .joinToString(", ")
-                .takeIf { it.isNotBlank() }
+                priceRawText =
+                    texts
+                        .filterNot { it.contains("合計") }
+                        .joinToString(", ")
+                        .takeIf { it.isNotBlank() }
 
-            texts.mapNotNull { text ->
-                text.mapNotNull { it.toString().toIntOrNull() }
-                    .joinToString("")
-                    .toIntOrNull()
-            }.firstOrNull()
-        }
+                texts.mapNotNull { text ->
+                    text.mapNotNull { it.toString().toIntOrNull() }
+                        .joinToString("")
+                        .toIntOrNull()
+                }.firstOrNull()
+            }
 
-        val title = run title@{
-            val title = document.select("title").text()
-            "^(.+?)様への支払いの領収書".toRegex().find(title)?.groupValues?.getOrNull(1)
-                ?: return@title null
-        }
+        val title =
+            run title@{
+                val title = document.select("title").text()
+                "^(.+?)様への支払いの領収書".toRegex().find(title)?.groupValues?.getOrNull(1)
+                    ?: return@title null
+            }
 
         val price2: Int?
         run {
-            val result = "(?<=>)(.+?)への(.+?)のお支払いが実行されました<".toRegex()
-                .find(html)
-                ?.groupValues
+            val result =
+                "(?<=>)(.+?)への(.+?)のお支払いが実行されました<".toRegex()
+                    .find(html)
+                    ?.groupValues
 
-            price2 = result?.getOrNull(2)
-                ?.mapNotNull { it.toString().toIntOrNull() }
-                ?.joinToString("")
-                ?.toIntOrNull()
+            price2 =
+                result?.getOrNull(2)
+                    ?.mapNotNull { it.toString().toIntOrNull() }
+                    ?.joinToString("")
+                    ?.toIntOrNull()
         }
 
-        val parsedDate = run date@{
-            val tmp = document.select(".ppsans").asSequence()
-                .filter { it.select("strong").any { strong -> strong.text() == "取引日" } }
-                .mapNotNull { it.select("span").getOrNull(1) }
-                .map { "2023年11月10日 3:45:19 JST" }
-                .onEach { println("paypal date") }
-                .mapNotNull {
-                    runCatching { dateFormat.parse(it) }
-                        .onFailure { it.printStackTrace() }
-                        .getOrNull()
-                }
-                .firstOrNull()
-                ?: return@date null
-            LocalDateTime.from(tmp)
-        }
+        val parsedDate =
+            run date@{
+                val tmp =
+                    document.select(".ppsans").asSequence()
+                        .filter { it.select("strong").any { strong -> strong.text() == "取引日" } }
+                        .mapNotNull { it.select("span").getOrNull(1) }
+                        .map { "2023年11月10日 3:45:19 JST" }
+                        .onEach { println("paypal date") }
+                        .mapNotNull {
+                            runCatching { dateFormat.parse(it) }
+                                .onFailure { it.printStackTrace() }
+                                .getOrNull()
+                        }
+                        .firstOrNull()
+                        ?: return@date null
+                LocalDateTime.from(tmp)
+            }
 
         return listOf(
             MoneyUsage(
                 title = title ?: displayName,
                 price = price ?: price2,
-                description = buildString {
-                    if (priceRawText != null) {
-                        appendLine(priceRawText)
-                    }
-                    if (parsedDate == null) {
-                        appendLine("エラー情報")
-                        appendLine("日付のパースに失敗しました")
-                    }
-                }.trim(),
+                description =
+                    buildString {
+                        if (priceRawText != null) {
+                            appendLine(priceRawText)
+                        }
+                        if (parsedDate == null) {
+                            appendLine("エラー情報")
+                            appendLine("日付のパースに失敗しました")
+                        }
+                    }.trim(),
                 service = MoneyUsageServiceType.PayPal,
                 dateTime = parsedDate ?: date,
             ),

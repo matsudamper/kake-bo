@@ -11,50 +11,71 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-public val LocalHtmlTextInputContext: ProvidableCompositionLocal<HtmlTextInputContext> = staticCompositionLocalOf {
-    HtmlTextInputContext()
-}
+public val LocalHtmlTextInputContext: ProvidableCompositionLocal<HtmlTextInputContext> =
+    staticCompositionLocalOf {
+        HtmlTextInputContext()
+    }
 
 public class HtmlTextInputContext {
-
     private val _mutableStateFlow: MutableStateFlow<Map<Any, TextState>> = MutableStateFlow(mapOf())
     public val stateFlow: StateFlow<Map<Any, TextState>> = _mutableStateFlow.asStateFlow()
-    public fun setPosition(key: Any, positionInRoot: Offset) {
+
+    public fun setPosition(
+        key: Any,
+        positionInRoot: Offset,
+    ) {
         _mutableStateFlow.update { map ->
             map + (key to map.getOrElse(key) { TextState() }.copy(position = positionInRoot))
         }
     }
 
-    public fun setSize(key: Any, width: Int? = null, maxHeight: Int? = null) {
+    public fun setSize(
+        key: Any,
+        width: Int? = null,
+        maxHeight: Int? = null,
+    ) {
         _mutableStateFlow.update { map ->
             map + (
-                key to map.getOrElse(key) { TextState() }.copy(
-                    width = width,
-                    maxHeight = maxHeight,
-                )
-                )
+                key to
+                    map.getOrElse(key) { TextState() }.copy(
+                        width = width,
+                        maxHeight = maxHeight,
+                    )
+            )
         }
     }
 
-    public fun setSizeCallback(key: Any, callback: (Size) -> Unit) {
+    public fun setSizeCallback(
+        key: Any,
+        callback: (Size) -> Unit,
+    ) {
         _mutableStateFlow.update { map ->
             map + (key to map.getOrElse(key) { TextState() }.copy(sizeCallback = callback))
         }
     }
 
-    public fun setColor(key: Any, color: Color) {
+    public fun setColor(
+        key: Any,
+        color: Color,
+    ) {
         _mutableStateFlow.update { map ->
             map + (key to map.getOrElse(key) { TextState() }.copy(color = color))
         }
     }
 
-    public fun setTextCallback(key: Any, callback: (String) -> Unit) {
+    public fun setTextCallback(
+        key: Any,
+        callback: (String) -> Unit,
+    ) {
         _mutableStateFlow.update { map ->
             map + (key to map.getOrElse(key) { TextState() }.copy(textCallback = callback))
         }
     }
 
-    public fun setPlaceHolder(id: Any, placeholder: String) {
+    public fun setPlaceHolder(
+        id: Any,
+        placeholder: String,
+    ) {
         _mutableStateFlow.update { map ->
             map + (id to map.getOrElse(id) { TextState() }.copy(placeholder = placeholder))
         }
@@ -66,18 +87,23 @@ public class HtmlTextInputContext {
         }
     }
 
-    public fun setType(id: Any, type: KeyboardType) {
+    public fun setType(
+        id: Any,
+        type: KeyboardType,
+    ) {
         _mutableStateFlow.update { map ->
             map + (
-                id to map.getOrElse(id) { TextState() }.copy(
-                    type = when (type) {
-                        KeyboardType.Text -> "text"
-                        KeyboardType.Password -> "password"
-                        KeyboardType.Number -> "number"
-                        else -> TODO()
-                    },
-                )
-                )
+                id to
+                    map.getOrElse(id) { TextState() }.copy(
+                        type =
+                            when (type) {
+                                KeyboardType.Text -> "text"
+                                KeyboardType.Password -> "password"
+                                KeyboardType.Number -> "number"
+                                else -> TODO()
+                            },
+                    )
+            )
         }
     }
 

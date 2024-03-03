@@ -24,6 +24,7 @@ public data class HomeMailTabScreenUiState(
     @Immutable
     public interface Event {
         public fun onClickImportTabButton()
+
         public fun onClickImportedTabButton()
     }
 }
@@ -47,12 +48,13 @@ public fun HomeMailTabScreen(
             KakeBoTopAppBar(
                 title = {
                     Text(
-                        modifier = Modifier.clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                        ) {
-                            rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
-                        },
+                        modifier =
+                            Modifier.clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                            ) {
+                                rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                            },
                         text = "家計簿",
                     )
                 },
@@ -62,10 +64,11 @@ public fun HomeMailTabScreen(
         Column(modifier = modifier) {
             TabRow(
                 modifier = Modifier.fillMaxWidth(),
-                selectedTabIndex = when (screenStructure) {
-                    is ScreenStructure.Root.Mail.Import -> 0
-                    is ScreenStructure.Root.Mail.Imported -> 1
-                },
+                selectedTabIndex =
+                    when (screenStructure) {
+                        is ScreenStructure.Root.Mail.Import -> 0
+                        is ScreenStructure.Root.Mail.Imported -> 1
+                    },
             ) {
                 Tab(
                     selected = true,

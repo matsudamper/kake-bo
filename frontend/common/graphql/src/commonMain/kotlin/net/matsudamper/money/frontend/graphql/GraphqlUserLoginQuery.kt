@@ -23,9 +23,7 @@ class GraphqlUserLoginQuery(
             .execute()
     }
 
-    suspend fun webAuthLogin(
-        input: UserFidoLoginInput,
-    ): ApolloResponse<UserWebAuthnLoginMutation.Data> {
+    suspend fun webAuthLogin(input: UserFidoLoginInput): ApolloResponse<UserWebAuthnLoginMutation.Data> {
         return apolloClient
             .mutation(
                 UserWebAuthnLoginMutation(input = input),

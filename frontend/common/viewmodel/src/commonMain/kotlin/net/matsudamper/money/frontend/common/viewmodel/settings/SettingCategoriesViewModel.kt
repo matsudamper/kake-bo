@@ -18,13 +18,14 @@ public class SettingCategoriesViewModel(
     private val coroutineScope: CoroutineScope,
     private val api: SettingScreenCategoryApi,
 ) {
-    private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
-        ViewModelState(
-            responseList = listOf(),
-            isFirstLoading = true,
-            showCategoryNameInput = false,
-        ),
-    )
+    private val viewModelStateFlow: MutableStateFlow<ViewModelState> =
+        MutableStateFlow(
+            ViewModelState(
+                responseList = listOf(),
+                isFirstLoading = true,
+                showCategoryNameInput = false,
+            ),
+        )
 
     private val viewModelEventSender = EventSender<SettingCategoriesViewModelEvent>()
     public val viewModelEventHandler: EventHandler<SettingCategoriesViewModelEvent> = viewModelEventSender.asHandler()
@@ -32,96 +33,102 @@ public class SettingCategoriesViewModel(
     private val globalEventSender = EventSender<GlobalEvent>()
     public val globalEventHandler: EventHandler<GlobalEvent> = globalEventSender.asHandler()
 
-    public val uiState: StateFlow<SettingCategoriesScreenUiState> = MutableStateFlow(
-        SettingCategoriesScreenUiState(
-            event = object : SettingCategoriesScreenUiState.Event {
-                override suspend fun onResume() {
-                }
-
-                override fun dismissCategoryInput() {
-                    coroutineScope.launch {
-                        viewModelStateFlow.update {
-                            it.copy(
-                                showCategoryNameInput = false,
-                            )
+    public val uiState: StateFlow<SettingCategoriesScreenUiState> =
+        MutableStateFlow(
+            SettingCategoriesScreenUiState(
+                event =
+                    object : SettingCategoriesScreenUiState.Event {
+                        override suspend fun onResume() {
                         }
-                    }
-                }
 
-                override fun onClickAddCategoryButton() {
-                    coroutineScope.launch {
-                        viewModelStateFlow.update {
-                            it.copy(
-                                showCategoryNameInput = true,
-                            )
-                        }
-                    }
-                }
-
-                override fun categoryInputCompleted(text: String) {
-                    coroutineScope.launch {
-                        val result = api.addCategory(text)?.data?.userMutation?.addCategory?.category
-                        if (result == null) {
-                            globalEventSender.send {
-                                it.showNativeNotification("追加に失敗しました")
+                        override fun dismissCategoryInput() {
+                            coroutineScope.launch {
+                                viewModelStateFlow.update {
+                                    it.copy(
+                                        showCategoryNameInput = false,
+                                    )
+                                }
                             }
-                            return@launch
                         }
 
-                        globalEventSender.send {
-                            it.showSnackBar("${result.name}を追加しました")
-                        }
-                        viewModelStateFlow.update {
-                            it.copy(
-                                showCategoryNameInput = false,
-                            )
+                        override fun onClickAddCategoryButton() {
+                            coroutineScope.launch {
+                                viewModelStateFlow.update {
+                                    it.copy(
+                                        showCategoryNameInput = true,
+                                    )
+                                }
+                            }
                         }
 
-                        initialFetch()
-                    }
-                }
-            },
-            loadingState = SettingCategoriesScreenUiState.LoadingState.Loading,
-            showCategoryNameInput = false,
-        ),
-    ).also { uiStateFlow ->
-        coroutineScope.launch {
-            viewModelStateFlow.collect { viewModelState ->
-                uiStateFlow.update { uiState ->
-                    val loadingState = if (viewModelState.isFirstLoading) {
-                        SettingCategoriesScreenUiState.LoadingState.Loading
-                    } else {
-                        val items = viewModelState.responseList.mapNotNull {
-                            it.user?.moneyUsageCategories?.nodes
-                        }.flatten()
-                        SettingCategoriesScreenUiState.LoadingState.Loaded(
-                            item = items.map { item ->
-                                SettingCategoriesScreenUiState.CategoryItem(
-                                    name = item.name,
-                                    event = object : SettingCategoriesScreenUiState.CategoryItem.Event {
-                                        override fun onClick() {
-                                            coroutineScope.launch {
-                                                viewModelEventSender.send {
-                                                    it.navigateToCategoryDetail(
-                                                        id = item.id,
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    },
+                        override fun categoryInputCompleted(text: String) {
+                            coroutineScope.launch {
+                                val result = api.addCategory(text)?.data?.userMutation?.addCategory?.category
+                                if (result == null) {
+                                    globalEventSender.send {
+                                        it.showNativeNotification("追加に失敗しました")
+                                    }
+                                    return@launch
+                                }
+
+                                globalEventSender.send {
+                                    it.showSnackBar("${result.name}を追加しました")
+                                }
+                                viewModelStateFlow.update {
+                                    it.copy(
+                                        showCategoryNameInput = false,
+                                    )
+                                }
+
+                                initialFetch()
+                            }
+                        }
+                    },
+                loadingState = SettingCategoriesScreenUiState.LoadingState.Loading,
+                showCategoryNameInput = false,
+            ),
+        ).also { uiStateFlow ->
+            coroutineScope.launch {
+                viewModelStateFlow.collect { viewModelState ->
+                    uiStateFlow.update { uiState ->
+                        val loadingState =
+                            if (viewModelState.isFirstLoading) {
+                                SettingCategoriesScreenUiState.LoadingState.Loading
+                            } else {
+                                val items =
+                                    viewModelState.responseList.mapNotNull {
+                                        it.user?.moneyUsageCategories?.nodes
+                                    }.flatten()
+                                SettingCategoriesScreenUiState.LoadingState.Loaded(
+                                    item =
+                                        items.map { item ->
+                                            SettingCategoriesScreenUiState.CategoryItem(
+                                                name = item.name,
+                                                event =
+                                                    object : SettingCategoriesScreenUiState.CategoryItem.Event {
+                                                        override fun onClick() {
+                                                            coroutineScope.launch {
+                                                                viewModelEventSender.send {
+                                                                    it.navigateToCategoryDetail(
+                                                                        id = item.id,
+                                                                    )
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                            )
+                                        }.toImmutableList(),
                                 )
-                            }.toImmutableList(),
+                            }
+
+                        uiState.copy(
+                            loadingState = loadingState,
+                            showCategoryNameInput = viewModelState.showCategoryNameInput,
                         )
                     }
-
-                    uiState.copy(
-                        loadingState = loadingState,
-                        showCategoryNameInput = viewModelState.showCategoryNameInput,
-                    )
                 }
             }
-        }
-    }.asStateFlow()
+        }.asStateFlow()
 
     init {
         initialFetch()

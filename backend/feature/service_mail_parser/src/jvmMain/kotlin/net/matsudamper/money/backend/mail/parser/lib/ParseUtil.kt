@@ -28,52 +28,61 @@ internal object ParseUtil {
     fun parseForwarded(text: String): MailMetadata? {
         val lines = splitByNewLine(text)
 
-        val forwardedStartIndex = lines.indexOf("---------- Forwarded message ---------")
-            .takeIf { it >= 0 } ?: return null
+        val forwardedStartIndex =
+            lines.indexOf("---------- Forwarded message ---------")
+                .takeIf { it >= 0 } ?: return null
 
-        val forwardedEndIndex = lines.subList(forwardedStartIndex, lines.size)
-            .indexOf("")
-            .takeIf { it >= 0 } ?: return null
+        val forwardedEndIndex =
+            lines.subList(forwardedStartIndex, lines.size)
+                .indexOf("")
+                .takeIf { it >= 0 } ?: return null
 
-        val forwardedMetadata = lines.subList(forwardedStartIndex, forwardedEndIndex)
-            .associate {
-                val split = it.split(":")
-                split.first() to split.drop(1).joinToString(":")
-            }
+        val forwardedMetadata =
+            lines.subList(forwardedStartIndex, forwardedEndIndex)
+                .associate {
+                    val split = it.split(":")
+                    split.first() to split.drop(1).joinToString(":")
+                }
 
         return MailMetadata(
-            from = forwardedMetadata["From"]?.trim()?.let from@{ fromRawString ->
-                val result = "<(.+?)>".toRegex().findAll(fromRawString).lastOrNull()
-                    ?: return@from null
+            from =
+                forwardedMetadata["From"]?.trim()?.let from@{ fromRawString ->
+                    val result =
+                        "<(.+?)>".toRegex().findAll(fromRawString).lastOrNull()
+                            ?: return@from null
 
-                result.groupValues[1]
-            },
-            date = forwardedMetadata["Date"]?.trim()?.let { dateRawString ->
-                val result = runCatching {
-                    forwardedMailDateJapaneseFormatter.parse(dateRawString)
-                }.onFailure {
-                    it.printStackTrace()
-                }.getOrNull() ?: return@let null
+                    result.groupValues[1]
+                },
+            date =
+                forwardedMetadata["Date"]?.trim()?.let { dateRawString ->
+                    val result =
+                        runCatching {
+                            forwardedMailDateJapaneseFormatter.parse(dateRawString)
+                        }.onFailure {
+                            it.printStackTrace()
+                        }.getOrNull() ?: return@let null
 
-                LocalDateTime.of(
-                    LocalDate.of(
-                        result.get(ChronoField.YEAR),
-                        result.get(ChronoField.MONTH_OF_YEAR),
-                        result.get(ChronoField.DAY_OF_MONTH),
-                    ),
-                    LocalTime.of(
-                        result.get(ChronoField.HOUR_OF_DAY),
-                        result.get(ChronoField.MINUTE_OF_HOUR),
-                    ),
-                )
-            },
+                    LocalDateTime.of(
+                        LocalDate.of(
+                            result.get(ChronoField.YEAR),
+                            result.get(ChronoField.MONTH_OF_YEAR),
+                            result.get(ChronoField.DAY_OF_MONTH),
+                        ),
+                        LocalTime.of(
+                            result.get(ChronoField.HOUR_OF_DAY),
+                            result.get(ChronoField.MINUTE_OF_HOUR),
+                        ),
+                    )
+                },
             subject = forwardedMetadata["Subject"]?.trim(),
-            to = forwardedMetadata["To"]?.trim()?.let to@{ toRawString ->
-                val result = "<(.+?)>".toRegex().findAll(toRawString).lastOrNull()
-                    ?: return@to null
+            to =
+                forwardedMetadata["To"]?.trim()?.let to@{ toRawString ->
+                    val result =
+                        "<(.+?)>".toRegex().findAll(toRawString).lastOrNull()
+                            ?: return@to null
 
-                result.groupValues[1]
-            },
+                    result.groupValues[1]
+                },
         )
     }
 
@@ -84,17 +93,18 @@ internal object ParseUtil {
         val to: String?,
     )
 
-    private val forwardedMailDateJapaneseFormatter = DateTimeFormatterBuilder()
-        .appendValue(ChronoField.YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
-        .appendLiteral('年')
-        .appendValue(ChronoField.MONTH_OF_YEAR, 1, 2, SignStyle.NEVER)
-        .appendLiteral("月")
-        .appendValue(ChronoField.DAY_OF_MONTH, 1, 2, SignStyle.NEVER)
-        .appendLiteral("日")
-        .appendPattern("(E) ")
-        .appendValue(ChronoField.HOUR_OF_DAY, 1, 2, SignStyle.NEVER)
-        .appendLiteral(":")
-        .appendValue(ChronoField.MINUTE_OF_HOUR, 1, 2, SignStyle.NEVER)
-        .toFormatter()
-        .withLocale(Locale.JAPANESE)
+    private val forwardedMailDateJapaneseFormatter =
+        DateTimeFormatterBuilder()
+            .appendValue(ChronoField.YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
+            .appendLiteral('年')
+            .appendValue(ChronoField.MONTH_OF_YEAR, 1, 2, SignStyle.NEVER)
+            .appendLiteral("月")
+            .appendValue(ChronoField.DAY_OF_MONTH, 1, 2, SignStyle.NEVER)
+            .appendLiteral("日")
+            .appendPattern("(E) ")
+            .appendValue(ChronoField.HOUR_OF_DAY, 1, 2, SignStyle.NEVER)
+            .appendLiteral(":")
+            .appendValue(ChronoField.MINUTE_OF_HOUR, 1, 2, SignStyle.NEVER)
+            .toFormatter()
+            .withLocale(Locale.JAPANESE)
 }

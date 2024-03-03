@@ -11,9 +11,7 @@ import net.matsudamper.money.frontend.graphql.type.MailQuery
 class MailImportScreenGraphqlApi(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
-    suspend fun getMail(
-        cursor: String?,
-    ): ApolloResponse<GetMailQuery.Data>? {
+    suspend fun getMail(cursor: String?): ApolloResponse<GetMailQuery.Data>? {
         return runCatching {
             apolloClient
                 .query(
@@ -29,9 +27,7 @@ class MailImportScreenGraphqlApi(
         }.getOrNull()
     }
 
-    suspend fun mailImport(
-        mailIds: List<MailId>,
-    ): ApolloResponse<ImportMailMutation.Data>? {
+    suspend fun mailImport(mailIds: List<MailId>): ApolloResponse<ImportMailMutation.Data>? {
         return runCatching {
             apolloClient
                 .mutation(
@@ -42,9 +38,8 @@ class MailImportScreenGraphqlApi(
                 .execute()
         }.getOrNull()
     }
-    suspend fun deleteMail(
-        mailIds: List<MailId>,
-    ): ApolloResponse<DeleteMailMutation.Data>? {
+
+    suspend fun deleteMail(mailIds: List<MailId>): ApolloResponse<DeleteMailMutation.Data>? {
         return runCatching {
             apolloClient
                 .mutation(

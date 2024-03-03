@@ -23,48 +23,51 @@ public class RootHomeTabScreenViewModel(
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
-    private val uiStateEvent = object : RootHomeTabScreenScaffoldUiState.Event {
-        override fun onViewInitialized() {
-            coroutineScope.launch {
-                loginCheckUseCase.check()
+    private val uiStateEvent =
+        object : RootHomeTabScreenScaffoldUiState.Event {
+            override fun onViewInitialized() {
+                coroutineScope.launch {
+                    loginCheckUseCase.check()
+                }
             }
-        }
 
-        override fun onClickMonth() {
-            coroutineScope.launch {
-                viewModelEventSender.send {
-                    it.navigate(RootHomeScreenStructure.Monthly())
+            override fun onClickMonth() {
+                coroutineScope.launch {
+                    viewModelEventSender.send {
+                        it.navigate(RootHomeScreenStructure.Monthly())
+                    }
+                }
+            }
+
+            override fun onClickPeriod() {
+                coroutineScope.launch {
+                    viewModelEventSender.send {
+                        it.navigate(RootHomeScreenStructure.PeriodAnalytics())
+                    }
                 }
             }
         }
 
-        override fun onClickPeriod() {
+    public val uiStateFlow: StateFlow<RootHomeTabScreenScaffoldUiState> =
+        MutableStateFlow(
+            createUiState(viewModelStateFlow.value),
+        ).also { uiStateFlow ->
             coroutineScope.launch {
-                viewModelEventSender.send {
-                    it.navigate(RootHomeScreenStructure.PeriodAnalytics())
+                viewModelStateFlow.collectLatest { viewModelState ->
+                    uiStateFlow.value = createUiState(viewModelState)
                 }
             }
-        }
-    }
-
-    public val uiStateFlow: StateFlow<RootHomeTabScreenScaffoldUiState> = MutableStateFlow(
-        createUiState(viewModelStateFlow.value),
-    ).also { uiStateFlow ->
-        coroutineScope.launch {
-            viewModelStateFlow.collectLatest { viewModelState ->
-                uiStateFlow.value = createUiState(viewModelState)
-            }
-        }
-    }.asStateFlow()
+        }.asStateFlow()
 
     public fun updateScreenStructure(current: RootHomeScreenStructure) {
         viewModelStateFlow.update { viewModelState ->
             viewModelState.copy(
-                contentTYpe = when (current) {
-                    is RootHomeScreenStructure.Monthly -> RootHomeTabScreenScaffoldUiState.ContentType.Monthly
-                    is RootHomeScreenStructure.MonthlyCategory -> RootHomeTabScreenScaffoldUiState.ContentType.Monthly
-                    is RootHomeScreenStructure.Period -> RootHomeTabScreenScaffoldUiState.ContentType.Period
-                },
+                contentTYpe =
+                    when (current) {
+                        is RootHomeScreenStructure.Monthly -> RootHomeTabScreenScaffoldUiState.ContentType.Monthly
+                        is RootHomeScreenStructure.MonthlyCategory -> RootHomeTabScreenScaffoldUiState.ContentType.Monthly
+                        is RootHomeScreenStructure.Period -> RootHomeTabScreenScaffoldUiState.ContentType.Period
+                    },
             )
         }
     }

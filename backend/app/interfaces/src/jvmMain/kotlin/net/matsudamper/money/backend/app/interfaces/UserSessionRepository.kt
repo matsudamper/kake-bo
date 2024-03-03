@@ -6,12 +6,28 @@ import net.matsudamper.money.element.UserId
 
 interface UserSessionRepository {
     fun createSession(userId: UserId): CreateSessionResult
+
     fun clearSession(sessionId: UserSessionId)
-    fun changeSessionName(sessionId: UserSessionId, name: String): SessionInfo?
-    fun deleteSession(userId: UserId, sessionName: String, currentSessionName: String): Boolean
+
+    fun changeSessionName(
+        sessionId: UserSessionId,
+        name: String,
+    ): SessionInfo?
+
+    fun deleteSession(
+        userId: UserId,
+        sessionName: String,
+        currentSessionName: String,
+    ): Boolean
+
     fun getSessions(userId: UserId): List<SessionInfo>
+
     fun getSessionInfo(sessionId: UserSessionId): SessionInfo?
-    fun verifySession(sessionId: UserSessionId, expireDay: Long): VerifySessionResult
+
+    fun verifySession(
+        sessionId: UserSessionId,
+        expireDay: Long,
+    ): VerifySessionResult
 
     data class CreateSessionResult(
         val sessionId: UserSessionId,

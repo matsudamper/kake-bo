@@ -37,7 +37,9 @@ internal object MultipartParser {
     ) {
         sealed interface Content {
             data class Text(val text: String) : Content
+
             data class Html(val html: String) : Content
+
             data class Other(val contentType: String) : Content
         }
     }

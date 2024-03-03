@@ -8,7 +8,12 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.UserId
 
 interface MoneyUsageRepository {
-    fun addMailRelation(userId: UserId, importedMailId: ImportedMailId, usageId: MoneyUsageId): Boolean
+    fun addMailRelation(
+        userId: UserId,
+        importedMailId: ImportedMailId,
+        usageId: MoneyUsageId,
+    ): Boolean
+
     fun addUsage(
         userId: UserId,
         title: String,
@@ -30,13 +35,34 @@ interface MoneyUsageRepository {
         text: String?,
     ): GetMoneyUsageByQueryResult
 
-    fun getMoneyUsage(userId: UserId, ids: List<MoneyUsageId>): Result<List<Usage>>
-    fun getMails(userId: UserId, importedMailId: ImportedMailId): Result<List<Usage>>
-    fun deleteUsage(userId: UserId, usageId: MoneyUsageId): Boolean
-    fun updateUsage(userId: UserId, usageId: MoneyUsageId, title: String?, description: String?, subCategoryId: MoneyUsageSubCategoryId?, date: LocalDateTime?, amount: Int?): Boolean
+    fun getMoneyUsage(
+        userId: UserId,
+        ids: List<MoneyUsageId>,
+    ): Result<List<Usage>>
+
+    fun getMails(
+        userId: UserId,
+        importedMailId: ImportedMailId,
+    ): Result<List<Usage>>
+
+    fun deleteUsage(
+        userId: UserId,
+        usageId: MoneyUsageId,
+    ): Boolean
+
+    fun updateUsage(
+        userId: UserId,
+        usageId: MoneyUsageId,
+        title: String?,
+        description: String?,
+        subCategoryId: MoneyUsageSubCategoryId?,
+        date: LocalDateTime?,
+        amount: Int?,
+    ): Boolean
 
     sealed interface AddResult {
         data class Success(val result: Usage) : AddResult
+
         data class Failed(val error: Throwable) : AddResult
     }
 

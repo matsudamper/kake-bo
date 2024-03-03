@@ -38,153 +38,168 @@ public class MoneyUsageScreenViewModel(
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
-    private val categorySelectDialogViewModel = object {
-        private val event: CategorySelectDialogViewModel.Event = object : CategorySelectDialogViewModel.Event {
-            override fun selected(result: CategorySelectDialogViewModel.SelectedResult) {
-                coroutineScope.launch {
-                    val isSuccess = api.updateUsage(
-                        id = moneyUsageId,
-                        subCategoryId = result.subCategoryId,
-                    )
-                    if (isSuccess) {
-                        viewModel.dismissDialog()
-                    } else {
-                        // TODO
-                    }
-                }
-            }
-        }
-        val viewModel = CategorySelectDialogViewModel(
-            coroutineScope = coroutineScope,
-            event = event,
-        )
-    }.viewModel
-    public val uiStateFlow: StateFlow<MoneyUsageScreenUiState> = MutableStateFlow(
-        MoneyUsageScreenUiState(
-            event = object : MoneyUsageScreenUiState.Event {
-                override fun onViewInitialized() {
-                    coroutineScope.launch {
-                        apolloCollector.fetch()
-                    }
-                }
-
-                override fun onClickRetry() {
-                    coroutineScope.launch {
-                        apolloCollector.fetch()
-                    }
-                }
-
-                override fun onClickBack() {
-                    coroutineScope.launch {
-                        eventSender.send {
-                            it.navigateBack()
+    private val categorySelectDialogViewModel =
+        object {
+            private val event: CategorySelectDialogViewModel.Event =
+                object : CategorySelectDialogViewModel.Event {
+                    override fun selected(result: CategorySelectDialogViewModel.SelectedResult) {
+                        coroutineScope.launch {
+                            val isSuccess =
+                                api.updateUsage(
+                                    id = moneyUsageId,
+                                    subCategoryId = result.subCategoryId,
+                                )
+                            if (isSuccess) {
+                                viewModel.dismissDialog()
+                            } else {
+                                // TODO
+                            }
                         }
                     }
                 }
-            },
-            loadingState = MoneyUsageScreenUiState.LoadingState.Loading,
-            confirmDialog = null,
-            textInputDialog = null,
-            calendarDialog = null,
-            categorySelectDialog = null,
-            urlMenuDialog = null,
-            numberInputDialog = null,
-        ),
-    ).also { uiStateFlow ->
-        coroutineScope.launch {
-            viewModelStateFlow.collectLatest { viewModelState ->
-                val loadingState = run loadingState@{
-                    when (val state = viewModelState.apolloResponseState) {
-                        is ApolloResponseState.Failure -> {
-                            MoneyUsageScreenUiState.LoadingState.Error
+            val viewModel =
+                CategorySelectDialogViewModel(
+                    coroutineScope = coroutineScope,
+                    event = event,
+                )
+        }.viewModel
+    public val uiStateFlow: StateFlow<MoneyUsageScreenUiState> =
+        MutableStateFlow(
+            MoneyUsageScreenUiState(
+                event =
+                    object : MoneyUsageScreenUiState.Event {
+                        override fun onViewInitialized() {
+                            coroutineScope.launch {
+                                apolloCollector.fetch()
+                            }
                         }
 
-                        is ApolloResponseState.Loading -> {
-                            MoneyUsageScreenUiState.LoadingState.Loading
+                        override fun onClickRetry() {
+                            coroutineScope.launch {
+                                apolloCollector.fetch()
+                            }
                         }
 
-                        is ApolloResponseState.Success -> {
-                            val moneyUsage = state.value.data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage
-                                ?: return@loadingState MoneyUsageScreenUiState.LoadingState.Error
+                        override fun onClickBack() {
+                            coroutineScope.launch {
+                                eventSender.send {
+                                    it.navigateBack()
+                                }
+                            }
+                        }
+                    },
+                loadingState = MoneyUsageScreenUiState.LoadingState.Loading,
+                confirmDialog = null,
+                textInputDialog = null,
+                calendarDialog = null,
+                categorySelectDialog = null,
+                urlMenuDialog = null,
+                numberInputDialog = null,
+            ),
+        ).also { uiStateFlow ->
+            coroutineScope.launch {
+                viewModelStateFlow.collectLatest { viewModelState ->
+                    val loadingState =
+                        run loadingState@{
+                            when (val state = viewModelState.apolloResponseState) {
+                                is ApolloResponseState.Failure -> {
+                                    MoneyUsageScreenUiState.LoadingState.Error
+                                }
 
-                            MoneyUsageScreenUiState.LoadingState.Loaded(
-                                moneyUsage = MoneyUsageScreenUiState.MoneyUsage(
-                                    title = moneyUsage.title,
-                                    amount = "${Formatter.formatMoney(moneyUsage.amount)}円",
-                                    description = MoneyUsageScreenUiState.Clickable(
-                                        text = moneyUsage.description,
-                                        event = ClickableEventImpl(moneyUsage.description),
-                                    ),
-                                    dateTime = Formatter.formatDateTime(moneyUsage.date),
-                                    category = run category@{
-                                        val subCategory = moneyUsage.moneyUsageSubCategory ?: return@category "未指定"
-                                        val category = subCategory.category
-                                        "${subCategory.name} / ${category.name}"
-                                    },
-                                    event = createMoneyUsageEvent(item = moneyUsage),
-                                ),
-                                linkedMails = moneyUsage.linkedMail.orEmpty().map { mail ->
-                                    MoneyUsageScreenUiState.MailItem(
-                                        subject = mail.subject,
-                                        from = mail.from,
-                                        date = mail.dateTime.toString(),
-                                        event = object : MoneyUsageScreenUiState.MailItemEvent {
-                                            override fun onClick() {
-                                                coroutineScope.launch {
-                                                    eventSender.send {
-                                                        it.navigate(ScreenStructure.ImportedMail(id = mail.id))
-                                                    }
-                                                }
-                                            }
-                                        },
+                                is ApolloResponseState.Loading -> {
+                                    MoneyUsageScreenUiState.LoadingState.Loading
+                                }
+
+                                is ApolloResponseState.Success -> {
+                                    val moneyUsage =
+                                        state.value.data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage
+                                            ?: return@loadingState MoneyUsageScreenUiState.LoadingState.Error
+
+                                    MoneyUsageScreenUiState.LoadingState.Loaded(
+                                        moneyUsage =
+                                            MoneyUsageScreenUiState.MoneyUsage(
+                                                title = moneyUsage.title,
+                                                amount = "${Formatter.formatMoney(moneyUsage.amount)}円",
+                                                description =
+                                                    MoneyUsageScreenUiState.Clickable(
+                                                        text = moneyUsage.description,
+                                                        event = ClickableEventImpl(moneyUsage.description),
+                                                    ),
+                                                dateTime = Formatter.formatDateTime(moneyUsage.date),
+                                                category =
+                                                    run category@{
+                                                        val subCategory = moneyUsage.moneyUsageSubCategory ?: return@category "未指定"
+                                                        val category = subCategory.category
+                                                        "${subCategory.name} / ${category.name}"
+                                                    },
+                                                event = createMoneyUsageEvent(item = moneyUsage),
+                                            ),
+                                        linkedMails =
+                                            moneyUsage.linkedMail.orEmpty().map { mail ->
+                                                MoneyUsageScreenUiState.MailItem(
+                                                    subject = mail.subject,
+                                                    from = mail.from,
+                                                    date = mail.dateTime.toString(),
+                                                    event =
+                                                        object : MoneyUsageScreenUiState.MailItemEvent {
+                                                            override fun onClick() {
+                                                                coroutineScope.launch {
+                                                                    eventSender.send {
+                                                                        it.navigate(ScreenStructure.ImportedMail(id = mail.id))
+                                                                    }
+                                                                }
+                                                            }
+                                                        },
+                                                )
+                                            }.toImmutableList(),
+                                        event = createLoadedEvent(),
                                     )
-                                }.toImmutableList(),
-                                event = createLoadedEvent(),
-                            )
+                                }
+                            }
                         }
+
+                    uiStateFlow.update { uiState ->
+                        uiState.copy(
+                            loadingState = loadingState,
+                            confirmDialog = viewModelState.confirmDialog,
+                            textInputDialog = viewModelState.textInputDialog,
+                            calendarDialog = viewModelState.calendarDialog,
+                            categorySelectDialog = viewModelState.categorySelectDialog,
+                            urlMenuDialog = viewModelState.urlMenuDialog,
+                            numberInputDialog = viewModelState.numberInputDialog,
+                        )
                     }
                 }
-
-                uiStateFlow.update { uiState ->
-                    uiState.copy(
-                        loadingState = loadingState,
-                        confirmDialog = viewModelState.confirmDialog,
-                        textInputDialog = viewModelState.textInputDialog,
-                        calendarDialog = viewModelState.calendarDialog,
-                        categorySelectDialog = viewModelState.categorySelectDialog,
-                        urlMenuDialog = viewModelState.urlMenuDialog,
-                        numberInputDialog = viewModelState.numberInputDialog,
-                    )
-                }
             }
-        }
-    }.asStateFlow()
+        }.asStateFlow()
 
     private fun createLoadedEvent(): MoneyUsageScreenUiState.LoadedEvent {
         return object : MoneyUsageScreenUiState.LoadedEvent {
             override fun onClickDelete() {
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
-                        confirmDialog = MoneyUsageScreenUiState.ConfirmDialog(
-                            title = "削除しますか？",
-                            description = null,
-                            onConfirm = {
-                                coroutineScope.launch {
-                                    val isSuccess = api.deleteUsage(
-                                        id = moneyUsageId,
-                                    )
-                                    if (isSuccess) {
-                                        dismissConfirmDialog()
-                                        eventSender.send {
-                                            it.navigateBack()
+                        confirmDialog =
+                            MoneyUsageScreenUiState.ConfirmDialog(
+                                title = "削除しますか？",
+                                description = null,
+                                onConfirm = {
+                                    coroutineScope.launch {
+                                        val isSuccess =
+                                            api.deleteUsage(
+                                                id = moneyUsageId,
+                                            )
+                                        if (isSuccess) {
+                                            dismissConfirmDialog()
+                                            eventSender.send {
+                                                it.navigateBack()
+                                            }
+                                        } else {
+                                            // TODO
                                         }
-                                    } else {
-                                        // TODO
                                     }
-                                }
-                            },
-                            onDismiss = { dismissConfirmDialog() },
-                        ),
+                                },
+                                onDismiss = { dismissConfirmDialog() },
+                            ),
                     )
                 }
             }
@@ -196,25 +211,27 @@ public class MoneyUsageScreenViewModel(
             override fun onClickTitleChange() {
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
-                        textInputDialog = MoneyUsageScreenUiState.TextInputDialog(
-                            isMultiline = false,
-                            title = "タイトル",
-                            onComplete = { text ->
-                                coroutineScope.launch {
-                                    val isSuccess = api.updateUsage(
-                                        id = moneyUsageId,
-                                        title = text,
-                                    )
-                                    if (isSuccess) {
-                                        dismissTextInputDialog()
-                                    } else {
-                                        // TODO
+                        textInputDialog =
+                            MoneyUsageScreenUiState.TextInputDialog(
+                                isMultiline = false,
+                                title = "タイトル",
+                                onComplete = { text ->
+                                    coroutineScope.launch {
+                                        val isSuccess =
+                                            api.updateUsage(
+                                                id = moneyUsageId,
+                                                title = text,
+                                            )
+                                        if (isSuccess) {
+                                            dismissTextInputDialog()
+                                        } else {
+                                            // TODO
+                                        }
                                     }
-                                }
-                            },
-                            default = item.title,
-                            onCancel = { dismissTextInputDialog() },
-                        ),
+                                },
+                                default = item.title,
+                                onCancel = { dismissTextInputDialog() },
+                            ),
                     )
                 }
             }
@@ -231,104 +248,118 @@ public class MoneyUsageScreenViewModel(
             override fun onClickDateChange() {
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
-                        calendarDialog = MoneyUsageScreenUiState.CalendarDialog(
-                            onSelectedDate = { date ->
-                                coroutineScope.launch {
-                                    val isSuccess = api.updateUsage(
-                                        id = moneyUsageId,
-                                        date = LocalDateTime(date, item.date.time),
-                                    )
-                                    if (isSuccess) {
-                                        dismissCalendarDialog()
-                                    } else {
-                                        // TODO
+                        calendarDialog =
+                            MoneyUsageScreenUiState.CalendarDialog(
+                                onSelectedDate = { date ->
+                                    coroutineScope.launch {
+                                        val isSuccess =
+                                            api.updateUsage(
+                                                id = moneyUsageId,
+                                                date = LocalDateTime(date, item.date.time),
+                                            )
+                                        if (isSuccess) {
+                                            dismissCalendarDialog()
+                                        } else {
+                                            // TODO
+                                        }
                                     }
-                                }
-                            },
-                            dismissRequest = { dismissCalendarDialog() },
-                            date = item.date.date,
-                        ),
+                                },
+                                dismissRequest = { dismissCalendarDialog() },
+                                date = item.date.date,
+                            ),
                     )
                 }
             }
 
             override fun onClickAmountChange() {
-                viewModelStateFlow.value = viewModelStateFlow.value.copy(
-                    numberInputDialog = MoneyUsageScreenUiState.NumberInputDialog(
-                        value = NumberInputValue.default(
-                            value = item.amount,
-                        ),
-                        onChangeValue = { value ->
-                            viewModelStateFlow.value = viewModelStateFlow.value.copy(
-                                numberInputDialog = viewModelStateFlow.value.numberInputDialog?.copy(
-                                    value = value,
-                                ),
-                            )
-                        },
-                        dismissRequest = {
-                            val value = viewModelStateFlow.value.numberInputDialog?.value
-                            viewModelStateFlow.value = viewModelStateFlow.value.copy(
-                                numberInputDialog = null,
-                            )
-                            value ?: return@NumberInputDialog
-                            coroutineScope.launch {
-                                val isSuccess = runCatching {
-                                    api.updateUsage(
-                                        id = moneyUsageId,
-                                        amount = value.value,
-                                    )
-                                }.fold(
-                                    onSuccess = { it },
-                                    onFailure = { false },
-                                )
+                viewModelStateFlow.value =
+                    viewModelStateFlow.value.copy(
+                        numberInputDialog =
+                            MoneyUsageScreenUiState.NumberInputDialog(
+                                value =
+                                    NumberInputValue.default(
+                                        value = item.amount,
+                                    ),
+                                onChangeValue = { value ->
+                                    viewModelStateFlow.value =
+                                        viewModelStateFlow.value.copy(
+                                            numberInputDialog =
+                                                viewModelStateFlow.value.numberInputDialog?.copy(
+                                                    value = value,
+                                                ),
+                                        )
+                                },
+                                dismissRequest = {
+                                    val value = viewModelStateFlow.value.numberInputDialog?.value
+                                    viewModelStateFlow.value =
+                                        viewModelStateFlow.value.copy(
+                                            numberInputDialog = null,
+                                        )
+                                    value ?: return@NumberInputDialog
+                                    coroutineScope.launch {
+                                        val isSuccess =
+                                            runCatching {
+                                                api.updateUsage(
+                                                    id = moneyUsageId,
+                                                    amount = value.value,
+                                                )
+                                            }.fold(
+                                                onSuccess = { it },
+                                                onFailure = { false },
+                                            )
 
-                                if (isSuccess) {
-                                    viewModelStateFlow.value = viewModelStateFlow.value.copy(
-                                        numberInputDialog = null,
-                                    )
-                                } else {
-                                    // TODO
-                                }
-                            }
-                        },
-                    ),
-                )
+                                        if (isSuccess) {
+                                            viewModelStateFlow.value =
+                                                viewModelStateFlow.value.copy(
+                                                    numberInputDialog = null,
+                                                )
+                                        } else {
+                                            // TODO
+                                        }
+                                    }
+                                },
+                            ),
+                    )
             }
 
             override fun onClickDescription() {
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
-                        textInputDialog = MoneyUsageScreenUiState.TextInputDialog(
-                            isMultiline = true,
-                            title = "説明",
-                            onComplete = { text ->
-                                coroutineScope.launch {
-                                    val isSuccess = api.updateUsage(
-                                        id = moneyUsageId,
-                                        description = text,
-                                    )
-                                    if (isSuccess) {
-                                        dismissTextInputDialog()
-                                    } else {
-                                        // TODO
+                        textInputDialog =
+                            MoneyUsageScreenUiState.TextInputDialog(
+                                isMultiline = true,
+                                title = "説明",
+                                onComplete = { text ->
+                                    coroutineScope.launch {
+                                        val isSuccess =
+                                            api.updateUsage(
+                                                id = moneyUsageId,
+                                                description = text,
+                                            )
+                                        if (isSuccess) {
+                                            dismissTextInputDialog()
+                                        } else {
+                                            // TODO
+                                        }
                                     }
-                                }
-                            },
-                            default = item.description,
-                            onCancel = { dismissTextInputDialog() },
-                        ),
+                                },
+                                default = item.description,
+                                onCancel = { dismissTextInputDialog() },
+                            ),
                     )
                 }
             }
         }
     }
 
-    private val apolloCollector = ApolloResponseCollector.create(
-        apolloClient = apolloClient,
-        query = MoneyUsageScreenQuery(
-            id = moneyUsageId,
-        ),
-    )
+    private val apolloCollector =
+        ApolloResponseCollector.create(
+            apolloClient = apolloClient,
+            query =
+                MoneyUsageScreenQuery(
+                    id = moneyUsageId,
+                ),
+        )
 
     init {
         coroutineScope.launch {
@@ -377,40 +408,42 @@ public class MoneyUsageScreenViewModel(
 
     private inner class ClickableEventImpl(text: String) : MoneyUsageScreenUiState.ClickableEvent, EqualsImpl(text) {
         override fun onClickUrl(url: String) {
-            val dialog = MoneyUsageScreenUiState.UrlMenuDialog(
-                url = url,
-                event = object : MoneyUsageScreenUiState.UrlMenuDialogEvent {
-                    override fun onClickOpen() {
-                        coroutineScope.launch {
-                            eventSender.send {
-                                it.openUrl(url)
+            val dialog =
+                MoneyUsageScreenUiState.UrlMenuDialog(
+                    url = url,
+                    event =
+                        object : MoneyUsageScreenUiState.UrlMenuDialogEvent {
+                            override fun onClickOpen() {
+                                coroutineScope.launch {
+                                    eventSender.send {
+                                        it.openUrl(url)
+                                    }
+                                }
+                                dismiss()
                             }
-                        }
-                        dismiss()
-                    }
 
-                    override fun onClickCopy() {
-                        coroutineScope.launch {
-                            eventSender.send {
-                                it.copyUrl(url)
+                            override fun onClickCopy() {
+                                coroutineScope.launch {
+                                    eventSender.send {
+                                        it.copyUrl(url)
+                                    }
+                                }
+                                dismiss()
                             }
-                        }
-                        dismiss()
-                    }
 
-                    override fun onDismissRequest() {
-                        dismiss()
-                    }
+                            override fun onDismissRequest() {
+                                dismiss()
+                            }
 
-                    private fun dismiss() {
-                        viewModelStateFlow.update {
-                            it.copy(
-                                urlMenuDialog = null,
-                            )
-                        }
-                    }
-                },
-            )
+                            private fun dismiss() {
+                                viewModelStateFlow.update {
+                                    it.copy(
+                                        urlMenuDialog = null,
+                                    )
+                                }
+                            }
+                        },
+                )
             coroutineScope.launch {
                 viewModelStateFlow.update {
                     it.copy(
@@ -431,8 +464,11 @@ public class MoneyUsageScreenViewModel(
 
     public interface Event {
         public fun navigate(structure: ScreenStructure)
+
         public fun navigateBack()
+
         public fun openUrl(text: String)
+
         public fun copyUrl(text: String)
     }
 

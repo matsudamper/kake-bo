@@ -22,10 +22,15 @@ public data class LoginScreenUiState(
     @Immutable
     public interface Listener {
         public fun onClickLogin()
+
         public fun onClickNavigateAdmin()
+
         public fun onClickUserNameTextField()
+
         public fun onClickPasswordTextField()
+
         public fun onClickSecurityKeyLogin()
+
         public fun onClickDeviceKeyLogin()
     }
 }

@@ -6,7 +6,11 @@ import net.matsudamper.money.backend.app.interfaces.ChallengeRepository
 
 internal class LocalChallengeRepository : ChallengeRepository {
     private val repository: MutableMap<String, Data> = mutableMapOf()
-    override fun set(key: String, expire: Duration) {
+
+    override fun set(
+        key: String,
+        expire: Duration,
+    ) {
         deleteAfterExpire()
         repository[key] = Data(LocalDateTime.now().plusSeconds(expire.inWholeSeconds))
     }

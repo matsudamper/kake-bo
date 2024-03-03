@@ -20,14 +20,17 @@ internal class MoneyUsagesCursor(
     companion object {
         private const val LAST_ID_KEY = "lastId"
         private const val LAST_DATE_KEY = "lastDate"
+
         fun fromString(cursorString: String): MoneyUsagesCursor {
             return MoneyUsagesCursor(
-                lastId = MoneyUsageId(
-                    CursorParser.parseFromString(cursorString)[LAST_ID_KEY]!!.toInt(),
-                ),
-                lastDate = LocalDateTime.parse(
-                    CursorParser.parseFromString(cursorString)[LAST_DATE_KEY]!!,
-                ),
+                lastId =
+                    MoneyUsageId(
+                        CursorParser.parseFromString(cursorString)[LAST_ID_KEY]!!.toInt(),
+                    ),
+                lastDate =
+                    LocalDateTime.parse(
+                        CursorParser.parseFromString(cursorString)[LAST_DATE_KEY]!!,
+                    ),
             )
         }
     }

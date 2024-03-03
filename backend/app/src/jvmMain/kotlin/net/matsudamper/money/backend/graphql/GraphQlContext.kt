@@ -22,8 +22,9 @@ internal class GraphQlContext(
 
         val adminSessionString = cookieManager.getAdminSessionId() ?: throw GraphqlMoneyException.SessionNotVerify()
 
-        val adminSession = diContainer.createAdminUserSessionRepository().verifySession(adminSessionString)
-            ?: throw GraphqlMoneyException.SessionNotVerify()
+        val adminSession =
+            diContainer.createAdminUserSessionRepository().verifySession(adminSessionString)
+                ?: throw GraphqlMoneyException.SessionNotVerify()
         this.adminSession = adminSession
 
         cookieManager.setAdminSession(
@@ -33,12 +34,14 @@ internal class GraphQlContext(
     }
 
     fun verifyUserSessionAndGetUserId(): UserId = userSessionManager.verifyUserSession()
+
     fun verifyUserSessionAndGetSessionInfo(): SessionInfo {
         val userId = userSessionManager.verifyUserSession()
         val sessionId = UserSessionId(cookieManager.getUserSessionId()!!)
-        val currentSessionInfo = diContainer.createUserSessionRepository()
-            .getSessionInfo(sessionId)
-            ?: throw GraphqlMoneyException.SessionNotVerify()
+        val currentSessionInfo =
+            diContainer.createUserSessionRepository()
+                .getSessionInfo(sessionId)
+                ?: throw GraphqlMoneyException.SessionNotVerify()
 
         return SessionInfo(
             userId = userId,
@@ -54,14 +57,20 @@ internal class GraphQlContext(
         userSessionManager.clearUserSession()
     }
 
-    fun setAdminSessionCookie(value: String, expires: LocalDateTime) {
+    fun setAdminSessionCookie(
+        value: String,
+        expires: LocalDateTime,
+    ) {
         cookieManager.setAdminSession(
             idValue = value,
             expires = expires.atOffset(ZoneOffset.UTC),
         )
     }
 
-    fun setUserSessionCookie(value: String, expires: LocalDateTime) {
+    fun setUserSessionCookie(
+        value: String,
+        expires: LocalDateTime,
+    ) {
         cookieManager.setUserSession(
             idValue = value,
             expires = expires.atOffset(ZoneOffset.UTC),

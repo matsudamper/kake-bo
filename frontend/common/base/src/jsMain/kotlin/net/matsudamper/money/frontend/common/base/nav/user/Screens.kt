@@ -101,5 +101,4 @@ public enum class Screens : Direction {
         override val title: String = "使用用途"
         override val placeholderUrl: String = "/money-usage/{id}"
     },
-    ;
 }

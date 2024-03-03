@@ -11,49 +11,61 @@ import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 internal object RakutenOfflineUsageService : MoneyUsageServices {
     override val displayName: String = "Rakuten Pay"
 
-    override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): List<MoneyUsage> {
-        val canHandle = sequence {
-            yield(canHandledWithFrom(from))
-            yield(canHandledWithSubject(subject))
-            yield(canHandledWithPlain(plain))
-        }
+    override fun parse(
+        subject: String,
+        from: String,
+        html: String,
+        plain: String,
+        date: LocalDateTime,
+    ): List<MoneyUsage> {
+        val canHandle =
+            sequence {
+                yield(canHandledWithFrom(from))
+                yield(canHandledWithSubject(subject))
+                yield(canHandledWithPlain(plain))
+            }
         if (canHandle.any { it }.not()) return listOf()
 
-        val price = run price@{
-            ParseUtil.getInt(
-                "決済総額(.+?)$".toRegex(RegexOption.MULTILINE)
+        val price =
+            run price@{
+                ParseUtil.getInt(
+                    "決済総額(.+?)$".toRegex(RegexOption.MULTILINE)
+                        .find(plain)
+                        ?.groupValues?.getOrNull(1) ?: return@price null,
+                )
+            }
+
+        val title =
+            run price@{
+                "ご利用店舗(.+?)$".toRegex(RegexOption.MULTILINE)
                     .find(plain)
-                    ?.groupValues?.getOrNull(1) ?: return@price null,
-            )
-        }
+                    ?.groupValues?.getOrNull(1)
+                    ?.trimStart()
+                    ?.trimEnd()
+            }
 
-        val title = run price@{
-            "ご利用店舗(.+?)$".toRegex(RegexOption.MULTILINE)
-                .find(plain)
-                ?.groupValues?.getOrNull(1)
-                ?.trimStart()
-                ?.trimEnd()
-        }
+        val parsedDate =
+            run date@{
+                val dateText =
+                    "ご利用日時(.+?)$".toRegex(RegexOption.MULTILINE)
+                        .find(plain)
+                        ?.groupValues?.getOrNull(1)
+                        ?: return@date null
 
-        val parsedDate = run date@{
-            val dateText = "ご利用日時(.+?)$".toRegex(RegexOption.MULTILINE)
-                .find(plain)
-                ?.groupValues?.getOrNull(1)
-                ?: return@date null
+                val result =
+                    """(\d+)/(\d+)/(\d+).+?(\d+):(\d+)""".toRegex().find(dateText)
+                        ?: return@date null
 
-            val result = """(\d+)/(\d+)/(\d+).+?(\d+):(\d+)""".toRegex().find(dateText)
-                ?: return@date null
-
-            val year = result.groupValues.getOrNull(1)?.toIntOrNull() ?: return@date null
-            val month = result.groupValues.getOrNull(2)?.toIntOrNull() ?: return@date null
-            val day = result.groupValues.getOrNull(3)?.toIntOrNull() ?: return@date null
-            val hour = result.groupValues.getOrNull(4)?.toIntOrNull() ?: return@date null
-            val minute = result.groupValues.getOrNull(5)?.toIntOrNull() ?: return@date null
-            LocalDateTime.of(
-                LocalDate.of(year, month, day),
-                LocalTime.of(hour, minute),
-            )
-        }
+                val year = result.groupValues.getOrNull(1)?.toIntOrNull() ?: return@date null
+                val month = result.groupValues.getOrNull(2)?.toIntOrNull() ?: return@date null
+                val day = result.groupValues.getOrNull(3)?.toIntOrNull() ?: return@date null
+                val hour = result.groupValues.getOrNull(4)?.toIntOrNull() ?: return@date null
+                val minute = result.groupValues.getOrNull(5)?.toIntOrNull() ?: return@date null
+                LocalDateTime.of(
+                    LocalDate.of(year, month, day),
+                    LocalTime.of(hour, minute),
+                )
+            }
 
         return listOf(
             MoneyUsage(

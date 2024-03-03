@@ -77,117 +77,129 @@ fun Content(
 ) {
     val rootCoroutineScope = rememberCoroutineScope()
     var hostState by remember { mutableStateOf(SnackbarHostState()) }
-    val globalEvent: GlobalEvent = remember(hostState, rootCoroutineScope) {
-        object : GlobalEvent {
-            override fun showSnackBar(message: String) {
-                console.error("show: $message")
+    val globalEvent: GlobalEvent =
+        remember(hostState, rootCoroutineScope) {
+            object : GlobalEvent {
+                override fun showSnackBar(message: String) {
+                    console.error("show: $message")
 
-                // 二回目が表示されないのでstate自体を作成し直す
-                hostState = SnackbarHostState()
-                rootCoroutineScope.launch {
-                    hostState.showSnackbar(
-                        message = message,
-                        duration = SnackbarDuration.Short,
-                        withDismissAction = true,
-                    )
+                    // 二回目が表示されないのでstate自体を作成し直す
+                    hostState = SnackbarHostState()
+                    rootCoroutineScope.launch {
+                        hostState.showSnackbar(
+                            message = message,
+                            duration = SnackbarDuration.Short,
+                            withDismissAction = true,
+                        )
+                    }
+                }
+
+                override fun showNativeNotification(message: String) {
+                    window.alert(message)
                 }
             }
-
-            override fun showNativeNotification(message: String) {
-                window.alert(message)
-            }
         }
-    }
 
-    val navController = remember {
-        ScreenNavControllerImpl(
-            initial = RootHomeScreenStructure.Home,
-        )
-    }
-    val loginCheckUseCase = remember {
-        LoginCheckUseCase(
-            ioDispatcher = Dispatchers.Unconfined,
-            navController = navController,
-            globalEventSender = globalEventSender,
-            graphqlQuery = GraphqlUserLoginQuery(),
-        )
-    }
-    val rootViewModel = remember {
-        RootViewModel(
-            loginCheckUseCase = loginCheckUseCase,
-            coroutineScope = rootCoroutineScope,
-            navController = navController,
-        )
-    }
-    val importedMailListViewModel = remember {
-        ImportedMailListViewModel(
-            coroutineScope = rootCoroutineScope,
-            ioDispatcher = Dispatchers.Unconfined,
-            graphqlApi = MailLinkScreenGraphqlApi(),
-        )
-    }
-    val mailImportViewModel = remember {
-        MailImportViewModel(
-            coroutineScope = rootCoroutineScope,
-            ioDispatcher = Dispatchers.Unconfined,
-            graphqlApi = MailImportScreenGraphqlApi(),
-            loginCheckUseCase = loginCheckUseCase,
-        )
-    }
-
-    val rootUsageHostViewModel = remember {
-        RootUsageHostViewModel(
-            coroutineScope = rootCoroutineScope,
-            calendarPagingModel = RootUsageCalendarPagingModel(
+    val navController =
+        remember {
+            ScreenNavControllerImpl(
+                initial = RootHomeScreenStructure.Home,
+            )
+        }
+    val loginCheckUseCase =
+        remember {
+            LoginCheckUseCase(
+                ioDispatcher = Dispatchers.Unconfined,
+                navController = navController,
+                globalEventSender = globalEventSender,
+                graphqlQuery = GraphqlUserLoginQuery(),
+            )
+        }
+    val rootViewModel =
+        remember {
+            RootViewModel(
+                loginCheckUseCase = loginCheckUseCase,
                 coroutineScope = rootCoroutineScope,
-            ),
-        )
-    }
-    val mailScreenViewModel = remember {
-        HomeMailTabScreenViewModel(
-            coroutineScope = rootCoroutineScope,
-        )
-    }
-    val settingViewModel = remember {
-        SettingViewModel(
-            coroutineScope = rootCoroutineScope,
-            globalEventSender = globalEventSender,
-            ioDispatchers = Dispatchers.Unconfined,
-        )
-    }
-    val kakeboScaffoldListener: KakeboScaffoldListener = remember {
-        object : KakeboScaffoldListener {
-            override fun onClickTitle() {
-                navController.navigateToHome()
+                navController = navController,
+            )
+        }
+    val importedMailListViewModel =
+        remember {
+            ImportedMailListViewModel(
+                coroutineScope = rootCoroutineScope,
+                ioDispatcher = Dispatchers.Unconfined,
+                graphqlApi = MailLinkScreenGraphqlApi(),
+            )
+        }
+    val mailImportViewModel =
+        remember {
+            MailImportViewModel(
+                coroutineScope = rootCoroutineScope,
+                ioDispatcher = Dispatchers.Unconfined,
+                graphqlApi = MailImportScreenGraphqlApi(),
+                loginCheckUseCase = loginCheckUseCase,
+            )
+        }
+
+    val rootUsageHostViewModel =
+        remember {
+            RootUsageHostViewModel(
+                coroutineScope = rootCoroutineScope,
+                calendarPagingModel =
+                    RootUsageCalendarPagingModel(
+                        coroutineScope = rootCoroutineScope,
+                    ),
+            )
+        }
+    val mailScreenViewModel =
+        remember {
+            HomeMailTabScreenViewModel(
+                coroutineScope = rootCoroutineScope,
+            )
+        }
+    val settingViewModel =
+        remember {
+            SettingViewModel(
+                coroutineScope = rootCoroutineScope,
+                globalEventSender = globalEventSender,
+                ioDispatchers = Dispatchers.Unconfined,
+            )
+        }
+    val kakeboScaffoldListener: KakeboScaffoldListener =
+        remember {
+            object : KakeboScaffoldListener {
+                override fun onClickTitle() {
+                    navController.navigateToHome()
+                }
             }
         }
-    }
-    val rootScreenScaffoldListener: RootScreenScaffoldListener = remember(
-        navController,
-        mailScreenViewModel,
-    ) {
-        object : RootScreenScaffoldListener {
-            override val kakeboScaffoldListener: KakeboScaffoldListener = kakeboScaffoldListener
+    val rootScreenScaffoldListener: RootScreenScaffoldListener =
+        remember(
+            navController,
+            mailScreenViewModel,
+        ) {
+            object : RootScreenScaffoldListener {
+                override val kakeboScaffoldListener: KakeboScaffoldListener = kakeboScaffoldListener
 
-            override fun onClickHome() {
-                navController.navigate(RootHomeScreenStructure.Home)
-            }
+                override fun onClickHome() {
+                    navController.navigate(RootHomeScreenStructure.Home)
+                }
 
-            override fun onClickList() {
-                rootUsageHostViewModel.requestNavigate()
-            }
+                override fun onClickList() {
+                    rootUsageHostViewModel.requestNavigate()
+                }
 
-            override fun onClickSettings() {
-                settingViewModel.requestNavigate(
-                    currentScreen = navController.currentNavigation,
-                )
-            }
+                override fun onClickSettings() {
+                    settingViewModel.requestNavigate(
+                        currentScreen = navController.currentNavigation,
+                    )
+                }
 
-            override fun onClickMail() {
-                mailScreenViewModel.requestNavigate()
+                override fun onClickMail() {
+                    mailScreenViewModel.requestNavigate()
+                }
             }
         }
-    }
 
     LaunchedEffect(globalEventSender, globalEvent) {
         globalEventSender.asHandler().collect(
@@ -195,17 +207,18 @@ fun Content(
         )
     }
 
-    val viewModelEventHandlers = remember(
-        navController,
-        globalEventSender,
-        rootScreenScaffoldListener,
-    ) {
-        ViewModelEventHandlers(
-            navController = navController,
-            globalEventSender = globalEventSender,
-            rootScreenScaffoldListener = rootScreenScaffoldListener,
-        )
-    }
+    val viewModelEventHandlers =
+        remember(
+            navController,
+            globalEventSender,
+            rootScreenScaffoldListener,
+        ) {
+            ViewModelEventHandlers(
+                navController = navController,
+                globalEventSender = globalEventSender,
+                rootScreenScaffoldListener = rootScreenScaffoldListener,
+            )
+        }
 
     LaunchedEffect(mailScreenViewModel) {
         viewModelEventHandlers.handle(
@@ -225,11 +238,12 @@ fun Content(
     }
 
     Scaffold(
-        modifier = modifier
-            .fillMaxSize()
-            .onSizeChanged {
-                composeSizeProvider().value = it
-            },
+        modifier =
+            modifier
+                .fillMaxSize()
+                .onSizeChanged {
+                    composeSizeProvider().value = it
+                },
         snackbarHost = {
             Box(
                 modifier = Modifier.fillMaxWidth(),
@@ -243,8 +257,9 @@ fun Content(
     ) { paddingValues ->
         val tabHolder = rememberSaveableStateHolder()
         Box(
-            modifier = Modifier.fillMaxSize()
-                .padding(paddingValues),
+            modifier =
+                Modifier.fillMaxSize()
+                    .padding(paddingValues),
         ) {
             val holder = rememberSaveableStateHolder()
             when (val current = navController.currentNavigation) {
@@ -285,13 +300,14 @@ fun Content(
                             globalEvent = globalEvent,
                             usageCalendarUiStateProvider = { yearMonth ->
                                 val coroutineScope = rememberCoroutineScope()
-                                val viewModel = remember {
-                                    MoneyUsagesCalendarViewModel(
-                                        coroutineScope = coroutineScope,
-                                        rootUsageHostViewModel = rootUsageHostViewModel,
-                                        yearMonth = yearMonth,
-                                    )
-                                }
+                                val viewModel =
+                                    remember {
+                                        MoneyUsagesCalendarViewModel(
+                                            coroutineScope = coroutineScope,
+                                            rootUsageHostViewModel = rootUsageHostViewModel,
+                                            yearMonth = yearMonth,
+                                        )
+                                    }
                                 LaunchedEffect(viewModel.viewModelEventHandler) {
                                     viewModelEventHandlers.handle(
                                         handler = viewModel.viewModelEventHandler,
@@ -301,12 +317,13 @@ fun Content(
                             },
                             usageListUiStateProvider = {
                                 val coroutineScope = rememberCoroutineScope()
-                                val viewModel = remember {
-                                    MoneyUsagesListViewModel(
-                                        coroutineScope = coroutineScope,
-                                        rootUsageHostViewModel = rootUsageHostViewModel,
-                                    )
-                                }
+                                val viewModel =
+                                    remember {
+                                        MoneyUsagesListViewModel(
+                                            coroutineScope = coroutineScope,
+                                            rootUsageHostViewModel = rootUsageHostViewModel,
+                                        )
+                                    }
                                 LaunchedEffect(viewModel.viewModelEventHandler) {
                                     viewModelEventHandlers.handle(
                                         handler = viewModel.viewModelEventHandler,
@@ -339,15 +356,16 @@ fun Content(
 
                 ScreenStructure.Login -> {
                     val coroutineScope = rememberCoroutineScope()
-                    val viewModel = remember {
-                        LoginScreenViewModel(
-                            coroutineScope = coroutineScope,
-                            navController = navController,
-                            graphqlQuery = GraphqlUserLoginQuery(),
-                            globalEventSender = globalEventSender,
-                            screenApi = LoginScreenApi(),
-                        )
-                    }
+                    val viewModel =
+                        remember {
+                            LoginScreenViewModel(
+                                coroutineScope = coroutineScope,
+                                navController = navController,
+                                graphqlQuery = GraphqlUserLoginQuery(),
+                                globalEventSender = globalEventSender,
+                                screenApi = LoginScreenApi(),
+                            )
+                        }
                     val uiState: LoginScreenUiState = viewModel.uiStateFlow.collectAsState().value
                     LoginScreen(
                         modifier = Modifier.fillMaxSize(),
@@ -359,24 +377,26 @@ fun Content(
                     val coroutineScope = rememberCoroutineScope()
                     val controller = rememberAdminScreenController()
 
-                    val adminRootViewModel = remember(coroutineScope, controller) {
-                        AdminRootScreenViewModel(
-                            controller = controller,
-                            coroutineScope = coroutineScope,
-                            graphqlClient = GlobalContainer.graphqlClient,
-                        )
-                    }
+                    val adminRootViewModel =
+                        remember(coroutineScope, controller) {
+                            AdminRootScreenViewModel(
+                                controller = controller,
+                                coroutineScope = coroutineScope,
+                                graphqlClient = GlobalContainer.graphqlClient,
+                            )
+                        }
                     AdminRootScreen(
                         adminScreenController = controller,
                         adminLoginScreenUiStateProvider = {
                             val loginScreenCoroutineScope = rememberCoroutineScope()
-                            val loginViewModel = remember(loginScreenCoroutineScope, controller) {
-                                AdminLoginScreenViewModel(
-                                    coroutineScope = loginScreenCoroutineScope,
-                                    controller = controller,
-                                    graphqlClient = GlobalContainer.graphqlClient,
-                                )
-                            }
+                            val loginViewModel =
+                                remember(loginScreenCoroutineScope, controller) {
+                                    AdminLoginScreenViewModel(
+                                        coroutineScope = loginScreenCoroutineScope,
+                                        controller = controller,
+                                        graphqlClient = GlobalContainer.graphqlClient,
+                                    )
+                                }
                             loginViewModel.uiStateFlow.collectAsState().value
                         },
                         adminRootScreenUiStateProvider = {
@@ -384,13 +404,14 @@ fun Content(
                         },
                         adminAddUserUiStateProvider = {
                             val loginScreenCoroutineScope = rememberCoroutineScope()
-                            val adminAddUserScreenViewModel = remember(loginScreenCoroutineScope, controller) {
-                                AdminAddUserScreenViewModel(
-                                    coroutineScope = loginScreenCoroutineScope,
-                                    controller = controller,
-                                    graphqlClient = GlobalContainer.graphqlClient,
-                                )
-                            }
+                            val adminAddUserScreenViewModel =
+                                remember(loginScreenCoroutineScope, controller) {
+                                    AdminAddUserScreenViewModel(
+                                        coroutineScope = loginScreenCoroutineScope,
+                                        controller = controller,
+                                        graphqlClient = GlobalContainer.graphqlClient,
+                                    )
+                                }
                             adminAddUserScreenViewModel.uiStateFlow.collectAsState().value
                         },
                     )
@@ -403,12 +424,13 @@ fun Content(
                 }
 
                 is ScreenStructure.AddMoneyUsage -> {
-                    val viewModel = remember {
-                        AddMoneyUsageViewModel(
-                            coroutineScope = rootCoroutineScope,
-                            graphqlApi = AddMoneyUsageScreenApi(),
-                        )
-                    }
+                    val viewModel =
+                        remember {
+                            AddMoneyUsageViewModel(
+                                coroutineScope = rootCoroutineScope,
+                                graphqlApi = AddMoneyUsageScreenApi(),
+                            )
+                        }
                     LaunchedEffect(viewModel.eventHandler) {
                         viewModelEventHandlers.handle(
                             handler = viewModel.eventHandler,
@@ -425,16 +447,17 @@ fun Content(
 
                 is ScreenStructure.ImportedMail -> {
                     val coroutineScope = rememberCoroutineScope()
-                    val viewModel = remember(
-                        coroutineScope,
-                        current,
-                    ) {
-                        ImportedMailScreenViewModel(
-                            coroutineScope = coroutineScope,
-                            api = ImportedMailScreenGraphqlApi(),
-                            importedMailId = current.id,
-                        )
-                    }
+                    val viewModel =
+                        remember(
+                            coroutineScope,
+                            current,
+                        ) {
+                            ImportedMailScreenViewModel(
+                                coroutineScope = coroutineScope,
+                                api = ImportedMailScreenGraphqlApi(),
+                                importedMailId = current.id,
+                            )
+                        }
                     LaunchedEffect(viewModel.viewModelEventHandler) {
                         viewModelEventHandlers.handle(
                             handler = viewModel.viewModelEventHandler,
@@ -449,12 +472,13 @@ fun Content(
 
                 is ScreenStructure.ImportedMailHTML -> {
                     val coroutineScope = rememberCoroutineScope()
-                    val viewModel = remember {
-                        ImportedMailHtmlViewModel(
-                            id = current.id,
-                            coroutineScope = coroutineScope,
-                        )
-                    }
+                    val viewModel =
+                        remember {
+                            ImportedMailHtmlViewModel(
+                                id = current.id,
+                                coroutineScope = coroutineScope,
+                            )
+                        }
                     LaunchedEffect(viewModel.viewModelEventHandler) {
                         viewModelEventHandlers.handle(viewModel.viewModelEventHandler)
                     }
@@ -468,12 +492,13 @@ fun Content(
 
                 is ScreenStructure.ImportedMailPlain -> {
                     val coroutineScope = rememberCoroutineScope()
-                    val viewModel = remember {
-                        ImportedMailPlainViewModel(
-                            id = current.id,
-                            coroutineScope = coroutineScope,
-                        )
-                    }
+                    val viewModel =
+                        remember {
+                            ImportedMailPlainViewModel(
+                                id = current.id,
+                                coroutineScope = coroutineScope,
+                            )
+                        }
                     LaunchedEffect(viewModel.viewModelEventHandler) {
                         viewModelEventHandlers.handle(viewModel.viewModelEventHandler)
                     }
@@ -487,13 +512,14 @@ fun Content(
 
                 is ScreenStructure.MoneyUsage -> {
                     val coroutineScope = rememberCoroutineScope()
-                    val viewModel = remember {
-                        MoneyUsageScreenViewModel(
-                            moneyUsageId = current.id,
-                            coroutineScope = coroutineScope,
-                            api = MoneyUsageScreenViewModelApi(),
-                        )
-                    }
+                    val viewModel =
+                        remember {
+                            MoneyUsageScreenViewModel(
+                                moneyUsageId = current.id,
+                                coroutineScope = coroutineScope,
+                                api = MoneyUsageScreenViewModelApi(),
+                            )
+                        }
                     LaunchedEffect(viewModel.eventHandler) {
                         viewModelEventHandlers.handle(viewModel.eventHandler)
                     }

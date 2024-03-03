@@ -70,12 +70,19 @@ public data class AddMoneyUsageScreenUiState(
 
     public interface Event {
         public fun onClickAdd()
+
         public fun selectedCalendar(date: LocalDate)
+
         public fun dismissCalendar()
+
         public fun onClickDateChange()
+
         public fun onClickTitleChange()
+
         public fun onClickDescriptionChange()
+
         public fun onClickCategoryChange()
+
         public fun onClickAmountChange()
     }
 }
@@ -118,10 +125,11 @@ public fun AddMoneyUsageScreen(
                 contentAlignment = Alignment.Center,
             ) {
                 Button(
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .widthIn(max = 700.dp)
-                        .fillMaxWidth(),
+                    modifier =
+                        Modifier
+                            .padding(12.dp)
+                            .widthIn(max = 700.dp)
+                            .fillMaxWidth(),
                     onClick = { uiState.event.onClickAdd() },
                 ) {
                     Text("追加")
@@ -131,9 +139,10 @@ public fun AddMoneyUsageScreen(
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) { paddingValues ->
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState()),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
             contentAlignment = Alignment.TopCenter,
         ) {
             Column(
@@ -241,18 +250,20 @@ private fun NumberInputDialog(
     dismissRequest: () -> Unit,
 ) {
     Box(
-        modifier = Modifier.fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.8f))
-            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
-                dismissRequest()
-            },
+        modifier =
+            Modifier.fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.8f))
+                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                    dismissRequest()
+                },
         contentAlignment = Alignment.Center,
     ) {
         NumberInput(
-            modifier = Modifier.widthIn(max = 500.dp)
-                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
-                    // Number Inputのタッチ無効範囲を触ってもダイアログを閉じないようにする
-                },
+            modifier =
+                Modifier.widthIn(max = 500.dp)
+                    .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                        // Number Inputのタッチ無効範囲を触ってもダイアログを閉じないようにする
+                    },
             value = value,
             onChangeValue = { onChangeValue(it) },
             dismissRequest = { dismissRequest() },

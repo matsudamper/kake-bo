@@ -42,9 +42,7 @@ public class AddMoneyUsageScreenApi(
         }.getOrNull()
     }
 
-    public suspend fun get(
-        id: ImportedMailId,
-    ): Result<ApolloResponse<AddMoneyUsageScreenQuery.Data>> {
+    public suspend fun get(id: ImportedMailId): Result<ApolloResponse<AddMoneyUsageScreenQuery.Data>> {
         return runCatching {
             apolloClient
                 .query(

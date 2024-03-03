@@ -52,20 +52,19 @@ class ApolloPagingResponseCollector<D : Query.Data>(
         }
     }
 
-    fun add(
-        queryBlock: (List<ApolloResponseCollector<D>>) -> Query<D>?,
-    ) {
+    fun add(queryBlock: (List<ApolloResponseCollector<D>>) -> Query<D>?) {
         var collector: ApolloResponseCollector<D>? = null
         collectorFlow.update { collectors ->
             val query = queryBlock(collectors) ?: return
 
-            val tmp = ApolloResponseCollector
-                .create(
-                    apolloClient = apolloClient,
-                    query = query,
-                    fetchThrows = true,
-                    fetchPolicy = fetchPolicy,
-                )
+            val tmp =
+                ApolloResponseCollector
+                    .create(
+                        apolloClient = apolloClient,
+                        query = query,
+                        fetchThrows = true,
+                        fetchPolicy = fetchPolicy,
+                    )
             collector = tmp
             collectors + tmp
         }

@@ -19,6 +19,7 @@ internal class ImportedMailCategoryFiltersCursor(
     companion object {
         private const val ID = "ID"
         private const val ORDER_NUM = "ORDER_NUM"
+
         fun fromString(cursorString: String): MailFilterRepository.MailFilterCursor {
             val map = CursorParser.parseFromString(cursorString)
             return MailFilterRepository.MailFilterCursor(

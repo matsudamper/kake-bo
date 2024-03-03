@@ -45,13 +45,14 @@ class Main {
             // Initialize
             MoneyGraphQlSchema.graphql
 
-            val engine = embeddedServer(
-                CIO,
-                port = ServerEnv.port,
-                module = Application::myApplicationModule,
-                configure = {
-                },
-            )
+            val engine =
+                embeddedServer(
+                    CIO,
+                    port = ServerEnv.port,
+                    module = Application::myApplicationModule,
+                    configure = {
+                    },
+                )
             Runtime.getRuntime().addShutdownHook(
                 Thread {
                     engine.stop(1000, 1000)
@@ -129,8 +130,9 @@ fun Application.myApplicationModule() {
         File(ServerEnv.frontPath).allFiles()
             .filterNot { "index.html" == it.name }
             .forEach {
-                val accessPath = it.path.replace("\\", "/")
-                    .removePrefix(ServerEnv.frontPath.replace("\\", "/"))
+                val accessPath =
+                    it.path.replace("\\", "/")
+                        .removePrefix(ServerEnv.frontPath.replace("\\", "/"))
                 staticFiles(
                     remotePath = accessPath,
                     dir = File(it.path),

@@ -28,7 +28,9 @@ public data class ImportedMailPlainScreenUiState(
 ) {
     public sealed interface LoadingState {
         public object Loading : LoadingState
+
         public object Error : LoadingState
+
         public data class Loaded(
             val html: String,
         ) : LoadingState
@@ -36,7 +38,9 @@ public data class ImportedMailPlainScreenUiState(
 
     public interface Event {
         public fun onClickClose()
+
         public fun onClickRetry()
+
         public fun onViewInitialized()
     }
 }
@@ -76,12 +80,13 @@ public fun ImportedMailPlainScreen(
                         },
                         title = {
                             Text(
-                                modifier = Modifier.clickable(
-                                    interactionSource = remember { MutableInteractionSource() },
-                                    indication = null,
-                                ) {
-                                    kakeboScaffoldListener.onClickTitle()
-                                },
+                                modifier =
+                                    Modifier.clickable(
+                                        interactionSource = remember { MutableInteractionSource() },
+                                        indication = null,
+                                    ) {
+                                        kakeboScaffoldListener.onClickTitle()
+                                    },
                                 text = "家計簿",
                             )
                         },
@@ -89,8 +94,9 @@ public fun ImportedMailPlainScreen(
                 },
             ) {
                 Box(
-                    modifier = Modifier.fillMaxSize()
-                        .padding(it),
+                    modifier =
+                        Modifier.fillMaxSize()
+                            .padding(it),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()

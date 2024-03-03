@@ -29,18 +29,20 @@ internal fun SettingsChangeTextSection(
     ) {
         Column(modifier = Modifier.weight(1f)) {
             CompositionLocalProvider(
-                LocalTextStyle provides LocalTextStyle.current.copy(
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                ),
+                LocalTextStyle provides
+                    LocalTextStyle.current.copy(
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                    ),
             ) {
                 title()
             }
             Spacer(Modifier.height(2.dp))
             CompositionLocalProvider(
-                LocalTextStyle provides LocalTextStyle.current.copy(
-                    fontSize = 16.sp,
-                ),
+                LocalTextStyle provides
+                    LocalTextStyle.current.copy(
+                        fontSize = 16.sp,
+                    ),
             ) {
                 text()
             }

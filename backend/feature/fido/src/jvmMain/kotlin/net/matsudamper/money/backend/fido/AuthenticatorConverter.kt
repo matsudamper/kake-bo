@@ -14,17 +14,20 @@ object AuthenticatorConverter {
     private val base64Decoder = Base64.getDecoder()
 
     internal fun convertToBase64(authenticator: Authenticator): Base64FidoAuthenticator {
-        val attestationStatement = authenticator.attestationStatement
-            ?: throw IllegalStateException("attestationStatement is null. authenticator=$authenticator")
+        val attestationStatement =
+            authenticator.attestationStatement
+                ?: throw IllegalStateException("attestationStatement is null. authenticator=$authenticator")
 
         return Base64FidoAuthenticator(
-            base64AttestationStatement = base64Encoder.encodeToString(
-                objectConverter.cborConverter.writeValueAsBytes(attestationStatement),
-            ),
+            base64AttestationStatement =
+                base64Encoder.encodeToString(
+                    objectConverter.cborConverter.writeValueAsBytes(attestationStatement),
+                ),
             attestationStatementFormat = attestationStatement.format,
-            base64AttestedCredentialData = base64Encoder.encodeToString(
-                attestedCredentialDataConverter.convert(authenticator.attestedCredentialData),
-            ),
+            base64AttestedCredentialData =
+                base64Encoder.encodeToString(
+                    attestedCredentialDataConverter.convert(authenticator.attestedCredentialData),
+                ),
             counter = authenticator.counter,
             base64CredentialId = base64Encoder.encodeToString(authenticator.attestedCredentialData.credentialId),
         )
@@ -36,16 +39,17 @@ object AuthenticatorConverter {
         base64AttestedCredentialData: String,
         counter: Long,
     ): FidoAuthenticatorWrapper {
-        val authenticator = AuthenticatorImpl(
-            attestedCredentialDataConverter.convert(
-                base64Decoder.decode(base64AttestedCredentialData),
-            ),
-            // 検証しない
-            // https://www.w3.org/TR/webauthn-1/#sctn-no-attestation-security-attestation
-            // https://developers.yubico.com/WebAuthn/WebAuthn_Developer_Guide/Attestation.html
-            null,
-            counter,
-        )
+        val authenticator =
+            AuthenticatorImpl(
+                attestedCredentialDataConverter.convert(
+                    base64Decoder.decode(base64AttestedCredentialData),
+                ),
+                // 検証しない
+                // https://www.w3.org/TR/webauthn-1/#sctn-no-attestation-security-attestation
+                // https://developers.yubico.com/WebAuthn/WebAuthn_Developer_Guide/Attestation.html
+                null,
+                counter,
+            )
         return FidoAuthenticatorWrapper(
             authenticator = authenticator,
         )

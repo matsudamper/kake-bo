@@ -73,12 +73,14 @@ public data class SettingCategoryScreenUiState(
         @Immutable
         public interface Event {
             public fun onDismiss()
+
             public fun onTextInputCompleted(text: String)
         }
     }
 
     public sealed interface LoadingState {
         public data object Loading : LoadingState
+
         public data class Loaded(
             val item: ImmutableList<SubCategoryItem>,
         ) : LoadingState
@@ -90,16 +92,22 @@ public data class SettingCategoryScreenUiState(
     ) {
         public interface Event {
             public fun onClick()
+
             public fun onClickDelete()
+
             public fun onClickChangeName()
         }
     }
 
     public interface Event {
         public suspend fun onResume()
+
         public fun onClickAddSubCategoryButton()
+
         public fun subCategoryNameInputCompleted(text: String)
+
         public fun dismissCategoryInput()
+
         public fun onClickChangeCategoryName()
     }
 }
@@ -160,12 +168,13 @@ public fun SettingCategoryScreen(
             KakeBoTopAppBar(
                 title = {
                     Text(
-                        modifier = Modifier.clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                        ) {
-                            rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
-                        },
+                        modifier =
+                            Modifier.clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                            ) {
+                                rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                            },
                         text = "家計簿",
                     )
                 },
@@ -205,8 +214,9 @@ public fun MainContent(
 
             is SettingCategoryScreenUiState.LoadingState.Loading -> {
                 Box(
-                    modifier = Modifier.fillMaxSize()
-                        .padding(paddingValues),
+                    modifier =
+                        Modifier.fillMaxSize()
+                            .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()
@@ -231,11 +241,12 @@ private fun LoadedContent(
         val lazyListState = rememberLazyListState()
         LazyColumn(
             modifier = modifier,
-            contentPadding = PaddingValues(
-                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                bottom = scrollButtonHeight,
-            ),
+            contentPadding =
+                PaddingValues(
+                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                    bottom = scrollButtonHeight,
+                ),
             state = lazyListState,
         ) {
             item {
@@ -260,9 +271,10 @@ private fun LoadedContent(
                 items = loadedState.item,
             ) { item ->
                 SubCategoryItem(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
                     item = item,
                 )
             }
@@ -272,12 +284,13 @@ private fun LoadedContent(
         }
 
         ScrollButtons(
-            modifier = Modifier.align(Alignment.BottomEnd)
-                .padding(ScrollButtonsDefaults.padding)
-                .height(ScrollButtonsDefaults.height)
-                .onSizeChanged {
-                    scrollButtonHeight = with(density) { it.height.toDp() }
-                },
+            modifier =
+                Modifier.align(Alignment.BottomEnd)
+                    .padding(ScrollButtonsDefaults.padding)
+                    .height(ScrollButtonsDefaults.height)
+                    .onSizeChanged {
+                        scrollButtonHeight = with(density) { it.height.toDp() }
+                    },
             scrollState = lazyListState,
             scrollSize = with(density) { containerHeight.toPx() } * 0.4f,
         )
@@ -298,11 +311,12 @@ private fun SubCategoryItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                modifier = Modifier
-                    .padding(
-                        horizontal = 24.dp,
-                        vertical = 24.dp,
-                    ),
+                modifier =
+                    Modifier
+                        .padding(
+                            horizontal = 24.dp,
+                            vertical = 24.dp,
+                        ),
                 text = item.name,
             )
             Spacer(Modifier.weight(1f))
@@ -328,25 +342,28 @@ private fun SubCategoryItem(
                     onKeyEvent = { false },
                 ) {
                     Card(
-                        elevation = CardDefaults.cardElevation(
-                            defaultElevation = 8.dp,
-                        ),
+                        elevation =
+                            CardDefaults.cardElevation(
+                                defaultElevation = 8.dp,
+                            ),
                     ) {
                         Column(
                             modifier = Modifier.width(IntrinsicSize.Min),
                         ) {
                             Text(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { item.event.onClickChangeName() }
-                                    .padding(12.dp),
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .clickable { item.event.onClickChangeName() }
+                                        .padding(12.dp),
                                 text = "名前変更",
                             )
                             Text(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable { item.event.onClickDelete() }
-                                    .padding(12.dp),
+                                modifier =
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .clickable { item.event.onClickDelete() }
+                                        .padding(12.dp),
                                 text = "削除",
                             )
                         }

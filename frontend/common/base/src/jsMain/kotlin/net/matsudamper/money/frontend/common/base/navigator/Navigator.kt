@@ -12,6 +12,7 @@ internal external interface Navigator {
 
 internal external interface CredentialsContainer {
     fun get(options: CredentialsContainerCreateOptions): Promise<PublicKeyCredential>
+
     fun create(options: CredentialsContainerCreateOptions): Promise<CredentialsContainerCreateResult>
 }
 

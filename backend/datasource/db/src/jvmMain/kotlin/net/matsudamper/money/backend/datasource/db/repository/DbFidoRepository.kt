@@ -11,6 +11,7 @@ class DbFidoRepository(
     private val dbConnection: DbConnection,
 ) : FidoRepository {
     private val webAuthAuthenticator = JWebAuthAuthenticator.WEB_AUTH_AUTHENTICATOR
+
     override fun addFido(
         name: String,
         userId: UserId,
@@ -21,17 +22,18 @@ class DbFidoRepository(
         authenticatorExtensions: String?,
     ): FidoRepository.RegisterdFido {
         return dbConnection.use {
-            val result = DSL.using(it)
-                .insertInto(webAuthAuthenticator)
-                .set(webAuthAuthenticator.NAME, name)
-                .set(webAuthAuthenticator.USER_ID, userId.value)
-                .set(webAuthAuthenticator.ATTESTATION_STATEMENT, attestationStatement)
-                .set(webAuthAuthenticator.ATTESTATION_STATEMENT_FORMAT, attestationStatementFormat)
-                .set(webAuthAuthenticator.ATTESTED_CREDENTIAL_DATA, attestedCredentialData)
-                .set(webAuthAuthenticator.COUNTER, counter)
-                .set(webAuthAuthenticator.AUTHENTICATOR_EXTENSIONS, authenticatorExtensions)
-                .returning(webAuthAuthenticator.ID, webAuthAuthenticator.NAME)
-                .fetchOne()!!
+            val result =
+                DSL.using(it)
+                    .insertInto(webAuthAuthenticator)
+                    .set(webAuthAuthenticator.NAME, name)
+                    .set(webAuthAuthenticator.USER_ID, userId.value)
+                    .set(webAuthAuthenticator.ATTESTATION_STATEMENT, attestationStatement)
+                    .set(webAuthAuthenticator.ATTESTATION_STATEMENT_FORMAT, attestationStatementFormat)
+                    .set(webAuthAuthenticator.ATTESTED_CREDENTIAL_DATA, attestedCredentialData)
+                    .set(webAuthAuthenticator.COUNTER, counter)
+                    .set(webAuthAuthenticator.AUTHENTICATOR_EXTENSIONS, authenticatorExtensions)
+                    .returning(webAuthAuthenticator.ID, webAuthAuthenticator.NAME)
+                    .fetchOne()!!
 
             FidoRepository.RegisterdFido(
                 fidoId = FidoId(result.get<Int>(webAuthAuthenticator.ID)),
@@ -44,22 +46,21 @@ class DbFidoRepository(
         }
     }
 
-    override fun getFidoList(
-        userId: UserId,
-    ): List<FidoRepository.RegisterdFido> {
+    override fun getFidoList(userId: UserId): List<FidoRepository.RegisterdFido> {
         return dbConnection.use {
-            val results = DSL.using(it)
-                .select(
-                    webAuthAuthenticator.NAME,
-                    webAuthAuthenticator.ID,
-                    webAuthAuthenticator.ATTESTED_CREDENTIAL_DATA,
-                    webAuthAuthenticator.ATTESTATION_STATEMENT,
-                    webAuthAuthenticator.ATTESTATION_STATEMENT_FORMAT,
-                    webAuthAuthenticator.COUNTER,
-                )
-                .from(webAuthAuthenticator)
-                .where(webAuthAuthenticator.USER_ID.eq(userId.value))
-                .fetch()
+            val results =
+                DSL.using(it)
+                    .select(
+                        webAuthAuthenticator.NAME,
+                        webAuthAuthenticator.ID,
+                        webAuthAuthenticator.ATTESTED_CREDENTIAL_DATA,
+                        webAuthAuthenticator.ATTESTATION_STATEMENT,
+                        webAuthAuthenticator.ATTESTATION_STATEMENT_FORMAT,
+                        webAuthAuthenticator.COUNTER,
+                    )
+                    .from(webAuthAuthenticator)
+                    .where(webAuthAuthenticator.USER_ID.eq(userId.value))
+                    .fetch()
 
             results.map { result ->
                 FidoRepository.RegisterdFido(
@@ -77,19 +78,27 @@ class DbFidoRepository(
     /**
      * @return isSuccess
      */
-    override fun deleteFido(userId: UserId, id: FidoId): Boolean {
+    override fun deleteFido(
+        userId: UserId,
+        id: FidoId,
+    ): Boolean {
         return dbConnection.use {
-            val result = DSL.using(it)
-                .deleteFrom(webAuthAuthenticator)
-                .where(webAuthAuthenticator.USER_ID.eq(userId.value))
-                .and(webAuthAuthenticator.ID.eq(id.value))
-                .execute()
+            val result =
+                DSL.using(it)
+                    .deleteFrom(webAuthAuthenticator)
+                    .where(webAuthAuthenticator.USER_ID.eq(userId.value))
+                    .and(webAuthAuthenticator.ID.eq(id.value))
+                    .execute()
 
             result == 1
         }
     }
 
-    override fun updateCounter(fidoId: FidoId, userId: UserId, counter: Long) {
+    override fun updateCounter(
+        fidoId: FidoId,
+        userId: UserId,
+        counter: Long,
+    ) {
         dbConnection.use {
             DSL.using(it)
                 .update(webAuthAuthenticator)

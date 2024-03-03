@@ -19,29 +19,31 @@ class MoneyUsageCategoryDataLoaderDefine(
             CompletableFuture.supplyAsync {
                 val repository = repositoryFactory.createMoneyUsageCategoryRepository()
 
-                val results = keys.groupBy { it.userId }
-                    .mapNotNull { (userId, key) ->
-                        val result = repository
-                            .getCategory(
-                                userId = userId,
-                                moneyUsageCategoryIds = key.map { it.categoryId },
-                            )
-
-                        when (result) {
-                            is MoneyUsageCategoryRepository.GetCategoryResult.Failed -> {
-                                result.e.printStackTrace()
-                                null
-                            }
-                            is MoneyUsageCategoryRepository.GetCategoryResult.Success -> {
-                                result.results.associateBy {
-                                    Key(
+                val results =
+                    keys.groupBy { it.userId }
+                        .mapNotNull { (userId, key) ->
+                            val result =
+                                repository
+                                    .getCategory(
                                         userId = userId,
-                                        categoryId = it.moneyUsageCategoryId,
+                                        moneyUsageCategoryIds = key.map { it.categoryId },
                                     )
+
+                            when (result) {
+                                is MoneyUsageCategoryRepository.GetCategoryResult.Failed -> {
+                                    result.e.printStackTrace()
+                                    null
+                                }
+                                is MoneyUsageCategoryRepository.GetCategoryResult.Success -> {
+                                    result.results.associateBy {
+                                        Key(
+                                            userId = userId,
+                                            categoryId = it.moneyUsageCategoryId,
+                                        )
+                                    }
                                 }
                             }
-                        }
-                    }.flatten()
+                        }.flatten()
 
                 keys.associateWith { key ->
                     val result = results[key] ?: return@associateWith null

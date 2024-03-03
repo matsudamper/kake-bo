@@ -10,76 +10,88 @@ import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
 public object GooglePlayUsageService : MoneyUsageServices {
     override val displayName: String = "Google"
 
-    override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): List<MoneyUsage> {
-        val canHandle = sequence {
-            yield(canHandledWithFrom(from))
-            yield(canHandledWithSubject(subject))
-            yield(canHandledWithPlain(plain))
-        }
+    override fun parse(
+        subject: String,
+        from: String,
+        html: String,
+        plain: String,
+        date: LocalDateTime,
+    ): List<MoneyUsage> {
+        val canHandle =
+            sequence {
+                yield(canHandledWithFrom(from))
+                yield(canHandledWithSubject(subject))
+                yield(canHandledWithPlain(plain))
+            }
         if (canHandle.any { it }.not()) return listOf()
 
-        val seller = sequence {
-            yield(
-                run target@{
-                    "Google Play で(.+?)からの定期購入が完了しました。".toRegex().find(plain)
-                        ?.groupValues
-                        ?.getOrNull(1)
-                        ?.trimStart()
-                        ?.trimEnd()
-                        ?: return@target null
-                },
-            )
-            yield(
-                run target@{
-                    "Google Play での(.+?)からの購入が完了しました。".toRegex().find(plain)
-                        ?.groupValues
-                        ?.getOrNull(1)
-                        ?.trimStart()
-                        ?.trimEnd()
-                        ?: return@target null
-                },
-            )
-        }.filterNotNull().firstOrNull()
-
-        val title = run title@{
-            "アイテム 価格(.+?)￥".toRegex()
-                .find(
-                    plain.replace("\r\n", "")
-                        .replace("\r", ""),
+        val seller =
+            sequence {
+                yield(
+                    run target@{
+                        "Google Play で(.+?)からの定期購入が完了しました。".toRegex().find(plain)
+                            ?.groupValues
+                            ?.getOrNull(1)
+                            ?.trimStart()
+                            ?.trimEnd()
+                            ?: return@target null
+                    },
                 )
-                ?.groupValues?.getOrNull(1)
-                ?.trimStart()
-                ?.trimEnd()
-        }
+                yield(
+                    run target@{
+                        "Google Play での(.+?)からの購入が完了しました。".toRegex().find(plain)
+                            ?.groupValues
+                            ?.getOrNull(1)
+                            ?.trimStart()
+                            ?.trimEnd()
+                            ?: return@target null
+                    },
+                )
+            }.filterNotNull().firstOrNull()
 
-        val price = run price@{
-            "^合計:(.+?)$".toRegex(RegexOption.MULTILINE)
-                .find(plain)
-                ?.groupValues?.getOrNull(1)
-                ?.mapNotNull { it.toString().toIntOrNull() }
-                ?.joinToString("")
-                ?.toIntOrNull()
-        }
+        val title =
+            run title@{
+                "アイテム 価格(.+?)￥".toRegex()
+                    .find(
+                        plain.replace("\r\n", "")
+                            .replace("\r", ""),
+                    )
+                    ?.groupValues?.getOrNull(1)
+                    ?.trimStart()
+                    ?.trimEnd()
+            }
 
-        val parsedDate = run date@{
-            val regex = "注文日(.+?)$".toRegex(RegexOption.MULTILINE)
-            val line = regex.find(plain)?.groupValues?.getOrNull(1) ?: return@date null
+        val price =
+            run price@{
+                "^合計:(.+?)$".toRegex(RegexOption.MULTILINE)
+                    .find(plain)
+                    ?.groupValues?.getOrNull(1)
+                    ?.mapNotNull { it.toString().toIntOrNull() }
+                    ?.joinToString("")
+                    ?.toIntOrNull()
+            }
 
-            val result = """(\d+).+?(\d+).+?(\d+).+?(\d+).+?(\d+).+?(\d+)""".toRegex().find(line)
-                ?: return@date null
+        val parsedDate =
+            run date@{
+                val regex = "注文日(.+?)$".toRegex(RegexOption.MULTILINE)
+                val line = regex.find(plain)?.groupValues?.getOrNull(1) ?: return@date null
 
-            val year = result.groupValues.getOrNull(1)?.toIntOrNull() ?: return@date null
-            val month = result.groupValues.getOrNull(2)?.toIntOrNull() ?: return@date null
-            val day = result.groupValues.getOrNull(3)?.toIntOrNull() ?: return@date null
-            val hour = result.groupValues.getOrNull(4)?.toIntOrNull() ?: return@date null
-            val minute = result.groupValues.getOrNull(5)?.toIntOrNull() ?: return@date null
-            val seconds = result.groupValues.getOrNull(6)?.toIntOrNull() ?: return@date null
+                val result =
+                    """(\d+).+?(\d+).+?(\d+).+?(\d+).+?(\d+).+?(\d+)""".toRegex().find(line)
+                        ?: return@date null
 
-            LocalDateTime.of(
-                LocalDate.of(year, month, day),
-                LocalTime.of(hour, minute, seconds),
-            )
-        }
+                val year = result.groupValues.getOrNull(1)?.toIntOrNull() ?: return@date null
+                val month = result.groupValues.getOrNull(2)?.toIntOrNull() ?: return@date null
+                val day = result.groupValues.getOrNull(3)?.toIntOrNull() ?: return@date null
+                val hour = result.groupValues.getOrNull(4)?.toIntOrNull() ?: return@date null
+                val minute = result.groupValues.getOrNull(5)?.toIntOrNull() ?: return@date null
+                val seconds = result.groupValues.getOrNull(6)?.toIntOrNull() ?: return@date null
+
+                LocalDateTime.of(
+                    LocalDate.of(year, month, day),
+                    LocalTime.of(hour, minute, seconds),
+                )
+            }
 
         return listOf(
             MoneyUsage(

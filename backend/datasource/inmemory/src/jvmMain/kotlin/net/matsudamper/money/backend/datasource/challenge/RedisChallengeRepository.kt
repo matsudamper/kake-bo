@@ -14,7 +14,11 @@ internal class RedisChallengeRepository(
     private val index: Int,
 ) : ChallengeRepository {
     private val jedisPool = JedisPool(host, port)
-    override fun set(key: String, expire: Duration) {
+
+    override fun set(
+        key: String,
+        expire: Duration,
+    ) {
         useJedis { jedis ->
             jedis.set(
                 key,

@@ -56,7 +56,6 @@ public data class RootHomeMonthlyCategoryScreenUiState(
         val date: String,
         val event: Event,
     ) {
-
         @Immutable
         public interface Event {
             public fun onClick()
@@ -71,6 +70,7 @@ public data class RootHomeMonthlyCategoryScreenUiState(
         ) : LoadingState
 
         public data object Loading : LoadingState
+
         public data object Error : LoadingState
     }
 
@@ -144,12 +144,13 @@ private fun LoadedContent(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState,
-            contentPadding = PaddingValues(
-                bottom = with(density) { scrollButtonHeight.toDp() } + 8.dp,
-                top = 8.dp,
-                start = 8.dp,
-                end = 8.dp,
-            ),
+            contentPadding =
+                PaddingValues(
+                    bottom = with(density) { scrollButtonHeight.toDp() } + 8.dp,
+                    top = 8.dp,
+                    start = 8.dp,
+                    end = 8.dp,
+                ),
         ) {
             items(loadingState.items) { item ->
                 Card(
@@ -175,19 +176,21 @@ private fun LoadedContent(
                                     maxLines = 3,
                                 )
                                 Text(
-                                    modifier = Modifier
-                                        .align(Alignment.Bottom)
-                                        .height(IntrinsicSize.Max)
-                                        .requiredWidthIn(min = 80.dp),
+                                    modifier =
+                                        Modifier
+                                            .align(Alignment.Bottom)
+                                            .height(IntrinsicSize.Max)
+                                            .requiredWidthIn(min = 80.dp),
                                     text = item.subCategory,
                                     maxLines = 1,
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    modifier = Modifier
-                                        .align(Alignment.Bottom)
-                                        .height(IntrinsicSize.Max)
-                                        .requiredWidthIn(min = 60.dp),
+                                    modifier =
+                                        Modifier
+                                            .align(Alignment.Bottom)
+                                            .height(IntrinsicSize.Max)
+                                            .requiredWidthIn(min = 60.dp),
                                     maxLines = 1,
                                     text = item.amount,
                                     textAlign = TextAlign.End,
@@ -203,8 +206,9 @@ private fun LoadedContent(
                         loadingState.event.loadMore()
                     }
                     Box(
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(vertical = 16.dp),
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .padding(vertical = 16.dp),
                     ) {
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
@@ -212,12 +216,13 @@ private fun LoadedContent(
             }
         }
         ScrollButtons(
-            modifier = Modifier.align(Alignment.BottomEnd)
-                .padding(ScrollButtonsDefaults.padding)
-                .height(ScrollButtonsDefaults.height)
-                .onSizeChanged {
-                    scrollButtonHeight = it.height
-                },
+            modifier =
+                Modifier.align(Alignment.BottomEnd)
+                    .padding(ScrollButtonsDefaults.padding)
+                    .height(ScrollButtonsDefaults.height)
+                    .onSizeChanged {
+                        scrollButtonHeight = it.height
+                    },
             scrollState = lazyListState,
             scrollSize = with(density) { height.toPx() } * 0.4f,
         )

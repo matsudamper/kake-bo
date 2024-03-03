@@ -35,10 +35,11 @@ internal class UserSessionManagerImpl(
         }
 
         when (
-            val userSessionResult = userSessionRepository.verifySession(
-                sessionId = UserSessionId(userSessionString),
-                expireDay = ServerVariables.USER_SESSION_EXPIRE_DAY,
-            )
+            val userSessionResult =
+                userSessionRepository.verifySession(
+                    sessionId = UserSessionId(userSessionString),
+                    expireDay = ServerVariables.USER_SESSION_EXPIRE_DAY,
+                )
         ) {
             is UserSessionRepository.VerifySessionResult.Failure -> {
                 this.verifyUserSessionResult = UserSessionRepository.VerifySessionResult.Failure
@@ -50,8 +51,9 @@ internal class UserSessionManagerImpl(
 
                 cookieManager.setUserSession(
                     idValue = userSessionResult.sessionId.id,
-                    expires = userSessionResult.latestAccess.atOffset(ZoneOffset.UTC)
-                        .plusDays(ServerVariables.USER_SESSION_EXPIRE_DAY),
+                    expires =
+                        userSessionResult.latestAccess.atOffset(ZoneOffset.UTC)
+                            .plusDays(ServerVariables.USER_SESSION_EXPIRE_DAY),
                 )
 
                 return userSessionResult

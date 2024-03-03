@@ -10,13 +10,13 @@ interface DbConnection {
 }
 
 object DbConnectionImpl : DbConnection {
-
-    private val config = HikariConfig().also { config ->
-        config.jdbcUrl = "jdbc:mariadb://${ServerEnv.dbHost}:${ServerEnv.dbPort}/${ServerEnv.dbSchema}"
-        config.username = ServerEnv.dbUserName
-        config.password = ServerEnv.dbPassword
-        config.connectionTimeout = 5 * 1000
-    }
+    private val config =
+        HikariConfig().also { config ->
+            config.jdbcUrl = "jdbc:mariadb://${ServerEnv.dbHost}:${ServerEnv.dbPort}/${ServerEnv.dbSchema}"
+            config.username = ServerEnv.dbUserName
+            config.password = ServerEnv.dbPassword
+            config.connectionTimeout = 5 * 1000
+        }
     private val dataSource by lazy { HikariDataSource(config) }
 
     override fun <R> use(connectionBlock: (Connection) -> R): R {

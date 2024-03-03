@@ -40,155 +40,172 @@ public class RootHomeTabPeriodAllContentViewModel(
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState())
     private val reservedColorModel = ReservedColorModel()
 
-    private val tabViewModel = RootHomeTabScreenViewModel(
-        coroutineScope = coroutineScope,
-        loginCheckUseCase = loginCheckUseCase,
-    ).also { viewModel ->
-        coroutineScope.launch {
-            viewModel.viewModelEventHandler.collect(
-                object : RootHomeTabScreenViewModel.Event {
-                    override fun navigate(screen: ScreenStructure) {
-                        coroutineScope.launch { eventSender.send { it.navigate(screen) } }
-                    }
-                },
-            )
+    private val tabViewModel =
+        RootHomeTabScreenViewModel(
+            coroutineScope = coroutineScope,
+            loginCheckUseCase = loginCheckUseCase,
+        ).also { viewModel ->
+            coroutineScope.launch {
+                viewModel.viewModelEventHandler.collect(
+                    object : RootHomeTabScreenViewModel.Event {
+                        override fun navigate(screen: ScreenStructure) {
+                            coroutineScope.launch { eventSender.send { it.navigate(screen) } }
+                        }
+                    },
+                )
+            }
         }
-    }
-    private val periodViewModel = RootHomeTabPeriodScreenViewModel(
-        coroutineScope = coroutineScope,
-        api = RootHomeTabScreenApi(),
-        initialCategoryId = null,
-    ).also { viewModel ->
-        coroutineScope.launch {
-            viewModel.viewModelEventHandler.collect(
-                object : RootHomeTabPeriodScreenViewModel.Event {
-                    override fun onClickAllFilter() {
-                        coroutineScope.launch {
-                            eventSender.send {
-                                it.navigate(
-                                    RootHomeScreenStructure.PeriodAnalytics(
-                                        since = viewModel.getCurrentLocalDate(),
-                                    ),
-                                )
+    private val periodViewModel =
+        RootHomeTabPeriodScreenViewModel(
+            coroutineScope = coroutineScope,
+            api = RootHomeTabScreenApi(),
+            initialCategoryId = null,
+        ).also { viewModel ->
+            coroutineScope.launch {
+                viewModel.viewModelEventHandler.collect(
+                    object : RootHomeTabPeriodScreenViewModel.Event {
+                        override fun onClickAllFilter() {
+                            coroutineScope.launch {
+                                eventSender.send {
+                                    it.navigate(
+                                        RootHomeScreenStructure.PeriodAnalytics(
+                                            since = viewModel.getCurrentLocalDate(),
+                                        ),
+                                    )
+                                }
                             }
                         }
-                    }
 
-                    override fun onClickCategoryFilter(categoryId: MoneyUsageCategoryId) {
-                        coroutineScope.launch {
-                            eventSender.send {
-                                it.navigate(
-                                    RootHomeScreenStructure.PeriodCategory(
-                                        categoryId = categoryId,
-                                        since = viewModel.getCurrentLocalDate(),
-                                    ),
-                                )
+                        override fun onClickCategoryFilter(categoryId: MoneyUsageCategoryId) {
+                            coroutineScope.launch {
+                                eventSender.send {
+                                    it.navigate(
+                                        RootHomeScreenStructure.PeriodCategory(
+                                            categoryId = categoryId,
+                                            since = viewModel.getCurrentLocalDate(),
+                                        ),
+                                    )
+                                }
                             }
                         }
-                    }
 
-                    override fun updateSinceDate(year: Int, month: Int, period: Int) {
-                        coroutineScope.launch {
-                            eventSender.send {
-                                it.navigate(
-                                    RootHomeScreenStructure.PeriodAnalytics(
-                                        since = LocalDate(year, month, 1),
-                                        period = period,
-                                    ),
-                                )
+                        override fun updateSinceDate(
+                            year: Int,
+                            month: Int,
+                            period: Int,
+                        ) {
+                            coroutineScope.launch {
+                                eventSender.send {
+                                    it.navigate(
+                                        RootHomeScreenStructure.PeriodAnalytics(
+                                            since = LocalDate(year, month, 1),
+                                            period = period,
+                                        ),
+                                    )
+                                }
                             }
                         }
-                    }
-                },
-            )
+                    },
+                )
+            }
         }
-    }
 
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
-    public val uiStateFlow: StateFlow<RootHomeTabPeriodAllContentUiState> = MutableStateFlow(
-        RootHomeTabPeriodAllContentUiState(
-            loadingState = RootHomeTabPeriodAllContentUiState.LoadingState.Loading,
-            rootHomeTabPeriodUiState = periodViewModel.uiStateFlow.value,
-            rootHomeTabUiState = tabViewModel.uiStateFlow.value,
-            event = object : RootHomeTabPeriodAllContentUiState.Event {
-                override suspend fun onViewInitialized() {
-                    val period = viewModelStateFlow.value.displayPeriod
+    public val uiStateFlow: StateFlow<RootHomeTabPeriodAllContentUiState> =
+        MutableStateFlow(
+            RootHomeTabPeriodAllContentUiState(
+                loadingState = RootHomeTabPeriodAllContentUiState.LoadingState.Loading,
+                rootHomeTabPeriodUiState = periodViewModel.uiStateFlow.value,
+                rootHomeTabUiState = tabViewModel.uiStateFlow.value,
+                event =
+                    object : RootHomeTabPeriodAllContentUiState.Event {
+                        override suspend fun onViewInitialized() {
+                            val period = viewModelStateFlow.value.displayPeriod
 
-                    fetchAll(
-                        period = period,
-                        forceReFetch = true,
-                    )
-                }
-            },
-        ),
-    ).also { uiStateFlow ->
-        coroutineScope.launch {
-            tabViewModel.uiStateFlow.collectLatest { tabUiState ->
-                uiStateFlow.update { uiState ->
-                    uiState.copy(
-                        rootHomeTabUiState = tabUiState,
-                    )
-                }
-            }
-        }
-        coroutineScope.launch {
-            periodViewModel.uiStateFlow.collectLatest { periodUiState ->
-                uiStateFlow.update { uiState ->
-                    uiState.copy(
-                        rootHomeTabPeriodUiState = periodUiState,
-                    )
-                }
-            }
-        }
-        coroutineScope.launch {
-            viewModelStateFlow.collectLatest { viewModelState ->
-                val displayPeriods = (0 until viewModelState.displayPeriod.monthCount).map { index ->
-                    viewModelState.displayPeriod.sinceDate.addMonth(index)
-                }
-                val screenState = run screenState@{
-                    val allLoaded = displayPeriods.all { displayPeriod ->
-                        viewModelState.allResponseMap.contains(displayPeriod)
-                    }
-                    if (allLoaded.not()) {
-                        return@screenState RootHomeTabPeriodAllContentUiState.LoadingState.Loading
-                    }
-
-                    val responses = run {
-                        val responses = displayPeriods.map { displayPeriod ->
-                            viewModelState.allResponseMap[displayPeriod]
+                            fetchAll(
+                                period = period,
+                                forceReFetch = true,
+                            )
                         }
-                        if (responses.size != responses.filterNotNull().size) {
-                            return@screenState RootHomeTabPeriodAllContentUiState.LoadingState.Error
-                        }
-                        displayPeriods.zip(responses.filterNotNull())
+                    },
+            ),
+        ).also { uiStateFlow ->
+            coroutineScope.launch {
+                tabViewModel.uiStateFlow.collectLatest { tabUiState ->
+                    uiStateFlow.update { uiState ->
+                        uiState.copy(
+                            rootHomeTabUiState = tabUiState,
+                        )
                     }
-
-                    val categories = responses.mapNotNull { (_, response) ->
-                        response.data?.user?.moneyUsageAnalytics?.byCategories
-                    }.flatMap { byCategories ->
-                        byCategories.map { it.category }
-                    }.distinctBy {
-                        it.id
-                    }
-
-                    createTotalUiState(
-                        responses = responses,
-                        categories = categories,
-                    ) ?: return@screenState RootHomeTabPeriodAllContentUiState.LoadingState.Error
-                }
-
-                uiStateFlow.update {
-                    it.copy(
-                        loadingState = screenState,
-                    )
                 }
             }
-        }
-    }.asStateFlow()
+            coroutineScope.launch {
+                periodViewModel.uiStateFlow.collectLatest { periodUiState ->
+                    uiStateFlow.update { uiState ->
+                        uiState.copy(
+                            rootHomeTabPeriodUiState = periodUiState,
+                        )
+                    }
+                }
+            }
+            coroutineScope.launch {
+                viewModelStateFlow.collectLatest { viewModelState ->
+                    val displayPeriods =
+                        (0 until viewModelState.displayPeriod.monthCount).map { index ->
+                            viewModelState.displayPeriod.sinceDate.addMonth(index)
+                        }
+                    val screenState =
+                        run screenState@{
+                            val allLoaded =
+                                displayPeriods.all { displayPeriod ->
+                                    viewModelState.allResponseMap.contains(displayPeriod)
+                                }
+                            if (allLoaded.not()) {
+                                return@screenState RootHomeTabPeriodAllContentUiState.LoadingState.Loading
+                            }
 
-    private fun fetchAll(period: ViewModelState.Period, forceReFetch: Boolean) {
+                            val responses =
+                                run {
+                                    val responses =
+                                        displayPeriods.map { displayPeriod ->
+                                            viewModelState.allResponseMap[displayPeriod]
+                                        }
+                                    if (responses.size != responses.filterNotNull().size) {
+                                        return@screenState RootHomeTabPeriodAllContentUiState.LoadingState.Error
+                                    }
+                                    displayPeriods.zip(responses.filterNotNull())
+                                }
+
+                            val categories =
+                                responses.mapNotNull { (_, response) ->
+                                    response.data?.user?.moneyUsageAnalytics?.byCategories
+                                }.flatMap { byCategories ->
+                                    byCategories.map { it.category }
+                                }.distinctBy {
+                                    it.id
+                                }
+
+                            createTotalUiState(
+                                responses = responses,
+                                categories = categories,
+                            ) ?: return@screenState RootHomeTabPeriodAllContentUiState.LoadingState.Error
+                        }
+
+                    uiStateFlow.update {
+                        it.copy(
+                            loadingState = screenState,
+                        )
+                    }
+                }
+            }
+        }.asStateFlow()
+
+    private fun fetchAll(
+        period: ViewModelState.Period,
+        forceReFetch: Boolean,
+    ) {
         coroutineScope.launch {
             (0 until period.monthCount)
                 .map { index ->
@@ -201,18 +218,20 @@ public class RootHomeTabPeriodAllContentViewModel(
                 }
                 .map { (startYearMonth, endYearMonth) ->
                     async {
-                        val result = api.fetchAll(
-                            startYear = startYearMonth.year,
-                            startMonth = startYearMonth.month,
-                            endYear = endYearMonth.year,
-                            endMonth = endYearMonth.month,
-                            useCache = forceReFetch.not(),
-                        )
+                        val result =
+                            api.fetchAll(
+                                startYear = startYearMonth.year,
+                                startMonth = startYearMonth.month,
+                                endYear = endYearMonth.year,
+                                endMonth = endYearMonth.month,
+                                useCache = forceReFetch.not(),
+                            )
 
                         viewModelStateFlow.update {
                             it.copy(
-                                allResponseMap = it.allResponseMap
-                                    .plus(startYearMonth to result.getOrNull()),
+                                allResponseMap =
+                                    it.allResponseMap
+                                        .plus(startYearMonth to result.getOrNull()),
                             )
                         }
                     }
@@ -231,67 +250,76 @@ public class RootHomeTabPeriodAllContentViewModel(
         categories: List<RootHomeTabScreenAnalyticsByDateQuery.Category>,
     ): RootHomeTabPeriodAllContentUiState.LoadingState.Loaded? {
         return RootHomeTabPeriodAllContentUiState.LoadingState.Loaded(
-            barGraph = BarGraphUiState(
-                items = responses.map { (yearMonth, response) ->
-                    BarGraphUiState.PeriodData(
-                        year = yearMonth.year,
-                        month = yearMonth.month,
-                        items = run item@{
-                            val byCategory =
-                                response.data?.user?.moneyUsageAnalytics?.byCategories
-                                    ?: return null
+            barGraph =
+                BarGraphUiState(
+                    items =
+                        responses.map { (yearMonth, response) ->
+                            BarGraphUiState.PeriodData(
+                                year = yearMonth.year,
+                                month = yearMonth.month,
+                                items =
+                                    run item@{
+                                        val byCategory =
+                                            response.data?.user?.moneyUsageAnalytics?.byCategories
+                                                ?: return null
 
-                            byCategory.map {
-                                val amount = it.totalAmount
-                                    ?: return null
-                                BarGraphUiState.Item(
-                                    color = reservedColorModel.getColor(it.category.id.value.toString()),
-                                    title = it.category.name,
-                                    value = amount,
-                                )
-                            }.toImmutableList()
-                        },
-                        total = response.data?.user?.moneyUsageAnalytics?.totalAmount
-                            ?: return null,
-                        event = object : BarGraphUiState.PeriodDataEvent {
-                            override fun onClick() {
-                                coroutineScope.launch {
-                                    eventSender.send {
-                                        it.navigate(
-                                            RootHomeScreenStructure.Monthly(
-                                                date = LocalDate(yearMonth.year, yearMonth.month, 1),
-                                            ),
-                                        )
-                                    }
+                                        byCategory.map {
+                                            val amount =
+                                                it.totalAmount
+                                                    ?: return null
+                                            BarGraphUiState.Item(
+                                                color = reservedColorModel.getColor(it.category.id.value.toString()),
+                                                title = it.category.name,
+                                                value = amount,
+                                            )
+                                        }.toImmutableList()
+                                    },
+                                total =
+                                    response.data?.user?.moneyUsageAnalytics?.totalAmount
+                                        ?: return null,
+                                event =
+                                    object : BarGraphUiState.PeriodDataEvent {
+                                        override fun onClick() {
+                                            coroutineScope.launch {
+                                                eventSender.send {
+                                                    it.navigate(
+                                                        RootHomeScreenStructure.Monthly(
+                                                            date = LocalDate(yearMonth.year, yearMonth.month, 1),
+                                                        ),
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    },
+                            )
+                        }.toImmutableList(),
+                ),
+            totalBarColorTextMapping =
+                categories.map { category ->
+                    GraphTitleChipUiState(
+                        color = reservedColorModel.getColor(category.id.value.toString()),
+                        title = category.name,
+                        onClick = {
+                            coroutineScope.launch {
+                                eventSender.send {
+                                    it.navigate(RootHomeScreenStructure.PeriodCategory(category.id))
                                 }
                             }
                         },
                     )
                 }.toImmutableList(),
-            ),
-            totalBarColorTextMapping = categories.map { category ->
-                GraphTitleChipUiState(
-                    color = reservedColorModel.getColor(category.id.value.toString()),
-                    title = category.name,
-                    onClick = {
-                        coroutineScope.launch {
-                            eventSender.send {
-                                it.navigate(RootHomeScreenStructure.PeriodCategory(category.id))
-                            }
-                        }
-                    },
-                )
-            }.toImmutableList(),
-            monthTotalItems = responses.map { (yearMonth, response) ->
-                RootHomeTabPeriodUiState.MonthTotalItem(
-                    amount = Formatter.formatMoney(
-                        response.data?.user?.moneyUsageAnalytics?.totalAmount
-                            ?: return null,
-                    ) + "円",
-                    title = "${yearMonth.year}/${yearMonth.month.toString().padStart(2, '0')}",
-                    event = MonthTotalItemEvent(yearMonth),
-                )
-            }.toImmutableList(),
+            monthTotalItems =
+                responses.map { (yearMonth, response) ->
+                    RootHomeTabPeriodUiState.MonthTotalItem(
+                        amount =
+                            Formatter.formatMoney(
+                                response.data?.user?.moneyUsageAnalytics?.totalAmount
+                                    ?: return null,
+                            ) + "円",
+                        title = "${yearMonth.year}/${yearMonth.month.toString().padStart(2, '0')}",
+                        event = MonthTotalItemEvent(yearMonth),
+                    )
+                }.toImmutableList(),
         )
     }
 
@@ -316,10 +344,11 @@ public class RootHomeTabPeriodAllContentViewModel(
         if (since != null) {
             viewModelStateFlow.update {
                 it.copy(
-                    displayPeriod = it.displayPeriod.copy(
-                        sinceDate = ViewModelState.YearMonth(since.year, since.monthNumber),
-                        monthCount = current.period,
-                    ),
+                    displayPeriod =
+                        it.displayPeriod.copy(
+                            sinceDate = ViewModelState.YearMonth(since.year, since.monthNumber),
+                            monthCount = current.period,
+                        ),
                 )
             }
         }
@@ -335,22 +364,25 @@ public class RootHomeTabPeriodAllContentViewModel(
 
     private data class ViewModelState(
         val allResponseMap: Map<YearMonth, ApolloResponse<RootHomeTabScreenAnalyticsByDateQuery.Data>?> = mapOf(),
-        val displayPeriod: Period = run {
-            val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-                .date
-            Period(
-                sinceDate = YearMonth(currentDate.year, currentDate.monthNumber).addMonth(-5),
-                monthCount = 6,
-            )
-        },
+        val displayPeriod: Period =
+            run {
+                val currentDate =
+                    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                        .date
+                Period(
+                    sinceDate = YearMonth(currentDate.year, currentDate.monthNumber).addMonth(-5),
+                    monthCount = 6,
+                )
+            },
     ) {
         data class YearMonth(
             val year: Int,
             val month: Int,
         ) {
             fun addMonth(count: Int): YearMonth {
-                val nextDate = LocalDate(year, month, 1)
-                    .plus(count, DateTimeUnit.MONTH)
+                val nextDate =
+                    LocalDate(year, month, 1)
+                        .plus(count, DateTimeUnit.MONTH)
 
                 return YearMonth(
                     year = nextDate.year,

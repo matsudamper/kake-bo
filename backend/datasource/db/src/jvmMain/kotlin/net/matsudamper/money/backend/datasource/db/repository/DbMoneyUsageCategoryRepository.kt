@@ -18,16 +18,17 @@ class DbMoneyUsageCategoryRepository : MoneyUsageCategoryRepository {
     ): MoneyUsageCategoryRepository.AddCategoryResult {
         return runCatching {
             DbConnectionImpl.use { connection ->
-                val result = DSL.using(connection)
-                    .insertInto(CATEGORIES)
-                    .set(
-                        JMoneyUsageCategoriesRecord(
-                            userId = userId.value,
-                            name = name,
-                        ),
-                    )
-                    .returning()
-                    .fetchOne()!!
+                val result =
+                    DSL.using(connection)
+                        .insertInto(CATEGORIES)
+                        .set(
+                            JMoneyUsageCategoriesRecord(
+                                userId = userId.value,
+                                name = name,
+                            ),
+                        )
+                        .returning()
+                        .fetchOne()!!
 
                 MoneyUsageCategoryRepository.CategoryResult(
                     userId = UserId(result.userId!!),
@@ -48,16 +49,17 @@ class DbMoneyUsageCategoryRepository : MoneyUsageCategoryRepository {
     ): MoneyUsageCategoryRepository.GetCategoryResult {
         return runCatching {
             DbConnectionImpl.use { connection ->
-                val records = DSL.using(connection)
-                    .selectFrom(CATEGORIES)
-                    .where(
-                        CATEGORIES.USER_ID.eq(userId.value)
-                            .and(
-                                CATEGORIES.MONEY_USAGE_CATEGORY_ID
-                                    .`in`(moneyUsageCategoryIds.map { it.value }),
-                            ),
-                    )
-                    .fetch()
+                val records =
+                    DSL.using(connection)
+                        .selectFrom(CATEGORIES)
+                        .where(
+                            CATEGORIES.USER_ID.eq(userId.value)
+                                .and(
+                                    CATEGORIES.MONEY_USAGE_CATEGORY_ID
+                                        .`in`(moneyUsageCategoryIds.map { it.value }),
+                                ),
+                        )
+                        .fetch()
 
                 records.map { record ->
                     MoneyUsageCategoryRepository.CategoryResult(
@@ -73,17 +75,16 @@ class DbMoneyUsageCategoryRepository : MoneyUsageCategoryRepository {
         )
     }
 
-    override fun getCategory(
-        userId: UserId,
-    ): MoneyUsageCategoryRepository.GetCategoryResult {
+    override fun getCategory(userId: UserId): MoneyUsageCategoryRepository.GetCategoryResult {
         return runCatching {
             DbConnectionImpl.use { connection ->
-                val records = DSL.using(connection)
-                    .selectFrom(CATEGORIES)
-                    .where(
-                        CATEGORIES.USER_ID.eq(userId.value),
-                    )
-                    .fetch()
+                val records =
+                    DSL.using(connection)
+                        .selectFrom(CATEGORIES)
+                        .where(
+                            CATEGORIES.USER_ID.eq(userId.value),
+                        )
+                        .fetch()
 
                 records.map { record ->
                     MoneyUsageCategoryRepository.CategoryResult(

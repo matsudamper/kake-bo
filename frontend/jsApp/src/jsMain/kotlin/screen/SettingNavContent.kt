@@ -60,12 +60,13 @@ internal fun SettingNavContent(
 
         ScreenStructure.Root.Settings.Categories -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel = remember {
-                    SettingCategoriesViewModel(
-                        coroutineScope = coroutineScope,
-                        api = SettingScreenCategoryApi(),
-                    )
-                }
+                val viewModel =
+                    remember {
+                        SettingCategoriesViewModel(
+                            coroutineScope = coroutineScope,
+                            api = SettingScreenCategoryApi(),
+                        )
+                    }
 
                 LaunchedEffect(viewModel.viewModelEventHandler) {
                     viewModelEventHandlers.handle(viewModel.viewModelEventHandler)
@@ -83,13 +84,14 @@ internal fun SettingNavContent(
 
         is ScreenStructure.Root.Settings.Category -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel = remember {
-                    SettingCategoryViewModel(
-                        coroutineScope = coroutineScope,
-                        api = SettingScreenCategoryApi(),
-                        categoryId = state.id,
-                    )
-                }
+                val viewModel =
+                    remember {
+                        SettingCategoryViewModel(
+                            coroutineScope = coroutineScope,
+                            api = SettingScreenCategoryApi(),
+                            categoryId = state.id,
+                        )
+                    }
                 LaunchedEffect(viewModel.viewModelEventHandler) {
                     viewModelEventHandlers.handle(viewModel.viewModelEventHandler)
                 }
@@ -105,14 +107,15 @@ internal fun SettingNavContent(
 
         ScreenStructure.Root.Settings.Imap -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel = remember {
-                    ImapSettingViewModel(
-                        coroutineScope = coroutineScope,
-                        graphqlQuery = GraphqlUserConfigQuery(),
-                        globalEventSender = globalEventSender,
-                        ioDispatchers = Dispatchers.Unconfined,
-                    )
-                }
+                val viewModel =
+                    remember {
+                        ImapSettingViewModel(
+                            coroutineScope = coroutineScope,
+                            graphqlQuery = GraphqlUserConfigQuery(),
+                            globalEventSender = globalEventSender,
+                            ioDispatchers = Dispatchers.Unconfined,
+                        )
+                    }
 
                 ImapConfigScreen(
                     uiState = viewModel.uiState.collectAsState().value,
@@ -123,15 +126,17 @@ internal fun SettingNavContent(
 
         ScreenStructure.Root.Settings.MailCategoryFilters -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel = remember(coroutineScope) {
-                    SettingMailCategoryFiltersViewModel(
-                        coroutineScope = coroutineScope,
-                        pagingModel = ImportedMailCategoryFilterScreenPagingModel(
+                val viewModel =
+                    remember(coroutineScope) {
+                        SettingMailCategoryFiltersViewModel(
                             coroutineScope = coroutineScope,
-                        ),
-                        api = SettingImportedMailCategoryFilterApi(),
-                    )
-                }
+                            pagingModel =
+                                ImportedMailCategoryFilterScreenPagingModel(
+                                    coroutineScope = coroutineScope,
+                                ),
+                            api = SettingImportedMailCategoryFilterApi(),
+                        )
+                    }
                 LaunchedEffect(viewModel.eventHandler, viewModelEventHandlers) {
                     viewModelEventHandlers.handle(viewModel.eventHandler)
                 }
@@ -145,13 +150,14 @@ internal fun SettingNavContent(
 
         is ScreenStructure.Root.Settings.MailCategoryFilter -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel = remember(coroutineScope) {
-                    ImportedMailFilterCategoryViewModel(
-                        coroutineScope = coroutineScope,
-                        id = state.id,
-                        api = ImportedMailFilterCategoryScreenGraphqlApi(),
-                    )
-                }
+                val viewModel =
+                    remember(coroutineScope) {
+                        ImportedMailFilterCategoryViewModel(
+                            coroutineScope = coroutineScope,
+                            id = state.id,
+                            api = ImportedMailFilterCategoryScreenGraphqlApi(),
+                        )
+                    }
 
                 LaunchedEffect(viewModelEventHandlers, viewModel.eventHandler) {
                     viewModelEventHandlers.handle(viewModel.eventHandler)
@@ -167,13 +173,14 @@ internal fun SettingNavContent(
 
         ScreenStructure.Root.Settings.Login -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel = remember(coroutineScope) {
-                    LoginSettingViewModel(
-                        coroutineScope = coroutineScope,
-                        api = LoginSettingScreenApi(),
-                        fidoApi = FidoApi(),
-                    )
-                }
+                val viewModel =
+                    remember(coroutineScope) {
+                        LoginSettingViewModel(
+                            coroutineScope = coroutineScope,
+                            api = LoginSettingScreenApi(),
+                            fidoApi = FidoApi(),
+                        )
+                    }
 
                 LaunchedEffect(viewModelEventHandlers, viewModel.eventHandler) {
                     viewModelEventHandlers.handle(viewModel.eventHandler)

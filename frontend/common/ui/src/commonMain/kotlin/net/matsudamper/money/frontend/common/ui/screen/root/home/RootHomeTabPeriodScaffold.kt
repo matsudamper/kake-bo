@@ -48,6 +48,7 @@ public data class RootHomeTabPeriodUiState(
         ) : LoadingState
 
         public data object Loading : LoadingState
+
         public data object Error : LoadingState
     }
 
@@ -75,9 +76,13 @@ public data class RootHomeTabPeriodUiState(
     @Immutable
     public interface Event {
         public fun onClickNextMonth()
+
         public fun onClickPreviousMonth()
+
         public fun onClickRange(range: Int)
+
         public fun onViewInitialized()
+
         public fun onClickRetry()
     }
 }
@@ -107,11 +112,12 @@ public fun RootHomeTabPeriodScaffold(
     ) {
         var containerHeight by remember { mutableStateOf(0.dp) }
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .onSizeChanged {
-                    containerHeight = with(density) { it.height.toDp() }
-                },
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .onSizeChanged {
+                        containerHeight = with(density) { it.height.toDp() }
+                    },
         ) {
             when (uiState.loadingState) {
                 RootHomeTabPeriodUiState.LoadingState.Loading -> {
@@ -133,9 +139,10 @@ public fun RootHomeTabPeriodScaffold(
                     val scrollState = rememberScrollState()
                     var scrollBarHeight by remember { mutableIntStateOf(0) }
                     Column(
-                        modifier = Modifier
-                            .verticalScroll(scrollState)
-                            .padding(horizontal = 24.dp),
+                        modifier =
+                            Modifier
+                                .verticalScroll(scrollState)
+                                .padding(horizontal = 24.dp),
                     ) {
                         Spacer(modifier = Modifier.height(12.dp))
                         RootHomePeriodSection(
@@ -159,17 +166,19 @@ public fun RootHomeTabPeriodScaffold(
                         Spacer(modifier = Modifier.height(with(density) { scrollBarHeight.toDp() }))
                     }
                     ScrollButtons(
-                        modifier = Modifier
-                            .onSizeChanged {
-                                scrollBarHeight = it.height
-                            }
-                            .align(Alignment.BottomEnd)
-                            .padding(ScrollButtonsDefaults.padding)
-                            .height(ScrollButtonsDefaults.height),
+                        modifier =
+                            Modifier
+                                .onSizeChanged {
+                                    scrollBarHeight = it.height
+                                }
+                                .align(Alignment.BottomEnd)
+                                .padding(ScrollButtonsDefaults.padding)
+                                .height(ScrollButtonsDefaults.height),
                         scrollState = scrollState,
-                        scrollSize = with(density) {
-                            containerHeight.toPx() * 0.4f
-                        },
+                        scrollSize =
+                            with(density) {
+                                containerHeight.toPx() * 0.4f
+                            },
                     )
                 }
             }
@@ -187,8 +196,9 @@ private fun BetweenLoaded(
         modifier = modifier,
     ) {
         Box(
-            modifier = Modifier
-                .padding(bottom = 4.dp),
+            modifier =
+                Modifier
+                    .padding(bottom = 4.dp),
         ) {
             var expanded by remember { mutableStateOf(false) }
             DropDownMenuButton(

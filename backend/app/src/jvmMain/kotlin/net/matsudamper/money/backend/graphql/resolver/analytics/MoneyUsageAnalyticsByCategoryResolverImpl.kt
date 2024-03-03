@@ -25,13 +25,14 @@ class MoneyUsageAnalyticsByCategoryResolverImpl : MoneyUsageAnalyticsByCategoryR
         context.verifyUserSessionAndGetUserId()
 
         val dataLoader = context.dataLoaders.moneyUsageAnalyticsBySubCategoryLoader.get(env)
-        val future = dataLoader.load(
-            MoneyUsageAnalyticsBySubCategoryLoader.Key(
-                id = moneyUsageAnalyticsByCategory.category.id,
-                sinceDateTimeAt = env.localContext.query.sinceDateTime,
-                untilDateTimeAt = env.localContext.query.untilDateTime,
-            ),
-        )
+        val future =
+            dataLoader.load(
+                MoneyUsageAnalyticsBySubCategoryLoader.Key(
+                    id = moneyUsageAnalyticsByCategory.category.id,
+                    sinceDateTimeAt = env.localContext.query.sinceDateTime,
+                    untilDateTimeAt = env.localContext.query.untilDateTime,
+                ),
+            )
         return CompletableFuture.allOf(future).thenApplyAsync {
             future.get().subCategories.map {
                 QlMoneyUsageAnalyticsBySubCategory(

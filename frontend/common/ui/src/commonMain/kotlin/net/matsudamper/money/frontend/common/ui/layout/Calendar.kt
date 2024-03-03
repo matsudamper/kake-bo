@@ -63,18 +63,20 @@ public fun Calendar(
         }
     }
 
-    val calendarItems = remember(currentMonthDateList) {
-        val offset = when (currentMonthDateList.first().dayOfWeek) {
-            DayOfWeek.SUNDAY -> 0
-            DayOfWeek.MONDAY -> 1
-            DayOfWeek.TUESDAY -> 2
-            DayOfWeek.WEDNESDAY -> 3
-            DayOfWeek.THURSDAY -> 4
-            DayOfWeek.FRIDAY -> 5
-            DayOfWeek.SATURDAY -> 6
+    val calendarItems =
+        remember(currentMonthDateList) {
+            val offset =
+                when (currentMonthDateList.first().dayOfWeek) {
+                    DayOfWeek.SUNDAY -> 0
+                    DayOfWeek.MONDAY -> 1
+                    DayOfWeek.TUESDAY -> 2
+                    DayOfWeek.WEDNESDAY -> 3
+                    DayOfWeek.THURSDAY -> 4
+                    DayOfWeek.FRIDAY -> 5
+                    DayOfWeek.SATURDAY -> 6
+                }
+            (0 until offset).map { null } + currentMonthDateList
         }
-        (0 until offset).map { null } + currentMonthDateList
-    }
     Column(modifier = modifier) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -83,7 +85,7 @@ public fun Calendar(
         ) {
             IconButton(onClick = {
                 visibleCalendarDate = visibleCalendarDate.minus(1, DateTimeUnit.MONTH)
-            },) {
+            }) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowLeft,
                     contentDescription = "前の月",
@@ -91,15 +93,16 @@ public fun Calendar(
                 )
             }
             Text(
-                modifier = Modifier
-                    .padding(12.dp),
+                modifier =
+                    Modifier
+                        .padding(12.dp),
                 textAlign = TextAlign.Center,
                 text = "${currentMonthDateList.first().year}年${currentMonthDateList.first().monthNumber}月",
                 color = MaterialTheme.colorScheme.onSurface,
             )
             IconButton(onClick = {
                 visibleCalendarDate = visibleCalendarDate.plus(1, DateTimeUnit.MONTH)
-            },) {
+            }) {
                 Icon(
                     imageVector = Icons.Default.KeyboardArrowRight,
                     contentDescription = "後の月",
@@ -113,49 +116,54 @@ public fun Calendar(
         ) {
             items(7) {
                 Text(
-                    modifier = Modifier
-                        .padding(vertical = 8.dp)
-                        .fillMaxWidth(),
+                    modifier =
+                        Modifier
+                            .padding(vertical = 8.dp)
+                            .fillMaxWidth(),
                     textAlign = TextAlign.Center,
-                    text = when (it) {
-                        0 -> "日"
-                        1 -> "月"
-                        2 -> "火"
-                        3 -> "水"
-                        4 -> "木"
-                        5 -> "金"
-                        6 -> "土"
-                        else -> throw IllegalStateException()
-                    },
+                    text =
+                        when (it) {
+                            0 -> "日"
+                            1 -> "月"
+                            2 -> "火"
+                            3 -> "水"
+                            4 -> "木"
+                            5 -> "金"
+                            6 -> "土"
+                            else -> throw IllegalStateException()
+                        },
                     color = MaterialTheme.colorScheme.onSurface,
                 )
             }
             items(calendarItems) { date ->
                 Box(
-                    modifier = Modifier
-                        .border(1.dp, color = MaterialTheme.colorScheme.inversePrimary)
-                        .background(
-                            if (latestSelectedDate == date) {
-                                MaterialTheme.colorScheme.onPrimaryContainer
-                            } else {
-                                Color.Transparent
-                            },
-                        ),
+                    modifier =
+                        Modifier
+                            .border(1.dp, color = MaterialTheme.colorScheme.inversePrimary)
+                            .background(
+                                if (latestSelectedDate == date) {
+                                    MaterialTheme.colorScheme.onPrimaryContainer
+                                } else {
+                                    Color.Transparent
+                                },
+                            ),
                 ) {
                     if (date != null) {
                         Text(
-                            modifier = Modifier
-                                .clickable {
-                                    changeSelectedDate(date)
-                                }
-                                .fillMaxWidth()
-                                .padding(8.dp),
+                            modifier =
+                                Modifier
+                                    .clickable {
+                                        changeSelectedDate(date)
+                                    }
+                                    .fillMaxWidth()
+                                    .padding(8.dp),
                             textAlign = TextAlign.Center,
                             text = date.dayOfMonth.toString(),
-                            color = when (today == date) {
-                                true -> MaterialTheme.colorScheme.primary
-                                false -> MaterialTheme.colorScheme.onSurface
-                            },
+                            color =
+                                when (today == date) {
+                                    true -> MaterialTheme.colorScheme.primary
+                                    false -> MaterialTheme.colorScheme.onSurface
+                                },
                         )
                     }
                 }

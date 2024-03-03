@@ -54,26 +54,30 @@ class DbImportedImportedMailRepository(
         return ImportedMailRepository.AddUserResult.Success
     }
 
-    override fun getCount(userId: UserId, isLinked: Boolean?): Int? {
+    override fun getCount(
+        userId: UserId,
+        isLinked: Boolean?,
+    ): Int? {
         return dbConnection.use { connection ->
-            val result = DSL.using(connection)
-                .select(DSL.count())
-                .from(userMails)
-                .leftJoin(relation).on(
-                    relation.USER_MAIL_ID.eq(userMails.USER_MAIL_ID),
-                )
-                .where(
-                    DSL.value(true)
-                        .and(userMails.USER_ID.eq(userId.value))
-                        .and(
-                            when (isLinked) {
-                                true -> relation.MONEY_USAGE_ID.isNotNull
-                                false -> relation.MONEY_USAGE_ID.isNull
-                                null -> DSL.value(true)
-                            },
-                        ),
-                )
-                .fetchOne()
+            val result =
+                DSL.using(connection)
+                    .select(DSL.count())
+                    .from(userMails)
+                    .leftJoin(relation).on(
+                        relation.USER_MAIL_ID.eq(userMails.USER_MAIL_ID),
+                    )
+                    .where(
+                        DSL.value(true)
+                            .and(userMails.USER_ID.eq(userId.value))
+                            .and(
+                                when (isLinked) {
+                                    true -> relation.MONEY_USAGE_ID.isNotNull
+                                    false -> relation.MONEY_USAGE_ID.isNull
+                                    null -> DSL.value(true)
+                                },
+                            ),
+                    )
+                    .fetchOne()
 
             result?.get(DSL.count())
         }
@@ -85,15 +89,16 @@ class DbImportedImportedMailRepository(
     ): Result<MutableList<ImportedMailId>> {
         return runCatching {
             dbConnection.use { connection ->
-                val results = DSL.using(connection)
-                    .select(userMails.USER_MAIL_ID)
-                    .from(userMails)
-                    .where(
-                        DSL.value(true)
-                            .and(userMails.USER_ID.eq(userId.value))
-                            .and(userMails.USER_MAIL_ID.`in`(mailIds.map { it.id })),
-                    )
-                    .fetch()
+                val results =
+                    DSL.using(connection)
+                        .select(userMails.USER_MAIL_ID)
+                        .from(userMails)
+                        .where(
+                            DSL.value(true)
+                                .and(userMails.USER_ID.eq(userId.value))
+                                .and(userMails.USER_MAIL_ID.`in`(mailIds.map { it.id })),
+                        )
+                        .fetch()
 
                 results.map { result ->
                     ImportedMailId(result.get(userMails.USER_MAIL_ID)!!)
@@ -111,125 +116,132 @@ class DbImportedImportedMailRepository(
         isLinked: Boolean?,
     ): ImportedMailRepository.MailPagingResult {
         return dbConnection.use { connection ->
-            val result = DSL.using(connection)
-                .select(
-                    userMails.USER_MAIL_ID,
-                    userMails.DATETIME,
-                    userMails.CREATED_DATETIME,
-                )
-                .from(userMails)
-                .leftJoin(relation).using(relation.USER_MAIL_ID)
-                .leftJoin(moneyUsages).using(moneyUsages.MONEY_USAGE_ID)
-                .where(
-                    DSL.value(true)
-                        .and(userMails.USER_ID.eq(userId.value))
-                        .and(
-                            when (isLinked) {
-                                true -> {
-                                    relation.MONEY_USAGE_ID.isNotNull
-                                }
-
-                                false -> {
-                                    moneyUsages.MONEY_USAGE_ID.isNull
-                                        .or(relation.MONEY_USAGE_ID.isNull)
-                                }
-
-                                null -> DSL.value(true)
-                            },
-                        )
-                        .and(
-                            if (pagingInfo == null) {
-                                DSL.value(true)
-                            } else {
-                                when (pagingInfo) {
-                                    is ImportedMailRepository.PagingInfo.CreatedDateTime -> {
-                                        val dbRow = DSL.row(userMails.CREATED_DATETIME, userMails.USER_MAIL_ID)
-                                        val inputRow = DSL.row(pagingInfo.time, pagingInfo.importedMailId.id)
-
-                                        if (isAsc) {
-                                            dbRow.greaterThan(inputRow)
-                                        } else {
-                                            dbRow.lessThan(inputRow)
-                                        }
+            val result =
+                DSL.using(connection)
+                    .select(
+                        userMails.USER_MAIL_ID,
+                        userMails.DATETIME,
+                        userMails.CREATED_DATETIME,
+                    )
+                    .from(userMails)
+                    .leftJoin(relation).using(relation.USER_MAIL_ID)
+                    .leftJoin(moneyUsages).using(moneyUsages.MONEY_USAGE_ID)
+                    .where(
+                        DSL.value(true)
+                            .and(userMails.USER_ID.eq(userId.value))
+                            .and(
+                                when (isLinked) {
+                                    true -> {
+                                        relation.MONEY_USAGE_ID.isNotNull
                                     }
 
-                                    is ImportedMailRepository.PagingInfo.DateTime -> {
-                                        val dbRow = DSL.row(userMails.DATETIME, userMails.USER_MAIL_ID)
-                                        val inputRow = DSL.row(pagingInfo.time, pagingInfo.importedMailId.id)
+                                    false -> {
+                                        moneyUsages.MONEY_USAGE_ID.isNull
+                                            .or(relation.MONEY_USAGE_ID.isNull)
+                                    }
 
-                                        if (isAsc) {
-                                            dbRow.greaterThan(inputRow)
-                                        } else {
-                                            dbRow.lessThan(inputRow)
+                                    null -> DSL.value(true)
+                                },
+                            )
+                            .and(
+                                if (pagingInfo == null) {
+                                    DSL.value(true)
+                                } else {
+                                    when (pagingInfo) {
+                                        is ImportedMailRepository.PagingInfo.CreatedDateTime -> {
+                                            val dbRow = DSL.row(userMails.CREATED_DATETIME, userMails.USER_MAIL_ID)
+                                            val inputRow = DSL.row(pagingInfo.time, pagingInfo.importedMailId.id)
+
+                                            if (isAsc) {
+                                                dbRow.greaterThan(inputRow)
+                                            } else {
+                                                dbRow.lessThan(inputRow)
+                                            }
+                                        }
+
+                                        is ImportedMailRepository.PagingInfo.DateTime -> {
+                                            val dbRow = DSL.row(userMails.DATETIME, userMails.USER_MAIL_ID)
+                                            val inputRow = DSL.row(pagingInfo.time, pagingInfo.importedMailId.id)
+
+                                            if (isAsc) {
+                                                dbRow.greaterThan(inputRow)
+                                            } else {
+                                                dbRow.lessThan(inputRow)
+                                            }
                                         }
                                     }
-                                }
-                            },
-                        ),
-                )
-                .orderBy(
-                    when (sortedKey) {
-                        ImportedMailRepository.MailSortedKey.CREATE_DATETIME -> userMails.CREATED_DATETIME
-                        ImportedMailRepository.MailSortedKey.DATETIME -> userMails.DATETIME
-                    }.run {
-                        when (isAsc) {
-                            true -> asc()
-                            false -> desc()
-                        }
-                    },
-                    userMails.USER_MAIL_ID.run {
-                        when (isAsc) {
-                            true -> asc()
-                            false -> desc()
-                        }
-                    },
-                )
-                .limit(size)
-                .fetch()
+                                },
+                            ),
+                    )
+                    .orderBy(
+                        when (sortedKey) {
+                            ImportedMailRepository.MailSortedKey.CREATE_DATETIME -> userMails.CREATED_DATETIME
+                            ImportedMailRepository.MailSortedKey.DATETIME -> userMails.DATETIME
+                        }.run {
+                            when (isAsc) {
+                                true -> asc()
+                                false -> desc()
+                            }
+                        },
+                        userMails.USER_MAIL_ID.run {
+                            when (isAsc) {
+                                true -> asc()
+                                false -> desc()
+                            }
+                        },
+                    )
+                    .limit(size)
+                    .fetch()
 
-            val mails = result.map {
-                ImportedMailId(it.get(userMails.USER_MAIL_ID)!!)
-            }
+            val mails =
+                result.map {
+                    ImportedMailId(it.get(userMails.USER_MAIL_ID)!!)
+                }
             ImportedMailRepository.MailPagingResult(
                 mails = mails,
-                pagingInfo = run pagingInfo@{
-                    when (sortedKey) {
-                        ImportedMailRepository.MailSortedKey.CREATE_DATETIME -> {
-                            ImportedMailRepository.PagingInfo.CreatedDateTime(
-                                importedMailId = mails.lastOrNull() ?: return@pagingInfo null,
-                                time = result.lastOrNull()?.get(userMails.CREATED_DATETIME) ?: return@pagingInfo null,
-                            )
-                        }
+                pagingInfo =
+                    run pagingInfo@{
+                        when (sortedKey) {
+                            ImportedMailRepository.MailSortedKey.CREATE_DATETIME -> {
+                                ImportedMailRepository.PagingInfo.CreatedDateTime(
+                                    importedMailId = mails.lastOrNull() ?: return@pagingInfo null,
+                                    time = result.lastOrNull()?.get(userMails.CREATED_DATETIME) ?: return@pagingInfo null,
+                                )
+                            }
 
-                        ImportedMailRepository.MailSortedKey.DATETIME -> {
-                            ImportedMailRepository.PagingInfo.DateTime(
-                                importedMailId = mails.lastOrNull() ?: return@pagingInfo null,
-                                time = result.lastOrNull()?.get(userMails.DATETIME) ?: return@pagingInfo null,
-                            )
+                            ImportedMailRepository.MailSortedKey.DATETIME -> {
+                                ImportedMailRepository.PagingInfo.DateTime(
+                                    importedMailId = mails.lastOrNull() ?: return@pagingInfo null,
+                                    time = result.lastOrNull()?.get(userMails.DATETIME) ?: return@pagingInfo null,
+                                )
+                            }
                         }
-                    }
-                },
+                    },
             )
         }
     }
 
-    override fun getMails(userId: UserId, mailIds: List<ImportedMailId>): List<ImportedMailRepository.Mail> {
+    override fun getMails(
+        userId: UserId,
+        mailIds: List<ImportedMailId>,
+    ): List<ImportedMailRepository.Mail> {
         return dbConnection.use { connection ->
-            val result = DSL.using(connection)
-                .select(
-                    userMails.USER_MAIL_ID,
-                    userMails.PLAIN,
-                    userMails.HTML,
-                    userMails.FROM_MAIL,
-                    userMails.SUBJECT,
-                    userMails.DATETIME,
-                )
-                .from(userMails)
-                .where(
-                    userMails.USER_ID.eq(userId.value)
-                        .and(userMails.USER_MAIL_ID.`in`(mailIds.map { it.id })),
-                )
-                .fetch()
+            val result =
+                DSL.using(connection)
+                    .select(
+                        userMails.USER_MAIL_ID,
+                        userMails.PLAIN,
+                        userMails.HTML,
+                        userMails.FROM_MAIL,
+                        userMails.SUBJECT,
+                        userMails.DATETIME,
+                    )
+                    .from(userMails)
+                    .where(
+                        userMails.USER_ID.eq(userId.value)
+                            .and(userMails.USER_MAIL_ID.`in`(mailIds.map { it.id })),
+                    )
+                    .fetch()
 
             result.map {
                 it.get(userMails.USER_MAIL_ID)
@@ -254,23 +266,25 @@ class DbImportedImportedMailRepository(
     ): Result<Map<MoneyUsageId, List<ImportedMailId>>> {
         return runCatching {
             dbConnection.use { connection ->
-                val result = DSL.using(connection)
-                    .select(relation.MONEY_USAGE_ID, userMails.USER_MAIL_ID)
-                    .from(userMails)
-                    .leftJoin(relation).using(relation.USER_MAIL_ID)
-                    .where(
-                        DSL.value(true)
-                            .and(userMails.USER_ID.eq(userId.value))
-                            .and(relation.MONEY_USAGE_ID.`in`(moneyUsageIdList.map { it.id })),
-                    )
-                    .fetch()
+                val result =
+                    DSL.using(connection)
+                        .select(relation.MONEY_USAGE_ID, userMails.USER_MAIL_ID)
+                        .from(userMails)
+                        .leftJoin(relation).using(relation.USER_MAIL_ID)
+                        .where(
+                            DSL.value(true)
+                                .and(userMails.USER_ID.eq(userId.value))
+                                .and(relation.MONEY_USAGE_ID.`in`(moneyUsageIdList.map { it.id })),
+                        )
+                        .fetch()
 
                 result.map {
                     MoneyUsageId(
                         it.get(relation.MONEY_USAGE_ID)!!,
-                    ) to ImportedMailId(
-                        it.get(userMails.USER_MAIL_ID)!!,
-                    )
+                    ) to
+                        ImportedMailId(
+                            it.get(userMails.USER_MAIL_ID)!!,
+                        )
                 }
                     .groupBy(
                         keySelector = { it.first },

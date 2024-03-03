@@ -21,15 +21,17 @@ class MailLinkScreenGraphqlApi(
             apolloClient
                 .query(
                     ImportedMailListScreenMailPagingQuery(
-                        query = ImportedMailQuery(
-                            cursor = Optional.present(cursor),
-                            filter = ImportedMailQueryFilter(
-                                isLinked = Optional.present(isLinked),
+                        query =
+                            ImportedMailQuery(
+                                cursor = Optional.present(cursor),
+                                filter =
+                                    ImportedMailQueryFilter(
+                                        isLinked = Optional.present(isLinked),
+                                    ),
+                                sortedBy = ImportedMailSortKey.DATETIME,
+                                isAsc = false,
+                                size = 10,
                             ),
-                            sortedBy = ImportedMailSortKey.DATETIME,
-                            isAsc = false,
-                            size = 10,
-                        ),
                     ),
                 )
                 .fetchPolicy(FetchPolicy.NetworkOnly)

@@ -9,22 +9,29 @@ import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 internal object EkiNetUsageServices : MoneyUsageServices {
     override val displayName: String = "えきネット"
 
-    override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): List<MoneyUsage> {
+    override fun parse(
+        subject: String,
+        from: String,
+        html: String,
+        plain: String,
+        date: LocalDateTime,
+    ): List<MoneyUsage> {
         val forwardedInfo = ParseUtil.parseForwarded(plain)
-        val canHandle = sequence {
-            yield(canHandled(from = from, subject = subject))
-            yield(
-                run {
-                    if (forwardedInfo != null) {
-                        val forwardedFrom = forwardedInfo.from ?: return@run false
-                        val forwardedSubject = forwardedInfo.subject ?: return@run false
-                        canHandled(from = forwardedFrom, subject = forwardedSubject)
-                    } else {
-                        false
-                    }
-                },
-            )
-        }
+        val canHandle =
+            sequence {
+                yield(canHandled(from = from, subject = subject))
+                yield(
+                    run {
+                        if (forwardedInfo != null) {
+                            val forwardedFrom = forwardedInfo.from ?: return@run false
+                            val forwardedSubject = forwardedInfo.subject ?: return@run false
+                            canHandled(from = forwardedFrom, subject = forwardedSubject)
+                        } else {
+                            false
+                        }
+                    },
+                )
+            }
         if (canHandle.any { it }.not()) return listOf()
         val lines = ParseUtil.splitByNewLine(plain)
 
@@ -44,25 +51,29 @@ internal object EkiNetUsageServices : MoneyUsageServices {
     }
 
     private fun getPrice(lines: List<String>): Int {
-        val index = lines.indexOf("■お支払い総額")
-            .takeIf { it >= 0 }!!
-            .plus(1)
+        val index =
+            lines.indexOf("■お支払い総額")
+                .takeIf { it >= 0 }!!
+                .plus(1)
 
         return ParseUtil.getInt(lines[index])!!
     }
 
     private fun getSection(lines: List<String>): String {
-        val ticketInfo = run description@{
-            val startIndex = lines.indexOf("==乗車券情報==")
-                .takeIf { it >= 0 }!!
-                .plus(1)
+        val ticketInfo =
+            run description@{
+                val startIndex =
+                    lines.indexOf("==乗車券情報==")
+                        .takeIf { it >= 0 }!!
+                        .plus(1)
 
-            val endIndex = lines.subList(startIndex, lines.size)
-                .indexOf("")
-                .takeIf { it >= 0 }!!
-                .plus(startIndex)
-            lines.subList(startIndex, endIndex)
-        }
+                val endIndex =
+                    lines.subList(startIndex, lines.size)
+                        .indexOf("")
+                        .takeIf { it >= 0 }!!
+                        .plus(startIndex)
+                lines.subList(startIndex, endIndex)
+            }
         return ticketInfo.associate {
             val (key, value) = it.split("：")
             key to value
@@ -70,19 +81,24 @@ internal object EkiNetUsageServices : MoneyUsageServices {
     }
 
     private fun getTrainInfo(lines: List<String>): String {
-        val startIndex = lines.indexOf("==列車情報==")
-            .takeIf { it >= 0 }!!
-            .plus(1)
+        val startIndex =
+            lines.indexOf("==列車情報==")
+                .takeIf { it >= 0 }!!
+                .plus(1)
 
-        val endIndex = lines.subList(startIndex, lines.size)
-            .indexOf("")
-            .takeIf { it >= 0 }!!
-            .plus(startIndex)
+        val endIndex =
+            lines.subList(startIndex, lines.size)
+                .indexOf("")
+                .takeIf { it >= 0 }!!
+                .plus(startIndex)
         return lines.subList(startIndex, endIndex)
             .joinToString("\n")
     }
 
-    private fun canHandled(from: String, subject: String): Boolean {
+    private fun canHandled(
+        from: String,
+        subject: String,
+    ): Boolean {
         return from == "reservation@eki-net.com" && subject.contains("【申込完了】申込内容（JRきっぷ）のご案内")
     }
 }

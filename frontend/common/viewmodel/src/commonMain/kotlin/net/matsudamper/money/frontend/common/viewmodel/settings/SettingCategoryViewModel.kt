@@ -22,12 +22,13 @@ public class SettingCategoryViewModel(
     private val coroutineScope: CoroutineScope,
     private val api: SettingScreenCategoryApi,
 ) {
-    private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
-        ViewModelState(
-            responseList = listOf(),
-            isFirstLoading = true,
-        ),
-    )
+    private val viewModelStateFlow: MutableStateFlow<ViewModelState> =
+        MutableStateFlow(
+            ViewModelState(
+                responseList = listOf(),
+                isFirstLoading = true,
+            ),
+        )
 
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
@@ -35,150 +36,159 @@ public class SettingCategoryViewModel(
     private val globalEventSender = EventSender<GlobalEvent>()
     public val globalEventHandler: EventHandler<GlobalEvent> = globalEventSender.asHandler()
 
-    public val uiState: StateFlow<SettingCategoryScreenUiState> = MutableStateFlow(
-        SettingCategoryScreenUiState(
-            event = object : SettingCategoryScreenUiState.Event {
-                override suspend fun onResume() {
-                }
-
-                override fun dismissCategoryInput() {
-                    coroutineScope.launch {
-                        viewModelStateFlow.update {
-                            it.copy(
-                                showAddSubCategoryNameInput = false,
-                            )
+    public val uiState: StateFlow<SettingCategoryScreenUiState> =
+        MutableStateFlow(
+            SettingCategoryScreenUiState(
+                event =
+                    object : SettingCategoryScreenUiState.Event {
+                        override suspend fun onResume() {
                         }
-                    }
-                }
 
-                override fun onClickAddSubCategoryButton() {
-                    coroutineScope.launch {
-                        viewModelStateFlow.update {
-                            it.copy(
-                                showAddSubCategoryNameInput = true,
-                            )
-                        }
-                    }
-                }
-
-                override fun subCategoryNameInputCompleted(text: String) {
-                    coroutineScope.launch {
-                        val result = api.addSubCategory(
-                            categoryId = categoryId,
-                            name = text,
-                        )?.data?.userMutation?.addSubCategory?.subCategory
-
-                        if (result == null) {
-                            launch {
-                                globalEventSender.send {
-                                    it.showNativeNotification("追加に失敗しました")
-                                }
-                            }
-                            return@launch
-                        } else {
-                            launch {
-                                globalEventSender.send {
-                                    it.showSnackBar("${result.name}を追加しました")
+                        override fun dismissCategoryInput() {
+                            coroutineScope.launch {
+                                viewModelStateFlow.update {
+                                    it.copy(
+                                        showAddSubCategoryNameInput = false,
+                                    )
                                 }
                             }
                         }
 
-                        viewModelStateFlow.update {
-                            it.copy(
-                                showAddSubCategoryNameInput = false,
-                            )
+                        override fun onClickAddSubCategoryButton() {
+                            coroutineScope.launch {
+                                viewModelStateFlow.update {
+                                    it.copy(
+                                        showAddSubCategoryNameInput = true,
+                                    )
+                                }
+                            }
                         }
 
-                        initialFetchSubCategories()
-                    }
-                }
+                        override fun subCategoryNameInputCompleted(text: String) {
+                            coroutineScope.launch {
+                                val result =
+                                    api.addSubCategory(
+                                        categoryId = categoryId,
+                                        name = text,
+                                    )?.data?.userMutation?.addSubCategory?.subCategory
 
-                override fun onClickChangeCategoryName() {
-                    val categoryInfo = viewModelStateFlow.value.categoryInfo ?: return
-                    coroutineScope.launch {
-                        viewModelStateFlow.update {
-                            it.copy(
-                                showCategoryNameChangeInput = SettingCategoryScreenUiState.FullScreenInputDialog(
-                                    initText = categoryInfo.name,
-                                    event = categoryNameChangeUiEvent,
-                                ),
-                            )
+                                if (result == null) {
+                                    launch {
+                                        globalEventSender.send {
+                                            it.showNativeNotification("追加に失敗しました")
+                                        }
+                                    }
+                                    return@launch
+                                } else {
+                                    launch {
+                                        globalEventSender.send {
+                                            it.showSnackBar("${result.name}を追加しました")
+                                        }
+                                    }
+                                }
+
+                                viewModelStateFlow.update {
+                                    it.copy(
+                                        showAddSubCategoryNameInput = false,
+                                    )
+                                }
+
+                                initialFetchSubCategories()
+                            }
                         }
-                    }
-                }
-            },
-            loadingState = SettingCategoryScreenUiState.LoadingState.Loading,
-            showCategoryNameInput = false,
-            showCategoryNameChangeDialog = null,
-            showSubCategoryNameChangeDialog = null,
-            categoryName = "",
-        ),
-    ).also { uiStateFlow ->
-        coroutineScope.launch {
-            viewModelStateFlow.collect { viewModelState ->
-                uiStateFlow.update { uiState ->
-                    val loadingState = if (viewModelState.isFirstLoading) {
-                        SettingCategoryScreenUiState.LoadingState.Loading
-                    } else {
-                        val items = viewModelState.responseList.map {
-                            it.nodes
-                        }.flatten()
-                            .filterNot { it.id in viewModelState.deletedSubCategoryIds }
-                        SettingCategoryScreenUiState.LoadingState.Loaded(
-                            item = items.map { item ->
-                                createItemUiState(item)
-                            }.toImmutableList(),
+
+                        override fun onClickChangeCategoryName() {
+                            val categoryInfo = viewModelStateFlow.value.categoryInfo ?: return
+                            coroutineScope.launch {
+                                viewModelStateFlow.update {
+                                    it.copy(
+                                        showCategoryNameChangeInput =
+                                            SettingCategoryScreenUiState.FullScreenInputDialog(
+                                                initText = categoryInfo.name,
+                                                event = categoryNameChangeUiEvent,
+                                            ),
+                                    )
+                                }
+                            }
+                        }
+                    },
+                loadingState = SettingCategoryScreenUiState.LoadingState.Loading,
+                showCategoryNameInput = false,
+                showCategoryNameChangeDialog = null,
+                showSubCategoryNameChangeDialog = null,
+                categoryName = "",
+            ),
+        ).also { uiStateFlow ->
+            coroutineScope.launch {
+                viewModelStateFlow.collect { viewModelState ->
+                    uiStateFlow.update { uiState ->
+                        val loadingState =
+                            if (viewModelState.isFirstLoading) {
+                                SettingCategoryScreenUiState.LoadingState.Loading
+                            } else {
+                                val items =
+                                    viewModelState.responseList.map {
+                                        it.nodes
+                                    }.flatten()
+                                        .filterNot { it.id in viewModelState.deletedSubCategoryIds }
+                                SettingCategoryScreenUiState.LoadingState.Loaded(
+                                    item =
+                                        items.map { item ->
+                                            createItemUiState(item)
+                                        }.toImmutableList(),
+                                )
+                            }
+
+                        uiState.copy(
+                            loadingState = loadingState,
+                            showCategoryNameInput = viewModelState.showAddSubCategoryNameInput,
+                            showCategoryNameChangeDialog = viewModelState.showCategoryNameChangeInput,
+                            showSubCategoryNameChangeDialog = viewModelState.showSubCategoryNameChangeInput,
+                            categoryName = viewModelState.categoryInfo?.name.orEmpty(),
                         )
                     }
+                }
+            }
+        }.asStateFlow()
 
-                    uiState.copy(
-                        loadingState = loadingState,
-                        showCategoryNameInput = viewModelState.showAddSubCategoryNameInput,
-                        showCategoryNameChangeDialog = viewModelState.showCategoryNameChangeInput,
-                        showSubCategoryNameChangeDialog = viewModelState.showSubCategoryNameChangeInput,
-                        categoryName = viewModelState.categoryInfo?.name.orEmpty(),
+    private val categoryNameChangeUiEvent =
+        object : SettingCategoryScreenUiState.FullScreenInputDialog.Event {
+            override fun onDismiss() {
+                dismiss()
+            }
+
+            override fun onTextInputCompleted(text: String) {
+                coroutineScope.launch {
+                    val result =
+                        api.updateCategory(
+                            id = categoryId,
+                            name = text,
+                        )?.data?.userMutation?.updateCategory
+                    if (result == null) {
+                        launch {
+                            globalEventSender.send {
+                                it.showNativeNotification("カテゴリ名の変更に失敗しました")
+                            }
+                        }
+                    } else {
+                        launch {
+                            globalEventSender.send {
+                                it.showSnackBar("カテゴリ名を変更しました")
+                            }
+                        }
+                    }
+                    dismiss()
+                }
+            }
+
+            private fun dismiss() {
+                viewModelStateFlow.update {
+                    it.copy(
+                        showCategoryNameChangeInput = null,
                     )
                 }
             }
         }
-    }.asStateFlow()
-
-    private val categoryNameChangeUiEvent = object : SettingCategoryScreenUiState.FullScreenInputDialog.Event {
-        override fun onDismiss() {
-            dismiss()
-        }
-
-        override fun onTextInputCompleted(text: String) {
-            coroutineScope.launch {
-                val result = api.updateCategory(
-                    id = categoryId,
-                    name = text,
-                )?.data?.userMutation?.updateCategory
-                if (result == null) {
-                    launch {
-                        globalEventSender.send {
-                            it.showNativeNotification("カテゴリ名の変更に失敗しました")
-                        }
-                    }
-                } else {
-                    launch {
-                        globalEventSender.send {
-                            it.showSnackBar("カテゴリ名を変更しました")
-                        }
-                    }
-                }
-                dismiss()
-            }
-        }
-
-        private fun dismiss() {
-            viewModelStateFlow.update {
-                it.copy(
-                    showCategoryNameChangeInput = null,
-                )
-            }
-        }
-    }
 
     init {
         initialFetchSubCategories()
@@ -188,88 +198,93 @@ public class SettingCategoryViewModel(
     private fun createItemUiState(item: CategorySettingScreenSubCategoriesPagingQuery.Node): SettingCategoryScreenUiState.SubCategoryItem {
         return SettingCategoryScreenUiState.SubCategoryItem(
             name = item.name,
-            event = object : SettingCategoryScreenUiState.SubCategoryItem.Event {
-                override fun onClick() {
-                }
-
-                override fun onClickChangeName() {
-                    viewModelStateFlow.update { viewModelState ->
-                        viewModelState.copy(
-                            showSubCategoryNameChangeInput = SettingCategoryScreenUiState.FullScreenInputDialog(
-                                initText = item.name,
-                                event = createEvent(),
-                            ),
-                        )
+            event =
+                object : SettingCategoryScreenUiState.SubCategoryItem.Event {
+                    override fun onClick() {
                     }
-                }
 
-                override fun onClickDelete() {
-                    coroutineScope.launch {
-                        val isSuccess = api.deleteSubCategory(
-                            id = item.id,
-                        )
-
-                        if (isSuccess.not()) {
-                            launch {
-                                globalEventSender.send {
-                                    it.showNativeNotification("削除に失敗しました")
-                                }
-                            }
-                        } else {
-                            launch {
-                                globalEventSender.send {
-                                    it.showSnackBar("削除しました")
-                                }
-                            }
-                            viewModelStateFlow.update { viewModelState ->
-                                viewModelState.copy(
-                                    deletedSubCategoryIds = viewModelState.deletedSubCategoryIds
-                                        .plus(item.id),
-                                )
-                            }
+                    override fun onClickChangeName() {
+                        viewModelStateFlow.update { viewModelState ->
+                            viewModelState.copy(
+                                showSubCategoryNameChangeInput =
+                                    SettingCategoryScreenUiState.FullScreenInputDialog(
+                                        initText = item.name,
+                                        event = createEvent(),
+                                    ),
+                            )
                         }
                     }
-                }
 
-                private fun createEvent(): SettingCategoryScreenUiState.FullScreenInputDialog.Event {
-                    return object : SettingCategoryScreenUiState.FullScreenInputDialog.Event {
-                        override fun onDismiss() {
-                            dismiss()
-                        }
-
-                        override fun onTextInputCompleted(text: String) {
-                            coroutineScope.launch {
-                                val result = api.updateSubCategory(
+                    override fun onClickDelete() {
+                        coroutineScope.launch {
+                            val isSuccess =
+                                api.deleteSubCategory(
                                     id = item.id,
-                                    name = text,
-                                )?.data?.userMutation?.updateSubCategory
-                                if (result == null) {
-                                    launch {
-                                        globalEventSender.send {
-                                            it.showNativeNotification("サブカテゴリ名の変更に失敗しました")
-                                        }
-                                    }
-                                } else {
-                                    launch {
-                                        globalEventSender.send {
-                                            it.showSnackBar("サブカテゴリ名を変更しました")
-                                        }
+                                )
+
+                            if (isSuccess.not()) {
+                                launch {
+                                    globalEventSender.send {
+                                        it.showNativeNotification("削除に失敗しました")
                                     }
                                 }
+                            } else {
+                                launch {
+                                    globalEventSender.send {
+                                        it.showSnackBar("削除しました")
+                                    }
+                                }
+                                viewModelStateFlow.update { viewModelState ->
+                                    viewModelState.copy(
+                                        deletedSubCategoryIds =
+                                            viewModelState.deletedSubCategoryIds
+                                                .plus(item.id),
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    private fun createEvent(): SettingCategoryScreenUiState.FullScreenInputDialog.Event {
+                        return object : SettingCategoryScreenUiState.FullScreenInputDialog.Event {
+                            override fun onDismiss() {
                                 dismiss()
                             }
-                        }
 
-                        private fun dismiss() {
-                            viewModelStateFlow.update { viewModelState ->
-                                viewModelState.copy(
-                                    showSubCategoryNameChangeInput = null,
-                                )
+                            override fun onTextInputCompleted(text: String) {
+                                coroutineScope.launch {
+                                    val result =
+                                        api.updateSubCategory(
+                                            id = item.id,
+                                            name = text,
+                                        )?.data?.userMutation?.updateSubCategory
+                                    if (result == null) {
+                                        launch {
+                                            globalEventSender.send {
+                                                it.showNativeNotification("サブカテゴリ名の変更に失敗しました")
+                                            }
+                                        }
+                                    } else {
+                                        launch {
+                                            globalEventSender.send {
+                                                it.showSnackBar("サブカテゴリ名を変更しました")
+                                            }
+                                        }
+                                    }
+                                    dismiss()
+                                }
+                            }
+
+                            private fun dismiss() {
+                                viewModelStateFlow.update { viewModelState ->
+                                    viewModelState.copy(
+                                        showSubCategoryNameChangeInput = null,
+                                    )
+                                }
                             }
                         }
                     }
-                }
-            },
+                },
         )
     }
 

@@ -14,37 +14,40 @@ class MoneyUsageDataLoaderDefine(
     private val repositoryFactory: DiContainer,
 ) : DataLoaderDefine<MoneyUsageDataLoaderDefine.Key, MoneyUsageDataLoaderDefine.MoneyUsage> {
     override val key: String = this::class.java.name
+
     override fun getDataLoader(): DataLoader<Key, MoneyUsage> {
         return DataLoaderFactory.newMappedDataLoader { keys, _ ->
             CompletableFuture.supplyAsync {
                 val dbMailRepository = repositoryFactory.createMoneyUsageRepository()
 
-                val result = keys.groupBy { it.userId }
-                    .map { (userId, key) ->
-                        dbMailRepository
-                            .getMoneyUsage(
-                                userId = userId,
-                                ids = key.map { it.moneyUsageId },
-                            ).fold(
-                                onSuccess = { results ->
-                                    results.associate {
-                                        Key(
-                                            userId = userId,
-                                            moneyUsageId = it.id,
-                                        ) to MoneyUsage(
-                                            id = it.id,
-                                            userId = it.userId,
-                                            amount = it.amount,
-                                            subCategoryId = it.subCategoryId,
-                                            date = it.date,
-                                            title = it.title,
-                                            description = it.description,
-                                        )
-                                    }
-                                },
-                                onFailure = { mapOf() },
-                            )
-                    }.flatten()
+                val result =
+                    keys.groupBy { it.userId }
+                        .map { (userId, key) ->
+                            dbMailRepository
+                                .getMoneyUsage(
+                                    userId = userId,
+                                    ids = key.map { it.moneyUsageId },
+                                ).fold(
+                                    onSuccess = { results ->
+                                        results.associate {
+                                            Key(
+                                                userId = userId,
+                                                moneyUsageId = it.id,
+                                            ) to
+                                                MoneyUsage(
+                                                    id = it.id,
+                                                    userId = it.userId,
+                                                    amount = it.amount,
+                                                    subCategoryId = it.subCategoryId,
+                                                    date = it.date,
+                                                    title = it.title,
+                                                    description = it.description,
+                                                )
+                                        }
+                                    },
+                                    onFailure = { mapOf() },
+                                )
+                        }.flatten()
 
                 keys.associateWith { key ->
                     result[key]

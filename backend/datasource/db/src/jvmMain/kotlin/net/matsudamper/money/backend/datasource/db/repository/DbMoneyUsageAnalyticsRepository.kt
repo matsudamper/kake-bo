@@ -27,15 +27,16 @@ class DbMoneyUsageAnalyticsRepository(
         return runCatching {
             dbConnection.use { connection ->
                 val count = DSL.coalesce(DSL.sum(usage.AMOUNT), 0.toBigDecimal())
-                val result = DSL.using(connection)
-                    .select(count)
-                    .from(usage)
-                    .where(usage.USER_ID.eq(userId.value))
-                    .and(
-                        usage.DATETIME.greaterOrEqual(sinceDateTimeAt)
-                            .and(usage.DATETIME.lessThan(untilDateTimeAt)),
-                    )
-                    .fetchOne()
+                val result =
+                    DSL.using(connection)
+                        .select(count)
+                        .from(usage)
+                        .where(usage.USER_ID.eq(userId.value))
+                        .and(
+                            usage.DATETIME.greaterOrEqual(sinceDateTimeAt)
+                                .and(usage.DATETIME.lessThan(untilDateTimeAt)),
+                        )
+                        .fetchOne()
 
                 result?.get(count)!!.toLong()
             }
@@ -56,35 +57,38 @@ class DbMoneyUsageAnalyticsRepository(
         return runCatching {
             dbConnection.use { connection ->
                 val amount = DSL.coalesce(DSL.sum(usage.AMOUNT), 0.toBigDecimal())
-                val results = DSL.using(connection)
-                    .select(amount, subCategories.MONEY_USAGE_SUB_CATEGORY_ID, subCategories.MONEY_USAGE_CATEGORY_ID)
-                    .from(usage)
-                    .join(subCategories).using(usage.MONEY_USAGE_SUB_CATEGORY_ID)
-                    .join(categories).using(subCategories.MONEY_USAGE_CATEGORY_ID)
-                    .where(
-                        DSL.value(true)
-                            .and(usage.USER_ID.eq(userId.value))
-                            .and(usage.DATETIME.greaterOrEqual(sinceDateTimeAt))
-                            .and(usage.DATETIME.lessThan(untilDateTimeAt))
-                            .and(subCategories.MONEY_USAGE_CATEGORY_ID.`in`(categoryIds.map { it.value })),
-                    )
-                    .groupBy(subCategories.MONEY_USAGE_SUB_CATEGORY_ID)
-                    .fetch()
+                val results =
+                    DSL.using(connection)
+                        .select(amount, subCategories.MONEY_USAGE_SUB_CATEGORY_ID, subCategories.MONEY_USAGE_CATEGORY_ID)
+                        .from(usage)
+                        .join(subCategories).using(usage.MONEY_USAGE_SUB_CATEGORY_ID)
+                        .join(categories).using(subCategories.MONEY_USAGE_CATEGORY_ID)
+                        .where(
+                            DSL.value(true)
+                                .and(usage.USER_ID.eq(userId.value))
+                                .and(usage.DATETIME.greaterOrEqual(sinceDateTimeAt))
+                                .and(usage.DATETIME.lessThan(untilDateTimeAt))
+                                .and(subCategories.MONEY_USAGE_CATEGORY_ID.`in`(categoryIds.map { it.value })),
+                        )
+                        .groupBy(subCategories.MONEY_USAGE_SUB_CATEGORY_ID)
+                        .fetch()
 
-                val groupedResult = results.groupBy {
-                    MoneyUsageCategoryId(it.get(categories.MONEY_USAGE_CATEGORY_ID)!!)
-                }
+                val groupedResult =
+                    results.groupBy {
+                        MoneyUsageCategoryId(it.get(categories.MONEY_USAGE_CATEGORY_ID)!!)
+                    }
                 categoryIds.map { categoryId ->
                     val result = groupedResult[categoryId]
 
                     MoneyUsageAnalyticsRepository.TotalAmountBySubCategory(
                         categoryId = categoryId,
-                        subCategories = result.orEmpty().map {
-                            MoneyUsageAnalyticsRepository.SubCategoryTotalAmount(
-                                id = MoneyUsageSubCategoryId(it.get(subCategories.MONEY_USAGE_SUB_CATEGORY_ID)!!),
-                                totalAmount = it.get(amount).toLong(),
-                            )
-                        },
+                        subCategories =
+                            result.orEmpty().map {
+                                MoneyUsageAnalyticsRepository.SubCategoryTotalAmount(
+                                    id = MoneyUsageSubCategoryId(it.get(subCategories.MONEY_USAGE_SUB_CATEGORY_ID)!!),
+                                    totalAmount = it.get(amount).toLong(),
+                                )
+                            },
                     )
                 }
             }
@@ -99,19 +103,20 @@ class DbMoneyUsageAnalyticsRepository(
         return runCatching {
             dbConnection.use { connection ->
                 val amount = DSL.sum(usage.AMOUNT)
-                val result = DSL.using(connection)
-                    .select(amount, categories.MONEY_USAGE_CATEGORY_ID)
-                    .from(usage)
-                    .join(subCategories).using(usage.MONEY_USAGE_SUB_CATEGORY_ID)
-                    .join(categories).using(subCategories.MONEY_USAGE_CATEGORY_ID)
-                    .where(
-                        DSL.value(true)
-                            .and(usage.USER_ID.eq(userId.value))
-                            .and(usage.DATETIME.greaterOrEqual(sinceDateTimeAt))
-                            .and(usage.DATETIME.lessThan(untilDateTimeAt)),
-                    )
-                    .groupBy(categories.MONEY_USAGE_CATEGORY_ID)
-                    .fetch()
+                val result =
+                    DSL.using(connection)
+                        .select(amount, categories.MONEY_USAGE_CATEGORY_ID)
+                        .from(usage)
+                        .join(subCategories).using(usage.MONEY_USAGE_SUB_CATEGORY_ID)
+                        .join(categories).using(subCategories.MONEY_USAGE_CATEGORY_ID)
+                        .where(
+                            DSL.value(true)
+                                .and(usage.USER_ID.eq(userId.value))
+                                .and(usage.DATETIME.greaterOrEqual(sinceDateTimeAt))
+                                .and(usage.DATETIME.lessThan(untilDateTimeAt)),
+                        )
+                        .groupBy(categories.MONEY_USAGE_CATEGORY_ID)
+                        .fetch()
 
                 result.map {
                     MoneyUsageAnalyticsRepository.TotalAmountByCategory(

@@ -28,21 +28,24 @@ public fun SettingScaffold(
     val settingHorizontalPadding = 24.dp
 
     Column(
-        modifier = modifier
-            .fillMaxWidth(),
+        modifier =
+            modifier
+                .fillMaxWidth(),
     ) {
         Row(
-            modifier = Modifier
-                .padding(horizontal = settingHorizontalPadding),
+            modifier =
+                Modifier
+                    .padding(horizontal = settingHorizontalPadding),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(
-                        horizontal = 18.dp,
-                        vertical = 24.dp,
-                    ),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(
+                            horizontal = 18.dp,
+                            vertical = 24.dp,
+                        ),
             ) {
                 ProvideTextStyle(titleStyle) {
                     title()
@@ -51,8 +54,9 @@ public fun SettingScaffold(
             menu()
         }
         Divider(
-            modifier = Modifier.fillMaxWidth()
-                .padding(horizontal = settingHorizontalPadding),
+            modifier =
+                Modifier.fillMaxWidth()
+                    .padding(horizontal = settingHorizontalPadding),
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
         )
         Box(
@@ -65,17 +69,18 @@ public fun SettingScaffold(
                 val max = 700.dp
                 val width = maxWidth
 
-                val paddingValues = remember(max, width) {
-                    if (max > width) {
-                        PaddingValues(
-                            horizontal = settingHorizontalPadding + 24.dp,
-                        )
-                    } else {
-                        PaddingValues(
-                            horizontal = (width - max) / 2 + (settingHorizontalPadding + 24.dp),
-                        )
+                val paddingValues =
+                    remember(max, width) {
+                        if (max > width) {
+                            PaddingValues(
+                                horizontal = settingHorizontalPadding + 24.dp,
+                            )
+                        } else {
+                            PaddingValues(
+                                horizontal = (width - max) / 2 + (settingHorizontalPadding + 24.dp),
+                            )
+                        }
                     }
-                }
                 content(paddingValues)
             }
         }

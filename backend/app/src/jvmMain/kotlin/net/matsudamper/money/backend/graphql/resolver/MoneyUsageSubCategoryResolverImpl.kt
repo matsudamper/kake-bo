@@ -18,13 +18,14 @@ class MoneyUsageSubCategoryResolverImpl : MoneyUsageSubCategoryResolver {
     ): CompletionStage<DataFetcherResult<String>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        val subCategoryLoader = context.dataLoaders.moneyUsageSubCategoryDataLoader.get(env)
-            .load(
-                MoneyUsageSubCategoryDataLoaderDefine.Key(
-                    userId = userId,
-                    subCategoryId = moneyUsageSubCategory.id,
-                ),
-            )
+        val subCategoryLoader =
+            context.dataLoaders.moneyUsageSubCategoryDataLoader.get(env)
+                .load(
+                    MoneyUsageSubCategoryDataLoaderDefine.Key(
+                        userId = userId,
+                        subCategoryId = moneyUsageSubCategory.id,
+                    ),
+                )
 
         return CompletableFuture.allOf(subCategoryLoader).thenApplyAsync {
             subCategoryLoader.get()!!.name
@@ -38,13 +39,14 @@ class MoneyUsageSubCategoryResolverImpl : MoneyUsageSubCategoryResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
 
-        val subCategoryLoader = context.dataLoaders.moneyUsageSubCategoryDataLoader.get(env)
-            .load(
-                MoneyUsageSubCategoryDataLoaderDefine.Key(
-                    userId = userId,
-                    subCategoryId = moneyUsageSubCategory.id,
-                ),
-            )
+        val subCategoryLoader =
+            context.dataLoaders.moneyUsageSubCategoryDataLoader.get(env)
+                .load(
+                    MoneyUsageSubCategoryDataLoaderDefine.Key(
+                        userId = userId,
+                        subCategoryId = moneyUsageSubCategory.id,
+                    ),
+                )
 
         return CompletableFuture.allOf(subCategoryLoader).thenApplyAsync {
             QlMoneyUsageCategory(

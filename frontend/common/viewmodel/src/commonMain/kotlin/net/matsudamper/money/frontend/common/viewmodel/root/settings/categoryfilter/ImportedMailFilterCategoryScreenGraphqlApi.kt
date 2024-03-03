@@ -23,16 +23,15 @@ import net.matsudamper.money.frontend.graphql.type.UpdateImportedMailCategoryFil
 public class ImportedMailFilterCategoryScreenGraphqlApi(
     private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
 ) {
-    public suspend fun addCondition(
-        id: ImportedMailCategoryFilterId,
-    ): Result<ApolloResponse<ImportedMailCategoryFilterScreenAddConditionMutation.Data>> {
+    public suspend fun addCondition(id: ImportedMailCategoryFilterId): Result<ApolloResponse<ImportedMailCategoryFilterScreenAddConditionMutation.Data>> {
         return runCatching {
             apolloClient
                 .mutation(
                     ImportedMailCategoryFilterScreenAddConditionMutation(
-                        input = AddImportedMailCategoryFilterConditionInput(
-                            id = id,
-                        ),
+                        input =
+                            AddImportedMailCategoryFilterConditionInput(
+                                id = id,
+                            ),
                     ),
                 )
                 .execute()
@@ -53,14 +52,15 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
                             id = id,
                             title = Optional.present(title),
                             subCategoryId = Optional.present(subCategoryId),
-                            operator = Optional.present(
-                                when (operator) {
-                                    ImportedMailFilterCategoryScreenUiState.Operator.AND -> ImportedMailFilterCategoryConditionOperator.AND
-                                    ImportedMailFilterCategoryScreenUiState.Operator.OR -> ImportedMailFilterCategoryConditionOperator.OR
-                                    ImportedMailFilterCategoryScreenUiState.Operator.UNKNOWN -> null
-                                    null -> null
-                                },
-                            ),
+                            operator =
+                                Optional.present(
+                                    when (operator) {
+                                        ImportedMailFilterCategoryScreenUiState.Operator.AND -> ImportedMailFilterCategoryConditionOperator.AND
+                                        ImportedMailFilterCategoryScreenUiState.Operator.OR -> ImportedMailFilterCategoryConditionOperator.OR
+                                        ImportedMailFilterCategoryScreenUiState.Operator.UNKNOWN -> null
+                                        null -> null
+                                    },
+                                ),
                         ),
                     ),
                 ).execute()
@@ -76,30 +76,33 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
         return runCatching {
             apolloClient.mutation(
                 ImportedMailCategoryFilterScreenUpdateConditionMutation(
-                    input = UpdateImportedMailCategoryFilterConditionInput(
-                        id = id,
-                        text = Optional.present(text),
-                        conditionType = when (type) {
-                            ImportedMailFilterCategoryScreenUiState.ConditionType.Include -> ImportedMailCategoryFilterConditionType.Include
-                            ImportedMailFilterCategoryScreenUiState.ConditionType.NotInclude -> ImportedMailCategoryFilterConditionType.NotInclude
-                            ImportedMailFilterCategoryScreenUiState.ConditionType.Equal -> ImportedMailCategoryFilterConditionType.Equal
-                            ImportedMailFilterCategoryScreenUiState.ConditionType.NotEqual -> ImportedMailCategoryFilterConditionType.NotEqual
-                            ImportedMailFilterCategoryScreenUiState.ConditionType.Unknown,
-                            null,
-                            -> null
-                        }.let { Optional.present(it) },
-                        dataSourceType = when (dataSource) {
-                            ImportedMailFilterCategoryScreenUiState.DataSource.MailFrom -> ImportedMailCategoryFilterDataSourceType.MailFrom
-                            ImportedMailFilterCategoryScreenUiState.DataSource.MailTitle -> ImportedMailCategoryFilterDataSourceType.MailTitle
-                            ImportedMailFilterCategoryScreenUiState.DataSource.MailHtml -> ImportedMailCategoryFilterDataSourceType.MailHtml
-                            ImportedMailFilterCategoryScreenUiState.DataSource.MailPlain -> ImportedMailCategoryFilterDataSourceType.MailPlain
-                            ImportedMailFilterCategoryScreenUiState.DataSource.Title -> ImportedMailCategoryFilterDataSourceType.Title
-                            ImportedMailFilterCategoryScreenUiState.DataSource.ServiceName -> ImportedMailCategoryFilterDataSourceType.ServiceName
-                            ImportedMailFilterCategoryScreenUiState.DataSource.Unknown,
-                            null,
-                            -> null
-                        }.let { Optional.present(it) },
-                    ),
+                    input =
+                        UpdateImportedMailCategoryFilterConditionInput(
+                            id = id,
+                            text = Optional.present(text),
+                            conditionType =
+                                when (type) {
+                                    ImportedMailFilterCategoryScreenUiState.ConditionType.Include -> ImportedMailCategoryFilterConditionType.Include
+                                    ImportedMailFilterCategoryScreenUiState.ConditionType.NotInclude -> ImportedMailCategoryFilterConditionType.NotInclude
+                                    ImportedMailFilterCategoryScreenUiState.ConditionType.Equal -> ImportedMailCategoryFilterConditionType.Equal
+                                    ImportedMailFilterCategoryScreenUiState.ConditionType.NotEqual -> ImportedMailCategoryFilterConditionType.NotEqual
+                                    ImportedMailFilterCategoryScreenUiState.ConditionType.Unknown,
+                                    null,
+                                    -> null
+                                }.let { Optional.present(it) },
+                            dataSourceType =
+                                when (dataSource) {
+                                    ImportedMailFilterCategoryScreenUiState.DataSource.MailFrom -> ImportedMailCategoryFilterDataSourceType.MailFrom
+                                    ImportedMailFilterCategoryScreenUiState.DataSource.MailTitle -> ImportedMailCategoryFilterDataSourceType.MailTitle
+                                    ImportedMailFilterCategoryScreenUiState.DataSource.MailHtml -> ImportedMailCategoryFilterDataSourceType.MailHtml
+                                    ImportedMailFilterCategoryScreenUiState.DataSource.MailPlain -> ImportedMailCategoryFilterDataSourceType.MailPlain
+                                    ImportedMailFilterCategoryScreenUiState.DataSource.Title -> ImportedMailCategoryFilterDataSourceType.Title
+                                    ImportedMailFilterCategoryScreenUiState.DataSource.ServiceName -> ImportedMailCategoryFilterDataSourceType.ServiceName
+                                    ImportedMailFilterCategoryScreenUiState.DataSource.Unknown,
+                                    null,
+                                    -> null
+                                }.let { Optional.present(it) },
+                        ),
                 ),
             ).execute()
         }

@@ -55,25 +55,26 @@ public fun HtmlTextInput(
     }
 
     Box(
-        modifier = modifier
-            .size(with(localDensity) { size.toDpSize() })
-            .layout { measurable, constraints ->
-                val placeable = measurable.measure(constraints)
-                htmlTextContext.setSize(
-                    id,
-                    width = placeable.width,
-                    maxHeight = constraints.maxHeight,
-                )
+        modifier =
+            modifier
+                .size(with(localDensity) { size.toDpSize() })
+                .layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+                    htmlTextContext.setSize(
+                        id,
+                        width = placeable.width,
+                        maxHeight = constraints.maxHeight,
+                    )
 
-                layout(placeable.width, placeable.height) {
-                    placeable.place(0, 0)
+                    layout(placeable.width, placeable.height) {
+                        placeable.place(0, 0)
+                    }
                 }
-            }
-            .onGloballyPositioned { newPosition ->
-                htmlTextContext.setPosition(
-                    id,
-                    newPosition.positionInRoot(),
-                )
-            },
+                .onGloballyPositioned { newPosition ->
+                    htmlTextContext.setPosition(
+                        id,
+                        newPosition.positionInRoot(),
+                    )
+                },
     )
 }

@@ -11,59 +11,72 @@ import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 internal object RakutenOnlineUsageService : MoneyUsageServices {
     override val displayName: String = "Rakuten Pay"
 
-    override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): List<MoneyUsage> {
-        val canHandle = sequence {
-            yield(canHandledWithFrom(from))
-            yield(canHandledWithSubject(subject))
-            yield(canHandledWithHtml(html))
-        }
+    override fun parse(
+        subject: String,
+        from: String,
+        html: String,
+        plain: String,
+        date: LocalDateTime,
+    ): List<MoneyUsage> {
+        val canHandle =
+            sequence {
+                yield(canHandledWithFrom(from))
+                yield(canHandledWithSubject(subject))
+                yield(canHandledWithHtml(html))
+            }
         if (canHandle.any { it }.not()) return listOf()
 
-        val title = sequence {
-            yield(
-                run title@{
-                    val result = "この度は提携サイト「(.+?)」にて楽天ペイ".toRegex(RegexOption.MULTILINE)
-                        .find(html)
-                        ?.groupValues?.getOrNull(1) ?: return@title null
+        val title =
+            sequence {
+                yield(
+                    run title@{
+                        val result =
+                            "この度は提携サイト「(.+?)」にて楽天ペイ".toRegex(RegexOption.MULTILINE)
+                                .find(html)
+                                ?.groupValues?.getOrNull(1) ?: return@title null
 
-                    ParseUtil.removeHtmlTag(result)
-                },
-            )
-            yield(
-                run title@{
-                    "この度は提携サイト「\\*(.+?)\\*」にて楽天ペイ".toRegex(RegexOption.MULTILINE)
-                        .find(plain)
-                        ?.groupValues?.getOrNull(1) ?: return@title null
-                },
-            )
-        }.filterNotNull().firstOrNull() ?: return listOf()
+                        ParseUtil.removeHtmlTag(result)
+                    },
+                )
+                yield(
+                    run title@{
+                        "この度は提携サイト「\\*(.+?)\\*」にて楽天ペイ".toRegex(RegexOption.MULTILINE)
+                            .find(plain)
+                            ?.groupValues?.getOrNull(1) ?: return@title null
+                    },
+                )
+            }.filterNotNull().firstOrNull() ?: return listOf()
 
-        val price = run price@{
-            val index = html.indexOf("小計：").takeIf { it >= 0 } ?: return listOf()
+        val price =
+            run price@{
+                val index = html.indexOf("小計：").takeIf { it >= 0 } ?: return listOf()
 
-            val result = """>(.+?)円<""".toRegex(RegexOption.MULTILINE)
-                .find(html.drop(index))
+                val result =
+                    """>(.+?)円<""".toRegex(RegexOption.MULTILINE)
+                        .find(html.drop(index))
 
-            ParseUtil.getInt(
-                result?.groupValues?.getOrNull(1) ?: return@price null,
-            )
-        }
+                ParseUtil.getInt(
+                    result?.groupValues?.getOrNull(1) ?: return@price null,
+                )
+            }
 
-        val dateTimeResult = run date@{
-            val index = html.indexOf("ご注文日：").takeIf { it >= 0 } ?: return@date date
-            val result = """(\d+)-(\d+)-(\d+) (\d+):(\d+):(\d+)""".toRegex(RegexOption.MULTILINE)
-                .find(html.drop(index))?.groupValues ?: return@date date
-            val year = result.getOrNull(1)?.toIntOrNull() ?: return@date date
-            val month = result.getOrNull(2)?.toIntOrNull() ?: return@date date
-            val day = result.getOrNull(3)?.toIntOrNull() ?: return@date date
-            val hour = result.getOrNull(4)?.toIntOrNull() ?: return@date date
-            val minute = result.getOrNull(5)?.toIntOrNull() ?: return@date date
-            val second = result.getOrNull(6)?.toIntOrNull() ?: return@date date
-            LocalDateTime.of(
-                LocalDate.of(year, month, day),
-                LocalTime.of(hour, minute, second),
-            )
-        }
+        val dateTimeResult =
+            run date@{
+                val index = html.indexOf("ご注文日：").takeIf { it >= 0 } ?: return@date date
+                val result =
+                    """(\d+)-(\d+)-(\d+) (\d+):(\d+):(\d+)""".toRegex(RegexOption.MULTILINE)
+                        .find(html.drop(index))?.groupValues ?: return@date date
+                val year = result.getOrNull(1)?.toIntOrNull() ?: return@date date
+                val month = result.getOrNull(2)?.toIntOrNull() ?: return@date date
+                val day = result.getOrNull(3)?.toIntOrNull() ?: return@date date
+                val hour = result.getOrNull(4)?.toIntOrNull() ?: return@date date
+                val minute = result.getOrNull(5)?.toIntOrNull() ?: return@date date
+                val second = result.getOrNull(6)?.toIntOrNull() ?: return@date date
+                LocalDateTime.of(
+                    LocalDate.of(year, month, day),
+                    LocalTime.of(hour, minute, second),
+                )
+            }
 
         return listOf(
             MoneyUsage(

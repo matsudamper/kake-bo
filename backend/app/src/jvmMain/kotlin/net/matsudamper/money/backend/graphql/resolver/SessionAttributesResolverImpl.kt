@@ -12,7 +12,10 @@ import net.matsudamper.money.graphql.model.QlSessionAttributes
 import net.matsudamper.money.graphql.model.SessionAttributesResolver
 
 class SessionAttributesResolverImpl : SessionAttributesResolver {
-    override fun currentSession(sessionAttributes: QlSessionAttributes, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlSession>> {
+    override fun currentSession(
+        sessionAttributes: QlSessionAttributes,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlSession>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val sessionInfo = context.verifyUserSessionAndGetSessionInfo()
 
@@ -24,7 +27,10 @@ class SessionAttributesResolverImpl : SessionAttributesResolver {
         }.toDataFetcher()
     }
 
-    override fun sessions(sessionAttributes: QlSessionAttributes, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<List<QlSession>>> {
+    override fun sessions(
+        sessionAttributes: QlSessionAttributes,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<List<QlSession>>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val sessionInfo = context.verifyUserSessionAndGetSessionInfo()
         val userSessionRepository = context.diContainer.createUserSessionRepository()

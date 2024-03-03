@@ -19,10 +19,13 @@ public data class ImportMailScreenUiState(
         @Immutable
         public interface Event {
             public fun onClickDelete()
+
             public fun onClickCancel()
+
             public fun onDismiss()
         }
     }
+
     public data class Mail(
         val isSelected: Boolean,
         val from: String,
@@ -33,7 +36,9 @@ public data class ImportMailScreenUiState(
         @Immutable
         public interface Event {
             public fun onClickDetail()
+
             public fun onClick()
+
             public fun onClickDelete()
         }
     }
@@ -41,8 +46,11 @@ public data class ImportMailScreenUiState(
     @Immutable
     public interface Event {
         public fun onViewInitialized()
+
         public fun htmlDismissRequest()
+
         public fun onClickImport()
+
         public fun onClickLoadMore()
     }
 }

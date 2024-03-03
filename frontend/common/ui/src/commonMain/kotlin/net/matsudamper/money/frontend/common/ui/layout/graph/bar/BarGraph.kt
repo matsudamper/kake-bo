@@ -72,24 +72,26 @@ internal fun BarGraph(
     val textMeasurer = rememberTextMeasurer(cacheSize = 2 + 12)
     val config = remember { BarGraphConfig(density) }
     val maxTotalValue by remember { derivedStateOf { latestUiState.items.maxOfOrNull { it.total } ?: 0 } }
-    val textMeasureCache = remember(textMeasurer) {
-        BarGraphTextMeasureCache(
-            textMeasurer = textMeasurer,
-        )
-    }
+    val textMeasureCache =
+        remember(textMeasurer) {
+            BarGraphTextMeasureCache(
+                textMeasurer = textMeasurer,
+            )
+        }
     LaunchedEffect(latestUiState.items) {
         textMeasureCache.updateItems(latestUiState.items)
     }
 
     BoxWithConstraints(modifier = modifier) {
         var cursorPosition by remember { mutableStateOf(Offset.Zero) }
-        val measureState = remember(density, config) {
-            BarGraphMeasureState(
-                density = density,
-                config = config,
-                textMeasureCache = textMeasureCache,
-            )
-        }
+        val measureState =
+            remember(density, config) {
+                BarGraphMeasureState(
+                    density = density,
+                    config = config,
+                    textMeasureCache = textMeasureCache,
+                )
+            }
         LaunchedEffect(constraints) {
             measureState.update(
                 constraints = constraints,
@@ -99,44 +101,46 @@ internal fun BarGraph(
             measureState.size(latestUiState.items.size)
         }
         Canvas(
-            modifier = Modifier.fillMaxHeight()
-                .width(with(density) { measureState.containerWidth.toDp() })
-                .pointerInput(Unit) {
-                    awaitEachGesture {
-                        val pointer = awaitPointerEvent()
-                        cursorPosition = pointer.changes.firstOrNull()?.position ?: return@awaitEachGesture
-                    }
-                }
-                .pointerInput(measureState.getGraphRangeRectsKey()) {
-                    awaitEachGesture {
-                        val pointer = awaitPointerEvent()
-
-                        when (pointer.type) {
-                            PointerEventType.Press -> {
-                                pointer.changes.forEach { it.consume() }
-                                while (true) {
-                                    val releasePointer = awaitPointerEvent()
-                                    when (releasePointer.type) {
-                                        PointerEventType.Release -> {
-                                            for (change in releasePointer.changes) {
-                                                val clickedIndex = measureState.graphRangeRects.indexOfFirst { it.contains(change.position) }
-                                                    .takeIf { it >= 0 }
-                                                    ?: continue
-                                                latestUiState.items.getOrNull(clickedIndex)?.event?.onClick()
-                                                break
-                                            }
-                                            break
-                                        }
-
-                                        PointerEventType.Exit -> break
-                                    }
-                                }
-                            }
-
-                            else -> Unit
+            modifier =
+                Modifier.fillMaxHeight()
+                    .width(with(density) { measureState.containerWidth.toDp() })
+                    .pointerInput(Unit) {
+                        awaitEachGesture {
+                            val pointer = awaitPointerEvent()
+                            cursorPosition = pointer.changes.firstOrNull()?.position ?: return@awaitEachGesture
                         }
                     }
-                },
+                    .pointerInput(measureState.getGraphRangeRectsKey()) {
+                        awaitEachGesture {
+                            val pointer = awaitPointerEvent()
+
+                            when (pointer.type) {
+                                PointerEventType.Press -> {
+                                    pointer.changes.forEach { it.consume() }
+                                    while (true) {
+                                        val releasePointer = awaitPointerEvent()
+                                        when (releasePointer.type) {
+                                            PointerEventType.Release -> {
+                                                for (change in releasePointer.changes) {
+                                                    val clickedIndex =
+                                                        measureState.graphRangeRects.indexOfFirst { it.contains(change.position) }
+                                                            .takeIf { it >= 0 }
+                                                            ?: continue
+                                                    latestUiState.items.getOrNull(clickedIndex)?.event?.onClick()
+                                                    break
+                                                }
+                                                break
+                                            }
+
+                                            PointerEventType.Exit -> break
+                                        }
+                                    }
+                                }
+
+                                else -> Unit
+                            }
+                        }
+                    },
         ) {
             if (latestUiState.items.isEmpty()) return@Canvas
             if (textMeasureCache.initialized.not()) return@Canvas
@@ -144,32 +148,37 @@ internal fun BarGraph(
             val multilineLabel = (measureState.spaceWidth + measureState.barWidth) <= (textMeasureCache.xLabels.maxOfOrNull { it.size.width } ?: 0).plus(8.dp.toPx())
 
             val maxLabelHeight = textMeasureCache.xLabels.maxOfOrNull { it.size.height } ?: 0
-            val labelBoxHeight = (maxLabelHeight)
-                .times(if (multilineLabel) 2 else 1)
-                .plus(if (multilineLabel) config.multilineLabelHeightPadding else 0f)
-            val graphYHeight = size.height
-                .minus(labelBoxHeight)
-                .minus(config.graphAndLabelPadding)
+            val labelBoxHeight =
+                (maxLabelHeight)
+                    .times(if (multilineLabel) 2 else 1)
+                    .plus(if (multilineLabel) config.multilineLabelHeightPadding else 0f)
+            val graphYHeight =
+                size.height
+                    .minus(labelBoxHeight)
+                    .minus(config.graphAndLabelPadding)
 
             val heightParAmount = graphYHeight / maxTotalValue
 
             textMeasureCache.xLabels.forEachIndexed { index, item ->
-                val y = if (multilineLabel && index % 2 == 1) {
-                    maxLabelHeight.toFloat() + config.multilineLabelHeightPadding
-                } else {
-                    0f
-                }.plus(graphYHeight + config.graphAndLabelPadding)
+                val y =
+                    if (multilineLabel && index % 2 == 1) {
+                        maxLabelHeight.toFloat() + config.multilineLabelHeightPadding
+                    } else {
+                        0f
+                    }.plus(graphYHeight + config.graphAndLabelPadding)
 
                 drawText(
                     textLayoutResult = item,
                     color = contentColor,
-                    topLeft = Offset(
-                        x = measureState.graphBaseX
-                            .plus((measureState.spaceWidth + measureState.barWidth) * index)
-                            .plus(measureState.barWidth / 2)
-                            .minus(item.size.width / 2),
-                        y = y,
-                    ),
+                    topLeft =
+                        Offset(
+                            x =
+                                measureState.graphBaseX
+                                    .plus((measureState.spaceWidth + measureState.barWidth) * index)
+                                    .plus(measureState.barWidth / 2)
+                                    .minus(item.size.width / 2),
+                            y = y,
+                        ),
                 )
             }
             drawText(
@@ -190,14 +199,16 @@ internal fun BarGraph(
                     val itemHeight = (item.value * heightParAmount)
                     drawRect(
                         color = item.color,
-                        topLeft = Offset(
-                            x = x,
-                            y = beforeY - itemHeight,
-                        ),
-                        size = Size(
-                            width = measureState.barWidth,
-                            height = itemHeight,
-                        ),
+                        topLeft =
+                            Offset(
+                                x = x,
+                                y = beforeY - itemHeight,
+                            ),
+                        size =
+                            Size(
+                                width = measureState.barWidth,
+                                height = itemHeight,
+                            ),
                     )
                     beforeY -= itemHeight
                 }

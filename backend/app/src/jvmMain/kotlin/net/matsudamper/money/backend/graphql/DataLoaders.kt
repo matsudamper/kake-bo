@@ -24,7 +24,6 @@ internal class DataLoaders(
     private val dataLoaderRegistryBuilder: DataLoaderRegistry.Builder = DataLoaderRegistry.Builder(),
     private val userSessionManager: UserSessionManagerImpl,
 ) {
-
     val importedMailDataLoader by register {
         ImportedMailDataLoaderDefine(diContainer)
     }
@@ -68,9 +67,7 @@ internal class DataLoaders(
         UserNameDataLoaderDefine(diContainer.createUserNameRepository())
     }
 
-    private fun <K, V> register(
-        initializer: () -> DataLoaderDefine<K, V>,
-    ): DataLoaderRegister<K, V> {
+    private fun <K, V> register(initializer: () -> DataLoaderDefine<K, V>): DataLoaderRegister<K, V> {
         val provider = initializer()
 
         dataLoaderRegistryBuilder.register(
@@ -91,7 +88,10 @@ internal class DataLoaders(
     private class DataLoaderRegister<K, V>(
         private val key: String,
     ) : ReadOnlyProperty<Any, DataLoaderProvider<K, V>> {
-        override fun getValue(thisRef: Any, property: KProperty<*>): DataLoaderProvider<K, V> {
+        override fun getValue(
+            thisRef: Any,
+            property: KProperty<*>,
+        ): DataLoaderProvider<K, V> {
             return DataLoaderProvider(key)
         }
     }

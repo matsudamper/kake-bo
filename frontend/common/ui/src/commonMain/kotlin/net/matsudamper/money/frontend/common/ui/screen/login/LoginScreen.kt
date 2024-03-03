@@ -65,17 +65,19 @@ public fun LoginScreen(
             modifier = Modifier.fillMaxSize(),
         ) {
             Box(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .widthIn(max = 400.dp)
-                    .fillMaxWidth(),
+                modifier =
+                    Modifier
+                        .align(Alignment.Center)
+                        .widthIn(max = 400.dp)
+                        .fillMaxWidth(),
             ) {
-                val textFieldTextStyle = MaterialTheme.typography.bodyMedium
-                    .merge(
-                        TextStyle(
-                            fontFamily = rememberCustomFontFamily(),
-                        ),
-                    )
+                val textFieldTextStyle =
+                    MaterialTheme.typography.bodyMedium
+                        .merge(
+                            TextStyle(
+                                fontFamily = rememberCustomFontFamily(),
+                            ),
+                        )
                 var userIdInput by remember { mutableStateOf(true) }
                 if (userIdInput) {
                     UserIdInput(
@@ -100,8 +102,9 @@ public fun LoginScreen(
             }
 
             Row(
-                modifier = Modifier.align(Alignment.BottomEnd)
-                    .padding(12.dp),
+                modifier =
+                    Modifier.align(Alignment.BottomEnd)
+                        .padding(12.dp),
             ) {
                 OutlinedButton(
                     onClick = { uiState.listener.onClickNavigateAdmin() },
@@ -139,8 +142,9 @@ private fun UserIdInput(
         },
         content = {
             Box(
-                modifier = Modifier.fillMaxWidth()
-                    .clickable { onClickUserNameTextField() },
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .clickable { onClickUserNameTextField() },
             ) {
                 DummyTextField(
                     modifier = Modifier.fillMaxWidth(),
@@ -201,8 +205,9 @@ private fun PasswordInput(
         },
         content = {
             Box(
-                modifier = Modifier.fillMaxWidth()
-                    .clickable { onClickPasswordTextField() },
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .clickable { onClickPasswordTextField() },
             ) {
                 DummyTextField(
                     modifier = Modifier.fillMaxWidth(),

@@ -37,40 +37,44 @@ internal fun CalendarDialog(
     initialCalendar: LocalDate,
 ) {
     Box(
-        modifier = modifier.zIndex(Float.MAX_VALUE)
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.8f))
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() },
-            ) {
-                dismissRequest()
-            },
-        contentAlignment = Alignment.Center,
-    ) {
-        val density = LocalDensity.current
-        Card(
-            modifier = Modifier
+        modifier =
+            modifier.zIndex(Float.MAX_VALUE)
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.8f))
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
                 ) {
-                    // カード内をタップしても閉じないようにする
+                    dismissRequest()
                 },
+        contentAlignment = Alignment.Center,
+    ) {
+        val density = LocalDensity.current
+        Card(
+            modifier =
+                Modifier
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                    ) {
+                        // カード内をタップしても閉じないようにする
+                    },
         ) {
             Column(
-                modifier = Modifier
-                    .padding(24.dp),
+                modifier =
+                    Modifier
+                        .padding(24.dp),
             ) {
                 var height by remember { mutableStateOf(0) }
                 var selectedDate by remember { mutableStateOf(initialCalendar) }
                 Calendar(
-                    modifier = Modifier
-                        .widthIn(max = 500.dp)
-                        .heightIn(min = with(density) { height.toDp() })
-                        .onSizeChanged {
-                            height = it.height
-                        },
+                    modifier =
+                        Modifier
+                            .widthIn(max = 500.dp)
+                            .heightIn(min = with(density) { height.toDp() })
+                            .onSizeChanged {
+                                height = it.height
+                            },
                     selectedDate = selectedDate,
                     changeSelectedDate = {
                         selectedDate = it
@@ -78,8 +82,9 @@ internal fun CalendarDialog(
                 )
                 Spacer(Modifier.height(24.dp))
                 Row(
-                    modifier = Modifier
-                        .align(Alignment.End),
+                    modifier =
+                        Modifier
+                            .align(Alignment.End),
                 ) {
                     TextButton(
                         onClick = {

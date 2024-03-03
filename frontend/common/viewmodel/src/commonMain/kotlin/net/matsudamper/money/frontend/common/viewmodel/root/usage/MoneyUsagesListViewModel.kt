@@ -31,130 +31,141 @@ public class MoneyUsagesListViewModel(
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
-    private val pagingModel = MoneyUsagesListFetchModel(
-        apolloClient = apolloClient,
-        coroutineScope = coroutineScope,
-    )
+    private val pagingModel =
+        MoneyUsagesListFetchModel(
+            apolloClient = apolloClient,
+            coroutineScope = coroutineScope,
+        )
 
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
-    public val uiStateFlow: StateFlow<RootUsageListScreenUiState> = MutableStateFlow(
-        RootUsageListScreenUiState(
-            loadingState = RootUsageListScreenUiState.LoadingState.Loading,
-            hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
-            event = object : RootUsageListScreenUiState.Event {
-                override suspend fun onViewInitialized() {
-                    CoroutineScope(currentCoroutineContext()).launch {
-                        launch {
-                            pagingModel.fetch()
-                        }
-                        launch {
-                            rootUsageHostViewModel.viewModelStateFlow
-                                .buffer(Channel.RENDEZVOUS)
-                                .collectLatest {
-                                    delay(100)
-                                    pagingModel.changeText(it.searchText)
+    public val uiStateFlow: StateFlow<RootUsageListScreenUiState> =
+        MutableStateFlow(
+            RootUsageListScreenUiState(
+                loadingState = RootUsageListScreenUiState.LoadingState.Loading,
+                hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
+                event =
+                    object : RootUsageListScreenUiState.Event {
+                        override suspend fun onViewInitialized() {
+                            CoroutineScope(currentCoroutineContext()).launch {
+                                launch {
                                     pagingModel.fetch()
                                 }
-                        }
-                        launch {
-                            pagingModel.getFlow().collectLatest { responseStates ->
-                                viewModelStateFlow.update {
-                                    it.copy(
-                                        results = responseStates,
-                                    )
+                                launch {
+                                    rootUsageHostViewModel.viewModelStateFlow
+                                        .buffer(Channel.RENDEZVOUS)
+                                        .collectLatest {
+                                            delay(100)
+                                            pagingModel.changeText(it.searchText)
+                                            pagingModel.fetch()
+                                        }
+                                }
+                                launch {
+                                    pagingModel.getFlow().collectLatest { responseStates ->
+                                        viewModelStateFlow.update {
+                                            it.copy(
+                                                results = responseStates,
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
-                    }
-                }
-            },
-        ),
-    ).also { uiStateFlow ->
-        coroutineScope.launch {
-            rootUsageHostViewModel.uiStateFlow
-                .collectLatest { hostUiState ->
-                    uiStateFlow.update { uiState ->
-                        uiState.copy(
-                            hostScreenUiState = hostUiState,
-                        )
-                    }
-                }
-        }
-        coroutineScope.launch {
-            viewModelStateFlow
-                .collectLatest { viewModelState ->
-                    val nodes = viewModelState.results.mapNotNull { state ->
-                        state.getSuccessOrNull()?.value
-                    }.flatMap {
-                        it.data?.user?.moneyUsages?.nodes.orEmpty()
-                    }
-                    val items = buildList {
-                        var lastMonth: LocalDateTime? = null
-                        nodes.forEach { result ->
-                            if (lastMonth == null || lastMonth?.month != result.date.month) {
-                                add(
-                                    RootUsageListScreenUiState.Item.Title(
-                                        title = buildString {
-                                            append("${result.date.year}年")
-                                            append("${result.date.monthNumber}月")
-                                        },
-                                    ),
-                                )
-                                lastMonth = result.date
-                            }
-                            add(
-                                RootUsageListScreenUiState.Item.Usage(
-                                    title = result.title,
-                                    amount = "${Formatter.formatMoney(result.amount)}円",
-                                    date = Formatter.formatDateTime(result.date),
-                                    category = run category@{
-                                        val subCategory =
-                                            result.moneyUsageSubCategory ?: return@category null
-
-                                        "${subCategory.category.name} / ${subCategory.name}"
-                                    },
-                                    event = object : RootUsageListScreenUiState.ItemEvent {
-                                        override fun onClick() {
-                                            coroutineScope.launch {
-                                                viewModelEventSender.send {
-                                                    it.navigate(
-                                                        ScreenStructure.MoneyUsage(
-                                                            id = result.id,
-                                                        ),
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    },
-                                ),
+                    },
+            ),
+        ).also { uiStateFlow ->
+            coroutineScope.launch {
+                rootUsageHostViewModel.uiStateFlow
+                    .collectLatest { hostUiState ->
+                        uiStateFlow.update { uiState ->
+                            uiState.copy(
+                                hostScreenUiState = hostUiState,
                             )
                         }
-                    }.toImmutableList()
-
-                    val hasMore = viewModelState.results.lastOrNull()
-                        ?.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.hasMore
-                        ?: true
-
-                    uiStateFlow.update { uiState ->
-                        uiState.copy(
-                            loadingState = RootUsageListScreenUiState.LoadingState.Loaded(
-                                loadToEnd = hasMore.not(),
-                                items = items,
-                                event = object : RootUsageListScreenUiState.LoadedEvent {
-                                    override fun loadMore() {
-                                        coroutineScope.launch {
-                                            pagingModel.fetch()
-                                        }
-                                    }
-                                },
-                            ),
-                        )
                     }
-                }
-        }
-    }.asStateFlow()
+            }
+            coroutineScope.launch {
+                viewModelStateFlow
+                    .collectLatest { viewModelState ->
+                        val nodes =
+                            viewModelState.results.mapNotNull { state ->
+                                state.getSuccessOrNull()?.value
+                            }.flatMap {
+                                it.data?.user?.moneyUsages?.nodes.orEmpty()
+                            }
+                        val items =
+                            buildList {
+                                var lastMonth: LocalDateTime? = null
+                                nodes.forEach { result ->
+                                    if (lastMonth == null || lastMonth?.month != result.date.month) {
+                                        add(
+                                            RootUsageListScreenUiState.Item.Title(
+                                                title =
+                                                    buildString {
+                                                        append("${result.date.year}年")
+                                                        append("${result.date.monthNumber}月")
+                                                    },
+                                            ),
+                                        )
+                                        lastMonth = result.date
+                                    }
+                                    add(
+                                        RootUsageListScreenUiState.Item.Usage(
+                                            title = result.title,
+                                            amount = "${Formatter.formatMoney(result.amount)}円",
+                                            date = Formatter.formatDateTime(result.date),
+                                            category =
+                                                run category@{
+                                                    val subCategory =
+                                                        result.moneyUsageSubCategory ?: return@category null
+
+                                                    "${subCategory.category.name} / ${subCategory.name}"
+                                                },
+                                            event =
+                                                object : RootUsageListScreenUiState.ItemEvent {
+                                                    override fun onClick() {
+                                                        coroutineScope.launch {
+                                                            viewModelEventSender.send {
+                                                                it.navigate(
+                                                                    ScreenStructure.MoneyUsage(
+                                                                        id = result.id,
+                                                                    ),
+                                                                )
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                        ),
+                                    )
+                                }
+                            }.toImmutableList()
+
+                        val hasMore =
+                            viewModelState.results.lastOrNull()
+                                ?.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.hasMore
+                                ?: true
+
+                        uiStateFlow.update { uiState ->
+                            uiState.copy(
+                                loadingState =
+                                    RootUsageListScreenUiState.LoadingState.Loaded(
+                                        loadToEnd = hasMore.not(),
+                                        items = items,
+                                        event =
+                                            object : RootUsageListScreenUiState.LoadedEvent {
+                                                override fun loadMore() {
+                                                    coroutineScope.launch {
+                                                        pagingModel.fetch()
+                                                    }
+                                                }
+                                            },
+                                    ),
+                            )
+                        }
+                    }
+            }
+        }.asStateFlow()
 
     public interface Event {
         public fun navigate(screenStructure: ScreenStructure)

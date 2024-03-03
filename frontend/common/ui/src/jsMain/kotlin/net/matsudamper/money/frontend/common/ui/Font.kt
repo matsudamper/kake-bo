@@ -30,15 +30,17 @@ import io.ktor.client.request.get
 import io.ktor.client.statement.readBytes
 import io.ktor.http.Url
 
-private val LocalCustomFontsFlow = staticCompositionLocalOf {
-    LocalCustomFontsState()
-}
+private val LocalCustomFontsFlow =
+    staticCompositionLocalOf {
+        LocalCustomFontsState()
+    }
 
 @Stable
 private class LocalCustomFontsState {
     private var isLoading = false
     private val fontsFlow = MutableStateFlow<Map<FontSet, Font>>(mapOf())
     var fontFamily: FontFamily by mutableStateOf(FontFamily.Default)
+
     suspend fun load() {
         if (isLoading) return
         isLoading = true
@@ -62,17 +64,19 @@ private class LocalCustomFontsState {
                     val byteArray = response.readBytes()
                     fontsFlow.update {
                         it.plus(
-                            fontSet to Font(
-                                identity = fontSet.fileName,
-                                data = byteArray,
-                                weight = fontSet.weight,
-                                style = fontSet.style,
-                            ),
+                            fontSet to
+                                Font(
+                                    identity = fontSet.fileName,
+                                    data = byteArray,
+                                    weight = fontSet.weight,
+                                    style = fontSet.style,
+                                ),
                         )
                     }
-                    fontFamily = FontFamily(
-                        fontsFlow.value.values.toList(),
-                    )
+                    fontFamily =
+                        FontFamily(
+                            fontsFlow.value.values.toList(),
+                        )
                 }
             }
     }
@@ -83,17 +87,18 @@ private class LocalCustomFontsState {
         val style: FontStyle,
     )
 
-    private val fonts: List<FontSet> = listOf(
-        FontSet("NotoSansJP-Medium.ttf", FontWeight.Medium, FontStyle.Normal),
-        FontSet("NotoSansJP-Bold.ttf", FontWeight.Bold, FontStyle.Normal),
-        FontSet("NotoSansJP-Regular.ttf", FontWeight.W400, FontStyle.Normal),
-        FontSet("NotoSansJP-Black.ttf", FontWeight.Black, FontStyle.Normal),
-        FontSet("NotoSansJP-ExtraBold.ttf", FontWeight.ExtraBold, FontStyle.Normal),
-        FontSet("NotoSansJP-ExtraLight.ttf", FontWeight.ExtraLight, FontStyle.Normal),
-        FontSet("NotoSansJP-Light.ttf", FontWeight.Light, FontStyle.Normal),
-        FontSet("NotoSansJP-SemiBold.ttf", FontWeight.SemiBold, FontStyle.Normal),
-        FontSet("NotoSansJP-Thin.ttf", FontWeight.Thin, FontStyle.Normal),
-    )
+    private val fonts: List<FontSet> =
+        listOf(
+            FontSet("NotoSansJP-Medium.ttf", FontWeight.Medium, FontStyle.Normal),
+            FontSet("NotoSansJP-Bold.ttf", FontWeight.Bold, FontStyle.Normal),
+            FontSet("NotoSansJP-Regular.ttf", FontWeight.W400, FontStyle.Normal),
+            FontSet("NotoSansJP-Black.ttf", FontWeight.Black, FontStyle.Normal),
+            FontSet("NotoSansJP-ExtraBold.ttf", FontWeight.ExtraBold, FontStyle.Normal),
+            FontSet("NotoSansJP-ExtraLight.ttf", FontWeight.ExtraLight, FontStyle.Normal),
+            FontSet("NotoSansJP-Light.ttf", FontWeight.Light, FontStyle.Normal),
+            FontSet("NotoSansJP-SemiBold.ttf", FontWeight.SemiBold, FontStyle.Normal),
+            FontSet("NotoSansJP-Thin.ttf", FontWeight.Thin, FontStyle.Normal),
+        )
 }
 
 @Composable

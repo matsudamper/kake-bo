@@ -5,6 +5,7 @@ import org.w3c.dom.Element
 
 external class ResizeObserver(callback: (entries: Array<ResizeObserverEntry>, observer: ResizeObserver) -> Unit) {
     fun observe(target: Element)
+
     fun disconnect()
 }
 

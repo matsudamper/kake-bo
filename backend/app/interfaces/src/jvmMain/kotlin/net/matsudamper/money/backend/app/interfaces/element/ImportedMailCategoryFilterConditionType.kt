@@ -5,5 +5,4 @@ enum class ImportedMailCategoryFilterConditionType {
     NotInclude,
     Equal,
     NotEqual,
-    ;
 }

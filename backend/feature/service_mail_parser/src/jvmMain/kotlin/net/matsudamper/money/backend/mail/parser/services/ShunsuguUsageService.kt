@@ -9,35 +9,45 @@ import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 internal object ShunsuguUsageService : MoneyUsageServices {
     override val displayName: String = "旬すぐ"
 
-    override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): List<MoneyUsage> {
-        val canHandle = sequence {
-            yield(canHandledWithFrom(from))
-            yield(canHandledWithSubject(subject))
-            yield(canHandledWithPlain(plain))
-        }
+    override fun parse(
+        subject: String,
+        from: String,
+        html: String,
+        plain: String,
+        date: LocalDateTime,
+    ): List<MoneyUsage> {
+        val canHandle =
+            sequence {
+                yield(canHandledWithFrom(from))
+                yield(canHandledWithSubject(subject))
+                yield(canHandledWithPlain(plain))
+            }
         if (canHandle.any { it }.not()) return listOf()
 
         val lines = ParseUtil.splitByNewLine(plain)
 
-        val price = run price@{
-            ParseUtil.getInt(
-                "お支払合計金額.*?：(.+?)円".toRegex(RegexOption.MULTILINE)
-                    .find(plain)
-                    ?.groupValues?.getOrNull(1) ?: return@price null,
-            )
-        }
-
-        val description = run description@{
-            val startIndex = lines.indexOfFirst { it.contains("【お買い上げ金額】") }
-            val endIndex = (
-                lines.drop(startIndex + 1).indexOfFirst { it.contains("----------") }
-                    .takeIf { it >= 0 } ?: return@description ""
+        val price =
+            run price@{
+                ParseUtil.getInt(
+                    "お支払合計金額.*?：(.+?)円".toRegex(RegexOption.MULTILINE)
+                        .find(plain)
+                        ?.groupValues?.getOrNull(1) ?: return@price null,
                 )
-                .plus(startIndex + 1)
+            }
 
-            lines.subList(startIndex + 1, endIndex)
-                .joinToString("\n")
-        }
+        val description =
+            run description@{
+                val startIndex = lines.indexOfFirst { it.contains("【お買い上げ金額】") }
+                val endIndex =
+                    (
+                        lines.drop(startIndex + 1).indexOfFirst { it.contains("----------") }
+                            .takeIf { it >= 0 } ?: return@description ""
+                    )
+                        .plus(startIndex + 1)
+
+                lines.subList(startIndex + 1, endIndex)
+                    .joinToString("\n")
+            }
 
         return listOf(
             MoneyUsage(

@@ -39,9 +39,7 @@ import org.jetbrains.compose.web.dom.Text
 import org.jetbrains.compose.web.renderComposable
 
 @Suppress("FunctionName")
-internal fun JsCompose(
-    composeSize: StateFlow<IntSize>,
-) {
+internal fun JsCompose(composeSize: StateFlow<IntSize>) {
     renderComposable(rootElementId = "ComposeTargetContainer") {
         val htmlRenderContextState by LocalHtmlRenderContext.current.stateFlow.collectAsState()
         val htmlFullScreenTextInputContextState by LocalHtmlFullScreenTextInputContext.current.stateFlow.collectAsState()
@@ -82,26 +80,28 @@ internal fun JsCompose(
             ResizeObserver { entries, _ ->
                 val target = entries[0].target
 
-                widthDensityState.value = run {
-                    val jsWidth = target.scrollWidth.toFloat()
-                    val composeWidth = composeSize.value.width.toFloat()
+                widthDensityState.value =
+                    run {
+                        val jsWidth = target.scrollWidth.toFloat()
+                        val composeWidth = composeSize.value.width.toFloat()
 
-                    if (jsWidth > 0 && composeWidth > 0) {
-                        jsWidth / composeWidth
-                    } else {
-                        1f
+                        if (jsWidth > 0 && composeWidth > 0) {
+                            jsWidth / composeWidth
+                        } else {
+                            1f
+                        }
                     }
-                }
-                heightDensityState.value = run {
-                    val jsSize = target.scrollHeight.toFloat()
-                    val composeHeight = composeSize.value.height.toFloat()
+                heightDensityState.value =
+                    run {
+                        val jsSize = target.scrollHeight.toFloat()
+                        val composeHeight = composeSize.value.height.toFloat()
 
-                    if (jsSize > 0 && composeHeight > 0) {
-                        jsSize / composeHeight
-                    } else {
-                        1f
+                        if (jsSize > 0 && composeHeight > 0) {
+                            jsSize / composeHeight
+                        } else {
+                            1f
+                        }
                     }
-                }
             }.observe(htmlComposeTarget)
         }
 

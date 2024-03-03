@@ -144,9 +144,7 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(
-        handler: EventHandler<HomeMailTabScreenViewModel.NavigateEvent>,
-    ) {
+    suspend fun handle(handler: EventHandler<HomeMailTabScreenViewModel.NavigateEvent>) {
         coroutineScope {
             handler.collect(
                 object : HomeMailTabScreenViewModel.NavigateEvent {
@@ -301,9 +299,7 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(
-        handler: EventHandler<RootHomeTabPeriodAllContentViewModel.Event>,
-    ) {
+    suspend fun handle(handler: EventHandler<RootHomeTabPeriodAllContentViewModel.Event>) {
         coroutineScope {
             handler.collect(
                 object : RootHomeTabPeriodAllContentViewModel.Event {
@@ -314,9 +310,8 @@ data class ViewModelEventHandlers(
             )
         }
     }
-    suspend fun handle(
-        handler: EventHandler<RootHomeTabScreenViewModel.Event>,
-    ) {
+
+    suspend fun handle(handler: EventHandler<RootHomeTabScreenViewModel.Event>) {
         coroutineScope {
             handler.collect(
                 object : RootHomeTabScreenViewModel.Event {
@@ -327,9 +322,8 @@ data class ViewModelEventHandlers(
             )
         }
     }
-    suspend fun handle(
-        handler: EventHandler<RootHomeTabPeriodCategoryContentViewModel.Event>,
-    ) {
+
+    suspend fun handle(handler: EventHandler<RootHomeTabPeriodCategoryContentViewModel.Event>) {
         coroutineScope {
             handler.collect(
                 object : RootHomeTabPeriodCategoryContentViewModel.Event {

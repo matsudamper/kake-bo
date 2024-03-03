@@ -19,46 +19,52 @@ class AdminRepositoryImpl : AdminRepository {
     private val userPasswordExtendData = JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA
     private val bases64Encoder = Base64.getEncoder()
 
-    override fun addUser(userName: String, password: String): AdminRepository.AddUserResult {
+    override fun addUser(
+        userName: String,
+        password: String,
+    ): AdminRepository.AddUserResult {
         runCatching {
             DbConnectionImpl.use {
                 DSL.using(it)
                     .transaction { config ->
-                        val userResult = config.dsl()
-                            .insertInto(users, users.USER_NAME)
-                            .values(userName)
-                            .returningResult(users)
-                            .fetchOne()!!
-                            .value1()!!
+                        val userResult =
+                            config.dsl()
+                                .insertInto(users, users.USER_NAME)
+                                .values(userName)
+                                .returningResult(users)
+                                .fetchOne()!!
+                                .value1()!!
 
-                        val passwordExtendData = config.dsl()
-                            .insertInto(
-                                userPasswordExtendData,
-                                userPasswordExtendData.USER_ID,
-                                userPasswordExtendData.ALGORITHM,
-                                userPasswordExtendData.SALT,
-                                userPasswordExtendData.ITERATION_COUNT,
-                                userPasswordExtendData.KEY_LENGTH,
-                            )
-                            .values(
-                                userResult.userId!!,
-                                "PBKDF2WithHmacSHA512",
-                                ByteArray(32).also {
-                                    SecureRandom().nextBytes(it)
-                                },
-                                100000,
-                                512,
-                            )
-                            .returningResult(userPasswordExtendData)
-                            .fetchOne()!!
-                            .value1()!!
+                        val passwordExtendData =
+                            config.dsl()
+                                .insertInto(
+                                    userPasswordExtendData,
+                                    userPasswordExtendData.USER_ID,
+                                    userPasswordExtendData.ALGORITHM,
+                                    userPasswordExtendData.SALT,
+                                    userPasswordExtendData.ITERATION_COUNT,
+                                    userPasswordExtendData.KEY_LENGTH,
+                                )
+                                .values(
+                                    userResult.userId!!,
+                                    "PBKDF2WithHmacSHA512",
+                                    ByteArray(32).also {
+                                        SecureRandom().nextBytes(it)
+                                    },
+                                    100000,
+                                    512,
+                                )
+                                .returningResult(userPasswordExtendData)
+                                .fetchOne()!!
+                                .value1()!!
 
-                        val spec: KeySpec = PBEKeySpec(
-                            password.plus(ServerEnv.userPasswordPepper).toCharArray(),
-                            passwordExtendData.salt!!,
-                            passwordExtendData.iterationCount!!,
-                            passwordExtendData.keyLength!!,
-                        )
+                        val spec: KeySpec =
+                            PBEKeySpec(
+                                password.plus(ServerEnv.userPasswordPepper).toCharArray(),
+                                passwordExtendData.salt!!,
+                                passwordExtendData.iterationCount!!,
+                                passwordExtendData.keyLength!!,
+                            )
                         val factory = SecretKeyFactory.getInstance(passwordExtendData.algorithm!!)
                         val hashedPassword = bases64Encoder.encodeToString(factory.generateSecret(spec).encoded)
 

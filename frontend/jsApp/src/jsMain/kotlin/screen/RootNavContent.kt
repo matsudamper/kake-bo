@@ -68,13 +68,14 @@ internal fun RootNavContent(
                     is RootHomeScreenStructure.Monthly -> {
                         holder.SaveableStateProvider(RootHomeScreenStructure.Monthly::class) {
                             val coroutineScope = rememberCoroutineScope()
-                            val viewModel = remember {
-                                RootHomeMonthlyScreenViewModel(
-                                    coroutineScope = coroutineScope,
-                                    loginCheckUseCase = loginCheckUseCase,
-                                    argument = current,
-                                )
-                            }
+                            val viewModel =
+                                remember {
+                                    RootHomeMonthlyScreenViewModel(
+                                        coroutineScope = coroutineScope,
+                                        loginCheckUseCase = loginCheckUseCase,
+                                        argument = current,
+                                    )
+                                }
                             LaunchedEffect(viewModel, current) {
                                 viewModel.updateStructure(current)
                             }
@@ -95,13 +96,14 @@ internal fun RootNavContent(
                             is RootHomeScreenStructure.PeriodAnalytics,
                             -> {
                                 holder.SaveableStateProvider(RootHomeScreenStructure.Period::class) {
-                                    val allContentViewModel = remember {
-                                        RootHomeTabPeriodAllContentViewModel(
-                                            coroutineScope = rootCoroutineScope,
-                                            api = RootHomeTabScreenApi(),
-                                            loginCheckUseCase = loginCheckUseCase,
-                                        )
-                                    }
+                                    val allContentViewModel =
+                                        remember {
+                                            RootHomeTabPeriodAllContentViewModel(
+                                                coroutineScope = rootCoroutineScope,
+                                                api = RootHomeTabScreenApi(),
+                                                loginCheckUseCase = loginCheckUseCase,
+                                            )
+                                        }
                                     LaunchedEffect(allContentViewModel, current) {
                                         allContentViewModel.updateStructure(current)
                                     }
@@ -117,14 +119,15 @@ internal fun RootNavContent(
                             }
 
                             is RootHomeScreenStructure.PeriodCategory -> {
-                                val categoryViewModel = remember {
-                                    RootHomeTabPeriodCategoryContentViewModel(
-                                        initialCategoryId = current.categoryId,
-                                        coroutineScope = rootCoroutineScope,
-                                        api = RootHomeTabScreenApi(),
-                                        loginCheckUseCase = loginCheckUseCase,
-                                    )
-                                }
+                                val categoryViewModel =
+                                    remember {
+                                        RootHomeTabPeriodCategoryContentViewModel(
+                                            initialCategoryId = current.categoryId,
+                                            coroutineScope = rootCoroutineScope,
+                                            api = RootHomeTabScreenApi(),
+                                            loginCheckUseCase = loginCheckUseCase,
+                                        )
+                                    }
                                 LaunchedEffect(categoryViewModel.eventHandler) {
                                     viewModelEventHandlers.handle(categoryViewModel.eventHandler)
                                 }
@@ -141,13 +144,14 @@ internal fun RootNavContent(
                     }
 
                     is RootHomeScreenStructure.MonthlyCategory -> {
-                        val monthlyCategoryViewModel = remember {
-                            RootHomeMonthlyCategoryScreenViewModel(
-                                argument = current,
-                                coroutineScope = rootCoroutineScope,
-                                loginCheckUseCase = loginCheckUseCase,
-                            )
-                        }
+                        val monthlyCategoryViewModel =
+                            remember {
+                                RootHomeMonthlyCategoryScreenViewModel(
+                                    argument = current,
+                                    coroutineScope = rootCoroutineScope,
+                                    loginCheckUseCase = loginCheckUseCase,
+                                )
+                            }
                         LaunchedEffect(monthlyCategoryViewModel.eventHandler) {
                             viewModelEventHandlers.handle(monthlyCategoryViewModel.eventHandler)
                         }
@@ -167,17 +171,18 @@ internal fun RootNavContent(
 
         is ScreenStructure.Root.Usage -> {
             tabHolder.SaveableStateProvider(ScreenStructure.Root.Usage::class.toString()) {
-                val rootScreen = remember {
-                    movableContentOf { rootUiState: RootUsageHostScreenUiState, content: @Composable () -> Unit ->
-                        RootUsageHostScreen(
-                            modifier = Modifier.fillMaxSize(),
-                            uiState = rootUiState,
-                            listener = rootScreenScaffoldListener,
-                        ) {
-                            content()
+                val rootScreen =
+                    remember {
+                        movableContentOf { rootUiState: RootUsageHostScreenUiState, content: @Composable () -> Unit ->
+                            RootUsageHostScreen(
+                                modifier = Modifier.fillMaxSize(),
+                                uiState = rootUiState,
+                                listener = rootScreenScaffoldListener,
+                            ) {
+                                content()
+                            }
                         }
                     }
-                }
 
                 when (current) {
                     is ScreenStructure.Root.Usage.Calendar -> {

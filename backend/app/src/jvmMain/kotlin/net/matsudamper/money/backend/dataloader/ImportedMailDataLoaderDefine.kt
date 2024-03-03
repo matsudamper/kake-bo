@@ -18,19 +18,20 @@ class ImportedMailDataLoaderDefine(
             CompletableFuture.supplyAsync {
                 val dbMailRepository = repositoryFactory.createDbMailRepository()
 
-                val result = keys.groupBy { it.userId }
-                    .map { (userId, key) ->
-                        dbMailRepository
-                            .getMails(
-                                userId = userId,
-                                mailIds = key.map { it.importedMailId },
-                            ).associateBy {
-                                Key(
+                val result =
+                    keys.groupBy { it.userId }
+                        .map { (userId, key) ->
+                            dbMailRepository
+                                .getMails(
                                     userId = userId,
-                                    importedMailId = it.id,
-                                )
-                            }
-                    }.flatten()
+                                    mailIds = key.map { it.importedMailId },
+                                ).associateBy {
+                                    Key(
+                                        userId = userId,
+                                        importedMailId = it.id,
+                                    )
+                                }
+                        }.flatten()
 
                 keys.associateWith { key ->
                     result[key]

@@ -26,17 +26,19 @@ public class MoneyUsagesListFetchModel(
     coroutineScope: CoroutineScope,
 ) {
     private val state = MutableStateFlow(State())
-    private val paging = ApolloPagingResponseCollector.create<UsageListScreenPagingQuery.Data>(
-        apolloClient = apolloClient,
-        coroutineScope = coroutineScope,
-    )
-
-    private val pagingFlow = MutableStateFlow(
+    private val paging =
         ApolloPagingResponseCollector.create<UsageListScreenPagingQuery.Data>(
             apolloClient = apolloClient,
             coroutineScope = coroutineScope,
-        ),
-    )
+        )
+
+    private val pagingFlow =
+        MutableStateFlow(
+            ApolloPagingResponseCollector.create<UsageListScreenPagingQuery.Data>(
+                apolloClient = apolloClient,
+                coroutineScope = coroutineScope,
+            ),
+        )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     internal suspend fun getFlow(): Flow<List<ApolloResponseState<ApolloResponse<UsageListScreenPagingQuery.Data>>>> {
@@ -80,16 +82,18 @@ public class MoneyUsagesListFetchModel(
                 }
             }
             UsageListScreenPagingQuery(
-                query = MoneyUsagesQuery(
-                    cursor = Optional.present(cursor),
-                    size = 10,
-                    isAsc = false,
-                    filter = Optional.present(
-                        MoneyUsagesQueryFilter(
-                            text = Optional.present(state.value.searchText),
-                        ),
+                query =
+                    MoneyUsagesQuery(
+                        cursor = Optional.present(cursor),
+                        size = 10,
+                        isAsc = false,
+                        filter =
+                            Optional.present(
+                                MoneyUsagesQueryFilter(
+                                    text = Optional.present(state.value.searchText),
+                                ),
+                            ),
                     ),
-                ),
             )
         }
     }

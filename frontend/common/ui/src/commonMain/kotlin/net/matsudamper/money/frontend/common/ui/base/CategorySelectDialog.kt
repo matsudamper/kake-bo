@@ -72,39 +72,41 @@ public data class CategorySelectDialogUiState(
     @Immutable
     public interface Event {
         public fun dismissRequest()
+
         public fun selectCompleted()
     }
 }
 
 @Composable
-internal fun CategorySelectDialog(
-    uiState: CategorySelectDialogUiState,
-) {
+internal fun CategorySelectDialog(uiState: CategorySelectDialogUiState) {
     Box(
-        modifier = Modifier.fillMaxSize()
-            .zIndex(Float.MAX_VALUE)
-            .background(Color.Black.copy(alpha = 0.8f))
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() },
-            ) { uiState.event.dismissRequest() },
-        contentAlignment = Alignment.Center,
-    ) {
-        Card(
-            modifier = Modifier
+        modifier =
+            Modifier.fillMaxSize()
+                .zIndex(Float.MAX_VALUE)
+                .background(Color.Black.copy(alpha = 0.8f))
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
-                ) {
-                    // カード内をタップしても閉じないようにする
-                }
-                .widthIn(max = 400.dp)
-                .heightIn(max = 700.dp)
-                .fillMaxWidth(),
+                ) { uiState.event.dismissRequest() },
+        contentAlignment = Alignment.Center,
+    ) {
+        Card(
+            modifier =
+                Modifier
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() },
+                    ) {
+                        // カード内をタップしても閉じないようにする
+                    }
+                    .widthIn(max = 400.dp)
+                    .heightIn(max = 700.dp)
+                    .fillMaxWidth(),
         ) {
             Column(
-                modifier = Modifier
-                    .padding(12.dp),
+                modifier =
+                    Modifier
+                        .padding(12.dp),
             ) {
                 when (val screenTypeState = uiState.screenType) {
                     is CategorySelectDialogUiState.Screen.Root -> {
@@ -194,9 +196,10 @@ private fun CategoryPage(
 
         if (items == null) {
             Box(
-                modifier = Modifier.fillMaxWidth()
-                    .padding(vertical = 24.dp)
-                    .heightIn(min = 200.dp),
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .padding(vertical = 24.dp)
+                        .heightIn(min = 200.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator()
@@ -225,9 +228,10 @@ private fun SelectedSection(
     enabled: Boolean,
 ) {
     Row(
-        modifier = Modifier
-            .clickable(enabled) { onClick() }
-            .padding(8.dp),
+        modifier =
+            Modifier
+                .clickable(enabled) { onClick() }
+                .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(
@@ -235,11 +239,12 @@ private fun SelectedSection(
         ) {
             ProvideTextStyle(
                 TextStyle(
-                    color = if (enabled) {
-                        Color.Unspecified
-                    } else {
-                        Color.Gray
-                    },
+                    color =
+                        if (enabled) {
+                            Color.Unspecified
+                        } else {
+                            Color.Gray
+                        },
                 ),
             ) {
                 ProvideTextStyle(MaterialTheme.typography.titleMedium) {
@@ -265,14 +270,16 @@ private fun CategoryItem(
     onSelected: () -> Unit,
 ) {
     Text(
-        modifier = modifier.fillMaxWidth()
-            .clickable { onSelected() }
-            .padding(12.dp),
+        modifier =
+            modifier.fillMaxWidth()
+                .clickable { onSelected() }
+                .padding(12.dp),
         text = name,
-        color = if (isSelected) {
-            MaterialTheme.colorScheme.primary
-        } else {
-            Color.Unspecified
-        },
+        color =
+            if (isSelected) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                Color.Unspecified
+            },
     )
 }

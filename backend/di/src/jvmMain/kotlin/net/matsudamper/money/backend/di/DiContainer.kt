@@ -43,18 +43,31 @@ interface DiContainer {
     ): MailRepository
 
     fun createUserSessionRepository(): UserSessionRepository
+
     fun createUserConfigRepository(): UserConfigRepository
+
     fun createDbMailRepository(): ImportedMailRepository
+
     fun createMoneyUsageCategoryRepository(): MoneyUsageCategoryRepository
+
     fun createMoneyUsageSubCategoryRepository(): MoneyUsageSubCategoryRepository
+
     fun createMoneyUsageRepository(): MoneyUsageRepository
+
     fun createMailFilterRepository(): MailFilterRepository
+
     fun createMoneyUsageAnalyticsRepository(): MoneyUsageAnalyticsRepository
+
     fun createUserNameRepository(): UserRepository
+
     fun createFidoRepository(): FidoRepository
+
     fun createChallengeRepository(): ChallengeRepository
+
     fun createAdminUserSessionRepository(): AdminSessionRepository
+
     fun createAdminRepository(): AdminRepository
+
     fun userLoginRepository(): UserLoginRepository
 }
 
@@ -78,64 +91,75 @@ class MainDiContainer : DiContainer {
     }
 
     private val dbUserSessionRepository = DbUserSessionRepository()
+
     override fun createUserSessionRepository(): DbUserSessionRepository {
         return dbUserSessionRepository
     }
 
     private val mailFilterRepository = DbMailFilterRepository(dbConnection = DbConnectionImpl)
+
     override fun createMailFilterRepository(): MailFilterRepository {
         return mailFilterRepository
     }
 
     private val userConfigRepository = DbUserConfigRepository()
+
     override fun createUserConfigRepository(): DbUserConfigRepository {
         return userConfigRepository
     }
 
     private val dbImportedMailRepository = DbImportedImportedMailRepository(dbConnection = DbConnectionImpl)
+
     override fun createDbMailRepository(): DbImportedImportedMailRepository {
         return dbImportedMailRepository
     }
 
     private val moneyUsageCategoryRepository = DbMoneyUsageCategoryRepository()
+
     override fun createMoneyUsageCategoryRepository(): MoneyUsageCategoryRepository {
         return moneyUsageCategoryRepository
     }
 
     private val moneyUsageSubCategoryRepository = DbMoneyUsageSubCategoryRepository()
+
     override fun createMoneyUsageSubCategoryRepository(): MoneyUsageSubCategoryRepository {
         return moneyUsageSubCategoryRepository
     }
 
     private val moneyUsageRepository = DbMoneyUsageRepository()
+
     override fun createMoneyUsageRepository(): MoneyUsageRepository {
         return moneyUsageRepository
     }
 
     private val dbMoneyUsageAnalyticsRepository = DbMoneyUsageAnalyticsRepository(dbConnection = DbConnectionImpl)
+
     override fun createMoneyUsageAnalyticsRepository(): DbMoneyUsageAnalyticsRepository {
         return dbMoneyUsageAnalyticsRepository
     }
 
     private val userRepository = DbUserRepository()
+
     override fun createUserNameRepository(): UserRepository {
         return userRepository
     }
 
     private val fidoRepository = DbFidoRepository(dbConnection = DbConnectionImpl)
+
     override fun createFidoRepository(): FidoRepository {
         return fidoRepository
     }
 
-    private val challengeRepository: ChallengeRepository = if (ServerEnv.enableRedis) {
-        ChallengeRepositoryProvider.provideRedisRepository(
-            host = ServerEnv.redisHost!!,
-            port = ServerEnv.redisPort!!,
-            index = ServerVariables.REDIS_INDEX_CHALLENGE,
-        )
-    } else {
-        ChallengeRepositoryProvider.provideLocalRepository()
-    }
+    private val challengeRepository: ChallengeRepository =
+        if (ServerEnv.enableRedis) {
+            ChallengeRepositoryProvider.provideRedisRepository(
+                host = ServerEnv.redisHost!!,
+                port = ServerEnv.redisPort!!,
+                index = ServerVariables.REDIS_INDEX_CHALLENGE,
+            )
+        } else {
+            ChallengeRepositoryProvider.provideLocalRepository()
+        }
 
     override fun createChallengeRepository(): ChallengeRepository {
         return challengeRepository

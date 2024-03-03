@@ -20,42 +20,46 @@ public class HomeMailTabScreenViewModel(
     private val navigateEventSender = EventSender<NavigateEvent>()
     public val navigateEventHandler: EventHandler<NavigateEvent> = navigateEventSender.asHandler()
 
-    public val uiStateFlow: StateFlow<HomeMailTabScreenUiState> = MutableStateFlow(
-        HomeMailTabScreenUiState(
-            event = object : HomeMailTabScreenUiState.Event {
-                override fun onClickImportTabButton() {
-                    coroutineScope.launch {
-                        navigateEventSender.send {
-                            it.navigate(
-                                viewModelStateFlow.value.lastImportMailStructure
-                                    ?: ScreenStructure.Root.Mail.Import,
-                            )
+    public val uiStateFlow: StateFlow<HomeMailTabScreenUiState> =
+        MutableStateFlow(
+            HomeMailTabScreenUiState(
+                event =
+                    object : HomeMailTabScreenUiState.Event {
+                        override fun onClickImportTabButton() {
+                            coroutineScope.launch {
+                                navigateEventSender.send {
+                                    it.navigate(
+                                        viewModelStateFlow.value.lastImportMailStructure
+                                            ?: ScreenStructure.Root.Mail.Import,
+                                    )
+                                }
+                            }
                         }
-                    }
-                }
 
-                override fun onClickImportedTabButton() {
-                    coroutineScope.launch {
-                        navigateEventSender.send {
-                            it.navigate(
-                                viewModelStateFlow.value.lastImportedMailStructure
-                                    ?: ScreenStructure.Root.Mail.Imported(isLinked = false),
-                            )
+                        override fun onClickImportedTabButton() {
+                            coroutineScope.launch {
+                                navigateEventSender.send {
+                                    it.navigate(
+                                        viewModelStateFlow.value.lastImportedMailStructure
+                                            ?: ScreenStructure.Root.Mail.Imported(isLinked = false),
+                                    )
+                                }
+                            }
                         }
-                    }
-                }
-            },
-        ),
-    )
+                    },
+            ),
+        )
 
     public fun updateScreenStructure(structure: ScreenStructure.Root.Mail) {
         _viewModelStateFlow.update { viewModelState ->
             viewModelState.copy(
                 screenStructure = structure,
-                lastImportedMailStructure = (structure as? ScreenStructure.Root.Mail.Imported)
-                    ?: viewModelState.lastImportedMailStructure,
-                lastImportMailStructure = (structure as? ScreenStructure.Root.Mail.Import)
-                    ?: viewModelState.lastImportMailStructure,
+                lastImportedMailStructure =
+                    (structure as? ScreenStructure.Root.Mail.Imported)
+                        ?: viewModelState.lastImportedMailStructure,
+                lastImportMailStructure =
+                    (structure as? ScreenStructure.Root.Mail.Import)
+                        ?: viewModelState.lastImportMailStructure,
             )
         }
     }

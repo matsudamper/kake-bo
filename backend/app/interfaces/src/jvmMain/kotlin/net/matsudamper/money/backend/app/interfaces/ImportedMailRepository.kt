@@ -6,8 +6,16 @@ import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.UserId
 
 interface ImportedMailRepository {
-    fun getCount(userId: UserId, isLinked: Boolean?): Int?
-    fun getMail(userId: UserId, mailIds: List<ImportedMailId>): Result<MutableList<ImportedMailId>>
+    fun getCount(
+        userId: UserId,
+        isLinked: Boolean?,
+    ): Int?
+
+    fun getMail(
+        userId: UserId,
+        mailIds: List<ImportedMailId>,
+    ): Result<MutableList<ImportedMailId>>
+
     fun getMails(
         userId: UserId,
         size: Int,
@@ -17,9 +25,20 @@ interface ImportedMailRepository {
         isLinked: Boolean?,
     ): MailPagingResult
 
-    fun getMails(userId: UserId, mailIds: List<ImportedMailId>): List<Mail>
-    fun getMails(userId: UserId, moneyUsageIdList: List<MoneyUsageId>): Result<Map<MoneyUsageId, List<ImportedMailId>>>
-    fun deleteMail(userId: UserId, mailId: ImportedMailId): Boolean
+    fun getMails(
+        userId: UserId,
+        mailIds: List<ImportedMailId>,
+    ): List<Mail>
+
+    fun getMails(
+        userId: UserId,
+        moneyUsageIdList: List<MoneyUsageId>,
+    ): Result<Map<MoneyUsageId, List<ImportedMailId>>>
+
+    fun deleteMail(
+        userId: UserId,
+        mailId: ImportedMailId,
+    ): Boolean
 
     public data class Mail(
         val id: ImportedMailId,
@@ -54,6 +73,7 @@ interface ImportedMailRepository {
 
     sealed interface AddUserResult {
         data object Success : AddUserResult
+
         data class Failed(val error: ErrorType) : AddUserResult
 
         sealed interface ErrorType {
@@ -61,5 +81,12 @@ interface ImportedMailRepository {
         }
     }
 
-    fun addMail(userId: UserId, plainText: String?, html: String?, from: String, subject: String, dateTime: LocalDateTime): AddUserResult
+    fun addMail(
+        userId: UserId,
+        plainText: String?,
+        html: String?,
+        from: String,
+        subject: String,
+        dateTime: LocalDateTime,
+    ): AddUserResult
 }

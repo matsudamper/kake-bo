@@ -32,12 +32,13 @@ public class RootUsageCalendarPagingModel(
 ) {
     private val modelStateFlow = MutableStateFlow(ModelState())
 
-    private val pagingFlow = MutableStateFlow(
-        ApolloPagingResponseCollector.create<UsageCalendarScreenPagingQuery.Data>(
-            apolloClient = apolloClient,
-            coroutineScope = coroutineScope,
-        ),
-    )
+    private val pagingFlow =
+        MutableStateFlow(
+            ApolloPagingResponseCollector.create<UsageCalendarScreenPagingQuery.Data>(
+                apolloClient = apolloClient,
+                coroutineScope = coroutineScope,
+            ),
+        )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     internal fun getFlow(): Flow<List<ApolloResponseState<ApolloResponse<UsageCalendarScreenPagingQuery.Data>>>> {
@@ -95,68 +96,70 @@ public class RootUsageCalendarPagingModel(
             }
             println("cursor: $cursor")
             UsageCalendarScreenPagingQuery(
-                query = MoneyUsagesQuery(
-                    cursor = Optional.present(cursor),
-                    filter = Optional.present(
-                        MoneyUsagesQueryFilter(
-                            sinceDateTime = Optional.present(
-                                LocalDateTime(
-                                    LocalDate(
-                                        year = selectedMonth.year,
-                                        month = selectedMonth.month,
-                                        dayOfMonth = 1,
-                                    ),
-                                    LocalTime(0, 0),
+                query =
+                    MoneyUsagesQuery(
+                        cursor = Optional.present(cursor),
+                        filter =
+                            Optional.present(
+                                MoneyUsagesQueryFilter(
+                                    sinceDateTime =
+                                        Optional.present(
+                                            LocalDateTime(
+                                                LocalDate(
+                                                    year = selectedMonth.year,
+                                                    month = selectedMonth.month,
+                                                    dayOfMonth = 1,
+                                                ),
+                                                LocalTime(0, 0),
+                                            ),
+                                        ),
+                                    untilDateTime =
+                                        Optional.present(
+                                            LocalDateTime(
+                                                LocalDate(
+                                                    year = selectedMonth.year,
+                                                    monthNumber = selectedMonth.monthNumber,
+                                                    dayOfMonth = 1,
+                                                ).plus(1, DateTimeUnit.MONTH),
+                                                LocalTime(0, 0),
+                                            ),
+                                        ),
+                                    text = Optional.present(searchText),
                                 ),
                             ),
-                            untilDateTime = Optional.present(
-                                LocalDateTime(
-                                    LocalDate(
-                                        year = selectedMonth.year,
-                                        monthNumber = selectedMonth.monthNumber,
-                                        dayOfMonth = 1,
-                                    ).plus(1, DateTimeUnit.MONTH),
-                                    LocalTime(0, 0),
-                                ),
-                            ),
-                            text = Optional.present(searchText),
-                        ),
+                        isAsc = true,
+                        size = 50,
                     ),
-                    isAsc = true,
-                    size = 50,
-                ),
             )
         }
     }
 
-    public fun changeMonth(
-        month: LocalDate,
-    ) {
+    public fun changeMonth(month: LocalDate) {
         println("changeMonth: $month")
         modelStateFlow.update {
             it.copy(
                 selectedMonth = month,
             )
         }
-        pagingFlow.value = ApolloPagingResponseCollector.create(
-            apolloClient = apolloClient,
-            coroutineScope = coroutineScope,
-        )
+        pagingFlow.value =
+            ApolloPagingResponseCollector.create(
+                apolloClient = apolloClient,
+                coroutineScope = coroutineScope,
+            )
     }
 
-    public fun changeSearchText(
-        text: String?,
-    ) {
+    public fun changeSearchText(text: String?) {
         if (modelStateFlow.value.searchText == text) return
         modelStateFlow.update {
             it.copy(
                 searchText = text,
             )
         }
-        pagingFlow.value = ApolloPagingResponseCollector.create(
-            apolloClient = apolloClient,
-            coroutineScope = coroutineScope,
-        )
+        pagingFlow.value =
+            ApolloPagingResponseCollector.create(
+                apolloClient = apolloClient,
+                coroutineScope = coroutineScope,
+            )
     }
 
     public fun hasSelectedMonth(): Boolean {

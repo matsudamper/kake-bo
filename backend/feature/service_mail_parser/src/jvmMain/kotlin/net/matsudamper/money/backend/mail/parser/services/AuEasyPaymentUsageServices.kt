@@ -14,37 +14,47 @@ import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 internal object AuEasyPaymentUsageServices : MoneyUsageServices {
     override val displayName: String = "auかんたん決済"
 
-    override fun parse(subject: String, from: String, html: String, plain: String, date: LocalDateTime): List<MoneyUsage> {
+    override fun parse(
+        subject: String,
+        from: String,
+        html: String,
+        plain: String,
+        date: LocalDateTime,
+    ): List<MoneyUsage> {
         val forwardedInfo = ParseUtil.parseForwarded(plain)
-        val canHandle = sequence {
-            yield(canHandledWithFrom(forwardedInfo?.from ?: from))
-            yield(canHandledWithSubject(forwardedInfo?.subject ?: subject))
-        }
+        val canHandle =
+            sequence {
+                yield(canHandledWithFrom(forwardedInfo?.from ?: from))
+                yield(canHandledWithSubject(forwardedInfo?.subject ?: subject))
+            }
         if (canHandle.all { it }.not()) return listOf()
 
         val plainLines = ParseUtil.splitByNewLine(plain)
 
-        val price = run {
-            val priceText = getUseDetail(plainLines, "ご利用金額") ?: return@run null
-            ParseUtil.getInt(priceText)
-        }
-        val parsedDate = run {
-            val dateText = getUseDetail(plainLines, "ご利用日")
+        val price =
+            run {
+                val priceText = getUseDetail(plainLines, "ご利用金額") ?: return@run null
+                ParseUtil.getInt(priceText)
+            }
+        val parsedDate =
+            run {
+                val dateText = getUseDetail(plainLines, "ご利用日")
 
-            val tmp = DateTimeFormatterBuilder()
-                .appendValue(ChronoField.YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
-                .appendLiteral('/')
-                .appendValue(ChronoField.MONTH_OF_YEAR, 2)
-                .appendLiteral('/')
-                .appendValue(ChronoField.DAY_OF_MONTH, 2)
-                .appendLiteral(' ')
-                .append(DateTimeFormatter.ISO_LOCAL_TIME)
-                .toFormatter()
-                .withLocale(Locale.JAPANESE)
-                .parse(dateText)
+                val tmp =
+                    DateTimeFormatterBuilder()
+                        .appendValue(ChronoField.YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
+                        .appendLiteral('/')
+                        .appendValue(ChronoField.MONTH_OF_YEAR, 2)
+                        .appendLiteral('/')
+                        .appendValue(ChronoField.DAY_OF_MONTH, 2)
+                        .appendLiteral(' ')
+                        .append(DateTimeFormatter.ISO_LOCAL_TIME)
+                        .toFormatter()
+                        .withLocale(Locale.JAPANESE)
+                        .parse(dateText)
 
-            LocalDateTime.from(tmp)
-        }
+                LocalDateTime.from(tmp)
+            }
         val shopName = getUseDetail(plainLines, "加盟店名")
         val serviceName = getUseDetail(plainLines, "サービス名")
         val description = getUseDetail(plainLines, "摘要")
@@ -52,24 +62,29 @@ internal object AuEasyPaymentUsageServices : MoneyUsageServices {
             MoneyUsage(
                 title = serviceName ?: displayName,
                 price = price,
-                description = buildString {
-                    appendLine(displayName)
-                    if (shopName != null) {
-                        appendLine("加盟店名: $shopName")
-                    }
-                    if (description != null) {
-                        appendLine("摘要: $description")
-                    }
-                }.trim(),
+                description =
+                    buildString {
+                        appendLine(displayName)
+                        if (shopName != null) {
+                            appendLine("加盟店名: $shopName")
+                        }
+                        if (description != null) {
+                            appendLine("摘要: $description")
+                        }
+                    }.trim(),
                 service = MoneyUsageServiceType.AuEasyPayment,
                 dateTime = parsedDate ?: forwardedInfo?.date ?: date,
             ),
         )
     }
 
-    private fun getUseDetail(lines: List<String>, title: String): String? {
-        val index = lines.indexOfFirst { it.startsWith(title) }
-            .takeIf { it >= 0 } ?: return null
+    private fun getUseDetail(
+        lines: List<String>,
+        title: String,
+    ): String? {
+        val index =
+            lines.indexOfFirst { it.startsWith(title) }
+                .takeIf { it >= 0 } ?: return null
 
         val targetLine = lines.getOrNull(index) ?: return null
         return "：(.+?)$".toRegex()

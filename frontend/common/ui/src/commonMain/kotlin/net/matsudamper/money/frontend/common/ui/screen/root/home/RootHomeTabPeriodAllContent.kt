@@ -40,7 +40,9 @@ public data class RootHomeTabPeriodAllContentUiState(
 ) {
     public sealed interface LoadingState {
         public data object Loading : LoadingState
+
         public data object Error : LoadingState
+
         public data class Loaded(
             val barGraph: BarGraphUiState,
             val monthTotalItems: ImmutableList<RootHomeTabPeriodUiState.MonthTotalItem>,
@@ -68,8 +70,9 @@ public fun RootHomeTabPeriodAllScreen(
         when (val loadingState = uiState.loadingState) {
             is RootHomeTabPeriodAllContentUiState.LoadingState.Loaded -> {
                 BoxWithConstraints(
-                    modifier = Modifier
-                        .fillMaxSize(),
+                    modifier =
+                        Modifier
+                            .fillMaxSize(),
                 ) {
                     val containerWidth = maxWidth
                     val width by rememberUpdatedState(containerWidth)
@@ -116,9 +119,10 @@ private fun SmallContent(
                 modifier = Modifier.padding(16.dp),
             ) {
                 BarGraph(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(600.dp),
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(600.dp),
                     uiState = loadingState.barGraph,
                     contentColor = LocalContentColor.current,
                 )
@@ -131,13 +135,15 @@ private fun SmallContent(
         }
         Spacer(modifier = Modifier.height(12.dp))
         Card(
-            modifier = modifier
-                .width(intrinsicSize = IntrinsicSize.Min),
+            modifier =
+                modifier
+                    .width(intrinsicSize = IntrinsicSize.Min),
         ) {
             MonthlyTotal(
                 loadingState = loadingState,
-                modifier = Modifier.fillMaxWidth()
-                    .padding(16.dp),
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .padding(16.dp),
             )
         }
     }
@@ -153,16 +159,18 @@ private fun LargeContent(
             modifier = Modifier.padding(16.dp),
         ) {
             BarGraph(
-                modifier = Modifier
-                    .height(600.dp),
+                modifier =
+                    Modifier
+                        .height(600.dp),
                 uiState = loadingState.barGraph,
                 contentColor = LocalContentColor.current,
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column(
-                modifier = Modifier
-                    .width(IntrinsicSize.Min)
-                    .widthIn(max = 400.dp),
+                modifier =
+                    Modifier
+                        .width(IntrinsicSize.Min)
+                        .widthIn(max = 400.dp),
             ) {
                 MonthlyTotal(
                     modifier = Modifier.fillMaxWidth(),
@@ -186,10 +194,11 @@ private fun MonthlyTotal(
     Column(modifier = modifier) {
         loadingState.monthTotalItems.forEach { item ->
             Row(
-                modifier = Modifier
-                    .clip(MaterialTheme.shapes.medium)
-                    .clickable { item.event.onClick() }
-                    .padding(8.dp),
+                modifier =
+                    Modifier
+                        .clip(MaterialTheme.shapes.medium)
+                        .clickable { item.event.onClick() }
+                        .padding(8.dp),
             ) {
                 Text(
                     text = item.title,

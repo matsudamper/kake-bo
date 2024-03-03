@@ -37,8 +37,11 @@ public interface RootScreenScaffoldListener {
     public val kakeboScaffoldListener: KakeboScaffoldListener
 
     public fun onClickHome()
+
     public fun onClickList()
+
     public fun onClickSettings()
+
     public fun onClickMail()
 }
 
@@ -195,9 +198,10 @@ internal fun RootScreenScaffold(
                         )
                     }
                     Divider(
-                        modifier = Modifier
-                            .width(1.dp)
-                            .fillMaxHeight(),
+                        modifier =
+                            Modifier
+                                .width(1.dp)
+                                .fillMaxHeight(),
                         color = CustomColors.MenuDividerColor,
                     )
                 }

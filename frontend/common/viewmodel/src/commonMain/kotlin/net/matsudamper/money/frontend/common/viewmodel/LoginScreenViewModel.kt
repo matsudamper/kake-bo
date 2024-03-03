@@ -25,123 +25,130 @@ public class LoginScreenViewModel(
     private val navController: JsScreenNavController,
     private val globalEventSender: EventSender<GlobalEvent>,
 ) {
-    private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
-        ViewModelState(),
-    )
-    public val uiStateFlow: StateFlow<LoginScreenUiState> = MutableStateFlow(
-        LoginScreenUiState(
-            userName = TextFieldValue(),
-            password = TextFieldValue(),
-            textInputDialog = null,
-            listener = object : LoginScreenUiState.Listener {
-                override fun onClickLogin() {
-                    coroutineScope.launch {
-                        val result = runCatching {
-                            graphqlQuery.login(
+    private val viewModelStateFlow: MutableStateFlow<ViewModelState> =
+        MutableStateFlow(
+            ViewModelState(),
+        )
+    public val uiStateFlow: StateFlow<LoginScreenUiState> =
+        MutableStateFlow(
+            LoginScreenUiState(
+                userName = TextFieldValue(),
+                password = TextFieldValue(),
+                textInputDialog = null,
+                listener =
+                    object : LoginScreenUiState.Listener {
+                        override fun onClickLogin() {
+                            coroutineScope.launch {
+                                val result =
+                                    runCatching {
+                                        graphqlQuery.login(
+                                            userName = viewModelStateFlow.value.userName.text,
+                                            password = viewModelStateFlow.value.password.text,
+                                        )
+                                    }.getOrNull()
+                                postLogin(isSuccess = result?.data?.userMutation?.userLogin?.isSuccess == true)
+                            }
+                        }
+
+                        override fun onClickNavigateAdmin() {
+                            navController.navigate(ScreenStructure.Admin)
+                        }
+
+                        override fun onClickUserNameTextField() {
+                            viewModelStateFlow.update { viewModelState ->
+                                viewModelState.copy(
+                                    textInputDialogUiState =
+                                        LoginScreenUiState.TextInputDialogUiState(
+                                            title = "username",
+                                            name = "username",
+                                            text = viewModelStateFlow.value.userName.text,
+                                            inputType = "text",
+                                            onComplete = { text ->
+                                                viewModelStateFlow.update {
+                                                    it.copy(
+                                                        userName = TextFieldValue(text),
+                                                        textInputDialogUiState = null,
+                                                    )
+                                                }
+                                            },
+                                            onConfirm = {
+                                                viewModelStateFlow.update {
+                                                    it.copy(textInputDialogUiState = null)
+                                                }
+                                            },
+                                            onCancel = {
+                                                viewModelStateFlow.update {
+                                                    it.copy(textInputDialogUiState = null)
+                                                }
+                                            },
+                                        ),
+                                )
+                            }
+                        }
+
+                        override fun onClickPasswordTextField() {
+                            viewModelStateFlow.update { viewModelState ->
+                                viewModelState.copy(
+                                    textInputDialogUiState =
+                                        LoginScreenUiState.TextInputDialogUiState(
+                                            title = "password",
+                                            name = "password",
+                                            inputType = "password",
+                                            text = viewModelStateFlow.value.password.text,
+                                            onComplete = { text ->
+                                                viewModelStateFlow.update {
+                                                    it.copy(
+                                                        password = TextFieldValue(text),
+                                                        textInputDialogUiState = null,
+                                                    )
+                                                }
+                                            },
+                                            onConfirm = {
+                                                viewModelStateFlow.update {
+                                                    it.copy(textInputDialogUiState = null)
+                                                }
+                                            },
+                                            onCancel = {
+                                                viewModelStateFlow.update {
+                                                    it.copy(textInputDialogUiState = null)
+                                                }
+                                            },
+                                        ),
+                                )
+                            }
+                        }
+
+                        override fun onClickSecurityKeyLogin() {
+                            login(
                                 userName = viewModelStateFlow.value.userName.text,
-                                password = viewModelStateFlow.value.password.text,
+                                type = WebAuthModel.Type.CROSS_PLATFORM,
                             )
-                        }.getOrNull()
-                        postLogin(isSuccess = result?.data?.userMutation?.userLogin?.isSuccess == true)
-                    }
-                }
+                        }
 
-                override fun onClickNavigateAdmin() {
-                    navController.navigate(ScreenStructure.Admin)
-                }
-
-                override fun onClickUserNameTextField() {
-                    viewModelStateFlow.update { viewModelState ->
-                        viewModelState.copy(
-                            textInputDialogUiState = LoginScreenUiState.TextInputDialogUiState(
-                                title = "username",
-                                name = "username",
-                                text = viewModelStateFlow.value.userName.text,
-                                inputType = "text",
-                                onComplete = { text ->
-                                    viewModelStateFlow.update {
-                                        it.copy(
-                                            userName = TextFieldValue(text),
-                                            textInputDialogUiState = null,
-                                        )
-                                    }
-                                },
-                                onConfirm = {
-                                    viewModelStateFlow.update {
-                                        it.copy(textInputDialogUiState = null)
-                                    }
-                                },
-                                onCancel = {
-                                    viewModelStateFlow.update {
-                                        it.copy(textInputDialogUiState = null)
-                                    }
-                                },
-                            ),
+                        override fun onClickDeviceKeyLogin() {
+                            login(
+                                userName = viewModelStateFlow.value.userName.text,
+                                type = WebAuthModel.Type.PLATFORM,
+                            )
+                        }
+                    },
+            ),
+        ).also { uiStateFlow ->
+            coroutineScope.launch {
+                viewModelStateFlow.collect { viewModelState ->
+                    uiStateFlow.update { uiState ->
+                        uiState.copy(
+                            userName = viewModelState.userName,
+                            password =
+                                TextFieldValue(
+                                    "●".repeat(viewModelState.password.text.length),
+                                ),
+                            textInputDialog = viewModelState.textInputDialogUiState,
                         )
                     }
-                }
-
-                override fun onClickPasswordTextField() {
-                    viewModelStateFlow.update { viewModelState ->
-                        viewModelState.copy(
-                            textInputDialogUiState = LoginScreenUiState.TextInputDialogUiState(
-                                title = "password",
-                                name = "password",
-                                inputType = "password",
-                                text = viewModelStateFlow.value.password.text,
-                                onComplete = { text ->
-                                    viewModelStateFlow.update {
-                                        it.copy(
-                                            password = TextFieldValue(text),
-                                            textInputDialogUiState = null,
-                                        )
-                                    }
-                                },
-                                onConfirm = {
-                                    viewModelStateFlow.update {
-                                        it.copy(textInputDialogUiState = null)
-                                    }
-                                },
-                                onCancel = {
-                                    viewModelStateFlow.update {
-                                        it.copy(textInputDialogUiState = null)
-                                    }
-                                },
-                            ),
-                        )
-                    }
-                }
-
-                override fun onClickSecurityKeyLogin() {
-                    login(
-                        userName = viewModelStateFlow.value.userName.text,
-                        type = WebAuthModel.Type.CROSS_PLATFORM,
-                    )
-                }
-
-                override fun onClickDeviceKeyLogin() {
-                    login(
-                        userName = viewModelStateFlow.value.userName.text,
-                        type = WebAuthModel.Type.PLATFORM,
-                    )
-                }
-            },
-        ),
-    ).also { uiStateFlow ->
-        coroutineScope.launch {
-            viewModelStateFlow.collect { viewModelState ->
-                uiStateFlow.update { uiState ->
-                    uiState.copy(
-                        userName = viewModelState.userName,
-                        password = TextFieldValue(
-                            "●".repeat(viewModelState.password.text.length),
-                        ),
-                        textInputDialog = viewModelState.textInputDialogUiState,
-                    )
                 }
             }
-        }
-    }.asStateFlow()
+        }.asStateFlow()
 
     private suspend fun postLogin(isSuccess: Boolean) {
         if (isSuccess) {
@@ -170,8 +177,9 @@ public class LoginScreenViewModel(
         type: WebAuthModel.Type,
     ) {
         coroutineScope.launch {
-            val fidoInfo = screenApi.fidoLoginInfo()
-                .data?.fidoLoginInfo
+            val fidoInfo =
+                screenApi.fidoLoginInfo()
+                    .data?.fidoLoginInfo
 
             if (fidoInfo == null) {
                 globalEventSender.send {
@@ -180,30 +188,33 @@ public class LoginScreenViewModel(
                 return@launch
             }
 
-            val webAuthResult = WebAuthModel.get(
-                userId = userName,
-                name = userName,
-                type = type,
-                challenge = fidoInfo.challenge,
-                domain = fidoInfo.domain,
-            )
+            val webAuthResult =
+                WebAuthModel.get(
+                    userId = userName,
+                    name = userName,
+                    type = type,
+                    challenge = fidoInfo.challenge,
+                    domain = fidoInfo.domain,
+                )
             if (webAuthResult == null) {
                 globalEventSender.send {
                     it.showSnackBar("ログインに失敗しました")
                 }
                 return@launch
             }
-            val loginResult = graphqlQuery.webAuthLogin(
-                input = UserFidoLoginInput(
-                    base64AuthenticatorData = webAuthResult.base64AuthenticatorData,
-                    base64ClientDataJson = webAuthResult.base64ClientDataJSON,
-                    base64Signature = webAuthResult.base64Signature,
-                    base64UserHandle = webAuthResult.base64UserHandle,
-                    credentialId = webAuthResult.credentialId,
-                    userName = userName,
-                    challenge = fidoInfo.challenge,
-                ),
-            )
+            val loginResult =
+                graphqlQuery.webAuthLogin(
+                    input =
+                        UserFidoLoginInput(
+                            base64AuthenticatorData = webAuthResult.base64AuthenticatorData,
+                            base64ClientDataJson = webAuthResult.base64ClientDataJSON,
+                            base64Signature = webAuthResult.base64Signature,
+                            base64UserHandle = webAuthResult.base64UserHandle,
+                            credentialId = webAuthResult.credentialId,
+                            userName = userName,
+                            challenge = fidoInfo.challenge,
+                        ),
+                )
             postLogin(isSuccess = loginResult.data?.userMutation?.userFidoLogin?.isSuccess == true)
         }
     }

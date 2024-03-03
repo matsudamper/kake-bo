@@ -7,15 +7,19 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-public val LocalHtmlFullScreenTextInputContext: ProvidableCompositionLocal<HtmlFullScreenTextInputContext> = staticCompositionLocalOf {
-    HtmlFullScreenTextInputContext()
-}
+public val LocalHtmlFullScreenTextInputContext: ProvidableCompositionLocal<HtmlFullScreenTextInputContext> =
+    staticCompositionLocalOf {
+        HtmlFullScreenTextInputContext()
+    }
 
 public class HtmlFullScreenTextInputContext {
     private val _mutableStateFlow: MutableStateFlow<Map<String, TextState>> = MutableStateFlow(mapOf())
     public val stateFlow: StateFlow<Map<String, TextState>> = _mutableStateFlow.asStateFlow()
 
-    public fun set(id: String, textState: TextState) {
+    public fun set(
+        id: String,
+        textState: TextState,
+    ) {
         _mutableStateFlow.update { map ->
             map + (id to map.getOrElse(id) { textState })
         }

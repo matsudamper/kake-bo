@@ -7,23 +7,24 @@ class GraphQlMultiException(
     private val exceptions: List<Throwable>,
 ) : Exception(exceptions[0].message, exceptions[0].cause) {
     override val message: String
-        get() = buildString {
-            printStackTrace(
-                textWriter = {
-                    appendLine(it)
-                },
-                exceptionWriter = { e ->
-                    appendLine(
-                        ByteArrayOutputStream().use { outputStream ->
-                            PrintStream(outputStream).use { printStream ->
-                                e.printStackTrace(stream = printStream)
-                            }
-                            outputStream.toString(Charsets.UTF_8)
-                        },
-                    )
-                },
-            )
-        }
+        get() =
+            buildString {
+                printStackTrace(
+                    textWriter = {
+                        appendLine(it)
+                    },
+                    exceptionWriter = { e ->
+                        appendLine(
+                            ByteArrayOutputStream().use { outputStream ->
+                                PrintStream(outputStream).use { printStream ->
+                                    e.printStackTrace(stream = printStream)
+                                }
+                                outputStream.toString(Charsets.UTF_8)
+                            },
+                        )
+                    },
+                )
+            }
 
     override fun printStackTrace() {
         printStackTrace(

@@ -5,10 +5,10 @@ import androidx.compose.runtime.Immutable
 @Immutable
 public interface ScreenNavController<D : IScreenStructure<D>> {
     public val currentNavigation: D
+
     public fun back()
-    public fun navigate(
-        navigation: D,
-    )
+
+    public fun navigate(navigation: D)
 
     public fun navigateToHome()
 }

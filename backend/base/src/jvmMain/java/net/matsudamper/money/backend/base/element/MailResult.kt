@@ -15,7 +15,9 @@ public data class MailResult(
 ) {
     public sealed interface Content {
         public data class Text(val text: String) : Content
+
         public data class Html(val html: String) : Content
+
         public data class Other(val contentType: String) : Content
     }
 }

@@ -19,12 +19,13 @@ class DeleteMailUseCase(
                 val port = imapConfig.port ?: return@runBlocking Result.ImapConfigNotFound
                 val userName = imapConfig.userName ?: return@runBlocking Result.ImapConfigNotFound
                 val password = imapConfig.password ?: return@runBlocking Result.ImapConfigNotFound
-                val mailRepository = repositoryFactory.createMailRepository(
-                    host = host,
-                    port = port,
-                    userName = userName,
-                    password = password,
-                )
+                val mailRepository =
+                    repositoryFactory.createMailRepository(
+                        host = host,
+                        port = port,
+                        userName = userName,
+                        password = password,
+                    )
 
                 mailRepository.deleteMessage(mailIds)
             }.fold(
@@ -41,8 +42,11 @@ class DeleteMailUseCase(
 
     sealed interface Result {
         object ImapConfigNotFound : Result
+
         object Failure : Result
+
         class Exception(val e: Throwable) : Result
+
         object Success : Result
     }
 }

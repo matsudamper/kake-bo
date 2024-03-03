@@ -14,7 +14,9 @@ import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import org.jetbrains.skiko.wasm.onWasmReady
 
 @OptIn(ExperimentalComposeUiApi::class)
-fun main(@Suppress("UNUSED_PARAMETER") args: Array<String>) {
+fun main(
+    @Suppress("UNUSED_PARAMETER") args: Array<String>,
+) {
     val composeSize = MutableStateFlow(IntSize.Zero)
     JsCompose(
         composeSize = composeSize,

@@ -33,18 +33,19 @@ class DbMailFilterRepository(
     ): Result<MailFilterRepository.MailFilter> {
         return dbConnection.use {
             runCatching {
-                val result = DSL.using(it)
-                    .insertInto(filters)
-                    .set(
-                        JCategoryMailFiltersRecord(
-                            title = title,
-                            userId = userId.value,
-                            orderNumber = orderNum,
-                            categoryMailFilterConditionOperatorTypeId = DbImportedMailFilterCategoryConditionOperator.AND.dbValue,
-                        ),
-                    )
-                    .returning(filters)
-                    .fetchOne()
+                val result =
+                    DSL.using(it)
+                        .insertInto(filters)
+                        .set(
+                            JCategoryMailFiltersRecord(
+                                title = title,
+                                userId = userId.value,
+                                orderNumber = orderNum,
+                                categoryMailFilterConditionOperatorTypeId = DbImportedMailFilterCategoryConditionOperator.AND.dbValue,
+                            ),
+                        )
+                        .returning(filters)
+                        .fetchOne()
                 result ?: throw IllegalStateException("insert failed")
                 mapResult(result)
             }
@@ -79,64 +80,70 @@ class DbMailFilterRepository(
     ): Result<MailFilterRepository.MailFiltersResult> {
         return dbConnection.use {
             runCatching {
-                val result = DSL.using(it)
-                    .selectFrom(filters)
-                    .where(
-                        DSL.value(true)
-                            .and(filters.USER_ID.eq(userId.value))
-                            .and(
-                                if (cursor == null) {
-                                    DSL.value(true)
-                                } else {
-                                    if (isAsc) {
-                                        DSL.row(filters.ORDER_NUMBER, filters.CATEGORY_MAIL_FILTER_ID)
-                                            .gt(cursor.orderNumber, cursor.id.id)
+                val result =
+                    DSL.using(it)
+                        .selectFrom(filters)
+                        .where(
+                            DSL.value(true)
+                                .and(filters.USER_ID.eq(userId.value))
+                                .and(
+                                    if (cursor == null) {
+                                        DSL.value(true)
                                     } else {
-                                        DSL.row(filters.ORDER_NUMBER, filters.CATEGORY_MAIL_FILTER_ID)
-                                            .lt(cursor.orderNumber, cursor.id.id)
-                                    }
-                                },
-                            ),
-                    )
-                    .orderBy(
-                        // 基本はASCであり、追加直後の要素を先頭にするためにDESCにする
-                        if (isAsc) {
-                            filters.CREATED_DATETIME.desc()
-                        } else {
-                            filters.CREATED_DATETIME.asc()
-                        },
-                        filters.ORDER_NUMBER.asc(),
-                    )
-                    .fetch()
-                    .map { mapResult(it) }
+                                        if (isAsc) {
+                                            DSL.row(filters.ORDER_NUMBER, filters.CATEGORY_MAIL_FILTER_ID)
+                                                .gt(cursor.orderNumber, cursor.id.id)
+                                        } else {
+                                            DSL.row(filters.ORDER_NUMBER, filters.CATEGORY_MAIL_FILTER_ID)
+                                                .lt(cursor.orderNumber, cursor.id.id)
+                                        }
+                                    },
+                                ),
+                        )
+                        .orderBy(
+                            // 基本はASCであり、追加直後の要素を先頭にするためにDESCにする
+                            if (isAsc) {
+                                filters.CREATED_DATETIME.desc()
+                            } else {
+                                filters.CREATED_DATETIME.asc()
+                            },
+                            filters.ORDER_NUMBER.asc(),
+                        )
+                        .fetch()
+                        .map { mapResult(it) }
 
                 val lastResult = result.lastOrNull()
                 MailFilterRepository.MailFiltersResult(
                     items = result,
-                    cursor = if (lastResult == null) {
-                        cursor
-                    } else {
-                        MailFilterRepository.MailFilterCursor(
-                            id = lastResult.importedMailCategoryFilterId,
-                            orderNumber = lastResult.orderNumber,
-                        )
-                    },
+                    cursor =
+                        if (lastResult == null) {
+                            cursor
+                        } else {
+                            MailFilterRepository.MailFilterCursor(
+                                id = lastResult.importedMailCategoryFilterId,
+                                orderNumber = lastResult.orderNumber,
+                            )
+                        },
                 )
             }
         }
     }
 
-    override fun getConditions(userId: UserId, filterId: ImportedMailCategoryFilterId): Result<MailFilterRepository.MailFilterConditionResult> {
+    override fun getConditions(
+        userId: UserId,
+        filterId: ImportedMailCategoryFilterId,
+    ): Result<MailFilterRepository.MailFilterConditionResult> {
         return dbConnection.use {
             runCatching {
-                val result = DSL.using(it)
-                    .selectFrom(conditions)
-                    .where(
-                        DSL.value(true)
-                            .and(conditions.USER_ID.eq(userId.value))
-                            .and(conditions.CATEGORY_MAIL_FILTER_ID.eq(filterId.id)),
-                    )
-                    .fetch()
+                val result =
+                    DSL.using(it)
+                        .selectFrom(conditions)
+                        .where(
+                            DSL.value(true)
+                                .and(conditions.USER_ID.eq(userId.value))
+                                .and(conditions.CATEGORY_MAIL_FILTER_ID.eq(filterId.id)),
+                        )
+                        .fetch()
 
                 MailFilterRepository.MailFilterConditionResult(
                     filterId = filterId,
@@ -146,17 +153,21 @@ class DbMailFilterRepository(
         }
     }
 
-    override fun getConditions(userId: UserId, filterIds: List<ImportedMailCategoryFilterConditionId>): Result<List<MailFilterRepository.Condition>> {
+    override fun getConditions(
+        userId: UserId,
+        filterIds: List<ImportedMailCategoryFilterConditionId>,
+    ): Result<List<MailFilterRepository.Condition>> {
         return dbConnection.use {
             runCatching {
-                val result = DSL.using(it)
-                    .selectFrom(conditions)
-                    .where(
-                        DSL.value(true)
-                            .and(conditions.USER_ID.eq(userId.value))
-                            .and(conditions.CATEGORY_MAIL_FILTER_CONDITION_ID.`in`(filterIds.map { it.id })),
-                    )
-                    .fetch()
+                val result =
+                    DSL.using(it)
+                        .selectFrom(conditions)
+                        .where(
+                            DSL.value(true)
+                                .and(conditions.USER_ID.eq(userId.value))
+                                .and(conditions.CATEGORY_MAIL_FILTER_CONDITION_ID.`in`(filterIds.map { it.id })),
+                        )
+                        .fetch()
 
                 result.map { mapResult(it) }
             }
@@ -168,12 +179,14 @@ class DbMailFilterRepository(
             importedMailCategoryFilterId = ImportedMailCategoryFilterId(record.get(filters.CATEGORY_MAIL_FILTER_ID)!!),
             userId = UserId(record.get(filters.USER_ID)!!),
             title = record.get(filters.TITLE)!!,
-            moneyUsageSubCategoryId = record.get(filters.MONEY_USAGE_SUB_CATEGORY_ID)?.let {
-                MoneyUsageSubCategoryId(it)
-            },
-            operator = DbImportedMailFilterCategoryConditionOperator.fromDbValue(
-                record.get(filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID)!!,
-            ).toLogicValue(),
+            moneyUsageSubCategoryId =
+                record.get(filters.MONEY_USAGE_SUB_CATEGORY_ID)?.let {
+                    MoneyUsageSubCategoryId(it)
+                },
+            operator =
+                DbImportedMailFilterCategoryConditionOperator.fromDbValue(
+                    record.get(filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID)!!,
+                ).toLogicValue(),
             orderNumber = record.get(filters.ORDER_NUMBER)!!,
         )
     }
@@ -183,12 +196,14 @@ class DbMailFilterRepository(
             filterId = ImportedMailCategoryFilterId(record.get(conditions.CATEGORY_MAIL_FILTER_ID)!!),
             conditionId = ImportedMailCategoryFilterConditionId(record.get(conditions.CATEGORY_MAIL_FILTER_CONDITION_ID)!!),
             text = record.get(conditions.TEXT)!!,
-            conditionType = DbImportedMailCategoryFilterConditionType.fromDbValue(
-                record.get(conditions.CATEGORY_MAIL_FILTER_CONDITION_TYPE_ID)!!,
-            ).toLogicValue(),
-            dataSourceType = DbImportedMailCategoryFilterDatasourceType.fromDbValue(
-                record.get(conditions.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID)!!,
-            ).toLogicValue(),
+            conditionType =
+                DbImportedMailCategoryFilterConditionType.fromDbValue(
+                    record.get(conditions.CATEGORY_MAIL_FILTER_CONDITION_TYPE_ID)!!,
+                ).toLogicValue(),
+            dataSourceType =
+                DbImportedMailCategoryFilterDatasourceType.fromDbValue(
+                    record.get(conditions.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID)!!,
+                ).toLogicValue(),
         )
     }
 
@@ -205,31 +220,32 @@ class DbMailFilterRepository(
     ): Boolean {
         return runCatching {
             dbConnection.use {
-                val resultCount = DSL.using(it)
-                    .update(filters)
-                    .set(
-                        buildMap {
-                            if (title != null) {
-                                put(filters.TITLE, title)
-                            }
-                            if (orderNum != null) {
-                                put(filters.ORDER_NUMBER, orderNum)
-                            }
-                            if (subCategory != null) {
-                                put(filters.MONEY_USAGE_SUB_CATEGORY_ID, subCategory.id)
-                            }
-                            if (operator != null) {
-                                put(filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID, operator.toDbDefine().dbValue)
-                            }
-                        },
-                    )
-                    .where(
-                        DSL.value(true)
-                            .and(filters.USER_ID.eq(userId.value))
-                            .and(filters.CATEGORY_MAIL_FILTER_ID.eq(filterId.id)),
-                    )
-                    .limit(1)
-                    .execute()
+                val resultCount =
+                    DSL.using(it)
+                        .update(filters)
+                        .set(
+                            buildMap {
+                                if (title != null) {
+                                    put(filters.TITLE, title)
+                                }
+                                if (orderNum != null) {
+                                    put(filters.ORDER_NUMBER, orderNum)
+                                }
+                                if (subCategory != null) {
+                                    put(filters.MONEY_USAGE_SUB_CATEGORY_ID, subCategory.id)
+                                }
+                                if (operator != null) {
+                                    put(filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID, operator.toDbDefine().dbValue)
+                                }
+                            },
+                        )
+                        .where(
+                            DSL.value(true)
+                                .and(filters.USER_ID.eq(userId.value))
+                                .and(filters.CATEGORY_MAIL_FILTER_ID.eq(filterId.id)),
+                        )
+                        .limit(1)
+                        .execute()
 
                 resultCount == 1
             }
@@ -239,7 +255,10 @@ class DbMailFilterRepository(
         )
     }
 
-    override fun deleteFilter(filterId: ImportedMailCategoryFilterId, userId: UserId): Boolean {
+    override fun deleteFilter(
+        filterId: ImportedMailCategoryFilterId,
+        userId: UserId,
+    ): Boolean {
         return runCatching {
             dbConnection.use {
                 DSL.using(it)
@@ -251,15 +270,16 @@ class DbMailFilterRepository(
                     )
                     .execute()
 
-                val resultCount = DSL.using(it)
-                    .deleteFrom(filters)
-                    .where(
-                        DSL.value(true)
-                            .and(filters.USER_ID.eq(userId.value))
-                            .and(filters.CATEGORY_MAIL_FILTER_ID.eq(filterId.id)),
-                    )
-                    .limit(1)
-                    .execute()
+                val resultCount =
+                    DSL.using(it)
+                        .deleteFrom(filters)
+                        .where(
+                            DSL.value(true)
+                                .and(filters.USER_ID.eq(userId.value))
+                                .and(filters.CATEGORY_MAIL_FILTER_ID.eq(filterId.id)),
+                        )
+                        .limit(1)
+                        .execute()
 
                 resultCount == 1
             }
@@ -282,24 +302,25 @@ class DbMailFilterRepository(
         return runCatching {
             // TODO filterIdが存在するかチェックする
             dbConnection.use {
-                val resultRowCount = DSL.using(it)
-                    .insertInto(conditions)
-                    .set(
-                        buildMap {
-                            put(conditions.USER_ID, userId.value)
-                            put(conditions.CATEGORY_MAIL_FILTER_ID, filterId.id)
-                            put(
-                                conditions.CATEGORY_MAIL_FILTER_CONDITION_TYPE_ID,
-                                (condition ?: ImportedMailCategoryFilterConditionType.Include).toDbDefine().dbValue,
-                            )
-                            put(conditions.TEXT, text.orEmpty())
-                            put(
-                                conditions.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID,
-                                (dataSource ?: ImportedMailCategoryFilterDatasourceType.Title).toDbDefine().dbValue,
-                            )
-                        },
-                    )
-                    .execute()
+                val resultRowCount =
+                    DSL.using(it)
+                        .insertInto(conditions)
+                        .set(
+                            buildMap {
+                                put(conditions.USER_ID, userId.value)
+                                put(conditions.CATEGORY_MAIL_FILTER_ID, filterId.id)
+                                put(
+                                    conditions.CATEGORY_MAIL_FILTER_CONDITION_TYPE_ID,
+                                    (condition ?: ImportedMailCategoryFilterConditionType.Include).toDbDefine().dbValue,
+                                )
+                                put(conditions.TEXT, text.orEmpty())
+                                put(
+                                    conditions.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID,
+                                    (dataSource ?: ImportedMailCategoryFilterDatasourceType.Title).toDbDefine().dbValue,
+                                )
+                            },
+                        )
+                        .execute()
                 resultRowCount == 1
             }
         }.onFailure {
@@ -319,28 +340,29 @@ class DbMailFilterRepository(
     ): Boolean {
         return runCatching {
             dbConnection.use {
-                val resultRowCount = DSL.using(it)
-                    .update(conditions)
-                    .set(
-                        buildMap {
-                            if (text != null) {
-                                put(conditions.TEXT, text)
-                            }
-                            if (conditionType != null) {
-                                put(conditions.CATEGORY_MAIL_FILTER_CONDITION_TYPE_ID, conditionType.toDbDefine().dbValue)
-                            }
-                            if (dataSource != null) {
-                                put(conditions.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID, dataSource.toDbDefine().dbValue)
-                            }
-                        },
-                    )
-                    .where(
-                        DSL.value(true)
-                            .and(conditions.USER_ID.eq(userId.value))
-                            .and(conditions.CATEGORY_MAIL_FILTER_CONDITION_ID.eq(conditionId.id)),
-                    )
-                    .limit(1)
-                    .execute()
+                val resultRowCount =
+                    DSL.using(it)
+                        .update(conditions)
+                        .set(
+                            buildMap {
+                                if (text != null) {
+                                    put(conditions.TEXT, text)
+                                }
+                                if (conditionType != null) {
+                                    put(conditions.CATEGORY_MAIL_FILTER_CONDITION_TYPE_ID, conditionType.toDbDefine().dbValue)
+                                }
+                                if (dataSource != null) {
+                                    put(conditions.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID, dataSource.toDbDefine().dbValue)
+                                }
+                            },
+                        )
+                        .where(
+                            DSL.value(true)
+                                .and(conditions.USER_ID.eq(userId.value))
+                                .and(conditions.CATEGORY_MAIL_FILTER_CONDITION_ID.eq(conditionId.id)),
+                        )
+                        .limit(1)
+                        .execute()
                 resultRowCount == 1
             }
         }.onFailure {
@@ -357,15 +379,16 @@ class DbMailFilterRepository(
     ): Boolean {
         return runCatching {
             dbConnection.use {
-                val resultRowCount = DSL.using(it)
-                    .deleteFrom(conditions)
-                    .where(
-                        DSL.value(true)
-                            .and(conditions.USER_ID.eq(userId.value))
-                            .and(conditions.CATEGORY_MAIL_FILTER_CONDITION_ID.eq(conditionId.id)),
-                    )
-                    .limit(1)
-                    .execute()
+                val resultRowCount =
+                    DSL.using(it)
+                        .deleteFrom(conditions)
+                        .where(
+                            DSL.value(true)
+                                .and(conditions.USER_ID.eq(userId.value))
+                                .and(conditions.CATEGORY_MAIL_FILTER_CONDITION_ID.eq(conditionId.id)),
+                        )
+                        .limit(1)
+                        .execute()
                 resultRowCount == 1
             }
         }.onFailure {

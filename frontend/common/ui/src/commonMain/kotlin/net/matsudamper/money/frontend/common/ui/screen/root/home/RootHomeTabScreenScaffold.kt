@@ -39,7 +39,9 @@ public data class RootHomeTabScreenScaffoldUiState(
     @Immutable
     public interface Event {
         public fun onViewInitialized()
+
         public fun onClickPeriod()
+
         public fun onClickMonth()
     }
 }
@@ -66,12 +68,13 @@ public fun RootHomeTabScreenScaffold(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            modifier = Modifier.clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                            ) {
-                                scaffoldListener.kakeboScaffoldListener.onClickTitle()
-                            },
+                            modifier =
+                                Modifier.clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null,
+                                ) {
+                                    scaffoldListener.kakeboScaffoldListener.onClickTitle()
+                                },
                             text = "家計簿",
                         )
                         menu()
@@ -103,11 +106,12 @@ private fun Menu(
     var expanded by remember { mutableStateOf(false) }
     Box(modifier = modifier) {
         DropDownMenuButton(
-            modifier = Modifier
-                .semantics(true) {
-                    contentDescription = "表示タイプ変更"
-                }
-                .align(Alignment.CenterEnd),
+            modifier =
+                Modifier
+                    .semantics(true) {
+                        contentDescription = "表示タイプ変更"
+                    }
+                    .align(Alignment.CenterEnd),
             onClick = { expanded = !expanded },
         ) {
             when (contentType) {

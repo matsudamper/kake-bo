@@ -40,9 +40,7 @@ public data class NumberInputValue(
     }
 
     public companion object {
-        public fun default(
-            value: Int = 0,
-        ): NumberInputValue {
+        public fun default(value: Int = 0): NumberInputValue {
             return NumberInputValue(value, null, null)
         }
     }
@@ -60,11 +58,12 @@ public fun NumberInput(
             modifier = Modifier.fillMaxWidth(),
         ) {
             IconButton(
-                modifier = Modifier.align(Alignment.End)
-                    .padding(
-                        top = 4.dp,
-                        end = 4.dp,
-                    ),
+                modifier =
+                    Modifier.align(Alignment.End)
+                        .padding(
+                            top = 4.dp,
+                            end = 4.dp,
+                        ),
                 onClick = { dismissRequest() },
             ) {
                 Icon(
@@ -73,9 +72,10 @@ public fun NumberInput(
                 )
             }
             Column(
-                modifier = Modifier
-                    .padding(horizontal = 12.dp)
-                    .padding(bottom = 12.dp),
+                modifier =
+                    Modifier
+                        .padding(horizontal = 12.dp)
+                        .padding(bottom = 12.dp),
             ) {
                 Row {
                     Text(
@@ -85,9 +85,10 @@ public fun NumberInput(
                         style = MaterialTheme.typography.displayMedium,
                     )
                 }
-                val padColumnHeightModifier = Modifier
-                    .background(Color.Red)
-                    .aspectRatio(6f / 1)
+                val padColumnHeightModifier =
+                    Modifier
+                        .background(Color.Red)
+                        .aspectRatio(6f / 1)
                 Row(
                     modifier = padColumnHeightModifier,
                 ) {
@@ -258,23 +259,28 @@ private fun calc(value: NumberInputValue): NumberInputValue {
         return value
     }
     return NumberInputValue(
-        value = when (value.operator) {
-            NumberInputValue.Operator.Add -> value.value + value.right
-            NumberInputValue.Operator.Minus -> value.value - value.right
-            NumberInputValue.Operator.Multiply -> value.value * value.right
-            NumberInputValue.Operator.Divide -> value.value / value.right
-            null -> value.value
-        },
+        value =
+            when (value.operator) {
+                NumberInputValue.Operator.Add -> value.value + value.right
+                NumberInputValue.Operator.Minus -> value.value - value.right
+                NumberInputValue.Operator.Multiply -> value.value * value.right
+                NumberInputValue.Operator.Divide -> value.value / value.right
+                null -> value.value
+            },
         right = null,
         operator = null,
     )
 }
+
 private fun roundCalcToInt(float: Float): Int {
     val floor = kotlin.math.floor((float * 10)) / 10f
     return ceil(floor).toInt()
 }
 
-private fun addPercent(value: NumberInputValue, percent: Int): NumberInputValue {
+private fun addPercent(
+    value: NumberInputValue,
+    percent: Int,
+): NumberInputValue {
     return if (value.operator == null) {
         val result = value.value * (1 + (percent / 100f))
         value.copy(
@@ -306,7 +312,10 @@ private fun del(value: NumberInputValue): NumberInputValue {
     }
 }
 
-private fun addDigits(value: NumberInputValue, digits: Int): NumberInputValue {
+private fun addDigits(
+    value: NumberInputValue,
+    digits: Int,
+): NumberInputValue {
     return if (value.operator == null) {
         value.copy(
             value = (value.value * 10f.pow(digits)).toInt(),
@@ -318,7 +327,10 @@ private fun addDigits(value: NumberInputValue, digits: Int): NumberInputValue {
     }
 }
 
-private fun addNumberInput(value: NumberInputValue, number: Int): NumberInputValue {
+private fun addNumberInput(
+    value: NumberInputValue,
+    number: Int,
+): NumberInputValue {
     return if (value.operator == null) {
         value.copy(
             value = (value.value * 10) + number,
@@ -356,12 +368,13 @@ private fun NumberPad(
     onClick: () -> Unit,
 ) {
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.secondaryContainer)
-            .border(1.dp, MaterialTheme.colorScheme.secondary)
-            .clickable { onClick() }
-            .padding(12.dp),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.secondaryContainer)
+                .border(1.dp, MaterialTheme.colorScheme.secondary)
+                .clickable { onClick() }
+                .padding(12.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(

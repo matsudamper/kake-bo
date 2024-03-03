@@ -9,7 +9,12 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.UserId
 
 interface MailFilterRepository {
-    fun addFilter(title: String, userId: UserId, orderNum: Int): Result<MailFilter>
+    fun addFilter(
+        title: String,
+        userId: UserId,
+        orderNum: Int,
+    ): Result<MailFilter>
+
     fun getFilters(
         userId: UserId,
         categoryFilterIds: List<ImportedMailCategoryFilterId>,
@@ -58,7 +63,11 @@ interface MailFilterRepository {
         val orderNumber: Int,
     )
 
-    fun getConditions(userId: UserId, filterIds: List<ImportedMailCategoryFilterConditionId>): Result<List<Condition>>
+    fun getConditions(
+        userId: UserId,
+        filterIds: List<ImportedMailCategoryFilterConditionId>,
+    ): Result<List<Condition>>
+
     fun updateFilter(
         filterId: ImportedMailCategoryFilterId,
         userId: UserId,
@@ -68,7 +77,11 @@ interface MailFilterRepository {
         operator: ImportedMailFilterCategoryConditionOperator? = null,
     ): Boolean
 
-    fun deleteFilter(filterId: ImportedMailCategoryFilterId, userId: UserId): Boolean
+    fun deleteFilter(
+        filterId: ImportedMailCategoryFilterId,
+        userId: UserId,
+    ): Boolean
+
     fun addCondition(
         userId: UserId,
         filterId: ImportedMailCategoryFilterId,
@@ -85,7 +98,12 @@ interface MailFilterRepository {
         dataSource: ImportedMailCategoryFilterDatasourceType?,
     ): Boolean
 
-    fun deleteCondition(userId: UserId, conditionId: ImportedMailCategoryFilterConditionId): Boolean
+    fun deleteCondition(
+        userId: UserId,
+        conditionId: ImportedMailCategoryFilterConditionId,
+    ): Boolean
+
     fun getFilters(userId: UserId): List<MailFilter>
+
     fun getConditions(userId: UserId): List<Condition>
 }

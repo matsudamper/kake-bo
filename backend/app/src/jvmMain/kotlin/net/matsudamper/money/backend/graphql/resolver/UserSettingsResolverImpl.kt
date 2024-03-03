@@ -17,7 +17,10 @@ import net.matsudamper.money.graphql.model.QlUserSettings
 import net.matsudamper.money.graphql.model.UserSettingsResolver
 
 class UserSettingsResolverImpl : UserSettingsResolver {
-    override fun imapConfig(userSettings: QlUserSettings, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlUserImapConfig?>> {
+    override fun imapConfig(
+        userSettings: QlUserSettings,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlUserImapConfig?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
 
@@ -33,11 +36,15 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         }.toDataFetcher()
     }
 
-    override fun fidoAddInfo(userSettings: QlUserSettings, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlFidoAddInfo>> {
+    override fun fidoAddInfo(
+        userSettings: QlUserSettings,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlFidoAddInfo>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        val userNameFuture = context.dataLoaders.userNameDataLoader.get(env)
-            .load(userId)
+        val userNameFuture =
+            context.dataLoaders.userNameDataLoader.get(env)
+                .load(userId)
         val challengeRepository = context.diContainer.createChallengeRepository()
         return CompletableFuture.allOf(userNameFuture).thenApplyAsync {
             QlFidoAddInfo(
@@ -49,19 +56,23 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         }.toDataFetcher()
     }
 
-    override fun registeredFidoList(userSettings: QlUserSettings, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<List<QlRegisteredFidoInfo>>> {
+    override fun registeredFidoList(
+        userSettings: QlUserSettings,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<List<QlRegisteredFidoInfo>>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
         val fidoRepository = context.diContainer.createFidoRepository()
 
         return CompletableFuture.supplyAsync {
             fidoRepository.getFidoList(userId).map { fidoResult ->
-                val authenticator = AuthenticatorConverter.convertFromBase64(
-                    base64AttestationStatement = fidoResult.attestedStatement,
-                    attestationStatementFormat = fidoResult.attestedStatementFormat,
-                    base64AttestedCredentialData = fidoResult.attestedCredentialData,
-                    counter = fidoResult.counter,
-                )
+                val authenticator =
+                    AuthenticatorConverter.convertFromBase64(
+                        base64AttestationStatement = fidoResult.attestedStatement,
+                        attestationStatementFormat = fidoResult.attestedStatementFormat,
+                        base64AttestedCredentialData = fidoResult.attestedCredentialData,
+                        counter = fidoResult.counter,
+                    )
 
                 QlRegisteredFidoInfo(
                     id = fidoResult.fidoId,

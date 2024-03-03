@@ -7,7 +7,6 @@ import net.matsudamper.money.element.MoneyUsageId
 
 public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
     public sealed interface Root : ScreenStructure {
-
         public sealed interface Settings : Root {
             public data object Root : Settings {
                 override val direction: Screens = Screens.Settings
@@ -57,11 +56,12 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                 override val direction: Screens = Screens.MailList
 
                 override fun createUrl(): String {
-                    val urlParam = buildParameter {
-                        if (isLinked != null) {
-                            append(KEY_IS_LINKED, isLinked.toString())
+                    val urlParam =
+                        buildParameter {
+                            if (isLinked != null) {
+                                append(KEY_IS_LINKED, isLinked.toString())
+                            }
                         }
-                    }
 
                     return direction.placeholderUrl.plus(urlParam)
                 }
@@ -79,9 +79,10 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                         queryParams: Map<String, List<String>>,
                     ): Imported {
                         return Imported(
-                            isLinked = queryParams[KEY_IS_LINKED]
-                                ?.firstOrNull()
-                                ?.toBooleanStrictOrNull(),
+                            isLinked =
+                                queryParams[KEY_IS_LINKED]
+                                    ?.firstOrNull()
+                                    ?.toBooleanStrictOrNull(),
                         )
                     }
                 }
@@ -95,6 +96,7 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
         public sealed interface Usage : Root {
             public class List : Usage {
                 override val direction: Screens = Screens.UsageList
+
                 override fun equalScreen(other: ScreenStructure): Boolean {
                     return other is List
                 }
@@ -104,6 +106,7 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                 val yearMonth: YearMonth? = null,
             ) : Usage {
                 override val direction: Screens = Screens.UsageCalendar
+
                 override fun equalScreen(other: ScreenStructure): Boolean {
                     return other is Calendar
                 }
@@ -127,10 +130,12 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
 
                 public companion object {
                     public fun fromQueryParams(queryParams: Map<String, kotlin.collections.List<String>>): Calendar {
-                        val year = queryParams["year"]?.firstOrNull()?.toIntOrNull()
-                            ?: return Calendar()
-                        val month = queryParams["month"]?.firstOrNull()?.toIntOrNull()
-                            ?: return Calendar()
+                        val year =
+                            queryParams["year"]?.firstOrNull()?.toIntOrNull()
+                                ?: return Calendar()
+                        val month =
+                            queryParams["month"]?.firstOrNull()?.toIntOrNull()
+                                ?: return Calendar()
                         return Calendar(
                             YearMonth(
                                 year = year,
@@ -244,8 +249,9 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
 
             public fun fromQueryParams(queryParams: Map<String, List<String>>): AddMoneyUsage {
                 return AddMoneyUsage(
-                    importedMailId = queryParams[IMPORTED_MAIL_ID]?.firstOrNull()?.toIntOrNull()
-                        ?.let { ImportedMailId(it) },
+                    importedMailId =
+                        queryParams[IMPORTED_MAIL_ID]?.firstOrNull()?.toIntOrNull()
+                            ?.let { ImportedMailId(it) },
                     importedMailIndex = queryParams[IMPORTED_MAIL_INDEX]?.firstOrNull()?.toIntOrNull(),
                 )
             }

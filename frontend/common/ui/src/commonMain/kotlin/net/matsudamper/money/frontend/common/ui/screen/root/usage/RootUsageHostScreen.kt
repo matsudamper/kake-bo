@@ -65,6 +65,7 @@ public data class RootUsageHostScreenUiState(
 
     public sealed interface Header {
         public data object None : Header
+
         public data class Calendar(
             val title: String,
             val event: HeaderCalendarEvent,
@@ -84,16 +85,22 @@ public data class RootUsageHostScreenUiState(
     @Immutable
     public interface HeaderCalendarEvent {
         public fun onClickPrevMonth()
+
         public fun onClickNextMonth()
     }
 
     @Immutable
     public interface Event {
         public suspend fun onViewInitialized()
+
         public fun onClickCalendar()
+
         public fun onClickList()
+
         public fun onClickSearchBox()
+
         public fun onClickSearchBoxClear()
+
         public fun onClickAdd()
     }
 }
@@ -147,16 +154,19 @@ public fun RootUsageHostScreen(
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(horizontal = 12.dp),
+                    modifier =
+                        Modifier
+                            .padding(horizontal = 12.dp),
                 ) {
                     Box(
-                        modifier = Modifier
-                            .weight(1f),
+                        modifier =
+                            Modifier
+                                .weight(1f),
                     ) {
                         SearchBox(
-                            modifier = Modifier
-                                .widthIn(max = 600.dp),
+                            modifier =
+                                Modifier
+                                    .widthIn(max = 600.dp),
                             text = uiState.searchText,
                             onClick = { uiState.event.onClickSearchBox() },
                             onClickClear = { uiState.event.onClickSearchBoxClear() },
@@ -166,12 +176,13 @@ public fun RootUsageHostScreen(
                     FloatingActionButton(
                         modifier = Modifier,
                         onClick = { uiState.event.onClickAdd() },
-                        elevation = FloatingActionButtonDefaults.elevation(
-                            0.dp,
-                            0.dp,
-                            0.dp,
-                            0.dp,
-                        ),
+                        elevation =
+                            FloatingActionButtonDefaults.elevation(
+                                0.dp,
+                                0.dp,
+                                0.dp,
+                                0.dp,
+                            ),
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
@@ -200,17 +211,19 @@ private fun SearchBox(
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
     ) {
         Row(
-            modifier = Modifier
-                .clickable { onClick() },
+            modifier =
+                Modifier
+                    .clickable { onClick() },
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(
-                        horizontal = 12.dp,
-                        vertical = 8.dp,
-                    ),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .padding(
+                            horizontal = 12.dp,
+                            vertical = 8.dp,
+                        ),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(
@@ -225,10 +238,11 @@ private fun SearchBox(
             }
             if (text.isNotEmpty()) {
                 Box(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .clickable { onClickClear() }
-                        .padding(8.dp),
+                    modifier =
+                        Modifier
+                            .clip(CircleShape)
+                            .clickable { onClickClear() }
+                            .padding(8.dp),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Clear,
@@ -251,12 +265,13 @@ private fun TitleBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            modifier = Modifier.clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-            ) {
-                onClickTitle()
-            },
+            modifier =
+                Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                ) {
+                    onClickTitle()
+                },
             text = "家計簿",
         )
         Spacer(modifier = Modifier.widthIn(12.dp))
@@ -266,17 +281,19 @@ private fun TitleBar(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(
-                        modifier = Modifier.clip(CircleShape)
-                            .clickable { header.event.onClickPrevMonth() }
-                            .padding(8.dp),
+                        modifier =
+                            Modifier.clip(CircleShape)
+                                .clickable { header.event.onClickPrevMonth() }
+                                .padding(8.dp),
                     ) {
                         Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "前の月")
                     }
                     Box(
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .clickable { header.event.onClickNextMonth() }
-                            .padding(8.dp),
+                        modifier =
+                            Modifier
+                                .clip(CircleShape)
+                                .clickable { header.event.onClickNextMonth() }
+                                .padding(8.dp),
                     ) {
                         Icon(Icons.Default.KeyboardArrowRight, contentDescription = "次の月")
                     }
@@ -301,11 +318,12 @@ private fun Menu(
     var expanded by remember { mutableStateOf(false) }
     Box(modifier = Modifier.padding(end = 8.dp)) {
         DropDownMenuButton(
-            modifier = Modifier
-                .semantics(true) {
-                    contentDescription = "表示タイプ変更"
-                }
-                .align(Alignment.CenterEnd),
+            modifier =
+                Modifier
+                    .semantics(true) {
+                        contentDescription = "表示タイプ変更"
+                    }
+                    .align(Alignment.CenterEnd),
             onClick = { expanded = !expanded },
         ) {
             when (type) {

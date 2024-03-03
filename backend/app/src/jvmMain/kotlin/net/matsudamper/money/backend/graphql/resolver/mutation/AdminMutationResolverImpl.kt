@@ -25,38 +25,40 @@ class AdminMutationResolverImpl : AdminMutationResolver {
         context.verifyAdminSession()
 
         return CompletableFuture.supplyAsync {
-            val result = AddUserUseCase(
-                context.diContainer.createAdminRepository(),
-            ).addUser(
-                userName = name,
-                password = password,
-            )
+            val result =
+                AddUserUseCase(
+                    context.diContainer.createAdminRepository(),
+                ).addUser(
+                    userName = name,
+                    password = password,
+                )
             when (result) {
                 is AddUserUseCase.Result.Failure -> {
                     QlAdminAddUserResult(
-                        errorType = result.errors.map {
-                            when (it) {
-                                is AddUserUseCase.Result.Errors.InternalServerError -> {
-                                    QlAdminAddUserErrorType.Unknown
-                                }
+                        errorType =
+                            result.errors.map {
+                                when (it) {
+                                    is AddUserUseCase.Result.Errors.InternalServerError -> {
+                                        QlAdminAddUserErrorType.Unknown
+                                    }
 
-                                is AddUserUseCase.Result.Errors.PasswordLength -> {
-                                    QlAdminAddUserErrorType.PasswordLength
-                                }
+                                    is AddUserUseCase.Result.Errors.PasswordLength -> {
+                                        QlAdminAddUserErrorType.PasswordLength
+                                    }
 
-                                is AddUserUseCase.Result.Errors.PasswordValidation -> {
-                                    QlAdminAddUserErrorType.PasswordInvalidChar
-                                }
+                                    is AddUserUseCase.Result.Errors.PasswordValidation -> {
+                                        QlAdminAddUserErrorType.PasswordInvalidChar
+                                    }
 
-                                AddUserUseCase.Result.Errors.UserNameLength -> {
-                                    QlAdminAddUserErrorType.UserNameLength
-                                }
+                                    AddUserUseCase.Result.Errors.UserNameLength -> {
+                                        QlAdminAddUserErrorType.UserNameLength
+                                    }
 
-                                AddUserUseCase.Result.Errors.UserNameValidation -> {
-                                    QlAdminAddUserErrorType.UserNameInvalidChar
+                                    AddUserUseCase.Result.Errors.UserNameValidation -> {
+                                        QlAdminAddUserErrorType.UserNameInvalidChar
+                                    }
                                 }
-                            }
-                        },
+                            },
                     )
                 }
 

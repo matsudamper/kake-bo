@@ -12,7 +12,10 @@ internal class CookieManagerImpl(
 ) : CookieManager {
     private val host get() = ServerEnv.domain ?: call.request.host()
 
-    override fun setAdminSession(idValue: String, expires: OffsetDateTime) {
+    override fun setAdminSession(
+        idValue: String,
+        expires: OffsetDateTime,
+    ) {
         setCookie(
             key = CookieKeys.adminSessionId,
             value = idValue,
@@ -20,7 +23,10 @@ internal class CookieManagerImpl(
         )
     }
 
-    override fun setUserSession(idValue: String, expires: OffsetDateTime) {
+    override fun setUserSession(
+        idValue: String,
+        expires: OffsetDateTime,
+    ) {
         setCookie(
             key = CookieKeys.userSessionId,
             value = idValue,
@@ -56,9 +62,10 @@ internal class CookieManagerImpl(
             domain = host,
             path = ".",
             secure = ServerEnv.isSecure,
-            extensions = mapOf(
-                "SameSite" to "Strict",
-            ),
+            extensions =
+                mapOf(
+                    "SameSite" to "Strict",
+                ),
         )
     }
 }

@@ -36,6 +36,7 @@ public data class ImapSettingScreenUiState(
     @Immutable
     public sealed interface LoadingState {
         public object Loading : LoadingState
+
         public data class Loaded(
             val imapConfig: ImapConfig,
         ) : LoadingState
@@ -50,8 +51,11 @@ public data class ImapSettingScreenUiState(
     ) {
         public interface Event {
             public fun onClickChangeHost()
+
             public fun onClickChangeUserName()
+
             public fun onClickChangePort()
+
             public fun onClickChangePassword()
         }
     }
@@ -64,13 +68,18 @@ public data class ImapSettingScreenUiState(
     ) {
         @Immutable
         public interface Event {
-            public fun complete(text: String, event: TextInputUiState)
+            public fun complete(
+                text: String,
+                event: TextInputUiState,
+            )
+
             public fun cancel(event: TextInputUiState)
         }
     }
 
     public interface Event {
         public fun consumeTextInputEvent(event: TextInputUiState)
+
         public fun onResume()
     }
 }
@@ -108,12 +117,13 @@ public fun ImapConfigScreen(
             KakeBoTopAppBar(
                 title = {
                     Text(
-                        modifier = Modifier.clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                        ) {
-                            listener.kakeboScaffoldListener.onClickTitle()
-                        },
+                        modifier =
+                            Modifier.clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                            ) {
+                                listener.kakeboScaffoldListener.onClickTitle()
+                            },
                         text = "家計簿",
                     )
                 },
@@ -154,9 +164,10 @@ private fun MainContent(
         },
     ) { paddingValues ->
         SettingElementContent(
-            modifier = Modifier.fillMaxWidth()
-                .padding(paddingValues)
-                .padding(vertical = 24.dp),
+            modifier =
+                Modifier.fillMaxWidth()
+                    .padding(paddingValues)
+                    .padding(vertical = 24.dp),
             uiState = uiState.imapConfig,
         )
     }

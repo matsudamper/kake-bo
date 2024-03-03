@@ -16,26 +16,29 @@ public object WebAuthModel {
         domain: String,
         base64ExcludeCredentialIdList: List<String>,
     ): CreateResult? {
-        val options = createOption(
-            userId = id,
-            name = name,
-            type = type,
-            challenge = challenge,
-            domain = domain,
-            excludeCredentials = base64ExcludeCredentialIdList.map {
-                CredentialsContainerCreatePublicKeyOptions.ExcludeCredential(
-                    id = it.decodeBase64Bytes(),
-                    type = "public-key",
-                )
-            },
-        )
-        val result = runCatching {
-            navigator.credentials.create(
-                options,
-            ).await()
-        }.onFailure {
-            it.printStackTrace()
-        }.getOrNull() ?: return null
+        val options =
+            createOption(
+                userId = id,
+                name = name,
+                type = type,
+                challenge = challenge,
+                domain = domain,
+                excludeCredentials =
+                    base64ExcludeCredentialIdList.map {
+                        CredentialsContainerCreatePublicKeyOptions.ExcludeCredential(
+                            id = it.decodeBase64Bytes(),
+                            type = "public-key",
+                        )
+                    },
+            )
+        val result =
+            runCatching {
+                navigator.credentials.create(
+                    options,
+                ).await()
+            }.onFailure {
+                it.printStackTrace()
+            }.getOrNull() ?: return null
 
         val attestationObjectBase64 = result.response.attestationObject.toBase64()
         val clientDataJSONBase64 = result.response.clientDataJSON.toBase64()
@@ -53,22 +56,24 @@ public object WebAuthModel {
         challenge: String,
         domain: String,
     ): GetResult? {
-        val options = createOption(
-            userId = userId,
-            name = name,
-            type = type,
-            challenge = challenge,
-            domain = domain,
-            excludeCredentials = emptyList(),
-        )
+        val options =
+            createOption(
+                userId = userId,
+                name = name,
+                type = type,
+                challenge = challenge,
+                domain = domain,
+                excludeCredentials = emptyList(),
+            )
 
-        val result = runCatching {
-            navigator.credentials.get(
-                options,
-            ).await()
-        }.onFailure {
-            it.printStackTrace()
-        }.getOrNull() ?: return null
+        val result =
+            runCatching {
+                navigator.credentials.get(
+                    options,
+                ).await()
+            }.onFailure {
+                it.printStackTrace()
+            }.getOrNull() ?: return null
         console.log(result)
         return GetResult(
             credentialId = result.id,
@@ -89,32 +94,38 @@ public object WebAuthModel {
     ): CredentialsContainerCreateOptions {
         val id = Uint8Array(userId.encodeToByteArray().toTypedArray())
         return CredentialsContainerCreateOptions(
-            publicKey = CredentialsContainerCreatePublicKeyOptions(
-                challenge = Uint8Array(challenge.encodeToByteArray().toTypedArray()),
-                user = CredentialsContainerCreatePublicKeyOptions.User(
-                    id = id,
-                    name = name,
-                    displayName = name,
+            publicKey =
+                CredentialsContainerCreatePublicKeyOptions(
+                    challenge = Uint8Array(challenge.encodeToByteArray().toTypedArray()),
+                    user =
+                        CredentialsContainerCreatePublicKeyOptions.User(
+                            id = id,
+                            name = name,
+                            displayName = name,
+                        ),
+                    pubKeyCredParams =
+                        arrayOf(
+                            CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -7), // ES256
+                            CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -257), // RS256
+                            CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -8), // Ed25519
+                        ),
+                    excludeCredentials = excludeCredentials.toTypedArray(),
+                    authenticatorSelection =
+                        CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection(
+                            authenticatorAttachment =
+                                when (type) {
+                                    Type.PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_PLATFORM
+                                    Type.CROSS_PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_CROSS_PLATFORM
+                                },
+                            userVerification = "required",
+                            residentKey = "required",
+                        ),
+                    rp =
+                        CredentialsContainerCreatePublicKeyOptions.Rp(
+                            name = domain,
+                            id = domain,
+                        ),
                 ),
-                pubKeyCredParams = arrayOf(
-                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -7), // ES256
-                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -257), // RS256
-                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -8), // Ed25519
-                ),
-                excludeCredentials = excludeCredentials.toTypedArray(),
-                authenticatorSelection = CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection(
-                    authenticatorAttachment = when (type) {
-                        Type.PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_PLATFORM
-                        Type.CROSS_PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_CROSS_PLATFORM
-                    },
-                    userVerification = "required",
-                    residentKey = "required",
-                ),
-                rp = CredentialsContainerCreatePublicKeyOptions.Rp(
-                    name = domain,
-                    id = domain,
-                ),
-            ),
         )
     }
 

@@ -22,11 +22,14 @@ public class ApolloResponseCollector<D : Query.Data>(
     private val refetchThrows: Boolean,
     private val fetchPolicy: FetchPolicy,
 ) {
-    private val _flow: MutableStateFlow<ApolloResponseState<ApolloResponse<D>>> = MutableStateFlow(
-        ApolloResponseState.loading(),
-    )
+    private val _flow: MutableStateFlow<ApolloResponseState<ApolloResponse<D>>> =
+        MutableStateFlow(
+            ApolloResponseState.loading(),
+        )
     public val flow: StateFlow<ApolloResponseState<ApolloResponse<D>>> = _flow.asStateFlow()
+
     fun getFlow(): StateFlow<ApolloResponseState<ApolloResponse<D>>> = flow
+
     private var job: Job = Job()
 
     suspend fun fetch() {
@@ -35,23 +38,24 @@ public class ApolloResponseCollector<D : Query.Data>(
 
     public fun fetch(coroutineScope: CoroutineScope) {
         job.cancel()
-        job = coroutineScope.launch {
-            apolloClient
-                .query(query)
-                .fetchPolicy(fetchPolicy)
-                .watch(
-                    fetchThrows = fetchThrows,
-                    refetchThrows = refetchThrows,
-                )
-                .catch {
-                    it.printStackTrace()
-                    _flow.value = ApolloResponseState.failure(it)
-                }
-                .collect {
-                    println("collect: Data(${it.data})")
-                    _flow.value = ApolloResponseState.success(it)
-                }
-        }
+        job =
+            coroutineScope.launch {
+                apolloClient
+                    .query(query)
+                    .fetchPolicy(fetchPolicy)
+                    .watch(
+                        fetchThrows = fetchThrows,
+                        refetchThrows = refetchThrows,
+                    )
+                    .catch {
+                        it.printStackTrace()
+                        _flow.value = ApolloResponseState.failure(it)
+                    }
+                    .collect {
+                        println("collect: Data(${it.data})")
+                        _flow.value = ApolloResponseState.success(it)
+                    }
+            }
     }
 
     public fun cancel() {

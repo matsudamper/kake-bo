@@ -63,7 +63,9 @@ public data class MailScreenUiState(
 ) {
     public sealed interface LoadingState {
         public data object Loading : LoadingState
+
         public data object Error : LoadingState
+
         public data class Loaded(
             val mail: Mail,
             val usageSuggest: ImmutableList<UsageSuggest>,
@@ -122,6 +124,7 @@ public data class MailScreenUiState(
     @Immutable
     public interface ClickableEvent {
         public fun onClickUrl(url: String)
+
         public fun onLongClickUrl(text: String)
     }
 
@@ -133,22 +136,29 @@ public data class MailScreenUiState(
     @Immutable
     public interface UrlMenuDialogEvent {
         public fun onClickOpen()
+
         public fun onClickCopy()
+
         public fun onDismissRequest()
     }
 
     @Immutable
     public interface LoadedEvent {
         public fun onClickMailHtml()
+
         public fun onClickMailPlain()
+
         public fun onClickRegister()
     }
 
     @Immutable
     public interface Event {
         public fun onClickRetry()
+
         public fun onClickArrowBackButton()
+
         public fun onClickTitle()
+
         public fun onClickDelete()
     }
 }
@@ -211,10 +221,11 @@ public fun ImportedMailScreen(
                 },
             ) {
                 Box(
-                    modifier = Modifier
-                        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
-                            uiState.event.onClickTitle()
-                        },
+                    modifier =
+                        Modifier
+                            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                                uiState.event.onClickTitle()
+                            },
                 ) {
                     Text(
                         text = "家計簿 - メール",
@@ -227,8 +238,9 @@ public fun ImportedMailScreen(
         when (uiState.loadingState) {
             is MailScreenUiState.LoadingState.Loading -> {
                 Box(
-                    modifier = Modifier.padding(paddingValues)
-                        .fillMaxSize(),
+                    modifier =
+                        Modifier.padding(paddingValues)
+                            .fillMaxSize(),
                 ) {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
@@ -270,12 +282,14 @@ private fun MainContent(
         val height = this.maxHeight
         LazyColumn(
             state = lazyListState,
-            contentPadding = PaddingValues(
-                bottom = scrollButtonSize,
-            ),
-            modifier = Modifier.fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .widthIn(max = 700.dp),
+            contentPadding =
+                PaddingValues(
+                    bottom = scrollButtonSize,
+                ),
+            modifier =
+                Modifier.fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .widthIn(max = 700.dp),
         ) {
             item {
                 Spacer(modifier = Modifier.height(24.dp))
@@ -343,13 +357,14 @@ private fun MainContent(
         }
 
         ScrollButtons(
-            modifier = Modifier
-                .onSizeChanged {
-                    scrollButtonSize = with(density) { it.height.toDp() }
-                }
-                .align(Alignment.BottomEnd)
-                .padding(ScrollButtonsDefaults.padding)
-                .height(ScrollButtonsDefaults.height),
+            modifier =
+                Modifier
+                    .onSizeChanged {
+                        scrollButtonSize = with(density) { it.height.toDp() }
+                    }
+                    .align(Alignment.BottomEnd)
+                    .padding(ScrollButtonsDefaults.padding)
+                    .height(ScrollButtonsDefaults.height),
             scrollState = lazyListState,
             scrollSize = with(density) { height.toPx() } * 0.4f,
         )
@@ -424,14 +439,16 @@ private fun LinkedMoneyUsageCard(
     uiState: MailScreenUiState.LinkedUsage,
 ) {
     Card(
-        modifier = modifier
-            .clickable {
-                uiState.event.onClick()
-            },
+        modifier =
+            modifier
+                .clickable {
+                    uiState.event.onClick()
+                },
     ) {
         GridColumn(
-            modifier = Modifier.fillMaxWidth()
-                .padding(12.dp),
+            modifier =
+                Modifier.fillMaxWidth()
+                    .padding(12.dp),
             horizontalPadding = 8.dp,
             verticalPadding = 4.dp,
         ) {
@@ -481,8 +498,9 @@ private fun MoneyUsageSuggestCard(
         modifier = modifier,
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth()
-                .padding(12.dp),
+            modifier =
+                Modifier.fillMaxWidth()
+                    .padding(12.dp),
         ) {
             GridColumn(
                 modifier = Modifier.fillMaxWidth(),
@@ -555,8 +573,9 @@ private fun MailCard(
         modifier = modifier,
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth()
-                .padding(12.dp),
+            modifier =
+                Modifier.fillMaxWidth()
+                    .padding(12.dp),
         ) {
             GridColumn(
                 modifier = Modifier.fillMaxWidth(),

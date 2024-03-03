@@ -6,7 +6,12 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.UserId
 
 interface MoneyUsageAnalyticsRepository {
-    fun getTotalAmount(userId: UserId, sinceDateTimeAt: LocalDateTime, untilDateTimeAt: LocalDateTime): Long?
+    fun getTotalAmount(
+        userId: UserId,
+        sinceDateTimeAt: LocalDateTime,
+        untilDateTimeAt: LocalDateTime,
+    ): Long?
+
     fun getTotalAmountBySubCategories(
         userId: UserId,
         categoryIds: List<MoneyUsageCategoryId>,

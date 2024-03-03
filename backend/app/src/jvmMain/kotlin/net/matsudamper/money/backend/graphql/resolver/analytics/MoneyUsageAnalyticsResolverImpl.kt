@@ -42,26 +42,29 @@ class MoneyUsageAnalyticsResolverImpl : MoneyUsageAnalyticsResolver {
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
-            val results = context.diContainer.createMoneyUsageAnalyticsRepository()
-                .getTotalAmountByCategories(
-                    userId = userId,
-                    sinceDateTimeAt = env.localContext.query.sinceDateTime,
-                    untilDateTimeAt = env.localContext.query.untilDateTime,
-                )
-                .onFailure {
-                    it.printStackTrace()
-                }.getOrNull() ?: return@supplyAsync DataFetcherResultBuilder.buildNullValue()
+            val results =
+                context.diContainer.createMoneyUsageAnalyticsRepository()
+                    .getTotalAmountByCategories(
+                        userId = userId,
+                        sinceDateTimeAt = env.localContext.query.sinceDateTime,
+                        untilDateTimeAt = env.localContext.query.untilDateTime,
+                    )
+                    .onFailure {
+                        it.printStackTrace()
+                    }.getOrNull() ?: return@supplyAsync DataFetcherResultBuilder.buildNullValue()
 
             DataFetcherResultBuilder.nullable(
-                value = results.map {
-                    QlMoneyUsageAnalyticsByCategory(
-                        category = QlMoneyUsageCategory(it.categoryId),
-                        totalAmount = it.totalAmount,
-                    )
-                },
-                localContext = MoneyUsageAnalyticsByCategoryLocalContext(
-                    query = env.localContext.query,
-                ),
+                value =
+                    results.map {
+                        QlMoneyUsageAnalyticsByCategory(
+                            category = QlMoneyUsageCategory(it.categoryId),
+                            totalAmount = it.totalAmount,
+                        )
+                    },
+                localContext =
+                    MoneyUsageAnalyticsByCategoryLocalContext(
+                        query = env.localContext.query,
+                    ),
             ).build()
         }
     }

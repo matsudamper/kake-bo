@@ -5,7 +5,13 @@ import net.matsudamper.money.element.MailId
 
 interface MailRepository {
     fun getMailCount(): Int
-    fun getMails(size: Int, offset: Int): List<MailResult>
+
+    fun getMails(
+        size: Int,
+        offset: Int,
+    ): List<MailResult>
+
     fun getMails(mailIds: List<MailId>): Sequence<MailResult>
+
     fun deleteMessage(deleteMessageIDs: List<MailId>)
 }

@@ -28,72 +28,78 @@ public class ImportedMailPlainViewModel(
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
-    private val apolloResponseCollector = ApolloResponseCollector.create(
-        apolloClient = apolloClient,
-        query = ImportedMailPlainScreenQuery(
-            id = id,
-        ),
-    )
+    private val apolloResponseCollector =
+        ApolloResponseCollector.create(
+            apolloClient = apolloClient,
+            query =
+                ImportedMailPlainScreenQuery(
+                    id = id,
+                ),
+        )
 
-    public val uiStateFlow: StateFlow<ImportedMailPlainScreenUiState> = MutableStateFlow(
-        ImportedMailPlainScreenUiState(
-            loadingState = ImportedMailPlainScreenUiState.LoadingState.Loading,
-            event = object : ImportedMailPlainScreenUiState.Event {
-                override fun onViewInitialized() {
-                    fetch()
-                }
-
-                override fun onClickClose() {
-                    coroutineScope.launch {
-                        viewModelEventSender.send {
-                            it.backRequest()
+    public val uiStateFlow: StateFlow<ImportedMailPlainScreenUiState> =
+        MutableStateFlow(
+            ImportedMailPlainScreenUiState(
+                loadingState = ImportedMailPlainScreenUiState.LoadingState.Loading,
+                event =
+                    object : ImportedMailPlainScreenUiState.Event {
+                        override fun onViewInitialized() {
+                            fetch()
                         }
-                    }
-                }
 
-                override fun onClickRetry() {
-                    fetch()
-                }
-            },
-        ),
-    ).also { uiStateFlow ->
-        coroutineScope.launch {
-            viewModelStateFlow.collectLatest { viewModelState ->
-                val loadingState = when (val resultWrapper = viewModelState.apolloResponseState) {
-                    is ApolloResponseState.Failure -> {
-                        ImportedMailPlainScreenUiState.LoadingState.Error
-                    }
+                        override fun onClickClose() {
+                            coroutineScope.launch {
+                                viewModelEventSender.send {
+                                    it.backRequest()
+                                }
+                            }
+                        }
 
-                    is ApolloResponseState.Success -> {
-                        val mail = resultWrapper.value.data?.user?.importedMailAttributes?.mail
+                        override fun onClickRetry() {
+                            fetch()
+                        }
+                    },
+            ),
+        ).also { uiStateFlow ->
+            coroutineScope.launch {
+                viewModelStateFlow.collectLatest { viewModelState ->
+                    val loadingState =
+                        when (val resultWrapper = viewModelState.apolloResponseState) {
+                            is ApolloResponseState.Failure -> {
+                                ImportedMailPlainScreenUiState.LoadingState.Error
+                            }
 
-                        if (mail == null) {
-                            ImportedMailPlainScreenUiState.LoadingState.Error
-                        } else {
-                            ImportedMailPlainScreenUiState.LoadingState.Loaded(
-                                html = sequence {
-                                    yield(
-                                        mail.plain
-                                            ?.replace("\r\n", "<br>")
-                                            ?.replace("\n", "<br>"),
+                            is ApolloResponseState.Success -> {
+                                val mail = resultWrapper.value.data?.user?.importedMailAttributes?.mail
+
+                                if (mail == null) {
+                                    ImportedMailPlainScreenUiState.LoadingState.Error
+                                } else {
+                                    ImportedMailPlainScreenUiState.LoadingState.Loaded(
+                                        html =
+                                            sequence {
+                                                yield(
+                                                    mail.plain
+                                                        ?.replace("\r\n", "<br>")
+                                                        ?.replace("\n", "<br>"),
+                                                )
+                                            }.filterNotNull().firstOrNull().orEmpty(),
                                     )
-                                }.filterNotNull().firstOrNull().orEmpty(),
-                            )
-                        }
-                    }
+                                }
+                            }
 
-                    is ApolloResponseState.Loading -> {
-                        ImportedMailPlainScreenUiState.LoadingState.Loading
+                            is ApolloResponseState.Loading -> {
+                                ImportedMailPlainScreenUiState.LoadingState.Loading
+                            }
+                        }
+                    uiStateFlow.update {
+                        it.copy(
+                            loadingState = loadingState,
+                        )
                     }
-                }
-                uiStateFlow.update {
-                    it.copy(
-                        loadingState = loadingState,
-                    )
                 }
             }
-        }
-    }.asStateFlow()
+        }.asStateFlow()
 
     private fun fetch() {
         coroutineScope.launch {
