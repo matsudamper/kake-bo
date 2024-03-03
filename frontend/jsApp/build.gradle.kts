@@ -14,11 +14,11 @@ kotlin {
     sourceSets {
         val jsMain by getting {
             dependencies {
-                implementation(project(":shared"))
-                implementation(project(":frontend:common:base"))
-                implementation(project(":frontend:common:ui"))
-                implementation(project(":frontend:common:viewmodel"))
-                implementation(project(":frontend:common:graphql"))
+                implementation(projects.shared)
+                implementation(projects.frontend.common.base)
+                implementation(projects.frontend.common.ui)
+                implementation(projects.frontend.common.viewmodel)
+                implementation(projects.frontend.common.graphql)
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.kotlin.serialization.json)

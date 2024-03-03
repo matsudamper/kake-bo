@@ -10,9 +10,9 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(project(":shared"))
-                implementation(project(":frontend:common:base"))
-                api(project(":frontend:common:graphql:schema"))
+                implementation(projects.shared)
+                implementation(projects.frontend.common.base)
+                api(projects.frontend.common.graphql.schema)
 
                 api(libs.apollo.runtime)
                 implementation(libs.kotlin.datetime)

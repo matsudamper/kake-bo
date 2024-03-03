@@ -11,7 +11,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(project(":frontend:common:base"))
+                implementation(projects.frontend.common.base)
                 implementation(libs.kotlin.datetime)
                 implementation(compose.runtime)
                 implementation(compose.foundation)

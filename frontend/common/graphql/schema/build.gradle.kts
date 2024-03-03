@@ -13,8 +13,8 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(project(":shared"))
-                implementation(project(":frontend:common:base"))
+                implementation(projects.shared)
+                implementation(projects.frontend.common.base)
 
                 api(libs.apollo.runtime)
                 implementation(libs.kotlin.datetime)

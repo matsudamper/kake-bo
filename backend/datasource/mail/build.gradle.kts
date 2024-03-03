@@ -11,9 +11,9 @@ kotlin {
     sourceSets {
         val jvmMain by getting {
             dependencies {
-                implementation(project(":shared"))
-                implementation(project(":backend:base"))
-                implementation(project(":backend:datasource:db:schema"))
+                implementation(projects.shared)
+                implementation(projects.backend.base)
+                implementation(projects.backend.datasource.db.schema)
 
                 implementation(kotlin("stdlib"))
                 implementation(kotlin("reflect"))

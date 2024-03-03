@@ -11,14 +11,14 @@ kotlin {
         jvmToolchain(17)
         val jvmMain by getting {
             dependencies {
-                implementation(project(":shared"))
-                implementation(project(":backend:base"))
-                implementation(project(":backend:graphql"))
-                implementation(project(":backend:datasource:db"))
-                implementation(project(":backend:datasource:mail"))
-                implementation(project(":backend:datasource:inmemory"))
-                implementation(project(":backend:feature:service_mail_parser"))
-                implementation(project(":backend:feature:fido"))
+                implementation(projects.shared)
+                implementation(projects.backend.base)
+                implementation(projects.backend.graphql)
+                implementation(projects.backend.datasource.db)
+                implementation(projects.backend.datasource.mail)
+                implementation(projects.backend.datasource.inmemory)
+                implementation(projects.backend.feature.serviceMailParser)
+                implementation(projects.backend.feature.fido)
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.graphqlJava.extendedScalars)

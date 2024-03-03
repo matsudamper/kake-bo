@@ -10,8 +10,8 @@ kotlin {
         jvmToolchain(17)
         val jvmMain by getting {
             dependencies {
-                implementation(project(":shared"))
-                implementation(project(":backend:base"))
+                implementation(projects.shared)
+                implementation(projects.backend.base)
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.kotlin.coroutines.core)

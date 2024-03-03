@@ -13,7 +13,7 @@ kotlin {
                 implementation(kotlin("stdlib"))
                 implementation(kotlin("reflect"))
 
-                implementation(project(":shared"))
+                implementation(projects.shared)
 
                 implementation(libs.kotlin.serialization.json)
                 implementation(libs.jackson.databind)

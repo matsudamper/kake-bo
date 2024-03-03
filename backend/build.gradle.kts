@@ -15,10 +15,10 @@ kotlin {
         jvmToolchain(17)
         val jvmMain by getting {
             dependencies {
-                implementation(project(":shared"))
-                implementation(project(":backend:base"))
-                implementation(project(":backend:graphql"))
-                implementation(project(":backend:app"))
+                implementation(projects.shared)
+                implementation(projects.backend.base)
+                implementation(projects.backend.graphql)
+                implementation(projects.backend.app)
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.jackson.jsr310)

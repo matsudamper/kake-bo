@@ -15,8 +15,8 @@ kotlin {
         jvmToolchain(17)
         val jvmMain by getting {
             dependencies {
-                implementation(project(":backend:base"))
-                implementation(project(":shared"))
+                implementation(projects.backend.base)
+                implementation(projects.shared)
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.kotlin.serialization.json)
