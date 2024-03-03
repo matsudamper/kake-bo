@@ -2,7 +2,7 @@ import io.kotest.core.spec.style.DescribeSpec
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import net.matsudamper.money.backend.datasource.db.repository.AdminRepository
+import net.matsudamper.money.backend.app.interfaces.AdminRepository
 import net.matsudamper.money.backend.usecase.AddUserUseCase
 
 class AddUserUseCaseTest : DescribeSpec(
