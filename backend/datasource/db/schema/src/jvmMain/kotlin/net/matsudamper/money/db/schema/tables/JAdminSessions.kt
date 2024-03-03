@@ -5,26 +5,30 @@ package net.matsudamper.money.db.schema.tables
 
 
 import java.time.LocalDateTime
-import java.util.function.Function
+
+import kotlin.collections.Collection
 
 import net.matsudamper.money.db.schema.JMoney
 import net.matsudamper.money.db.schema.keys.KEY_ADMIN_SESSIONS_PRIMARY
 import net.matsudamper.money.db.schema.tables.records.JAdminSessionsRecord
 
+import org.jooq.Condition
 import org.jooq.Field
 import org.jooq.ForeignKey
+import org.jooq.InverseForeignKey
 import org.jooq.Name
+import org.jooq.PlainSQL
+import org.jooq.QueryPart
 import org.jooq.Record
-import org.jooq.Records
-import org.jooq.Row3
+import org.jooq.SQL
 import org.jooq.Schema
-import org.jooq.SelectField
+import org.jooq.Select
+import org.jooq.Stringly
 import org.jooq.Table
 import org.jooq.TableField
 import org.jooq.TableOptions
 import org.jooq.UniqueKey
 import org.jooq.impl.DSL
-import org.jooq.impl.Internal
 import org.jooq.impl.SQLDataType
 import org.jooq.impl.TableImpl
 
@@ -35,19 +39,23 @@ import org.jooq.impl.TableImpl
 @Suppress("UNCHECKED_CAST")
 open class JAdminSessions(
     alias: Name,
-    child: Table<out Record>?,
-    path: ForeignKey<out Record, JAdminSessionsRecord>?,
+    path: Table<out Record>?,
+    childPath: ForeignKey<out Record, JAdminSessionsRecord>?,
+    parentPath: InverseForeignKey<out Record, JAdminSessionsRecord>?,
     aliased: Table<JAdminSessionsRecord>?,
-    parameters: Array<Field<*>?>?
+    parameters: Array<Field<*>?>?,
+    where: Condition?
 ): TableImpl<JAdminSessionsRecord>(
     alias,
     JMoney.MONEY,
-    child,
     path,
+    childPath,
+    parentPath,
     aliased,
     parameters,
     DSL.comment(""),
-    TableOptions.table()
+    TableOptions.table(),
+    where,
 ) {
     companion object {
 
@@ -77,8 +85,9 @@ open class JAdminSessions(
      */
     val EXPIRE_DATETIME: TableField<JAdminSessionsRecord, LocalDateTime?> = createField(DSL.name("expire_datetime"), SQLDataType.LOCALDATETIME(0).nullable(false), this, "")
 
-    private constructor(alias: Name, aliased: Table<JAdminSessionsRecord>?): this(alias, null, null, aliased, null)
-    private constructor(alias: Name, aliased: Table<JAdminSessionsRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, aliased, parameters)
+    private constructor(alias: Name, aliased: Table<JAdminSessionsRecord>?): this(alias, null, null, null, aliased, null, null)
+    private constructor(alias: Name, aliased: Table<JAdminSessionsRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
+    private constructor(alias: Name, aliased: Table<JAdminSessionsRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)
 
     /**
      * Create an aliased <code>money.admin_sessions</code> table reference
@@ -94,13 +103,11 @@ open class JAdminSessions(
      * Create a <code>money.admin_sessions</code> table reference
      */
     constructor(): this(DSL.name("admin_sessions"), null)
-
-    constructor(child: Table<out Record>, key: ForeignKey<out Record, JAdminSessionsRecord>): this(Internal.createPathAlias(child, key), child, key, ADMIN_SESSIONS, null)
     override fun getSchema(): Schema? = if (aliased()) null else JMoney.MONEY
     override fun getPrimaryKey(): UniqueKey<JAdminSessionsRecord> = KEY_ADMIN_SESSIONS_PRIMARY
     override fun `as`(alias: String): JAdminSessions = JAdminSessions(DSL.name(alias), this)
     override fun `as`(alias: Name): JAdminSessions = JAdminSessions(alias, this)
-    override fun `as`(alias: Table<*>): JAdminSessions = JAdminSessions(alias.getQualifiedName(), this)
+    override fun `as`(alias: Table<*>): JAdminSessions = JAdminSessions(alias.qualifiedName, this)
 
     /**
      * Rename this table
@@ -115,21 +122,55 @@ open class JAdminSessions(
     /**
      * Rename this table
      */
-    override fun rename(name: Table<*>): JAdminSessions = JAdminSessions(name.getQualifiedName(), null)
-
-    // -------------------------------------------------------------------------
-    // Row3 type methods
-    // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row3<String?, LocalDateTime?, LocalDateTime?> = super.fieldsRow() as Row3<String?, LocalDateTime?, LocalDateTime?>
+    override fun rename(name: Table<*>): JAdminSessions = JAdminSessions(name.qualifiedName, null)
 
     /**
-     * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
+     * Create an inline derived table from this table
      */
-    fun <U> mapping(from: (String?, LocalDateTime?, LocalDateTime?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
+    override fun where(condition: Condition?): JAdminSessions = JAdminSessions(qualifiedName, if (aliased()) this else null, condition)
 
     /**
-     * Convenience mapping calling {@link SelectField#convertFrom(Class,
-     * Function)}.
+     * Create an inline derived table from this table
      */
-    fun <U> mapping(toType: Class<U>, from: (String?, LocalDateTime?, LocalDateTime?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
+    override fun where(conditions: Collection<Condition>): JAdminSessions = where(DSL.and(conditions))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun where(vararg conditions: Condition?): JAdminSessions = where(DSL.and(*conditions))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun where(condition: Field<Boolean?>?): JAdminSessions = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(condition: SQL): JAdminSessions = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String): JAdminSessions = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String, vararg binds: Any?): JAdminSessions = where(DSL.condition(condition, *binds))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String, vararg parts: QueryPart): JAdminSessions = where(DSL.condition(condition, *parts))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun whereExists(select: Select<*>): JAdminSessions = where(DSL.exists(select))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun whereNotExists(select: Select<*>): JAdminSessions = where(DSL.notExists(select))
 }

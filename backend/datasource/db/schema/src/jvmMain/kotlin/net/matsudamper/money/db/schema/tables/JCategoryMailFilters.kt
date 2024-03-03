@@ -5,8 +5,8 @@ package net.matsudamper.money.db.schema.tables
 
 
 import java.time.LocalDateTime
-import java.util.function.Function
 
+import kotlin.collections.Collection
 import kotlin.collections.List
 
 import net.matsudamper.money.db.schema.JMoney
@@ -14,22 +14,25 @@ import net.matsudamper.money.db.schema.indexes.CATEGORY_MAIL_FILTERS_USER_CATEGO
 import net.matsudamper.money.db.schema.keys.KEY_CATEGORY_MAIL_FILTERS_PRIMARY
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFiltersRecord
 
+import org.jooq.Condition
 import org.jooq.Field
 import org.jooq.ForeignKey
 import org.jooq.Identity
 import org.jooq.Index
+import org.jooq.InverseForeignKey
 import org.jooq.Name
+import org.jooq.PlainSQL
+import org.jooq.QueryPart
 import org.jooq.Record
-import org.jooq.Records
-import org.jooq.Row8
+import org.jooq.SQL
 import org.jooq.Schema
-import org.jooq.SelectField
+import org.jooq.Select
+import org.jooq.Stringly
 import org.jooq.Table
 import org.jooq.TableField
 import org.jooq.TableOptions
 import org.jooq.UniqueKey
 import org.jooq.impl.DSL
-import org.jooq.impl.Internal
 import org.jooq.impl.SQLDataType
 import org.jooq.impl.TableImpl
 
@@ -40,19 +43,23 @@ import org.jooq.impl.TableImpl
 @Suppress("UNCHECKED_CAST")
 open class JCategoryMailFilters(
     alias: Name,
-    child: Table<out Record>?,
-    path: ForeignKey<out Record, JCategoryMailFiltersRecord>?,
+    path: Table<out Record>?,
+    childPath: ForeignKey<out Record, JCategoryMailFiltersRecord>?,
+    parentPath: InverseForeignKey<out Record, JCategoryMailFiltersRecord>?,
     aliased: Table<JCategoryMailFiltersRecord>?,
-    parameters: Array<Field<*>?>?
+    parameters: Array<Field<*>?>?,
+    where: Condition?
 ): TableImpl<JCategoryMailFiltersRecord>(
     alias,
     JMoney.MONEY,
-    child,
     path,
+    childPath,
+    parentPath,
     aliased,
     parameters,
     DSL.comment(""),
-    TableOptions.table()
+    TableOptions.table(),
+    where,
 ) {
     companion object {
 
@@ -110,8 +117,9 @@ open class JCategoryMailFilters(
      */
     val ORDER_NUMBER: TableField<JCategoryMailFiltersRecord, Int?> = createField(DSL.name("order_number"), SQLDataType.INTEGER.nullable(false), this, "")
 
-    private constructor(alias: Name, aliased: Table<JCategoryMailFiltersRecord>?): this(alias, null, null, aliased, null)
-    private constructor(alias: Name, aliased: Table<JCategoryMailFiltersRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, aliased, parameters)
+    private constructor(alias: Name, aliased: Table<JCategoryMailFiltersRecord>?): this(alias, null, null, null, aliased, null, null)
+    private constructor(alias: Name, aliased: Table<JCategoryMailFiltersRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
+    private constructor(alias: Name, aliased: Table<JCategoryMailFiltersRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)
 
     /**
      * Create an aliased <code>money.category_mail_filters</code> table
@@ -129,15 +137,13 @@ open class JCategoryMailFilters(
      * Create a <code>money.category_mail_filters</code> table reference
      */
     constructor(): this(DSL.name("category_mail_filters"), null)
-
-    constructor(child: Table<out Record>, key: ForeignKey<out Record, JCategoryMailFiltersRecord>): this(Internal.createPathAlias(child, key), child, key, CATEGORY_MAIL_FILTERS, null)
     override fun getSchema(): Schema? = if (aliased()) null else JMoney.MONEY
     override fun getIndexes(): List<Index> = listOf(CATEGORY_MAIL_FILTERS_USER_CATEGORY_MAIL_FILTER_ID)
     override fun getIdentity(): Identity<JCategoryMailFiltersRecord, Int?> = super.getIdentity() as Identity<JCategoryMailFiltersRecord, Int?>
     override fun getPrimaryKey(): UniqueKey<JCategoryMailFiltersRecord> = KEY_CATEGORY_MAIL_FILTERS_PRIMARY
     override fun `as`(alias: String): JCategoryMailFilters = JCategoryMailFilters(DSL.name(alias), this)
     override fun `as`(alias: Name): JCategoryMailFilters = JCategoryMailFilters(alias, this)
-    override fun `as`(alias: Table<*>): JCategoryMailFilters = JCategoryMailFilters(alias.getQualifiedName(), this)
+    override fun `as`(alias: Table<*>): JCategoryMailFilters = JCategoryMailFilters(alias.qualifiedName, this)
 
     /**
      * Rename this table
@@ -152,21 +158,55 @@ open class JCategoryMailFilters(
     /**
      * Rename this table
      */
-    override fun rename(name: Table<*>): JCategoryMailFilters = JCategoryMailFilters(name.getQualifiedName(), null)
-
-    // -------------------------------------------------------------------------
-    // Row8 type methods
-    // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row8<Int?, Int?, String?, Int?, Int?, LocalDateTime?, LocalDateTime?, Int?> = super.fieldsRow() as Row8<Int?, Int?, String?, Int?, Int?, LocalDateTime?, LocalDateTime?, Int?>
+    override fun rename(name: Table<*>): JCategoryMailFilters = JCategoryMailFilters(name.qualifiedName, null)
 
     /**
-     * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
+     * Create an inline derived table from this table
      */
-    fun <U> mapping(from: (Int?, Int?, String?, Int?, Int?, LocalDateTime?, LocalDateTime?, Int?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
+    override fun where(condition: Condition?): JCategoryMailFilters = JCategoryMailFilters(qualifiedName, if (aliased()) this else null, condition)
 
     /**
-     * Convenience mapping calling {@link SelectField#convertFrom(Class,
-     * Function)}.
+     * Create an inline derived table from this table
      */
-    fun <U> mapping(toType: Class<U>, from: (Int?, Int?, String?, Int?, Int?, LocalDateTime?, LocalDateTime?, Int?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
+    override fun where(conditions: Collection<Condition>): JCategoryMailFilters = where(DSL.and(conditions))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun where(vararg conditions: Condition?): JCategoryMailFilters = where(DSL.and(*conditions))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun where(condition: Field<Boolean?>?): JCategoryMailFilters = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(condition: SQL): JCategoryMailFilters = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String): JCategoryMailFilters = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String, vararg binds: Any?): JCategoryMailFilters = where(DSL.condition(condition, *binds))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String, vararg parts: QueryPart): JCategoryMailFilters = where(DSL.condition(condition, *parts))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun whereExists(select: Select<*>): JCategoryMailFilters = where(DSL.exists(select))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun whereNotExists(select: Select<*>): JCategoryMailFilters = where(DSL.notExists(select))
 }

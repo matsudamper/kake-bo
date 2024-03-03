@@ -5,8 +5,8 @@ package net.matsudamper.money.db.schema.tables
 
 
 import java.time.LocalDateTime
-import java.util.function.Function
 
+import kotlin.collections.Collection
 import kotlin.collections.List
 
 import net.matsudamper.money.db.schema.JMoney
@@ -16,21 +16,24 @@ import net.matsudamper.money.db.schema.indexes.MONEY_USAGES_MAILS_RELATION_USER_
 import net.matsudamper.money.db.schema.keys.KEY_MONEY_USAGES_MAILS_RELATION_PRIMARY
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsagesMailsRelationRecord
 
+import org.jooq.Condition
 import org.jooq.Field
 import org.jooq.ForeignKey
 import org.jooq.Index
+import org.jooq.InverseForeignKey
 import org.jooq.Name
+import org.jooq.PlainSQL
+import org.jooq.QueryPart
 import org.jooq.Record
-import org.jooq.Records
-import org.jooq.Row4
+import org.jooq.SQL
 import org.jooq.Schema
-import org.jooq.SelectField
+import org.jooq.Select
+import org.jooq.Stringly
 import org.jooq.Table
 import org.jooq.TableField
 import org.jooq.TableOptions
 import org.jooq.UniqueKey
 import org.jooq.impl.DSL
-import org.jooq.impl.Internal
 import org.jooq.impl.SQLDataType
 import org.jooq.impl.TableImpl
 
@@ -41,19 +44,23 @@ import org.jooq.impl.TableImpl
 @Suppress("UNCHECKED_CAST")
 open class JMoneyUsagesMailsRelation(
     alias: Name,
-    child: Table<out Record>?,
-    path: ForeignKey<out Record, JMoneyUsagesMailsRelationRecord>?,
+    path: Table<out Record>?,
+    childPath: ForeignKey<out Record, JMoneyUsagesMailsRelationRecord>?,
+    parentPath: InverseForeignKey<out Record, JMoneyUsagesMailsRelationRecord>?,
     aliased: Table<JMoneyUsagesMailsRelationRecord>?,
-    parameters: Array<Field<*>?>?
+    parameters: Array<Field<*>?>?,
+    where: Condition?
 ): TableImpl<JMoneyUsagesMailsRelationRecord>(
     alias,
     JMoney.MONEY,
-    child,
     path,
+    childPath,
+    parentPath,
     aliased,
     parameters,
     DSL.comment(""),
-    TableOptions.table()
+    TableOptions.table(),
+    where,
 ) {
     companion object {
 
@@ -90,8 +97,9 @@ open class JMoneyUsagesMailsRelation(
      */
     val CREATED_DATETIME: TableField<JMoneyUsagesMailsRelationRecord, LocalDateTime?> = createField(DSL.name("created_datetime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field(DSL.raw("current_timestamp()"), SQLDataType.LOCALDATETIME)), this, "")
 
-    private constructor(alias: Name, aliased: Table<JMoneyUsagesMailsRelationRecord>?): this(alias, null, null, aliased, null)
-    private constructor(alias: Name, aliased: Table<JMoneyUsagesMailsRelationRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, aliased, parameters)
+    private constructor(alias: Name, aliased: Table<JMoneyUsagesMailsRelationRecord>?): this(alias, null, null, null, aliased, null, null)
+    private constructor(alias: Name, aliased: Table<JMoneyUsagesMailsRelationRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
+    private constructor(alias: Name, aliased: Table<JMoneyUsagesMailsRelationRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)
 
     /**
      * Create an aliased <code>money.money_usages_mails_relation</code> table
@@ -109,14 +117,12 @@ open class JMoneyUsagesMailsRelation(
      * Create a <code>money.money_usages_mails_relation</code> table reference
      */
     constructor(): this(DSL.name("money_usages_mails_relation"), null)
-
-    constructor(child: Table<out Record>, key: ForeignKey<out Record, JMoneyUsagesMailsRelationRecord>): this(Internal.createPathAlias(child, key), child, key, MONEY_USAGES_MAILS_RELATION, null)
     override fun getSchema(): Schema? = if (aliased()) null else JMoney.MONEY
     override fun getIndexes(): List<Index> = listOf(MONEY_USAGES_MAILS_RELATION_MONEY_USAGE_ID, MONEY_USAGES_MAILS_RELATION_USER_ID, MONEY_USAGES_MAILS_RELATION_USER_MAIL_ID)
     override fun getPrimaryKey(): UniqueKey<JMoneyUsagesMailsRelationRecord> = KEY_MONEY_USAGES_MAILS_RELATION_PRIMARY
     override fun `as`(alias: String): JMoneyUsagesMailsRelation = JMoneyUsagesMailsRelation(DSL.name(alias), this)
     override fun `as`(alias: Name): JMoneyUsagesMailsRelation = JMoneyUsagesMailsRelation(alias, this)
-    override fun `as`(alias: Table<*>): JMoneyUsagesMailsRelation = JMoneyUsagesMailsRelation(alias.getQualifiedName(), this)
+    override fun `as`(alias: Table<*>): JMoneyUsagesMailsRelation = JMoneyUsagesMailsRelation(alias.qualifiedName, this)
 
     /**
      * Rename this table
@@ -131,21 +137,55 @@ open class JMoneyUsagesMailsRelation(
     /**
      * Rename this table
      */
-    override fun rename(name: Table<*>): JMoneyUsagesMailsRelation = JMoneyUsagesMailsRelation(name.getQualifiedName(), null)
-
-    // -------------------------------------------------------------------------
-    // Row4 type methods
-    // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row4<Int?, Int?, Int?, LocalDateTime?> = super.fieldsRow() as Row4<Int?, Int?, Int?, LocalDateTime?>
+    override fun rename(name: Table<*>): JMoneyUsagesMailsRelation = JMoneyUsagesMailsRelation(name.qualifiedName, null)
 
     /**
-     * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
+     * Create an inline derived table from this table
      */
-    fun <U> mapping(from: (Int?, Int?, Int?, LocalDateTime?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
+    override fun where(condition: Condition?): JMoneyUsagesMailsRelation = JMoneyUsagesMailsRelation(qualifiedName, if (aliased()) this else null, condition)
 
     /**
-     * Convenience mapping calling {@link SelectField#convertFrom(Class,
-     * Function)}.
+     * Create an inline derived table from this table
      */
-    fun <U> mapping(toType: Class<U>, from: (Int?, Int?, Int?, LocalDateTime?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
+    override fun where(conditions: Collection<Condition>): JMoneyUsagesMailsRelation = where(DSL.and(conditions))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun where(vararg conditions: Condition?): JMoneyUsagesMailsRelation = where(DSL.and(*conditions))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun where(condition: Field<Boolean?>?): JMoneyUsagesMailsRelation = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(condition: SQL): JMoneyUsagesMailsRelation = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String): JMoneyUsagesMailsRelation = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String, vararg binds: Any?): JMoneyUsagesMailsRelation = where(DSL.condition(condition, *binds))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String, vararg parts: QueryPart): JMoneyUsagesMailsRelation = where(DSL.condition(condition, *parts))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun whereExists(select: Select<*>): JMoneyUsagesMailsRelation = where(DSL.exists(select))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun whereNotExists(select: Select<*>): JMoneyUsagesMailsRelation = where(DSL.notExists(select))
 }

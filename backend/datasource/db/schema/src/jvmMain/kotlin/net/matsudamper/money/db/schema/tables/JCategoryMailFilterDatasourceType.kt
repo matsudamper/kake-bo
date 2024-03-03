@@ -4,26 +4,29 @@
 package net.matsudamper.money.db.schema.tables
 
 
-import java.util.function.Function
+import kotlin.collections.Collection
 
 import net.matsudamper.money.db.schema.JMoney
 import net.matsudamper.money.db.schema.keys.KEY_CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_PRIMARY
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterDatasourceTypeRecord
 
+import org.jooq.Condition
 import org.jooq.Field
 import org.jooq.ForeignKey
+import org.jooq.InverseForeignKey
 import org.jooq.Name
+import org.jooq.PlainSQL
+import org.jooq.QueryPart
 import org.jooq.Record
-import org.jooq.Records
-import org.jooq.Row3
+import org.jooq.SQL
 import org.jooq.Schema
-import org.jooq.SelectField
+import org.jooq.Select
+import org.jooq.Stringly
 import org.jooq.Table
 import org.jooq.TableField
 import org.jooq.TableOptions
 import org.jooq.UniqueKey
 import org.jooq.impl.DSL
-import org.jooq.impl.Internal
 import org.jooq.impl.SQLDataType
 import org.jooq.impl.TableImpl
 
@@ -34,19 +37,23 @@ import org.jooq.impl.TableImpl
 @Suppress("UNCHECKED_CAST")
 open class JCategoryMailFilterDatasourceType(
     alias: Name,
-    child: Table<out Record>?,
-    path: ForeignKey<out Record, JCategoryMailFilterDatasourceTypeRecord>?,
+    path: Table<out Record>?,
+    childPath: ForeignKey<out Record, JCategoryMailFilterDatasourceTypeRecord>?,
+    parentPath: InverseForeignKey<out Record, JCategoryMailFilterDatasourceTypeRecord>?,
     aliased: Table<JCategoryMailFilterDatasourceTypeRecord>?,
-    parameters: Array<Field<*>?>?
+    parameters: Array<Field<*>?>?,
+    where: Condition?
 ): TableImpl<JCategoryMailFilterDatasourceTypeRecord>(
     alias,
     JMoney.MONEY,
-    child,
     path,
+    childPath,
+    parentPath,
     aliased,
     parameters,
     DSL.comment(""),
-    TableOptions.table()
+    TableOptions.table(),
+    where,
 ) {
     companion object {
 
@@ -79,8 +86,9 @@ open class JCategoryMailFilterDatasourceType(
      */
     val ORDER_NUMBER: TableField<JCategoryMailFilterDatasourceTypeRecord, Int?> = createField(DSL.name("order_number"), SQLDataType.INTEGER.nullable(false), this, "")
 
-    private constructor(alias: Name, aliased: Table<JCategoryMailFilterDatasourceTypeRecord>?): this(alias, null, null, aliased, null)
-    private constructor(alias: Name, aliased: Table<JCategoryMailFilterDatasourceTypeRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, aliased, parameters)
+    private constructor(alias: Name, aliased: Table<JCategoryMailFilterDatasourceTypeRecord>?): this(alias, null, null, null, aliased, null, null)
+    private constructor(alias: Name, aliased: Table<JCategoryMailFilterDatasourceTypeRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
+    private constructor(alias: Name, aliased: Table<JCategoryMailFilterDatasourceTypeRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)
 
     /**
      * Create an aliased <code>money.category_mail_filter_datasource_type</code>
@@ -99,13 +107,11 @@ open class JCategoryMailFilterDatasourceType(
      * reference
      */
     constructor(): this(DSL.name("category_mail_filter_datasource_type"), null)
-
-    constructor(child: Table<out Record>, key: ForeignKey<out Record, JCategoryMailFilterDatasourceTypeRecord>): this(Internal.createPathAlias(child, key), child, key, CATEGORY_MAIL_FILTER_DATASOURCE_TYPE, null)
     override fun getSchema(): Schema? = if (aliased()) null else JMoney.MONEY
     override fun getPrimaryKey(): UniqueKey<JCategoryMailFilterDatasourceTypeRecord> = KEY_CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_PRIMARY
     override fun `as`(alias: String): JCategoryMailFilterDatasourceType = JCategoryMailFilterDatasourceType(DSL.name(alias), this)
     override fun `as`(alias: Name): JCategoryMailFilterDatasourceType = JCategoryMailFilterDatasourceType(alias, this)
-    override fun `as`(alias: Table<*>): JCategoryMailFilterDatasourceType = JCategoryMailFilterDatasourceType(alias.getQualifiedName(), this)
+    override fun `as`(alias: Table<*>): JCategoryMailFilterDatasourceType = JCategoryMailFilterDatasourceType(alias.qualifiedName, this)
 
     /**
      * Rename this table
@@ -120,21 +126,55 @@ open class JCategoryMailFilterDatasourceType(
     /**
      * Rename this table
      */
-    override fun rename(name: Table<*>): JCategoryMailFilterDatasourceType = JCategoryMailFilterDatasourceType(name.getQualifiedName(), null)
-
-    // -------------------------------------------------------------------------
-    // Row3 type methods
-    // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row3<Int?, String?, Int?> = super.fieldsRow() as Row3<Int?, String?, Int?>
+    override fun rename(name: Table<*>): JCategoryMailFilterDatasourceType = JCategoryMailFilterDatasourceType(name.qualifiedName, null)
 
     /**
-     * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
+     * Create an inline derived table from this table
      */
-    fun <U> mapping(from: (Int?, String?, Int?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
+    override fun where(condition: Condition?): JCategoryMailFilterDatasourceType = JCategoryMailFilterDatasourceType(qualifiedName, if (aliased()) this else null, condition)
 
     /**
-     * Convenience mapping calling {@link SelectField#convertFrom(Class,
-     * Function)}.
+     * Create an inline derived table from this table
      */
-    fun <U> mapping(toType: Class<U>, from: (Int?, String?, Int?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
+    override fun where(conditions: Collection<Condition>): JCategoryMailFilterDatasourceType = where(DSL.and(conditions))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun where(vararg conditions: Condition?): JCategoryMailFilterDatasourceType = where(DSL.and(*conditions))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun where(condition: Field<Boolean?>?): JCategoryMailFilterDatasourceType = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(condition: SQL): JCategoryMailFilterDatasourceType = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String): JCategoryMailFilterDatasourceType = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String, vararg binds: Any?): JCategoryMailFilterDatasourceType = where(DSL.condition(condition, *binds))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String, vararg parts: QueryPart): JCategoryMailFilterDatasourceType = where(DSL.condition(condition, *parts))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun whereExists(select: Select<*>): JCategoryMailFilterDatasourceType = where(DSL.exists(select))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun whereNotExists(select: Select<*>): JCategoryMailFilterDatasourceType = where(DSL.notExists(select))
 }

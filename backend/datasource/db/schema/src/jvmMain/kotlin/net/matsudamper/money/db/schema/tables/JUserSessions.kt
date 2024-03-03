@@ -5,8 +5,8 @@ package net.matsudamper.money.db.schema.tables
 
 
 import java.time.LocalDateTime
-import java.util.function.Function
 
+import kotlin.collections.Collection
 import kotlin.collections.List
 
 import net.matsudamper.money.db.schema.JMoney
@@ -15,21 +15,24 @@ import net.matsudamper.money.db.schema.keys.KEY_USER_SESSIONS_PRIMARY
 import net.matsudamper.money.db.schema.keys.KEY_USER_SESSIONS_USER_ID_AND_NAME
 import net.matsudamper.money.db.schema.tables.records.JUserSessionsRecord
 
+import org.jooq.Condition
 import org.jooq.Field
 import org.jooq.ForeignKey
 import org.jooq.Index
+import org.jooq.InverseForeignKey
 import org.jooq.Name
+import org.jooq.PlainSQL
+import org.jooq.QueryPart
 import org.jooq.Record
-import org.jooq.Records
-import org.jooq.Row5
+import org.jooq.SQL
 import org.jooq.Schema
-import org.jooq.SelectField
+import org.jooq.Select
+import org.jooq.Stringly
 import org.jooq.Table
 import org.jooq.TableField
 import org.jooq.TableOptions
 import org.jooq.UniqueKey
 import org.jooq.impl.DSL
-import org.jooq.impl.Internal
 import org.jooq.impl.SQLDataType
 import org.jooq.impl.TableImpl
 
@@ -40,19 +43,23 @@ import org.jooq.impl.TableImpl
 @Suppress("UNCHECKED_CAST")
 open class JUserSessions(
     alias: Name,
-    child: Table<out Record>?,
-    path: ForeignKey<out Record, JUserSessionsRecord>?,
+    path: Table<out Record>?,
+    childPath: ForeignKey<out Record, JUserSessionsRecord>?,
+    parentPath: InverseForeignKey<out Record, JUserSessionsRecord>?,
     aliased: Table<JUserSessionsRecord>?,
-    parameters: Array<Field<*>?>?
+    parameters: Array<Field<*>?>?,
+    where: Condition?
 ): TableImpl<JUserSessionsRecord>(
     alias,
     JMoney.MONEY,
-    child,
     path,
+    childPath,
+    parentPath,
     aliased,
     parameters,
     DSL.comment(""),
-    TableOptions.table()
+    TableOptions.table(),
+    where,
 ) {
     companion object {
 
@@ -92,8 +99,9 @@ open class JUserSessions(
      */
     val NAME: TableField<JUserSessionsRecord, String?> = createField(DSL.name("name"), SQLDataType.VARCHAR(36).nullable(false).defaultValue(DSL.field(DSL.raw("uuid()"), SQLDataType.VARCHAR)), this, "")
 
-    private constructor(alias: Name, aliased: Table<JUserSessionsRecord>?): this(alias, null, null, aliased, null)
-    private constructor(alias: Name, aliased: Table<JUserSessionsRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, aliased, parameters)
+    private constructor(alias: Name, aliased: Table<JUserSessionsRecord>?): this(alias, null, null, null, aliased, null, null)
+    private constructor(alias: Name, aliased: Table<JUserSessionsRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
+    private constructor(alias: Name, aliased: Table<JUserSessionsRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)
 
     /**
      * Create an aliased <code>money.user_sessions</code> table reference
@@ -109,15 +117,13 @@ open class JUserSessions(
      * Create a <code>money.user_sessions</code> table reference
      */
     constructor(): this(DSL.name("user_sessions"), null)
-
-    constructor(child: Table<out Record>, key: ForeignKey<out Record, JUserSessionsRecord>): this(Internal.createPathAlias(child, key), child, key, USER_SESSIONS, null)
     override fun getSchema(): Schema? = if (aliased()) null else JMoney.MONEY
     override fun getIndexes(): List<Index> = listOf(USER_SESSIONS_USER_ID)
     override fun getPrimaryKey(): UniqueKey<JUserSessionsRecord> = KEY_USER_SESSIONS_PRIMARY
     override fun getUniqueKeys(): List<UniqueKey<JUserSessionsRecord>> = listOf(KEY_USER_SESSIONS_USER_ID_AND_NAME)
     override fun `as`(alias: String): JUserSessions = JUserSessions(DSL.name(alias), this)
     override fun `as`(alias: Name): JUserSessions = JUserSessions(alias, this)
-    override fun `as`(alias: Table<*>): JUserSessions = JUserSessions(alias.getQualifiedName(), this)
+    override fun `as`(alias: Table<*>): JUserSessions = JUserSessions(alias.qualifiedName, this)
 
     /**
      * Rename this table
@@ -132,21 +138,55 @@ open class JUserSessions(
     /**
      * Rename this table
      */
-    override fun rename(name: Table<*>): JUserSessions = JUserSessions(name.getQualifiedName(), null)
-
-    // -------------------------------------------------------------------------
-    // Row5 type methods
-    // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row5<String?, Int?, LocalDateTime?, LocalDateTime?, String?> = super.fieldsRow() as Row5<String?, Int?, LocalDateTime?, LocalDateTime?, String?>
+    override fun rename(name: Table<*>): JUserSessions = JUserSessions(name.qualifiedName, null)
 
     /**
-     * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
+     * Create an inline derived table from this table
      */
-    fun <U> mapping(from: (String?, Int?, LocalDateTime?, LocalDateTime?, String?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
+    override fun where(condition: Condition?): JUserSessions = JUserSessions(qualifiedName, if (aliased()) this else null, condition)
 
     /**
-     * Convenience mapping calling {@link SelectField#convertFrom(Class,
-     * Function)}.
+     * Create an inline derived table from this table
      */
-    fun <U> mapping(toType: Class<U>, from: (String?, Int?, LocalDateTime?, LocalDateTime?, String?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
+    override fun where(conditions: Collection<Condition>): JUserSessions = where(DSL.and(conditions))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun where(vararg conditions: Condition?): JUserSessions = where(DSL.and(*conditions))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun where(condition: Field<Boolean?>?): JUserSessions = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(condition: SQL): JUserSessions = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String): JUserSessions = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String, vararg binds: Any?): JUserSessions = where(DSL.condition(condition, *binds))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String, vararg parts: QueryPart): JUserSessions = where(DSL.condition(condition, *parts))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun whereExists(select: Select<*>): JUserSessions = where(DSL.exists(select))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun whereNotExists(select: Select<*>): JUserSessions = where(DSL.notExists(select))
 }

@@ -4,26 +4,29 @@
 package net.matsudamper.money.db.schema.tables
 
 
-import java.util.function.Function
+import kotlin.collections.Collection
 
 import net.matsudamper.money.db.schema.JMoney
 import net.matsudamper.money.db.schema.keys.KEY_USER_IMAP_SETTINGS_PRIMARY
 import net.matsudamper.money.db.schema.tables.records.JUserImapSettingsRecord
 
+import org.jooq.Condition
 import org.jooq.Field
 import org.jooq.ForeignKey
+import org.jooq.InverseForeignKey
 import org.jooq.Name
+import org.jooq.PlainSQL
+import org.jooq.QueryPart
 import org.jooq.Record
-import org.jooq.Records
-import org.jooq.Row5
+import org.jooq.SQL
 import org.jooq.Schema
-import org.jooq.SelectField
+import org.jooq.Select
+import org.jooq.Stringly
 import org.jooq.Table
 import org.jooq.TableField
 import org.jooq.TableOptions
 import org.jooq.UniqueKey
 import org.jooq.impl.DSL
-import org.jooq.impl.Internal
 import org.jooq.impl.SQLDataType
 import org.jooq.impl.TableImpl
 
@@ -34,19 +37,23 @@ import org.jooq.impl.TableImpl
 @Suppress("UNCHECKED_CAST")
 open class JUserImapSettings(
     alias: Name,
-    child: Table<out Record>?,
-    path: ForeignKey<out Record, JUserImapSettingsRecord>?,
+    path: Table<out Record>?,
+    childPath: ForeignKey<out Record, JUserImapSettingsRecord>?,
+    parentPath: InverseForeignKey<out Record, JUserImapSettingsRecord>?,
     aliased: Table<JUserImapSettingsRecord>?,
-    parameters: Array<Field<*>?>?
+    parameters: Array<Field<*>?>?,
+    where: Condition?
 ): TableImpl<JUserImapSettingsRecord>(
     alias,
     JMoney.MONEY,
-    child,
     path,
+    childPath,
+    parentPath,
     aliased,
     parameters,
     DSL.comment(""),
-    TableOptions.table()
+    TableOptions.table(),
+    where,
 ) {
     companion object {
 
@@ -86,8 +93,9 @@ open class JUserImapSettings(
      */
     val PASSWORD: TableField<JUserImapSettingsRecord, String?> = createField(DSL.name("password"), SQLDataType.VARCHAR(500).defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.VARCHAR)), this, "")
 
-    private constructor(alias: Name, aliased: Table<JUserImapSettingsRecord>?): this(alias, null, null, aliased, null)
-    private constructor(alias: Name, aliased: Table<JUserImapSettingsRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, aliased, parameters)
+    private constructor(alias: Name, aliased: Table<JUserImapSettingsRecord>?): this(alias, null, null, null, aliased, null, null)
+    private constructor(alias: Name, aliased: Table<JUserImapSettingsRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
+    private constructor(alias: Name, aliased: Table<JUserImapSettingsRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)
 
     /**
      * Create an aliased <code>money.user_imap_settings</code> table reference
@@ -103,13 +111,11 @@ open class JUserImapSettings(
      * Create a <code>money.user_imap_settings</code> table reference
      */
     constructor(): this(DSL.name("user_imap_settings"), null)
-
-    constructor(child: Table<out Record>, key: ForeignKey<out Record, JUserImapSettingsRecord>): this(Internal.createPathAlias(child, key), child, key, USER_IMAP_SETTINGS, null)
     override fun getSchema(): Schema? = if (aliased()) null else JMoney.MONEY
     override fun getPrimaryKey(): UniqueKey<JUserImapSettingsRecord> = KEY_USER_IMAP_SETTINGS_PRIMARY
     override fun `as`(alias: String): JUserImapSettings = JUserImapSettings(DSL.name(alias), this)
     override fun `as`(alias: Name): JUserImapSettings = JUserImapSettings(alias, this)
-    override fun `as`(alias: Table<*>): JUserImapSettings = JUserImapSettings(alias.getQualifiedName(), this)
+    override fun `as`(alias: Table<*>): JUserImapSettings = JUserImapSettings(alias.qualifiedName, this)
 
     /**
      * Rename this table
@@ -124,21 +130,55 @@ open class JUserImapSettings(
     /**
      * Rename this table
      */
-    override fun rename(name: Table<*>): JUserImapSettings = JUserImapSettings(name.getQualifiedName(), null)
-
-    // -------------------------------------------------------------------------
-    // Row5 type methods
-    // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row5<Int?, String?, Int?, String?, String?> = super.fieldsRow() as Row5<Int?, String?, Int?, String?, String?>
+    override fun rename(name: Table<*>): JUserImapSettings = JUserImapSettings(name.qualifiedName, null)
 
     /**
-     * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
+     * Create an inline derived table from this table
      */
-    fun <U> mapping(from: (Int?, String?, Int?, String?, String?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
+    override fun where(condition: Condition?): JUserImapSettings = JUserImapSettings(qualifiedName, if (aliased()) this else null, condition)
 
     /**
-     * Convenience mapping calling {@link SelectField#convertFrom(Class,
-     * Function)}.
+     * Create an inline derived table from this table
      */
-    fun <U> mapping(toType: Class<U>, from: (Int?, String?, Int?, String?, String?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
+    override fun where(conditions: Collection<Condition>): JUserImapSettings = where(DSL.and(conditions))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun where(vararg conditions: Condition?): JUserImapSettings = where(DSL.and(*conditions))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun where(condition: Field<Boolean?>?): JUserImapSettings = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(condition: SQL): JUserImapSettings = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String): JUserImapSettings = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String, vararg binds: Any?): JUserImapSettings = where(DSL.condition(condition, *binds))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String, vararg parts: QueryPart): JUserImapSettings = where(DSL.condition(condition, *parts))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun whereExists(select: Select<*>): JUserImapSettings = where(DSL.exists(select))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun whereNotExists(select: Select<*>): JUserImapSettings = where(DSL.notExists(select))
 }

@@ -5,8 +5,8 @@ package net.matsudamper.money.db.schema.tables
 
 
 import java.time.LocalDateTime
-import java.util.function.Function
 
+import kotlin.collections.Collection
 import kotlin.collections.List
 
 import net.matsudamper.money.db.schema.JMoney
@@ -14,21 +14,24 @@ import net.matsudamper.money.db.schema.keys.KEY_WEB_AUTH_AUTHENTICATOR_PRIMARY
 import net.matsudamper.money.db.schema.keys.KEY_WEB_AUTH_AUTHENTICATOR_USER_ID_AND_NAME
 import net.matsudamper.money.db.schema.tables.records.JWebAuthAuthenticatorRecord
 
+import org.jooq.Condition
 import org.jooq.Field
 import org.jooq.ForeignKey
 import org.jooq.Identity
+import org.jooq.InverseForeignKey
 import org.jooq.Name
+import org.jooq.PlainSQL
+import org.jooq.QueryPart
 import org.jooq.Record
-import org.jooq.Records
-import org.jooq.Row10
+import org.jooq.SQL
 import org.jooq.Schema
-import org.jooq.SelectField
+import org.jooq.Select
+import org.jooq.Stringly
 import org.jooq.Table
 import org.jooq.TableField
 import org.jooq.TableOptions
 import org.jooq.UniqueKey
 import org.jooq.impl.DSL
-import org.jooq.impl.Internal
 import org.jooq.impl.SQLDataType
 import org.jooq.impl.TableImpl
 
@@ -39,19 +42,23 @@ import org.jooq.impl.TableImpl
 @Suppress("UNCHECKED_CAST")
 open class JWebAuthAuthenticator(
     alias: Name,
-    child: Table<out Record>?,
-    path: ForeignKey<out Record, JWebAuthAuthenticatorRecord>?,
+    path: Table<out Record>?,
+    childPath: ForeignKey<out Record, JWebAuthAuthenticatorRecord>?,
+    parentPath: InverseForeignKey<out Record, JWebAuthAuthenticatorRecord>?,
     aliased: Table<JWebAuthAuthenticatorRecord>?,
-    parameters: Array<Field<*>?>?
+    parameters: Array<Field<*>?>?,
+    where: Condition?
 ): TableImpl<JWebAuthAuthenticatorRecord>(
     alias,
     JMoney.MONEY,
-    child,
     path,
+    childPath,
+    parentPath,
     aliased,
     parameters,
     DSL.comment(""),
-    TableOptions.table()
+    TableOptions.table(),
+    where,
 ) {
     companion object {
 
@@ -120,8 +127,9 @@ open class JWebAuthAuthenticator(
      */
     val UPDATED_AT: TableField<JWebAuthAuthenticatorRecord, LocalDateTime?> = createField(DSL.name("updated_at"), SQLDataType.LOCALDATETIME(0).defaultValue(DSL.field(DSL.raw("current_timestamp()"), SQLDataType.LOCALDATETIME)), this, "")
 
-    private constructor(alias: Name, aliased: Table<JWebAuthAuthenticatorRecord>?): this(alias, null, null, aliased, null)
-    private constructor(alias: Name, aliased: Table<JWebAuthAuthenticatorRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, aliased, parameters)
+    private constructor(alias: Name, aliased: Table<JWebAuthAuthenticatorRecord>?): this(alias, null, null, null, aliased, null, null)
+    private constructor(alias: Name, aliased: Table<JWebAuthAuthenticatorRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
+    private constructor(alias: Name, aliased: Table<JWebAuthAuthenticatorRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)
 
     /**
      * Create an aliased <code>money.web_auth_authenticator</code> table
@@ -139,15 +147,13 @@ open class JWebAuthAuthenticator(
      * Create a <code>money.web_auth_authenticator</code> table reference
      */
     constructor(): this(DSL.name("web_auth_authenticator"), null)
-
-    constructor(child: Table<out Record>, key: ForeignKey<out Record, JWebAuthAuthenticatorRecord>): this(Internal.createPathAlias(child, key), child, key, WEB_AUTH_AUTHENTICATOR, null)
     override fun getSchema(): Schema? = if (aliased()) null else JMoney.MONEY
     override fun getIdentity(): Identity<JWebAuthAuthenticatorRecord, Int?> = super.getIdentity() as Identity<JWebAuthAuthenticatorRecord, Int?>
     override fun getPrimaryKey(): UniqueKey<JWebAuthAuthenticatorRecord> = KEY_WEB_AUTH_AUTHENTICATOR_PRIMARY
     override fun getUniqueKeys(): List<UniqueKey<JWebAuthAuthenticatorRecord>> = listOf(KEY_WEB_AUTH_AUTHENTICATOR_USER_ID_AND_NAME)
     override fun `as`(alias: String): JWebAuthAuthenticator = JWebAuthAuthenticator(DSL.name(alias), this)
     override fun `as`(alias: Name): JWebAuthAuthenticator = JWebAuthAuthenticator(alias, this)
-    override fun `as`(alias: Table<*>): JWebAuthAuthenticator = JWebAuthAuthenticator(alias.getQualifiedName(), this)
+    override fun `as`(alias: Table<*>): JWebAuthAuthenticator = JWebAuthAuthenticator(alias.qualifiedName, this)
 
     /**
      * Rename this table
@@ -162,21 +168,55 @@ open class JWebAuthAuthenticator(
     /**
      * Rename this table
      */
-    override fun rename(name: Table<*>): JWebAuthAuthenticator = JWebAuthAuthenticator(name.getQualifiedName(), null)
-
-    // -------------------------------------------------------------------------
-    // Row10 type methods
-    // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row10<Int?, Int?, String?, String?, String?, String?, String?, Long?, LocalDateTime?, LocalDateTime?> = super.fieldsRow() as Row10<Int?, Int?, String?, String?, String?, String?, String?, Long?, LocalDateTime?, LocalDateTime?>
+    override fun rename(name: Table<*>): JWebAuthAuthenticator = JWebAuthAuthenticator(name.qualifiedName, null)
 
     /**
-     * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
+     * Create an inline derived table from this table
      */
-    fun <U> mapping(from: (Int?, Int?, String?, String?, String?, String?, String?, Long?, LocalDateTime?, LocalDateTime?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
+    override fun where(condition: Condition?): JWebAuthAuthenticator = JWebAuthAuthenticator(qualifiedName, if (aliased()) this else null, condition)
 
     /**
-     * Convenience mapping calling {@link SelectField#convertFrom(Class,
-     * Function)}.
+     * Create an inline derived table from this table
      */
-    fun <U> mapping(toType: Class<U>, from: (Int?, Int?, String?, String?, String?, String?, String?, Long?, LocalDateTime?, LocalDateTime?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
+    override fun where(conditions: Collection<Condition>): JWebAuthAuthenticator = where(DSL.and(conditions))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun where(vararg conditions: Condition?): JWebAuthAuthenticator = where(DSL.and(*conditions))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun where(condition: Field<Boolean?>?): JWebAuthAuthenticator = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(condition: SQL): JWebAuthAuthenticator = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String): JWebAuthAuthenticator = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String, vararg binds: Any?): JWebAuthAuthenticator = where(DSL.condition(condition, *binds))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String, vararg parts: QueryPart): JWebAuthAuthenticator = where(DSL.condition(condition, *parts))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun whereExists(select: Select<*>): JWebAuthAuthenticator = where(DSL.exists(select))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun whereNotExists(select: Select<*>): JWebAuthAuthenticator = where(DSL.notExists(select))
 }

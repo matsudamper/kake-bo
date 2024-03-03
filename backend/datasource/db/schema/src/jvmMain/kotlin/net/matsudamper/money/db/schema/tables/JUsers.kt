@@ -5,8 +5,8 @@ package net.matsudamper.money.db.schema.tables
 
 
 import java.time.LocalDateTime
-import java.util.function.Function
 
+import kotlin.collections.Collection
 import kotlin.collections.List
 
 import net.matsudamper.money.db.schema.JMoney
@@ -15,22 +15,25 @@ import net.matsudamper.money.db.schema.keys.KEY_USERS_PRIMARY
 import net.matsudamper.money.db.schema.keys.KEY_USERS_USER_NAME_UNIQUE
 import net.matsudamper.money.db.schema.tables.records.JUsersRecord
 
+import org.jooq.Condition
 import org.jooq.Field
 import org.jooq.ForeignKey
 import org.jooq.Identity
 import org.jooq.Index
+import org.jooq.InverseForeignKey
 import org.jooq.Name
+import org.jooq.PlainSQL
+import org.jooq.QueryPart
 import org.jooq.Record
-import org.jooq.Records
-import org.jooq.Row3
+import org.jooq.SQL
 import org.jooq.Schema
-import org.jooq.SelectField
+import org.jooq.Select
+import org.jooq.Stringly
 import org.jooq.Table
 import org.jooq.TableField
 import org.jooq.TableOptions
 import org.jooq.UniqueKey
 import org.jooq.impl.DSL
-import org.jooq.impl.Internal
 import org.jooq.impl.SQLDataType
 import org.jooq.impl.TableImpl
 
@@ -41,19 +44,23 @@ import org.jooq.impl.TableImpl
 @Suppress("UNCHECKED_CAST")
 open class JUsers(
     alias: Name,
-    child: Table<out Record>?,
-    path: ForeignKey<out Record, JUsersRecord>?,
+    path: Table<out Record>?,
+    childPath: ForeignKey<out Record, JUsersRecord>?,
+    parentPath: InverseForeignKey<out Record, JUsersRecord>?,
     aliased: Table<JUsersRecord>?,
-    parameters: Array<Field<*>?>?
+    parameters: Array<Field<*>?>?,
+    where: Condition?
 ): TableImpl<JUsersRecord>(
     alias,
     JMoney.MONEY,
-    child,
     path,
+    childPath,
+    parentPath,
     aliased,
     parameters,
     DSL.comment(""),
-    TableOptions.table()
+    TableOptions.table(),
+    where,
 ) {
     companion object {
 
@@ -83,8 +90,9 @@ open class JUsers(
      */
     val CREATED_DATETIME: TableField<JUsersRecord, LocalDateTime?> = createField(DSL.name("created_datetime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field(DSL.raw("current_timestamp()"), SQLDataType.LOCALDATETIME)), this, "")
 
-    private constructor(alias: Name, aliased: Table<JUsersRecord>?): this(alias, null, null, aliased, null)
-    private constructor(alias: Name, aliased: Table<JUsersRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, aliased, parameters)
+    private constructor(alias: Name, aliased: Table<JUsersRecord>?): this(alias, null, null, null, aliased, null, null)
+    private constructor(alias: Name, aliased: Table<JUsersRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
+    private constructor(alias: Name, aliased: Table<JUsersRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)
 
     /**
      * Create an aliased <code>money.users</code> table reference
@@ -100,8 +108,6 @@ open class JUsers(
      * Create a <code>money.users</code> table reference
      */
     constructor(): this(DSL.name("users"), null)
-
-    constructor(child: Table<out Record>, key: ForeignKey<out Record, JUsersRecord>): this(Internal.createPathAlias(child, key), child, key, USERS, null)
     override fun getSchema(): Schema? = if (aliased()) null else JMoney.MONEY
     override fun getIndexes(): List<Index> = listOf(USERS_USER_NAME)
     override fun getIdentity(): Identity<JUsersRecord, Int?> = super.getIdentity() as Identity<JUsersRecord, Int?>
@@ -109,7 +115,7 @@ open class JUsers(
     override fun getUniqueKeys(): List<UniqueKey<JUsersRecord>> = listOf(KEY_USERS_USER_NAME_UNIQUE)
     override fun `as`(alias: String): JUsers = JUsers(DSL.name(alias), this)
     override fun `as`(alias: Name): JUsers = JUsers(alias, this)
-    override fun `as`(alias: Table<*>): JUsers = JUsers(alias.getQualifiedName(), this)
+    override fun `as`(alias: Table<*>): JUsers = JUsers(alias.qualifiedName, this)
 
     /**
      * Rename this table
@@ -124,21 +130,55 @@ open class JUsers(
     /**
      * Rename this table
      */
-    override fun rename(name: Table<*>): JUsers = JUsers(name.getQualifiedName(), null)
-
-    // -------------------------------------------------------------------------
-    // Row3 type methods
-    // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row3<Int?, String?, LocalDateTime?> = super.fieldsRow() as Row3<Int?, String?, LocalDateTime?>
+    override fun rename(name: Table<*>): JUsers = JUsers(name.qualifiedName, null)
 
     /**
-     * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
+     * Create an inline derived table from this table
      */
-    fun <U> mapping(from: (Int?, String?, LocalDateTime?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
+    override fun where(condition: Condition?): JUsers = JUsers(qualifiedName, if (aliased()) this else null, condition)
 
     /**
-     * Convenience mapping calling {@link SelectField#convertFrom(Class,
-     * Function)}.
+     * Create an inline derived table from this table
      */
-    fun <U> mapping(toType: Class<U>, from: (Int?, String?, LocalDateTime?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
+    override fun where(conditions: Collection<Condition>): JUsers = where(DSL.and(conditions))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun where(vararg conditions: Condition?): JUsers = where(DSL.and(*conditions))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun where(condition: Field<Boolean?>?): JUsers = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(condition: SQL): JUsers = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String): JUsers = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String, vararg binds: Any?): JUsers = where(DSL.condition(condition, *binds))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String, vararg parts: QueryPart): JUsers = where(DSL.condition(condition, *parts))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun whereExists(select: Select<*>): JUsers = where(DSL.exists(select))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun whereNotExists(select: Select<*>): JUsers = where(DSL.notExists(select))
 }

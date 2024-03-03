@@ -5,8 +5,8 @@ package net.matsudamper.money.db.schema.tables
 
 
 import java.time.LocalDateTime
-import java.util.function.Function
 
+import kotlin.collections.Collection
 import kotlin.collections.List
 
 import net.matsudamper.money.db.schema.JMoney
@@ -15,22 +15,25 @@ import net.matsudamper.money.db.schema.indexes.MONEY_USAGES_USER_INDEX
 import net.matsudamper.money.db.schema.keys.KEY_MONEY_USAGES_PRIMARY
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsagesRecord
 
+import org.jooq.Condition
 import org.jooq.Field
 import org.jooq.ForeignKey
 import org.jooq.Identity
 import org.jooq.Index
+import org.jooq.InverseForeignKey
 import org.jooq.Name
+import org.jooq.PlainSQL
+import org.jooq.QueryPart
 import org.jooq.Record
-import org.jooq.Records
-import org.jooq.Row9
+import org.jooq.SQL
 import org.jooq.Schema
-import org.jooq.SelectField
+import org.jooq.Select
+import org.jooq.Stringly
 import org.jooq.Table
 import org.jooq.TableField
 import org.jooq.TableOptions
 import org.jooq.UniqueKey
 import org.jooq.impl.DSL
-import org.jooq.impl.Internal
 import org.jooq.impl.SQLDataType
 import org.jooq.impl.TableImpl
 
@@ -41,19 +44,23 @@ import org.jooq.impl.TableImpl
 @Suppress("UNCHECKED_CAST")
 open class JMoneyUsages(
     alias: Name,
-    child: Table<out Record>?,
-    path: ForeignKey<out Record, JMoneyUsagesRecord>?,
+    path: Table<out Record>?,
+    childPath: ForeignKey<out Record, JMoneyUsagesRecord>?,
+    parentPath: InverseForeignKey<out Record, JMoneyUsagesRecord>?,
     aliased: Table<JMoneyUsagesRecord>?,
-    parameters: Array<Field<*>?>?
+    parameters: Array<Field<*>?>?,
+    where: Condition?
 ): TableImpl<JMoneyUsagesRecord>(
     alias,
     JMoney.MONEY,
-    child,
     path,
+    childPath,
+    parentPath,
     aliased,
     parameters,
     DSL.comment(""),
-    TableOptions.table()
+    TableOptions.table(),
+    where,
 ) {
     companion object {
 
@@ -113,8 +120,9 @@ open class JMoneyUsages(
      */
     val AMOUNT: TableField<JMoneyUsagesRecord, Int?> = createField(DSL.name("amount"), SQLDataType.INTEGER.nullable(false), this, "")
 
-    private constructor(alias: Name, aliased: Table<JMoneyUsagesRecord>?): this(alias, null, null, aliased, null)
-    private constructor(alias: Name, aliased: Table<JMoneyUsagesRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, aliased, parameters)
+    private constructor(alias: Name, aliased: Table<JMoneyUsagesRecord>?): this(alias, null, null, null, aliased, null, null)
+    private constructor(alias: Name, aliased: Table<JMoneyUsagesRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
+    private constructor(alias: Name, aliased: Table<JMoneyUsagesRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)
 
     /**
      * Create an aliased <code>money.money_usages</code> table reference
@@ -130,15 +138,13 @@ open class JMoneyUsages(
      * Create a <code>money.money_usages</code> table reference
      */
     constructor(): this(DSL.name("money_usages"), null)
-
-    constructor(child: Table<out Record>, key: ForeignKey<out Record, JMoneyUsagesRecord>): this(Internal.createPathAlias(child, key), child, key, MONEY_USAGES, null)
     override fun getSchema(): Schema? = if (aliased()) null else JMoney.MONEY
     override fun getIndexes(): List<Index> = listOf(MONEY_USAGES_USER_ID, MONEY_USAGES_USER_INDEX)
     override fun getIdentity(): Identity<JMoneyUsagesRecord, Int?> = super.getIdentity() as Identity<JMoneyUsagesRecord, Int?>
     override fun getPrimaryKey(): UniqueKey<JMoneyUsagesRecord> = KEY_MONEY_USAGES_PRIMARY
     override fun `as`(alias: String): JMoneyUsages = JMoneyUsages(DSL.name(alias), this)
     override fun `as`(alias: Name): JMoneyUsages = JMoneyUsages(alias, this)
-    override fun `as`(alias: Table<*>): JMoneyUsages = JMoneyUsages(alias.getQualifiedName(), this)
+    override fun `as`(alias: Table<*>): JMoneyUsages = JMoneyUsages(alias.qualifiedName, this)
 
     /**
      * Rename this table
@@ -153,21 +159,55 @@ open class JMoneyUsages(
     /**
      * Rename this table
      */
-    override fun rename(name: Table<*>): JMoneyUsages = JMoneyUsages(name.getQualifiedName(), null)
-
-    // -------------------------------------------------------------------------
-    // Row9 type methods
-    // -------------------------------------------------------------------------
-    override fun fieldsRow(): Row9<Int?, Int?, String?, String?, Int?, LocalDateTime?, LocalDateTime?, LocalDateTime?, Int?> = super.fieldsRow() as Row9<Int?, Int?, String?, String?, Int?, LocalDateTime?, LocalDateTime?, LocalDateTime?, Int?>
+    override fun rename(name: Table<*>): JMoneyUsages = JMoneyUsages(name.qualifiedName, null)
 
     /**
-     * Convenience mapping calling {@link SelectField#convertFrom(Function)}.
+     * Create an inline derived table from this table
      */
-    fun <U> mapping(from: (Int?, Int?, String?, String?, Int?, LocalDateTime?, LocalDateTime?, LocalDateTime?, Int?) -> U): SelectField<U> = convertFrom(Records.mapping(from))
+    override fun where(condition: Condition?): JMoneyUsages = JMoneyUsages(qualifiedName, if (aliased()) this else null, condition)
 
     /**
-     * Convenience mapping calling {@link SelectField#convertFrom(Class,
-     * Function)}.
+     * Create an inline derived table from this table
      */
-    fun <U> mapping(toType: Class<U>, from: (Int?, Int?, String?, String?, Int?, LocalDateTime?, LocalDateTime?, LocalDateTime?, Int?) -> U): SelectField<U> = convertFrom(toType, Records.mapping(from))
+    override fun where(conditions: Collection<Condition>): JMoneyUsages = where(DSL.and(conditions))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun where(vararg conditions: Condition?): JMoneyUsages = where(DSL.and(*conditions))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun where(condition: Field<Boolean?>?): JMoneyUsages = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(condition: SQL): JMoneyUsages = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String): JMoneyUsages = where(DSL.condition(condition))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String, vararg binds: Any?): JMoneyUsages = where(DSL.condition(condition, *binds))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    @PlainSQL override fun where(@Stringly.SQL condition: String, vararg parts: QueryPart): JMoneyUsages = where(DSL.condition(condition, *parts))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun whereExists(select: Select<*>): JMoneyUsages = where(DSL.exists(select))
+
+    /**
+     * Create an inline derived table from this table
+     */
+    override fun whereNotExists(select: Select<*>): JMoneyUsages = where(DSL.notExists(select))
 }
