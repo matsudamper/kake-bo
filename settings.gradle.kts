@@ -70,7 +70,7 @@ dependencyResolutionManagement {
 
             library("webauth4jCore", "com.webauthn4j:webauthn4j-core:0.22.2.RELEASE")
 
-            plugin("ktlint", "org.jlleitschuh.gradle.ktlint").version("11.6.1")
+            plugin("ktlint", "org.jlleitschuh.gradle.ktlint").version("12.1.0")
 
             val ktorVersion = "2.3.8"
             library("ktor.server.core", "io.ktor:ktor-server-core:$ktorVersion")
