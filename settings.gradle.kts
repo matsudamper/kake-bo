@@ -3,10 +3,16 @@
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "money"
+include(":backend")
+include(":backend:app")
 include(":backend:base")
 include(":backend:base:mail_parser")
 include(":backend:graphql")
-include(":backend")
+include(":backend:datasource:db:schema")
+include(":backend:datasource:mail")
+include(":backend:datasource:inmemory")
+include(":backend:feature:service_mail_parser")
+include(":backend:feature:fido")
 
 include(":frontend:jsApp")
 include(":frontend:common:ui")
@@ -14,12 +20,6 @@ include(":frontend:common:base")
 include(":frontend:common:viewmodel")
 include(":frontend:common:graphql:schema")
 include(":frontend:common:graphql")
-include(":backend:app")
-include(":backend:datasource:db:schema")
-include(":backend:datasource:mail")
-include(":backend:datasource:inmemory")
-include(":backend:feature:service_mail_parser")
-include(":backend:feature:fido")
 
 include(":shared")
 
