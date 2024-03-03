@@ -12,12 +12,11 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation(projects.shared)
+                implementation(projects.backend.di)
+                implementation(projects.backend.app.interfaces)
                 implementation(projects.backend.base)
                 implementation(projects.backend.base.mailParser)
                 implementation(projects.backend.graphql)
-                implementation(projects.backend.datasource.db)
-                implementation(projects.backend.datasource.mail)
-                implementation(projects.backend.datasource.inmemory)
                 implementation(projects.backend.feature.serviceMailParser)
                 implementation(projects.backend.feature.fido)
 

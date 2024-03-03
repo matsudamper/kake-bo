@@ -15,57 +15,57 @@ import net.matsudamper.money.backend.dataloader.MoneyUsageCategoryDataLoaderDefi
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageSubCategoryDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.UserNameDataLoaderDefine
-import net.matsudamper.money.backend.di.RepositoryFactory
+import net.matsudamper.money.backend.di.DiContainer
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderRegistry
 
 internal class DataLoaders(
-    val repositoryFactory: RepositoryFactory,
+    private val diContainer: DiContainer,
     private val dataLoaderRegistryBuilder: DataLoaderRegistry.Builder = DataLoaderRegistry.Builder(),
     private val userSessionManager: UserSessionManagerImpl,
 ) {
 
     val importedMailDataLoader by register {
-        ImportedMailDataLoaderDefine(repositoryFactory)
+        ImportedMailDataLoaderDefine(diContainer)
     }
 
     val moneyUsageSubCategoryDataLoader by register {
-        MoneyUsageSubCategoryDataLoaderDefine(repositoryFactory)
+        MoneyUsageSubCategoryDataLoaderDefine(diContainer)
     }
 
     val moneyUsageCategoryDataLoaderDefine by register {
-        MoneyUsageCategoryDataLoaderDefine(repositoryFactory)
+        MoneyUsageCategoryDataLoaderDefine(diContainer)
     }
 
     val moneyUsageDataLoader by register {
-        MoneyUsageDataLoaderDefine(repositoryFactory)
+        MoneyUsageDataLoaderDefine(diContainer)
     }
 
     val moneyUsageAssociateByImportedMailDataLoader by register {
-        MoneyUsageAssociateByImportedMailDataLoaderDefine(repositoryFactory)
+        MoneyUsageAssociateByImportedMailDataLoaderDefine(diContainer)
     }
 
     val importedMailCategoryFilterDataLoader by register {
-        ImportedMailCategoryFilterDataLoaderDefine(repositoryFactory)
+        ImportedMailCategoryFilterDataLoaderDefine(diContainer)
     }
 
     val importedMailCategoryFiltersDataLoader by register {
-        ImportedMailCategoryFiltersDataLoaderDefine(repositoryFactory)
+        ImportedMailCategoryFiltersDataLoaderDefine(diContainer)
     }
 
     val importedMailCategoryFilterConditionDataLoader by register {
-        ImportedMailCategoryFilterConditionDataLoaderDefine(repositoryFactory)
+        ImportedMailCategoryFilterConditionDataLoaderDefine(diContainer)
     }
     val importedMailCategoryFilterConditionsDataLoader by register {
-        ImportedMailCategoryFilterConditionsDataLoaderDefine(repositoryFactory)
+        ImportedMailCategoryFilterConditionsDataLoaderDefine(diContainer)
     }
 
     val moneyUsageAnalyticsBySubCategoryLoader by register {
-        MoneyUsageAnalyticsBySubCategoryLoader(repositoryFactory, userSessionManager)
+        MoneyUsageAnalyticsBySubCategoryLoader(diContainer, userSessionManager)
     }
 
     val userNameDataLoader by register {
-        UserNameDataLoaderDefine(repositoryFactory.createUserNameRepository())
+        UserNameDataLoaderDefine(diContainer.createUserNameRepository())
     }
 
     private fun <K, V> register(

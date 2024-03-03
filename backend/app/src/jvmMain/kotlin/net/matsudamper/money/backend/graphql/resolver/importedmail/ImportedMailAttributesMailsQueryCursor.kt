@@ -1,16 +1,16 @@
 package net.matsudamper.money.backend.graphql.resolver.importedmail
 
 import java.time.LocalDateTime
-import net.matsudamper.money.backend.datasource.db.repository.DbMailRepository
+import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
 import net.matsudamper.money.backend.lib.CursorParser
 import net.matsudamper.money.element.ImportedMailId
 
 internal data class ImportedMailAttributesMailsQueryCursor(
-    val pagingInfo: DbMailRepository.PagingInfo,
+    val pagingInfo: ImportedMailRepository.PagingInfo,
 ) {
     fun toCursorString(): String {
         val map = when (pagingInfo) {
-            is DbMailRepository.PagingInfo.CreatedDateTime -> {
+            is ImportedMailRepository.PagingInfo.CreatedDateTime -> {
                 mapOf(
                     LAST_MAIL_ID_KEY to pagingInfo.importedMailId.id.toString(),
                     CREATED_DATETIME_KEY to pagingInfo.time.toString(),
@@ -18,7 +18,7 @@ internal data class ImportedMailAttributesMailsQueryCursor(
                 )
             }
 
-            is DbMailRepository.PagingInfo.DateTime -> {
+            is ImportedMailRepository.PagingInfo.DateTime -> {
                 mapOf(
                     LAST_MAIL_ID_KEY to pagingInfo.importedMailId.id.toString(),
                     DATETIME_KEY to pagingInfo.time.toString(),
@@ -43,7 +43,7 @@ internal data class ImportedMailAttributesMailsQueryCursor(
 
             companion object {
                 fun valueOfTypeValue(value: String): Type {
-                    return values().first { it.typeValue == value }
+                    return entries.first { it.typeValue == value }
                 }
             }
         }
@@ -55,14 +55,14 @@ internal data class ImportedMailAttributesMailsQueryCursor(
             return ImportedMailAttributesMailsQueryCursor(
                 when (Type.valueOfTypeValue(parseResult[TYPE_KEY]!!)) {
                     Type.CREATE_DATETIME -> {
-                        DbMailRepository.PagingInfo.CreatedDateTime(
+                        ImportedMailRepository.PagingInfo.CreatedDateTime(
                             importedMailId = mailId,
                             time = LocalDateTime.parse(parseResult[CREATED_DATETIME_KEY]!!),
                         )
                     }
 
                     Type.DATETIME -> {
-                        DbMailRepository.PagingInfo.DateTime(
+                        ImportedMailRepository.PagingInfo.DateTime(
                             importedMailId = mailId,
                             time = LocalDateTime.parse(parseResult[DATETIME_KEY]!!),
                         )

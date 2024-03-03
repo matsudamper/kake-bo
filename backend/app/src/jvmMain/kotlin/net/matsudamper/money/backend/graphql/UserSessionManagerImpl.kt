@@ -1,15 +1,15 @@
 package net.matsudamper.money.backend.graphql
 
 import java.time.ZoneOffset
+import net.matsudamper.money.backend.app.interfaces.UserSessionRepository
+import net.matsudamper.money.backend.app.interfaces.element.UserSessionId
 import net.matsudamper.money.backend.base.CookieManager
 import net.matsudamper.money.backend.base.ServerVariables
-import net.matsudamper.money.backend.datasource.db.element.UserSessionId
-import net.matsudamper.money.backend.datasource.db.repository.UserSessionRepository
 import net.matsudamper.money.element.UserId
 
 internal class UserSessionManagerImpl(
     private val cookieManager: CookieManager,
-    private val userSessionRepository: UserSessionRepository = UserSessionRepository(),
+    private val userSessionRepository: UserSessionRepository,
 ) {
     private var verifyUserSessionResult: UserSessionRepository.VerifySessionResult? = null
 

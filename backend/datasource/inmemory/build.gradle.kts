@@ -12,6 +12,7 @@ kotlin {
             dependencies {
                 implementation(projects.shared)
                 implementation(projects.backend.base)
+                implementation(projects.backend.app.interfaces)
 
                 implementation(kotlin("stdlib"))
                 implementation(kotlin("reflect"))

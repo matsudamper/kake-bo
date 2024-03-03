@@ -4,12 +4,11 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.app.interfaces.element.ImportedMailCategoryFilterConditionType
+import net.matsudamper.money.backend.app.interfaces.element.ImportedMailCategoryFilterDatasourceType
+import net.matsudamper.money.backend.app.interfaces.element.ImportedMailFilterCategoryConditionOperator
 import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.primeChildDataLoader
-import net.matsudamper.money.backend.datasource.db.element.ImportedMailCategoryFilterConditionType
-import net.matsudamper.money.backend.datasource.db.element.ImportedMailCategoryFilterDatasourceType
-import net.matsudamper.money.backend.datasource.db.element.ImportedMailFilterCategoryConditionOperator.AND
-import net.matsudamper.money.backend.datasource.db.element.ImportedMailFilterCategoryConditionOperator.OR
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageSuggestLocalContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
@@ -85,8 +84,8 @@ class MoneyUsageSuggestResolverImpl : MoneyUsageSuggestResolver {
                     }
 
                     when (filter.operator) {
-                        AND -> results.all { it }
-                        OR -> results.any { it }
+                        ImportedMailFilterCategoryConditionOperator.AND -> results.all { it }
+                        ImportedMailFilterCategoryConditionOperator.OR -> results.any { it }
                     }
                 }
 

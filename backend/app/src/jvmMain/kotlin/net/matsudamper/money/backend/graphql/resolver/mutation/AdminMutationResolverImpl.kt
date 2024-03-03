@@ -5,7 +5,6 @@ import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.base.ServerEnv
-import net.matsudamper.money.backend.datasource.db.repository.AdminSessionRepository
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.usecase.AddUserUseCase
@@ -26,7 +25,9 @@ class AdminMutationResolverImpl : AdminMutationResolver {
         context.verifyAdminSession()
 
         return CompletableFuture.supplyAsync {
-            val result = AddUserUseCase().addUser(
+            val result = AddUserUseCase(
+                context.diContainer.createAdminRepository(),
+            ).addUser(
                 userName = name,
                 password = password,
             )
@@ -76,7 +77,7 @@ class AdminMutationResolverImpl : AdminMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         return CompletableFuture.supplyAsync {
             if (password == ServerEnv.adminPassword) {
-                val adminSession = AdminSessionRepository.createSession()
+                val adminSession = context.diContainer.createAdminUserSessionRepository().createSession()
                 context.setAdminSessionCookie(
                     value = adminSession.adminSessionId.id,
                     expires = adminSession.expire,

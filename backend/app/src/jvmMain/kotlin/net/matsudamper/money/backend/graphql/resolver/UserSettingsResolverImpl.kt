@@ -6,7 +6,6 @@ import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.base.ServerEnv
-import net.matsudamper.money.backend.datasource.db.repository.UserConfigRepository
 import net.matsudamper.money.backend.fido.AuthenticatorConverter
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
@@ -23,7 +22,7 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
-            val result = UserConfigRepository().getImapConfig(userId) ?: return@supplyAsync null
+            val result = context.diContainer.createUserConfigRepository().getImapConfig(userId) ?: return@supplyAsync null
 
             QlUserImapConfig(
                 host = result.host,
@@ -39,7 +38,7 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         val userId = context.verifyUserSessionAndGetUserId()
         val userNameFuture = context.dataLoaders.userNameDataLoader.get(env)
             .load(userId)
-        val challengeRepository = context.repositoryFactory.createChallengeRepository()
+        val challengeRepository = context.diContainer.createChallengeRepository()
         return CompletableFuture.allOf(userNameFuture).thenApplyAsync {
             QlFidoAddInfo(
                 id = userId.value.toString(),
@@ -53,7 +52,7 @@ class UserSettingsResolverImpl : UserSettingsResolver {
     override fun registeredFidoList(userSettings: QlUserSettings, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<List<QlRegisteredFidoInfo>>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        val fidoRepository = context.repositoryFactory.createFidoRepository()
+        val fidoRepository = context.diContainer.createFidoRepository()
 
         return CompletableFuture.supplyAsync {
             fidoRepository.getFidoList(userId).map { fidoResult ->

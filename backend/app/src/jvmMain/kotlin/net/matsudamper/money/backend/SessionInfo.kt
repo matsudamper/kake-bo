@@ -1,7 +1,7 @@
 package net.matsudamper.money.backend
 
 import java.time.LocalDateTime
-import net.matsudamper.money.backend.datasource.db.element.UserSessionId
+import net.matsudamper.money.backend.app.interfaces.element.UserSessionId
 import net.matsudamper.money.element.UserId
 
 class SessionInfo(

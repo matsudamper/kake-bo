@@ -16,7 +16,7 @@ class RegisterMailHandler(
                 Response.Status.ERROR
             } else {
                 Response.Status.OK
-            }
+            },
         )
     }
 

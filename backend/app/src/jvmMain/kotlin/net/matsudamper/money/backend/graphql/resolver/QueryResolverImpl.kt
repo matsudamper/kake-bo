@@ -4,8 +4,8 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.app.interfaces.UserSessionRepository
 import net.matsudamper.money.backend.base.ServerEnv
-import net.matsudamper.money.backend.datasource.db.repository.UserSessionRepository
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.lib.ChallengeModel
@@ -40,7 +40,7 @@ class QueryResolverImpl : QueryResolver {
 
     override fun fidoLoginInfo(env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlFidoLoginInfo>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val challengeRepository = context.repositoryFactory.createChallengeRepository()
+        val challengeRepository = context.diContainer.createChallengeRepository()
         return CompletableFuture.completedFuture(
             QlFidoLoginInfo(
                 challenge = ChallengeModel(challengeRepository).generateChallenge(),

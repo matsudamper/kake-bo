@@ -2,7 +2,7 @@ package net.matsudamper.money.backend.dataloader
 
 import java.time.LocalDateTime
 import java.util.concurrent.CompletableFuture
-import net.matsudamper.money.backend.di.RepositoryFactory
+import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.UserId
@@ -11,7 +11,7 @@ import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
 
 class MoneyUsageDataLoaderDefine(
-    private val repositoryFactory: RepositoryFactory,
+    private val repositoryFactory: DiContainer,
 ) : DataLoaderDefine<MoneyUsageDataLoaderDefine.Key, MoneyUsageDataLoaderDefine.MoneyUsage> {
     override val key: String = this::class.java.name
     override fun getDataLoader(): DataLoader<Key, MoneyUsage> {

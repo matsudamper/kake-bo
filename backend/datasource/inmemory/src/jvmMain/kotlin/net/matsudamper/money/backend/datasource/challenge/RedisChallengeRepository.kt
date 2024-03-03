@@ -4,6 +4,7 @@ import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.time.Duration
+import net.matsudamper.money.backend.app.interfaces.ChallengeRepository
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.params.SetParams
 

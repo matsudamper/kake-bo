@@ -4,8 +4,8 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.dataloader.MoneyUsageCategoryDataLoaderDefine
-import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.graphql.model.MoneyUsageCategoryResolver
@@ -47,7 +47,7 @@ class MoneyUsageCategoryResolverImpl : MoneyUsageCategoryResolver {
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
-            val result = context.repositoryFactory.createMoneyUsageSubCategoryRepository()
+            val result = context.diContainer.createMoneyUsageSubCategoryRepository()
                 .getSubCategory(
                     userId = userId,
                     categoryId = moneyUsageCategory.id,

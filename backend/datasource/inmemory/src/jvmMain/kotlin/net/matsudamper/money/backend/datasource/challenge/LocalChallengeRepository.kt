@@ -2,6 +2,7 @@ package net.matsudamper.money.backend.datasource.challenge
 
 import java.time.LocalDateTime
 import kotlin.time.Duration
+import net.matsudamper.money.backend.app.interfaces.ChallengeRepository
 
 internal class LocalChallengeRepository : ChallengeRepository {
     private val repository: MutableMap<String, Data> = mutableMapOf()

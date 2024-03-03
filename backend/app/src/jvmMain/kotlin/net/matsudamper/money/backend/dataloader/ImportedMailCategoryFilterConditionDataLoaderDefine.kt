@@ -1,8 +1,8 @@
 package net.matsudamper.money.backend.dataloader
 
 import java.util.concurrent.CompletableFuture
-import net.matsudamper.money.backend.datasource.db.repository.MailFilterRepository
-import net.matsudamper.money.backend.di.RepositoryFactory
+import net.matsudamper.money.backend.app.interfaces.MailFilterRepository
+import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.UserId
 import net.matsudamper.money.lib.flatten
@@ -10,7 +10,7 @@ import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
 
 class ImportedMailCategoryFilterConditionDataLoaderDefine(
-    private val repositoryFactory: RepositoryFactory,
+    private val repositoryFactory: DiContainer,
 ) : DataLoaderDefine<ImportedMailCategoryFilterConditionDataLoaderDefine.Key, MailFilterRepository.Condition> {
     override val key: String = this::class.java.name
 

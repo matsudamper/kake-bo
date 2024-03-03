@@ -6,6 +6,9 @@ plugins {
 
 base.archivesName.set("money")
 group = "net.matsudamper.money.backend"
+dependencies {
+    implementation(project(":backend:di"))
+}
 
 kotlin {
     jvm {

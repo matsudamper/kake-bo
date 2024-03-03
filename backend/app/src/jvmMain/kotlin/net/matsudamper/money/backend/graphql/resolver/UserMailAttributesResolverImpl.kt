@@ -7,10 +7,9 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
-import net.matsudamper.money.backend.datasource.db.repository.UserConfigRepository
+import net.matsudamper.money.backend.base.element.MailResult
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
-import net.matsudamper.money.backend.mail.MailRepository
 import net.matsudamper.money.graphql.model.QlMailQuery
 import net.matsudamper.money.graphql.model.QlUserMail
 import net.matsudamper.money.graphql.model.QlUserMailAttributes
@@ -27,6 +26,7 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
     ): CompletionStage<DataFetcherResult<QlUserMailConnection>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
+        val userConfigRepository = context.diContainer.createUserConfigRepository()
 
         return CompletableFuture.supplyAsync {
             fun createError(error: QlUserMailError): QlUserMailConnection {
@@ -37,7 +37,7 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
                 )
             }
 
-            val imapConfig = UserConfigRepository().getImapConfig(userId)
+            val imapConfig = userConfigRepository.getImapConfig(userId)
                 ?: return@supplyAsync createError(QlUserMailError.InternalServerError)
 
             val host = imapConfig.host ?: return@supplyAsync createError(QlUserMailError.MailConfigNotFound)
@@ -48,7 +48,7 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
                 UserMailQueryCursor.fromString(it) ?: throw IllegalStateException("cursor parse failed: $it")
             }
 
-            val mails = MailRepository(
+            val mails = context.diContainer.createMailRepository(
                 host = host,
                 port = port,
                 userName = userName,
@@ -61,8 +61,8 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
             QlUserMailConnection(
                 error = null,
                 usrMails = mails.map { mail ->
-                    val html = mail.content.filterIsInstance<MailRepository.MailResult.Content.Html>()
-                    val text = mail.content.filterIsInstance<MailRepository.MailResult.Content.Text>()
+                    val html = mail.content.filterIsInstance<MailResult.Content.Html>()
+                    val text = mail.content.filterIsInstance<MailResult.Content.Text>()
 
                     // TODO: mail.forwardedForの先頭を見て、許可されているメールだけを取り込むようにする
                     QlUserMail(
@@ -92,14 +92,14 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
-            val imapConfig = UserConfigRepository().getImapConfig(userId) ?: return@supplyAsync null
+            val imapConfig = context.diContainer.createUserConfigRepository().getImapConfig(userId) ?: return@supplyAsync null
 
             val host = imapConfig.host ?: return@supplyAsync 0
             val port = imapConfig.port ?: return@supplyAsync 0
             val userName = imapConfig.userName ?: return@supplyAsync 0
             val password = imapConfig.password ?: return@supplyAsync 0
 
-            return@supplyAsync MailRepository(
+            return@supplyAsync context.diContainer.createMailRepository(
                 host = host,
                 port = port,
                 userName = userName,

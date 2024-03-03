@@ -1,8 +1,8 @@
 package net.matsudamper.money.backend.dataloader
 
 import java.util.concurrent.CompletableFuture
-import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageSubCategoryRepository
-import net.matsudamper.money.backend.di.RepositoryFactory
+import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryRepository
+import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.UserId
@@ -11,7 +11,7 @@ import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
 
 class MoneyUsageSubCategoryDataLoaderDefine(
-    private val repositoryFactory: RepositoryFactory,
+    private val repositoryFactory: DiContainer,
 ) : DataLoaderDefine<MoneyUsageSubCategoryDataLoaderDefine.Key, MoneyUsageSubCategoryDataLoaderDefine.Result> {
     override val key: String = this::class.java.name
 

@@ -27,7 +27,7 @@ class SessionAttributesResolverImpl : SessionAttributesResolver {
     override fun sessions(sessionAttributes: QlSessionAttributes, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<List<QlSession>>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val sessionInfo = context.verifyUserSessionAndGetSessionInfo()
-        val userSessionRepository = context.repositoryFactory.userSessionRepository()
+        val userSessionRepository = context.diContainer.createUserSessionRepository()
 
         return CompletableFuture.supplyAsync {
             userSessionRepository.getSessions(sessionInfo.userId).map { session ->

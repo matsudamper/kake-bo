@@ -25,7 +25,7 @@ class MoneyUsageAnalyticsResolverImpl : MoneyUsageAnalyticsResolver {
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
-            context.repositoryFactory.createMoneyUsageAnalyticsRepository()
+            context.diContainer.createMoneyUsageAnalyticsRepository()
                 .getTotalAmount(
                     userId = userId,
                     sinceDateTimeAt = env.localContext.query.sinceDateTime,
@@ -42,7 +42,7 @@ class MoneyUsageAnalyticsResolverImpl : MoneyUsageAnalyticsResolver {
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
-            val results = context.repositoryFactory.createMoneyUsageAnalyticsRepository()
+            val results = context.diContainer.createMoneyUsageAnalyticsRepository()
                 .getTotalAmountByCategories(
                     userId = userId,
                     sinceDateTimeAt = env.localContext.query.sinceDateTime,

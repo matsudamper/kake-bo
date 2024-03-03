@@ -4,10 +4,10 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.app.interfaces.MailFilterRepository
+import net.matsudamper.money.backend.app.interfaces.element.ImportedMailFilterCategoryConditionOperator
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterConditionDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
-import net.matsudamper.money.backend.datasource.db.element.ImportedMailFilterCategoryConditionOperator
-import net.matsudamper.money.backend.datasource.db.repository.MailFilterRepository
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.element.UserId
@@ -92,7 +92,7 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
         val dataLoader = context.dataLoaders.importedMailCategoryFilterConditionDataLoader.get(env)
 
         return CompletableFuture.allOf().thenApplyAsync {
-            val result = context.repositoryFactory.createMailFilterRepository()
+            val result = context.diContainer.createMailFilterRepository()
                 .getConditions(
                     userId = userId,
                     filterId = importedMailCategoryFilter.id,

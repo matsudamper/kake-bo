@@ -12,7 +12,7 @@ import graphql.execution.NonNullableFieldWasNullError
 import graphql.validation.ValidationError
 import net.matsudamper.money.backend.base.CookieManager
 import net.matsudamper.money.backend.base.ObjectMapper
-import net.matsudamper.money.backend.di.RepositoryFactoryImpl
+import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.graphql.DataLoaders
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.GraphqlMoneyException
@@ -23,6 +23,7 @@ import org.dataloader.DataLoaderRegistry
 
 class GraphqlHandler(
     private val cookieManager: CookieManager,
+    private val diContainer: DiContainer,
 ) {
     fun handle(requestText: String): String {
         val request = jacksonObjectMapper().readValue<GraphQlRequest>(requestText)
@@ -30,17 +31,18 @@ class GraphqlHandler(
         val dataLoaderRegistryBuilder = DataLoaderRegistry.Builder()
         val userSessionManager = UserSessionManagerImpl(
             cookieManager = cookieManager,
+            userSessionRepository = diContainer.createUserSessionRepository(),
         )
         val dataLoaders = DataLoaders(
-            repositoryFactory = repositoryFactory,
+            diContainer = diContainer,
             dataLoaderRegistryBuilder = dataLoaderRegistryBuilder,
             userSessionManager = userSessionManager,
         )
         val graphqlContext = GraphQlContext(
             cookieManager = cookieManager,
-            repositoryFactory = repositoryFactory,
             dataLoaders = dataLoaders,
             userSessionManager = userSessionManager,
+            diContainer = diContainer,
         )
         val executionInputBuilder = ExecutionInput.newExecutionInput()
             .dataLoaderRegistry(
@@ -137,9 +139,5 @@ class GraphqlHandler(
         }
 
         return graphqlMoneyExceptions
-    }
-
-    companion object {
-        private val repositoryFactory = RepositoryFactoryImpl()
     }
 }

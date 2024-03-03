@@ -3,18 +3,17 @@ package net.matsudamper.money.backend.graphql
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import net.matsudamper.money.backend.SessionInfo
+import net.matsudamper.money.backend.app.interfaces.element.AdminSession
+import net.matsudamper.money.backend.app.interfaces.element.UserSessionId
 import net.matsudamper.money.backend.base.CookieManager
-import net.matsudamper.money.backend.datasource.db.element.AdminSession
-import net.matsudamper.money.backend.datasource.db.element.UserSessionId
-import net.matsudamper.money.backend.datasource.db.repository.AdminSessionRepository
-import net.matsudamper.money.backend.di.RepositoryFactory
+import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.element.UserId
 
 internal class GraphQlContext(
     private val cookieManager: CookieManager,
-    public val repositoryFactory: RepositoryFactory,
     public val dataLoaders: DataLoaders,
     public val userSessionManager: UserSessionManagerImpl,
+    public val diContainer: DiContainer,
 ) {
     private var adminSession: AdminSession? = null
 
@@ -23,7 +22,7 @@ internal class GraphQlContext(
 
         val adminSessionString = cookieManager.getAdminSessionId() ?: throw GraphqlMoneyException.SessionNotVerify()
 
-        val adminSession = AdminSessionRepository.verifySession(adminSessionString)
+        val adminSession = diContainer.createAdminUserSessionRepository().verifySession(adminSessionString)
             ?: throw GraphqlMoneyException.SessionNotVerify()
         this.adminSession = adminSession
 
@@ -37,7 +36,7 @@ internal class GraphQlContext(
     fun verifyUserSessionAndGetSessionInfo(): SessionInfo {
         val userId = userSessionManager.verifyUserSession()
         val sessionId = UserSessionId(cookieManager.getUserSessionId()!!)
-        val currentSessionInfo = repositoryFactory.userSessionRepository()
+        val currentSessionInfo = diContainer.createUserSessionRepository()
             .getSessionInfo(sessionId)
             ?: throw GraphqlMoneyException.SessionNotVerify()
 

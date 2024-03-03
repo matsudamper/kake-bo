@@ -1,5 +1,7 @@
 package net.matsudamper.money.backend.datasource.challenge
 
+import net.matsudamper.money.backend.app.interfaces.ChallengeRepository
+
 object ChallengeRepositoryProvider {
     fun provideLocalRepository(): ChallengeRepository {
         return LocalChallengeRepository()

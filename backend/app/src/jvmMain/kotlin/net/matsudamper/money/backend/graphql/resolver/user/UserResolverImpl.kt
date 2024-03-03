@@ -4,10 +4,10 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.app.interfaces.MoneyUsageCategoryRepository
+import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
-import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageCategoryRepository
-import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageRepository
 import net.matsudamper.money.backend.graphql.DataFetcherResultBuilder
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsByCategoryLocalContext
@@ -55,7 +55,7 @@ class UserResolverImpl : UserResolver {
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
-            val result = context.repositoryFactory.createMoneyUsageCategoryRepository()
+            val result = context.diContainer.createMoneyUsageCategoryRepository()
                 .getCategory(userId = userId)
 
             return@supplyAsync when (result) {
@@ -112,7 +112,7 @@ class UserResolverImpl : UserResolver {
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
-            val results = context.repositoryFactory.createMoneyUsageRepository()
+            val results = context.diContainer.createMoneyUsageRepository()
                 .getMoneyUsageByQuery(
                     userId = userId,
                     size = query.size,
@@ -160,7 +160,7 @@ class UserResolverImpl : UserResolver {
         val dataLoader = context.dataLoaders.importedMailCategoryFilterDataLoader.get(env)
 
         return CompletableFuture.allOf().thenApplyAsync {
-            val filterRepository = context.repositoryFactory.createMailFilterRepository()
+            val filterRepository = context.diContainer.createMailFilterRepository()
             val result = filterRepository.getFilters(
                 isAsc = query.isAsc,
                 userId = userId,
@@ -258,7 +258,7 @@ class UserResolverImpl : UserResolver {
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
-            val results = context.repositoryFactory.createMoneyUsageAnalyticsRepository()
+            val results = context.diContainer.createMoneyUsageAnalyticsRepository()
                 .getTotalAmountByCategories(
                     userId = userId,
                     sinceDateTimeAt = query.sinceDateTime,

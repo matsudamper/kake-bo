@@ -6,6 +6,7 @@ import jakarta.mail.Session
 import jakarta.mail.internet.InternetAddress
 import jakarta.mail.internet.MimeMessage
 import jakarta.mail.internet.MimeMultipart
+import net.matsudamper.money.backend.base.element.MailResult
 import net.matsudamper.money.element.MailId
 
 public object MailParser {
@@ -59,22 +60,5 @@ public object MailParser {
                 .orEmpty()
                 .flatMap { it.split(" ") },
         )
-    }
-}
-
-public data class MailResult(
-    val subject: String,
-    val messageID: MailId,
-    val content: List<Content>,
-    val sender: String?,
-    val from: List<String>,
-    val forwardedFor: List<String>,
-    val forwardedTo: List<String>,
-    val sendDate: Instant,
-) {
-    public sealed interface Content {
-        public data class Text(val text: String) : Content
-        public data class Html(val html: String) : Content
-        public data class Other(val contentType: String) : Content
     }
 }

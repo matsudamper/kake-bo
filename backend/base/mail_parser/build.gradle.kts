@@ -14,6 +14,7 @@ kotlin {
                 implementation(kotlin("reflect"))
 
                 implementation(projects.shared)
+                implementation(projects.backend.base)
                 implementation(libs.angus.mail)
             }
         }

@@ -32,6 +32,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import net.matsudamper.money.backend.base.ObjectMapper
 import net.matsudamper.money.backend.base.ServerEnv
+import net.matsudamper.money.backend.di.MainDiContainer
 import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
 import org.slf4j.event.Level
 
@@ -101,6 +102,7 @@ fun Application.myApplicationModule() {
                     return@respondText withTimeout(5.seconds) {
                         GraphqlHandler(
                             cookieManager = CookieManagerImpl(call = call),
+                            diContainer = MainDiContainer(),
                         ).handle(
                             requestText = call.receiveStream().bufferedReader().readText(),
                         )
@@ -117,7 +119,7 @@ fun Application.myApplicationModule() {
                                 cookieManager = CookieManagerImpl(call = call),
                             ).handle(
                                 request = request,
-                            )
+                            ),
                         )
                     }
                 }

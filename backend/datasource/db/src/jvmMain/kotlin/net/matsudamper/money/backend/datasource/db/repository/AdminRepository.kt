@@ -5,6 +5,7 @@ import java.security.spec.KeySpec
 import java.util.Base64
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
+import net.matsudamper.money.backend.app.interfaces.AdminRepository
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
@@ -12,13 +13,13 @@ import net.matsudamper.money.db.schema.tables.JUserPasswords
 import net.matsudamper.money.db.schema.tables.JUsers
 import org.jooq.impl.DSL
 
-class AdminRepository {
+class AdminRepositoryImpl : AdminRepository {
     private val users = JUsers.USERS
     private val userPasswords = JUserPasswords.USER_PASSWORDS
     private val userPasswordExtendData = JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA
     private val bases64Encoder = Base64.getEncoder()
 
-    fun addUser(userName: String, password: String): AddUserResult {
+    override fun addUser(userName: String, password: String): AdminRepository.AddUserResult {
         runCatching {
             DbConnectionImpl.use {
                 DSL.using(it)
@@ -76,20 +77,11 @@ class AdminRepository {
             }
         }
             .onFailure { e ->
-                return AddUserResult.Failed(
-                    AddUserResult.ErrorType.InternalServerError(e),
+                return AdminRepository.AddUserResult.Failed(
+                    AdminRepository.AddUserResult.ErrorType.InternalServerError(e),
                 )
             }
 
-        return AddUserResult.Success
-    }
-
-    sealed interface AddUserResult {
-        object Success : AddUserResult
-        data class Failed(val error: ErrorType) : AddUserResult
-
-        sealed interface ErrorType {
-            class InternalServerError(val e: Throwable) : ErrorType
-        }
+        return AdminRepository.AddUserResult.Success
     }
 }

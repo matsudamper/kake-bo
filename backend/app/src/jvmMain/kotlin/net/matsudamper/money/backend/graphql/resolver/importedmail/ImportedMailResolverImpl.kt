@@ -192,7 +192,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
         val moneyUsageLoader = context.dataLoaders.moneyUsageDataLoader.get(env)
 
         return CompletableFuture.allOf().thenApplyAsync {
-            val result = context.repositoryFactory.createMoneyUsageRepository()
+            val result = context.diContainer.createMoneyUsageRepository()
                 .getMails(
                     userId = userId,
                     importedMailId = importedMail.id,

@@ -2,7 +2,7 @@ package net.matsudamper.money.backend.dataloader
 
 import java.util.concurrent.CompletableFuture
 import graphql.schema.DataFetchingEnvironment
-import net.matsudamper.money.backend.datasource.db.repository.MailFilterRepository
+import net.matsudamper.money.backend.app.interfaces.MailFilterRepository
 import net.matsudamper.money.backend.graphql.GraphQlContext
 
 @JvmName("mailFilterPrimeChildDataLoader")

@@ -10,13 +10,12 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.app.interfaces.MoneyUsageCategoryRepository
+import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
+import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryRepository
+import net.matsudamper.money.backend.app.interfaces.UserLoginRepository
 import net.matsudamper.money.backend.base.ServerVariables
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
-import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageCategoryRepository
-import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageRepository
-import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageSubCategoryRepository
-import net.matsudamper.money.backend.datasource.db.repository.UserLoginRepository
-import net.matsudamper.money.backend.datasource.db.repository.UserSessionRepository
 import net.matsudamper.money.backend.fido.Auth4JModel
 import net.matsudamper.money.backend.fido.AuthenticatorConverter
 import net.matsudamper.money.backend.graphql.GraphQlContext
@@ -82,7 +81,7 @@ class UserMutationResolverImpl : UserMutationResolver {
             // 連続実行や、ユーザーが存在しているかの検知を防ぐために、最低でも1秒はかかるようにする
             val loginResult = runBlocking {
                 minExecutionTime(1000) {
-                    UserLoginRepository()
+                    context.diContainer.userLoginRepository()
                         .login(
                             userName = name,
                             passwords = password,
@@ -97,7 +96,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                 }
 
                 is UserLoginRepository.Result.Success -> {
-                    val createSessionResult = UserSessionRepository().createSession(loginResult.uerId)
+                    val createSessionResult = context.diContainer.createUserSessionRepository().createSession(loginResult.uerId)
                     context.setUserSessionCookie(
                         createSessionResult.sessionId.id,
                         createSessionResult.latestAccess
@@ -126,7 +125,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlDeleteFidoResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val fidoRepository = context.repositoryFactory.createFidoRepository()
+        val fidoRepository = context.diContainer.createFidoRepository()
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
@@ -139,7 +138,7 @@ class UserMutationResolverImpl : UserMutationResolver {
 
     override fun deleteSession(userMutation: QlUserMutation, name: String, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlDeleteSessionResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userSessionRepository = UserSessionRepository()
+        val userSessionRepository = context.diContainer.createUserSessionRepository()
         val sessionInfo = context.verifyUserSessionAndGetSessionInfo()
 
         return CompletableFuture.supplyAsync {
@@ -156,7 +155,7 @@ class UserMutationResolverImpl : UserMutationResolver {
 
     override fun changeSessionName(userMutation: QlUserMutation, name: String, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlChangeSessionNameResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val userSessionRepository = UserSessionRepository()
+        val userSessionRepository = context.diContainer.createUserSessionRepository()
         val sessionInfo = context.verifyUserSessionAndGetSessionInfo()
 
         return CompletableFuture.supplyAsync {
@@ -183,9 +182,9 @@ class UserMutationResolverImpl : UserMutationResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlUserLoginResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val fidoRepository = context.repositoryFactory.createFidoRepository()
-        val userRepository = context.repositoryFactory.createUserNameRepository()
-        val challengeRepository = context.repositoryFactory.createChallengeRepository()
+        val fidoRepository = context.diContainer.createFidoRepository()
+        val userRepository = context.diContainer.createUserNameRepository()
+        val challengeRepository = context.diContainer.createChallengeRepository()
         return CompletableFuture.supplyAsync {
             runBlocking {
                 minExecutionTime(1000) {
@@ -228,7 +227,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                             userId = requestUserId,
                         )
 
-                        val createSessionResult = UserSessionRepository().createSession(requestUserId)
+                        val createSessionResult = context.diContainer.createUserSessionRepository().createSession(requestUserId)
                         context.setUserSessionCookie(
                             createSessionResult.sessionId.id,
                             createSessionResult.latestAccess
@@ -263,7 +262,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
         return CompletableFuture.supplyAsync {
-            val result = ImportMailUseCase(context.repositoryFactory).insertMail(
+            val result = ImportMailUseCase(context.diContainer).insertMail(
                 userId = userId,
                 mailIds = mailIds,
             )
@@ -289,7 +288,7 @@ class UserMutationResolverImpl : UserMutationResolver {
 
         return CompletableFuture.supplyAsync {
             val result = DeleteMailUseCase(
-                repositoryFactory = context.repositoryFactory,
+                repositoryFactory = context.diContainer,
             ).delete(userId = userId, mailIds = mailIds)
 
             val error: QlDeleteMailResultError?
@@ -330,7 +329,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
         return CompletableFuture.supplyAsync {
-            val addResult = context.repositoryFactory.createMoneyUsageCategoryRepository()
+            val addResult = context.diContainer.createMoneyUsageCategoryRepository()
                 .addCategory(
                     userId = userId,
                     name = input.name,
@@ -359,7 +358,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
         return CompletableFuture.supplyAsync {
-            val addResult = context.repositoryFactory.createMoneyUsageSubCategoryRepository()
+            val addResult = context.diContainer.createMoneyUsageSubCategoryRepository()
                 .addSubCategory(
                     userId = userId,
                     name = input.name,
@@ -398,7 +397,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
         return CompletableFuture.supplyAsync {
-            val result = context.repositoryFactory.createMoneyUsageSubCategoryRepository()
+            val result = context.diContainer.createMoneyUsageSubCategoryRepository()
                 .updateSubCategory(
                     userId = userId,
                     subCategoryId = id,
@@ -423,7 +422,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
-            val result = context.repositoryFactory.createMoneyUsageSubCategoryRepository()
+            val result = context.diContainer.createMoneyUsageSubCategoryRepository()
                 .deleteSubCategory(
                     userId = userId,
                     subCategoryId = id,
@@ -447,7 +446,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val dataLoader = context.dataLoaders.importedMailCategoryFilterDataLoader.get(env)
 
         return CompletableFuture.supplyAsync {
-            val result = context.repositoryFactory.createMailFilterRepository()
+            val result = context.diContainer.createMailFilterRepository()
                 .addFilter(
                     userId = userId,
                     title = input.title,
@@ -479,7 +478,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
         return CompletableFuture.supplyAsync {
-            val result = context.repositoryFactory.createMoneyUsageCategoryRepository()
+            val result = context.diContainer.createMoneyUsageCategoryRepository()
                 .updateCategory(
                     userId = userId,
                     categoryId = id,
@@ -503,7 +502,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
         return CompletableFuture.supplyAsync {
-            val moneyUsageRepository = context.repositoryFactory.createMoneyUsageRepository()
+            val moneyUsageRepository = context.diContainer.createMoneyUsageRepository()
             val result = moneyUsageRepository
                 .addUsage(
                     userId = userId,
@@ -548,7 +547,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.allOf().thenApplyAsync {
-            val repository = context.repositoryFactory.createMailFilterRepository()
+            val repository = context.diContainer.createMailFilterRepository()
             val isSuccess = repository.updateFilter(
                 filterId = input.id,
                 userId = userId,
@@ -574,7 +573,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<QlImportedMailCategoryFilter?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        val repository = context.repositoryFactory.createMailFilterRepository()
+        val repository = context.diContainer.createMailFilterRepository()
 
         return CompletableFuture.allOf().thenApplyAsync {
             val isSuccess = repository.addCondition(
@@ -600,7 +599,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<QlImportedMailCategoryCondition?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        val repository = context.repositoryFactory.createMailFilterRepository()
+        val repository = context.diContainer.createMailFilterRepository()
 
         return CompletableFuture.allOf().thenApplyAsync {
             val isSuccess = repository.updateCondition(
@@ -625,7 +624,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<Boolean>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        val repository = context.repositoryFactory.createMailFilterRepository()
+        val repository = context.diContainer.createMailFilterRepository()
 
         return CompletableFuture.allOf().thenApplyAsync {
             val isSuccess = repository.deleteFilter(
@@ -643,7 +642,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<Boolean>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        val repository = context.repositoryFactory.createMailFilterRepository()
+        val repository = context.diContainer.createMailFilterRepository()
 
         return CompletableFuture.allOf().thenApplyAsync {
             val isSuccess = repository.deleteCondition(
@@ -660,9 +659,9 @@ class UserMutationResolverImpl : UserMutationResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlRegisteredFidoResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        val fidoRepository = context.repositoryFactory.createFidoRepository()
+        val fidoRepository = context.diContainer.createFidoRepository()
         val userId = context.verifyUserSessionAndGetUserId()
-        val challengeRepository = context.repositoryFactory.createChallengeRepository()
+        val challengeRepository = context.diContainer.createChallengeRepository()
 
         return CompletableFuture.supplyAsync {
             if (ChallengeModel(challengeRepository).validateChallenge(
@@ -706,7 +705,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<Boolean>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        val repository = context.repositoryFactory.createDbMailRepository()
+        val repository = context.diContainer.createDbMailRepository()
 
         return CompletableFuture.allOf().thenApplyAsync {
             val isSuccess = repository.deleteMail(
@@ -724,7 +723,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<Boolean>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        val repository = context.repositoryFactory.createMoneyUsageRepository()
+        val repository = context.diContainer.createMoneyUsageRepository()
 
         return CompletableFuture.allOf().thenApplyAsync {
             val isSuccess = repository.deleteUsage(
@@ -742,7 +741,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<QlMoneyUsage>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        val repository = context.repositoryFactory.createMoneyUsageRepository()
+        val repository = context.diContainer.createMoneyUsageRepository()
 
         return CompletableFuture.allOf().thenApplyAsync {
             val isSuccess = repository.updateUsage(

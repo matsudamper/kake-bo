@@ -4,7 +4,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
-import net.matsudamper.money.backend.datasource.db.repository.DbMailRepository
+import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.element.ImportedMailId
@@ -26,7 +26,7 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
-            context.repositoryFactory.createDbMailRepository()
+            context.diContainer.createDbMailRepository()
                 .getCount(
                     userId = userId,
                     isLinked = query.isLinked,
@@ -43,14 +43,14 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
         val userId = context.verifyUserSessionAndGetUserId()
         return CompletableFuture.supplyAsync {
             val cursor = query.cursor?.let { ImportedMailAttributesMailsQueryCursor.fromString(it) }
-            val mailResult = context.repositoryFactory.createDbMailRepository()
+            val mailResult = context.diContainer.createDbMailRepository()
                 .getMails(
                     userId = userId,
                     size = query.size,
                     isLinked = query.filter.isLinked,
                     sortedKey = when (query.sortedBy) {
-                        QlImportedMailSortKey.CREATED_DATETIME -> DbMailRepository.MailSortedKey.CREATE_DATETIME
-                        QlImportedMailSortKey.DATETIME -> DbMailRepository.MailSortedKey.DATETIME
+                        QlImportedMailSortKey.CREATED_DATETIME -> ImportedMailRepository.MailSortedKey.CREATE_DATETIME
+                        QlImportedMailSortKey.DATETIME -> ImportedMailRepository.MailSortedKey.DATETIME
                     },
                     pagingInfo = cursor?.pagingInfo,
                     isAsc = query.isAsc,

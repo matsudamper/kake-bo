@@ -2,7 +2,7 @@ package net.matsudamper.money.backend.lib
 
 import java.util.UUID
 import kotlin.time.Duration.Companion.minutes
-import net.matsudamper.money.backend.datasource.challenge.ChallengeRepository
+import net.matsudamper.money.backend.app.interfaces.ChallengeRepository
 
 class ChallengeModel(
     private val challengeRepository: ChallengeRepository,

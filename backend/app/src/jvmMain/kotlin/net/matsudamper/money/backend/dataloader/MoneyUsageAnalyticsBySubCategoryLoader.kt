@@ -4,15 +4,15 @@ import java.time.LocalDateTime
 import java.util.concurrent.CompletableFuture
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
-import net.matsudamper.money.backend.datasource.db.repository.MoneyUsageAnalyticsRepository
-import net.matsudamper.money.backend.di.RepositoryFactory
+import net.matsudamper.money.backend.app.interfaces.MoneyUsageAnalyticsRepository
+import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.graphql.UserSessionManagerImpl
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
 
 internal class MoneyUsageAnalyticsBySubCategoryLoader(
-    private val repositoryFactory: RepositoryFactory,
+    private val repositoryFactory: DiContainer,
     private val userSessionManager: UserSessionManagerImpl,
 ) : DataLoaderDefine<MoneyUsageAnalyticsBySubCategoryLoader.Key, MoneyUsageAnalyticsRepository.TotalAmountBySubCategory> {
     override val key: String = this::class.java.name

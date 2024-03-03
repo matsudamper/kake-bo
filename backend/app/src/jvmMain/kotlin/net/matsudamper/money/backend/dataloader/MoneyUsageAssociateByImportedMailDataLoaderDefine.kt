@@ -1,7 +1,7 @@
 package net.matsudamper.money.backend.dataloader
 
 import java.util.concurrent.CompletableFuture
-import net.matsudamper.money.backend.di.RepositoryFactory
+import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.UserId
@@ -10,7 +10,7 @@ import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
 
 class MoneyUsageAssociateByImportedMailDataLoaderDefine(
-    private val repositoryFactory: RepositoryFactory,
+    private val repositoryFactory: DiContainer,
 ) : DataLoaderDefine<MoneyUsageAssociateByImportedMailDataLoaderDefine.Key, MoneyUsageAssociateByImportedMailDataLoaderDefine.Result> {
     override val key: String = this::class.java.name
 

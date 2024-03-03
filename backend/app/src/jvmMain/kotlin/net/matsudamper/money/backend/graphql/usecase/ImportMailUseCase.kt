@@ -4,14 +4,14 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
-import net.matsudamper.money.backend.datasource.db.repository.DbMailRepository
-import net.matsudamper.money.backend.di.RepositoryFactory
-import net.matsudamper.money.backend.mail.MailRepository
+import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
+import net.matsudamper.money.backend.base.element.MailResult
+import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.element.UserId
 
 class ImportMailUseCase(
-    private val repositoryFactory: RepositoryFactory,
+    private val repositoryFactory: DiContainer,
 ) {
     fun insertMail(
         userId: UserId,
@@ -33,8 +33,8 @@ class ImportMailUseCase(
 
                 val dbMailRepository = repositoryFactory.createDbMailRepository()
                 mailRepository.getMails(mailIds).map { mail ->
-                    val html = mail.content.filterIsInstance<MailRepository.MailResult.Content.Html>()
-                    val text = mail.content.filterIsInstance<MailRepository.MailResult.Content.Text>()
+                    val html = mail.content.filterIsInstance<MailResult.Content.Html>()
+                    val text = mail.content.filterIsInstance<MailResult.Content.Text>()
 
                     val result = dbMailRepository.addMail(
                         userId = userId,
@@ -46,14 +46,14 @@ class ImportMailUseCase(
                     )
 
                     when (result) {
-                        is DbMailRepository.AddUserResult.Failed -> {
+                        is ImportedMailRepository.AddUserResult.Failed -> {
                             when (val error = result.error) {
-                                is DbMailRepository.AddUserResult.ErrorType.InternalServerError -> {
+                                is ImportedMailRepository.AddUserResult.ErrorType.InternalServerError -> {
                                     throw error.e
                                 }
                             }
                         }
-                        DbMailRepository.AddUserResult.Success -> {
+                        ImportedMailRepository.AddUserResult.Success -> {
                             async { mailRepository.deleteMessage(listOf(mail.messageID)) }
                         }
                     }
@@ -80,8 +80,8 @@ class ImportMailUseCase(
     }
 
     sealed interface Result {
-        object ImapConfigNotFound : Result
+        data object ImapConfigNotFound : Result
         data class Failure(val e: Throwable) : Result
-        object Success : Result
+        data object Success : Result
     }
 }
