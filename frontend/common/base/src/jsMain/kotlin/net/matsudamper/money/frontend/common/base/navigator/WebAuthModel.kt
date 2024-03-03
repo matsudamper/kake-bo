@@ -105,9 +105,12 @@ public object WebAuthModel {
                         ),
                     pubKeyCredParams =
                         arrayOf(
-                            CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -7), // ES256
-                            CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -257), // RS256
-                            CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -8), // Ed25519
+                            // ES256
+                            CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -7),
+                            // RS256
+                            CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -257),
+                            // Ed25519
+                            CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -8),
                         ),
                     excludeCredentials = excludeCredentials.toTypedArray(),
                     authenticatorSelection =
