@@ -5,6 +5,8 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.withTimeout
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.serialization.kotlinx.json.json
@@ -101,6 +103,21 @@ fun Application.myApplicationModule() {
                             cookieManager = CookieManagerImpl(call = call),
                         ).handle(
                             requestText = call.receiveStream().bufferedReader().readText(),
+                        )
+                    }
+                }
+            }
+            post<RegisterMailHandler.Request>("/api/register_mail/v1") { request ->
+                call.respondText(
+                    contentType = ContentType.Application.Json,
+                ) {
+                    return@respondText withTimeout(5.seconds) {
+                        Json.Default.encodeToString(
+                            RegisterMailHandler(
+                                cookieManager = CookieManagerImpl(call = call),
+                            ).handle(
+                                request = request,
+                            )
                         )
                     }
                 }
