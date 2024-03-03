@@ -13,6 +13,7 @@ kotlin {
             dependencies {
                 implementation(projects.shared)
                 implementation(projects.backend.base)
+                implementation(projects.backend.base.mailParser)
                 implementation(projects.backend.datasource.db.schema)
 
                 implementation(kotlin("stdlib"))

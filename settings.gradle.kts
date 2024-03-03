@@ -4,6 +4,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "money"
 include(":backend:base")
+include(":backend:base:mail_parser")
 include(":backend:graphql")
 include(":backend")
 

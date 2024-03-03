@@ -1,14 +1,13 @@
 package net.matsudamper.money.backend.mail
 
-import java.time.Instant
 import java.util.Properties
+import net.matsudamper.money.backend.base.mail_parser.MailParser
+import net.matsudamper.money.backend.base.mail_parser.MailResult
 import jakarta.mail.Authenticator
 import jakarta.mail.Flags
 import jakarta.mail.Folder
 import jakarta.mail.PasswordAuthentication
 import jakarta.mail.Session
-import jakarta.mail.internet.InternetAddress
-import jakarta.mail.internet.MimeMultipart
 import net.matsudamper.money.element.MailId
 import org.eclipse.angus.mail.imap.IMAPMessage
 
@@ -48,7 +47,7 @@ class MailRepository(
                     folder.getMessages(offset + 1, (offset + size).coerceAtMost(messageCount))
                         .map { it as IMAPMessage }
                         .map { message ->
-                            imapMessageToResponse(message = message)
+                            MailParser.messageToResponse(message = message)
                         }
                 }
             }
@@ -68,7 +67,7 @@ class MailRepository(
                 folder.open(Folder.READ_ONLY)
                 folder.use {
                     for (item in getMailSequence(folder = it, mailIds)) {
-                        yield(imapMessageToResponse(message = item))
+                        yield(MailParser.messageToResponse(message = item))
                     }
                 }
             }
@@ -128,71 +127,5 @@ class MailRepository(
                 }
             },
         )
-    }
-
-    private fun imapMessageToResponse(message: IMAPMessage): MailResult {
-        val contents = when (val content = message.dataHandler.content) {
-            is String,
-            is MimeMultipart,
-            -> {
-                when (content) {
-                    is String -> {
-                        MultipartParser.parse(message)
-                    }
-
-                    is MimeMultipart -> {
-                        MultipartParser.parseMultipart(content)
-                    }
-
-                    else -> throw IllegalStateException("")
-                }.map {
-                    when (it) {
-                        is MultipartParser.ParseResult.Content.Html -> MailResult.Content.Html(it.html)
-                        is MultipartParser.ParseResult.Content.Text -> MailResult.Content.Text(it.text)
-                        is MultipartParser.ParseResult.Content.Other -> MailResult.Content.Other(it.contentType)
-                    }
-                }
-            }
-
-            else -> {
-                listOf(MailResult.Content.Other(message.contentType.orEmpty()))
-            }
-        }
-
-        return MailResult(
-            subject = message.subject,
-            messageID = MailId(message.messageID),
-            content = contents,
-            flags = message.flags,
-            sendDate = Instant.ofEpochMilli(message.sentDate.time),
-            sender = (message.sender as InternetAddress).address,
-            from = message.from
-                .map { it as InternetAddress }
-                .mapNotNull { it.address },
-            forwardedFor = message.getHeader("X-Forwarded-For")
-                .orEmpty()
-                .flatMap { it.split(" ") },
-            forwardedTo = message.getHeader("X-Forwarded-To")
-                .orEmpty()
-                .flatMap { it.split(" ") },
-        )
-    }
-
-    data class MailResult(
-        val subject: String,
-        val messageID: MailId,
-        val content: List<Content>,
-        val flags: Flags,
-        val sender: String?,
-        val from: List<String>,
-        val forwardedFor: List<String>,
-        val forwardedTo: List<String>,
-        val sendDate: Instant,
-    ) {
-        sealed interface Content {
-            data class Text(val text: String) : Content
-            data class Html(val html: String) : Content
-            data class Other(val contentType: String) : Content
-        }
     }
 }
