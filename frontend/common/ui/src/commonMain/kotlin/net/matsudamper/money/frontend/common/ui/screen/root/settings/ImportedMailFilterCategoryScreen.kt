@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -54,7 +55,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupProperties
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.ui.ScrollButtons
@@ -222,11 +225,11 @@ public fun ImportedMailFilterCategoryScreen(
         AlertDialog(
             title = { Text(confirmDialog.title) },
             description =
-                confirmDialog.description?.let {
-                    {
-                        Text(confirmDialog.description)
-                    }
-                },
+            confirmDialog.description?.let {
+                {
+                    Text(confirmDialog.description)
+                }
+            },
             onClickPositive = { confirmDialog.onConfirm() },
             onClickNegative = { confirmDialog.onDismiss() },
             onDismissRequest = { confirmDialog.onDismiss() },
@@ -238,11 +241,11 @@ public fun ImportedMailFilterCategoryScreen(
                 snackbarHostState.showSnackbar(
                     message = event.message,
                     duration =
-                        event.duration ?: if (event.withDismissAction) {
-                            SnackbarDuration.Indefinite
-                        } else {
-                            SnackbarDuration.Short
-                        },
+                    event.duration ?: if (event.withDismissAction) {
+                        SnackbarDuration.Indefinite
+                    } else {
+                        SnackbarDuration.Short
+                    },
                     withDismissAction = event.withDismissAction,
                     actionLabel = event.actionLabel,
                 )
@@ -269,12 +272,12 @@ public fun ImportedMailFilterCategoryScreen(
                 title = {
                     Text(
                         modifier =
-                            Modifier.clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                            ) {
-                                rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
-                            },
+                        Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) {
+                            rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                        },
                         text = "家計簿",
                     )
                 },
@@ -308,8 +311,8 @@ public fun ImportedMailFilterCategoryScreen(
                 is ImportedMailFilterCategoryScreenUiState.LoadingState.Error -> {
                     LoadingErrorContent(
                         modifier =
-                            Modifier.fillMaxSize()
-                                .padding(paddingValues),
+                        Modifier.fillMaxSize()
+                            .padding(paddingValues),
                         onClickRetry = { uiState.event.onViewInitialized() },
                     )
                 }
@@ -317,8 +320,8 @@ public fun ImportedMailFilterCategoryScreen(
                 is ImportedMailFilterCategoryScreenUiState.LoadingState.Loading -> {
                     Box(
                         modifier =
-                            Modifier.fillMaxSize()
-                                .padding(paddingValues),
+                        Modifier.fillMaxSize()
+                            .padding(paddingValues),
                     ) {
                         CircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center),
@@ -364,20 +367,23 @@ private fun Menu(
         DropdownMenu(
             expanded = visibleDropDown,
             onDismissRequest = { visibleDropDown = false },
-            focusable = true,
-        ) {
-            DropdownMenuItem(
-                colors =
+            modifier = Modifier,
+            offset = DpOffset(0.dp, 0.dp),
+            properties = PopupProperties(focusable = true),
+            content = {
+                DropdownMenuItem(
+                    colors =
                     MenuDefaults.itemColors(
                         textColor = MaterialTheme.colorScheme.error,
                     ),
-                text = { Text("削除") },
-                onClick = {
-                    visibleDropDown = false
-                    onClickDelete()
-                },
-            )
-        }
+                    text = { Text("削除") },
+                    onClick = {
+                        visibleDropDown = false
+                        onClickDelete()
+                    },
+                )
+            },
+        )
     }
 }
 
@@ -430,13 +436,13 @@ private fun LoadedContent(
                         Text(
                             modifier = Modifier.padding(8.dp),
                             text =
-                                buildString {
-                                    if (uiState.category != null) {
-                                        append("${uiState.category.category} / ${uiState.category.subCategory}")
-                                    } else {
-                                        append("未設定")
-                                    }
-                                },
+                            buildString {
+                                if (uiState.category != null) {
+                                    append("${uiState.category.category} / ${uiState.category.subCategory}")
+                                } else {
+                                    append("未設定")
+                                }
+                            },
                             style = MaterialTheme.typography.bodyMedium,
                         )
                         Spacer(modifier = Modifier.weight(1f))
@@ -480,12 +486,12 @@ private fun LoadedContent(
                                     ).forEach { operator ->
                                         Box(
                                             modifier =
-                                                Modifier.fillMaxWidth()
-                                                    .clickable {
-                                                        visibleDropDown = false
-                                                        uiState.event.onSelectedOperator(operator)
-                                                    }
-                                                    .padding(8.dp),
+                                            Modifier.fillMaxWidth()
+                                                .clickable {
+                                                    visibleDropDown = false
+                                                    uiState.event.onSelectedOperator(operator)
+                                                }
+                                                .padding(8.dp),
                                         ) {
                                             Text(text = operator.getDisplayText())
                                         }
@@ -510,8 +516,8 @@ private fun LoadedContent(
                 item {
                     Box(
                         modifier =
-                            Modifier.fillMaxWidth()
-                                .height(200.dp),
+                        Modifier.fillMaxWidth()
+                            .height(200.dp),
                     ) {
                         Text(
                             modifier = Modifier.align(Alignment.Center),
@@ -523,8 +529,8 @@ private fun LoadedContent(
                 items(uiState.conditions) { item ->
                     ConditionCard(
                         modifier =
-                            Modifier.fillMaxWidth()
-                                .padding(vertical = 8.dp),
+                        Modifier.fillMaxWidth()
+                            .padding(vertical = 8.dp),
                         item = item,
                     )
                 }
@@ -533,13 +539,13 @@ private fun LoadedContent(
 
         ScrollButtons(
             modifier =
-                Modifier
-                    .onSizeChanged {
-                        scrollButtonSize = with(density) { it.height.toDp() }
-                    }
-                    .align(Alignment.BottomEnd)
-                    .padding(ScrollButtonsDefaults.padding)
-                    .height(ScrollButtonsDefaults.height),
+            Modifier
+                .onSizeChanged {
+                    scrollButtonSize = with(density) { it.height.toDp() }
+                }
+                .align(Alignment.BottomEnd)
+                .padding(ScrollButtonsDefaults.padding)
+                .height(ScrollButtonsDefaults.height),
             scrollState = lazyListState,
             scrollSize = with(density) { height.toPx() } * 0.4f,
         )
@@ -586,13 +592,13 @@ private fun ConditionCard(
                                     ).forEach { source ->
                                         Box(
                                             modifier =
-                                                Modifier
-                                                    .fillMaxWidth()
-                                                    .clickable {
-                                                        visibleDropDown = false
-                                                        item.event.selectedSource(source)
-                                                    }
-                                                    .padding(8.dp),
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .clickable {
+                                                    visibleDropDown = false
+                                                    item.event.selectedSource(source)
+                                                }
+                                                .padding(8.dp),
                                         ) {
                                             Text(source.getDisplayText())
                                         }
@@ -630,13 +636,13 @@ private fun ConditionCard(
                                     ).forEach { type ->
                                         Box(
                                             modifier =
-                                                Modifier
-                                                    .fillMaxWidth()
-                                                    .clickable {
-                                                        visibleDropDown = false
-                                                        item.event.selectedConditionType(type)
-                                                    }
-                                                    .padding(8.dp),
+                                            Modifier
+                                                .fillMaxWidth()
+                                                .clickable {
+                                                    visibleDropDown = false
+                                                    item.event.selectedConditionType(type)
+                                                }
+                                                .padding(8.dp),
                                         ) {
                                             Text(type.getDisplayText())
                                         }
@@ -653,10 +659,10 @@ private fun ConditionCard(
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
                     modifier =
-                        Modifier
-                            .clip(MaterialTheme.shapes.medium)
-                            .clickable { item.event.onClickTextChange() }
-                            .padding(8.dp),
+                    Modifier
+                        .clip(MaterialTheme.shapes.medium)
+                        .clickable { item.event.onClickTextChange() }
+                        .padding(8.dp),
                 ) {
                     Text("テキスト")
                     Spacer(modifier = Modifier.width(8.dp))
@@ -687,13 +693,14 @@ private fun ConditionCard(
                     DropdownMenu(
                         expanded = visibleDropDown,
                         onDismissRequest = { visibleDropDown = false },
-                        focusable = true,
+                        offset = DpOffset(0.dp, 0.dp),
+                        properties = PopupProperties(focusable = true),
                     ) {
                         DropdownMenuItem(
                             colors =
-                                MenuDefaults.itemColors(
-                                    textColor = MaterialTheme.colorScheme.error,
-                                ),
+                            MenuDefaults.itemColors(
+                                textColor = MaterialTheme.colorScheme.error,
+                            ),
                             text = { Text("削除") },
                             onClick = {
                                 visibleDropDown = false
@@ -722,12 +729,12 @@ private fun DropDownButton(
     ) {
         OutlinedButton(
             contentPadding =
-                PaddingValues(
-                    start = 24.dp,
-                    end = 20.dp,
-                    top = 4.dp,
-                    bottom = 4.dp,
-                ),
+            PaddingValues(
+                start = 24.dp,
+                end = 20.dp,
+                top = 4.dp,
+                bottom = 4.dp,
+            ),
             onClick = {
                 onClick()
             },
@@ -738,7 +745,8 @@ private fun DropDownButton(
         DropdownMenu(
             expanded = visibleDropDown,
             onDismissRequest = onDismissRequest,
-            focusable = true,
+            offset = DpOffset(0.dp, 0.dp),
+            properties = PopupProperties(focusable = true),
         ) {
             CompositionLocalProvider(
                 LocalContentColor provides MaterialTheme.colorScheme.primary,
