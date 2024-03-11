@@ -1,11 +1,7 @@
 package net.matsudamper.money.backend.datasource.db.repository
 
-import java.security.spec.KeySpec
 import java.util.Base64
-import javax.crypto.SecretKeyFactory
-import javax.crypto.spec.PBEKeySpec
 import net.matsudamper.money.backend.app.interfaces.UserLoginRepository
-import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.datasource.db.DbConnection
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
 import net.matsudamper.money.db.schema.tables.JUserPasswords
@@ -23,36 +19,41 @@ class DbUserLoginRepository(
     private val userPasswordExtendData = JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA
     private val bases64Encoder = Base64.getEncoder()
 
+    override fun getLoginEncryptInfo(userName: String): UserLoginRepository.LoginEncryptInfo? {
+        val result = dbConnection.use {
+            DSL.using(it)
+                .select(userPasswordExtendData)
+                .from(user)
+                .join(userPasswordExtendData).on(user.USER_ID.eq(userPasswordExtendData.USER_ID))
+                .where(user.USER_NAME.eq(userName))
+                .fetchOne()
+        } ?: return null
+
+        val userPasswordExtendDataRecord: JUserPasswordExtendDataRecord = result.value1()
+
+        return UserLoginRepository.LoginEncryptInfo(
+            salt = userPasswordExtendDataRecord.salt!!,
+            algorithm = userPasswordExtendDataRecord.algorithm!!,
+            iterationCount = userPasswordExtendDataRecord.iterationCount!!,
+            keyLength = userPasswordExtendDataRecord.keyLength!!,
+        )
+    }
+
     override fun login(
         userName: String,
-        passwords: String,
+        hashedPassword: ByteArray,
     ): UserLoginRepository.Result {
         val result = dbConnection.use {
             DSL.using(it)
-                .select(userPasswords, userPasswordExtendData)
+                .select(userPasswords)
                 .from(user)
                 .join(userPasswords)
                 .on(userPasswords.USER_ID.eq(user.USER_ID))
-                .join(userPasswordExtendData)
-                .on(userPasswordExtendData.USER_ID.eq(userPasswords.USER_ID))
-                .where(
-                    user.USER_NAME.eq(userName),
-                )
+                .where(user.USER_NAME.eq(userName))
                 .fetchOne()
         } ?: return UserLoginRepository.Result.Failure
 
         val userPasswordRecord: JUserPasswordsRecord = result.value1()
-        val userPasswordExtendDataRecord: JUserPasswordExtendDataRecord = result.value2()
-
-        val spec: KeySpec =
-            PBEKeySpec(
-                passwords.plus(ServerEnv.userPasswordPepper).toCharArray(),
-                userPasswordExtendDataRecord.salt!!,
-                userPasswordExtendDataRecord.iterationCount!!,
-                userPasswordExtendDataRecord.keyLength!!,
-            )
-        val factory = SecretKeyFactory.getInstance(userPasswordExtendDataRecord.algorithm!!)
-        val hashedPassword = factory.generateSecret(spec).encoded
 
         return if (userPasswordRecord.passwordHash!! == bases64Encoder.encodeToString(hashedPassword)) {
             UserLoginRepository.Result.Success(UserId(userPasswordRecord.userId!!))

@@ -9,8 +9,17 @@ interface UserLoginRepository {
         data object Failure : Result
     }
 
+    class LoginEncryptInfo(
+        val salt: ByteArray,
+        val algorithm: String,
+        val iterationCount: Int,
+        val keyLength: Int,
+    )
+
     fun login(
         userName: String,
-        passwords: String,
+        hashedPassword: ByteArray,
     ): Result
+
+    fun getLoginEncryptInfo(userName: String): LoginEncryptInfo?
 }

@@ -26,6 +26,8 @@ import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
 import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
 import net.matsudamper.money.backend.lib.ChallengeModel
+import net.matsudamper.money.backend.logic.IPasswordManager
+import net.matsudamper.money.backend.logic.PasswordManager
 import net.matsudamper.money.element.FidoId
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
@@ -80,16 +82,27 @@ class UserMutationResolverImpl : UserMutationResolver {
 
         return CompletableFuture.supplyAsync {
             // 連続実行や、ユーザーが存在しているかの検知を防ぐために、最低でも1秒はかかるようにする
-            val loginResult =
-                runBlocking {
-                    minExecutionTime(1000) {
-                        context.diContainer.userLoginRepository()
-                            .login(
-                                userName = name,
-                                passwords = password,
-                            )
-                    }
+            val loginResult = runBlocking {
+                minExecutionTime(1000) {
+                    val encryptInfo = context.diContainer.userLoginRepository().getLoginEncryptInfo(name)
+                        ?: return@minExecutionTime UserLoginRepository.Result.Failure
+                    val hashedPassword = PasswordManager().getHashedPassword(
+                        password = password,
+                        salt = encryptInfo.salt,
+                        iterationCount = encryptInfo.iterationCount,
+                        keyLength = encryptInfo.keyLength,
+                        algorithm = IPasswordManager.Algorithm.entries
+                            .firstOrNull { it.algorithmName == encryptInfo.algorithm }
+                            ?: throw IllegalArgumentException("algorithm=[${encryptInfo.algorithm}] not found"),
+                    )
+
+                    context.diContainer.userLoginRepository()
+                        .login(
+                            userName = name,
+                            hashedPassword = hashedPassword,
+                        )
                 }
+            }
             when (loginResult) {
                 is UserLoginRepository.Result.Failure -> {
                     QlUserLoginResult(
