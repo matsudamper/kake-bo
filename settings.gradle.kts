@@ -66,7 +66,7 @@ dependencyResolutionManagement {
             plugin("kobylynskyi.graphqlCodegen", "io.github.kobylynskyi.graphql.codegen").version("5.10.0")
 
             library("log4j.api", "org.slf4j:slf4j-api:2.0.12")
-            library("logback.classic", "ch.qos.logback:logback-classic:1.5.2")
+            library("logback.classic", "ch.qos.logback:logback-classic:1.5.3")
 
             library("webauth4jCore", "com.webauthn4j:webauthn4j-core:0.22.2.RELEASE")
 
@@ -88,9 +88,9 @@ dependencyResolutionManagement {
             library("ktor.client.js", "io.ktor:ktor-client-js:$ktorVersion")
             library("ktor.client.logging", "io.ktor:ktor-client-logging:$ktorVersion")
 
-            library("jakarta.mail.api", "jakarta.mail:jakarta.mail-api:2.1.2")
+            library("jakarta.mail.api", "jakarta.mail:jakarta.mail-api:2.1.3")
             library("jakarta.mail", "org.eclipse.angus:jakarta.mail:2.0.2")
-            library("angus.mail", "org.eclipse.angus:angus-mail:2.0.2")
+            library("angus.mail", "org.eclipse.angus:angus-mail:2.0.3")
             library("jakarta.activation.api", "jakarta.activation:jakarta.activation-api:2.1.3")
 
             val apolloVersion = "3.8.2"
@@ -99,12 +99,12 @@ dependencyResolutionManagement {
             library("apollo.normalizedCache", "com.apollographql.apollo3:apollo-normalized-cache:$apolloVersion")
             library("apollo.adapters", "com.apollographql.apollo3:apollo-adapters:$apolloVersion")
 
-            val jacksonVersion = "2.16.1"
+            val jacksonVersion = "2.16.2"
             library("jackson.databind", "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
             library("jackson.kotlin", "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-            library("jackson.jsr310", "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.1")
+            library("jackson.jsr310", "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.2")
 
-            library("jedis", "redis.clients:jedis:5.1.1")
+            library("jedis", "redis.clients:jedis:5.1.2")
             library("jsoup", "org.jsoup:jsoup:1.17.2")
         }
     }
