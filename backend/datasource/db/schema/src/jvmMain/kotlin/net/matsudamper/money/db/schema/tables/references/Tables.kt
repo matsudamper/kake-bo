@@ -5,6 +5,7 @@ package net.matsudamper.money.db.schema.tables.references
 
 
 import net.matsudamper.money.db.schema.tables.JAdminSessions
+import net.matsudamper.money.db.schema.tables.JApiTokens
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionOperatorType
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionType
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditions
@@ -28,6 +29,11 @@ import net.matsudamper.money.db.schema.tables.JWebAuthAuthenticator
  * The table <code>money.admin_sessions</code>.
  */
 val ADMIN_SESSIONS: JAdminSessions = JAdminSessions.ADMIN_SESSIONS
+
+/**
+ * The table <code>money.api_tokens</code>.
+ */
+val API_TOKENS: JApiTokens = JApiTokens.API_TOKENS
 
 /**
  * The table <code>money.category_mail_filter_condition_operator_type</code>.

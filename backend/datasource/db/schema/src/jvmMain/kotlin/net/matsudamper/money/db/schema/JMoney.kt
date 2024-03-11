@@ -7,6 +7,7 @@ package net.matsudamper.money.db.schema
 import kotlin.collections.List
 
 import net.matsudamper.money.db.schema.tables.JAdminSessions
+import net.matsudamper.money.db.schema.tables.JApiTokens
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionOperatorType
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditionType
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditions
@@ -46,6 +47,11 @@ open class JMoney : SchemaImpl("money", DefaultCatalog.DEFAULT_CATALOG) {
      * The table <code>money.admin_sessions</code>.
      */
     val ADMIN_SESSIONS: JAdminSessions get() = JAdminSessions.ADMIN_SESSIONS
+
+    /**
+     * The table <code>money.api_tokens</code>.
+     */
+    val API_TOKENS: JApiTokens get() = JApiTokens.API_TOKENS
 
     /**
      * The table
@@ -132,6 +138,7 @@ open class JMoney : SchemaImpl("money", DefaultCatalog.DEFAULT_CATALOG) {
 
     override fun getTables(): List<Table<*>> = listOf(
         JAdminSessions.ADMIN_SESSIONS,
+        JApiTokens.API_TOKENS,
         JCategoryMailFilterConditionOperatorType.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE,
         JCategoryMailFilterConditionType.CATEGORY_MAIL_FILTER_CONDITION_TYPE,
         JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS,
