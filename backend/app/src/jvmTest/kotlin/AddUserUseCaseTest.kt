@@ -3,7 +3,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import net.matsudamper.money.backend.app.interfaces.AdminRepository
-import net.matsudamper.money.backend.usecase.AddUserUseCase
+import net.matsudamper.money.backend.logic.AddUserUseCase
 
 class AddUserUseCaseTest : DescribeSpec(
     {

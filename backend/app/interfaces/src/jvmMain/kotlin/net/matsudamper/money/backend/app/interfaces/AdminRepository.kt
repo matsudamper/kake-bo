@@ -3,7 +3,11 @@ package net.matsudamper.money.backend.app.interfaces
 interface AdminRepository {
     fun addUser(
         userName: String,
-        password: String,
+        hashedPassword: String,
+        algorithmName: String,
+        salt: ByteArray,
+        iterationCount: Int,
+        keyLength: Int,
     ): AddUserResult
 
     sealed interface AddUserResult {

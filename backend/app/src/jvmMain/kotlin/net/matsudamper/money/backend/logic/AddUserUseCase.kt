@@ -1,4 +1,4 @@
-package net.matsudamper.money.backend.usecase
+package net.matsudamper.money.backend.logic
 
 import net.matsudamper.money.backend.app.interfaces.AdminRepository
 
@@ -31,11 +31,15 @@ class AddUserUseCase(
         if (errors.isNotEmpty()) {
             return Result.Failure(errors = errors)
         }
-
+        val passwordResult = PasswordManager().create(password)
         val addUserResult =
             adminRepository.addUser(
                 userName = userName,
-                password = password,
+                hashedPassword = passwordResult.hashedPassword,
+                algorithmName = passwordResult.algorithm,
+                salt = passwordResult.salt,
+                iterationCount = passwordResult.iterationCount,
+                keyLength = passwordResult.keyLength,
             )
         return when (addUserResult) {
             is AdminRepository.AddUserResult.Failed -> {
