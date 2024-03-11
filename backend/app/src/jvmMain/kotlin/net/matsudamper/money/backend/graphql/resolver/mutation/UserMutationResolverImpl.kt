@@ -53,6 +53,7 @@ import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilter
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
+import net.matsudamper.money.graphql.model.QlRegisterApiTokenResult
 import net.matsudamper.money.graphql.model.QlRegisterFidoInput
 import net.matsudamper.money.graphql.model.QlRegisteredFidoInfo
 import net.matsudamper.money.graphql.model.QlRegisteredFidoResult
@@ -803,6 +804,14 @@ class UserMutationResolverImpl : UserMutationResolver {
                 )
             }
         }.toDataFetcher()
+    }
+
+    override fun registerApiToken(
+        userMutation: QlUserMutation,
+        name: String,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlRegisterApiTokenResult>> {
+        TODO("Not yet implemented")
     }
 }
 
