@@ -3,4 +3,14 @@
   "prHourlyLimit": 0,
   "prConcurrentLimit": 20,
   "extends": [":dependencyDashboard"],
+  "packageRules": [
+    {
+      "matchPackageNames": [
+        "com.graphql-java:graphql-java-extended-scalars",
+        "com.graphql-java:graphql-java",
+        "com.graphql-java:java-dataloader",
+      ],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)(\\.(?<patch>\\d+))?$",
+    },
+  ],
 }
