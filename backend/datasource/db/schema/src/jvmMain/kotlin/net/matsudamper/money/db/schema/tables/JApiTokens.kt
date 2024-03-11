@@ -93,7 +93,7 @@ open class JApiTokens(
     /**
      * The column <code>money.api_tokens.salt</code>.
      */
-    val SALT: TableField<JApiTokensRecord, String?> = createField(DSL.name("salt"), SQLDataType.VARCHAR(32).nullable(false), this, "")
+    val SALT: TableField<JApiTokensRecord, ByteArray?> = createField(DSL.name("salt"), SQLDataType.BINARY(32).nullable(false), this, "")
 
     /**
      * The column <code>money.api_tokens.iteration_count</code>.

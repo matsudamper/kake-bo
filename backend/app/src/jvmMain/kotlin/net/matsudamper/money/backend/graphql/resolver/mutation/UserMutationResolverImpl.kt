@@ -1,6 +1,8 @@
 package net.matsudamper.money.backend.graphql.resolver.mutation
 
+import java.security.SecureRandom
 import java.time.ZoneOffset
+import java.util.Base64
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import kotlin.contracts.ExperimentalContracts
@@ -824,7 +826,40 @@ class UserMutationResolverImpl : UserMutationResolver {
         name: String,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlRegisterApiTokenResult>> {
-        TODO("Not yet implemented")
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+        val repository = context.diContainer.createApiTokenRepository()
+
+        val apiToken = buildList {
+            add("apikey_")
+            add(
+                Base64.getEncoder().encodeToString(
+                    ByteArray(256).also { SecureRandom().nextBytes(it) },
+                ),
+            )
+        }.joinToString("")
+        val encryptApiToken = PasswordManager().create(
+            password = apiToken,
+            keyByteLength = 512,
+            iterationCount = 100000,
+            saltByteLength = 32,
+            algorithm = IPasswordManager.Algorithm.PBKDF2WithHmacSHA512,
+        )
+
+        repository.registerToken(
+            id = userId,
+            hashedToken = encryptApiToken.hashedPassword,
+            salt = encryptApiToken.salt,
+            iterationCount = encryptApiToken.iterationCount,
+            keyLength = encryptApiToken.keyLength,
+        )
+
+        return CompletableFuture.supplyAsync {
+            QlRegisterApiTokenResult(
+                isSuccess = true,
+                apiToken = apiToken,
+            )
+        }.toDataFetcher()
     }
 }
 

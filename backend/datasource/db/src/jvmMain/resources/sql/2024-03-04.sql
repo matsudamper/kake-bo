@@ -16,7 +16,7 @@ CREATE TABLE api_tokens
     api_token_id     int auto_increment primary key       not null,
     user_id          int                                  not null,
     token_hash       varchar(512)                         not null,
-    salt             varchar(32)                          not null,
+    salt             binary(32)                          not null,
     iteration_count  int                                  not null,
     algorithm        varchar(255)                         not null,
     key_length       int                                  not null,

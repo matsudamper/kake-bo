@@ -2,6 +2,7 @@ package net.matsudamper.money.backend.di
 
 import net.matsudamper.money.backend.app.interfaces.AdminRepository
 import net.matsudamper.money.backend.app.interfaces.AdminSessionRepository
+import net.matsudamper.money.backend.app.interfaces.ApiTokenRepository
 import net.matsudamper.money.backend.app.interfaces.ChallengeRepository
 import net.matsudamper.money.backend.app.interfaces.FidoRepository
 import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
@@ -20,6 +21,7 @@ import net.matsudamper.money.backend.base.ServerVariables
 import net.matsudamper.money.backend.datasource.challenge.ChallengeRepositoryProvider
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.backend.datasource.db.repository.AdminRepositoryImpl
+import net.matsudamper.money.backend.datasource.db.repository.ApiTokenRepositoryImpl
 import net.matsudamper.money.backend.datasource.db.repository.DbAdminSessionRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbFidoRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbImportedImportedMailRepository
@@ -69,6 +71,7 @@ interface DiContainer {
     fun createAdminRepository(): AdminRepository
 
     fun userLoginRepository(): UserLoginRepository
+    fun createApiTokenRepository(): ApiTokenRepository
 }
 
 class MainDiContainer : DiContainer {
@@ -171,5 +174,9 @@ class MainDiContainer : DiContainer {
 
     override fun userLoginRepository(): UserLoginRepository {
         return DbUserLoginRepository(dbConnection = DbConnectionImpl)
+    }
+
+    override fun createApiTokenRepository(): ApiTokenRepository {
+        return ApiTokenRepositoryImpl(dbConnection = DbConnectionImpl)
     }
 }

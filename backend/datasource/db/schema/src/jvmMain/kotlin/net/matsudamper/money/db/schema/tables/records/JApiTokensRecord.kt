@@ -30,9 +30,9 @@ open class JApiTokensRecord() : UpdatableRecordImpl<JApiTokensRecord>(JApiTokens
         set(value): Unit = set(2, value)
         get(): String? = get(2) as String?
 
-    open var salt: String?
+    open var salt: ByteArray?
         set(value): Unit = set(3, value)
-        get(): String? = get(3) as String?
+        get(): ByteArray? = get(3) as ByteArray?
 
     open var iterationCount: Int?
         set(value): Unit = set(4, value)
@@ -67,7 +67,7 @@ open class JApiTokensRecord() : UpdatableRecordImpl<JApiTokensRecord>(JApiTokens
     /**
      * Create a detached, initialised JApiTokensRecord
      */
-    constructor(apiTokenId: Int? = null, userId: Int? = null, tokenHash: String? = null, salt: String? = null, iterationCount: Int? = null, algorithm: String? = null, keyLength: Int? = null, permissions: String? = null, createdDatetime: LocalDateTime? = null, updateDatetime: LocalDateTime? = null): this() {
+    constructor(apiTokenId: Int? = null, userId: Int? = null, tokenHash: String? = null, salt: ByteArray? = null, iterationCount: Int? = null, algorithm: String? = null, keyLength: Int? = null, permissions: String? = null, createdDatetime: LocalDateTime? = null, updateDatetime: LocalDateTime? = null): this() {
         this.apiTokenId = apiTokenId
         this.userId = userId
         this.tokenHash = tokenHash
