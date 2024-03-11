@@ -46,7 +46,7 @@ class PasswordManager(
         val hashedPassword = bases64Encoder.encodeToString(secretKeyFactory.generateSecret(spec).encoded)
 
         return IPasswordManager.CreateResult(
-            salt = createSalt(),
+            salt = salt,
             hashedPassword = hashedPassword,
             algorithm = algorithmName,
             iterationCount = iterationCount,
