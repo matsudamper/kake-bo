@@ -90,7 +90,7 @@ dependencyResolutionManagement {
 
             library("jakarta.mail.api", "jakarta.mail:jakarta.mail-api:2.1.2")
             library("jakarta.mail", "org.eclipse.angus:jakarta.mail:2.0.2")
-            library("angus.mail", "org.eclipse.angus:angus-mail:2.0.2")
+            library("angus.mail", "org.eclipse.angus:angus-mail:2.0.3")
             library("jakarta.activation.api", "jakarta.activation:jakarta.activation-api:2.1.3")
 
             val apolloVersion = "3.8.2"
