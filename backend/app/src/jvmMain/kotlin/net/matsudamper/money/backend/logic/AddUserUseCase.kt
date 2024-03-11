@@ -32,7 +32,13 @@ class AddUserUseCase(
         if (errors.isNotEmpty()) {
             return Result.Failure(errors = errors)
         }
-        val passwordResult = passwordManager.create(password)
+        val passwordResult = passwordManager.create(
+            password = password,
+            keyByteLength = 512,
+            iterationCount = 100000,
+            saltByteLength = 32,
+            algorithm = IPasswordManager.Algorithm.PBKDF2WithHmacSHA512,
+        )
         val addUserResult =
             adminRepository.addUser(
                 userName = userName,
