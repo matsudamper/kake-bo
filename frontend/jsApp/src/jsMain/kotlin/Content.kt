@@ -146,9 +146,9 @@ fun Content(
             RootUsageHostViewModel(
                 coroutineScope = rootCoroutineScope,
                 calendarPagingModel =
-                    RootUsageCalendarPagingModel(
-                        coroutineScope = rootCoroutineScope,
-                    ),
+                RootUsageCalendarPagingModel(
+                    coroutineScope = rootCoroutineScope,
+                ),
             )
         }
     val mailScreenViewModel =
@@ -239,11 +239,11 @@ fun Content(
 
     Scaffold(
         modifier =
-            modifier
-                .fillMaxSize()
-                .onSizeChanged {
-                    composeSizeProvider().value = it
-                },
+        modifier
+            .fillMaxSize()
+            .onSizeChanged {
+                composeSizeProvider().value = it
+            },
         snackbarHost = {
             Box(
                 modifier = Modifier.fillMaxWidth(),
@@ -258,8 +258,8 @@ fun Content(
         val tabHolder = rememberSaveableStateHolder()
         Box(
             modifier =
-                Modifier.fillMaxSize()
-                    .padding(paddingValues),
+            Modifier.fillMaxSize()
+                .padding(paddingValues),
         ) {
             val holder = rememberSaveableStateHolder()
             when (val current = navController.currentNavigation) {

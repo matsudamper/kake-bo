@@ -40,8 +40,8 @@ internal fun AddUserScreen(
         ) {
             HtmlTextInput(
                 modifier =
-                    Modifier.fillMaxWidth()
-                        .height(48.dp),
+                Modifier.fillMaxWidth()
+                    .height(48.dp),
                 placeholder = "ユーザー名",
                 onValueChange = { uiState.onChangeUserName(it.text) },
                 type = KeyboardType.Text,
@@ -49,8 +49,8 @@ internal fun AddUserScreen(
             Spacer(modifier = Modifier.height(12.dp))
             HtmlTextInput(
                 modifier =
-                    Modifier.fillMaxWidth()
-                        .height(48.dp),
+                Modifier.fillMaxWidth()
+                    .height(48.dp),
                 placeholder = "パスワード",
                 onValueChange = { uiState.onChangePassword(it.text) },
                 type = KeyboardType.Password,

@@ -35,25 +35,25 @@ public class ImportedMailListViewModel(
         MutableStateFlow(
             ImportedMailListScreenUiState(
                 filters =
-                    ImportedMailListScreenUiState.Filters(
-                        link =
-                            ImportedMailListScreenUiState.Filters.Link(
-                                status = LinkStatus.Undefined,
-                                updateState = { updateLinkStatus(it) },
-                            ),
+                ImportedMailListScreenUiState.Filters(
+                    link =
+                    ImportedMailListScreenUiState.Filters.Link(
+                        status = LinkStatus.Undefined,
+                        updateState = { updateLinkStatus(it) },
                     ),
+                ),
                 event =
-                    object : ImportedMailListScreenUiState.Event {
-                        override fun onViewInitialized() {
-                            if (viewModelStateFlow.value.mailState.mails.isEmpty()) {
-                                fetch()
-                            }
-                        }
-
-                        override fun moreLoading() {
+                object : ImportedMailListScreenUiState.Event {
+                    override fun onViewInitialized() {
+                        if (viewModelStateFlow.value.mailState.mails.isEmpty()) {
                             fetch()
                         }
-                    },
+                    }
+
+                    override fun moreLoading() {
+                        fetch()
+                    }
+                },
                 loadingState = ImportedMailListScreenUiState.LoadingState.Loading,
             ),
         ).also { uiStateFlow ->
@@ -62,57 +62,57 @@ public class ImportedMailListViewModel(
                     uiStateFlow.update { uiState ->
                         uiState.copy(
                             loadingState =
-                                ImportedMailListScreenUiState.LoadingState.Loaded(
-                                    showLastLoading = viewModelState.mailState.finishLoadingToEnd.not(),
-                                    listItems =
-                                        viewModelState.mailState.mails.map { mail ->
-                                            ImportedMailListScreenUiState.ListItem(
-                                                mail =
-                                                    ImportedMailListScreenUiState.ImportedMail(
-                                                        mailFrom = mail.from,
-                                                        mailSubject = mail.subject,
-                                                    ),
-                                                usages =
-                                                    mail.suggestUsages.map { usage ->
-                                                        ImportedMailListScreenUiState.UsageItem(
-                                                            title = usage.title,
-                                                            description = usage.description,
-                                                            service = usage.serviceName.orEmpty(),
-                                                            amount =
-                                                                run price@{
-                                                                    val amount = usage.amount ?: return@price ""
-                                                                    "${Formatter.formatMoney(amount)}円"
-                                                                },
-                                                            dateTime =
-                                                                run date@{
-                                                                    val dateTime = usage.dateTime ?: return@date ""
-                                                                    Formatter.formatDateTime(dateTime)
-                                                                },
-                                                            category =
-                                                                run category@{
-                                                                    val subCategory = usage.subCategory ?: return@category ""
-                                                                    val category = subCategory.category
+                            ImportedMailListScreenUiState.LoadingState.Loaded(
+                                showLastLoading = viewModelState.mailState.finishLoadingToEnd.not(),
+                                listItems =
+                                viewModelState.mailState.mails.map { mail ->
+                                    ImportedMailListScreenUiState.ListItem(
+                                        mail =
+                                        ImportedMailListScreenUiState.ImportedMail(
+                                            mailFrom = mail.from,
+                                            mailSubject = mail.subject,
+                                        ),
+                                        usages =
+                                        mail.suggestUsages.map { usage ->
+                                            ImportedMailListScreenUiState.UsageItem(
+                                                title = usage.title,
+                                                description = usage.description,
+                                                service = usage.serviceName.orEmpty(),
+                                                amount =
+                                                run price@{
+                                                    val amount = usage.amount ?: return@price ""
+                                                    "${Formatter.formatMoney(amount)}円"
+                                                },
+                                                dateTime =
+                                                run date@{
+                                                    val dateTime = usage.dateTime ?: return@date ""
+                                                    Formatter.formatDateTime(dateTime)
+                                                },
+                                                category =
+                                                run category@{
+                                                    val subCategory = usage.subCategory ?: return@category ""
+                                                    val category = subCategory.category
 
-                                                                    "${category.name} / ${subCategory.name}"
-                                                                },
-                                                        )
-                                                    }.toImmutableList(),
-                                                event = createMailEvent(mail = mail),
+                                                    "${category.name} / ${subCategory.name}"
+                                                },
                                             )
                                         }.toImmutableList(),
-                                ),
+                                        event = createMailEvent(mail = mail),
+                                    )
+                                }.toImmutableList(),
+                            ),
                             filters =
-                                uiState.filters.copy(
-                                    link =
-                                        uiState.filters.link.copy(
-                                            status =
-                                                when (viewModelState.mailState.query.isLinked) {
-                                                    null -> LinkStatus.Undefined
-                                                    true -> LinkStatus.Linked
-                                                    false -> LinkStatus.NotLinked
-                                                },
-                                        ),
+                            uiState.filters.copy(
+                                link =
+                                uiState.filters.link.copy(
+                                    status =
+                                    when (viewModelState.mailState.query.isLinked) {
+                                        null -> LinkStatus.Undefined
+                                        true -> LinkStatus.Linked
+                                        false -> LinkStatus.NotLinked
+                                    },
                                 ),
+                            ),
                         )
                     }
                 }
@@ -130,9 +130,9 @@ public class ImportedMailListViewModel(
         viewModelStateFlow.update {
             it.copy(
                 mailState =
-                    ViewModelState.MailState(
-                        query = newQuery,
-                    ),
+                ViewModelState.MailState(
+                    query = newQuery,
+                ),
             )
         }
         fetch()
@@ -160,9 +160,9 @@ public class ImportedMailListViewModel(
         viewModelStateFlow.update {
             it.copy(
                 mailState =
-                    ViewModelState.MailState(
-                        query = newQuery,
-                    ),
+                ViewModelState.MailState(
+                    query = newQuery,
+                ),
             )
         }
         fetch()
@@ -228,11 +228,11 @@ public class ImportedMailListViewModel(
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     mailState =
-                        viewModelState.mailState.copy(
-                            mails = viewModelState.mailState.mails + mailConnection.nodes,
-                            cursor = mailConnection.cursor,
-                            finishLoadingToEnd = mailConnection.cursor == null,
-                        ),
+                    viewModelState.mailState.copy(
+                        mails = viewModelState.mailState.mails + mailConnection.nodes,
+                        cursor = mailConnection.cursor,
+                        finishLoadingToEnd = mailConnection.cursor == null,
+                    ),
                     isLoading = false,
                 )
             }

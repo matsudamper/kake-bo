@@ -32,9 +32,9 @@ public class ImportedMailHtmlViewModel(
         ApolloResponseCollector.create(
             apolloClient = apolloClient,
             query =
-                ImportedMailHtmlScreenQuery(
-                    id = id,
-                ),
+            ImportedMailHtmlScreenQuery(
+                id = id,
+            ),
         )
 
     public val uiStateFlow: StateFlow<ImportedMailHtmlScreenUiState> =
@@ -42,23 +42,23 @@ public class ImportedMailHtmlViewModel(
             ImportedMailHtmlScreenUiState(
                 loadingState = ImportedMailHtmlScreenUiState.LoadingState.Loading,
                 event =
-                    object : ImportedMailHtmlScreenUiState.Event {
-                        override fun onViewInitialized() {
-                            fetch()
-                        }
+                object : ImportedMailHtmlScreenUiState.Event {
+                    override fun onViewInitialized() {
+                        fetch()
+                    }
 
-                        override fun onClickClose() {
-                            coroutineScope.launch {
-                                viewModelEventSender.send {
-                                    it.backRequest()
-                                }
+                    override fun onClickClose() {
+                        coroutineScope.launch {
+                            viewModelEventSender.send {
+                                it.backRequest()
                             }
                         }
+                    }
 
-                        override fun onClickRetry() {
-                            fetch()
-                        }
-                    },
+                    override fun onClickRetry() {
+                        fetch()
+                    }
+                },
             ),
         ).also { uiStateFlow ->
             coroutineScope.launch {
@@ -77,9 +77,9 @@ public class ImportedMailHtmlViewModel(
                                 } else {
                                     ImportedMailHtmlScreenUiState.LoadingState.Loaded(
                                         html =
-                                            sequence {
-                                                yield(mail.html)
-                                            }.filterNotNull().firstOrNull().orEmpty(),
+                                        sequence {
+                                            yield(mail.html)
+                                        }.filterNotNull().firstOrNull().orEmpty(),
                                     )
                                 }
                             }

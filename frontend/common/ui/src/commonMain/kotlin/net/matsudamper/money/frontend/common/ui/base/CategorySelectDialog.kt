@@ -81,32 +81,32 @@ public data class CategorySelectDialogUiState(
 internal fun CategorySelectDialog(uiState: CategorySelectDialogUiState) {
     Box(
         modifier =
-            Modifier.fillMaxSize()
-                .zIndex(Float.MAX_VALUE)
-                .background(Color.Black.copy(alpha = 0.8f))
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() },
-                ) { uiState.event.dismissRequest() },
+        Modifier.fillMaxSize()
+            .zIndex(Float.MAX_VALUE)
+            .background(Color.Black.copy(alpha = 0.8f))
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+            ) { uiState.event.dismissRequest() },
         contentAlignment = Alignment.Center,
     ) {
         Card(
             modifier =
-                Modifier
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() },
-                    ) {
-                        // カード内をタップしても閉じないようにする
-                    }
-                    .widthIn(max = 400.dp)
-                    .heightIn(max = 700.dp)
-                    .fillMaxWidth(),
+            Modifier
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                ) {
+                    // カード内をタップしても閉じないようにする
+                }
+                .widthIn(max = 400.dp)
+                .heightIn(max = 700.dp)
+                .fillMaxWidth(),
         ) {
             Column(
                 modifier =
-                    Modifier
-                        .padding(12.dp),
+                Modifier
+                    .padding(12.dp),
             ) {
                 when (val screenTypeState = uiState.screenType) {
                     is CategorySelectDialogUiState.Screen.Root -> {
@@ -197,9 +197,9 @@ private fun CategoryPage(
         if (items == null) {
             Box(
                 modifier =
-                    Modifier.fillMaxWidth()
-                        .padding(vertical = 24.dp)
-                        .heightIn(min = 200.dp),
+                Modifier.fillMaxWidth()
+                    .padding(vertical = 24.dp)
+                    .heightIn(min = 200.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator()
@@ -229,9 +229,9 @@ private fun SelectedSection(
 ) {
     Row(
         modifier =
-            Modifier
-                .clickable(enabled) { onClick() }
-                .padding(8.dp),
+        Modifier
+            .clickable(enabled) { onClick() }
+            .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(
@@ -240,11 +240,11 @@ private fun SelectedSection(
             ProvideTextStyle(
                 TextStyle(
                     color =
-                        if (enabled) {
-                            Color.Unspecified
-                        } else {
-                            Color.Gray
-                        },
+                    if (enabled) {
+                        Color.Unspecified
+                    } else {
+                        Color.Gray
+                    },
                 ),
             ) {
                 ProvideTextStyle(MaterialTheme.typography.titleMedium) {
@@ -271,15 +271,15 @@ private fun CategoryItem(
 ) {
     Text(
         modifier =
-            modifier.fillMaxWidth()
-                .clickable { onSelected() }
-                .padding(12.dp),
+        modifier.fillMaxWidth()
+            .clickable { onSelected() }
+            .padding(12.dp),
         text = name,
         color =
-            if (isSelected) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                Color.Unspecified
-            },
+        if (isSelected) {
+            MaterialTheme.colorScheme.primary
+        } else {
+            Color.Unspecified
+        },
     )
 }

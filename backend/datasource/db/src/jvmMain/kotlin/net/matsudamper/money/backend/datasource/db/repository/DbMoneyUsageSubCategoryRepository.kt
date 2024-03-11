@@ -113,13 +113,13 @@ class DbMoneyUsageSubCategoryRepository : MoneyUsageSubCategoryRepository {
                     MoneyUsageSubCategoryRepository.SubCategoryResult(
                         userId = UserId(record.get(subCategories.USER_ID)!!),
                         moneyUsageCategoryId =
-                            MoneyUsageCategoryId(
-                                record.get(subCategories.MONEY_USAGE_CATEGORY_ID)!!,
-                            ),
+                        MoneyUsageCategoryId(
+                            record.get(subCategories.MONEY_USAGE_CATEGORY_ID)!!,
+                        ),
                         moneyUsageSubCategoryId =
-                            MoneyUsageSubCategoryId(
-                                record.get(subCategories.MONEY_USAGE_SUB_CATEGORY_ID)!!,
-                            ),
+                        MoneyUsageSubCategoryId(
+                            record.get(subCategories.MONEY_USAGE_SUB_CATEGORY_ID)!!,
+                        ),
                         name = record.get(subCategories.NAME)!!,
                     )
                 }

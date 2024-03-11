@@ -119,12 +119,12 @@ public fun SettingMailCategoryFiltersScreen(
                 title = {
                     Text(
                         modifier =
-                            Modifier.clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                            ) {
-                                rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
-                            },
+                        Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) {
+                            rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                        },
                         text = "家計簿",
                     )
                 },
@@ -147,8 +147,8 @@ public fun SettingMailCategoryFiltersScreen(
                 is SettingMailCategoryFilterScreenUiState.LoadingState.Loading -> {
                     Box(
                         modifier =
-                            Modifier.fillMaxSize()
-                                .padding(paddingValues),
+                        Modifier.fillMaxSize()
+                            .padding(paddingValues),
                     ) {
                         CircularProgressIndicator(
                             modifier = Modifier.align(Alignment.Center),
@@ -167,8 +167,8 @@ public fun SettingMailCategoryFiltersScreen(
                 SettingMailCategoryFilterScreenUiState.LoadingState.Error -> {
                     LoadingErrorContent(
                         modifier =
-                            Modifier.fillMaxSize()
-                                .padding(paddingValues),
+                        Modifier.fillMaxSize()
+                            .padding(paddingValues),
                         onClickRetry = uiState.event::onClickRetry,
                     )
                 }
@@ -190,19 +190,19 @@ private fun LoadedContent(
         val height by rememberUpdatedState(maxHeight)
         Column(
             modifier =
-                Modifier.fillMaxSize()
-                    .padding(
-                        top = contentPadding.calculateTopPadding(),
-                    ),
+            Modifier.fillMaxSize()
+                .padding(
+                    top = contentPadding.calculateTopPadding(),
+                ),
         ) {
             Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier =
-                    Modifier.fillMaxWidth()
-                        .padding(
-                            start = contentPadding.calculateStartPadding(layoutDirection),
-                            end = contentPadding.calculateEndPadding(layoutDirection),
-                        ),
+                Modifier.fillMaxWidth()
+                    .padding(
+                        start = contentPadding.calculateStartPadding(layoutDirection),
+                        end = contentPadding.calculateEndPadding(layoutDirection),
+                    ),
             ) {
                 Spacer(modifier = Modifier.weight(1f))
                 OutlinedButton(onClick = { uiState.event.onClickAdd() }) {
@@ -212,16 +212,16 @@ private fun LoadedContent(
             }
             LazyColumn(
                 modifier =
-                    Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
+                Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
                 state = lazyListState,
                 contentPadding =
-                    PaddingValues(
-                        start = contentPadding.calculateStartPadding(layoutDirection),
-                        end = contentPadding.calculateEndPadding(layoutDirection),
-                        bottom = contentPadding.calculateBottomPadding(),
-                    ),
+                PaddingValues(
+                    start = contentPadding.calculateStartPadding(layoutDirection),
+                    end = contentPadding.calculateEndPadding(layoutDirection),
+                    bottom = contentPadding.calculateBottomPadding(),
+                ),
             ) {
                 items(uiState.filters) { item ->
                     SettingListMenuItemButton(onClick = { item.event.onClick() }) {
@@ -232,10 +232,10 @@ private fun LoadedContent(
         }
         ScrollButtons(
             modifier =
-                Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(ScrollButtonsDefaults.padding)
-                    .height(ScrollButtonsDefaults.height),
+            Modifier
+                .align(Alignment.BottomEnd)
+                .padding(ScrollButtonsDefaults.padding)
+                .height(ScrollButtonsDefaults.height),
             scrollState = lazyListState,
             scrollSize = with(density) { height.toPx() } * 0.4f,
         )

@@ -41,29 +41,29 @@ public class MailImportViewModel(
                 showLoadMore = false,
                 mailDeleteDialog = null,
                 event =
-                    object : ImportMailScreenUiState.Event {
-                        override fun htmlDismissRequest() {
-                            viewModelStateFlow.update {
-                                it.copy(html = null)
-                            }
+                object : ImportMailScreenUiState.Event {
+                    override fun htmlDismissRequest() {
+                        viewModelStateFlow.update {
+                            it.copy(html = null)
                         }
+                    }
 
-                        override fun onViewInitialized() {
-                            coroutineScope.launch {
-                                val result = loginCheckUseCase.check()
-                                if (result.not()) return@launch
-                                fetch()
-                            }
-                        }
-
-                        override fun onClickImport() {
-                            import()
-                        }
-
-                        override fun onClickLoadMore() {
+                    override fun onViewInitialized() {
+                        coroutineScope.launch {
+                            val result = loginCheckUseCase.check()
+                            if (result.not()) return@launch
                             fetch()
                         }
-                    },
+                    }
+
+                    override fun onClickImport() {
+                        import()
+                    }
+
+                    override fun onClickLoadMore() {
+                        fetch()
+                    }
+                },
             ),
         ).also {
             coroutineScope.launch {
@@ -73,29 +73,29 @@ public class MailImportViewModel(
                             isLoading = viewModelState.isLoading,
                             showLoadMore = viewModelState.finishLoadingToEnd == false,
                             mails =
-                                viewModelState.usrMails.map { mail ->
-                                    ImportMailScreenUiState.Mail(
-                                        subject = mail.subject.replace("\n", ""),
-                                        isSelected = mail.id in viewModelState.checked,
-                                        sender = mail.sender,
-                                        from = mail.from.joinToString(","),
-                                        event = createMailItemEvent(mail = mail),
-                                    )
-                                }.toImmutableList(),
+                            viewModelState.usrMails.map { mail ->
+                                ImportMailScreenUiState.Mail(
+                                    subject = mail.subject.replace("\n", ""),
+                                    isSelected = mail.id in viewModelState.checked,
+                                    sender = mail.sender,
+                                    from = mail.from.joinToString(","),
+                                    event = createMailItemEvent(mail = mail),
+                                )
+                            }.toImmutableList(),
                             htmlDialog = viewModelState.html,
                             mailDeleteDialog =
-                                run {
-                                    val dialogState = viewModelState.mailDeleteDialogState
-                                    if (dialogState == null) {
-                                        null
-                                    } else {
-                                        ImportMailScreenUiState.MailDeleteDialog(
-                                            errorText = dialogState.errorText,
-                                            event = createMailDeleteDialogEvent(dialogState.mail),
-                                            isLoading = dialogState.isLoading,
-                                        )
-                                    }
-                                },
+                            run {
+                                val dialogState = viewModelState.mailDeleteDialogState
+                                if (dialogState == null) {
+                                    null
+                                } else {
+                                    ImportMailScreenUiState.MailDeleteDialog(
+                                        errorText = dialogState.errorText,
+                                        event = createMailDeleteDialogEvent(dialogState.mail),
+                                        isLoading = dialogState.isLoading,
+                                    )
+                                }
+                            },
                         )
                     }
                 }
@@ -109,9 +109,9 @@ public class MailImportViewModel(
                     viewModelStateFlow.update {
                         it.copy(
                             mailDeleteDialogState =
-                                it.mailDeleteDialogState?.copy(
-                                    isLoading = true,
-                                ),
+                            it.mailDeleteDialogState?.copy(
+                                isLoading = true,
+                            ),
                         )
                     }
 
@@ -123,9 +123,9 @@ public class MailImportViewModel(
                                 mailDeleteDialogState = null,
                                 isLoading = false,
                                 usrMails =
-                                    viewModelState.usrMails.filterNot { mail ->
-                                        mail.id == mailDeleteDialog.id
-                                    },
+                                viewModelState.usrMails.filterNot { mail ->
+                                    mail.id == mailDeleteDialog.id
+                                },
                             )
                         }
                     } else {
@@ -142,10 +142,10 @@ public class MailImportViewModel(
                         viewModelStateFlow.update {
                             it.copy(
                                 mailDeleteDialogState =
-                                    it.mailDeleteDialogState?.copy(
-                                        errorText = errorText,
-                                        isLoading = false,
-                                    ),
+                                it.mailDeleteDialogState?.copy(
+                                    errorText = errorText,
+                                    isLoading = false,
+                                ),
                             )
                         }
                     }
@@ -173,13 +173,13 @@ public class MailImportViewModel(
                     val isChecked = mail.id in viewModelState.checked
                     viewModelState.copy(
                         checked =
-                            run {
-                                if (isChecked) {
-                                    viewModelState.checked - mail.id
-                                } else {
-                                    viewModelState.checked + mail.id
-                                }
-                            },
+                        run {
+                            if (isChecked) {
+                                viewModelState.checked - mail.id
+                            } else {
+                                viewModelState.checked + mail.id
+                            }
+                        },
                     )
                 }
             }
@@ -194,11 +194,11 @@ public class MailImportViewModel(
                 viewModelStateFlow.update {
                     it.copy(
                         mailDeleteDialogState =
-                            ViewModelState.MailDelete(
-                                mail = mail,
-                                errorText = null,
-                                isLoading = false,
-                            ),
+                        ViewModelState.MailDelete(
+                            mail = mail,
+                            errorText = null,
+                            isLoading = false,
+                        ),
                     )
                 }
             }

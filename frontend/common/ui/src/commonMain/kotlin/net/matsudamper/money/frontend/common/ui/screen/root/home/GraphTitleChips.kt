@@ -46,10 +46,10 @@ internal fun GraphTitleChips(
                     ) {
                         Box(
                             modifier =
-                                Modifier
-                                    .size(16.dp)
-                                    .clip(RoundedCornerShape(4.dp))
-                                    .background(item.color),
+                            Modifier
+                                .size(16.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(item.color),
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(item.title)

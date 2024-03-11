@@ -73,27 +73,27 @@ public class SettingMailCategoryFiltersViewModel(
                 loadingState = SettingMailCategoryFilterScreenUiState.LoadingState.Loading,
                 textInput = null,
                 event =
-                    object : SettingMailCategoryFilterScreenUiState.Event {
-                        override fun onClickRetry() {
-                            coroutineScope.launch {
-                                pagingModel.fetch()
-                            }
+                object : SettingMailCategoryFilterScreenUiState.Event {
+                    override fun onClickRetry() {
+                        coroutineScope.launch {
+                            pagingModel.fetch()
                         }
+                    }
 
-                        override fun onViewInitialized() {
-                            coroutineScope.launch {
-                                pagingModel.fetch()
-                            }
+                    override fun onViewInitialized() {
+                        coroutineScope.launch {
+                            pagingModel.fetch()
                         }
+                    }
 
-                        override fun onClickBack() {
-                            coroutineScope.launch {
-                                eventSender.send {
-                                    it.navigate(ScreenStructure.Root.Settings.Root)
-                                }
+                    override fun onClickBack() {
+                        coroutineScope.launch {
+                            eventSender.send {
+                                it.navigate(ScreenStructure.Root.Settings.Root)
                             }
                         }
-                    },
+                    }
+                },
             ),
         ).also { uiStateFlow ->
             coroutineScope.launch {
@@ -118,34 +118,34 @@ public class SettingMailCategoryFiltersViewModel(
                                     } else {
                                         SettingMailCategoryFilterScreenUiState.LoadingState.Loaded(
                                             filters =
-                                                viewModelState.apolloResponseStates.mapNotNull { items ->
-                                                    when (items) {
-                                                        is ApolloResponseState.Failure -> null
-                                                        is ApolloResponseState.Loading -> null
-                                                        is ApolloResponseState.Success -> items.value
-                                                    }
-                                                }.map { apolloResponse ->
-                                                    apolloResponse.data?.user?.importedMailCategoryFilters?.nodes.orEmpty()
-                                                        .map { item ->
-                                                            SettingMailCategoryFilterScreenUiState.Item(
-                                                                title = item.title,
-                                                                event =
-                                                                    object : SettingMailCategoryFilterScreenUiState.ItemEvent {
-                                                                        override fun onClick() {
-                                                                            coroutineScope.launch {
-                                                                                eventSender.send {
-                                                                                    it.navigate(
-                                                                                        ScreenStructure.Root.Settings.MailCategoryFilter(
-                                                                                            id = item.id,
-                                                                                        ),
-                                                                                    )
-                                                                                }
-                                                                            }
+                                            viewModelState.apolloResponseStates.mapNotNull { items ->
+                                                when (items) {
+                                                    is ApolloResponseState.Failure -> null
+                                                    is ApolloResponseState.Loading -> null
+                                                    is ApolloResponseState.Success -> items.value
+                                                }
+                                            }.map { apolloResponse ->
+                                                apolloResponse.data?.user?.importedMailCategoryFilters?.nodes.orEmpty()
+                                                    .map { item ->
+                                                        SettingMailCategoryFilterScreenUiState.Item(
+                                                            title = item.title,
+                                                            event =
+                                                            object : SettingMailCategoryFilterScreenUiState.ItemEvent {
+                                                                override fun onClick() {
+                                                                    coroutineScope.launch {
+                                                                        eventSender.send {
+                                                                            it.navigate(
+                                                                                ScreenStructure.Root.Settings.MailCategoryFilter(
+                                                                                    id = item.id,
+                                                                                ),
+                                                                            )
                                                                         }
-                                                                    },
-                                                            )
-                                                        }
-                                                }.flatten().toImmutableList(),
+                                                                    }
+                                                                }
+                                                            },
+                                                        )
+                                                    }
+                                            }.flatten().toImmutableList(),
                                             isError = lastIsError,
                                             event = loadedEvent,
                                         )

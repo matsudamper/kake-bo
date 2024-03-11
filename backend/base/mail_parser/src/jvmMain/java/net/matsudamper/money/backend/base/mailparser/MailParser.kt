@@ -52,17 +52,17 @@ public object MailParser {
             sendDate = Instant.ofEpochMilli(message.sentDate.time),
             sender = (message.sender as InternetAddress).address,
             from =
-                message.from
-                    .map { it as InternetAddress }
-                    .mapNotNull { it.address },
+            message.from
+                .map { it as InternetAddress }
+                .mapNotNull { it.address },
             forwardedFor =
-                message.getHeader("X-Forwarded-For")
-                    .orEmpty()
-                    .flatMap { it.split(" ") },
+            message.getHeader("X-Forwarded-For")
+                .orEmpty()
+                .flatMap { it.split(" ") },
             forwardedTo =
-                message.getHeader("X-Forwarded-To")
-                    .orEmpty()
-                    .flatMap { it.split(" ") },
+            message.getHeader("X-Forwarded-To")
+                .orEmpty()
+                .flatMap { it.split(" ") },
         )
     }
 }

@@ -42,17 +42,17 @@ internal fun RootHomePeriodSection(
         ) {
             Box(
                 modifier =
-                    Modifier.clip(CircleShape)
-                        .clickable { onClickPreviousMonth() }
-                        .padding(8.dp),
+                Modifier.clip(CircleShape)
+                    .clickable { onClickPreviousMonth() }
+                    .padding(8.dp),
             ) {
                 Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "前の月")
             }
             Box(
                 modifier =
-                    Modifier.clip(CircleShape)
-                        .clickable { onClickNextMonth() }
-                        .padding(8.dp),
+                Modifier.clip(CircleShape)
+                    .clickable { onClickNextMonth() }
+                    .padding(8.dp),
             ) {
                 Icon(Icons.Default.KeyboardArrowRight, contentDescription = "次の月")
             }

@@ -37,18 +37,18 @@ public class RootHomeTabScreenApi(
                 RootHomeTabScreenAnalyticsByCategoryQuery(
                     id = id,
                     query =
-                        MoneyUsageAnalyticsQuery(
-                            sinceDateTime =
-                                LocalDateTime(
-                                    LocalDate(startYear, startMonth, 1),
-                                    LocalTime(0, 0, 0),
-                                ),
-                            untilDateTime =
-                                LocalDateTime(
-                                    LocalDate(endYear, endMonth, 1),
-                                    LocalTime(0, 0, 0),
-                                ),
+                    MoneyUsageAnalyticsQuery(
+                        sinceDateTime =
+                        LocalDateTime(
+                            LocalDate(startYear, startMonth, 1),
+                            LocalTime(0, 0, 0),
                         ),
+                        untilDateTime =
+                        LocalDateTime(
+                            LocalDate(endYear, endMonth, 1),
+                            LocalTime(0, 0, 0),
+                        ),
+                    ),
                 ),
             )
                 .fetchPolicy(
@@ -75,18 +75,18 @@ public class RootHomeTabScreenApi(
             apolloClient.query(
                 RootHomeTabScreenAnalyticsByDateQuery(
                     query =
-                        MoneyUsageAnalyticsQuery(
-                            sinceDateTime =
-                                LocalDateTime(
-                                    LocalDate(startYear, startMonth, 1),
-                                    LocalTime(0, 0, 0),
-                                ),
-                            untilDateTime =
-                                LocalDateTime(
-                                    LocalDate(endYear, endMonth, 1),
-                                    LocalTime(0, 0, 0),
-                                ),
+                    MoneyUsageAnalyticsQuery(
+                        sinceDateTime =
+                        LocalDateTime(
+                            LocalDate(startYear, startMonth, 1),
+                            LocalTime(0, 0, 0),
                         ),
+                        untilDateTime =
+                        LocalDateTime(
+                            LocalDate(endYear, endMonth, 1),
+                            LocalTime(0, 0, 0),
+                        ),
+                    ),
                 ),
             )
                 .fetchPolicy(

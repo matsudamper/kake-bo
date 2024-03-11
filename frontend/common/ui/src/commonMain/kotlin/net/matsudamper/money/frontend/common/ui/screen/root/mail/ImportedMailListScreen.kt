@@ -166,17 +166,17 @@ private fun MainContent(
         Filter(
             modifier = Modifier.fillMaxWidth(),
             contentPadding =
-                PaddingValues(
-                    top = 12.dp,
-                    start = 12.dp,
-                    end = 12.dp,
-                ),
+            PaddingValues(
+                top = 12.dp,
+                start = 12.dp,
+                end = 12.dp,
+            ),
             uiState = filterUiState,
         )
         BoxWithConstraints(
             modifier =
-                Modifier.fillMaxWidth()
-                    .weight(1f),
+            Modifier.fillMaxWidth()
+                .weight(1f),
         ) {
             val height = maxHeight
             val lazyListState = rememberLazyListState()
@@ -184,18 +184,18 @@ private fun MainContent(
                 modifier = Modifier.fillMaxSize(),
                 state = lazyListState,
                 contentPadding =
-                    PaddingValues(
-                        bottom = scrollButtonSize,
-                    ),
+                PaddingValues(
+                    bottom = scrollButtonSize,
+                ),
             ) {
                 items(uiState.listItems) { mail ->
                     SuggestUsageItem(
                         modifier =
-                            Modifier.fillMaxWidth()
-                                .padding(
-                                    horizontal = 12.dp,
-                                    vertical = 6.dp,
-                                ),
+                        Modifier.fillMaxWidth()
+                            .padding(
+                                horizontal = 12.dp,
+                                vertical = 6.dp,
+                            ),
                         listItem = mail,
                     )
                 }
@@ -210,8 +210,8 @@ private fun MainContent(
                         }
                         Box(
                             modifier =
-                                Modifier.fillMaxWidth()
-                                    .padding(vertical = 24.dp),
+                            Modifier.fillMaxWidth()
+                                .padding(vertical = 24.dp),
                             contentAlignment = Alignment.Center,
                         ) {
                             CircularProgressIndicator()
@@ -222,13 +222,13 @@ private fun MainContent(
 
             ScrollButtons(
                 modifier =
-                    Modifier
-                        .onSizeChanged {
-                            scrollButtonSize = with(density) { it.height.toDp() }
-                        }
-                        .align(Alignment.BottomEnd)
-                        .padding(ScrollButtonsDefaults.padding)
-                        .height(ScrollButtonsDefaults.height),
+                Modifier
+                    .onSizeChanged {
+                        scrollButtonSize = with(density) { it.height.toDp() }
+                    }
+                    .align(Alignment.BottomEnd)
+                    .padding(ScrollButtonsDefaults.padding)
+                    .height(ScrollButtonsDefaults.height),
                 scrollState = lazyListState,
                 scrollSize = with(density) { height.toPx() } * 0.4f,
             )
@@ -245,12 +245,12 @@ private fun Filter(
 ) {
     Row(
         modifier =
-            modifier
-                .horizontalScroll(rememberScrollState())
-                .padding(
-                    top = contentPadding.calculateTopPadding(),
-                    bottom = contentPadding.calculateBottomPadding(),
-                ),
+        modifier
+            .horizontalScroll(rememberScrollState())
+            .padding(
+                top = contentPadding.calculateTopPadding(),
+                bottom = contentPadding.calculateBottomPadding(),
+            ),
     ) {
         Spacer(Modifier.width(contentPadding.calculateStartPadding(LayoutDirection.Ltr)))
 
@@ -258,12 +258,12 @@ private fun Filter(
             var visiblePopup by remember { mutableStateOf(false) }
             FilterChip(
                 selected =
-                    when (uiState.link.status) {
-                        ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> false
-                        ImportedMailListScreenUiState.Filters.LinkStatus.Linked,
-                        ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked,
-                        -> true
-                    },
+                when (uiState.link.status) {
+                    ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> false
+                    ImportedMailListScreenUiState.Filters.LinkStatus.Linked,
+                    ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked,
+                    -> true
+                },
                 onClick = {
                     when (uiState.link.status) {
                         ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> {
@@ -280,12 +280,12 @@ private fun Filter(
                 label = {
                     Text(
                         text =
-                            "連携状態:" +
-                                when (uiState.link.status) {
-                                    ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> "全て"
-                                    ImportedMailListScreenUiState.Filters.LinkStatus.Linked -> "連携済み"
-                                    ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked -> "未連携"
-                                },
+                        "連携状態:" +
+                            when (uiState.link.status) {
+                                ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> "全て"
+                                ImportedMailListScreenUiState.Filters.LinkStatus.Linked -> "連携済み"
+                                ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked -> "未連携"
+                            },
                         style = MaterialTheme.typography.labelMedium,
                     )
                 },
@@ -302,31 +302,31 @@ private fun Filter(
                 ) {
                     Card(
                         elevation =
-                            CardDefaults.cardElevation(
-                                defaultElevation = 8.dp,
-                            ),
+                        CardDefaults.cardElevation(
+                            defaultElevation = 8.dp,
+                        ),
                     ) {
                         Column(
                             modifier = Modifier.width(IntrinsicSize.Max),
                         ) {
                             Text(
                                 modifier =
-                                    Modifier.fillMaxWidth()
-                                        .clickable {
-                                            visiblePopup = false
-                                            uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.Linked)
-                                        }
-                                        .padding(12.dp),
+                                Modifier.fillMaxWidth()
+                                    .clickable {
+                                        visiblePopup = false
+                                        uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.Linked)
+                                    }
+                                    .padding(12.dp),
                                 text = "連携済み",
                             )
                             Text(
                                 modifier =
-                                    Modifier.fillMaxWidth()
-                                        .clickable {
-                                            visiblePopup = false
-                                            uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked)
-                                        }
-                                        .padding(12.dp),
+                                Modifier.fillMaxWidth()
+                                    .clickable {
+                                        visiblePopup = false
+                                        uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked)
+                                    }
+                                    .padding(12.dp),
                                 text = "未連携",
                             )
                         }
@@ -350,8 +350,8 @@ private fun SuggestUsageItem(
     ) {
         Column(
             modifier =
-                Modifier.fillMaxWidth()
-                    .padding(12.dp),
+            Modifier.fillMaxWidth()
+                .padding(12.dp),
         ) {
             CardSection(
                 modifier = Modifier.fillMaxWidth(),
@@ -447,10 +447,10 @@ private fun CardSection(
         }
         Divider(
             modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp)
-                    .height(1.dp),
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp)
+                .height(1.dp),
             color = Color.White,
         )
         Column(
@@ -602,8 +602,8 @@ private fun MailItem(
                         Spacer(Modifier.weight(1f))
                         Text(
                             modifier =
-                                Modifier
-                                    .fillMaxHeight(),
+                            Modifier
+                                .fillMaxHeight(),
                             text = "タイトル",
                             fontFamily = rememberCustomFontFamily(),
                         )

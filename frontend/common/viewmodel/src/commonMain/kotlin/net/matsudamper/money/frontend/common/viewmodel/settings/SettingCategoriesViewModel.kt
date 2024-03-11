@@ -37,53 +37,53 @@ public class SettingCategoriesViewModel(
         MutableStateFlow(
             SettingCategoriesScreenUiState(
                 event =
-                    object : SettingCategoriesScreenUiState.Event {
-                        override suspend fun onResume() {
-                        }
+                object : SettingCategoriesScreenUiState.Event {
+                    override suspend fun onResume() {
+                    }
 
-                        override fun dismissCategoryInput() {
-                            coroutineScope.launch {
-                                viewModelStateFlow.update {
-                                    it.copy(
-                                        showCategoryNameInput = false,
-                                    )
-                                }
+                    override fun dismissCategoryInput() {
+                        coroutineScope.launch {
+                            viewModelStateFlow.update {
+                                it.copy(
+                                    showCategoryNameInput = false,
+                                )
                             }
                         }
+                    }
 
-                        override fun onClickAddCategoryButton() {
-                            coroutineScope.launch {
-                                viewModelStateFlow.update {
-                                    it.copy(
-                                        showCategoryNameInput = true,
-                                    )
-                                }
+                    override fun onClickAddCategoryButton() {
+                        coroutineScope.launch {
+                            viewModelStateFlow.update {
+                                it.copy(
+                                    showCategoryNameInput = true,
+                                )
                             }
                         }
+                    }
 
-                        override fun categoryInputCompleted(text: String) {
-                            coroutineScope.launch {
-                                val result = api.addCategory(text)?.data?.userMutation?.addCategory?.category
-                                if (result == null) {
-                                    globalEventSender.send {
-                                        it.showNativeNotification("追加に失敗しました")
-                                    }
-                                    return@launch
-                                }
-
+                    override fun categoryInputCompleted(text: String) {
+                        coroutineScope.launch {
+                            val result = api.addCategory(text)?.data?.userMutation?.addCategory?.category
+                            if (result == null) {
                                 globalEventSender.send {
-                                    it.showSnackBar("${result.name}を追加しました")
+                                    it.showNativeNotification("追加に失敗しました")
                                 }
-                                viewModelStateFlow.update {
-                                    it.copy(
-                                        showCategoryNameInput = false,
-                                    )
-                                }
-
-                                initialFetch()
+                                return@launch
                             }
+
+                            globalEventSender.send {
+                                it.showSnackBar("${result.name}を追加しました")
+                            }
+                            viewModelStateFlow.update {
+                                it.copy(
+                                    showCategoryNameInput = false,
+                                )
+                            }
+
+                            initialFetch()
                         }
-                    },
+                    }
+                },
                 loadingState = SettingCategoriesScreenUiState.LoadingState.Loading,
                 showCategoryNameInput = false,
             ),
@@ -101,23 +101,23 @@ public class SettingCategoriesViewModel(
                                     }.flatten()
                                 SettingCategoriesScreenUiState.LoadingState.Loaded(
                                     item =
-                                        items.map { item ->
-                                            SettingCategoriesScreenUiState.CategoryItem(
-                                                name = item.name,
-                                                event =
-                                                    object : SettingCategoriesScreenUiState.CategoryItem.Event {
-                                                        override fun onClick() {
-                                                            coroutineScope.launch {
-                                                                viewModelEventSender.send {
-                                                                    it.navigateToCategoryDetail(
-                                                                        id = item.id,
-                                                                    )
-                                                                }
-                                                            }
+                                    items.map { item ->
+                                        SettingCategoriesScreenUiState.CategoryItem(
+                                            name = item.name,
+                                            event =
+                                            object : SettingCategoriesScreenUiState.CategoryItem.Event {
+                                                override fun onClick() {
+                                                    coroutineScope.launch {
+                                                        viewModelEventSender.send {
+                                                            it.navigateToCategoryDetail(
+                                                                id = item.id,
+                                                            )
                                                         }
-                                                    },
-                                            )
-                                        }.toImmutableList(),
+                                                    }
+                                                }
+                                            },
+                                        )
+                                    }.toImmutableList(),
                                 )
                             }
 

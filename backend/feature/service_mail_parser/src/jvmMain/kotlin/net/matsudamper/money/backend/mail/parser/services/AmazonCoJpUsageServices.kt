@@ -95,13 +95,13 @@ internal object AmazonCoJpUsageServices : MoneyUsageServices {
                 description = url.orEmpty(),
                 service = MoneyUsageServiceType.Amazon,
                 dateTime =
-                    run {
-                        if (mailDateTime != null) {
-                            LocalDateTime.of(mailDateTime, LocalTime.MIN)
-                        } else {
-                            date
-                        }
-                    },
+                run {
+                    if (mailDateTime != null) {
+                        LocalDateTime.of(mailDateTime, LocalTime.MIN)
+                    } else {
+                        date
+                    }
+                },
             ),
         )
     }

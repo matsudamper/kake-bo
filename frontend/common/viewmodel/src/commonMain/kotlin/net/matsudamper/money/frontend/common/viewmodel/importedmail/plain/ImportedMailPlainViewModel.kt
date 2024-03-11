@@ -32,9 +32,9 @@ public class ImportedMailPlainViewModel(
         ApolloResponseCollector.create(
             apolloClient = apolloClient,
             query =
-                ImportedMailPlainScreenQuery(
-                    id = id,
-                ),
+            ImportedMailPlainScreenQuery(
+                id = id,
+            ),
         )
 
     public val uiStateFlow: StateFlow<ImportedMailPlainScreenUiState> =
@@ -42,23 +42,23 @@ public class ImportedMailPlainViewModel(
             ImportedMailPlainScreenUiState(
                 loadingState = ImportedMailPlainScreenUiState.LoadingState.Loading,
                 event =
-                    object : ImportedMailPlainScreenUiState.Event {
-                        override fun onViewInitialized() {
-                            fetch()
-                        }
+                object : ImportedMailPlainScreenUiState.Event {
+                    override fun onViewInitialized() {
+                        fetch()
+                    }
 
-                        override fun onClickClose() {
-                            coroutineScope.launch {
-                                viewModelEventSender.send {
-                                    it.backRequest()
-                                }
+                    override fun onClickClose() {
+                        coroutineScope.launch {
+                            viewModelEventSender.send {
+                                it.backRequest()
                             }
                         }
+                    }
 
-                        override fun onClickRetry() {
-                            fetch()
-                        }
-                    },
+                    override fun onClickRetry() {
+                        fetch()
+                    }
+                },
             ),
         ).also { uiStateFlow ->
             coroutineScope.launch {
@@ -77,13 +77,13 @@ public class ImportedMailPlainViewModel(
                                 } else {
                                     ImportedMailPlainScreenUiState.LoadingState.Loaded(
                                         html =
-                                            sequence {
-                                                yield(
-                                                    mail.plain
-                                                        ?.replace("\r\n", "<br>")
-                                                        ?.replace("\n", "<br>"),
-                                                )
-                                            }.filterNotNull().firstOrNull().orEmpty(),
+                                        sequence {
+                                            yield(
+                                                mail.plain
+                                                    ?.replace("\r\n", "<br>")
+                                                    ?.replace("\n", "<br>"),
+                                            )
+                                        }.filterNotNull().firstOrNull().orEmpty(),
                                     )
                                 }
                             }

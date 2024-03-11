@@ -213,12 +213,12 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                 MoneyUsageRepository.GetMoneyUsageByQueryResult.Success(
                     ids = resultMoneyUsageIds,
                     cursor =
-                        run cursor@{
-                            MoneyUsageRepository.GetMoneyUsageByQueryResult.Cursor(
-                                lastId = cursorLastId ?: return@cursor null,
-                                date = lastDate ?: return@cursor null,
-                            )
-                        },
+                    run cursor@{
+                        MoneyUsageRepository.GetMoneyUsageByQueryResult.Cursor(
+                            lastId = cursorLastId ?: return@cursor null,
+                            date = lastDate ?: return@cursor null,
+                        )
+                    },
                 )
             }
         }.fold(

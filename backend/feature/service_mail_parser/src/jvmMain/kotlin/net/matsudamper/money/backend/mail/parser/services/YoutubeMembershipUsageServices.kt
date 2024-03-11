@@ -71,14 +71,14 @@ internal object YoutubeMembershipUsageServices : MoneyUsageServices {
                 title = "YouTube Super Chat: ${channel.orEmpty()}",
                 price = price,
                 description =
-                    buildString {
-                        if (title != null) {
-                            appendLine(title)
-                        }
-                        if (priceDescription != null) {
-                            appendLine(priceDescription)
-                        }
-                    }.trim(),
+                buildString {
+                    if (title != null) {
+                        appendLine(title)
+                    }
+                    if (priceDescription != null) {
+                        appendLine(priceDescription)
+                    }
+                }.trim(),
                 service = MoneyUsageServiceType.YouTube,
                 dateTime = forwardedInfo?.date ?: date,
             ),

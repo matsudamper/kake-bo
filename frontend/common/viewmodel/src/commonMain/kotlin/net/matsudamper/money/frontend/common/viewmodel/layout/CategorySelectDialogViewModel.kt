@@ -37,12 +37,12 @@ internal class CategorySelectDialogViewModel(
         ApolloResponseCollector.create(
             apolloClient = apolloClient,
             query =
-                MoneyUsageSelectDialogCategoriesPagingQuery(
-                    MoneyUsageCategoriesInput(
-                        size = 100,
-                        cursor = Optional.present(null),
-                    ),
+            MoneyUsageSelectDialogCategoriesPagingQuery(
+                MoneyUsageCategoriesInput(
+                    size = 100,
+                    cursor = Optional.present(null),
                 ),
+            ),
         )
     private val subCategoriesFlow: MutableStateFlow<Map<MoneyUsageCategoryId, ApolloResponseCollector<MoneyUsageSelectDialogSubCategoriesPagingQuery.Data>>> =
         MutableStateFlow(mapOf())
@@ -115,14 +115,14 @@ internal class CategorySelectDialogViewModel(
         viewModelStateFlow.update {
             it.copy(
                 categorySelectDialog =
-                    ViewModelState.CategorySelectDialog(
-                        categorySet =
-                            ViewModelState.CategorySet(
-                                category = category,
-                                subCategory = subCategory,
-                            ),
-                        screenType = ViewModelState.CategorySelectDialog.ScreenType.Root,
+                ViewModelState.CategorySelectDialog(
+                    categorySet =
+                    ViewModelState.CategorySet(
+                        category = category,
+                        subCategory = subCategory,
                     ),
+                    screenType = ViewModelState.CategorySelectDialog.ScreenType.Root,
+                ),
             )
         }
 
@@ -167,14 +167,14 @@ internal class CategorySelectDialogViewModel(
             ApolloResponseCollector.create(
                 apolloClient = apolloClient,
                 query =
-                    MoneyUsageSelectDialogSubCategoriesPagingQuery(
-                        categoryId = id,
-                        query =
-                            MoneyUsageSubCategoryQuery(
-                                size = 100,
-                                cursor = Optional.present(null),
-                            ),
+                MoneyUsageSelectDialogSubCategoriesPagingQuery(
+                    categoryId = id,
+                    query =
+                    MoneyUsageSubCategoryQuery(
+                        size = 100,
+                        cursor = Optional.present(null),
                     ),
+                ),
             )
 
         subCategoriesFlow.update { subCategories ->
@@ -197,164 +197,164 @@ internal class CategorySelectDialogViewModel(
             viewModelStateFlow.update {
                 it.copy(
                     categorySelectDialog =
-                        categoryDialogViewModelState.copy(
-                            screenType = ViewModelState.CategorySelectDialog.ScreenType.Root,
-                        ),
+                    categoryDialogViewModelState.copy(
+                        screenType = ViewModelState.CategorySelectDialog.ScreenType.Root,
+                    ),
                 )
             }
         }
 
         return CategorySelectDialogUiState(
             screenType =
-                when (categoryDialogViewModelState.screenType) {
-                    ViewModelState.CategorySelectDialog.ScreenType.Root -> {
-                        CategorySelectDialogUiState.Screen.Root(
-                            category = categorySet.category?.name ?: "未選択",
-                            subCategory = categorySet.subCategory?.name ?: "未選択",
-                            enableSubCategory = categorySet.category != null,
-                            onClickCategory = {
-                                viewModelStateFlow.update {
-                                    it.copy(
-                                        categorySelectDialog =
-                                            categoryDialogViewModelState.copy(
-                                                screenType = ViewModelState.CategorySelectDialog.ScreenType.Category,
-                                            ),
-                                    )
-                                }
-                            },
-                            onClickSubCategory = {
-                                viewModelStateFlow.update {
-                                    it.copy(
-                                        categorySelectDialog =
-                                            categoryDialogViewModelState.copy(
-                                                screenType = ViewModelState.CategorySelectDialog.ScreenType.SubCategory,
-                                            ),
-                                    )
-                                }
-                            },
-                        )
-                    }
+            when (categoryDialogViewModelState.screenType) {
+                ViewModelState.CategorySelectDialog.ScreenType.Root -> {
+                    CategorySelectDialogUiState.Screen.Root(
+                        category = categorySet.category?.name ?: "未選択",
+                        subCategory = categorySet.subCategory?.name ?: "未選択",
+                        enableSubCategory = categorySet.category != null,
+                        onClickCategory = {
+                            viewModelStateFlow.update {
+                                it.copy(
+                                    categorySelectDialog =
+                                    categoryDialogViewModelState.copy(
+                                        screenType = ViewModelState.CategorySelectDialog.ScreenType.Category,
+                                    ),
+                                )
+                            }
+                        },
+                        onClickSubCategory = {
+                            viewModelStateFlow.update {
+                                it.copy(
+                                    categorySelectDialog =
+                                    categoryDialogViewModelState.copy(
+                                        screenType = ViewModelState.CategorySelectDialog.ScreenType.SubCategory,
+                                    ),
+                                )
+                            }
+                        },
+                    )
+                }
 
-                    ViewModelState.CategorySelectDialog.ScreenType.Category -> {
-                        val categories: List<CategorySelectDialogUiState.Category> =
-                            when (categoriesApolloResponse) {
-                                is ApolloResponseState.Failure -> {
+                ViewModelState.CategorySelectDialog.ScreenType.Category -> {
+                    val categories: List<CategorySelectDialogUiState.Category> =
+                        when (categoriesApolloResponse) {
+                            is ApolloResponseState.Failure -> {
+                                listOf()
+                            }
+
+                            is ApolloResponseState.Loading -> {
+                                listOf()
+                            }
+
+                            is ApolloResponseState.Success -> {
+                                val response = categoriesApolloResponse.value.data?.user?.moneyUsageCategories
+                                if (response == null) {
+                                    // TODO error handling
                                     listOf()
-                                }
-
-                                is ApolloResponseState.Loading -> {
-                                    listOf()
-                                }
-
-                                is ApolloResponseState.Success -> {
-                                    val response = categoriesApolloResponse.value.data?.user?.moneyUsageCategories
-                                    if (response == null) {
-                                        // TODO error handling
-                                        listOf()
-                                    } else {
-                                        response.nodes.map { item ->
-                                            CategorySelectDialogUiState.Category(
-                                                name = item.name,
-                                                isSelected = item.id == categorySet.category?.id,
-                                                onSelected = {
-                                                    fetchSubCategories(item.id)
-                                                    viewModelStateFlow.update {
-                                                        it.copy(
-                                                            categorySelectDialog =
-                                                                categoryDialogViewModelState.copy(
-                                                                    screenType = ViewModelState.CategorySelectDialog.ScreenType.Root,
-                                                                    categorySet =
-                                                                        ViewModelState.CategorySet(
-                                                                            category =
-                                                                                ViewModelState.Category(
-                                                                                    id = item.id,
-                                                                                    name = item.name,
-                                                                                ),
-                                                                            subCategory = null,
-                                                                        ),
+                                } else {
+                                    response.nodes.map { item ->
+                                        CategorySelectDialogUiState.Category(
+                                            name = item.name,
+                                            isSelected = item.id == categorySet.category?.id,
+                                            onSelected = {
+                                                fetchSubCategories(item.id)
+                                                viewModelStateFlow.update {
+                                                    it.copy(
+                                                        categorySelectDialog =
+                                                        categoryDialogViewModelState.copy(
+                                                            screenType = ViewModelState.CategorySelectDialog.ScreenType.Root,
+                                                            categorySet =
+                                                            ViewModelState.CategorySet(
+                                                                category =
+                                                                ViewModelState.Category(
+                                                                    id = item.id,
+                                                                    name = item.name,
                                                                 ),
-                                                        )
-                                                    }
-                                                },
-                                            )
-                                        }
+                                                                subCategory = null,
+                                                            ),
+                                                        ),
+                                                    )
+                                                }
+                                            },
+                                        )
                                     }
                                 }
                             }
+                        }
 
-                        CategorySelectDialogUiState.Screen.Category(
-                            categories = categories.toImmutableList(),
-                            onBackRequest = { changeRootScreen() },
-                        )
-                    }
+                    CategorySelectDialogUiState.Screen.Category(
+                        categories = categories.toImmutableList(),
+                        onBackRequest = { changeRootScreen() },
+                    )
+                }
 
-                    ViewModelState.CategorySelectDialog.ScreenType.SubCategory -> {
-                        val subCategories: List<CategorySelectDialogUiState.Category> =
-                            when (val subCategory = subCategoryApolloResponses[categorySet.category?.id]) {
-                                null,
-                                is ApolloResponseState.Loading,
-                                -> {
-                                    listOf()
-                                }
+                ViewModelState.CategorySelectDialog.ScreenType.SubCategory -> {
+                    val subCategories: List<CategorySelectDialogUiState.Category> =
+                        when (val subCategory = subCategoryApolloResponses[categorySet.category?.id]) {
+                            null,
+                            is ApolloResponseState.Loading,
+                            -> {
+                                listOf()
+                            }
 
-                                is ApolloResponseState.Failure -> {
+                            is ApolloResponseState.Failure -> {
+                                // TODO Error handling
+                                listOf()
+                            }
+
+                            is ApolloResponseState.Success -> {
+                                val subCategories = subCategory.value.data?.user?.moneyUsageCategory?.subCategories
+                                if (subCategories == null) {
                                     // TODO Error handling
                                     listOf()
-                                }
-
-                                is ApolloResponseState.Success -> {
-                                    val subCategories = subCategory.value.data?.user?.moneyUsageCategory?.subCategories
-                                    if (subCategories == null) {
-                                        // TODO Error handling
-                                        listOf()
-                                    } else {
-                                        subCategories.nodes.map { item ->
-                                            CategorySelectDialogUiState.Category(
-                                                name = item.name,
-                                                isSelected = item.id == categorySet.subCategory?.id,
-                                                onSelected = {
-                                                    viewModelStateFlow.update {
-                                                        it.copy(
-                                                            categorySelectDialog =
-                                                                categoryDialogViewModelState.copy(
-                                                                    screenType = CategorySelectDialogViewModel.ViewModelState.CategorySelectDialog.ScreenType.Root,
-                                                                    categorySet =
-                                                                        categorySet.copy(
-                                                                            subCategory =
-                                                                                ViewModelState.SubCategory(
-                                                                                    id = item.id,
-                                                                                    name = item.name,
-                                                                                ),
-                                                                        ),
+                                } else {
+                                    subCategories.nodes.map { item ->
+                                        CategorySelectDialogUiState.Category(
+                                            name = item.name,
+                                            isSelected = item.id == categorySet.subCategory?.id,
+                                            onSelected = {
+                                                viewModelStateFlow.update {
+                                                    it.copy(
+                                                        categorySelectDialog =
+                                                        categoryDialogViewModelState.copy(
+                                                            screenType = CategorySelectDialogViewModel.ViewModelState.CategorySelectDialog.ScreenType.Root,
+                                                            categorySet =
+                                                            categorySet.copy(
+                                                                subCategory =
+                                                                ViewModelState.SubCategory(
+                                                                    id = item.id,
+                                                                    name = item.name,
                                                                 ),
-                                                        )
-                                                    }
-                                                },
-                                            )
-                                        }
+                                                            ),
+                                                        ),
+                                                    )
+                                                }
+                                            },
+                                        )
                                     }
                                 }
                             }
-                        CategorySelectDialogUiState.Screen.SubCategory(
-                            subCategories = subCategories.toImmutableList(),
-                            onBackRequest = { changeRootScreen() },
+                        }
+                    CategorySelectDialogUiState.Screen.SubCategory(
+                        subCategories = subCategories.toImmutableList(),
+                        onBackRequest = { changeRootScreen() },
+                    )
+                }
+            },
+            event =
+            object : CategorySelectDialogUiState.Event {
+                override fun dismissRequest() {
+                    viewModelStateFlow.update {
+                        it.copy(
+                            categorySelectDialog = null,
                         )
                     }
-                },
-            event =
-                object : CategorySelectDialogUiState.Event {
-                    override fun dismissRequest() {
-                        viewModelStateFlow.update {
-                            it.copy(
-                                categorySelectDialog = null,
-                            )
-                        }
-                    }
+                }
 
-                    override fun selectCompleted() {
-                        event.selected(categorySet.toResult() ?: return)
-                    }
-                },
+                override fun selectCompleted() {
+                    event.selected(categorySet.toResult() ?: return)
+                }
+            },
         )
     }
 

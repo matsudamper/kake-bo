@@ -199,9 +199,9 @@ internal fun RootScreenScaffold(
                     }
                     Divider(
                         modifier =
-                            Modifier
-                                .width(1.dp)
-                                .fillMaxHeight(),
+                        Modifier
+                            .width(1.dp)
+                            .fillMaxHeight(),
                         color = CustomColors.MenuDividerColor,
                     )
                 }

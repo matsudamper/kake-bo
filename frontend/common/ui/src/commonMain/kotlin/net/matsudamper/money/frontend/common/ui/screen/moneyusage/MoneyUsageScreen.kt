@@ -262,12 +262,12 @@ public fun MoneyUsageScreen(
                 title = {
                     Text(
                         modifier =
-                            Modifier.clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                            ) {
-                                kakeboScaffoldListener.onClickTitle()
-                            },
+                        Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) {
+                            kakeboScaffoldListener.onClickTitle()
+                        },
                         text = "家計簿",
                     )
                 },
@@ -278,9 +278,9 @@ public fun MoneyUsageScreen(
             is MoneyUsageScreenUiState.LoadingState.Loaded -> {
                 LoadedContent(
                     modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(paddingValues),
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(paddingValues),
                     uiState = state,
                 )
             }
@@ -288,9 +288,9 @@ public fun MoneyUsageScreen(
             is MoneyUsageScreenUiState.LoadingState.Loading -> {
                 Box(
                     modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues),
+                    Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()
@@ -322,13 +322,13 @@ private fun LoadedContent(
         var scrollButtonHeight by remember { mutableStateOf(0.dp) }
         LazyColumn(
             modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 12.dp),
+            Modifier
+                .fillMaxSize()
+                .padding(horizontal = 12.dp),
             contentPadding =
-                PaddingValues(
-                    bottom = scrollButtonHeight + 8.dp,
-                ),
+            PaddingValues(
+                bottom = scrollButtonHeight + 8.dp,
+            ),
             state = state,
         ) {
             item {
@@ -337,8 +337,8 @@ private fun LoadedContent(
                 ) {
                     Text(
                         modifier =
-                            Modifier.padding(12.dp)
-                                .weight(1f),
+                        Modifier.padding(12.dp)
+                            .weight(1f),
                         text = "使用用途",
                         style = MaterialTheme.typography.titleLarge,
                     )
@@ -362,13 +362,13 @@ private fun LoadedContent(
 
                 Card(
                     modifier =
-                        Modifier
-                            .padding(12.dp),
+                    Modifier
+                        .padding(12.dp),
                 ) {
                     MoneyUsage(
                         modifier =
-                            Modifier.fillMaxWidth()
-                                .padding(12.dp),
+                        Modifier.fillMaxWidth()
+                            .padding(12.dp),
                         uiState = uiState.moneyUsage,
                     )
                 }
@@ -385,14 +385,14 @@ private fun LoadedContent(
                 items(uiState.linkedMails) { mail ->
                     Card(
                         modifier =
-                            Modifier.fillMaxWidth()
-                                .padding(8.dp),
+                        Modifier.fillMaxWidth()
+                            .padding(8.dp),
                         onClick = { mail.event.onClick() },
                     ) {
                         MailContent(
                             modifier =
-                                Modifier.fillMaxWidth()
-                                    .padding(12.dp),
+                            Modifier.fillMaxWidth()
+                                .padding(12.dp),
                             uiState = mail,
                         )
                     }
@@ -410,11 +410,11 @@ private fun LoadedContent(
         }
         ScrollButtons(
             modifier =
-                Modifier
-                    .onSizeChanged { scrollButtonHeight = with(density) { it.height.toDp() } }
-                    .align(Alignment.BottomEnd)
-                    .padding(ScrollButtonsDefaults.padding)
-                    .height(ScrollButtonsDefaults.height),
+            Modifier
+                .onSizeChanged { scrollButtonHeight = with(density) { it.height.toDp() } }
+                .align(Alignment.BottomEnd)
+                .padding(ScrollButtonsDefaults.padding)
+                .height(ScrollButtonsDefaults.height),
             scrollState = state,
             scrollSize = remember(density, containerHeight) { with(density) { (containerHeight * 0.7f).toPx() } },
         )
@@ -434,20 +434,20 @@ private fun UsageMenuPopup(
     ) {
         Card(
             elevation =
-                CardDefaults.cardElevation(
-                    defaultElevation = 8.dp,
-                ),
+            CardDefaults.cardElevation(
+                defaultElevation = 8.dp,
+            ),
         ) {
             Column(
                 modifier = Modifier.width(IntrinsicSize.Max),
             ) {
                 Text(
                     modifier =
-                        Modifier.fillMaxWidth()
-                            .clickable {
-                                onClickDelete()
-                            }
-                            .padding(12.dp),
+                    Modifier.fillMaxWidth()
+                        .clickable {
+                            onClickDelete()
+                        }
+                        .padding(12.dp),
                     color = MaterialTheme.colorScheme.error,
                     text = "削除",
                 )
@@ -605,13 +605,13 @@ private fun MoneyUsageSection(
 
             OutlinedButton(
                 modifier =
-                    Modifier.align(
-                        if (multiline) {
-                            Alignment.Bottom
-                        } else {
-                            Alignment.CenterVertically
-                        },
-                    ),
+                Modifier.align(
+                    if (multiline) {
+                        Alignment.Bottom
+                    } else {
+                        Alignment.CenterVertically
+                    },
+                ),
                 onClick = {
                     onClickChange()
                 },

@@ -67,11 +67,11 @@ class UserResolverImpl : UserResolver {
                 is MoneyUsageCategoryRepository.GetCategoryResult.Success -> {
                     QlMoneyUsageCategoriesConnection(
                         nodes =
-                            result.results.map {
-                                QlMoneyUsageCategory(
-                                    id = it.moneyUsageCategoryId,
-                                )
-                            },
+                        result.results.map {
+                            QlMoneyUsageCategory(
+                                id = it.moneyUsageCategoryId,
+                            )
+                        },
                         // TODO
                         cursor = null,
                     )
@@ -122,12 +122,12 @@ class UserResolverImpl : UserResolver {
                         size = query.size,
                         isAsc = query.isAsc,
                         cursor =
-                            query.cursor?.let { MoneyUsagesCursor.fromString(it) }?.let {
-                                MoneyUsageRepository.GetMoneyUsageByQueryResult.Cursor(
-                                    lastId = it.lastId,
-                                    date = it.lastDate,
-                                )
-                            },
+                        query.cursor?.let { MoneyUsagesCursor.fromString(it) }?.let {
+                            MoneyUsageRepository.GetMoneyUsageByQueryResult.Cursor(
+                                lastId = it.lastId,
+                                date = it.lastDate,
+                            )
+                        },
                         sinceDateTime = query.filter?.sinceDateTime,
                         untilDateTime = query.filter?.untilDateTime,
                         categoryIds = query.filter?.category.orEmpty(),
@@ -141,18 +141,18 @@ class UserResolverImpl : UserResolver {
                 }
             QlMoneyUsagesConnection(
                 nodes =
-                    result.ids.map { id ->
-                        QlMoneyUsage(
-                            id = id,
-                        )
-                    },
+                result.ids.map { id ->
+                    QlMoneyUsage(
+                        id = id,
+                    )
+                },
                 cursor =
-                    result.cursor?.let { cursor ->
-                        MoneyUsagesCursor(
-                            lastId = cursor.lastId,
-                            lastDate = cursor.date,
-                        ).toCursorString()
-                    },
+                result.cursor?.let { cursor ->
+                    MoneyUsagesCursor(
+                        lastId = cursor.lastId,
+                        lastDate = cursor.date,
+                    ).toCursorString()
+                },
                 hasMore = result.ids.isNotEmpty(),
             )
         }.toDataFetcher()
@@ -174,9 +174,9 @@ class UserResolverImpl : UserResolver {
                     isAsc = query.isAsc,
                     userId = userId,
                     cursor =
-                        query.cursor?.let {
-                            ImportedMailCategoryFiltersCursor.fromString(it)
-                        },
+                    query.cursor?.let {
+                        ImportedMailCategoryFiltersCursor.fromString(it)
+                    },
                 ).onFailure {
                     it.printStackTrace()
                 }.getOrNull() ?: return@thenApplyAsync null
@@ -193,15 +193,15 @@ class UserResolverImpl : UserResolver {
 
             QlImportedMailCategoryFiltersConnection(
                 nodes =
-                    result.items.map {
-                        QlImportedMailCategoryFilter(
-                            id = it.importedMailCategoryFilterId,
-                        )
-                    },
+                result.items.map {
+                    QlImportedMailCategoryFilter(
+                        id = it.importedMailCategoryFilterId,
+                    )
+                },
                 cursor =
-                    result.cursor?.let { cursor ->
-                        ImportedMailCategoryFiltersCursor(cursor).toCursorString()
-                    },
+                result.cursor?.let { cursor ->
+                    ImportedMailCategoryFiltersCursor(cursor).toCursorString()
+                },
                 isLast = result.items.isEmpty(),
             )
         }.toDataFetcher()

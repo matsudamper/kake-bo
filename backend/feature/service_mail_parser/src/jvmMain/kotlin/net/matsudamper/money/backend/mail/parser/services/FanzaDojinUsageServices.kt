@@ -55,7 +55,7 @@ internal object FanzaDojinUsageServices : MoneyUsageServices {
                         lines.drop(startLineIndex + 1)
                             .indexOfFirst { it == "購入商品" }
                             .takeIf { it >= 0 } ?: return@description ""
-                    )
+                        )
                         .plus(startLineIndex + 1)
 
                 val endLineIndex =

@@ -46,32 +46,32 @@ public class LoginSettingViewModel(
                 textInputDialogState = null,
                 loadingState = LoginSettingScreenUiState.LoadingState.Loading,
                 event =
-                    object : LoginSettingScreenUiState.Event {
-                        override fun onClickBack() {
-                            coroutineScope.launch {
-                                eventSender.send { it.navigate(ScreenStructure.Root.Settings.Root) }
+                object : LoginSettingScreenUiState.Event {
+                    override fun onClickBack() {
+                        coroutineScope.launch {
+                            eventSender.send { it.navigate(ScreenStructure.Root.Settings.Root) }
+                        }
+                    }
+
+                    override fun onClickPlatform() {
+                        createFido(WebAuthModel.Type.PLATFORM)
+                    }
+
+                    override fun onClickCrossPlatform() {
+                        createFido(WebAuthModel.Type.CROSS_PLATFORM)
+                    }
+
+                    override fun onClickLogout() {
+                        coroutineScope.launch {
+                            val result = api.logout()
+                            if (result) {
+                                eventSender.send { it.navigate(ScreenStructure.Login) }
+                            } else {
+                                eventSender.send { it.showToast("ログアウトに失敗しました") }
                             }
                         }
-
-                        override fun onClickPlatform() {
-                            createFido(WebAuthModel.Type.PLATFORM)
-                        }
-
-                        override fun onClickCrossPlatform() {
-                            createFido(WebAuthModel.Type.CROSS_PLATFORM)
-                        }
-
-                        override fun onClickLogout() {
-                            coroutineScope.launch {
-                                val result = api.logout()
-                                if (result) {
-                                    eventSender.send { it.navigate(ScreenStructure.Login) }
-                                } else {
-                                    eventSender.send { it.showToast("ログアウトに失敗しました") }
-                                }
-                            }
-                        }
-                    },
+                    }
+                },
             ),
         ).also { uiStateFlow ->
             coroutineScope.launch {
@@ -85,54 +85,54 @@ public class LoginSettingViewModel(
 
                             LoginSettingScreenUiState.LoadingState.Loaded(
                                 fidoList =
-                                    run fidoList@{
-                                        val fidoList =
-                                            viewModelState.apolloScreenResponse
-                                                .data?.user?.settings?.registeredFidoList
-                                        if (fidoList == null) {
-                                            return@fidoList immutableListOf()
-                                        }
+                                run fidoList@{
+                                    val fidoList =
+                                        viewModelState.apolloScreenResponse
+                                            .data?.user?.settings?.registeredFidoList
+                                    if (fidoList == null) {
+                                        return@fidoList immutableListOf()
+                                    }
 
-                                        fidoList.map { fido ->
-                                            LoginSettingScreenUiState.Fido(
-                                                name = fido.name,
-                                                event = FidoEventImpl(fido),
+                                    fidoList.map { fido ->
+                                        LoginSettingScreenUiState.Fido(
+                                            name = fido.name,
+                                            event = FidoEventImpl(fido),
+                                        )
+                                    }.toImmutableList()
+                                },
+                                sessionList =
+                                run sessionList@{
+                                    val sessionList =
+                                        viewModelState.apolloScreenResponse
+                                            ?.data?.user?.settings?.sessionAttributes?.sessions
+                                    if (sessionList == null) {
+                                        return@sessionList immutableListOf()
+                                    }
+
+                                    sessionList
+                                        .filterNot { it.name == currentSession.name }
+                                        .map { session ->
+                                            LoginSettingScreenUiState.Session(
+                                                name = session.name,
+                                                lastAccess =
+                                                Formatter.formatDateTime(
+                                                    session.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
+                                                ),
+                                                event = SessionEventImpl(name = session.name),
                                             )
                                         }.toImmutableList()
-                                    },
-                                sessionList =
-                                    run sessionList@{
-                                        val sessionList =
-                                            viewModelState.apolloScreenResponse
-                                                ?.data?.user?.settings?.sessionAttributes?.sessions
-                                        if (sessionList == null) {
-                                            return@sessionList immutableListOf()
-                                        }
-
-                                        sessionList
-                                            .filterNot { it.name == currentSession.name }
-                                            .map { session ->
-                                                LoginSettingScreenUiState.Session(
-                                                    name = session.name,
-                                                    lastAccess =
-                                                        Formatter.formatDateTime(
-                                                            session.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
-                                                        ),
-                                                    event = SessionEventImpl(name = session.name),
-                                                )
-                                            }.toImmutableList()
-                                    },
+                                },
                                 currentSession =
-                                    run currentSession@{
-                                        LoginSettingScreenUiState.Session(
-                                            name = currentSession.name,
-                                            lastAccess =
-                                                Formatter.formatDateTime(
-                                                    currentSession.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
-                                                ),
-                                            event = SessionEventImpl(name = currentSession.name),
-                                        )
-                                    },
+                                run currentSession@{
+                                    LoginSettingScreenUiState.Session(
+                                        name = currentSession.name,
+                                        lastAccess =
+                                        Formatter.formatDateTime(
+                                            currentSession.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
+                                        ),
+                                        event = SessionEventImpl(name = currentSession.name),
+                                    )
+                                },
                             )
                         }
                     uiStateFlow.update { uiState ->
@@ -175,9 +175,9 @@ public class LoginSettingViewModel(
                     challenge = fidoInfo.challenge,
                     domain = fidoInfo.domain,
                     base64ExcludeCredentialIdList =
-                        viewModelStateFlow.value.apolloScreenResponse?.data?.user?.settings?.registeredFidoList.orEmpty().map {
-                            it.base64CredentialId
-                        },
+                    viewModelStateFlow.value.apolloScreenResponse?.data?.user?.settings?.registeredFidoList.orEmpty().map {
+                        it.base64CredentialId
+                    },
                 )
 
             if (createResult == null) {
@@ -224,13 +224,13 @@ public class LoginSettingViewModel(
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     textInputDialogState =
-                        LoginSettingScreenUiState.TextInputDialogState(
-                            title = "キーの名前を入力してください",
-                            text = "",
-                            onConfirm = onConfirm,
-                            onCancel = onCancel,
-                            type = "text",
-                        ),
+                    LoginSettingScreenUiState.TextInputDialogState(
+                        title = "キーの名前を入力してください",
+                        text = "",
+                        onConfirm = onConfirm,
+                        onCancel = onCancel,
+                        type = "text",
+                    ),
                 )
             }
         }

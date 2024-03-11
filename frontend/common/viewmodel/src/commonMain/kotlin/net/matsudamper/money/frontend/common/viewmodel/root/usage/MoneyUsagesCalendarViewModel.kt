@@ -38,22 +38,22 @@ public class MoneyUsagesCalendarViewModel(
         MutableStateFlow(
             ViewModelState(
                 displayMonth =
-                    run {
-                        val currentLocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-                        if (yearMonth != null) {
-                            LocalDate(
-                                year = yearMonth.year,
-                                monthNumber = yearMonth.month,
-                                dayOfMonth = 1,
-                            )
-                        } else {
-                            LocalDate(
-                                year = currentLocalDateTime.year,
-                                monthNumber = currentLocalDateTime.monthNumber,
-                                dayOfMonth = 1,
-                            )
-                        }
-                    },
+                run {
+                    val currentLocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                    if (yearMonth != null) {
+                        LocalDate(
+                            year = yearMonth.year,
+                            monthNumber = yearMonth.month,
+                            dayOfMonth = 1,
+                        )
+                    } else {
+                        LocalDate(
+                            year = currentLocalDateTime.year,
+                            monthNumber = currentLocalDateTime.monthNumber,
+                            dayOfMonth = 1,
+                        )
+                    }
+                },
             ),
         )
 
@@ -77,45 +77,45 @@ public class MoneyUsagesCalendarViewModel(
                 loadingState = RootUsageCalendarScreenUiState.LoadingState.Loading,
                 hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
                 event =
-                    object : RootUsageCalendarScreenUiState.Event {
-                        override suspend fun onViewInitialized() {
-                            if (rootUsageHostViewModel.calendarPagingModel.hasSelectedMonth().not()) {
-                                rootUsageHostViewModel.calendarPagingModel.changeMonth(viewModelStateFlow.value.displayMonth)
+                object : RootUsageCalendarScreenUiState.Event {
+                    override suspend fun onViewInitialized() {
+                        if (rootUsageHostViewModel.calendarPagingModel.hasSelectedMonth().not()) {
+                            rootUsageHostViewModel.calendarPagingModel.changeMonth(viewModelStateFlow.value.displayMonth)
+                        }
+                        CoroutineScope(currentCoroutineContext()).launch {
+                            launch {
+                                rootUsageHostViewModel.calendarPagingModel.getFlow().map { it.lastOrNull()?.getSuccessOrNull() }
+                                    .collectLatest {
+                                        if (it?.value?.data?.user?.moneyUsages?.hasMore == true) {
+                                            rootUsageHostViewModel.calendarPagingModel.fetch()
+                                        }
+                                    }
                             }
-                            CoroutineScope(currentCoroutineContext()).launch {
-                                launch {
-                                    rootUsageHostViewModel.calendarPagingModel.getFlow().map { it.lastOrNull()?.getSuccessOrNull() }
-                                        .collectLatest {
-                                            if (it?.value?.data?.user?.moneyUsages?.hasMore == true) {
-                                                rootUsageHostViewModel.calendarPagingModel.fetch()
-                                            }
-                                        }
-                                }
-                                launch {
-                                    rootUsageHostViewModel.calendarPagingModel.getFlow().collectLatest { responseStates ->
-                                        viewModelStateFlow.update {
-                                            it.copy(
-                                                results = responseStates,
-                                            )
-                                        }
-                                    }
-                                }
-
-                                launch {
-                                    rootUsageHostViewModel.calendarPagingModel.fetch()
-                                }
-                                launch {
-                                    rootUsageHostViewModel.viewModelStateFlow.collectLatest { rootViewModelState ->
-                                        delay(100)
-                                        rootUsageHostViewModel.calendarPagingModel.changeSearchText(
-                                            text = rootViewModelState.searchText,
+                            launch {
+                                rootUsageHostViewModel.calendarPagingModel.getFlow().collectLatest { responseStates ->
+                                    viewModelStateFlow.update {
+                                        it.copy(
+                                            results = responseStates,
                                         )
-                                        rootUsageHostViewModel.calendarPagingModel.fetch()
                                     }
+                                }
+                            }
+
+                            launch {
+                                rootUsageHostViewModel.calendarPagingModel.fetch()
+                            }
+                            launch {
+                                rootUsageHostViewModel.viewModelStateFlow.collectLatest { rootViewModelState ->
+                                    delay(100)
+                                    rootUsageHostViewModel.calendarPagingModel.changeSearchText(
+                                        text = rootViewModelState.searchText,
+                                    )
+                                    rootUsageHostViewModel.calendarPagingModel.fetch()
                                 }
                             }
                         }
-                    },
+                    }
+                },
             ),
         ).also { uiStateFlow ->
             coroutineScope.launch {
@@ -191,15 +191,15 @@ public class MoneyUsagesCalendarViewModel(
                                         ).map {
                                             RootUsageCalendarScreenUiState.CalendarCell.DayOfWeek(
                                                 text =
-                                                    when (it) {
-                                                        DayOfWeek.SUNDAY -> "日"
-                                                        DayOfWeek.MONDAY -> "月"
-                                                        DayOfWeek.TUESDAY -> "火"
-                                                        DayOfWeek.WEDNESDAY -> "水"
-                                                        DayOfWeek.THURSDAY -> "木"
-                                                        DayOfWeek.FRIDAY -> "金"
-                                                        DayOfWeek.SATURDAY -> "土"
-                                                    },
+                                                when (it) {
+                                                    DayOfWeek.SUNDAY -> "日"
+                                                    DayOfWeek.MONDAY -> "月"
+                                                    DayOfWeek.TUESDAY -> "火"
+                                                    DayOfWeek.WEDNESDAY -> "水"
+                                                    DayOfWeek.THURSDAY -> "木"
+                                                    DayOfWeek.FRIDAY -> "金"
+                                                    DayOfWeek.SATURDAY -> "土"
+                                                },
                                                 dayOfWeek = it,
                                             )
                                         },
@@ -217,21 +217,21 @@ public class MoneyUsagesCalendarViewModel(
                                                 text = "${localDate.dayOfMonth}日",
                                                 isToday = localDate == viewModelState.today,
                                                 items =
-                                                    days.map { day ->
-                                                        RootUsageCalendarScreenUiState.CalendarDayItem(
-                                                            title = day.title,
-                                                            event =
-                                                                object : RootUsageCalendarScreenUiState.CalendarDayEvent {
-                                                                    override fun onClick() {
-                                                                        coroutineScope.launch {
-                                                                            viewModelEventSender.send {
-                                                                                it.navigate(ScreenStructure.MoneyUsage(day.id))
-                                                                            }
-                                                                        }
+                                                days.map { day ->
+                                                    RootUsageCalendarScreenUiState.CalendarDayItem(
+                                                        title = day.title,
+                                                        event =
+                                                        object : RootUsageCalendarScreenUiState.CalendarDayEvent {
+                                                            override fun onClick() {
+                                                                coroutineScope.launch {
+                                                                    viewModelEventSender.send {
+                                                                        it.navigate(ScreenStructure.MoneyUsage(day.id))
                                                                     }
-                                                                },
-                                                        )
-                                                    }.toImmutableList(),
+                                                                }
+                                                            }
+                                                        },
+                                                    )
+                                                }.toImmutableList(),
                                             )
                                         },
                                     )
@@ -241,17 +241,17 @@ public class MoneyUsagesCalendarViewModel(
                         uiStateFlow.update { uiState ->
                             uiState.copy(
                                 loadingState =
-                                    RootUsageCalendarScreenUiState.LoadingState.Loaded(
-                                        calendarCells = cells,
-                                        event =
-                                            object : RootUsageCalendarScreenUiState.LoadedEvent {
-                                                override fun loadMore() {
-                                                    coroutineScope.launch {
-                                                        rootUsageHostViewModel.calendarPagingModel.fetch()
-                                                    }
-                                                }
-                                            },
-                                    ),
+                                RootUsageCalendarScreenUiState.LoadingState.Loaded(
+                                    calendarCells = cells,
+                                    event =
+                                    object : RootUsageCalendarScreenUiState.LoadedEvent {
+                                        override fun loadMore() {
+                                            coroutineScope.launch {
+                                                rootUsageHostViewModel.calendarPagingModel.fetch()
+                                            }
+                                        }
+                                    },
+                                ),
                             )
                         }
                     }
@@ -271,10 +271,10 @@ public class MoneyUsagesCalendarViewModel(
                 it.navigate(
                     ScreenStructure.Root.Usage.Calendar(
                         yearMonth =
-                            ScreenStructure.Root.Usage.Calendar.YearMonth(
-                                year = viewModelStateFlow.value.displayMonth.year,
-                                month = viewModelStateFlow.value.displayMonth.monthNumber,
-                            ),
+                        ScreenStructure.Root.Usage.Calendar.YearMonth(
+                            year = viewModelStateFlow.value.displayMonth.year,
+                            month = viewModelStateFlow.value.displayMonth.monthNumber,
+                        ),
                     ),
                 )
             }
@@ -295,10 +295,10 @@ public class MoneyUsagesCalendarViewModel(
                 it.navigate(
                     ScreenStructure.Root.Usage.Calendar(
                         yearMonth =
-                            ScreenStructure.Root.Usage.Calendar.YearMonth(
-                                year = viewModelStateFlow.value.displayMonth.year,
-                                month = viewModelStateFlow.value.displayMonth.monthNumber,
-                            ),
+                        ScreenStructure.Root.Usage.Calendar.YearMonth(
+                            year = viewModelStateFlow.value.displayMonth.year,
+                            month = viewModelStateFlow.value.displayMonth.monthNumber,
+                        ),
                     ),
                 )
             }

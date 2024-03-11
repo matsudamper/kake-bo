@@ -41,32 +41,32 @@ internal fun AlertDialog(
 ) {
     Box(
         modifier =
-            Modifier.fillMaxSize()
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() },
-                ) { onDismissRequest() }
-                .zIndex(Float.MAX_VALUE)
-                .background(Color.Black.copy(0.7f)),
+        Modifier.fillMaxSize()
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() },
+            ) { onDismissRequest() }
+            .zIndex(Float.MAX_VALUE)
+            .background(Color.Black.copy(0.7f)),
         contentAlignment = Alignment.Center,
     ) {
         Card(
             modifier =
-                Modifier
-                    .clickable(
-                        indication = null,
-                        interactionSource = remember { MutableInteractionSource() },
-                    ) { /* Nothing */ }
-                    .zIndex(Float.MAX_VALUE)
-                    .widthIn(max = 700.dp)
-                    .padding(24.dp),
+            Modifier
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() },
+                ) { /* Nothing */ }
+                .zIndex(Float.MAX_VALUE)
+                .widthIn(max = 700.dp)
+                .padding(24.dp),
         ) {
             Column(
                 modifier =
-                    Modifier
-                        .padding(horizontal = 12.dp)
-                        .padding(bottom = 12.dp, top = 24.dp)
-                        .width(IntrinsicSize.Max),
+                Modifier
+                    .padding(horizontal = 12.dp)
+                    .padding(bottom = 12.dp, top = 24.dp)
+                    .width(IntrinsicSize.Max),
             ) {
                 ProvideTextStyle(MaterialTheme.typography.titleLarge) {
                     Box(modifier = Modifier.padding(horizontal = 12.dp)) {

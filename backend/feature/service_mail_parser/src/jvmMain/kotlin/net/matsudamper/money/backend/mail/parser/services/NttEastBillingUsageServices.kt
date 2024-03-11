@@ -38,14 +38,14 @@ internal object NttEastBillingUsageServices : MoneyUsageServices {
                 title = displayName,
                 price = price,
                 description =
-                    buildString {
-                        if (customerNumber != null) {
-                            appendLine("お客さま番号: $customerNumber")
-                        }
-                        if (month != null) {
-                            appendLine("ご請求月分: $month")
-                        }
-                    }.trim(),
+                buildString {
+                    if (customerNumber != null) {
+                        appendLine("お客さま番号: $customerNumber")
+                    }
+                    if (month != null) {
+                        appendLine("ご請求月分: $month")
+                    }
+                }.trim(),
                 service = MoneyUsageServiceType.NttEastAtBilling,
                 dateTime = forwardedInfo?.date ?: date,
             ),

@@ -80,9 +80,9 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                     ): Imported {
                         return Imported(
                             isLinked =
-                                queryParams[KEY_IS_LINKED]
-                                    ?.firstOrNull()
-                                    ?.toBooleanStrictOrNull(),
+                            queryParams[KEY_IS_LINKED]
+                                ?.firstOrNull()
+                                ?.toBooleanStrictOrNull(),
                         )
                     }
                 }
@@ -250,8 +250,8 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
             public fun fromQueryParams(queryParams: Map<String, List<String>>): AddMoneyUsage {
                 return AddMoneyUsage(
                     importedMailId =
-                        queryParams[IMPORTED_MAIL_ID]?.firstOrNull()?.toIntOrNull()
-                            ?.let { ImportedMailId(it) },
+                    queryParams[IMPORTED_MAIL_ID]?.firstOrNull()?.toIntOrNull()
+                        ?.let { ImportedMailId(it) },
                     importedMailIndex = queryParams[IMPORTED_MAIL_INDEX]?.firstOrNull()?.toIntOrNull(),
                 )
             }

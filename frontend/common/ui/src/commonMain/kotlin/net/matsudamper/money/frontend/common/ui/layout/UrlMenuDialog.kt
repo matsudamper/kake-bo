@@ -32,22 +32,22 @@ internal fun UrlMenuDialog(
         content = {
             Card(
                 modifier =
-                    Modifier
-                        .width(intrinsicSize = IntrinsicSize.Min)
-                        .widthIn(min = 500.dp, max = 700.dp),
+                Modifier
+                    .width(intrinsicSize = IntrinsicSize.Min)
+                    .widthIn(min = 500.dp, max = 700.dp),
             ) {
                 Column(
                     modifier =
-                        Modifier
-                            .padding(24.dp),
+                    Modifier
+                        .padding(24.dp),
                 ) {
                     Text(
                         text = url,
                         style =
-                            TextStyle(
-                                fontSize = 14.sp,
-                                fontFamily = rememberCustomFontFamily(),
-                            ),
+                        TextStyle(
+                            fontSize = 14.sp,
+                            fontFamily = rememberCustomFontFamily(),
+                        ),
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Divider(modifier = Modifier.fillMaxWidth())
@@ -62,17 +62,17 @@ internal fun UrlMenuDialog(
                         )
                     Text(
                         modifier =
-                            Modifier
-                                .clickable { onClickOpen() }
-                                .then(modifier),
+                        Modifier
+                            .clickable { onClickOpen() }
+                            .then(modifier),
                         text = "開く",
                         style = style,
                     )
                     Text(
                         modifier =
-                            Modifier
-                                .clickable { onClickCopy() }
-                                .then(modifier),
+                        Modifier
+                            .clickable { onClickCopy() }
+                            .then(modifier),
                         text = "コピー",
                         style = style,
                     )

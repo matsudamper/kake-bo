@@ -118,12 +118,12 @@ public fun ImapConfigScreen(
                 title = {
                     Text(
                         modifier =
-                            Modifier.clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                            ) {
-                                listener.kakeboScaffoldListener.onClickTitle()
-                            },
+                        Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) {
+                            listener.kakeboScaffoldListener.onClickTitle()
+                        },
                         text = "家計簿",
                     )
                 },
@@ -165,9 +165,9 @@ private fun MainContent(
     ) { paddingValues ->
         SettingElementContent(
             modifier =
-                Modifier.fillMaxWidth()
-                    .padding(paddingValues)
-                    .padding(vertical = 24.dp),
+            Modifier.fillMaxWidth()
+                .padding(paddingValues)
+                .padding(vertical = 24.dp),
             uiState = uiState.imapConfig,
         )
     }

@@ -96,15 +96,15 @@ internal object PayPalUsageService : MoneyUsageServices {
                 title = title ?: displayName,
                 price = price ?: price2,
                 description =
-                    buildString {
-                        if (priceRawText != null) {
-                            appendLine(priceRawText)
-                        }
-                        if (parsedDate == null) {
-                            appendLine("エラー情報")
-                            appendLine("日付のパースに失敗しました")
-                        }
-                    }.trim(),
+                buildString {
+                    if (priceRawText != null) {
+                        appendLine(priceRawText)
+                    }
+                    if (parsedDate == null) {
+                        appendLine("エラー情報")
+                        appendLine("日付のパースに失敗しました")
+                    }
+                }.trim(),
                 service = MoneyUsageServiceType.PayPal,
                 dateTime = parsedDate ?: date,
             ),

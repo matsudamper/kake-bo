@@ -47,8 +47,8 @@ internal fun ScrollButtons(
     Row(modifier = modifier) {
         Button(
             modifier =
-                Modifier.fillMaxHeight()
-                    .aspectRatio(1f),
+            Modifier.fillMaxHeight()
+                .aspectRatio(1f),
             shape = CircleShape,
             contentPadding = PaddingValues(12.dp),
             onClick = {
@@ -62,8 +62,8 @@ internal fun ScrollButtons(
         ) {
             Icon(
                 modifier =
-                    Modifier.fillMaxWidth()
-                        .aspectRatio(1f),
+                Modifier.fillMaxWidth()
+                    .aspectRatio(1f),
                 imageVector = Icons.Default.KeyboardArrowUp,
                 contentDescription = null,
             )
@@ -71,8 +71,8 @@ internal fun ScrollButtons(
         Spacer(modifier = Modifier.width(8.dp))
         Button(
             modifier =
-                Modifier.fillMaxHeight()
-                    .aspectRatio(1f),
+            Modifier.fillMaxHeight()
+                .aspectRatio(1f),
             shape = CircleShape,
             contentPadding = PaddingValues(12.dp),
             onClick = {
@@ -86,8 +86,8 @@ internal fun ScrollButtons(
         ) {
             Icon(
                 modifier =
-                    Modifier.fillMaxWidth()
-                        .aspectRatio(1f),
+                Modifier.fillMaxWidth()
+                    .aspectRatio(1f),
                 imageVector = Icons.Default.KeyboardArrowDown,
                 contentDescription = null,
             )

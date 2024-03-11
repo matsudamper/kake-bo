@@ -96,19 +96,19 @@ internal fun GridColumn(
 
         layout(
             width =
-                columns.sumOf { column ->
-                    column.maxOfOrNull { rowGroup ->
-                        rowGroup.maxOfOrNull { it.width } ?: 0
-                    } ?: 0
-                }.coerceAtLeast(constraints.minWidth),
+            columns.sumOf { column ->
+                column.maxOfOrNull { rowGroup ->
+                    rowGroup.maxOfOrNull { it.width } ?: 0
+                } ?: 0
+            }.coerceAtLeast(constraints.minWidth),
             height =
-                run {
-                    columns.maxOfOrNull { column ->
-                        column.sumOf { rowGroup ->
-                            rowGroup.maxOfOrNull { it.height } ?: 0
-                        }
-                    } ?: 0
-                }.coerceAtLeast(constraints.minHeight),
+            run {
+                columns.maxOfOrNull { column ->
+                    column.sumOf { rowGroup ->
+                        rowGroup.maxOfOrNull { it.height } ?: 0
+                    }
+                } ?: 0
+            }.coerceAtLeast(constraints.minHeight),
         ) {
             for (columnIndex in columns.indices) {
                 val column = columns[columnIndex]

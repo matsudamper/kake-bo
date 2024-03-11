@@ -92,10 +92,10 @@ private fun LoadedContent(
         Card {
             BarGraph(
                 modifier =
-                    Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth()
-                        .height(500.dp),
+                Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .height(500.dp),
                 uiState = loadingState.graphItems,
                 contentColor = LocalContentColor.current,
             )

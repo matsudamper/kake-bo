@@ -76,7 +76,7 @@ internal fun PolygonalLineGraph(
                 (size.width)
                     .minus(xLabels.lastOrNull()?.size?.width ?: 0) // 最後のX軸ラベルが表示される分
                     .minus(maxYLabelTextWidth) // Y軸ラベルの最大幅
-            ).div(graphItems.size - 1)
+                ).div(graphItems.size - 1)
 
         val multilineLabel = betweenWidth <= (xLabels.maxOfOrNull { it.size.width } ?: 0).plus(8.dp.toPx())
         val multilineLabelHeightPadding = 4.dp.toPx()
@@ -106,10 +106,10 @@ internal fun PolygonalLineGraph(
                 textLayoutResult = item,
                 color = contentColor,
                 topLeft =
-                    Offset(
-                        x = maxYLabelTextWidth + betweenWidth * index,
-                        y = y,
-                    ),
+                Offset(
+                    x = maxYLabelTextWidth + betweenWidth * index,
+                    y = y,
+                ),
             )
         }
 
@@ -123,15 +123,15 @@ internal fun PolygonalLineGraph(
                 color = contentColor,
                 strokeWidth = 2.dp.toPx(),
                 start =
-                    Offset(
-                        x = maxYLabelTextWidth,
-                        y = graphYHeight / 2,
-                    ),
+                Offset(
+                    x = maxYLabelTextWidth,
+                    y = graphYHeight / 2,
+                ),
                 end =
-                    Offset(
-                        x = size.width,
-                        y = graphYHeight / 2,
-                    ),
+                Offset(
+                    x = size.width,
+                    y = graphYHeight / 2,
+                ),
             )
         } else {
             drawText(
@@ -149,10 +149,10 @@ internal fun PolygonalLineGraph(
                     color = contentColor,
                     radius = 4.dp.toPx(),
                     center =
-                        Offset(
-                            x = maxYLabelTextWidth + betweenWidth * index,
-                            y = graphYHeight - (item.amount - min) * heightParAmount,
-                        ),
+                    Offset(
+                        x = maxYLabelTextWidth + betweenWidth * index,
+                        y = graphYHeight - (item.amount - min) * heightParAmount,
+                    ),
                 )
             }
             graphItems.zipWithNext().forEachIndexed { index, graphItem ->
@@ -162,15 +162,15 @@ internal fun PolygonalLineGraph(
                     color = contentColor,
                     strokeWidth = 2.dp.toPx(),
                     start =
-                        Offset(
-                            x = maxYLabelTextWidth + betweenWidth * index,
-                            y = graphYHeight - (current.amount - min) * heightParAmount,
-                        ),
+                    Offset(
+                        x = maxYLabelTextWidth + betweenWidth * index,
+                        y = graphYHeight - (current.amount - min) * heightParAmount,
+                    ),
                     end =
-                        Offset(
-                            x = maxYLabelTextWidth + betweenWidth * (index + 1),
-                            y = graphYHeight - (next.amount - min) * heightParAmount,
-                        ),
+                    Offset(
+                        x = maxYLabelTextWidth + betweenWidth * (index + 1),
+                        y = graphYHeight - (next.amount - min) * heightParAmount,
+                    ),
                 )
             }
         }

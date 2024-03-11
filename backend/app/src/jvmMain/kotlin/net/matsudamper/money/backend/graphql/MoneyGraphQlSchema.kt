@@ -173,17 +173,17 @@ object MoneyGraphQlSchema {
                 @Suppress("OPT_IN_USAGE")
                 SchemaParserOptions.defaultOptions().copy(
                     objectMapperProvider =
-                        PerFieldConfiguringObjectMapperProvider { mapper, _ ->
-                            mapper.registerModule(
-                                JavaTimeModule(),
-                            )
-                        },
+                    PerFieldConfiguringObjectMapperProvider { mapper, _ ->
+                        mapper.registerModule(
+                            JavaTimeModule(),
+                        )
+                    },
                     fieldVisibility =
-                        if (ServerEnv.isDebug) {
-                            null
-                        } else {
-                            NoIntrospectionGraphqlFieldVisibility.NO_INTROSPECTION_FIELD_VISIBILITY
-                        },
+                    if (ServerEnv.isDebug) {
+                        null
+                    } else {
+                        NoIntrospectionGraphqlFieldVisibility.NO_INTROSPECTION_FIELD_VISIBILITY
+                    },
                 ),
             )
             .build()

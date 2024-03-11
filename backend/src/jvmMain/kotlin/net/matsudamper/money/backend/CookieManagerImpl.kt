@@ -63,9 +63,9 @@ internal class CookieManagerImpl(
             path = ".",
             secure = ServerEnv.isSecure,
             extensions =
-                mapOf(
-                    "SameSite" to "Strict",
-                ),
+            mapOf(
+                "SameSite" to "Strict",
+            ),
         )
     }
 }

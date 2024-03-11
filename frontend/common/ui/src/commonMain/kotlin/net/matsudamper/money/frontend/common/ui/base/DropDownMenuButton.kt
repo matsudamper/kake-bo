@@ -20,12 +20,12 @@ internal fun DropDownMenuButton(
         modifier = modifier,
         shape = RoundedCornerShape(8.dp),
         contentPadding =
-            PaddingValues(
-                start = 24.dp,
-                end = 18.dp,
-                top = 8.dp,
-                bottom = 8.dp,
-            ),
+        PaddingValues(
+            start = 24.dp,
+            end = 18.dp,
+            top = 8.dp,
+            bottom = 8.dp,
+        ),
         onClick = onClick,
     ) {
         content()

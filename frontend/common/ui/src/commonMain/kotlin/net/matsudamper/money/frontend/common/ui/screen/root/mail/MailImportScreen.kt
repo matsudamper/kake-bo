@@ -102,15 +102,15 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                     ) {
                         Button(
                             modifier =
-                                Modifier.padding(12.dp)
-                                    .widthIn(max = 500.dp)
-                                    .fillMaxWidth(),
+                            Modifier.padding(12.dp)
+                                .widthIn(max = 500.dp)
+                                .fillMaxWidth(),
                             onClick = { uiState.event.onClickImport() },
                             elevation =
-                                ButtonDefaults.buttonElevation(
-                                    defaultElevation = 4.dp,
-                                    pressedElevation = 8.dp,
-                                ),
+                            ButtonDefaults.buttonElevation(
+                                defaultElevation = 4.dp,
+                                pressedElevation = 8.dp,
+                            ),
                             shape = CircleShape,
                         ) {
                             Text(
@@ -123,13 +123,13 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
 
                     ScrollButtons(
                         modifier =
-                            Modifier
-                                .onSizeChanged {
-                                    scrollBarHeight = it.height
-                                }
-                                .align(Alignment.Bottom)
-                                .padding(ScrollButtonsDefaults.padding)
-                                .height(ScrollButtonsDefaults.height),
+                        Modifier
+                            .onSizeChanged {
+                                scrollBarHeight = it.height
+                            }
+                            .align(Alignment.Bottom)
+                            .padding(ScrollButtonsDefaults.padding)
+                            .height(ScrollButtonsDefaults.height),
                         scrollState = lazyListState,
                         scrollSize = containerHeight * 0.4f,
                     )
@@ -140,8 +140,8 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
         if (firstLoadingFinished.not()) {
             Box(
                 modifier =
-                    Modifier.fillMaxSize()
-                        .padding(paddingValues),
+                Modifier.fillMaxSize()
+                    .padding(paddingValues),
                 contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator()
@@ -159,17 +159,17 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                 Row(modifier = Modifier.fillMaxSize()) {
                     LazyColumn(
                         modifier =
-                            Modifier
-                                .fillMaxHeight()
-                                .weight(1f),
+                        Modifier
+                            .fillMaxHeight()
+                            .weight(1f),
                         state = lazyListState,
                         contentPadding = paddingValues,
                     ) {
                         items(uiState.mails) { item ->
                             MailContent(
                                 modifier =
-                                    Modifier
-                                        .padding(vertical = 12.dp),
+                                Modifier
+                                    .padding(vertical = 12.dp),
                                 uiState = item,
                             )
                         }
@@ -177,9 +177,9 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                             item {
                                 Box(
                                     modifier =
-                                        Modifier
-                                            .fillMaxWidth()
-                                            .padding(12.dp),
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(12.dp),
                                 ) {
                                     CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                                 }
@@ -210,20 +210,20 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
 private fun MailDeleteConfirmDialog(uiState: ImportMailScreenUiState.MailDeleteDialog) {
     Box(
         modifier =
-            Modifier.fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.8f))
-                .clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) {
-                    uiState.event.onDismiss()
-                },
+        Modifier.fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.8f))
+            .clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) {
+                uiState.event.onDismiss()
+            },
         contentAlignment = Alignment.Center,
     ) {
         Card {
             Column(
                 modifier =
-                    Modifier
-                        .padding(24.dp)
-                        .width(IntrinsicSize.Max)
-                        .widthIn(max = 500.dp),
+                Modifier
+                    .padding(24.dp)
+                    .width(IntrinsicSize.Max)
+                    .widthIn(max = 500.dp),
             ) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
@@ -241,8 +241,8 @@ private fun MailDeleteConfirmDialog(uiState: ImportMailScreenUiState.MailDeleteD
                 }
                 Row(
                     modifier =
-                        Modifier.align(Alignment.End)
-                            .height(intrinsicSize = IntrinsicSize.Min),
+                    Modifier.align(Alignment.End)
+                        .height(intrinsicSize = IntrinsicSize.Min),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     if (uiState.isLoading) {
@@ -284,20 +284,20 @@ private fun MailContent(
         modifier = modifier,
         onClick = { uiState.event.onClick() },
         colors =
-            if (uiState.isSelected) {
-                CardDefaults.cardColors(
-                    containerColor =
-                        MaterialTheme.colorScheme.primary
-                            .copy(alpha = 0.1f),
-                )
-            } else {
-                CardDefaults.cardColors()
-            },
+        if (uiState.isSelected) {
+            CardDefaults.cardColors(
+                containerColor =
+                MaterialTheme.colorScheme.primary
+                    .copy(alpha = 0.1f),
+            )
+        } else {
+            CardDefaults.cardColors()
+        },
     ) {
         Row(
             modifier =
-                Modifier.padding(12.dp)
-                    .height(IntrinsicSize.Min),
+            Modifier.padding(12.dp)
+                .height(IntrinsicSize.Min),
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(

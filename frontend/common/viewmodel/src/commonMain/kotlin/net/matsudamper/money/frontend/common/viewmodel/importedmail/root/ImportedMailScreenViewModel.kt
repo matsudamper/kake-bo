@@ -57,20 +57,20 @@ public class ImportedMailScreenViewModel(
                     viewModelStateFlow.update { viewModelState ->
                         viewModelState.copy(
                             confirmDialog =
-                                MailScreenUiState.AlertDialog(
-                                    onDismissRequest = { dismissConfirmDialog() },
-                                    onClickNegative = { dismissConfirmDialog() },
-                                    onClickPositive = {
-                                        coroutineScope.launch {
-                                            val isSuccess = api.delete(id = importedMailId)
-                                            if (isSuccess) {
-                                                dismissConfirmDialog()
-                                                viewModelEventSender.send { it.navigateToBack() }
-                                            }
+                            MailScreenUiState.AlertDialog(
+                                onDismissRequest = { dismissConfirmDialog() },
+                                onClickNegative = { dismissConfirmDialog() },
+                                onClickPositive = {
+                                    coroutineScope.launch {
+                                        val isSuccess = api.delete(id = importedMailId)
+                                        if (isSuccess) {
+                                            dismissConfirmDialog()
+                                            viewModelEventSender.send { it.navigateToBack() }
                                         }
-                                    },
-                                    title = "削除しますか？",
-                                ),
+                                    }
+                                },
+                                title = "削除しますか？",
+                            ),
                         )
                     }
                 }
@@ -93,24 +93,24 @@ public class ImportedMailScreenViewModel(
                             confirmDialog = viewModelState.confirmDialog,
                             urlMenuDialog = viewModelState.urlMenuDialog,
                             loadingState =
-                                when (val apolloResponse = viewModelState.apolloResponse) {
-                                    is ApolloResponseState.Failure -> {
-                                        MailScreenUiState.LoadingState.Error
-                                    }
+                            when (val apolloResponse = viewModelState.apolloResponse) {
+                                is ApolloResponseState.Failure -> {
+                                    MailScreenUiState.LoadingState.Error
+                                }
 
-                                    is ApolloResponseState.Loading -> {
+                                is ApolloResponseState.Loading -> {
+                                    MailScreenUiState.LoadingState.Loading
+                                }
+
+                                is ApolloResponseState.Success -> {
+                                    val mail = apolloResponse.value.data?.user?.importedMailAttributes?.mail
+                                    if (mail == null) {
                                         MailScreenUiState.LoadingState.Loading
+                                    } else {
+                                        createLoadedUiState(mail = mail)
                                     }
-
-                                    is ApolloResponseState.Success -> {
-                                        val mail = apolloResponse.value.data?.user?.importedMailAttributes?.mail
-                                        if (mail == null) {
-                                            MailScreenUiState.LoadingState.Loading
-                                        } else {
-                                            createLoadedUiState(mail = mail)
-                                        }
-                                    }
-                                },
+                                }
+                            },
                         )
                     }
                 }
@@ -120,133 +120,133 @@ public class ImportedMailScreenViewModel(
     private fun createLoadedUiState(mail: ImportedMailScreenQuery.Mail): MailScreenUiState.LoadingState.Loaded {
         return MailScreenUiState.LoadingState.Loaded(
             mail =
-                MailScreenUiState.Mail(
-                    title = mail.subject,
-                    date = Formatter.formatDateTime(mail.dateTime),
-                    from = mail.from,
-                ),
+            MailScreenUiState.Mail(
+                title = mail.subject,
+                date = Formatter.formatDateTime(mail.dateTime),
+                from = mail.from,
+            ),
             usage =
-                mail.usages.map {
-                    MailScreenUiState.LinkedUsage(
-                        title = it.title,
-                        amount =
-                            run amount@{
-                                val splitAmount = Formatter.formatMoney(it.amount)
-                                "${splitAmount}円"
-                            },
-                        category =
-                            run category@{
-                                val subCategory = it.moneyUsageSubCategory ?: return@category null
-                                val category = subCategory.category
+            mail.usages.map {
+                MailScreenUiState.LinkedUsage(
+                    title = it.title,
+                    amount =
+                    run amount@{
+                        val splitAmount = Formatter.formatMoney(it.amount)
+                        "${splitAmount}円"
+                    },
+                    category =
+                    run category@{
+                        val subCategory = it.moneyUsageSubCategory ?: return@category null
+                        val category = subCategory.category
 
-                                "${category.name} / ${subCategory.name}"
-                            },
-                        date = Formatter.formatDateTime(it.date),
-                        event =
-                            object : MailScreenUiState.LinkedUsageEvent {
-                                override fun onClick() {
-                                    coroutineScope.launch {
-                                        viewModelEventSender.send { event ->
-                                            event.navigate(
-                                                ScreenStructure.MoneyUsage(
-                                                    id = it.id,
-                                                ),
-                                            )
-                                        }
-                                    }
+                        "${category.name} / ${subCategory.name}"
+                    },
+                    date = Formatter.formatDateTime(it.date),
+                    event =
+                    object : MailScreenUiState.LinkedUsageEvent {
+                        override fun onClick() {
+                            coroutineScope.launch {
+                                viewModelEventSender.send { event ->
+                                    event.navigate(
+                                        ScreenStructure.MoneyUsage(
+                                            id = it.id,
+                                        ),
+                                    )
                                 }
-                            },
-                    )
-                }.toImmutableList(),
+                            }
+                        }
+                    },
+                )
+            }.toImmutableList(),
             usageSuggest =
-                mail.suggestUsages.mapIndexed { index, suggestUsage ->
-                    MailScreenUiState.UsageSuggest(
-                        title = suggestUsage.title,
-                        serviceName = suggestUsage.serviceName.orEmpty(),
-                        amount =
-                            run amount@{
-                                val amount = suggestUsage.amount ?: return@amount null
+            mail.suggestUsages.mapIndexed { index, suggestUsage ->
+                MailScreenUiState.UsageSuggest(
+                    title = suggestUsage.title,
+                    serviceName = suggestUsage.serviceName.orEmpty(),
+                    amount =
+                    run amount@{
+                        val amount = suggestUsage.amount ?: return@amount null
 
-                                val splitAmount = Formatter.formatMoney(amount)
-                                "${splitAmount}円"
-                            },
-                        category =
-                            run category@{
-                                val subCategory =
-                                    suggestUsage.subCategory ?: return@category null
-                                val category = subCategory.category
+                        val splitAmount = Formatter.formatMoney(amount)
+                        "${splitAmount}円"
+                    },
+                    category =
+                    run category@{
+                        val subCategory =
+                            suggestUsage.subCategory ?: return@category null
+                        val category = subCategory.category
 
-                                "${category.name} / ${subCategory.name}"
-                            },
-                        description =
-                            run {
-                                MailScreenUiState.Clickable(
-                                    text = suggestUsage.description,
-                                    event = ClickableEventImpl(suggestUsage.description),
-                                )
-                            },
-                        dateTime =
-                            run dateTime@{
-                                val dateTIme = suggestUsage.dateTime ?: return@dateTime ""
-                                Formatter.formatDateTime(dateTIme)
-                            },
-                        event =
-                            object : MailScreenUiState.UsageSuggest.Event {
-                                override fun onClickRegister() {
-                                    coroutineScope.launch {
-                                        viewModelEventSender.send {
-                                            it.navigate(
-                                                ScreenStructure.AddMoneyUsage(
-                                                    importedMailId = importedMailId,
-                                                    importedMailIndex = index,
-                                                ),
-                                            )
-                                        }
-                                    }
+                        "${category.name} / ${subCategory.name}"
+                    },
+                    description =
+                    run {
+                        MailScreenUiState.Clickable(
+                            text = suggestUsage.description,
+                            event = ClickableEventImpl(suggestUsage.description),
+                        )
+                    },
+                    dateTime =
+                    run dateTime@{
+                        val dateTIme = suggestUsage.dateTime ?: return@dateTime ""
+                        Formatter.formatDateTime(dateTIme)
+                    },
+                    event =
+                    object : MailScreenUiState.UsageSuggest.Event {
+                        override fun onClickRegister() {
+                            coroutineScope.launch {
+                                viewModelEventSender.send {
+                                    it.navigate(
+                                        ScreenStructure.AddMoneyUsage(
+                                            importedMailId = importedMailId,
+                                            importedMailIndex = index,
+                                        ),
+                                    )
                                 }
-                            },
-                    )
-                }.toImmutableList(),
+                            }
+                        }
+                    },
+                )
+            }.toImmutableList(),
             hasHtml = mail.hasHtml,
             hasPlain = mail.hasPlain,
             event =
-                object : MailScreenUiState.LoadedEvent {
-                    override fun onClickMailHtml() {
-                        coroutineScope.launch {
-                            viewModelEventSender.send {
-                                it.navigate(
-                                    ScreenStructure.ImportedMailHTML(
-                                        id = importedMailId,
-                                    ),
-                                )
-                            }
+            object : MailScreenUiState.LoadedEvent {
+                override fun onClickMailHtml() {
+                    coroutineScope.launch {
+                        viewModelEventSender.send {
+                            it.navigate(
+                                ScreenStructure.ImportedMailHTML(
+                                    id = importedMailId,
+                                ),
+                            )
                         }
                     }
+                }
 
-                    override fun onClickMailPlain() {
-                        coroutineScope.launch {
-                            viewModelEventSender.send {
-                                it.navigate(
-                                    ScreenStructure.ImportedMailPlain(
-                                        id = importedMailId,
-                                    ),
-                                )
-                            }
+                override fun onClickMailPlain() {
+                    coroutineScope.launch {
+                        viewModelEventSender.send {
+                            it.navigate(
+                                ScreenStructure.ImportedMailPlain(
+                                    id = importedMailId,
+                                ),
+                            )
                         }
                     }
+                }
 
-                    override fun onClickRegister() {
-                        coroutineScope.launch {
-                            viewModelEventSender.send {
-                                it.navigate(
-                                    ScreenStructure.AddMoneyUsage(
-                                        importedMailId = importedMailId,
-                                    ),
-                                )
-                            }
+                override fun onClickRegister() {
+                    coroutineScope.launch {
+                        viewModelEventSender.send {
+                            it.navigate(
+                                ScreenStructure.AddMoneyUsage(
+                                    importedMailId = importedMailId,
+                                ),
+                            )
                         }
                     }
-                },
+                }
+            },
         )
     }
 
@@ -287,37 +287,37 @@ public class ImportedMailScreenViewModel(
                 MailScreenUiState.UrlMenuDialog(
                     url = url,
                     event =
-                        object : MailScreenUiState.UrlMenuDialogEvent {
-                            override fun onClickOpen() {
-                                coroutineScope.launch {
-                                    viewModelEventSender.send {
-                                        it.openWeb(text)
-                                    }
-                                }
-                                dismiss()
-                            }
-
-                            override fun onClickCopy() {
-                                coroutineScope.launch {
-                                    viewModelEventSender.send {
-                                        it.copyToClipboard(text)
-                                    }
-                                }
-                                dismiss()
-                            }
-
-                            override fun onDismissRequest() {
-                                dismiss()
-                            }
-
-                            private fun dismiss() {
-                                viewModelStateFlow.update {
-                                    it.copy(
-                                        urlMenuDialog = null,
-                                    )
+                    object : MailScreenUiState.UrlMenuDialogEvent {
+                        override fun onClickOpen() {
+                            coroutineScope.launch {
+                                viewModelEventSender.send {
+                                    it.openWeb(text)
                                 }
                             }
-                        },
+                            dismiss()
+                        }
+
+                        override fun onClickCopy() {
+                            coroutineScope.launch {
+                                viewModelEventSender.send {
+                                    it.copyToClipboard(text)
+                                }
+                            }
+                            dismiss()
+                        }
+
+                        override fun onDismissRequest() {
+                            dismiss()
+                        }
+
+                        private fun dismiss() {
+                            viewModelStateFlow.update {
+                                it.copy(
+                                    urlMenuDialog = null,
+                                )
+                            }
+                        }
+                    },
                 )
             viewModelStateFlow.update {
                 it.copy(

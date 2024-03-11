@@ -24,13 +24,13 @@ internal class MoneyUsagesCursor(
         fun fromString(cursorString: String): MoneyUsagesCursor {
             return MoneyUsagesCursor(
                 lastId =
-                    MoneyUsageId(
-                        CursorParser.parseFromString(cursorString)[LAST_ID_KEY]!!.toInt(),
-                    ),
+                MoneyUsageId(
+                    CursorParser.parseFromString(cursorString)[LAST_ID_KEY]!!.toInt(),
+                ),
                 lastDate =
-                    LocalDateTime.parse(
-                        CursorParser.parseFromString(cursorString)[LAST_DATE_KEY]!!,
-                    ),
+                LocalDateTime.parse(
+                    CursorParser.parseFromString(cursorString)[LAST_DATE_KEY]!!,
+                ),
             )
         }
     }

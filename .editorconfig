@@ -8,6 +8,9 @@ ij_kotlin_name_count_to_use_star_import_for_members = 9999
 ij_kotlin_packages_to_use_import_on_demand = unset
 ij_kotlin_allow_trailing_comma = true
 ij_kotlin_allow_trailing_comma_on_call_site = true
+ktlint_standard_function-signature = disabled
+
+ktlint_code_style = intellij_idea
 ktlint_standard_package-name = disabled
 ktlint_standard_annotation = disabled
 ktlint_standard_function-naming = disabled

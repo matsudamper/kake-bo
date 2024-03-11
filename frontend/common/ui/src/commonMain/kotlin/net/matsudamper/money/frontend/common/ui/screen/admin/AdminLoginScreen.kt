@@ -28,15 +28,15 @@ import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 public fun AdminLoginScreen(uiState: AdminLoginScreenUiState) {
     Box(
         modifier =
-            Modifier.fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
+        Modifier.fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
     ) {
         Surface(
             modifier =
-                Modifier
-                    .align(Alignment.Center)
-                    .widthIn(max = 500.dp)
-                    .width(IntrinsicSize.Min),
+            Modifier
+                .align(Alignment.Center)
+                .widthIn(max = 500.dp)
+                .width(IntrinsicSize.Min),
             shape = RoundedCornerShape(4.dp),
         ) {
             Column(
@@ -45,16 +45,16 @@ public fun AdminLoginScreen(uiState: AdminLoginScreenUiState) {
             ) {
                 Text(
                     modifier =
-                        Modifier
-                            .fillMaxWidth(),
+                    Modifier
+                        .fillMaxWidth(),
                     text = "管理画面",
                     fontFamily = rememberCustomFontFamily(),
                 )
                 Spacer(Modifier.height(24.dp))
                 HtmlTextInput(
                     modifier =
-                        Modifier.width(300.dp)
-                            .height(24.dp),
+                    Modifier.width(300.dp)
+                        .height(24.dp),
                     placeholder = "password",
                     type = KeyboardType.Password,
                     onValueChange = {

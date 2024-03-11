@@ -200,23 +200,23 @@ class DbImportedImportedMailRepository(
             ImportedMailRepository.MailPagingResult(
                 mails = mails,
                 pagingInfo =
-                    run pagingInfo@{
-                        when (sortedKey) {
-                            ImportedMailRepository.MailSortedKey.CREATE_DATETIME -> {
-                                ImportedMailRepository.PagingInfo.CreatedDateTime(
-                                    importedMailId = mails.lastOrNull() ?: return@pagingInfo null,
-                                    time = result.lastOrNull()?.get(userMails.CREATED_DATETIME) ?: return@pagingInfo null,
-                                )
-                            }
-
-                            ImportedMailRepository.MailSortedKey.DATETIME -> {
-                                ImportedMailRepository.PagingInfo.DateTime(
-                                    importedMailId = mails.lastOrNull() ?: return@pagingInfo null,
-                                    time = result.lastOrNull()?.get(userMails.DATETIME) ?: return@pagingInfo null,
-                                )
-                            }
+                run pagingInfo@{
+                    when (sortedKey) {
+                        ImportedMailRepository.MailSortedKey.CREATE_DATETIME -> {
+                            ImportedMailRepository.PagingInfo.CreatedDateTime(
+                                importedMailId = mails.lastOrNull() ?: return@pagingInfo null,
+                                time = result.lastOrNull()?.get(userMails.CREATED_DATETIME) ?: return@pagingInfo null,
+                            )
                         }
-                    },
+
+                        ImportedMailRepository.MailSortedKey.DATETIME -> {
+                            ImportedMailRepository.PagingInfo.DateTime(
+                                importedMailId = mails.lastOrNull() ?: return@pagingInfo null,
+                                time = result.lastOrNull()?.get(userMails.DATETIME) ?: return@pagingInfo null,
+                            )
+                        }
+                    }
+                },
             )
         }
     }

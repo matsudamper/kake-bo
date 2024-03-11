@@ -46,43 +46,43 @@ internal object ParseUtil {
 
         return MailMetadata(
             from =
-                forwardedMetadata["From"]?.trim()?.let from@{ fromRawString ->
-                    val result =
-                        "<(.+?)>".toRegex().findAll(fromRawString).lastOrNull()
-                            ?: return@from null
+            forwardedMetadata["From"]?.trim()?.let from@{ fromRawString ->
+                val result =
+                    "<(.+?)>".toRegex().findAll(fromRawString).lastOrNull()
+                        ?: return@from null
 
-                    result.groupValues[1]
-                },
+                result.groupValues[1]
+            },
             date =
-                forwardedMetadata["Date"]?.trim()?.let { dateRawString ->
-                    val result =
-                        runCatching {
-                            forwardedMailDateJapaneseFormatter.parse(dateRawString)
-                        }.onFailure {
-                            it.printStackTrace()
-                        }.getOrNull() ?: return@let null
+            forwardedMetadata["Date"]?.trim()?.let { dateRawString ->
+                val result =
+                    runCatching {
+                        forwardedMailDateJapaneseFormatter.parse(dateRawString)
+                    }.onFailure {
+                        it.printStackTrace()
+                    }.getOrNull() ?: return@let null
 
-                    LocalDateTime.of(
-                        LocalDate.of(
-                            result.get(ChronoField.YEAR),
-                            result.get(ChronoField.MONTH_OF_YEAR),
-                            result.get(ChronoField.DAY_OF_MONTH),
-                        ),
-                        LocalTime.of(
-                            result.get(ChronoField.HOUR_OF_DAY),
-                            result.get(ChronoField.MINUTE_OF_HOUR),
-                        ),
-                    )
-                },
+                LocalDateTime.of(
+                    LocalDate.of(
+                        result.get(ChronoField.YEAR),
+                        result.get(ChronoField.MONTH_OF_YEAR),
+                        result.get(ChronoField.DAY_OF_MONTH),
+                    ),
+                    LocalTime.of(
+                        result.get(ChronoField.HOUR_OF_DAY),
+                        result.get(ChronoField.MINUTE_OF_HOUR),
+                    ),
+                )
+            },
             subject = forwardedMetadata["Subject"]?.trim(),
             to =
-                forwardedMetadata["To"]?.trim()?.let to@{ toRawString ->
-                    val result =
-                        "<(.+?)>".toRegex().findAll(toRawString).lastOrNull()
-                            ?: return@to null
+            forwardedMetadata["To"]?.trim()?.let to@{ toRawString ->
+                val result =
+                    "<(.+?)>".toRegex().findAll(toRawString).lastOrNull()
+                        ?: return@to null
 
-                    result.groupValues[1]
-                },
+                result.groupValues[1]
+            },
         )
     }
 

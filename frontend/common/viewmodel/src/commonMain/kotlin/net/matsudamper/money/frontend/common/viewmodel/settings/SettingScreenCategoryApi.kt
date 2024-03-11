@@ -53,9 +53,9 @@ public class SettingScreenCategoryApi(
                 .mutation(
                     AddCategoryMutation(
                         category =
-                            AddCategoryInput(
-                                name = name,
-                            ),
+                        AddCategoryInput(
+                            name = name,
+                        ),
                     ),
                 )
                 .execute()
@@ -71,10 +71,10 @@ public class SettingScreenCategoryApi(
                 .mutation(
                     AddSubCategoryMutation(
                         category =
-                            AddSubCategoryInput(
-                                categoryId = categoryId,
-                                name = name,
-                            ),
+                        AddSubCategoryInput(
+                            categoryId = categoryId,
+                            name = name,
+                        ),
                     ),
                 )
                 .execute()
@@ -88,10 +88,10 @@ public class SettingScreenCategoryApi(
                     CategorySettingScreenSubCategoriesPagingQuery(
                         categoryId = id,
                         query =
-                            MoneyUsageSubCategoryQuery(
-                                cursor = Optional.present(null),
-                                size = 100,
-                            ),
+                        MoneyUsageSubCategoryQuery(
+                            cursor = Optional.present(null),
+                            size = 100,
+                        ),
                     ),
                 )
                 .fetchPolicy(FetchPolicy.NetworkOnly)
@@ -111,9 +111,9 @@ public class SettingScreenCategoryApi(
                     UpdateCategoryMutation(
                         id = id,
                         query =
-                            UpdateCategoryQuery(
-                                name = Optional.present(name),
-                            ),
+                        UpdateCategoryQuery(
+                            name = Optional.present(name),
+                        ),
                     ),
                 )
                 .execute()
@@ -144,9 +144,9 @@ public class SettingScreenCategoryApi(
                     UpdateSubCategoryMutation(
                         id = id,
                         query =
-                            UpdateSubCategoryQuery(
-                                name = Optional.present(name),
-                            ),
+                        UpdateSubCategoryQuery(
+                            name = Optional.present(name),
+                        ),
                     ),
                 )
                 .execute()

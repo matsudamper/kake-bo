@@ -87,14 +87,14 @@ class Auth4JModel(
         return verify(
             authenticator = authenticator.authenticator,
             request =
-                AuthenticationRequest(
-                    credentialId,
-                    decoder.decode(base64UserHandle),
-                    decoder.decode(base64AuthenticatorData),
-                    decoder.decode(base64ClientDataJSON),
-                    clientExtensionJSON,
-                    decoder.decode(base64Signature),
-                ),
+            AuthenticationRequest(
+                credentialId,
+                decoder.decode(base64UserHandle),
+                decoder.decode(base64AuthenticatorData),
+                decoder.decode(base64ClientDataJSON),
+                clientExtensionJSON,
+                decoder.decode(base64Signature),
+            ),
         )
     }
 

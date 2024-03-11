@@ -113,11 +113,11 @@ public fun RootHomeTabPeriodScaffold(
         var containerHeight by remember { mutableStateOf(0.dp) }
         Box(
             modifier =
-                Modifier
-                    .fillMaxSize()
-                    .onSizeChanged {
-                        containerHeight = with(density) { it.height.toDp() }
-                    },
+            Modifier
+                .fillMaxSize()
+                .onSizeChanged {
+                    containerHeight = with(density) { it.height.toDp() }
+                },
         ) {
             when (uiState.loadingState) {
                 RootHomeTabPeriodUiState.LoadingState.Loading -> {
@@ -140,9 +140,9 @@ public fun RootHomeTabPeriodScaffold(
                     var scrollBarHeight by remember { mutableIntStateOf(0) }
                     Column(
                         modifier =
-                            Modifier
-                                .verticalScroll(scrollState)
-                                .padding(horizontal = 24.dp),
+                        Modifier
+                            .verticalScroll(scrollState)
+                            .padding(horizontal = 24.dp),
                     ) {
                         Spacer(modifier = Modifier.height(12.dp))
                         RootHomePeriodSection(
@@ -167,18 +167,18 @@ public fun RootHomeTabPeriodScaffold(
                     }
                     ScrollButtons(
                         modifier =
-                            Modifier
-                                .onSizeChanged {
-                                    scrollBarHeight = it.height
-                                }
-                                .align(Alignment.BottomEnd)
-                                .padding(ScrollButtonsDefaults.padding)
-                                .height(ScrollButtonsDefaults.height),
+                        Modifier
+                            .onSizeChanged {
+                                scrollBarHeight = it.height
+                            }
+                            .align(Alignment.BottomEnd)
+                            .padding(ScrollButtonsDefaults.padding)
+                            .height(ScrollButtonsDefaults.height),
                         scrollState = scrollState,
                         scrollSize =
-                            with(density) {
-                                containerHeight.toPx() * 0.4f
-                            },
+                        with(density) {
+                            containerHeight.toPx() * 0.4f
+                        },
                     )
                 }
             }
@@ -197,8 +197,8 @@ private fun BetweenLoaded(
     ) {
         Box(
             modifier =
-                Modifier
-                    .padding(bottom = 4.dp),
+            Modifier
+                .padding(bottom = 4.dp),
         ) {
             var expanded by remember { mutableStateOf(false) }
             DropDownMenuButton(

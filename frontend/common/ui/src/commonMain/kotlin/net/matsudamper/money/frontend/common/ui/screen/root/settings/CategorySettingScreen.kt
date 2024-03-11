@@ -169,12 +169,12 @@ public fun SettingCategoryScreen(
                 title = {
                     Text(
                         modifier =
-                            Modifier.clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                            ) {
-                                rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
-                            },
+                        Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) {
+                            rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                        },
                         text = "家計簿",
                     )
                 },
@@ -215,8 +215,8 @@ public fun MainContent(
             is SettingCategoryScreenUiState.LoadingState.Loading -> {
                 Box(
                     modifier =
-                        Modifier.fillMaxSize()
-                            .padding(paddingValues),
+                    Modifier.fillMaxSize()
+                        .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()
@@ -242,11 +242,11 @@ private fun LoadedContent(
         LazyColumn(
             modifier = modifier,
             contentPadding =
-                PaddingValues(
-                    start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                    end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                    bottom = scrollButtonHeight,
-                ),
+            PaddingValues(
+                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                bottom = scrollButtonHeight,
+            ),
             state = lazyListState,
         ) {
             item {
@@ -272,9 +272,9 @@ private fun LoadedContent(
             ) { item ->
                 SubCategoryItem(
                     modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
                     item = item,
                 )
             }
@@ -285,12 +285,12 @@ private fun LoadedContent(
 
         ScrollButtons(
             modifier =
-                Modifier.align(Alignment.BottomEnd)
-                    .padding(ScrollButtonsDefaults.padding)
-                    .height(ScrollButtonsDefaults.height)
-                    .onSizeChanged {
-                        scrollButtonHeight = with(density) { it.height.toDp() }
-                    },
+            Modifier.align(Alignment.BottomEnd)
+                .padding(ScrollButtonsDefaults.padding)
+                .height(ScrollButtonsDefaults.height)
+                .onSizeChanged {
+                    scrollButtonHeight = with(density) { it.height.toDp() }
+                },
             scrollState = lazyListState,
             scrollSize = with(density) { containerHeight.toPx() } * 0.4f,
         )
@@ -312,11 +312,11 @@ private fun SubCategoryItem(
         ) {
             Text(
                 modifier =
-                    Modifier
-                        .padding(
-                            horizontal = 24.dp,
-                            vertical = 24.dp,
-                        ),
+                Modifier
+                    .padding(
+                        horizontal = 24.dp,
+                        vertical = 24.dp,
+                    ),
                 text = item.name,
             )
             Spacer(Modifier.weight(1f))
@@ -343,27 +343,27 @@ private fun SubCategoryItem(
                 ) {
                     Card(
                         elevation =
-                            CardDefaults.cardElevation(
-                                defaultElevation = 8.dp,
-                            ),
+                        CardDefaults.cardElevation(
+                            defaultElevation = 8.dp,
+                        ),
                     ) {
                         Column(
                             modifier = Modifier.width(IntrinsicSize.Min),
                         ) {
                             Text(
                                 modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .clickable { item.event.onClickChangeName() }
-                                        .padding(12.dp),
+                                Modifier
+                                    .fillMaxWidth()
+                                    .clickable { item.event.onClickChangeName() }
+                                    .padding(12.dp),
                                 text = "名前変更",
                             )
                             Text(
                                 modifier =
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .clickable { item.event.onClickDelete() }
-                                        .padding(12.dp),
+                                Modifier
+                                    .fillMaxWidth()
+                                    .clickable { item.event.onClickDelete() }
+                                    .padding(12.dp),
                                 text = "削除",
                             )
                         }

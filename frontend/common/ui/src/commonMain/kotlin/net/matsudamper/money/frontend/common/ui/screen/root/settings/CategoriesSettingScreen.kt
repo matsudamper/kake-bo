@@ -108,12 +108,12 @@ public fun SettingCategoriesScreen(
                 title = {
                     Text(
                         modifier =
-                            Modifier.clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                            ) {
-                                rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
-                            },
+                        Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) {
+                            rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                        },
                         text = "家計簿",
                     )
                 },
@@ -149,15 +149,15 @@ public fun MainContent(
                     var listHeightPx by remember { mutableIntStateOf(0) }
                     LazyColumn(
                         modifier =
-                            Modifier.fillMaxSize()
-                                .onSizeChanged {
-                                    listHeightPx = it.height
-                                },
+                        Modifier.fillMaxSize()
+                            .onSizeChanged {
+                                listHeightPx = it.height
+                            },
                         contentPadding =
-                            PaddingValues(
-                                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-                            ),
+                        PaddingValues(
+                            start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+                            end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                        ),
                         state = lazyListState,
                     ) {
                         item {
@@ -178,8 +178,8 @@ public fun MainContent(
                         items(state.item) { item ->
                             SettingListMenuItemButton(
                                 modifier =
-                                    Modifier
-                                        .fillMaxWidth(),
+                                Modifier
+                                    .fillMaxWidth(),
                                 onClick = { item.event.onClick() },
                             ) {
                                 Text(
@@ -195,10 +195,10 @@ public fun MainContent(
 
                     ScrollButtons(
                         modifier =
-                            Modifier
-                                .align(Alignment.BottomEnd)
-                                .padding(ScrollButtonsDefaults.padding)
-                                .height(ScrollButtonsDefaults.height),
+                        Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(ScrollButtonsDefaults.padding)
+                            .height(ScrollButtonsDefaults.height),
                         scrollState = lazyListState,
                         scrollSize = listHeightPx * 0.4f,
                     )
@@ -208,8 +208,8 @@ public fun MainContent(
             is SettingCategoriesScreenUiState.LoadingState.Loading -> {
                 Box(
                     modifier =
-                        Modifier.fillMaxSize()
-                            .padding(paddingValues),
+                    Modifier.fillMaxSize()
+                        .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()

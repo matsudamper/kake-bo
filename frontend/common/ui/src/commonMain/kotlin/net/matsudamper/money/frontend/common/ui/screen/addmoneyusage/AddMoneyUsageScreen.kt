@@ -126,10 +126,10 @@ public fun AddMoneyUsageScreen(
             ) {
                 Button(
                     modifier =
-                        Modifier
-                            .padding(12.dp)
-                            .widthIn(max = 700.dp)
-                            .fillMaxWidth(),
+                    Modifier
+                        .padding(12.dp)
+                        .widthIn(max = 700.dp)
+                        .fillMaxWidth(),
                     onClick = { uiState.event.onClickAdd() },
                 ) {
                     Text("追加")
@@ -140,9 +140,9 @@ public fun AddMoneyUsageScreen(
     ) { paddingValues ->
         Box(
             modifier =
-                Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState()),
+            Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
             contentAlignment = Alignment.TopCenter,
         ) {
             Column(
@@ -251,19 +251,19 @@ private fun NumberInputDialog(
 ) {
     Box(
         modifier =
-            Modifier.fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.8f))
-                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
-                    dismissRequest()
-                },
+        Modifier.fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.8f))
+            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                dismissRequest()
+            },
         contentAlignment = Alignment.Center,
     ) {
         NumberInput(
             modifier =
-                Modifier.widthIn(max = 500.dp)
-                    .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
-                        // Number Inputのタッチ無効範囲を触ってもダイアログを閉じないようにする
-                    },
+            Modifier.widthIn(max = 500.dp)
+                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                    // Number Inputのタッチ無効範囲を触ってもダイアログを閉じないようにする
+                },
             value = value,
             onChangeValue = { onChangeValue(it) },
             dismissRequest = { dismissRequest() },

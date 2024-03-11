@@ -52,8 +52,8 @@ internal class UserSessionManagerImpl(
                 cookieManager.setUserSession(
                     idValue = userSessionResult.sessionId.id,
                     expires =
-                        userSessionResult.latestAccess.atOffset(ZoneOffset.UTC)
-                            .plusDays(ServerVariables.USER_SESSION_EXPIRE_DAY),
+                    userSessionResult.latestAccess.atOffset(ZoneOffset.UTC)
+                        .plusDays(ServerVariables.USER_SESSION_EXPIRE_DAY),
                 )
 
                 return userSessionResult

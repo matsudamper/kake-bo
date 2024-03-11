@@ -34,29 +34,29 @@ internal fun UrlClickableText(
     var layoutResult: TextLayoutResult? by remember { mutableStateOf(null) }
     Text(
         modifier =
-            Modifier.pointerInput(onClickUrl, onLongClickUrl) {
-                detectTapGestures(
-                    onLongPress = { offset ->
-                        val index = layoutResult?.getOffsetForPosition(offset) ?: return@detectTapGestures
-                        annotatedText.getUrlAnnotations(index, index).forEach {
-                            onLongClickUrl(it.item.url)
-                        }
-                    },
-                    onTap = { offset ->
-                        val index = layoutResult?.getOffsetForPosition(offset) ?: return@detectTapGestures
-                        annotatedText.getUrlAnnotations(index, index).forEach {
-                            onClickUrl(it.item.url)
-                        }
-                    },
-                )
-            },
+        Modifier.pointerInput(onClickUrl, onLongClickUrl) {
+            detectTapGestures(
+                onLongPress = { offset ->
+                    val index = layoutResult?.getOffsetForPosition(offset) ?: return@detectTapGestures
+                    annotatedText.getUrlAnnotations(index, index).forEach {
+                        onLongClickUrl(it.item.url)
+                    }
+                },
+                onTap = { offset ->
+                    val index = layoutResult?.getOffsetForPosition(offset) ?: return@detectTapGestures
+                    annotatedText.getUrlAnnotations(index, index).forEach {
+                        onClickUrl(it.item.url)
+                    }
+                },
+            )
+        },
         text = annotatedText,
         style =
-            LocalTextStyle.current.merge(
-                SpanStyle(
-                    color = LocalContentColor.current,
-                ),
+        LocalTextStyle.current.merge(
+            SpanStyle(
+                color = LocalContentColor.current,
             ),
+        ),
         onTextLayout = {
             layoutResult = it
         },

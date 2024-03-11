@@ -29,23 +29,23 @@ public fun SettingScaffold(
 
     Column(
         modifier =
-            modifier
-                .fillMaxWidth(),
+        modifier
+            .fillMaxWidth(),
     ) {
         Row(
             modifier =
-                Modifier
-                    .padding(horizontal = settingHorizontalPadding),
+            Modifier
+                .padding(horizontal = settingHorizontalPadding),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
                 modifier =
-                    Modifier
-                        .weight(1f)
-                        .padding(
-                            horizontal = 18.dp,
-                            vertical = 24.dp,
-                        ),
+                Modifier
+                    .weight(1f)
+                    .padding(
+                        horizontal = 18.dp,
+                        vertical = 24.dp,
+                    ),
             ) {
                 ProvideTextStyle(titleStyle) {
                     title()
@@ -55,8 +55,8 @@ public fun SettingScaffold(
         }
         Divider(
             modifier =
-                Modifier.fillMaxWidth()
-                    .padding(horizontal = settingHorizontalPadding),
+            Modifier.fillMaxWidth()
+                .padding(horizontal = settingHorizontalPadding),
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
         )
         Box(

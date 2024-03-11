@@ -28,54 +28,54 @@ public class SettingViewModel(
         MutableStateFlow(
             RootSettingScreenUiState(
                 event =
-                    object : RootSettingScreenUiState.Event {
-                        override fun onResume() {
-                        }
+                object : RootSettingScreenUiState.Event {
+                    override fun onResume() {
+                    }
 
-                        override fun onClickLoginSetting() {
-                            coroutineScope.launch {
-                                backgroundEventSender.send {
-                                    it.navigate(
-                                        ScreenStructure.Root.Settings.Login,
-                                    )
-                                }
+                    override fun onClickLoginSetting() {
+                        coroutineScope.launch {
+                            backgroundEventSender.send {
+                                it.navigate(
+                                    ScreenStructure.Root.Settings.Login,
+                                )
                             }
                         }
+                    }
 
-                        override fun onClickImapButton() {
-                            coroutineScope.launch {
-                                backgroundEventSender.send {
-                                    it.navigateToImapConfig()
-                                }
+                    override fun onClickImapButton() {
+                        coroutineScope.launch {
+                            backgroundEventSender.send {
+                                it.navigateToImapConfig()
                             }
                         }
+                    }
 
-                        override fun onClickCategoryButton() {
-                            coroutineScope.launch {
-                                backgroundEventSender.send {
-                                    it.navigateToCategoriesConfig()
-                                }
+                    override fun onClickCategoryButton() {
+                        coroutineScope.launch {
+                            backgroundEventSender.send {
+                                it.navigateToCategoriesConfig()
                             }
                         }
+                    }
 
-                        override fun onClickMailFilter() {
-                            coroutineScope.launch {
-                                backgroundEventSender.send {
-                                    it.navigate(
-                                        ScreenStructure.Root.Settings.MailCategoryFilters,
-                                    )
-                                }
+                    override fun onClickMailFilter() {
+                        coroutineScope.launch {
+                            backgroundEventSender.send {
+                                it.navigate(
+                                    ScreenStructure.Root.Settings.MailCategoryFilters,
+                                )
                             }
                         }
+                    }
 
-                        override fun onClickGitHub() {
-                            coroutineScope.launch {
-                                backgroundEventSender.send {
-                                    it.open("https://github.com/matsudamper/kake-bo")
-                                }
+                    override fun onClickGitHub() {
+                        coroutineScope.launch {
+                            backgroundEventSender.send {
+                                it.open("https://github.com/matsudamper/kake-bo")
                             }
                         }
-                    },
+                    }
+                },
             ),
         ).asStateFlow()
 

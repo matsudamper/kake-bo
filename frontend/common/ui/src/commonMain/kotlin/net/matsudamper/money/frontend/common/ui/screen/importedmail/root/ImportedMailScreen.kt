@@ -222,10 +222,10 @@ public fun ImportedMailScreen(
             ) {
                 Box(
                     modifier =
-                        Modifier
-                            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
-                                uiState.event.onClickTitle()
-                            },
+                    Modifier
+                        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                            uiState.event.onClickTitle()
+                        },
                 ) {
                     Text(
                         text = "家計簿 - メール",
@@ -239,8 +239,8 @@ public fun ImportedMailScreen(
             is MailScreenUiState.LoadingState.Loading -> {
                 Box(
                     modifier =
-                        Modifier.padding(paddingValues)
-                            .fillMaxSize(),
+                    Modifier.padding(paddingValues)
+                        .fillMaxSize(),
                 ) {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
@@ -283,13 +283,13 @@ private fun MainContent(
         LazyColumn(
             state = lazyListState,
             contentPadding =
-                PaddingValues(
-                    bottom = scrollButtonSize,
-                ),
+            PaddingValues(
+                bottom = scrollButtonSize,
+            ),
             modifier =
-                Modifier.fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .widthIn(max = 700.dp),
+            Modifier.fillMaxWidth()
+                .padding(horizontal = 24.dp)
+                .widthIn(max = 700.dp),
         ) {
             item {
                 Spacer(modifier = Modifier.height(24.dp))
@@ -358,13 +358,13 @@ private fun MainContent(
 
         ScrollButtons(
             modifier =
-                Modifier
-                    .onSizeChanged {
-                        scrollButtonSize = with(density) { it.height.toDp() }
-                    }
-                    .align(Alignment.BottomEnd)
-                    .padding(ScrollButtonsDefaults.padding)
-                    .height(ScrollButtonsDefaults.height),
+            Modifier
+                .onSizeChanged {
+                    scrollButtonSize = with(density) { it.height.toDp() }
+                }
+                .align(Alignment.BottomEnd)
+                .padding(ScrollButtonsDefaults.padding)
+                .height(ScrollButtonsDefaults.height),
             scrollState = lazyListState,
             scrollSize = with(density) { height.toPx() } * 0.4f,
         )
@@ -440,15 +440,15 @@ private fun LinkedMoneyUsageCard(
 ) {
     Card(
         modifier =
-            modifier
-                .clickable {
-                    uiState.event.onClick()
-                },
+        modifier
+            .clickable {
+                uiState.event.onClick()
+            },
     ) {
         GridColumn(
             modifier =
-                Modifier.fillMaxWidth()
-                    .padding(12.dp),
+            Modifier.fillMaxWidth()
+                .padding(12.dp),
             horizontalPadding = 8.dp,
             verticalPadding = 4.dp,
         ) {
@@ -499,8 +499,8 @@ private fun MoneyUsageSuggestCard(
     ) {
         Column(
             modifier =
-                Modifier.fillMaxWidth()
-                    .padding(12.dp),
+            Modifier.fillMaxWidth()
+                .padding(12.dp),
         ) {
             GridColumn(
                 modifier = Modifier.fillMaxWidth(),
@@ -574,8 +574,8 @@ private fun MailCard(
     ) {
         Column(
             modifier =
-                Modifier.fillMaxWidth()
-                    .padding(12.dp),
+            Modifier.fillMaxWidth()
+                .padding(12.dp),
         ) {
             GridColumn(
                 modifier = Modifier.fillMaxWidth(),

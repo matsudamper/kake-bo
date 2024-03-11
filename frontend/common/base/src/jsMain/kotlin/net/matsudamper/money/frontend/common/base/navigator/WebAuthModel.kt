@@ -24,12 +24,12 @@ public object WebAuthModel {
                 challenge = challenge,
                 domain = domain,
                 excludeCredentials =
-                    base64ExcludeCredentialIdList.map {
-                        CredentialsContainerCreatePublicKeyOptions.ExcludeCredential(
-                            id = it.decodeBase64Bytes(),
-                            type = "public-key",
-                        )
-                    },
+                base64ExcludeCredentialIdList.map {
+                    CredentialsContainerCreatePublicKeyOptions.ExcludeCredential(
+                        id = it.decodeBase64Bytes(),
+                        type = "public-key",
+                    )
+                },
             )
         val result =
             runCatching {
@@ -95,40 +95,40 @@ public object WebAuthModel {
         val id = Uint8Array(userId.encodeToByteArray().toTypedArray())
         return CredentialsContainerCreateOptions(
             publicKey =
-                CredentialsContainerCreatePublicKeyOptions(
-                    challenge = Uint8Array(challenge.encodeToByteArray().toTypedArray()),
-                    user =
-                        CredentialsContainerCreatePublicKeyOptions.User(
-                            id = id,
-                            name = name,
-                            displayName = name,
-                        ),
-                    pubKeyCredParams =
-                        arrayOf(
-                            // ES256
-                            CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -7),
-                            // RS256
-                            CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -257),
-                            // Ed25519
-                            CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -8),
-                        ),
-                    excludeCredentials = excludeCredentials.toTypedArray(),
-                    authenticatorSelection =
-                        CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection(
-                            authenticatorAttachment =
-                                when (type) {
-                                    Type.PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_PLATFORM
-                                    Type.CROSS_PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_CROSS_PLATFORM
-                                },
-                            userVerification = "required",
-                            residentKey = "required",
-                        ),
-                    rp =
-                        CredentialsContainerCreatePublicKeyOptions.Rp(
-                            name = domain,
-                            id = domain,
-                        ),
+            CredentialsContainerCreatePublicKeyOptions(
+                challenge = Uint8Array(challenge.encodeToByteArray().toTypedArray()),
+                user =
+                CredentialsContainerCreatePublicKeyOptions.User(
+                    id = id,
+                    name = name,
+                    displayName = name,
                 ),
+                pubKeyCredParams =
+                arrayOf(
+                    // ES256
+                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -7),
+                    // RS256
+                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -257),
+                    // Ed25519
+                    CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -8),
+                ),
+                excludeCredentials = excludeCredentials.toTypedArray(),
+                authenticatorSelection =
+                CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection(
+                    authenticatorAttachment =
+                    when (type) {
+                        Type.PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_PLATFORM
+                        Type.CROSS_PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_CROSS_PLATFORM
+                    },
+                    userVerification = "required",
+                    residentKey = "required",
+                ),
+                rp =
+                CredentialsContainerCreatePublicKeyOptions.Rp(
+                    name = domain,
+                    id = domain,
+                ),
+            ),
         )
     }
 

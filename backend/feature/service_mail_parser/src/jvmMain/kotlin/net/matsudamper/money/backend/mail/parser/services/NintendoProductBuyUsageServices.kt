@@ -85,12 +85,12 @@ internal object NintendoProductBuyUsageServices : MoneyUsageServices {
                 title = name,
                 price = price,
                 description =
-                    buildString {
-                        appendLine(displayName)
-                        if (device != null) {
-                            appendLine("デバイスタイプ: $device")
-                        }
-                    }.trim(),
+                buildString {
+                    appendLine(displayName)
+                    if (device != null) {
+                        appendLine("デバイスタイプ: $device")
+                    }
+                }.trim(),
                 service = MoneyUsageServiceType.Nintendo,
                 dateTime = parsedDate ?: forwardedInfo?.date ?: date,
             ),

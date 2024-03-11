@@ -131,9 +131,9 @@ internal fun SettingNavContent(
                         SettingMailCategoryFiltersViewModel(
                             coroutineScope = coroutineScope,
                             pagingModel =
-                                ImportedMailCategoryFilterScreenPagingModel(
-                                    coroutineScope = coroutineScope,
-                                ),
+                            ImportedMailCategoryFilterScreenPagingModel(
+                                coroutineScope = coroutineScope,
+                            ),
                             api = SettingImportedMailCategoryFilterApi(),
                         )
                     }

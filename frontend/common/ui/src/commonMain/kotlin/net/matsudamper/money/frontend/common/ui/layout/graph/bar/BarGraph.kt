@@ -102,45 +102,45 @@ internal fun BarGraph(
         }
         Canvas(
             modifier =
-                Modifier.fillMaxHeight()
-                    .width(with(density) { measureState.containerWidth.toDp() })
-                    .pointerInput(Unit) {
-                        awaitEachGesture {
-                            val pointer = awaitPointerEvent()
-                            cursorPosition = pointer.changes.firstOrNull()?.position ?: return@awaitEachGesture
-                        }
+            Modifier.fillMaxHeight()
+                .width(with(density) { measureState.containerWidth.toDp() })
+                .pointerInput(Unit) {
+                    awaitEachGesture {
+                        val pointer = awaitPointerEvent()
+                        cursorPosition = pointer.changes.firstOrNull()?.position ?: return@awaitEachGesture
                     }
-                    .pointerInput(measureState.getGraphRangeRectsKey()) {
-                        awaitEachGesture {
-                            val pointer = awaitPointerEvent()
+                }
+                .pointerInput(measureState.getGraphRangeRectsKey()) {
+                    awaitEachGesture {
+                        val pointer = awaitPointerEvent()
 
-                            when (pointer.type) {
-                                PointerEventType.Press -> {
-                                    pointer.changes.forEach { it.consume() }
-                                    while (true) {
-                                        val releasePointer = awaitPointerEvent()
-                                        when (releasePointer.type) {
-                                            PointerEventType.Release -> {
-                                                for (change in releasePointer.changes) {
-                                                    val clickedIndex =
-                                                        measureState.graphRangeRects.indexOfFirst { it.contains(change.position) }
-                                                            .takeIf { it >= 0 }
-                                                            ?: continue
-                                                    latestUiState.items.getOrNull(clickedIndex)?.event?.onClick()
-                                                    break
-                                                }
+                        when (pointer.type) {
+                            PointerEventType.Press -> {
+                                pointer.changes.forEach { it.consume() }
+                                while (true) {
+                                    val releasePointer = awaitPointerEvent()
+                                    when (releasePointer.type) {
+                                        PointerEventType.Release -> {
+                                            for (change in releasePointer.changes) {
+                                                val clickedIndex =
+                                                    measureState.graphRangeRects.indexOfFirst { it.contains(change.position) }
+                                                        .takeIf { it >= 0 }
+                                                        ?: continue
+                                                latestUiState.items.getOrNull(clickedIndex)?.event?.onClick()
                                                 break
                                             }
-
-                                            PointerEventType.Exit -> break
+                                            break
                                         }
+
+                                        PointerEventType.Exit -> break
                                     }
                                 }
-
-                                else -> Unit
                             }
+
+                            else -> Unit
                         }
-                    },
+                    }
+                },
         ) {
             if (latestUiState.items.isEmpty()) return@Canvas
             if (textMeasureCache.initialized.not()) return@Canvas
@@ -171,14 +171,14 @@ internal fun BarGraph(
                     textLayoutResult = item,
                     color = contentColor,
                     topLeft =
-                        Offset(
-                            x =
-                                measureState.graphBaseX
-                                    .plus((measureState.spaceWidth + measureState.barWidth) * index)
-                                    .plus(measureState.barWidth / 2)
-                                    .minus(item.size.width / 2),
-                            y = y,
-                        ),
+                    Offset(
+                        x =
+                        measureState.graphBaseX
+                            .plus((measureState.spaceWidth + measureState.barWidth) * index)
+                            .plus(measureState.barWidth / 2)
+                            .minus(item.size.width / 2),
+                        y = y,
+                    ),
                 )
             }
             drawText(
@@ -200,15 +200,15 @@ internal fun BarGraph(
                     drawRect(
                         color = item.color,
                         topLeft =
-                            Offset(
-                                x = x,
-                                y = beforeY - itemHeight,
-                            ),
+                        Offset(
+                            x = x,
+                            y = beforeY - itemHeight,
+                        ),
                         size =
-                            Size(
-                                width = measureState.barWidth,
-                                height = itemHeight,
-                            ),
+                        Size(
+                            width = measureState.barWidth,
+                            height = itemHeight,
+                        ),
                     )
                     beforeY -= itemHeight
                 }

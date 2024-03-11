@@ -29,9 +29,9 @@ public class ImportedMailScreenGraphqlApi(
         return ApolloResponseCollector.create(
             apolloClient = apolloClient,
             query =
-                ImportedMailScreenQuery(
-                    id = id,
-                ),
+            ImportedMailScreenQuery(
+                id = id,
+            ),
         )
     }
 }

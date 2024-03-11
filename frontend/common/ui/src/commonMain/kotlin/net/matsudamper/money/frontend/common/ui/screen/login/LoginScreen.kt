@@ -66,10 +66,10 @@ public fun LoginScreen(
         ) {
             Box(
                 modifier =
-                    Modifier
-                        .align(Alignment.Center)
-                        .widthIn(max = 400.dp)
-                        .fillMaxWidth(),
+                Modifier
+                    .align(Alignment.Center)
+                    .widthIn(max = 400.dp)
+                    .fillMaxWidth(),
             ) {
                 val textFieldTextStyle =
                     MaterialTheme.typography.bodyMedium
@@ -103,8 +103,8 @@ public fun LoginScreen(
 
             Row(
                 modifier =
-                    Modifier.align(Alignment.BottomEnd)
-                        .padding(12.dp),
+                Modifier.align(Alignment.BottomEnd)
+                    .padding(12.dp),
             ) {
                 OutlinedButton(
                     onClick = { uiState.listener.onClickNavigateAdmin() },
@@ -143,8 +143,8 @@ private fun UserIdInput(
         content = {
             Box(
                 modifier =
-                    Modifier.fillMaxWidth()
-                        .clickable { onClickUserNameTextField() },
+                Modifier.fillMaxWidth()
+                    .clickable { onClickUserNameTextField() },
             ) {
                 DummyTextField(
                     modifier = Modifier.fillMaxWidth(),
@@ -206,8 +206,8 @@ private fun PasswordInput(
         content = {
             Box(
                 modifier =
-                    Modifier.fillMaxWidth()
-                        .clickable { onClickPasswordTextField() },
+                Modifier.fillMaxWidth()
+                    .clickable { onClickPasswordTextField() },
             ) {
                 DummyTextField(
                     modifier = Modifier.fillMaxWidth(),

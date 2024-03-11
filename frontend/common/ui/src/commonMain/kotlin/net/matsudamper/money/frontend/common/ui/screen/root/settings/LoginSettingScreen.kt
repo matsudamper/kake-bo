@@ -142,12 +142,12 @@ public fun LoginSettingScreen(
                 title = {
                     Text(
                         modifier =
-                            Modifier.clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                            ) {
-                                rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
-                            },
+                        Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) {
+                            rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                        },
                         text = "家計簿",
                     )
                 },
@@ -177,8 +177,8 @@ public fun LoginSettingScreen(
                 is LoginSettingScreenUiState.LoadingState.Loading -> {
                     Box(
                         modifier =
-                            Modifier.fillMaxSize()
-                                .padding(paddingValues),
+                        Modifier.fillMaxSize()
+                            .padding(paddingValues),
                         contentAlignment = Alignment.Center,
                     ) {
                         CircularProgressIndicator(
@@ -205,20 +205,20 @@ private fun LoadedContent(
         var listHeightPx by remember { mutableIntStateOf(0) }
         LazyColumn(
             modifier =
-                Modifier.fillMaxSize()
-                    .onSizeChanged {
-                        listHeightPx = it.height
-                    },
+            Modifier.fillMaxSize()
+                .onSizeChanged {
+                    listHeightPx = it.height
+                },
             contentPadding =
-                PaddingValues(
-                    start = paddingValues.calculateStartPadding(layoutDirection),
-                    end = paddingValues.calculateEndPadding(layoutDirection),
-                    top = paddingValues.calculateTopPadding(),
-                    bottom =
-                        paddingValues.calculateBottomPadding()
-                            .plus(24.dp)
-                            .plus(with(LocalDensity.current) { scrollButtonHeightPx.toDp() }),
-                ),
+            PaddingValues(
+                start = paddingValues.calculateStartPadding(layoutDirection),
+                end = paddingValues.calculateEndPadding(layoutDirection),
+                top = paddingValues.calculateTopPadding(),
+                bottom =
+                paddingValues.calculateBottomPadding()
+                    .plus(24.dp)
+                    .plus(with(LocalDensity.current) { scrollButtonHeightPx.toDp() }),
+            ),
             state = lazyListState,
         ) {
             item {
@@ -229,8 +229,8 @@ private fun LoadedContent(
                 ) {
                     FidoSection(
                         modifier =
-                            Modifier.fillMaxWidth()
-                                .height(280.dp),
+                        Modifier.fillMaxWidth()
+                            .height(280.dp),
                         fidoList = uiState.fidoList,
                         onClickPlatform = { event.onClickPlatform() },
                         onClickCrossPlatform = { event.onClickCrossPlatform() },
@@ -240,8 +240,8 @@ private fun LoadedContent(
             item {
                 SettingSmallSection(
                     modifier =
-                        Modifier.fillMaxWidth()
-                            .height(480.dp),
+                    Modifier.fillMaxWidth()
+                        .height(480.dp),
                     title = {
                         Text("セッション一覧")
                     },
@@ -262,11 +262,11 @@ private fun LoadedContent(
                     SettingListMenuItemButton(
                         modifier = Modifier.fillMaxWidth(),
                         titleStyle =
-                            MaterialTheme.typography.bodyMedium.merge(
-                                TextStyle(
-                                    color = MaterialTheme.colorScheme.error,
-                                ),
+                        MaterialTheme.typography.bodyMedium.merge(
+                            TextStyle(
+                                color = MaterialTheme.colorScheme.error,
                             ),
+                        ),
                         onClick = { event.onClickLogout() },
                     ) {
                         Text("ログアウト")
@@ -277,11 +277,11 @@ private fun LoadedContent(
 
         ScrollButtons(
             modifier =
-                Modifier
-                    .onSizeChanged { scrollButtonHeightPx = it.height }
-                    .align(Alignment.BottomEnd)
-                    .padding(ScrollButtonsDefaults.padding)
-                    .height(ScrollButtonsDefaults.height),
+            Modifier
+                .onSizeChanged { scrollButtonHeightPx = it.height }
+                .align(Alignment.BottomEnd)
+                .padding(ScrollButtonsDefaults.padding)
+                .height(ScrollButtonsDefaults.height),
             scrollState = lazyListState,
             scrollSize = listHeightPx * 0.4f,
         )
@@ -325,14 +325,14 @@ private fun FidoSection(
         }
         LazyColumn(
             modifier =
-                Modifier.fillMaxWidth()
-                    .weight(1f),
+            Modifier.fillMaxWidth()
+                .weight(1f),
         ) {
             items(fidoList) { fido ->
                 Surface(
                     modifier =
-                        Modifier.fillMaxWidth()
-                            .padding(top = 8.dp),
+                    Modifier.fillMaxWidth()
+                        .padding(top = 8.dp),
                     shape = MaterialTheme.shapes.medium,
                     color = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -343,11 +343,11 @@ private fun FidoSection(
                     ) {
                         Text(
                             modifier =
-                                Modifier.weight(1f)
-                                    .padding(
-                                        vertical = 8.dp,
-                                        horizontal = 12.dp,
-                                    ),
+                            Modifier.weight(1f)
+                                .padding(
+                                    vertical = 8.dp,
+                                    horizontal = 12.dp,
+                                ),
                             text = fido.name,
                         )
                         IconButton(
@@ -373,17 +373,17 @@ private fun SessionSection(
     LazyColumn(
         modifier = modifier,
         contentPadding =
-            PaddingValues(
-                horizontal = 8.dp,
-            ),
+        PaddingValues(
+            horizontal = 8.dp,
+        ),
     ) {
         item {
             Text(
                 modifier =
-                    Modifier.padding(
-                        horizontal = itemHorizontalPadding,
-                        vertical = titleVerticalPadding,
-                    ),
+                Modifier.padding(
+                    horizontal = itemHorizontalPadding,
+                    vertical = titleVerticalPadding,
+                ),
                 text = "現在のセッション",
                 style = MaterialTheme.typography.titleSmall,
             )
@@ -404,10 +404,10 @@ private fun SessionSection(
         item {
             Text(
                 modifier =
-                    Modifier.padding(
-                        horizontal = itemHorizontalPadding,
-                        vertical = titleVerticalPadding,
-                    ),
+                Modifier.padding(
+                    horizontal = itemHorizontalPadding,
+                    vertical = titleVerticalPadding,
+                ),
                 text = "その他のセッション",
                 style = MaterialTheme.typography.titleSmall,
             )
@@ -420,8 +420,8 @@ private fun SessionSection(
             SessionItem(
                 session = session,
                 modifier =
-                    Modifier.fillMaxWidth()
-                        .padding(horizontal = itemHorizontalPadding),
+                Modifier.fillMaxWidth()
+                    .padding(horizontal = itemHorizontalPadding),
                 onClickDelete = { session.event.onClickDelete() },
                 onClickNameChange = null,
             )
@@ -438,10 +438,10 @@ private fun SessionItem(
 ) {
     Surface(
         modifier =
-            modifier
-                .padding(
-                    top = 8.dp,
-                ),
+        modifier
+            .padding(
+                top = 8.dp,
+            ),
         shape = MaterialTheme.shapes.small,
         color = MaterialTheme.colorScheme.primaryContainer,
         contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -455,11 +455,11 @@ private fun SessionItem(
             ) {
                 Column(
                     modifier =
-                        Modifier.weight(1f)
-                            .padding(
-                                horizontal = 12.dp,
-                                vertical = 8.dp,
-                            ),
+                    Modifier.weight(1f)
+                        .padding(
+                            horizontal = 12.dp,
+                            vertical = 8.dp,
+                        ),
                 ) {
                     Text(session.name)
                     Spacer(modifier = Modifier.height(4.dp))
@@ -481,9 +481,9 @@ private fun SessionItem(
                         Card(
                             modifier = Modifier.width(IntrinsicSize.Max),
                             elevation =
-                                CardDefaults.cardElevation(
-                                    defaultElevation = 8.dp,
-                                ),
+                            CardDefaults.cardElevation(
+                                defaultElevation = 8.dp,
+                            ),
                         ) {
                             if (onClickNameChange != null) {
                                 Column(
@@ -491,12 +491,12 @@ private fun SessionItem(
                                 ) {
                                     Text(
                                         modifier =
-                                            Modifier.fillMaxWidth()
-                                                .clickable {
-                                                    visibleMenu = false
-                                                    onClickNameChange()
-                                                }
-                                                .padding(12.dp),
+                                        Modifier.fillMaxWidth()
+                                            .clickable {
+                                                visibleMenu = false
+                                                onClickNameChange()
+                                            }
+                                            .padding(12.dp),
                                         text = "名前の変更",
                                     )
                                 }
@@ -507,12 +507,12 @@ private fun SessionItem(
                                 ) {
                                     Text(
                                         modifier =
-                                            Modifier.fillMaxWidth()
-                                                .clickable {
-                                                    visibleMenu = false
-                                                    onClickDelete()
-                                                }
-                                                .padding(12.dp),
+                                        Modifier.fillMaxWidth()
+                                            .clickable {
+                                                visibleMenu = false
+                                                onClickDelete()
+                                            }
+                                            .padding(12.dp),
                                         color = MaterialTheme.colorScheme.error,
                                         text = "削除",
                                     )
@@ -538,14 +538,14 @@ private fun SettingSmallSection(
         ) {
             Box(
                 modifier =
-                    Modifier
-                        .padding(
-                            top = 16.dp,
-                            bottom = 8.dp,
-                        )
-                        .padding(
-                            horizontal = 8.dp,
-                        ),
+                Modifier
+                    .padding(
+                        top = 16.dp,
+                        bottom = 8.dp,
+                    )
+                    .padding(
+                        horizontal = 8.dp,
+                    ),
             ) {
                 title()
             }

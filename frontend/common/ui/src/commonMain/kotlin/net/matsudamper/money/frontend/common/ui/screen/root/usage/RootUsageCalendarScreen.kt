@@ -121,34 +121,34 @@ public fun RootUsageCalendarScreen(
                     uiState = uiState.loadingState,
                     state = lazyGridState,
                     contentPadding =
-                        PaddingValues(
-                            top = 12.dp,
-                            bottom = with(density) { buttonSize.height.toDp() },
-                        ),
+                    PaddingValues(
+                        top = 12.dp,
+                        bottom = with(density) { buttonSize.height.toDp() },
+                    ),
                 )
 
                 Column(
                     modifier =
-                        Modifier.align(Alignment.BottomEnd)
-                            .onSizeChanged {
-                                buttonSize = it
-                            },
+                    Modifier.align(Alignment.BottomEnd)
+                        .onSizeChanged {
+                            buttonSize = it
+                        },
                     horizontalAlignment = Alignment.End,
                 ) {
                     ScrollButtons(
                         modifier =
-                            Modifier
-                                .padding(ScrollButtonsDefaults.padding)
-                                .height(ScrollButtonsDefaults.height),
+                        Modifier
+                            .padding(ScrollButtonsDefaults.padding)
+                            .height(ScrollButtonsDefaults.height),
                         scrollState = lazyGridState,
                         scrollSize =
-                            with(density) {
-                                height.toPx() * 0.4f
-                            },
+                        with(density) {
+                            height.toPx() * 0.4f
+                        },
                         animationSpec =
-                            spring(
-                                stiffness = Spring.StiffnessLow,
-                            ),
+                        spring(
+                            stiffness = Spring.StiffnessLow,
+                        ),
                     )
                 }
             }
@@ -188,8 +188,8 @@ private fun LoadedContent(
                 is RootUsageCalendarScreenUiState.CalendarCell.DayOfWeek -> {
                     Text(
                         modifier =
-                            Modifier.fillMaxSize()
-                                .padding(2.dp),
+                        Modifier.fillMaxSize()
+                            .padding(2.dp),
                         text = cell.text,
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.titleSmall,
@@ -207,53 +207,53 @@ private fun CalendarCell(
 ) {
     Column(
         modifier =
-            modifier
-                .padding(vertical = 2.dp),
+        modifier
+            .padding(vertical = 2.dp),
     ) {
         Text(
             modifier =
-                Modifier
-                    .padding(2.dp)
-                    .clip(MaterialTheme.shapes.small)
-                    .background(
-                        if (uiState.isToday) {
-                            MaterialTheme.colorScheme.secondaryContainer
-                        } else {
-                            Color.Transparent
-                        },
-                    )
-                    .padding(2.dp),
+            Modifier
+                .padding(2.dp)
+                .clip(MaterialTheme.shapes.small)
+                .background(
+                    if (uiState.isToday) {
+                        MaterialTheme.colorScheme.secondaryContainer
+                    } else {
+                        Color.Transparent
+                    },
+                )
+                .padding(2.dp),
             color =
-                if (uiState.isToday) {
-                    MaterialTheme.colorScheme.onSecondaryContainer
-                } else {
-                    Color.Unspecified
-                },
+            if (uiState.isToday) {
+                MaterialTheme.colorScheme.onSecondaryContainer
+            } else {
+                Color.Unspecified
+            },
             text = uiState.text,
             style = MaterialTheme.typography.titleSmall,
         )
         Divider(
             modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 2.dp)
-                    .height(1.dp),
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 2.dp)
+                .height(1.dp),
         )
         uiState.items.forEach { item ->
             Spacer(Modifier.height(2.dp))
             Card(
                 modifier = Modifier.padding(horizontal = 2.dp),
                 colors =
-                    CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    ),
+                CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                ),
                 shape = MaterialTheme.shapes.extraSmall,
             ) {
                 Text(
                     modifier =
-                        Modifier.fillMaxWidth()
-                            .clickable { item.event.onClick() }
-                            .padding(2.dp),
+                    Modifier.fillMaxWidth()
+                        .clickable { item.event.onClick() }
+                        .padding(2.dp),
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                     color = MaterialTheme.colorScheme.onSecondaryContainer,

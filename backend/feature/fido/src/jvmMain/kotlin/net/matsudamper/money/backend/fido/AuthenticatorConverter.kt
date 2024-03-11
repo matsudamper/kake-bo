@@ -20,14 +20,14 @@ object AuthenticatorConverter {
 
         return Base64FidoAuthenticator(
             base64AttestationStatement =
-                base64Encoder.encodeToString(
-                    objectConverter.cborConverter.writeValueAsBytes(attestationStatement),
-                ),
+            base64Encoder.encodeToString(
+                objectConverter.cborConverter.writeValueAsBytes(attestationStatement),
+            ),
             attestationStatementFormat = attestationStatement.format,
             base64AttestedCredentialData =
-                base64Encoder.encodeToString(
-                    attestedCredentialDataConverter.convert(authenticator.attestedCredentialData),
-                ),
+            base64Encoder.encodeToString(
+                attestedCredentialDataConverter.convert(authenticator.attestedCredentialData),
+            ),
             counter = authenticator.counter,
             base64CredentialId = base64Encoder.encodeToString(authenticator.attestedCredentialData.credentialId),
         )

@@ -81,12 +81,12 @@ public fun ImportedMailPlainScreen(
                         title = {
                             Text(
                                 modifier =
-                                    Modifier.clickable(
-                                        interactionSource = remember { MutableInteractionSource() },
-                                        indication = null,
-                                    ) {
-                                        kakeboScaffoldListener.onClickTitle()
-                                    },
+                                Modifier.clickable(
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null,
+                                ) {
+                                    kakeboScaffoldListener.onClickTitle()
+                                },
                                 text = "家計簿",
                             )
                         },
@@ -95,8 +95,8 @@ public fun ImportedMailPlainScreen(
             ) {
                 Box(
                     modifier =
-                        Modifier.fillMaxSize()
-                            .padding(it),
+                    Modifier.fillMaxSize()
+                        .padding(it),
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()

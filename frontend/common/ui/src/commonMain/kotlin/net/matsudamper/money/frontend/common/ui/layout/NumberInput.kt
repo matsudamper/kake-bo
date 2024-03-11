@@ -59,11 +59,11 @@ public fun NumberInput(
         ) {
             IconButton(
                 modifier =
-                    Modifier.align(Alignment.End)
-                        .padding(
-                            top = 4.dp,
-                            end = 4.dp,
-                        ),
+                Modifier.align(Alignment.End)
+                    .padding(
+                        top = 4.dp,
+                        end = 4.dp,
+                    ),
                 onClick = { dismissRequest() },
             ) {
                 Icon(
@@ -73,9 +73,9 @@ public fun NumberInput(
             }
             Column(
                 modifier =
-                    Modifier
-                        .padding(horizontal = 12.dp)
-                        .padding(bottom = 12.dp),
+                Modifier
+                    .padding(horizontal = 12.dp)
+                    .padding(bottom = 12.dp),
             ) {
                 Row {
                     Text(
@@ -260,13 +260,13 @@ private fun calc(value: NumberInputValue): NumberInputValue {
     }
     return NumberInputValue(
         value =
-            when (value.operator) {
-                NumberInputValue.Operator.Add -> value.value + value.right
-                NumberInputValue.Operator.Minus -> value.value - value.right
-                NumberInputValue.Operator.Multiply -> value.value * value.right
-                NumberInputValue.Operator.Divide -> value.value / value.right
-                null -> value.value
-            },
+        when (value.operator) {
+            NumberInputValue.Operator.Add -> value.value + value.right
+            NumberInputValue.Operator.Minus -> value.value - value.right
+            NumberInputValue.Operator.Multiply -> value.value * value.right
+            NumberInputValue.Operator.Divide -> value.value / value.right
+            null -> value.value
+        },
         right = null,
         operator = null,
     )
@@ -369,12 +369,12 @@ private fun NumberPad(
 ) {
     Box(
         modifier =
-            modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.secondaryContainer)
-                .border(1.dp, MaterialTheme.colorScheme.secondary)
-                .clickable { onClick() }
-                .padding(12.dp),
+        modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .border(1.dp, MaterialTheme.colorScheme.secondary)
+            .clickable { onClick() }
+            .padding(12.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(

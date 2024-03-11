@@ -63,11 +63,11 @@ class MoneyUsageCategoryResolverImpl : MoneyUsageCategoryResolver {
                 is MoneyUsageSubCategoryRepository.GetSubCategoryResult.Success -> {
                     QlSubCategoriesConnection(
                         nodes =
-                            result.results.map {
-                                QlMoneyUsageSubCategory(
-                                    id = it.moneyUsageSubCategoryId,
-                                )
-                            },
+                        result.results.map {
+                            QlMoneyUsageSubCategory(
+                                id = it.moneyUsageSubCategoryId,
+                            )
+                        },
                         // TODO
                         cursor = null,
                     )

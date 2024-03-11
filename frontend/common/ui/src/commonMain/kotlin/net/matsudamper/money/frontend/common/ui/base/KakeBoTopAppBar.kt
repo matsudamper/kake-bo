@@ -44,9 +44,9 @@ public fun KakeBoTopAppBar(
         )
         Divider(
             modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .height(1.dp),
+            Modifier
+                .fillMaxWidth()
+                .height(1.dp),
             color = CustomColors.MenuDividerColor,
         )
     }

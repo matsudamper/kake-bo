@@ -78,10 +78,10 @@ internal class UrlPlaceHolderParser<D : DirectionUrl>(
             ScreenState(
                 screen = result.screen,
                 pathParams =
-                    result.keyValues
-                        .reversed()
-                        .distinctBy { it.first }
-                        .associate { (key, value) -> key to value.orEmpty() },
+                result.keyValues
+                    .reversed()
+                    .distinctBy { it.first }
+                    .associate { (key, value) -> key to value.orEmpty() },
             )
         } else {
             ScreenState(

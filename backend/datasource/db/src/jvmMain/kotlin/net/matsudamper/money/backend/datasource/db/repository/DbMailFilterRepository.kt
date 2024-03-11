@@ -116,14 +116,14 @@ class DbMailFilterRepository(
                 MailFilterRepository.MailFiltersResult(
                     items = result,
                     cursor =
-                        if (lastResult == null) {
-                            cursor
-                        } else {
-                            MailFilterRepository.MailFilterCursor(
-                                id = lastResult.importedMailCategoryFilterId,
-                                orderNumber = lastResult.orderNumber,
-                            )
-                        },
+                    if (lastResult == null) {
+                        cursor
+                    } else {
+                        MailFilterRepository.MailFilterCursor(
+                            id = lastResult.importedMailCategoryFilterId,
+                            orderNumber = lastResult.orderNumber,
+                        )
+                    },
                 )
             }
         }
@@ -180,13 +180,13 @@ class DbMailFilterRepository(
             userId = UserId(record.get(filters.USER_ID)!!),
             title = record.get(filters.TITLE)!!,
             moneyUsageSubCategoryId =
-                record.get(filters.MONEY_USAGE_SUB_CATEGORY_ID)?.let {
-                    MoneyUsageSubCategoryId(it)
-                },
+            record.get(filters.MONEY_USAGE_SUB_CATEGORY_ID)?.let {
+                MoneyUsageSubCategoryId(it)
+            },
             operator =
-                DbImportedMailFilterCategoryConditionOperator.fromDbValue(
-                    record.get(filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID)!!,
-                ).toLogicValue(),
+            DbImportedMailFilterCategoryConditionOperator.fromDbValue(
+                record.get(filters.CATEGORY_MAIL_FILTER_CONDITION_OPERATOR_TYPE_ID)!!,
+            ).toLogicValue(),
             orderNumber = record.get(filters.ORDER_NUMBER)!!,
         )
     }
@@ -197,13 +197,13 @@ class DbMailFilterRepository(
             conditionId = ImportedMailCategoryFilterConditionId(record.get(conditions.CATEGORY_MAIL_FILTER_CONDITION_ID)!!),
             text = record.get(conditions.TEXT)!!,
             conditionType =
-                DbImportedMailCategoryFilterConditionType.fromDbValue(
-                    record.get(conditions.CATEGORY_MAIL_FILTER_CONDITION_TYPE_ID)!!,
-                ).toLogicValue(),
+            DbImportedMailCategoryFilterConditionType.fromDbValue(
+                record.get(conditions.CATEGORY_MAIL_FILTER_CONDITION_TYPE_ID)!!,
+            ).toLogicValue(),
             dataSourceType =
-                DbImportedMailCategoryFilterDatasourceType.fromDbValue(
-                    record.get(conditions.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID)!!,
-                ).toLogicValue(),
+            DbImportedMailCategoryFilterDatasourceType.fromDbValue(
+                record.get(conditions.CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_ID)!!,
+            ).toLogicValue(),
         )
     }
 

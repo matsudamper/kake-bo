@@ -42,7 +42,7 @@ internal object ShunsuguUsageService : MoneyUsageServices {
                     (
                         lines.drop(startIndex + 1).indexOfFirst { it.contains("----------") }
                             .takeIf { it >= 0 } ?: return@description ""
-                    )
+                        )
                         .plus(startIndex + 1)
 
                 lines.subList(startIndex + 1, endIndex)

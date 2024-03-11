@@ -41,7 +41,7 @@ public class HtmlTextInputContext {
                         width = width,
                         maxHeight = maxHeight,
                     )
-            )
+                )
         }
     }
 
@@ -96,14 +96,14 @@ public class HtmlTextInputContext {
                 id to
                     map.getOrElse(id) { TextState() }.copy(
                         type =
-                            when (type) {
-                                KeyboardType.Text -> "text"
-                                KeyboardType.Password -> "password"
-                                KeyboardType.Number -> "number"
-                                else -> TODO()
-                            },
+                        when (type) {
+                            KeyboardType.Text -> "text"
+                            KeyboardType.Password -> "password"
+                            KeyboardType.Number -> "number"
+                            else -> TODO()
+                        },
                     )
-            )
+                )
         }
     }
 

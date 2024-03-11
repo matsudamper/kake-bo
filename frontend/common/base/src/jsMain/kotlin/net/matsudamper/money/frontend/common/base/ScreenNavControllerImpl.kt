@@ -102,10 +102,10 @@ public class ScreenNavControllerImpl(
             screenState.copy(
                 current = screenStructure,
                 lastHome =
-                    when (screenStructure) {
-                        is ScreenStructure.Root -> screenStructure
-                        else -> screenState.lastHome
-                    },
+                when (screenStructure) {
+                    is ScreenStructure.Root -> screenStructure
+                    else -> screenState.lastHome
+                },
             )
     }
 
@@ -139,8 +139,8 @@ public class ScreenNavControllerImpl(
             Screens.SettingsCategoryId ->
                 ScreenStructure.Root.Settings.Category(
                     id =
-                        this.pathParams["id"]?.toIntOrNull()?.let { MoneyUsageCategoryId(it) }
-                            ?: return ScreenStructure.NotFound,
+                    this.pathParams["id"]?.toIntOrNull()?.let { MoneyUsageCategoryId(it) }
+                        ?: return ScreenStructure.NotFound,
                 )
 
             Screens.SettingsLogin -> {
@@ -170,30 +170,30 @@ public class ScreenNavControllerImpl(
             Screens.ImportedMail -> {
                 ScreenStructure.ImportedMail(
                     id =
-                        run id@{
-                            val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
-                            ImportedMailId(id)
-                        },
+                    run id@{
+                        val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
+                        ImportedMailId(id)
+                    },
                 )
             }
 
             Screens.ImportedMailPlain -> {
                 ScreenStructure.ImportedMailPlain(
                     id =
-                        run id@{
-                            val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
-                            ImportedMailId(id)
-                        },
+                    run id@{
+                        val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
+                        ImportedMailId(id)
+                    },
                 )
             }
 
             Screens.ImportedMailHTML -> {
                 ScreenStructure.ImportedMailHTML(
                     id =
-                        run id@{
-                            val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
-                            ImportedMailId(id)
-                        },
+                    run id@{
+                        val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
+                        ImportedMailId(id)
+                    },
                 )
             }
 
@@ -205,19 +205,19 @@ public class ScreenNavControllerImpl(
             Screens.MailCategoryFilter ->
                 ScreenStructure.Root.Settings.MailCategoryFilter(
                     id =
-                        run id@{
-                            val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
-                            ImportedMailCategoryFilterId(id)
-                        },
+                    run id@{
+                        val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
+                        ImportedMailCategoryFilterId(id)
+                    },
                 )
 
             Screens.MoneyUsage -> {
                 ScreenStructure.MoneyUsage(
                     id =
-                        run id@{
-                            val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
-                            MoneyUsageId(id)
-                        },
+                    run id@{
+                        val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
+                        MoneyUsageId(id)
+                    },
                 )
             }
 

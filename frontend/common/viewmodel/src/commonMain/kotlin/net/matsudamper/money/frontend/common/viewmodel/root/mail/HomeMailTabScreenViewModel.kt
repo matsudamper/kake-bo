@@ -24,29 +24,29 @@ public class HomeMailTabScreenViewModel(
         MutableStateFlow(
             HomeMailTabScreenUiState(
                 event =
-                    object : HomeMailTabScreenUiState.Event {
-                        override fun onClickImportTabButton() {
-                            coroutineScope.launch {
-                                navigateEventSender.send {
-                                    it.navigate(
-                                        viewModelStateFlow.value.lastImportMailStructure
-                                            ?: ScreenStructure.Root.Mail.Import,
-                                    )
-                                }
+                object : HomeMailTabScreenUiState.Event {
+                    override fun onClickImportTabButton() {
+                        coroutineScope.launch {
+                            navigateEventSender.send {
+                                it.navigate(
+                                    viewModelStateFlow.value.lastImportMailStructure
+                                        ?: ScreenStructure.Root.Mail.Import,
+                                )
                             }
                         }
+                    }
 
-                        override fun onClickImportedTabButton() {
-                            coroutineScope.launch {
-                                navigateEventSender.send {
-                                    it.navigate(
-                                        viewModelStateFlow.value.lastImportedMailStructure
-                                            ?: ScreenStructure.Root.Mail.Imported(isLinked = false),
-                                    )
-                                }
+                    override fun onClickImportedTabButton() {
+                        coroutineScope.launch {
+                            navigateEventSender.send {
+                                it.navigate(
+                                    viewModelStateFlow.value.lastImportedMailStructure
+                                        ?: ScreenStructure.Root.Mail.Imported(isLinked = false),
+                                )
                             }
                         }
-                    },
+                    }
+                },
             ),
         )
 
@@ -55,11 +55,11 @@ public class HomeMailTabScreenViewModel(
             viewModelState.copy(
                 screenStructure = structure,
                 lastImportedMailStructure =
-                    (structure as? ScreenStructure.Root.Mail.Imported)
-                        ?: viewModelState.lastImportedMailStructure,
+                (structure as? ScreenStructure.Root.Mail.Imported)
+                    ?: viewModelState.lastImportedMailStructure,
                 lastImportMailStructure =
-                    (structure as? ScreenStructure.Root.Mail.Import)
-                        ?: viewModelState.lastImportMailStructure,
+                (structure as? ScreenStructure.Root.Mail.Import)
+                    ?: viewModelState.lastImportMailStructure,
             )
         }
     }

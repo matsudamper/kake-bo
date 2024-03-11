@@ -49,13 +49,13 @@ internal object MitsuiSumitomoCardUsageServices : MoneyUsageServices {
         return listOf(
             MoneyUsage(
                 title =
-                    run {
-                        if (subject.contains(DEFAULT_SUBJECT)) {
-                            parsedName ?: DEFAULT_SUBJECT
-                        } else {
-                            subject
-                        }
-                    },
+                run {
+                    if (subject.contains(DEFAULT_SUBJECT)) {
+                        parsedName ?: DEFAULT_SUBJECT
+                    } else {
+                        subject
+                    }
+                },
                 price = price,
                 description = "",
                 service = MoneyUsageServiceType.CreditCard,

@@ -70,12 +70,12 @@ public fun SettingRootScreen(
                 title = {
                     Text(
                         modifier =
-                            Modifier.clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                            ) {
-                                listener.kakeboScaffoldListener.onClickTitle()
-                            },
+                        Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) {
+                            listener.kakeboScaffoldListener.onClickTitle()
+                        },
                         text = "家計簿",
                     )
                 },
@@ -104,10 +104,10 @@ private fun MainContent(
         ) {
             Text(
                 modifier =
-                    Modifier.padding(
-                        horizontal = 18.dp,
-                        vertical = 24.dp,
-                    ),
+                Modifier.padding(
+                    horizontal = 18.dp,
+                    vertical = 24.dp,
+                ),
                 text = "設定",
                 fontFamily = rememberCustomFontFamily(),
             )
@@ -119,9 +119,9 @@ private fun MainContent(
         Spacer(modifier = Modifier.height(32.dp))
         Box(
             modifier =
-                Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
+            Modifier
+                .weight(1f)
+                .fillMaxWidth(),
         ) {
             val scrollState = rememberScrollState()
             var scrollContainerHeightPx by remember { mutableIntStateOf(0) }
@@ -169,10 +169,10 @@ private fun MainContent(
 
             ScrollButtons(
                 modifier =
-                    Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(ScrollButtonsDefaults.padding)
-                        .height(ScrollButtonsDefaults.height),
+                Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(ScrollButtonsDefaults.padding)
+                    .height(ScrollButtonsDefaults.height),
                 scrollState = scrollState,
                 scrollSize = scrollContainerHeightPx * 0.4f,
             )

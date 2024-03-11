@@ -98,14 +98,14 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                                 viewModelStateFlow.update { viewModelState ->
                                     viewModelState.copy(
                                         displayPeriod =
-                                            viewModelState.displayPeriod.copy(
-                                                sinceDate =
-                                                    ViewModelState.YearMonth(
-                                                        year = year,
-                                                        month = month,
-                                                    ),
-                                                monthCount = period,
+                                        viewModelState.displayPeriod.copy(
+                                            sinceDate =
+                                            ViewModelState.YearMonth(
+                                                year = year,
+                                                month = month,
                                             ),
+                                            monthCount = period,
+                                        ),
                                     )
                                 }
                             }
@@ -125,14 +125,14 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                 rootHomeTabPeriodUiState = periodViewModel.uiStateFlow.value,
                 rootHomeTabUiState = tabViewModel.uiStateFlow.value,
                 event =
-                    object : RootHomeTabPeriodCategoryContentUiState.Event {
-                        override suspend fun onViewInitialized() {
-                            fetchCategory(
-                                period = viewModelStateFlow.value.displayPeriod,
-                                categoryId = initialCategoryId,
-                            )
-                        }
-                    },
+                object : RootHomeTabPeriodCategoryContentUiState.Event {
+                    override suspend fun onViewInitialized() {
+                        fetchCategory(
+                            period = viewModelStateFlow.value.displayPeriod,
+                            categoryId = initialCategoryId,
+                        )
+                    }
+                },
             ),
         ).also { uiStateFlow ->
             tabViewModel.viewModelEventHandler
@@ -163,11 +163,11 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                     uiStateFlow.update {
                         it.copy(
                             loadingState =
-                                createCategoryUiState(
-                                    categoryId = viewModelState.categoryId,
-                                    displayPeriods = displayPeriods,
-                                    categoryResponseMap = viewModelState.categoryResponseMap,
-                                ),
+                            createCategoryUiState(
+                                categoryId = viewModelState.categoryId,
+                                displayPeriods = displayPeriods,
+                                categoryResponseMap = viewModelState.categoryResponseMap,
+                            ),
                         )
                     }
                 }
@@ -180,19 +180,19 @@ public class RootHomeTabPeriodCategoryContentViewModel(
             viewModelState.copy(
                 categoryId = current.categoryId,
                 displayPeriod =
-                    viewModelState.displayPeriod.copy(
-                        sinceDate =
-                            run since@{
-                                if (since != null) {
-                                    ViewModelState.YearMonth(
-                                        year = since.year,
-                                        month = since.monthNumber,
-                                    )
-                                } else {
-                                    viewModelState.displayPeriod.sinceDate
-                                }
-                            },
-                    ),
+                viewModelState.displayPeriod.copy(
+                    sinceDate =
+                    run since@{
+                        if (since != null) {
+                            ViewModelState.YearMonth(
+                                year = since.year,
+                                month = since.monthNumber,
+                            )
+                        } else {
+                            viewModelState.displayPeriod.sinceDate
+                        }
+                    },
+                ),
             )
         }
         fetchCategory(
@@ -211,93 +211,93 @@ public class RootHomeTabPeriodCategoryContentViewModel(
             run loadingState@{
                 RootHomeTabPeriodCategoryContentUiState.LoadingState.Loaded(
                     graphItems =
-                        BarGraphUiState(
-                            items =
-                                displayPeriods.map { yearMonth ->
-                                    val key =
-                                        ViewModelState.YearMonthCategory(
-                                            categoryId = categoryId,
-                                            yearMonth = yearMonth,
-                                        )
-                                    val apolloResult =
-                                        categoryResponseMap[key]
-                                            ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading
-                                    val amount =
-                                        apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.totalAmount
-                                            ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
-                                    val subCategory =
-                                        apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.bySubCategories
-                                            ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
-
-                                    BarGraphUiState.PeriodData(
-                                        year = yearMonth.year,
-                                        month = yearMonth.month,
-                                        items =
-                                            subCategory.map { bySubCategory ->
-                                                BarGraphUiState.Item(
-                                                    color = reservedColorModel.getColor(bySubCategory.subCategory.id.toString()),
-                                                    title = bySubCategory.subCategory.name,
-                                                    value = bySubCategory.totalAmount ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error,
-                                                )
-                                            }.toImmutableList(),
-                                        total = amount,
-                                        event =
-                                            object : BarGraphUiState.PeriodDataEvent {
-                                                override fun onClick() {
-                                                    coroutineScope.launch {
-                                                        eventSender.send {
-                                                            it.navigate(
-                                                                RootHomeScreenStructure.MonthlyCategory(
-                                                                    categoryId = categoryId,
-                                                                    year = yearMonth.year,
-                                                                    month = yearMonth.month,
-                                                                ),
-                                                            )
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                    )
-                                }.toImmutableList(),
-                        ),
-                    graphTitleItems =
-                        displayPeriods.flatMap { yearMonth ->
-                            val key =
-                                ViewModelState.YearMonthCategory(
-                                    categoryId = categoryId,
-                                    yearMonth = yearMonth,
-                                )
-                            val apolloResult = categoryResponseMap[key] ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading
-                            val subCategory = apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.bySubCategories ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
-
-                            subCategory.map { it.subCategory }
-                        }.distinctBy { it.id }
-                            .map {
-                                GraphTitleChipUiState(
-                                    title = it.name,
-                                    color = reservedColorModel.getColor(it.id.toString()),
-                                    onClick = {
-                                        // TODO
-                                    },
-                                )
-                            }.toImmutableList(),
-                    monthTotalItems =
+                    BarGraphUiState(
+                        items =
                         displayPeriods.map { yearMonth ->
                             val key =
                                 ViewModelState.YearMonthCategory(
                                     categoryId = categoryId,
                                     yearMonth = yearMonth,
                                 )
+                            val apolloResult =
+                                categoryResponseMap[key]
+                                    ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading
+                            val amount =
+                                apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.totalAmount
+                                    ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
+                            val subCategory =
+                                apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.bySubCategories
+                                    ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
 
-                            val apolloResult = categoryResponseMap[key] ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading
-                            val result = apolloResult.data?.user?.moneyUsageAnalyticsByCategory ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
-
-                            RootHomeTabPeriodUiState.MonthTotalItem(
-                                title = "${yearMonth.year}/${yearMonth.month.toString().padStart(2, '0')}",
-                                amount = Formatter.formatMoney(result.totalAmount ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error) + "円",
-                                event = MonthTotalItemEvent(yearMonth),
+                            BarGraphUiState.PeriodData(
+                                year = yearMonth.year,
+                                month = yearMonth.month,
+                                items =
+                                subCategory.map { bySubCategory ->
+                                    BarGraphUiState.Item(
+                                        color = reservedColorModel.getColor(bySubCategory.subCategory.id.toString()),
+                                        title = bySubCategory.subCategory.name,
+                                        value = bySubCategory.totalAmount ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error,
+                                    )
+                                }.toImmutableList(),
+                                total = amount,
+                                event =
+                                object : BarGraphUiState.PeriodDataEvent {
+                                    override fun onClick() {
+                                        coroutineScope.launch {
+                                            eventSender.send {
+                                                it.navigate(
+                                                    RootHomeScreenStructure.MonthlyCategory(
+                                                        categoryId = categoryId,
+                                                        year = yearMonth.year,
+                                                        month = yearMonth.month,
+                                                    ),
+                                                )
+                                            }
+                                        }
+                                    }
+                                },
                             )
                         }.toImmutableList(),
+                    ),
+                    graphTitleItems =
+                    displayPeriods.flatMap { yearMonth ->
+                        val key =
+                            ViewModelState.YearMonthCategory(
+                                categoryId = categoryId,
+                                yearMonth = yearMonth,
+                            )
+                        val apolloResult = categoryResponseMap[key] ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading
+                        val subCategory = apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.bySubCategories ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
+
+                        subCategory.map { it.subCategory }
+                    }.distinctBy { it.id }
+                        .map {
+                            GraphTitleChipUiState(
+                                title = it.name,
+                                color = reservedColorModel.getColor(it.id.toString()),
+                                onClick = {
+                                    // TODO
+                                },
+                            )
+                        }.toImmutableList(),
+                    monthTotalItems =
+                    displayPeriods.map { yearMonth ->
+                        val key =
+                            ViewModelState.YearMonthCategory(
+                                categoryId = categoryId,
+                                yearMonth = yearMonth,
+                            )
+
+                        val apolloResult = categoryResponseMap[key] ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading
+                        val result = apolloResult.data?.user?.moneyUsageAnalyticsByCategory ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
+
+                        RootHomeTabPeriodUiState.MonthTotalItem(
+                            title = "${yearMonth.year}/${yearMonth.month.toString().padStart(2, '0')}",
+                            amount = Formatter.formatMoney(result.totalAmount ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error) + "円",
+                            event = MonthTotalItemEvent(yearMonth),
+                        )
+                    }.toImmutableList(),
                 )
             }
 
@@ -360,8 +360,8 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                         viewModelStateFlow.update {
                             it.copy(
                                 categoryResponseMap =
-                                    it.categoryResponseMap
-                                        .plus(key to result.getOrNull()),
+                                it.categoryResponseMap
+                                    .plus(key to result.getOrNull()),
                             )
                         }
                     }

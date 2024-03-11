@@ -63,15 +63,15 @@ internal object AuEasyPaymentUsageServices : MoneyUsageServices {
                 title = serviceName ?: displayName,
                 price = price,
                 description =
-                    buildString {
-                        appendLine(displayName)
-                        if (shopName != null) {
-                            appendLine("加盟店名: $shopName")
-                        }
-                        if (description != null) {
-                            appendLine("摘要: $description")
-                        }
-                    }.trim(),
+                buildString {
+                    appendLine(displayName)
+                    if (shopName != null) {
+                        appendLine("加盟店名: $shopName")
+                    }
+                    if (description != null) {
+                        appendLine("摘要: $description")
+                    }
+                }.trim(),
                 service = MoneyUsageServiceType.AuEasyPayment,
                 dateTime = parsedDate ?: forwardedInfo?.date ?: date,
             ),

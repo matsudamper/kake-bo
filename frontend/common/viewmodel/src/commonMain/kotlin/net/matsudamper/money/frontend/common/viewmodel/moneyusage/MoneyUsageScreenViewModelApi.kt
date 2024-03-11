@@ -25,14 +25,14 @@ public class MoneyUsageScreenViewModelApi(
                 .mutation(
                     MoneyUsageScreenUpdateUsageMutation(
                         query =
-                            UpdateUsageQuery(
-                                id = id,
-                                title = Optional.present(title),
-                                description = Optional.present(description),
-                                amount = Optional.present(amount),
-                                date = Optional.present(date),
-                                subCategoryId = Optional.present(subCategoryId),
-                            ),
+                        UpdateUsageQuery(
+                            id = id,
+                            title = Optional.present(title),
+                            description = Optional.present(description),
+                            amount = Optional.present(amount),
+                            date = Optional.present(date),
+                            subCategoryId = Optional.present(subCategoryId),
+                        ),
                     ),
                 )
                 .execute()

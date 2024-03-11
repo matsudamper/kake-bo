@@ -181,13 +181,13 @@ class UserMutationResolverImpl : UserMutationResolver {
             QlChangeSessionNameResult(
                 isSuccess = result != null,
                 session =
-                    run session@{
-                        result ?: return@session null
-                        QlSession(
-                            name = result.name,
-                            lastAccess = result.latestAccess.atOffset(ZoneOffset.UTC),
-                        )
-                    },
+                run session@{
+                    result ?: return@session null
+                    QlSession(
+                        name = result.name,
+                        lastAccess = result.latestAccess.atOffset(ZoneOffset.UTC),
+                    )
+                },
             )
         }.toDataFetcher()
     }
@@ -288,12 +288,12 @@ class UserMutationResolverImpl : UserMutationResolver {
 
             QlImportMailResult(
                 isSuccess =
-                    when (result) {
-                        is ImportMailUseCase.Result.Success -> true
-                        is ImportMailUseCase.Result.Failure,
-                        is ImportMailUseCase.Result.ImapConfigNotFound,
-                        -> false
-                    },
+                when (result) {
+                    is ImportMailUseCase.Result.Success -> true
+                    is ImportMailUseCase.Result.Failure,
+                    is ImportMailUseCase.Result.ImapConfigNotFound,
+                    -> false
+                },
             )
         }.toDataFetcher()
     }
@@ -402,9 +402,9 @@ class UserMutationResolverImpl : UserMutationResolver {
                 is MoneyUsageSubCategoryRepository.AddSubCategoryResult.Success -> {
                     QlAddSubCategoryResult(
                         subCategory =
-                            QlMoneyUsageSubCategory(
-                                id = addResult.result.moneyUsageSubCategoryId,
-                            ),
+                        QlMoneyUsageSubCategory(
+                            id = addResult.result.moneyUsageSubCategoryId,
+                        ),
                         error = null,
                     )
                 }
@@ -728,11 +728,11 @@ class UserMutationResolverImpl : UserMutationResolver {
                 )
             QlRegisteredFidoResult(
                 fidoInfo =
-                    QlRegisteredFidoInfo(
-                        id = addedItem.fidoId,
-                        name = addedItem.name,
-                        base64CredentialId = base64Result.base64CredentialId,
-                    ),
+                QlRegisteredFidoInfo(
+                    id = addedItem.fidoId,
+                    name = addedItem.name,
+                    base64CredentialId = base64Result.base64CredentialId,
+                ),
             )
         }.toDataFetcher()
     }

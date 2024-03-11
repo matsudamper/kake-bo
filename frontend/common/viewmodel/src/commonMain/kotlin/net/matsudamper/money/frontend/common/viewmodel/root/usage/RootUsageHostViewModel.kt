@@ -54,20 +54,20 @@ public class RootUsageHostViewModel(
                 mutableViewModelStateFlow.update {
                     it.copy(
                         textInputUiState =
-                            RootUsageHostScreenUiState.TextInputUiState(
-                                title = "検索",
-                                default = mutableViewModelStateFlow.value.searchText,
-                                inputType = "text",
-                                textComplete = { text ->
-                                    updateSearchText(text)
-                                    closeTextInput()
-                                },
-                                canceled = {
-                                    closeTextInput()
-                                },
-                                isMultiline = false,
-                                name = "",
-                            ),
+                        RootUsageHostScreenUiState.TextInputUiState(
+                            title = "検索",
+                            default = mutableViewModelStateFlow.value.searchText,
+                            inputType = "text",
+                            textComplete = { text ->
+                                updateSearchText(text)
+                                closeTextInput()
+                            },
+                            canceled = {
+                                closeTextInput()
+                            },
+                            isMultiline = false,
+                            name = "",
+                        ),
                     )
                 }
             }
@@ -111,15 +111,15 @@ public class RootUsageHostViewModel(
                         uiStateFlow.update {
                             it.copy(
                                 type =
-                                    when (viewModelState.screenStructure) {
-                                        is ScreenStructure.Root.Usage.Calendar -> RootUsageHostScreenUiState.Type.Calendar
-                                        is ScreenStructure.Root.Usage.List -> RootUsageHostScreenUiState.Type.List
-                                    },
+                                when (viewModelState.screenStructure) {
+                                    is ScreenStructure.Root.Usage.Calendar -> RootUsageHostScreenUiState.Type.Calendar
+                                    is ScreenStructure.Root.Usage.List -> RootUsageHostScreenUiState.Type.List
+                                },
                                 header =
-                                    when (viewModelState.screenStructure) {
-                                        is ScreenStructure.Root.Usage.Calendar -> viewModelState.calendarHeader
-                                        is ScreenStructure.Root.Usage.List -> RootUsageHostScreenUiState.Header.None
-                                    } ?: RootUsageHostScreenUiState.Header.None,
+                                when (viewModelState.screenStructure) {
+                                    is ScreenStructure.Root.Usage.Calendar -> viewModelState.calendarHeader
+                                    is ScreenStructure.Root.Usage.List -> RootUsageHostScreenUiState.Header.None
+                                } ?: RootUsageHostScreenUiState.Header.None,
                                 textInputUiState = viewModelState.textInputUiState,
                                 searchText = viewModelState.searchText,
                             )

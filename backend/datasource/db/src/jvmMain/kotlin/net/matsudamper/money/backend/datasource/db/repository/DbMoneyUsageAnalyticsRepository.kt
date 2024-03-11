@@ -83,12 +83,12 @@ class DbMoneyUsageAnalyticsRepository(
                     MoneyUsageAnalyticsRepository.TotalAmountBySubCategory(
                         categoryId = categoryId,
                         subCategories =
-                            result.orEmpty().map {
-                                MoneyUsageAnalyticsRepository.SubCategoryTotalAmount(
-                                    id = MoneyUsageSubCategoryId(it.get(subCategories.MONEY_USAGE_SUB_CATEGORY_ID)!!),
-                                    totalAmount = it.get(amount).toLong(),
-                                )
-                            },
+                        result.orEmpty().map {
+                            MoneyUsageAnalyticsRepository.SubCategoryTotalAmount(
+                                id = MoneyUsageSubCategoryId(it.get(subCategories.MONEY_USAGE_SUB_CATEGORY_ID)!!),
+                                totalAmount = it.get(amount).toLong(),
+                            )
+                        },
                     )
                 }
             }

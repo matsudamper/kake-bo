@@ -19,11 +19,11 @@ public class AdminRootScreenViewModel(
         MutableStateFlow(
             AdminRootScreenUiState(
                 listener =
-                    object : AdminRootScreenUiState.Listener {
-                        override fun onClickAddUser() {
-                            controller.navigateToAddUser()
-                        }
-                    },
+                object : AdminRootScreenUiState.Listener {
+                    override fun onClickAddUser() {
+                        controller.navigateToAddUser()
+                    }
+                },
             ),
         ).also { uiStateFlow ->
         }.asStateFlow()

@@ -46,33 +46,33 @@ public class MoneyUsagesListViewModel(
                 loadingState = RootUsageListScreenUiState.LoadingState.Loading,
                 hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
                 event =
-                    object : RootUsageListScreenUiState.Event {
-                        override suspend fun onViewInitialized() {
-                            CoroutineScope(currentCoroutineContext()).launch {
-                                launch {
-                                    pagingModel.fetch()
-                                }
-                                launch {
-                                    rootUsageHostViewModel.viewModelStateFlow
-                                        .buffer(Channel.RENDEZVOUS)
-                                        .collectLatest {
-                                            delay(100)
-                                            pagingModel.changeText(it.searchText)
-                                            pagingModel.fetch()
-                                        }
-                                }
-                                launch {
-                                    pagingModel.getFlow().collectLatest { responseStates ->
-                                        viewModelStateFlow.update {
-                                            it.copy(
-                                                results = responseStates,
-                                            )
-                                        }
+                object : RootUsageListScreenUiState.Event {
+                    override suspend fun onViewInitialized() {
+                        CoroutineScope(currentCoroutineContext()).launch {
+                            launch {
+                                pagingModel.fetch()
+                            }
+                            launch {
+                                rootUsageHostViewModel.viewModelStateFlow
+                                    .buffer(Channel.RENDEZVOUS)
+                                    .collectLatest {
+                                        delay(100)
+                                        pagingModel.changeText(it.searchText)
+                                        pagingModel.fetch()
+                                    }
+                            }
+                            launch {
+                                pagingModel.getFlow().collectLatest { responseStates ->
+                                    viewModelStateFlow.update {
+                                        it.copy(
+                                            results = responseStates,
+                                        )
                                     }
                                 }
                             }
                         }
-                    },
+                    }
+                },
             ),
         ).also { uiStateFlow ->
             coroutineScope.launch {
@@ -102,10 +102,10 @@ public class MoneyUsagesListViewModel(
                                         add(
                                             RootUsageListScreenUiState.Item.Title(
                                                 title =
-                                                    buildString {
-                                                        append("${result.date.year}年")
-                                                        append("${result.date.monthNumber}月")
-                                                    },
+                                                buildString {
+                                                    append("${result.date.year}年")
+                                                    append("${result.date.monthNumber}月")
+                                                },
                                             ),
                                         )
                                         lastMonth = result.date
@@ -116,26 +116,26 @@ public class MoneyUsagesListViewModel(
                                             amount = "${Formatter.formatMoney(result.amount)}円",
                                             date = Formatter.formatDateTime(result.date),
                                             category =
-                                                run category@{
-                                                    val subCategory =
-                                                        result.moneyUsageSubCategory ?: return@category null
+                                            run category@{
+                                                val subCategory =
+                                                    result.moneyUsageSubCategory ?: return@category null
 
-                                                    "${subCategory.category.name} / ${subCategory.name}"
-                                                },
+                                                "${subCategory.category.name} / ${subCategory.name}"
+                                            },
                                             event =
-                                                object : RootUsageListScreenUiState.ItemEvent {
-                                                    override fun onClick() {
-                                                        coroutineScope.launch {
-                                                            viewModelEventSender.send {
-                                                                it.navigate(
-                                                                    ScreenStructure.MoneyUsage(
-                                                                        id = result.id,
-                                                                    ),
-                                                                )
-                                                            }
+                                            object : RootUsageListScreenUiState.ItemEvent {
+                                                override fun onClick() {
+                                                    coroutineScope.launch {
+                                                        viewModelEventSender.send {
+                                                            it.navigate(
+                                                                ScreenStructure.MoneyUsage(
+                                                                    id = result.id,
+                                                                ),
+                                                            )
                                                         }
                                                     }
-                                                },
+                                                }
+                                            },
                                         ),
                                     )
                                 }
@@ -149,18 +149,18 @@ public class MoneyUsagesListViewModel(
                         uiStateFlow.update { uiState ->
                             uiState.copy(
                                 loadingState =
-                                    RootUsageListScreenUiState.LoadingState.Loaded(
-                                        loadToEnd = hasMore.not(),
-                                        items = items,
-                                        event =
-                                            object : RootUsageListScreenUiState.LoadedEvent {
-                                                override fun loadMore() {
-                                                    coroutineScope.launch {
-                                                        pagingModel.fetch()
-                                                    }
-                                                }
-                                            },
-                                    ),
+                                RootUsageListScreenUiState.LoadingState.Loaded(
+                                    loadToEnd = hasMore.not(),
+                                    items = items,
+                                    event =
+                                    object : RootUsageListScreenUiState.LoadedEvent {
+                                        override fun loadMore() {
+                                            coroutineScope.launch {
+                                                pagingModel.fetch()
+                                            }
+                                        }
+                                    },
+                                ),
                             )
                         }
                     }

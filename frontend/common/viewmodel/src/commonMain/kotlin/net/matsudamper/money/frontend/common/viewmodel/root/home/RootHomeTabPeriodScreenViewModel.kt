@@ -43,9 +43,9 @@ public class RootHomeTabPeriodScreenViewModel(
                     val period = viewModelStateFlow.value.displayPeriod
                     it.copy(
                         displayPeriod =
-                            period.copy(
-                                sinceDate = period.sinceDate.addMonth(1),
-                            ),
+                        period.copy(
+                            sinceDate = period.sinceDate.addMonth(1),
+                        ),
                     )
                 }
                 updateSinceDate()
@@ -56,9 +56,9 @@ public class RootHomeTabPeriodScreenViewModel(
                     val period = viewModelStateFlow.value.displayPeriod
                     it.copy(
                         displayPeriod =
-                            period.copy(
-                                sinceDate = period.sinceDate.addMonth(-1),
-                            ),
+                        period.copy(
+                            sinceDate = period.sinceDate.addMonth(-1),
+                        ),
                     )
                 }
                 updateSinceDate()
@@ -76,10 +76,10 @@ public class RootHomeTabPeriodScreenViewModel(
                 viewModelStateFlow.update {
                     it.copy(
                         displayPeriod =
-                            ViewModelState.Period(
-                                sinceDate = newSinceDate,
-                                monthCount = range,
-                            ),
+                        ViewModelState.Period(
+                            sinceDate = newSinceDate,
+                            monthCount = range,
+                        ),
                     )
                 }
                 updateSinceDate()
@@ -112,11 +112,11 @@ public class RootHomeTabPeriodScreenViewModel(
 
                             RootHomeTabPeriodUiState.LoadingState.Loaded(
                                 categoryType =
-                                    when (viewModelState.contentType) {
-                                        is ViewModelState.ContentType.All -> "すべて"
-                                        is ViewModelState.ContentType.Category -> viewModelState.contentType.name
-                                        is ViewModelState.ContentType.Loading -> ""
-                                    },
+                                when (viewModelState.contentType) {
+                                    is ViewModelState.ContentType.All -> "すべて"
+                                    is ViewModelState.ContentType.Category -> viewModelState.contentType.name
+                                    is ViewModelState.ContentType.Loading -> ""
+                                },
                                 categoryTypes = createCategoryTypes(categories = viewModelState.categories).toImmutableList(),
                                 between = "${displayPeriods.first().year}/${displayPeriods.first().month} - ${displayPeriods.last().year}/${displayPeriods.last().month}",
                                 rangeText = "${viewModelState.displayPeriod.monthCount}ヶ月",
@@ -138,13 +138,13 @@ public class RootHomeTabPeriodScreenViewModel(
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     displayPeriod =
-                        viewModelState.displayPeriod.copy(
-                            sinceDate =
-                                ViewModelState.YearMonth(
-                                    year = since.year,
-                                    month = since.monthNumber,
-                                ),
+                    viewModelState.displayPeriod.copy(
+                        sinceDate =
+                        ViewModelState.YearMonth(
+                            year = since.year,
+                            month = since.monthNumber,
                         ),
+                    ),
                 )
             }
         }
@@ -225,10 +225,10 @@ public class RootHomeTabPeriodScreenViewModel(
                             viewModelStateFlow.update { viewModelState ->
                                 viewModelState.copy(
                                     contentType =
-                                        ViewModelState.ContentType.Category(
-                                            categoryId = category.id,
-                                            name = category.name,
-                                        ),
+                                    ViewModelState.ContentType.Category(
+                                        categoryId = category.id,
+                                        name = category.name,
+                                    ),
                                 )
                             }
                         },

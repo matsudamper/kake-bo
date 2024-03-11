@@ -120,16 +120,16 @@ public class RootHomeTabPeriodAllContentViewModel(
                 rootHomeTabPeriodUiState = periodViewModel.uiStateFlow.value,
                 rootHomeTabUiState = tabViewModel.uiStateFlow.value,
                 event =
-                    object : RootHomeTabPeriodAllContentUiState.Event {
-                        override suspend fun onViewInitialized() {
-                            val period = viewModelStateFlow.value.displayPeriod
+                object : RootHomeTabPeriodAllContentUiState.Event {
+                    override suspend fun onViewInitialized() {
+                        val period = viewModelStateFlow.value.displayPeriod
 
-                            fetchAll(
-                                period = period,
-                                forceReFetch = true,
-                            )
-                        }
-                    },
+                        fetchAll(
+                            period = period,
+                            forceReFetch = true,
+                        )
+                    }
+                },
             ),
         ).also { uiStateFlow ->
             coroutineScope.launch {
@@ -230,8 +230,8 @@ public class RootHomeTabPeriodAllContentViewModel(
                         viewModelStateFlow.update {
                             it.copy(
                                 allResponseMap =
-                                    it.allResponseMap
-                                        .plus(startYearMonth to result.getOrNull()),
+                                it.allResponseMap
+                                    .plus(startYearMonth to result.getOrNull()),
                             )
                         }
                     }
@@ -251,75 +251,75 @@ public class RootHomeTabPeriodAllContentViewModel(
     ): RootHomeTabPeriodAllContentUiState.LoadingState.Loaded? {
         return RootHomeTabPeriodAllContentUiState.LoadingState.Loaded(
             barGraph =
-                BarGraphUiState(
-                    items =
-                        responses.map { (yearMonth, response) ->
-                            BarGraphUiState.PeriodData(
-                                year = yearMonth.year,
-                                month = yearMonth.month,
-                                items =
-                                    run item@{
-                                        val byCategory =
-                                            response.data?.user?.moneyUsageAnalytics?.byCategories
-                                                ?: return null
+            BarGraphUiState(
+                items =
+                responses.map { (yearMonth, response) ->
+                    BarGraphUiState.PeriodData(
+                        year = yearMonth.year,
+                        month = yearMonth.month,
+                        items =
+                        run item@{
+                            val byCategory =
+                                response.data?.user?.moneyUsageAnalytics?.byCategories
+                                    ?: return null
 
-                                        byCategory.map {
-                                            val amount =
-                                                it.totalAmount
-                                                    ?: return null
-                                            BarGraphUiState.Item(
-                                                color = reservedColorModel.getColor(it.category.id.value.toString()),
-                                                title = it.category.name,
-                                                value = amount,
-                                            )
-                                        }.toImmutableList()
-                                    },
-                                total =
-                                    response.data?.user?.moneyUsageAnalytics?.totalAmount
-                                        ?: return null,
-                                event =
-                                    object : BarGraphUiState.PeriodDataEvent {
-                                        override fun onClick() {
-                                            coroutineScope.launch {
-                                                eventSender.send {
-                                                    it.navigate(
-                                                        RootHomeScreenStructure.Monthly(
-                                                            date = LocalDate(yearMonth.year, yearMonth.month, 1),
-                                                        ),
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    },
-                            )
-                        }.toImmutableList(),
-                ),
-            totalBarColorTextMapping =
-                categories.map { category ->
-                    GraphTitleChipUiState(
-                        color = reservedColorModel.getColor(category.id.value.toString()),
-                        title = category.name,
-                        onClick = {
-                            coroutineScope.launch {
-                                eventSender.send {
-                                    it.navigate(RootHomeScreenStructure.PeriodCategory(category.id))
+                            byCategory.map {
+                                val amount =
+                                    it.totalAmount
+                                        ?: return null
+                                BarGraphUiState.Item(
+                                    color = reservedColorModel.getColor(it.category.id.value.toString()),
+                                    title = it.category.name,
+                                    value = amount,
+                                )
+                            }.toImmutableList()
+                        },
+                        total =
+                        response.data?.user?.moneyUsageAnalytics?.totalAmount
+                            ?: return null,
+                        event =
+                        object : BarGraphUiState.PeriodDataEvent {
+                            override fun onClick() {
+                                coroutineScope.launch {
+                                    eventSender.send {
+                                        it.navigate(
+                                            RootHomeScreenStructure.Monthly(
+                                                date = LocalDate(yearMonth.year, yearMonth.month, 1),
+                                            ),
+                                        )
+                                    }
                                 }
                             }
                         },
                     )
                 }.toImmutableList(),
+            ),
+            totalBarColorTextMapping =
+            categories.map { category ->
+                GraphTitleChipUiState(
+                    color = reservedColorModel.getColor(category.id.value.toString()),
+                    title = category.name,
+                    onClick = {
+                        coroutineScope.launch {
+                            eventSender.send {
+                                it.navigate(RootHomeScreenStructure.PeriodCategory(category.id))
+                            }
+                        }
+                    },
+                )
+            }.toImmutableList(),
             monthTotalItems =
-                responses.map { (yearMonth, response) ->
-                    RootHomeTabPeriodUiState.MonthTotalItem(
-                        amount =
-                            Formatter.formatMoney(
-                                response.data?.user?.moneyUsageAnalytics?.totalAmount
-                                    ?: return null,
-                            ) + "円",
-                        title = "${yearMonth.year}/${yearMonth.month.toString().padStart(2, '0')}",
-                        event = MonthTotalItemEvent(yearMonth),
-                    )
-                }.toImmutableList(),
+            responses.map { (yearMonth, response) ->
+                RootHomeTabPeriodUiState.MonthTotalItem(
+                    amount =
+                    Formatter.formatMoney(
+                        response.data?.user?.moneyUsageAnalytics?.totalAmount
+                            ?: return null,
+                    ) + "円",
+                    title = "${yearMonth.year}/${yearMonth.month.toString().padStart(2, '0')}",
+                    event = MonthTotalItemEvent(yearMonth),
+                )
+            }.toImmutableList(),
         )
     }
 
@@ -345,10 +345,10 @@ public class RootHomeTabPeriodAllContentViewModel(
             viewModelStateFlow.update {
                 it.copy(
                     displayPeriod =
-                        it.displayPeriod.copy(
-                            sinceDate = ViewModelState.YearMonth(since.year, since.monthNumber),
-                            monthCount = current.period,
-                        ),
+                    it.displayPeriod.copy(
+                        sinceDate = ViewModelState.YearMonth(since.year, since.monthNumber),
+                        monthCount = current.period,
+                    ),
                 )
             }
         }

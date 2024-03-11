@@ -58,8 +58,8 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
             ): PeriodAnalytics {
                 return PeriodAnalytics(
                     since =
-                        queryParams[SINCE_KEY]?.firstOrNull()
-                            ?.let { LocalDate.parse("$it-01") },
+                    queryParams[SINCE_KEY]?.firstOrNull()
+                        ?.let { LocalDate.parse("$it-01") },
                     period = queryParams[PERIOD_KEY]?.firstOrNull()?.toIntOrNull() ?: 3,
                 )
             }
@@ -106,8 +106,8 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
                 return PeriodCategory(
                     categoryId = MoneyUsageCategoryId(pathParams["id"]!!.toInt()),
                     since =
-                        queryParams[SINCE_KEY]?.firstOrNull()
-                            ?.let { LocalDate.parse("$it-01") },
+                    queryParams[SINCE_KEY]?.firstOrNull()
+                        ?.let { LocalDate.parse("$it-01") },
                 )
             }
         }
@@ -146,8 +146,8 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
             ): Monthly {
                 return Monthly(
                     date =
-                        queryParams[MONTH_KEY]?.firstOrNull()
-                            ?.let { LocalDate.parse("$it-01") },
+                    queryParams[MONTH_KEY]?.firstOrNull()
+                        ?.let { LocalDate.parse("$it-01") },
                 )
             }
         }

@@ -29,19 +29,19 @@ public class ImapSettingViewModel(
                 textInputEvents = immutableListOf(),
                 loadingState = ImapSettingScreenUiState.LoadingState.Loading,
                 event =
-                    object : ImapSettingScreenUiState.Event {
-                        override fun consumeTextInputEvent(event: ImapSettingScreenUiState.TextInputUiState) {
-                            viewModelStateFlow.update {
-                                it.copy(
-                                    textInputEvents = it.textInputEvents.minus(event),
-                                )
-                            }
+                object : ImapSettingScreenUiState.Event {
+                    override fun consumeTextInputEvent(event: ImapSettingScreenUiState.TextInputUiState) {
+                        viewModelStateFlow.update {
+                            it.copy(
+                                textInputEvents = it.textInputEvents.minus(event),
+                            )
                         }
+                    }
 
-                        override fun onResume() {
-                            load()
-                        }
-                    },
+                    override fun onResume() {
+                        load()
+                    }
+                },
             ),
         ).also { uiStateFlow ->
             coroutineScope.launch {
@@ -55,18 +55,18 @@ public class ImapSettingViewModel(
                             } else {
                                 ImapSettingScreenUiState.LoadingState.Loaded(
                                     imapConfig =
-                                        ImapSettingScreenUiState.ImapConfig(
-                                            host = imapConfig.host.orEmpty(),
-                                            port = imapConfig.port?.toString().orEmpty(),
-                                            userName = imapConfig.userName.orEmpty(),
-                                            password =
-                                                if (imapConfig.hasPassword == true) {
-                                                    "****************"
-                                                } else {
-                                                    ""
-                                                },
-                                            event = imapConfigEvent,
-                                        ),
+                                    ImapSettingScreenUiState.ImapConfig(
+                                        host = imapConfig.host.orEmpty(),
+                                        port = imapConfig.port?.toString().orEmpty(),
+                                        userName = imapConfig.userName.orEmpty(),
+                                        password =
+                                        if (imapConfig.hasPassword == true) {
+                                            "****************"
+                                        } else {
+                                            ""
+                                        },
+                                        event = imapConfigEvent,
+                                    ),
                                 )
                             }
 
@@ -87,38 +87,38 @@ public class ImapSettingViewModel(
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         textInputEvents =
-                            viewModelState.textInputEvents.plus(
-                                createEvent(
-                                    title = "ホスト名",
-                                    default = viewModelState.imapConfig?.host,
-                                    complete = { text, event ->
-                                        val result =
-                                            runCatching {
-                                                withContext(ioDispatchers) {
-                                                    graphqlQuery.setImapHost(
-                                                        host = text,
-                                                    )
-                                                }
-                                            }.onFailure {
-                                                globalEventSender.send {
-                                                    it.showNativeNotification("更新に失敗しました")
-                                                }
-                                                return@createEvent
-                                            }.getOrNull() ?: return@createEvent
+                        viewModelState.textInputEvents.plus(
+                            createEvent(
+                                title = "ホスト名",
+                                default = viewModelState.imapConfig?.host,
+                                complete = { text, event ->
+                                    val result =
+                                        runCatching {
+                                            withContext(ioDispatchers) {
+                                                graphqlQuery.setImapHost(
+                                                    host = text,
+                                                )
+                                            }
+                                        }.onFailure {
+                                            globalEventSender.send {
+                                                it.showNativeNotification("更新に失敗しました")
+                                            }
+                                            return@createEvent
+                                        }.getOrNull() ?: return@createEvent
 
-                                        val updateImapConfig =
-                                            result.data?.userMutation?.settingsMutation?.updateImapConfig?.displayImapConfig
-                                                ?: return@createEvent
+                                    val updateImapConfig =
+                                        result.data?.userMutation?.settingsMutation?.updateImapConfig?.displayImapConfig
+                                            ?: return@createEvent
 
-                                        viewModelStateFlow.update {
-                                            it.copy(
-                                                imapConfig = updateImapConfig,
-                                                textInputEvents = it.textInputEvents.minus(event),
-                                            )
-                                        }
-                                    },
-                                ),
+                                    viewModelStateFlow.update {
+                                        it.copy(
+                                            imapConfig = updateImapConfig,
+                                            textInputEvents = it.textInputEvents.minus(event),
+                                        )
+                                    }
+                                },
                             ),
+                        ),
                     )
                 }
             }
@@ -127,38 +127,38 @@ public class ImapSettingViewModel(
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         textInputEvents =
-                            viewModelState.textInputEvents.plus(
-                                createEvent(
-                                    title = "ユーザー名",
-                                    default = viewModelState.imapConfig?.userName,
-                                    complete = { text, event ->
-                                        val result =
-                                            runCatching {
-                                                withContext(ioDispatchers) {
-                                                    graphqlQuery.setImapUserName(
-                                                        userName = text,
-                                                    )
-                                                }
-                                            }.onFailure {
-                                                globalEventSender.send {
-                                                    it.showNativeNotification("更新に失敗しました")
-                                                }
-                                                return@createEvent
-                                            }.getOrNull() ?: return@createEvent
+                        viewModelState.textInputEvents.plus(
+                            createEvent(
+                                title = "ユーザー名",
+                                default = viewModelState.imapConfig?.userName,
+                                complete = { text, event ->
+                                    val result =
+                                        runCatching {
+                                            withContext(ioDispatchers) {
+                                                graphqlQuery.setImapUserName(
+                                                    userName = text,
+                                                )
+                                            }
+                                        }.onFailure {
+                                            globalEventSender.send {
+                                                it.showNativeNotification("更新に失敗しました")
+                                            }
+                                            return@createEvent
+                                        }.getOrNull() ?: return@createEvent
 
-                                        val updateImapConfig =
-                                            result.data?.userMutation?.settingsMutation?.updateImapConfig?.displayImapConfig
-                                                ?: return@createEvent
+                                    val updateImapConfig =
+                                        result.data?.userMutation?.settingsMutation?.updateImapConfig?.displayImapConfig
+                                            ?: return@createEvent
 
-                                        viewModelStateFlow.update {
-                                            it.copy(
-                                                imapConfig = updateImapConfig,
-                                                textInputEvents = it.textInputEvents.minus(event),
-                                            )
-                                        }
-                                    },
-                                ),
+                                    viewModelStateFlow.update {
+                                        it.copy(
+                                            imapConfig = updateImapConfig,
+                                            textInputEvents = it.textInputEvents.minus(event),
+                                        )
+                                    }
+                                },
                             ),
+                        ),
                     )
                 }
             }
@@ -167,45 +167,45 @@ public class ImapSettingViewModel(
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         textInputEvents =
-                            viewModelState.textInputEvents.plus(
-                                createEvent(
-                                    title = "ポート",
-                                    default = viewModelState.imapConfig?.port?.toString(),
-                                    complete = { text, event ->
-                                        val port = text.toIntOrNull()
-                                        if (port == null) {
+                        viewModelState.textInputEvents.plus(
+                            createEvent(
+                                title = "ポート",
+                                default = viewModelState.imapConfig?.port?.toString(),
+                                complete = { text, event ->
+                                    val port = text.toIntOrNull()
+                                    if (port == null) {
+                                        globalEventSender.send {
+                                            it.showNativeNotification("数値を入力してください")
+                                        }
+                                        return@createEvent
+                                    }
+                                    val result =
+                                        runCatching {
+                                            withContext(ioDispatchers) {
+                                                graphqlQuery.setImapPort(
+                                                    port = port,
+                                                )
+                                            }
+                                        }.onFailure {
                                             globalEventSender.send {
-                                                it.showNativeNotification("数値を入力してください")
+                                                it.showNativeNotification("更新に失敗しました")
                                             }
                                             return@createEvent
-                                        }
-                                        val result =
-                                            runCatching {
-                                                withContext(ioDispatchers) {
-                                                    graphqlQuery.setImapPort(
-                                                        port = port,
-                                                    )
-                                                }
-                                            }.onFailure {
-                                                globalEventSender.send {
-                                                    it.showNativeNotification("更新に失敗しました")
-                                                }
-                                                return@createEvent
-                                            }.getOrNull() ?: return@createEvent
+                                        }.getOrNull() ?: return@createEvent
 
-                                        val updateImapConfig =
-                                            result.data?.userMutation?.settingsMutation?.updateImapConfig?.displayImapConfig
-                                                ?: return@createEvent
+                                    val updateImapConfig =
+                                        result.data?.userMutation?.settingsMutation?.updateImapConfig?.displayImapConfig
+                                            ?: return@createEvent
 
-                                        viewModelStateFlow.update {
-                                            it.copy(
-                                                imapConfig = updateImapConfig,
-                                                textInputEvents = it.textInputEvents.minus(event),
-                                            )
-                                        }
-                                    },
-                                ),
+                                    viewModelStateFlow.update {
+                                        it.copy(
+                                            imapConfig = updateImapConfig,
+                                            textInputEvents = it.textInputEvents.minus(event),
+                                        )
+                                    }
+                                },
                             ),
+                        ),
                     )
                 }
             }
@@ -214,36 +214,36 @@ public class ImapSettingViewModel(
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         textInputEvents =
-                            viewModelState.textInputEvents.plus(
-                                createEvent(
-                                    title = "パスワード",
-                                    default = null,
-                                    complete = { text, event ->
-                                        val result =
-                                            runCatching {
-                                                withContext(ioDispatchers) {
-                                                    graphqlQuery.setImapPassword(
-                                                        password = text,
-                                                    )
-                                                }
-                                            }.onFailure {
-                                                globalEventSender.send {
-                                                    it.showNativeNotification("更新に失敗しました")
-                                                }
-                                            }.getOrNull() ?: return@createEvent
-                                        val updateImapConfig =
-                                            result.data?.userMutation?.settingsMutation?.updateImapConfig?.displayImapConfig
-                                                ?: return@createEvent
+                        viewModelState.textInputEvents.plus(
+                            createEvent(
+                                title = "パスワード",
+                                default = null,
+                                complete = { text, event ->
+                                    val result =
+                                        runCatching {
+                                            withContext(ioDispatchers) {
+                                                graphqlQuery.setImapPassword(
+                                                    password = text,
+                                                )
+                                            }
+                                        }.onFailure {
+                                            globalEventSender.send {
+                                                it.showNativeNotification("更新に失敗しました")
+                                            }
+                                        }.getOrNull() ?: return@createEvent
+                                    val updateImapConfig =
+                                        result.data?.userMutation?.settingsMutation?.updateImapConfig?.displayImapConfig
+                                            ?: return@createEvent
 
-                                        viewModelStateFlow.update {
-                                            it.copy(
-                                                imapConfig = updateImapConfig,
-                                                textInputEvents = it.textInputEvents.minus(event),
-                                            )
-                                        }
-                                    },
-                                ),
+                                    viewModelStateFlow.update {
+                                        it.copy(
+                                            imapConfig = updateImapConfig,
+                                            textInputEvents = it.textInputEvents.minus(event),
+                                        )
+                                    }
+                                },
                             ),
+                        ),
                     )
                 }
             }
@@ -257,24 +257,24 @@ public class ImapSettingViewModel(
                     title = title,
                     default = default.orEmpty(),
                     event =
-                        object : ImapSettingScreenUiState.TextInputUiState.Event {
-                            override fun complete(
-                                text: String,
-                                event: ImapSettingScreenUiState.TextInputUiState,
-                            ) {
-                                coroutineScope.launch {
-                                    complete(text, event)
-                                }
+                    object : ImapSettingScreenUiState.TextInputUiState.Event {
+                        override fun complete(
+                            text: String,
+                            event: ImapSettingScreenUiState.TextInputUiState,
+                        ) {
+                            coroutineScope.launch {
+                                complete(text, event)
                             }
+                        }
 
-                            override fun cancel(event: ImapSettingScreenUiState.TextInputUiState) {
-                                viewModelStateFlow.update {
-                                    it.copy(
-                                        textInputEvents = it.textInputEvents.minus(event),
-                                    )
-                                }
+                        override fun cancel(event: ImapSettingScreenUiState.TextInputUiState) {
+                            viewModelStateFlow.update {
+                                it.copy(
+                                    textInputEvents = it.textInputEvents.minus(event),
+                                )
                             }
-                        },
+                        }
+                    },
                 )
             }
         }

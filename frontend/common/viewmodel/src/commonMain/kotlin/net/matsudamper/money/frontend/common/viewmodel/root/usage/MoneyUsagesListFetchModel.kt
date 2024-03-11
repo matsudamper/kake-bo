@@ -83,17 +83,17 @@ public class MoneyUsagesListFetchModel(
             }
             UsageListScreenPagingQuery(
                 query =
-                    MoneyUsagesQuery(
-                        cursor = Optional.present(cursor),
-                        size = 10,
-                        isAsc = false,
-                        filter =
-                            Optional.present(
-                                MoneyUsagesQueryFilter(
-                                    text = Optional.present(state.value.searchText),
-                                ),
-                            ),
+                MoneyUsagesQuery(
+                    cursor = Optional.present(cursor),
+                    size = 10,
+                    isAsc = false,
+                    filter =
+                    Optional.present(
+                        MoneyUsagesQueryFilter(
+                            text = Optional.present(state.value.searchText),
+                        ),
                     ),
+                ),
             )
         }
     }

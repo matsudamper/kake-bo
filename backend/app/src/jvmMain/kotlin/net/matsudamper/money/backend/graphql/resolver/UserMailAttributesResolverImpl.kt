@@ -63,27 +63,27 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
             QlUserMailConnection(
                 error = null,
                 usrMails =
-                    mails.map { mail ->
-                        val html = mail.content.filterIsInstance<MailResult.Content.Html>()
-                        val text = mail.content.filterIsInstance<MailResult.Content.Text>()
+                mails.map { mail ->
+                    val html = mail.content.filterIsInstance<MailResult.Content.Html>()
+                    val text = mail.content.filterIsInstance<MailResult.Content.Text>()
 
-                        // TODO: mail.forwardedForの先頭を見て、許可されているメールだけを取り込むようにする
-                        QlUserMail(
-                            id = mail.messageID,
-                            plain = text.getOrNull(0)?.text,
-                            html = html.getOrNull(0)?.html,
-                            time = OffsetDateTime.ofInstant(mail.sendDate, ZoneOffset.UTC),
-                            subject = mail.subject,
-                            sender = mail.sender,
-                            from = mail.from,
-                        )
-                    },
+                    // TODO: mail.forwardedForの先頭を見て、許可されているメールだけを取り込むようにする
+                    QlUserMail(
+                        id = mail.messageID,
+                        plain = text.getOrNull(0)?.text,
+                        html = html.getOrNull(0)?.html,
+                        time = OffsetDateTime.ofInstant(mail.sendDate, ZoneOffset.UTC),
+                        subject = mail.subject,
+                        sender = mail.sender,
+                        from = mail.from,
+                    )
+                },
                 cursor =
-                    if (mails.isEmpty()) {
-                        null
-                    } else {
-                        UserMailQueryCursor(mails.size + (cursor?.offset ?: 0)).createCursorString()
-                    },
+                if (mails.isEmpty()) {
+                    null
+                } else {
+                    UserMailQueryCursor(mails.size + (cursor?.offset ?: 0)).createCursorString()
+                },
             )
         }.toDataFetcher()
     }

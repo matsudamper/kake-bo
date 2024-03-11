@@ -62,14 +62,14 @@ internal object JapanTsushinUsageServices : MoneyUsageServices {
                 title = name,
                 price = price,
                 description =
-                    buildString {
-                        if (number != null) {
-                            appendLine("電話番号: $number")
-                        }
-                        if (dataAmount != null) {
-                            appendLine("使用データ量: $dataAmount")
-                        }
-                    }.trim(),
+                buildString {
+                    if (number != null) {
+                        appendLine("電話番号: $number")
+                    }
+                    if (dataAmount != null) {
+                        appendLine("使用データ量: $dataAmount")
+                    }
+                }.trim(),
                 service = MoneyUsageServiceType.JapanTsushin,
                 dateTime = forwardedInfo?.date ?: date,
             ),

@@ -36,29 +36,29 @@ class AdminMutationResolverImpl : AdminMutationResolver {
                 is AddUserUseCase.Result.Failure -> {
                     QlAdminAddUserResult(
                         errorType =
-                            result.errors.map {
-                                when (it) {
-                                    is AddUserUseCase.Result.Errors.InternalServerError -> {
-                                        QlAdminAddUserErrorType.Unknown
-                                    }
-
-                                    is AddUserUseCase.Result.Errors.PasswordLength -> {
-                                        QlAdminAddUserErrorType.PasswordLength
-                                    }
-
-                                    is AddUserUseCase.Result.Errors.PasswordValidation -> {
-                                        QlAdminAddUserErrorType.PasswordInvalidChar
-                                    }
-
-                                    AddUserUseCase.Result.Errors.UserNameLength -> {
-                                        QlAdminAddUserErrorType.UserNameLength
-                                    }
-
-                                    AddUserUseCase.Result.Errors.UserNameValidation -> {
-                                        QlAdminAddUserErrorType.UserNameInvalidChar
-                                    }
+                        result.errors.map {
+                            when (it) {
+                                is AddUserUseCase.Result.Errors.InternalServerError -> {
+                                    QlAdminAddUserErrorType.Unknown
                                 }
-                            },
+
+                                is AddUserUseCase.Result.Errors.PasswordLength -> {
+                                    QlAdminAddUserErrorType.PasswordLength
+                                }
+
+                                is AddUserUseCase.Result.Errors.PasswordValidation -> {
+                                    QlAdminAddUserErrorType.PasswordInvalidChar
+                                }
+
+                                AddUserUseCase.Result.Errors.UserNameLength -> {
+                                    QlAdminAddUserErrorType.UserNameLength
+                                }
+
+                                AddUserUseCase.Result.Errors.UserNameValidation -> {
+                                    QlAdminAddUserErrorType.UserNameInvalidChar
+                                }
+                            }
+                        },
                     )
                 }
 

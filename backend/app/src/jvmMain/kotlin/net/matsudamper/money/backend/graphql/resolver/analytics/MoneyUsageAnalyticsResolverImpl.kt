@@ -54,17 +54,15 @@ class MoneyUsageAnalyticsResolverImpl : MoneyUsageAnalyticsResolver {
                     }.getOrNull() ?: return@supplyAsync DataFetcherResultBuilder.buildNullValue()
 
             DataFetcherResultBuilder.nullable(
-                value =
-                    results.map {
-                        QlMoneyUsageAnalyticsByCategory(
-                            category = QlMoneyUsageCategory(it.categoryId),
-                            totalAmount = it.totalAmount,
-                        )
-                    },
-                localContext =
-                    MoneyUsageAnalyticsByCategoryLocalContext(
-                        query = env.localContext.query,
-                    ),
+                value = results.map {
+                    QlMoneyUsageAnalyticsByCategory(
+                        category = QlMoneyUsageCategory(it.categoryId),
+                        totalAmount = it.totalAmount,
+                    )
+                },
+                localContext = MoneyUsageAnalyticsByCategoryLocalContext(
+                    query = env.localContext.query,
+                ),
             ).build()
         }
     }

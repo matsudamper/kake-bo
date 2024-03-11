@@ -51,11 +51,11 @@ private fun RootSettingItem(
 ) {
     Column(
         modifier =
-            modifier.fillMaxWidth()
-                .clickable {
-                    onClick()
-                }
-                .padding(12.dp),
+        modifier.fillMaxWidth()
+            .clickable {
+                onClick()
+            }
+            .padding(12.dp),
     ) {
         text()
     }

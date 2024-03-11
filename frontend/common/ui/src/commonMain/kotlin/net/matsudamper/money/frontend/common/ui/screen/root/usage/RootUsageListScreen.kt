@@ -108,19 +108,19 @@ public fun RootUsageListScreen(
 
                 ScrollButtons(
                     modifier =
-                        Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(ScrollButtonsDefaults.padding)
-                            .height(ScrollButtonsDefaults.height),
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(ScrollButtonsDefaults.padding)
+                        .height(ScrollButtonsDefaults.height),
                     scrollState = lazyListState,
                     scrollSize =
-                        with(density) {
-                            height.toPx() * 0.7f
-                        },
+                    with(density) {
+                        height.toPx() * 0.7f
+                    },
                     animationSpec =
-                        spring(
-                            stiffness = Spring.StiffnessLow,
-                        ),
+                    spring(
+                        stiffness = Spring.StiffnessLow,
+                    ),
                 )
             }
 
@@ -144,10 +144,10 @@ private fun LoadedContent(
         modifier = modifier,
         state = lazyListState,
         contentPadding =
-            PaddingValues(
-                start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
-            ),
+        PaddingValues(
+            start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
+            end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+        ),
     ) {
         item {
             Spacer(modifier = Modifier.heightIn(paddingValues.calculateTopPadding()))
@@ -167,10 +167,10 @@ private fun LoadedContent(
                 is RootUsageListScreenUiState.Item.Usage -> {
                     ListItemUsage(
                         modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 6.dp)
-                                .padding(start = 12.dp),
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 6.dp)
+                            .padding(start = 12.dp),
                         item = item,
                     )
                 }
@@ -187,8 +187,8 @@ private fun LoadedContent(
                 }
                 Box(
                     modifier =
-                        Modifier.fillMaxWidth()
-                            .padding(vertical = 12.dp),
+                    Modifier.fillMaxWidth()
+                        .padding(vertical = 12.dp),
                 ) {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
@@ -230,8 +230,8 @@ private fun ListItemUsage(
     ) {
         GridColumn(
             modifier =
-                Modifier.fillMaxWidth()
-                    .padding(12.dp),
+            Modifier.fillMaxWidth()
+                .padding(12.dp),
             horizontalPadding = 8.dp,
             verticalPadding = 4.dp,
         ) {

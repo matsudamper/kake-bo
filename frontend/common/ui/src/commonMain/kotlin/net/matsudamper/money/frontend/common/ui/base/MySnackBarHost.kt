@@ -31,38 +31,38 @@ public fun MySnackBarHost(
         Snackbar(
             modifier = Modifier.padding(12.dp),
             action =
-                if (actionLabel != null) {
-                    {
-                        TextButton(
-                            colors = ButtonDefaults.textButtonColors(contentColor = actionColor),
-                            onClick = { snackbarData.performAction() },
-                            content = {
-                                Text(
-                                    text = actionLabel,
-                                    fontFamily = rememberCustomFontFamily(),
-                                )
-                            },
-                        )
-                    }
-                } else {
-                    null
-                },
+            if (actionLabel != null) {
+                {
+                    TextButton(
+                        colors = ButtonDefaults.textButtonColors(contentColor = actionColor),
+                        onClick = { snackbarData.performAction() },
+                        content = {
+                            Text(
+                                text = actionLabel,
+                                fontFamily = rememberCustomFontFamily(),
+                            )
+                        },
+                    )
+                }
+            } else {
+                null
+            },
             dismissAction =
-                if (snackbarData.visuals.withDismissAction) {
-                    {
-                        IconButton(
-                            onClick = { snackbarData.dismiss() },
-                            content = {
-                                Icon(
-                                    Icons.Filled.Close,
-                                    contentDescription = null,
-                                )
-                            },
-                        )
-                    }
-                } else {
-                    null
-                },
+            if (snackbarData.visuals.withDismissAction) {
+                {
+                    IconButton(
+                        onClick = { snackbarData.dismiss() },
+                        content = {
+                            Icon(
+                                Icons.Filled.Close,
+                                contentDescription = null,
+                            )
+                        },
+                    )
+                }
+            } else {
+                null
+            },
             actionOnNewLine = false,
             shape = SnackbarDefaults.shape,
             containerColor = SnackbarDefaults.color,

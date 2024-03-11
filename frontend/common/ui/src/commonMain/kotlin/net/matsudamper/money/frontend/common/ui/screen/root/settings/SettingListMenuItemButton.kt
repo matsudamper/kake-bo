@@ -23,11 +23,11 @@ internal fun SettingListMenuItemButton(
 ) {
     Box(
         modifier =
-            modifier.fillMaxWidth()
-                .clip(MaterialTheme.shapes.medium)
-                .clickable { onClick() }
-                .padding(horizontal = 8.dp)
-                .padding(vertical = 16.dp),
+        modifier.fillMaxWidth()
+            .clip(MaterialTheme.shapes.medium)
+            .clickable { onClick() }
+            .padding(horizontal = 8.dp)
+            .padding(vertical = 16.dp),
         contentAlignment = Alignment.CenterStart,
     ) {
         ProvideTextStyle(

@@ -77,10 +77,10 @@ public class ImportedMailCategoryFilterScreenPagingModel(
 
                 ImportedMailCategoryFiltersScreenPagingQuery(
                     query =
-                        ImportedMailCategoryFiltersQuery(
-                            cursor = Optional.present(cursor),
-                            isAsc = true,
-                        ),
+                    ImportedMailCategoryFiltersQuery(
+                        cursor = Optional.present(cursor),
+                        isAsc = true,
+                    ),
                 )
             },
         )
