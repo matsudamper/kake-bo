@@ -27,20 +27,19 @@ class DbUserLoginRepository(
         userName: String,
         passwords: String,
     ): UserLoginRepository.Result {
-        val result =
-            DbConnectionImpl.use {
-                DSL.using(it)
-                    .select(userPasswords, userPasswordExtendData)
-                    .from(user)
-                    .join(userPasswords)
-                    .on(userPasswords.USER_ID.eq(user.USER_ID))
-                    .join(userPasswordExtendData)
-                    .on(userPasswordExtendData.USER_ID.eq(userPasswords.USER_ID))
-                    .where(
-                        user.USER_NAME.eq(userName),
-                    )
-                    .fetchOne()
-            } ?: return UserLoginRepository.Result.Failure
+        val result = dbConnection.use {
+            DSL.using(it)
+                .select(userPasswords, userPasswordExtendData)
+                .from(user)
+                .join(userPasswords)
+                .on(userPasswords.USER_ID.eq(user.USER_ID))
+                .join(userPasswordExtendData)
+                .on(userPasswordExtendData.USER_ID.eq(userPasswords.USER_ID))
+                .where(
+                    user.USER_NAME.eq(userName),
+                )
+                .fetchOne()
+        } ?: return UserLoginRepository.Result.Failure
 
         val userPasswordRecord: JUserPasswordsRecord = result.value1()
         val userPasswordExtendDataRecord: JUserPasswordExtendDataRecord = result.value2()
