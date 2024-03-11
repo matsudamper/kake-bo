@@ -66,8 +66,7 @@ class UserResolverImpl : UserResolver {
 
                 is MoneyUsageCategoryRepository.GetCategoryResult.Success -> {
                     QlMoneyUsageCategoriesConnection(
-                        nodes =
-                        result.results.map {
+                        nodes = result.results.map {
                             QlMoneyUsageCategory(
                                 id = it.moneyUsageCategoryId,
                             )
