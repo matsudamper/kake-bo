@@ -59,24 +59,24 @@ class AddUserUseCase(
     }
 
     sealed interface Result {
-        object Success : Result
+        data object Success : Result
 
         class Failure(
             val errors: List<Errors>,
         ) : Result
 
         sealed interface Errors {
-            object PasswordLength : Errors
+            data object PasswordLength : Errors
 
             class PasswordValidation(
                 val errorChar: List<Char>,
             ) : Errors
 
-            object UserNameLength : Errors
+            data object UserNameLength : Errors
 
-            object UserNameValidation : Errors
+            data object UserNameValidation : Errors
 
-            object InternalServerError : Errors
+            data object InternalServerError : Errors
         }
     }
 
