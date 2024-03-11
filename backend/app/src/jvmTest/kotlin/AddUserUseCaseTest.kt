@@ -19,7 +19,7 @@ class AddUserUseCaseTest : DescribeSpec(
                     val useCase = AddUserUseCase(
                         adminRepository = operation,
                         passwordManager = object : IPasswordManager {
-                            override fun create(password: String): IPasswordManager.CreateResult {
+                            override fun create(password: String, keyByteLength: Int, iterationCount: Int, saltByteLength: Int, algorithm: IPasswordManager.Algorithm): IPasswordManager.CreateResult {
                                 return IPasswordManager.CreateResult(
                                     salt = ByteArray(0),
                                     algorithm = "",
@@ -27,6 +27,10 @@ class AddUserUseCaseTest : DescribeSpec(
                                     keyLength = 0,
                                     hashedPassword = password,
                                 )
+                            }
+
+                            override fun getHashedPassword(password: String, salt: ByteArray, iterationCount: Int, keyLength: Int, algorithm: IPasswordManager.Algorithm): ByteArray {
+                                return ByteArray(0)
                             }
                         },
                     )
