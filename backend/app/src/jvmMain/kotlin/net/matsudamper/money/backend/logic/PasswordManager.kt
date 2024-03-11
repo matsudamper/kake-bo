@@ -6,17 +6,29 @@ import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 import net.matsudamper.money.backend.base.ServerEnv
 
+interface IPasswordManager {
+    fun create(password: String): CreateResult
+
+    class CreateResult(
+        val salt: ByteArray,
+        val algorithm: String,
+        val iterationCount: Int,
+        val keyLength: Int,
+        val hashedPassword: String,
+    )
+}
+
 class PasswordManager(
     private val algorithmName: String = "PBKDF2WithHmacSHA512",
     private val saltByte: Int = 32,
     private val keyByte: Int = 512,
     private val iterationCount: Int = 100000,
     private val pepper: String = ServerEnv.userPasswordPepper,
-) {
+) : IPasswordManager {
     private val secretKeyFactory = SecretKeyFactory.getInstance(algorithmName)
     private val bases64Encoder = Base64.getEncoder()
 
-    fun create(password: String): CreateResult {
+    override fun create(password: String): IPasswordManager.CreateResult {
         val salt = createSalt()
         val spec = createKeySpec(
             password = password,
@@ -24,7 +36,7 @@ class PasswordManager(
         )
         val hashedPassword = bases64Encoder.encodeToString(secretKeyFactory.generateSecret(spec).encoded)
 
-        return CreateResult(
+        return IPasswordManager.CreateResult(
             salt = createSalt(),
             hashedPassword = hashedPassword,
             algorithm = algorithmName,
@@ -50,12 +62,4 @@ class PasswordManager(
             SecureRandom().nextBytes(byteArray)
         }
     }
-
-    class CreateResult(
-        val salt: ByteArray,
-        val algorithm: String,
-        val iterationCount: Int,
-        val keyLength: Int,
-        val hashedPassword: String,
-    )
 }

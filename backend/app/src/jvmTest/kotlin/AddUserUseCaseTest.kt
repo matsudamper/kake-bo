@@ -4,25 +4,34 @@ import io.mockk.mockk
 import io.mockk.verify
 import net.matsudamper.money.backend.app.interfaces.AdminRepository
 import net.matsudamper.money.backend.logic.AddUserUseCase
+import net.matsudamper.money.backend.logic.IPasswordManager
 
 class AddUserUseCaseTest : DescribeSpec(
     {
         describe("パスワードのバリデーション") {
             context("記号が含まれている128文字") {
                 it("パスワードが通る") {
-                    val operation: AdminRepository =
-                        mockk {
-                            every { addUser(any(), any()) } answers {
-                                AdminRepository.AddUserResult.Success
-                            }
+                    val operation: AdminRepository = mockk {
+                        every { addUser(any(), any(), any(), any(), any(), any()) } answers {
+                            AdminRepository.AddUserResult.Success
                         }
-                    val useCase =
-                        AddUserUseCase(
-                            adminRepository = operation,
-                        )
+                    }
+                    val useCase = AddUserUseCase(
+                        adminRepository = operation,
+                        passwordManager = object : IPasswordManager {
+                            override fun create(password: String): IPasswordManager.CreateResult {
+                                return IPasswordManager.CreateResult(
+                                    salt = ByteArray(0),
+                                    algorithm = "",
+                                    iterationCount = 0,
+                                    keyLength = 0,
+                                    hashedPassword = password,
+                                )
+                            }
+                        },
+                    )
                     val password = "Vovo@nHsP&YlL!XQWwgo8QL6fafpHVx!u#jtUEwKNKus1kxmx*f0*f1Z6B&bs#5Or\$MN56#xY3!ejzlJxizTUGxXpsgmN%JvG4V*HHzJx\$WrZTEA%Tr^2sx@YF1X*yN4"
-                    val result = useCase.addUser("test", password)
-                    when (result) {
+                    when (val result = useCase.addUser("test", password)) {
                         is AddUserUseCase.Result.Failure -> {
                             val errorText =
                                 result.errors.joinToString {
@@ -43,7 +52,7 @@ class AddUserUseCaseTest : DescribeSpec(
 
                         is AddUserUseCase.Result.Success -> Unit
                     }
-                    verify { operation.addUser(any(), any()) }
+                    verify { operation.addUser(any(), any(), any(), any(), any(), any()) }
                 }
             }
         }

@@ -4,6 +4,7 @@ import net.matsudamper.money.backend.app.interfaces.AdminRepository
 
 class AddUserUseCase(
     private val adminRepository: AdminRepository,
+    private val passwordManager: IPasswordManager,
 ) {
     fun addUser(
         userName: String,
@@ -31,7 +32,7 @@ class AddUserUseCase(
         if (errors.isNotEmpty()) {
             return Result.Failure(errors = errors)
         }
-        val passwordResult = PasswordManager().create(password)
+        val passwordResult = passwordManager.create(password)
         val addUserResult =
             adminRepository.addUser(
                 userName = userName,
