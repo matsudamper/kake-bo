@@ -9,6 +9,13 @@ import net.matsudamper.money.backend.base.ServerEnv
 interface IPasswordManager {
     fun create(password: String): CreateResult
 
+    fun getHashedPassword(
+        password: String,
+        salt: ByteArray,
+        iterationCount: Int,
+        keyLength: Int,
+    ): ByteArray
+
     class CreateResult(
         val salt: ByteArray,
         val algorithm: String,
@@ -20,8 +27,8 @@ interface IPasswordManager {
 
 class PasswordManager(
     private val algorithmName: String = "PBKDF2WithHmacSHA512",
-    private val saltByte: Int = 32,
-    private val keyByte: Int = 512,
+    private val saltByteLength: Int = 32,
+    private val keyByteLength: Int = 512,
     private val iterationCount: Int = 100000,
     private val pepper: String = ServerEnv.userPasswordPepper,
 ) : IPasswordManager {
@@ -33,6 +40,8 @@ class PasswordManager(
         val spec = createKeySpec(
             password = password,
             salt = salt,
+            iterationCount = iterationCount,
+            keyByteLength = keyByteLength,
         )
         val hashedPassword = bases64Encoder.encodeToString(secretKeyFactory.generateSecret(spec).encoded)
 
@@ -41,24 +50,36 @@ class PasswordManager(
             hashedPassword = hashedPassword,
             algorithm = algorithmName,
             iterationCount = iterationCount,
-            keyLength = keyByte,
+            keyLength = keyByteLength,
         )
+    }
+
+    override fun getHashedPassword(password: String, salt: ByteArray, iterationCount: Int, keyLength: Int): ByteArray {
+        val keySpec = createKeySpec(
+            password = password,
+            salt = salt,
+            iterationCount = iterationCount,
+            keyByteLength = keyLength,
+        )
+        return secretKeyFactory.generateSecret(keySpec).encoded
     }
 
     private fun createKeySpec(
         password: String,
         salt: ByteArray,
+        iterationCount: Int,
+        keyByteLength: Int,
     ): PBEKeySpec {
         return PBEKeySpec(
             password.plus(pepper).toCharArray(),
             salt,
             iterationCount,
-            keyByte,
+            keyByteLength,
         )
     }
 
     private fun createSalt(): ByteArray {
-        return ByteArray(saltByte).also { byteArray ->
+        return ByteArray(saltByteLength).also { byteArray ->
             SecureRandom().nextBytes(byteArray)
         }
     }
