@@ -99,7 +99,7 @@ dependencyResolutionManagement {
             library("apollo.normalizedCache", "com.apollographql.apollo3:apollo-normalized-cache:$apolloVersion")
             library("apollo.adapters", "com.apollographql.apollo3:apollo-adapters:$apolloVersion")
 
-            val jacksonVersion = "2.16.1"
+            val jacksonVersion = "2.16.2"
             library("jackson.databind", "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
             library("jackson.kotlin", "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
             library("jackson.jsr310", "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.1")
