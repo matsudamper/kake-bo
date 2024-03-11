@@ -89,7 +89,7 @@ dependencyResolutionManagement {
             library("ktor.client.logging", "io.ktor:ktor-client-logging:$ktorVersion")
 
             library("jakarta.mail.api", "jakarta.mail:jakarta.mail-api:2.1.3")
-            library("jakarta.mail", "org.eclipse.angus:jakarta.mail:2.0.2")
+            library("jakarta.mail", "org.eclipse.angus:jakarta.mail:2.0.3")
             library("angus.mail", "org.eclipse.angus:angus-mail:2.0.3")
             library("jakarta.activation.api", "jakarta.activation:jakarta.activation-api:2.1.3")
 
