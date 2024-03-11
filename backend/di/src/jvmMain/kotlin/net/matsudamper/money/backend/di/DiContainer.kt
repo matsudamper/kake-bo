@@ -170,6 +170,6 @@ class MainDiContainer : DiContainer {
     }
 
     override fun userLoginRepository(): UserLoginRepository {
-        return DbUserLoginRepository()
+        return DbUserLoginRepository(dbConnection = DbConnectionImpl)
     }
 }
