@@ -102,7 +102,7 @@ dependencyResolutionManagement {
             val jacksonVersion = "2.16.2"
             library("jackson.databind", "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
             library("jackson.kotlin", "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-            library("jackson.jsr310", "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.2")
+            library("jackson.jsr310", "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.0")
 
             library("jedis", "redis.clients:jedis:5.1.2")
             library("jsoup", "org.jsoup:jsoup:1.17.2")
