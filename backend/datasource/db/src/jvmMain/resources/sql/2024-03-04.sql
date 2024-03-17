@@ -27,5 +27,7 @@ CREATE TABLE api_tokens
     update_datetime  datetime default current_timestamp() not null ON UPDATE current_timestamp(),
     constraint token
         unique (token_hash),
+    constraint unique_name
+        unique (user_id, display_name),
     index user_id (user_id)
 );

@@ -13,6 +13,7 @@ import net.matsudamper.money.db.schema.JMoney
 import net.matsudamper.money.db.schema.indexes.API_TOKENS_USER_ID
 import net.matsudamper.money.db.schema.keys.KEY_API_TOKENS_PRIMARY
 import net.matsudamper.money.db.schema.keys.KEY_API_TOKENS_TOKEN
+import net.matsudamper.money.db.schema.keys.KEY_API_TOKENS_UNIQUE_NAME
 import net.matsudamper.money.db.schema.tables.records.JApiTokensRecord
 
 import org.jooq.Condition
@@ -157,7 +158,7 @@ open class JApiTokens(
     override fun getIndexes(): List<Index> = listOf(API_TOKENS_USER_ID)
     override fun getIdentity(): Identity<JApiTokensRecord, Int?> = super.getIdentity() as Identity<JApiTokensRecord, Int?>
     override fun getPrimaryKey(): UniqueKey<JApiTokensRecord> = KEY_API_TOKENS_PRIMARY
-    override fun getUniqueKeys(): List<UniqueKey<JApiTokensRecord>> = listOf(KEY_API_TOKENS_TOKEN)
+    override fun getUniqueKeys(): List<UniqueKey<JApiTokensRecord>> = listOf(KEY_API_TOKENS_UNIQUE_NAME, KEY_API_TOKENS_TOKEN)
     override fun `as`(alias: String): JApiTokens = JApiTokens(DSL.name(alias), this)
     override fun `as`(alias: Name): JApiTokens = JApiTokens(alias, this)
     override fun `as`(alias: Table<*>): JApiTokens = JApiTokens(alias.qualifiedName, this)
