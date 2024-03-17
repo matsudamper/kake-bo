@@ -19,6 +19,7 @@ class ApiTokenRepositoryImpl(
         keyLength: Int,
         iterationCount: Int,
         hashedToken: String,
+        algorithm: String,
         salt: ByteArray,
     ) {
         dbConnection.use { con ->
@@ -30,6 +31,7 @@ class ApiTokenRepositoryImpl(
                 .set(apiTokens.TOKEN_HASH, hashedToken)
                 .set(apiTokens.SALT, salt)
                 .set(apiTokens.DISPLAY_NAME, name)
+                .set(apiTokens.ALGORITHM, algorithm)
                 .execute()
         }
     }

@@ -10,8 +10,10 @@ interface ApiTokenRepository {
         keyLength: Int,
         iterationCount: Int,
         hashedToken: String,
+        algorithm: String,
         salt: ByteArray,
-        )
+    )
+
     fun verifyToken(id: UserId, hashedToken: String): VerifyTokenResult
     fun getApiTokens(id: UserId): List<ApiToken>
 
