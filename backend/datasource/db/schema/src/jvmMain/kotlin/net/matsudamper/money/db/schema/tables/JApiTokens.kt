@@ -81,6 +81,11 @@ open class JApiTokens(
     val API_TOKEN_ID: TableField<JApiTokensRecord, Int?> = createField(DSL.name("api_token_id"), SQLDataType.INTEGER.nullable(false).identity(true), this, "")
 
     /**
+     * The column <code>money.api_tokens.display_name</code>.
+     */
+    val DISPLAY_NAME: TableField<JApiTokensRecord, String?> = createField(DSL.name("display_name"), SQLDataType.VARCHAR(255).nullable(false), this, "")
+
+    /**
      * The column <code>money.api_tokens.user_id</code>.
      */
     val USER_ID: TableField<JApiTokensRecord, Int?> = createField(DSL.name("user_id"), SQLDataType.INTEGER.nullable(false), this, "")
@@ -114,6 +119,11 @@ open class JApiTokens(
      * The column <code>money.api_tokens.permissions</code>.
      */
     val PERMISSIONS: TableField<JApiTokensRecord, String?> = createField(DSL.name("permissions"), SQLDataType.CLOB.nullable(false), this, "")
+
+    /**
+     * The column <code>money.api_tokens.expire_datetime</code>.
+     */
+    val EXPIRE_DATETIME: TableField<JApiTokensRecord, LocalDateTime?> = createField(DSL.name("expire_datetime"), SQLDataType.LOCALDATETIME(0).defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.LOCALDATETIME)), this, "")
 
     /**
      * The column <code>money.api_tokens.created_datetime</code>.

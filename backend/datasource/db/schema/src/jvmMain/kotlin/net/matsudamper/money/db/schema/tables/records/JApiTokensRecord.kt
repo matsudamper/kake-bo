@@ -22,41 +22,49 @@ open class JApiTokensRecord() : UpdatableRecordImpl<JApiTokensRecord>(JApiTokens
         set(value): Unit = set(0, value)
         get(): Int? = get(0) as Int?
 
-    open var userId: Int?
+    open var displayName: String?
         set(value): Unit = set(1, value)
-        get(): Int? = get(1) as Int?
+        get(): String? = get(1) as String?
+
+    open var userId: Int?
+        set(value): Unit = set(2, value)
+        get(): Int? = get(2) as Int?
 
     open var tokenHash: String?
-        set(value): Unit = set(2, value)
-        get(): String? = get(2) as String?
+        set(value): Unit = set(3, value)
+        get(): String? = get(3) as String?
 
     open var salt: ByteArray?
-        set(value): Unit = set(3, value)
-        get(): ByteArray? = get(3) as ByteArray?
+        set(value): Unit = set(4, value)
+        get(): ByteArray? = get(4) as ByteArray?
 
     open var iterationCount: Int?
-        set(value): Unit = set(4, value)
-        get(): Int? = get(4) as Int?
+        set(value): Unit = set(5, value)
+        get(): Int? = get(5) as Int?
 
     open var algorithm: String?
-        set(value): Unit = set(5, value)
-        get(): String? = get(5) as String?
+        set(value): Unit = set(6, value)
+        get(): String? = get(6) as String?
 
     open var keyLength: Int?
-        set(value): Unit = set(6, value)
-        get(): Int? = get(6) as Int?
+        set(value): Unit = set(7, value)
+        get(): Int? = get(7) as Int?
 
     open var permissions: String?
-        set(value): Unit = set(7, value)
-        get(): String? = get(7) as String?
-
-    open var createdDatetime: LocalDateTime?
         set(value): Unit = set(8, value)
-        get(): LocalDateTime? = get(8) as LocalDateTime?
+        get(): String? = get(8) as String?
 
-    open var updateDatetime: LocalDateTime?
+    open var expireDatetime: LocalDateTime?
         set(value): Unit = set(9, value)
         get(): LocalDateTime? = get(9) as LocalDateTime?
+
+    open var createdDatetime: LocalDateTime?
+        set(value): Unit = set(10, value)
+        get(): LocalDateTime? = get(10) as LocalDateTime?
+
+    open var updateDatetime: LocalDateTime?
+        set(value): Unit = set(11, value)
+        get(): LocalDateTime? = get(11) as LocalDateTime?
 
     // -------------------------------------------------------------------------
     // Primary key information
@@ -67,8 +75,9 @@ open class JApiTokensRecord() : UpdatableRecordImpl<JApiTokensRecord>(JApiTokens
     /**
      * Create a detached, initialised JApiTokensRecord
      */
-    constructor(apiTokenId: Int? = null, userId: Int? = null, tokenHash: String? = null, salt: ByteArray? = null, iterationCount: Int? = null, algorithm: String? = null, keyLength: Int? = null, permissions: String? = null, createdDatetime: LocalDateTime? = null, updateDatetime: LocalDateTime? = null): this() {
+    constructor(apiTokenId: Int? = null, displayName: String? = null, userId: Int? = null, tokenHash: String? = null, salt: ByteArray? = null, iterationCount: Int? = null, algorithm: String? = null, keyLength: Int? = null, permissions: String? = null, expireDatetime: LocalDateTime? = null, createdDatetime: LocalDateTime? = null, updateDatetime: LocalDateTime? = null): this() {
         this.apiTokenId = apiTokenId
+        this.displayName = displayName
         this.userId = userId
         this.tokenHash = tokenHash
         this.salt = salt
@@ -76,6 +85,7 @@ open class JApiTokensRecord() : UpdatableRecordImpl<JApiTokensRecord>(JApiTokens
         this.algorithm = algorithm
         this.keyLength = keyLength
         this.permissions = permissions
+        this.expireDatetime = expireDatetime
         this.createdDatetime = createdDatetime
         this.updateDatetime = updateDatetime
         resetChangedOnNotNull()
