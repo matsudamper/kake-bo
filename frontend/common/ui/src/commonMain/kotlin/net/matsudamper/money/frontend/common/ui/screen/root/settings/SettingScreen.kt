@@ -28,10 +28,12 @@ import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.ScrollButtons
 import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 public data class RootSettingScreenUiState(
     val event: Event,
@@ -178,4 +180,30 @@ private fun MainContent(
             )
         }
     }
+}
+
+@Composable
+@Preview
+private fun Preview() {
+    SettingRootScreen(
+        uiState = RootSettingScreenUiState(
+            object : RootSettingScreenUiState.Event {
+                override fun onResume() {}
+                override fun onClickImapButton() {}
+                override fun onClickCategoryButton() {}
+                override fun onClickMailFilter() {}
+                override fun onClickGitHub() {}
+                override fun onClickLoginSetting() {}
+            },
+        ),
+        listener = object : RootScreenScaffoldListener {
+            override val kakeboScaffoldListener: KakeboScaffoldListener = object : KakeboScaffoldListener {
+                override fun onClickTitle() {}
+            }
+            override fun onClickHome() {}
+            override fun onClickList() {}
+            override fun onClickSettings() {}
+            override fun onClickMail() {}
+        },
+    )
 }
