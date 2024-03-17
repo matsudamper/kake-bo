@@ -32,6 +32,7 @@ class ApiTokenRepositoryImpl(
                 .set(apiTokens.SALT, salt)
                 .set(apiTokens.DISPLAY_NAME, name)
                 .set(apiTokens.ALGORITHM, algorithm)
+                .set(apiTokens.PERMISSIONS, "")
                 .execute()
         }
     }
