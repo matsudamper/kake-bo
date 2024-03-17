@@ -12,11 +12,13 @@ import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ApiSettingScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.ApiSettingScreenQuery
+import net.matsudamper.money.frontend.graphql.ApiSettingScreenRegisterApiTokenMutation
 
 public class ApiSettingScreenViewModel(
     private val coroutineScope: CoroutineScope,
@@ -35,6 +37,9 @@ public class ApiSettingScreenViewModel(
                         override fun onComplete(name: String) {
                             coroutineScope.launch {
                                 val result = api.registerToken(name)
+                                viewModelStateFlow.value = viewModelStateFlow.value.copy(
+                                    addTokenResult = result.getOrNull()?.data,
+                                )
                                 result
                                     .onSuccess {
                                         dismiss()
@@ -116,6 +121,7 @@ public class ApiSettingScreenViewModel(
             },
             loadingState = ApiSettingScreenUiState.LoadingState.Loading,
             addDialog = null,
+            addTokenResult = null,
         ),
     ).also { uiStateFlow ->
         coroutineScope.launch {
@@ -144,6 +150,28 @@ public class ApiSettingScreenViewModel(
                     },
                     event = uiStateFlow.value.event,
                     addDialog = viewModelState.addDialogUiState,
+                    addTokenResult = viewModelState.addTokenResult?.let {
+                        val token = it.userMutation.registerApiToken.apiToken ?: return@let null
+                        ApiSettingScreenUiState.AddTokenResult(
+                            name = token,
+                            event = object : ApiSettingScreenUiState.AddTokenResult.Event {
+                                override fun dismiss() {
+                                    viewModelStateFlow.value = viewModelStateFlow.value.copy(
+                                        addTokenResult = null,
+                                    )
+                                }
+
+                                override fun onClickCopy() {
+                                    coroutineScope.launch {
+                                        eventSender.send { event ->
+                                            event.copyToClipboard(token)
+                                            event.showToast("トークンをコピーしました")
+                                        }
+                                    }
+                                }
+                            },
+                        )
+                    },
                 )
             }
         }
@@ -152,12 +180,15 @@ public class ApiSettingScreenViewModel(
     public interface Event {
         public fun navigate(structure: ScreenStructure)
         public fun showToast(text: String)
+        public fun copyToClipboard(token: String)
+        public suspend fun showSnackbar(text: String)
     }
 
     private data class ViewModelState(
         val tokens: List<ApiSettingScreenQuery.ApiToken> = listOf(),
         val loadingState: LoadingState = LoadingState.Loading,
         val addDialogUiState: ApiSettingScreenUiState.AddDialogUiState? = null,
+        val addTokenResult: ApiSettingScreenRegisterApiTokenMutation.Data? = null,
     ) {
         enum class LoadingState {
             Loading,

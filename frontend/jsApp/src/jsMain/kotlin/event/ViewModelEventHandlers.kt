@@ -1,5 +1,6 @@
 package event
 
+import androidx.compose.material3.SnackbarHostState
 import kotlinx.browser.window
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -380,7 +381,10 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(eventHandler: EventHandler<ApiSettingScreenViewModel.Event>) {
+    suspend fun handle(
+        eventHandler: EventHandler<ApiSettingScreenViewModel.Event>,
+        snackbarHostState: SnackbarHostState,
+    ) {
         coroutineScope {
             eventHandler.collect(
                 object : ApiSettingScreenViewModel.Event {
@@ -390,6 +394,14 @@ data class ViewModelEventHandlers(
 
                     override fun showToast(text: String) {
                         window.alert(text)
+                    }
+
+                    override fun copyToClipboard(token: String) {
+                        window.navigator.clipboard.writeText(token)
+                    }
+
+                    override suspend fun showSnackbar(text: String) {
+                        snackbarHostState.showSnackbar(text)
                     }
                 },
             )

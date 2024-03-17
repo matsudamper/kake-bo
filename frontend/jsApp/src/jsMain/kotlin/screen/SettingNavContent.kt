@@ -1,6 +1,7 @@
 package screen
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -205,12 +206,17 @@ internal fun SettingNavContent(
                         api = ApiSettingScreenApi(),
                     )
                 }
-                LaunchedEffect(viewModelEventHandlers, viewModel.eventHandler) {
-                    viewModelEventHandlers.handle(viewModel.eventHandler)
+                val snackbarHostState = remember { SnackbarHostState() }
+                LaunchedEffect(viewModelEventHandlers, viewModel.eventHandler, snackbarHostState) {
+                    viewModelEventHandlers.handle(
+                        eventHandler = viewModel.eventHandler,
+                        snackbarHostState = snackbarHostState,
+                    )
                 }
                 ApiSettingScreen(
                     rootScreenScaffoldListener = rootScreenScaffoldListener,
                     uiState = viewModel.uiStateFlow.collectAsState().value,
+                    snackbarHostState = snackbarHostState,
                 )
             }
         }
