@@ -13,7 +13,6 @@ import event.ViewModelEventHandlers
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ApiSettingScreen
-import net.matsudamper.money.frontend.common.ui.screen.root.settings.ApiSettingScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImapConfigScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImportedMailFilterCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.LoginSettingScreen
@@ -25,6 +24,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingRoot
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.ImapSettingViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.api.ApiSettingScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.api.ApiSettingScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilter.ImportedMailFilterCategoryScreenGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilter.ImportedMailFilterCategoryViewModel
@@ -202,6 +202,7 @@ internal fun SettingNavContent(
                 val viewModel = remember {
                     ApiSettingScreenViewModel(
                         coroutineScope = coroutineScope,
+                        api = ApiSettingScreenApi(),
                     )
                 }
                 LaunchedEffect(viewModelEventHandlers, viewModel.eventHandler) {

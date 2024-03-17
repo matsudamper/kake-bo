@@ -1,0 +1,21 @@
+query ApiSettingScreen {
+    user {
+        settings {
+            apiTokenAttributes {
+                apiTokens {
+                    name
+                    expiresAt
+                }
+            }
+        }
+    }
+}
+
+mutation ApiSettingScreenRegisterApiToken($name: String!) {
+    userMutation {
+        registerApiToken(name: $name) {
+            isSuccess
+            apiToken
+        }
+    }
+}
