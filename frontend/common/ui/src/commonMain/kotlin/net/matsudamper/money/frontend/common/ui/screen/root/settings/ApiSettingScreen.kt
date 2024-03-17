@@ -250,7 +250,7 @@ private fun Content(
     Column(modifier = modifier) {
         Row(
             modifier = Modifier.fillMaxWidth()
-                .padding(vertical = 32.dp),
+                .padding(vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
