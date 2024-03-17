@@ -85,10 +85,17 @@ public fun SettingRootScreen(
             )
         },
         content = {
-            MainContent(
+            SettingScaffold(
                 modifier = Modifier.fillMaxSize(),
-                uiState = uiState,
-            )
+                title = {
+                    Text(text = "設定")
+                },
+            ) {
+                MainContent(
+                    modifier = Modifier.fillMaxSize(),
+                    uiState = uiState,
+                )
+            }
         },
     )
 }
@@ -102,23 +109,6 @@ private fun MainContent(
         modifier = modifier,
     ) {
         val settingPaddingModifier = Modifier.padding(horizontal = 24.dp)
-        Column(
-            modifier = Modifier.then(settingPaddingModifier),
-        ) {
-            Text(
-                modifier =
-                Modifier.padding(
-                    horizontal = 18.dp,
-                    vertical = 24.dp,
-                ),
-                text = "設定",
-                fontFamily = rememberCustomFontFamily(),
-            )
-            HorizontalDivider(
-                modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-            )
-        }
         Spacer(modifier = Modifier.height(32.dp))
         Box(
             modifier =
