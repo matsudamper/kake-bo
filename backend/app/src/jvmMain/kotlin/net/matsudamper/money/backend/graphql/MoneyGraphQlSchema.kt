@@ -36,6 +36,7 @@ import net.matsudamper.money.backend.graphql.resolver.mutation.AdminMutationReso
 import net.matsudamper.money.backend.graphql.resolver.mutation.MutationResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.mutation.SettingsMutationResolverResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.mutation.UserMutationResolverImpl
+import net.matsudamper.money.backend.graphql.resolver.setting.ApiTokenAttributesResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.user.UserResolverImpl
 import net.matsudamper.money.backend.graphql.schema.GraphqlSchemaModule
 import net.matsudamper.money.element.FidoId
@@ -168,6 +169,7 @@ object MoneyGraphQlSchema {
                 ImportedMailResolverImpl(),
                 MoneyUsageSuggestResolverImpl(),
                 SessionAttributesResolverImpl(),
+                ApiTokenAttributesResolverImpl(),
             )
             .options(
                 @Suppress("OPT_IN_USAGE")

@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.datasource.db.repository
 
+import java.time.ZoneOffset
 import kotlin.jvm.optionals.getOrNull
 import net.matsudamper.money.backend.app.interfaces.ApiTokenRepository
 import net.matsudamper.money.backend.datasource.db.DbConnection
@@ -52,5 +53,24 @@ class ApiTokenRepositoryImpl(
             userId = UserId(result.get(apiTokens.USER_ID)!!),
             permissions = result.get(apiTokens.PERMISSIONS)!!,
         )
+    }
+
+    override fun getApiTokens(id: UserId): List<ApiTokenRepository.ApiToken> {
+        return dbConnection.use { con ->
+            DSL.using(con)
+                .select(
+                    apiTokens.DISPLAY_NAME,
+                    apiTokens.EXPIRE_DATETIME,
+                )
+                .from(apiTokens)
+                .where(apiTokens.USER_ID.eq(id.value))
+                .fetch()
+                .map {
+                    ApiTokenRepository.ApiToken(
+                        name = it.get(apiTokens.DISPLAY_NAME)!!,
+                        expiredAt = it.get(apiTokens.EXPIRE_DATETIME)!!.toInstant(ZoneOffset.UTC),
+                    )
+                }
+        }
     }
 }
