@@ -387,6 +387,10 @@ data class ViewModelEventHandlers(
                     override fun navigate(structure: ScreenStructure) {
                         navController.navigate(structure)
                     }
+
+                    override fun showToast(text: String) {
+                        window.alert(text)
+                    }
                 },
             )
         }

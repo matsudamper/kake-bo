@@ -10,10 +10,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.internal.JSJoda.OffsetDateTime
-import kotlinx.datetime.internal.JSJoda.ZoneId
 import kotlinx.datetime.toLocalDateTime
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ApiSettingScreenUiState
@@ -29,6 +26,42 @@ public class ApiSettingScreenViewModel(
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
+
+    private val loadedEvent = object : ApiSettingScreenUiState.LoadedEvent {
+        override fun onClickAddToken() {
+            viewModelStateFlow.value = viewModelStateFlow.value.copy(
+                addDialogUiState = ApiSettingScreenUiState.AddDialogUiState(
+                    event = object : ApiSettingScreenUiState.AddDialogUiState.Event {
+                        override fun onComplete(name: String) {
+                            coroutineScope.launch {
+                                val result = api.registerToken(name)
+                                result
+                                    .onSuccess {
+                                        dismiss()
+                                        api.get().first()
+                                    }
+                                    .onFailure {
+                                        eventSender.send {
+                                            it.showToast("トークンの追加に失敗しました")
+                                        }
+                                    }
+                            }
+                        }
+
+                        override fun dismissRequest() {
+                            dismiss()
+                        }
+
+                        private fun dismiss() {
+                            viewModelStateFlow.value = viewModelStateFlow.value.copy(
+                                addDialogUiState = null,
+                            )
+                        }
+                    },
+                ),
+            )
+        }
+    }
 
     public val uiStateFlow: StateFlow<ApiSettingScreenUiState> = MutableStateFlow(
         ApiSettingScreenUiState(
@@ -82,6 +115,7 @@ public class ApiSettingScreenViewModel(
                 }
             },
             loadingState = ApiSettingScreenUiState.LoadingState.Loading,
+            addDialog = null,
         ),
     ).also { uiStateFlow ->
         coroutineScope.launch {
@@ -104,10 +138,12 @@ public class ApiSettingScreenViewModel(
                                         },
                                     )
                                 },
+                                event = loadedEvent,
                             )
                         }
                     },
                     event = uiStateFlow.value.event,
+                    addDialog = viewModelState.addDialogUiState,
                 )
             }
         }
@@ -115,11 +151,13 @@ public class ApiSettingScreenViewModel(
 
     public interface Event {
         public fun navigate(structure: ScreenStructure)
+        public fun showToast(text: String)
     }
 
     private data class ViewModelState(
         val tokens: List<ApiSettingScreenQuery.ApiToken> = listOf(),
         val loadingState: LoadingState = LoadingState.Loading,
+        val addDialogUiState: ApiSettingScreenUiState.AddDialogUiState? = null,
     ) {
         enum class LoadingState {
             Loading,
