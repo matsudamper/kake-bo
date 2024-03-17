@@ -4,7 +4,14 @@ import java.time.Instant
 import net.matsudamper.money.element.UserId
 
 interface ApiTokenRepository {
-    fun registerToken(id: UserId, keyLength: Int, iterationCount: Int, hashedToken: String, salt: ByteArray)
+    fun registerToken(
+        id: UserId,
+        name: String,
+        keyLength: Int,
+        iterationCount: Int,
+        hashedToken: String,
+        salt: ByteArray,
+        )
     fun verifyToken(id: UserId, hashedToken: String): VerifyTokenResult
     fun getApiTokens(id: UserId): List<ApiToken>
 

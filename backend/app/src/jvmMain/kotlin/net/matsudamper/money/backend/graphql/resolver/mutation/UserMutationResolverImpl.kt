@@ -852,6 +852,7 @@ class UserMutationResolverImpl : UserMutationResolver {
             salt = encryptApiToken.salt,
             iterationCount = encryptApiToken.iterationCount,
             keyLength = encryptApiToken.keyLength,
+            name = name,
         )
 
         return CompletableFuture.supplyAsync {

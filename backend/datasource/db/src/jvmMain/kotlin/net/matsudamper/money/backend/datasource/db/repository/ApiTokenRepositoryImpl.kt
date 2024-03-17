@@ -15,6 +15,7 @@ class ApiTokenRepositoryImpl(
     private val apiTokens = JApiTokens.API_TOKENS
     override fun registerToken(
         id: UserId,
+        name: String,
         keyLength: Int,
         iterationCount: Int,
         hashedToken: String,
@@ -28,6 +29,7 @@ class ApiTokenRepositoryImpl(
                 .set(apiTokens.ITERATION_COUNT, iterationCount)
                 .set(apiTokens.TOKEN_HASH, hashedToken)
                 .set(apiTokens.SALT, salt)
+                .set(apiTokens.DISPLAY_NAME, name)
                 .execute()
         }
     }
