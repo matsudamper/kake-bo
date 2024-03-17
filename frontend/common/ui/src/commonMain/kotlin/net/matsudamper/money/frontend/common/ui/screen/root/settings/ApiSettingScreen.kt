@@ -1,6 +1,8 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.settings
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,10 +12,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -34,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -126,23 +131,39 @@ public fun ApiSettingScreen(
                     modifier = Modifier.padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Text("トークンを追加しました")
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        style = MaterialTheme.typography.titleMedium,
+                        text = "トークンを追加しました",
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth()
-                            .clip(RoundedCornerShape(4.dp)),
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(Color.White.copy(alpha = 0.1f)),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text("トークン名: ${uiState.addTokenResult.name}")
-                        Spacer(modifier = Modifier.width(32.dp))
+                        Row(
+                            modifier = Modifier.weight(1f)
+                                .horizontalScroll(rememberScrollState()),
+                        ) {
+                            Text(
+                                modifier = Modifier.fillMaxWidth(),
+                                maxLines = 1,
+                                text = uiState.addTokenResult.name,
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
                         TextButton(onClick = { uiState.addTokenResult.event.onClickCopy() }) {
                             Text("COPY")
                         }
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End,
                     ) {
-                        OutlinedButton(onClick = { uiState.addTokenResult.event.dismiss() }) {
+                        TextButton(onClick = { uiState.addTokenResult.event.dismiss() }) {
                             Text("閉じる")
                         }
                     }
@@ -200,6 +221,7 @@ public fun ApiSettingScreen(
 
                 is ApiSettingScreenUiState.LoadingState.Loaded -> {
                     Content(
+                        modifier = Modifier.fillMaxSize(),
                         paddingValues = paddingValues,
                         uiState = loadingState,
                     )
@@ -225,7 +247,7 @@ private fun Content(
     paddingValues: PaddingValues,
     uiState: ApiSettingScreenUiState.LoadingState.Loaded,
 ) {
-    Column {
+    Column(modifier = modifier) {
         Row(
             modifier = Modifier.fillMaxWidth()
                 .padding(vertical = 32.dp),
@@ -241,7 +263,7 @@ private fun Content(
             }
         }
         LazyColumn(
-            modifier = modifier,
+            modifier = Modifier.fillMaxWidth(),
             contentPadding = paddingValues,
         ) {
             items(uiState.tokens) { token ->
