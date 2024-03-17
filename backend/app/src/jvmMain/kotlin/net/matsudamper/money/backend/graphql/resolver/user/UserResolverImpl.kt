@@ -16,6 +16,9 @@ import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.graphql.model.ApiTokenAttributesResolver
+import net.matsudamper.money.graphql.model.QlApiToken
+import net.matsudamper.money.graphql.model.QlApiTokenAttributes
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilter
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersConnection
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersQuery
@@ -40,7 +43,12 @@ class UserResolverImpl : UserResolver {
         user: QlUser,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlUserSettings>> {
-        return CompletableFuture.completedFuture(QlUserSettings(QlSessionAttributes())).toDataFetcher()
+        return CompletableFuture.completedFuture(
+            QlUserSettings(
+                sessionAttributes = QlSessionAttributes(),
+                apiTokenAttributes = QlApiTokenAttributes(),
+            ),
+        ).toDataFetcher()
     }
 
     /**

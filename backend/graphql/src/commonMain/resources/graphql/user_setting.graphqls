@@ -3,6 +3,16 @@ type UserSettings {
     fidoAddInfo: FidoAddInfo! @lazy
     registeredFidoList: [RegisteredFidoInfo!]! @lazy
     sessionAttributes: SessionAttributes!
+    apiTokenAttributes: ApiTokenAttributes!
+}
+
+type ApiTokenAttributes {
+    apiTokens: [ApiToken!]! @lazy
+}
+
+type ApiToken {
+    name: String!
+    expiresAt: OffsetDateTime
 }
 
 type SessionAttributes {
