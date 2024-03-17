@@ -25,6 +25,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.categor
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailLinkViewModelEvent
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.api.ApiSettingScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilter.ImportedMailFilterCategoryViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters.SettingMailCategoryFiltersViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.login.LoginSettingViewModel
@@ -95,6 +96,10 @@ data class ViewModelEventHandlers(
 
                     override fun navigateToCategoriesConfig() {
                         navController.navigate(ScreenStructure.Root.Settings.Categories)
+                    }
+
+                    override fun navigateToApiSetting() {
+                        navController.navigate(ScreenStructure.Root.Settings.Api)
                     }
 
                     override fun navigate(structure: ScreenStructure) {
@@ -369,6 +374,18 @@ data class ViewModelEventHandlers(
 
                     override fun showToast(text: String) {
                         window.alert(text)
+                    }
+                },
+            )
+        }
+    }
+
+    suspend fun handle(eventHandler: EventHandler<ApiSettingScreenViewModel.Event>) {
+        coroutineScope {
+            eventHandler.collect(
+                object : ApiSettingScreenViewModel.Event {
+                    override fun navigate(structure: ScreenStructure) {
+                        navController.navigate(structure)
                     }
                 },
             )

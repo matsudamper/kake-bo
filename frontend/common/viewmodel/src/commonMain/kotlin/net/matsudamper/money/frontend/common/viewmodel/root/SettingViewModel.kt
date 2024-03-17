@@ -58,6 +58,14 @@ public class SettingViewModel(
                         }
                     }
 
+                    override fun onClickApiSetting() {
+                        coroutineScope.launch {
+                            backgroundEventSender.send {
+                                it.navigateToApiSetting()
+                            }
+                        }
+                    }
+
                     override fun onClickMailFilter() {
                         coroutineScope.launch {
                             backgroundEventSender.send {
@@ -110,6 +118,7 @@ public class SettingViewModel(
         public fun navigateToImapConfig()
 
         public fun navigateToCategoriesConfig()
+        public fun navigateToApiSetting()
 
         public fun navigate(structure: ScreenStructure)
 

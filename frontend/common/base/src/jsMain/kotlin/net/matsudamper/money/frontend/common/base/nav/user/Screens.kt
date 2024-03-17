@@ -46,6 +46,10 @@ public enum class Screens : Direction {
         override val title: String = "メールカテゴリフィルタ"
         override val placeholderUrl: String = "/settings/mail-category-filter/{id}"
     },
+    Api {
+        override val title: String = "API設定"
+        override val placeholderUrl: String = "/settings/api"
+    },
     SettingsLogin {
         override val title: String = "ログイン設定"
         override val placeholderUrl: String = "/settings/login"

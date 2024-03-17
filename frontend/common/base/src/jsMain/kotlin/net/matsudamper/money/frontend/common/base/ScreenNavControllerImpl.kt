@@ -134,6 +134,7 @@ public class ScreenNavControllerImpl(
                 )
 
             Screens.Settings -> ScreenStructure.Root.Settings.Root
+            Screens.Api -> ScreenStructure.Root.Settings.Api
             Screens.SettingsImap -> ScreenStructure.Root.Settings.Imap
             Screens.SettingsCategory -> ScreenStructure.Root.Settings.Categories
             Screens.SettingsCategoryId ->

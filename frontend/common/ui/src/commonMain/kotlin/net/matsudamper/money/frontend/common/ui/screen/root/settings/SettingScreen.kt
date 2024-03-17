@@ -50,6 +50,7 @@ public data class RootSettingScreenUiState(
         public fun onClickGitHub()
 
         public fun onClickLoginSetting()
+        public fun onClickApiSetting()
     }
 }
 
@@ -162,6 +163,11 @@ private fun MainContent(
                         Text("ログイン設定")
                     }
                     SettingListMenuItemButton(
+                        onClick = { uiState.event.onClickApiSetting() },
+                    ) {
+                        Text("API設定")
+                    }
+                    SettingListMenuItemButton(
                         onClick = { uiState.event.onClickGitHub() },
                     ) {
                         Text("GitHub")
@@ -194,6 +200,7 @@ private fun Preview() {
                 override fun onClickMailFilter() {}
                 override fun onClickGitHub() {}
                 override fun onClickLoginSetting() {}
+                override fun onClickApiSetting() {}
             },
         ),
         listener = object : RootScreenScaffoldListener {
