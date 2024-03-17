@@ -51,6 +51,7 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("libs") {
             val kotlinVersion = extra["kotlin.version"] as String
+            val composeVersion = extra["compose.version"] as String
             plugin("kotlin.multiplatform", "org.jetbrains.kotlin.multiplatform").version(kotlinVersion)
             plugin("kotlin.serialization", "org.jetbrains.kotlin.plugin.serialization").version(kotlinVersion)
             library("kotlin.coroutines.core", "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
@@ -58,7 +59,7 @@ dependencyResolutionManagement {
             library("kotlin.serialization.json", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
 
             plugin("compose", "org.jetbrains.compose").version(extra["compose.version"] as String)
-            library("compose.material3", "org.jetbrains.compose.material3:material3:1.6.10-dev1509")
+            library("compose.material3", "org.jetbrains.compose.material3:material3:$composeVersion")
 
             library("graphqlJava.extendedScalars", "com.graphql-java:graphql-java-extended-scalars:2023-01-24T02-11-56-babda5f")
             library("graphqlJava", "com.graphql-java:graphql-java:21.3")
