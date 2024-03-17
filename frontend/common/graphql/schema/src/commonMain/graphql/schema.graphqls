@@ -7,6 +7,9 @@ schema {
 
 directive @lazy on FIELD_DEFINITION
 
+"Indicates an Input Object is a OneOf Input Object."
+directive @oneOf on INPUT_OBJECT
+
 type AddCategoryResult {
     category: MoneyUsageCategory
 }
@@ -27,6 +30,15 @@ type AdminLoginResult {
 type AdminMutation {
     addUser(name: String!, password: String!): AdminAddUserResult!
     adminLogin(password: String!): AdminLoginResult!
+}
+
+type ApiToken {
+    expiresAt: OffsetDateTime
+    name: String!
+}
+
+type ApiTokenAttributes {
+    apiTokens: [ApiToken!]!
 }
 
 type ChangeSessionNameResult {
@@ -178,6 +190,11 @@ type Query {
     user: User
 }
 
+type RegisterApiTokenResult {
+    apiToken: String
+    isSuccess: Boolean!
+}
+
 type RegisteredFidoInfo {
     base64CredentialId: String!
     id: FidoId!
@@ -271,6 +288,7 @@ type UserMutation {
     deleteUsage(id: MoneyUsageId!): Boolean!
     importMail(mailIds: [MailId!]!): ImportMailResult!
     logout: Boolean!
+    registerApiToken(name: String!): RegisterApiTokenResult!
     registerFido(input: RegisterFidoInput!): RegisteredFidoResult!
     settingsMutation: SettingsMutation
     updateCategory(id: MoneyUsageCategoryId!, query: UpdateCategoryQuery!): MoneyUsageCategory!
@@ -283,6 +301,7 @@ type UserMutation {
 }
 
 type UserSettings {
+    apiTokenAttributes: ApiTokenAttributes!
     fidoAddInfo: FidoAddInfo!
     imapConfig: UserImapConfig
     registeredFidoList: [RegisteredFidoInfo!]!
