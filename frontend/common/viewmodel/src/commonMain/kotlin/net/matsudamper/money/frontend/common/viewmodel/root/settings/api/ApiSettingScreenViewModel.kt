@@ -12,7 +12,6 @@ import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ApiSettingScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -96,7 +95,6 @@ public class ApiSettingScreenViewModel(
                                             loadingState = ViewModelState.LoadingState.Loaded,
                                         )
                                     }
-
                                 }
                         }
                     }
