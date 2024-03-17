@@ -138,6 +138,14 @@ public fun ApiSettingScreen(
                             Text("COPY")
                         }
                     }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        OutlinedButton(onClick = { uiState.addTokenResult.event.dismiss() }) {
+                            Text("閉じる")
+                        }
+                    }
                 }
             }
         }
