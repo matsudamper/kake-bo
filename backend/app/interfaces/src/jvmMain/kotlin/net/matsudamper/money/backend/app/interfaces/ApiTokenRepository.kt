@@ -19,7 +19,7 @@ interface ApiTokenRepository {
 
     data class ApiToken(
         val name: String,
-        val expiredAt: Instant,
+        val expiredAt: Instant?,
     )
 
     data class VerifyTokenResult(

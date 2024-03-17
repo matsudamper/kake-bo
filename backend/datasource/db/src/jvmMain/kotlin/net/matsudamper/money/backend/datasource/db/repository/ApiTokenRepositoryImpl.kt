@@ -73,7 +73,7 @@ class ApiTokenRepositoryImpl(
                 .map {
                     ApiTokenRepository.ApiToken(
                         name = it.get(apiTokens.DISPLAY_NAME)!!,
-                        expiredAt = it.get(apiTokens.EXPIRE_DATETIME)!!.toInstant(ZoneOffset.UTC),
+                        expiredAt = it.get(apiTokens.EXPIRE_DATETIME)?.toInstant(ZoneOffset.UTC),
                     )
                 }
         }

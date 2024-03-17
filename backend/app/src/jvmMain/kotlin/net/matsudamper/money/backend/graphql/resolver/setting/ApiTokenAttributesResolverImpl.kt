@@ -25,7 +25,7 @@ class ApiTokenAttributesResolverImpl : ApiTokenAttributesResolver {
             apiTokens.map {
                 QlApiToken(
                     name = it.name,
-                    expiresAt = it.expiredAt.atOffset(ZoneOffset.UTC),
+                    expiresAt = it.expiredAt?.atOffset(ZoneOffset.UTC),
                 )
             }
         }.toDataFetcher()
