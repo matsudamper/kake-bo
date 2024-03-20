@@ -183,7 +183,13 @@ fun Application.myApplicationModule() {
                             }
                         }
 
-                        else -> Unit
+                        else -> {
+                            cacheControl {
+                                listOf(
+                                    CacheControl.NoCache(null),
+                                )
+                            }
+                        }
                     }
                 }
             }
