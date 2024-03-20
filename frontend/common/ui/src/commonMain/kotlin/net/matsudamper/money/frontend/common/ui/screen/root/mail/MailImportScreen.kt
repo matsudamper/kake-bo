@@ -47,11 +47,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.matsudamper.money.frontend.common.ui.ScrollButtons
 import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
+import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
+import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
 @Composable
-public fun MailImportScreen(uiState: ImportMailScreenUiState) {
+public fun MailImportScreen(
+    uiState: ImportMailScreenUiState,
+    rootScreenScaffoldListener: RootScreenScaffoldListener,
+    modifier: Modifier = Modifier,
+) {
     LaunchedEffect(uiState.event) {
         uiState.event.onViewInitialized()
     }
@@ -64,20 +72,42 @@ public fun MailImportScreen(uiState: ImportMailScreenUiState) {
             },
         )
     }
-    Box(modifier = Modifier.fillMaxSize()) {
-        MailContent(
-            uiState = uiState,
-        )
 
-        uiState.mailDeleteDialog?.let { mailDeleteDialog ->
-            MailDeleteConfirmDialog(
-                uiState = mailDeleteDialog,
+    RootScreenScaffold(
+        modifier = modifier,
+        currentScreen = RootScreenTab.Add,
+        listener = rootScreenScaffoldListener,
+        topBar = {
+            KakeBoTopAppBar(
+                title = {
+                    Text(
+                        modifier =
+                        Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) {
+                            rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                        },
+                        text = "家計簿",
+                    )
+                },
             )
+        },
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            MailContent(
+                uiState = uiState,
+            )
+
+            uiState.mailDeleteDialog?.let { mailDeleteDialog ->
+                MailDeleteConfirmDialog(
+                    uiState = mailDeleteDialog,
+                )
+            }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MailContent(uiState: ImportMailScreenUiState) {
     val density = LocalDensity.current

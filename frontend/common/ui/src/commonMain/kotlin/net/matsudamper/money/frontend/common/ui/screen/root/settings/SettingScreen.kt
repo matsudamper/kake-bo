@@ -197,7 +197,7 @@ private fun Preview() {
             override fun onClickHome() {}
             override fun onClickList() {}
             override fun onClickSettings() {}
-            override fun onClickMail() {}
+            override fun onClickAdd() {}
         },
     )
 }

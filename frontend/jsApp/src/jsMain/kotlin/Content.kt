@@ -57,7 +57,7 @@ import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScre
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.RootViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeAddTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.ImportedMailListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.MoneyUsagesCalendarViewModel
@@ -153,7 +153,7 @@ fun Content(
         }
     val mailScreenViewModel =
         remember {
-            HomeMailTabScreenViewModel(
+            HomeAddTabScreenViewModel(
                 coroutineScope = rootCoroutineScope,
             )
         }
@@ -195,7 +195,7 @@ fun Content(
                     )
                 }
 
-                override fun onClickMail() {
+                override fun onClickAdd() {
                     mailScreenViewModel.requestNavigate()
                 }
             }
@@ -269,7 +269,7 @@ fun Content(
                             is RootHomeScreenStructure -> {
                             }
 
-                            is ScreenStructure.Root.Mail -> {
+                            is ScreenStructure.Root.Add -> {
                                 mailScreenViewModel.updateScreenStructure(current)
                             }
 
@@ -289,15 +289,15 @@ fun Content(
                         RootNavContent(
                             tabHolder = tabHolder,
                             current = current,
-                            homeMailTabScreenUiStateProvider = {
-                                mailScreenViewModel.uiStateFlow.collectAsState().value
-                            },
                             rootScreenScaffoldListener = rootScreenScaffoldListener,
                             viewModelEventHandlers = viewModelEventHandlers,
                             rootCoroutineScope = rootCoroutineScope,
                             globalEventSender = globalEventSender,
                             loginCheckUseCase = loginCheckUseCase,
                             globalEvent = globalEvent,
+                            homeAddTabScreenUiStateProvider = {
+                                mailScreenViewModel.uiStateFlow.collectAsState().value
+                            },
                             usageCalendarUiStateProvider = { yearMonth ->
                                 val coroutineScope = rememberCoroutineScope()
                                 val viewModel =

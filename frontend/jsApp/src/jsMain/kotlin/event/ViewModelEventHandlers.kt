@@ -23,7 +23,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeri
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.RootHomeMonthlyScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.category.RootHomeMonthlyCategoryScreenViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeMailTabScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeAddTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailLinkViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.api.ApiSettingScreenViewModel
@@ -72,7 +72,7 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun changeQuery(isLinked: Boolean?) {
-                        navController.navigate(ScreenStructure.Root.Mail.Imported(isLinked = isLinked))
+                        navController.navigate(ScreenStructure.Root.Add.Imported(isLinked = isLinked))
                     }
 
                     override fun navigateToMailDetail(id: ImportedMailId) {
@@ -150,10 +150,10 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<HomeMailTabScreenViewModel.NavigateEvent>) {
+    suspend fun handle(handler: EventHandler<HomeAddTabScreenViewModel.NavigateEvent>) {
         coroutineScope {
             handler.collect(
-                object : HomeMailTabScreenViewModel.NavigateEvent {
+                object : HomeAddTabScreenViewModel.NavigateEvent {
                     override fun navigate(structure: ScreenStructure) {
                         navController.navigate(structure)
                     }

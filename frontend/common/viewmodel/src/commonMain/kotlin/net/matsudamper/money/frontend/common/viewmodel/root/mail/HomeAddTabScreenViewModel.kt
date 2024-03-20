@@ -7,11 +7,11 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeAddTabScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
-public class HomeMailTabScreenViewModel(
+public class HomeAddTabScreenViewModel(
     private val coroutineScope: CoroutineScope,
 ) {
     private val _viewModelStateFlow = MutableStateFlow(ViewModelState())
@@ -20,28 +20,27 @@ public class HomeMailTabScreenViewModel(
     private val navigateEventSender = EventSender<NavigateEvent>()
     public val navigateEventHandler: EventHandler<NavigateEvent> = navigateEventSender.asHandler()
 
-    public val uiStateFlow: StateFlow<HomeMailTabScreenUiState> =
+    public val uiStateFlow: StateFlow<HomeAddTabScreenUiState> =
         MutableStateFlow(
-            HomeMailTabScreenUiState(
-                event =
-                object : HomeMailTabScreenUiState.Event {
-                    override fun onClickImportTabButton() {
+            HomeAddTabScreenUiState(
+                event = object : HomeAddTabScreenUiState.Event {
+                    override fun onClickImportButton() {
                         coroutineScope.launch {
                             navigateEventSender.send {
                                 it.navigate(
                                     viewModelStateFlow.value.lastImportMailStructure
-                                        ?: ScreenStructure.Root.Mail.Import,
+                                        ?: ScreenStructure.Root.Add.Import,
                                 )
                             }
                         }
                     }
 
-                    override fun onClickImportedTabButton() {
+                    override fun onClickImportedButton() {
                         coroutineScope.launch {
                             navigateEventSender.send {
                                 it.navigate(
                                     viewModelStateFlow.value.lastImportedMailStructure
-                                        ?: ScreenStructure.Root.Mail.Imported(isLinked = false),
+                                        ?: ScreenStructure.Root.Add.Imported(isLinked = false),
                                 )
                             }
                         }
@@ -50,15 +49,15 @@ public class HomeMailTabScreenViewModel(
             ),
         )
 
-    public fun updateScreenStructure(structure: ScreenStructure.Root.Mail) {
+    public fun updateScreenStructure(structure: ScreenStructure.Root.Add) {
         _viewModelStateFlow.update { viewModelState ->
             viewModelState.copy(
                 screenStructure = structure,
                 lastImportedMailStructure =
-                (structure as? ScreenStructure.Root.Mail.Imported)
+                (structure as? ScreenStructure.Root.Add.Imported)
                     ?: viewModelState.lastImportedMailStructure,
                 lastImportMailStructure =
-                (structure as? ScreenStructure.Root.Mail.Import)
+                (structure as? ScreenStructure.Root.Add.Import)
                     ?: viewModelState.lastImportMailStructure,
             )
         }
@@ -68,8 +67,7 @@ public class HomeMailTabScreenViewModel(
         coroutineScope.launch {
             navigateEventSender.send {
                 it.navigate(
-                    viewModelStateFlow.value.screenStructure
-                        ?: ScreenStructure.Root.Mail.Imported(isLinked = false),
+                    ScreenStructure.Root.Add.Root(),
                 )
             }
         }
@@ -80,8 +78,8 @@ public class HomeMailTabScreenViewModel(
     }
 
     private data class ViewModelState(
-        val screenStructure: ScreenStructure.Root.Mail? = null,
-        val lastImportedMailStructure: ScreenStructure.Root.Mail.Imported? = null,
-        val lastImportMailStructure: ScreenStructure.Root.Mail.Import? = null,
+        val screenStructure: ScreenStructure.Root.Add? = null,
+        val lastImportedMailStructure: ScreenStructure.Root.Add.Imported? = null,
+        val lastImportMailStructure: ScreenStructure.Root.Add.Import? = null,
     )
 }

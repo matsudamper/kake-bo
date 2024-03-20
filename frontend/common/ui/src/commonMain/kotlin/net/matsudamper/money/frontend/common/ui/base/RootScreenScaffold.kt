@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
@@ -42,13 +43,13 @@ public interface RootScreenScaffoldListener {
 
     public fun onClickSettings()
 
-    public fun onClickMail()
+    public fun onClickAdd()
 }
 
 public enum class RootScreenTab {
     Home,
     List,
-    Mail,
+    Add,
     Settings,
 }
 
@@ -108,8 +109,8 @@ internal fun RootScreenScaffold(
                             },
                         )
                         NavigationBarItem(
-                            selected = currentScreen == RootScreenTab.Mail,
-                            onClick = { listener.onClickMail() },
+                            selected = currentScreen == RootScreenTab.Add,
+                            onClick = { listener.onClickAdd() },
                             icon = {
                                 Icon(Icons.Default.Email, "")
                             },
@@ -171,10 +172,10 @@ internal fun RootScreenScaffold(
                             },
                         )
                         NavigationRailItem(
-                            selected = currentScreen == RootScreenTab.Mail,
-                            onClick = { listener.onClickMail() },
+                            selected = currentScreen == RootScreenTab.Add,
+                            onClick = { listener.onClickAdd() },
                             icon = {
-                                Icon(Icons.Default.Email, "")
+                                Icon(Icons.Default.Add, "")
                             },
                             label = {
                                 Text(

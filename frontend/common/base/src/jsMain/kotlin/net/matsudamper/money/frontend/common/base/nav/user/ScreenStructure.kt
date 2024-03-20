@@ -53,11 +53,15 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
             }
         }
 
-        public sealed interface Mail : Root {
+        public sealed interface Add : Root {
+            public class Root : Add {
+                override val direction: Screens = Screens.Add
+            }
+
             public class Imported(
                 public val isLinked: Boolean?,
-            ) : Mail {
-                override val direction: Screens = Screens.MailList
+            ) : Add {
+                override val direction: Screens = Screens.ImportedMailList
 
                 override fun createUrl(): String {
                     val urlParam =
@@ -92,7 +96,7 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                 }
             }
 
-            public data object Import : Mail {
+            public data object Import : Add {
                 override val direction: Screens = Screens.MailImport
             }
         }

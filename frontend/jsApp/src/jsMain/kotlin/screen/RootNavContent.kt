@@ -4,13 +4,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
 import event.ViewModelEventHandlers
@@ -21,10 +19,12 @@ import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthly
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.monthly.RootHomeMonthlyScreen
-import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreen
-import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeMailTabScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeAddTabScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeAddTabScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportMailScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.mail.MailImportScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.RootSettingScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalendarScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalendarScreenUiState
@@ -51,11 +51,11 @@ internal fun RootNavContent(
     rootCoroutineScope: CoroutineScope,
     globalEventSender: EventSender<GlobalEvent>,
     loginCheckUseCase: LoginCheckUseCase,
-    homeMailTabScreenUiStateProvider: @Composable () -> HomeMailTabScreenUiState,
     usageListUiStateProvider: @Composable () -> RootUsageListScreenUiState,
     usageCalendarUiStateProvider: @Composable (ScreenStructure.Root.Usage.Calendar.YearMonth?) -> RootUsageCalendarScreenUiState,
-    importMailScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Imported) -> ImportedMailListScreenUiState,
-    importMailLinkScreenUiStateProvider: @Composable (ScreenStructure.Root.Mail.Import) -> ImportMailScreenUiState,
+    importMailScreenUiStateProvider: @Composable (ScreenStructure.Root.Add.Imported) -> ImportedMailListScreenUiState,
+    importMailLinkScreenUiStateProvider: @Composable (ScreenStructure.Root.Add.Import) -> ImportMailScreenUiState,
+    homeAddTabScreenUiStateProvider: @Composable () -> HomeAddTabScreenUiState,
     settingUiStateProvider: @Composable () -> RootSettingScreenUiState,
 ) {
     val usageHost = rememberSaveableStateHolder()
@@ -212,20 +212,30 @@ internal fun RootNavContent(
             }
         }
 
-        is ScreenStructure.Root.Mail -> {
+        is ScreenStructure.Root.Add -> {
             tabHolder.SaveableStateProvider(current::class.toString()) {
-                val uiState = homeMailTabScreenUiStateProvider()
-                HomeMailTabScreen(
-                    screenStructure = current,
-                    uiState = uiState,
-                    importMailScreenUiStateProvider = {
-                        importMailLinkScreenUiStateProvider(it)
-                    },
-                    importedImportMailScreenUiStateProvider = {
-                        importMailScreenUiStateProvider(it)
-                    },
-                    rootScreenScaffoldListener = rootScreenScaffoldListener,
-                )
+                when (current) {
+                    is ScreenStructure.Root.Add.Root -> {
+                        HomeAddTabScreen(
+                            rootScreenScaffoldListener = rootScreenScaffoldListener,
+                            uiState = homeAddTabScreenUiStateProvider(),
+                        )
+                    }
+
+                    is ScreenStructure.Root.Add.Import -> {
+                        MailImportScreen(
+                            uiState = importMailLinkScreenUiStateProvider(current),
+                            rootScreenScaffoldListener = rootScreenScaffoldListener,
+                        )
+                    }
+
+                    is ScreenStructure.Root.Add.Imported -> {
+                        ImportedMailListScreen(
+                            uiState = importMailScreenUiStateProvider(current),
+                            rootScreenScaffoldListener = rootScreenScaffoldListener,
+                        )
+                    }
+                }
             }
         }
 

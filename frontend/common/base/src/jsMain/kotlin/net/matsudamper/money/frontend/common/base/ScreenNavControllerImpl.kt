@@ -155,12 +155,10 @@ public class ScreenNavControllerImpl(
                 )
             Screens.Login -> ScreenStructure.Login
             Screens.Admin -> ScreenStructure.Admin
-            Screens.MailImport -> ScreenStructure.Root.Mail.Import
-            Screens.MailList ->
-                ScreenStructure.Root.Mail.Imported.create(
-                    pathParams = pathParams,
-                    queryParams = queryParams,
-                )
+            Screens.MailImport -> ScreenStructure.Root.Add.Import
+            Screens.Add ->{
+                ScreenStructure.Root.Add.Root()
+            }
 
             Screens.AddMoneyUsage -> {
                 ScreenStructure.AddMoneyUsage.fromQueryParams(
@@ -227,6 +225,13 @@ public class ScreenNavControllerImpl(
                     pathParams = pathParams,
                     queryParams = queryParams,
                 ) ?: ScreenStructure.NotFound
+            }
+
+            Screens.ImportedMailList -> {
+                ScreenStructure.Root.Add.Imported.create(
+                    pathParams = pathParams,
+                    queryParams = queryParams,
+                )
             }
         }
     }

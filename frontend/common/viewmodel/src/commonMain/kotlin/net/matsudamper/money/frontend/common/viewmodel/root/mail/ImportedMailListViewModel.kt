@@ -119,7 +119,7 @@ public class ImportedMailListViewModel(
             }
         }.asStateFlow()
 
-    public fun updateQuery(screen: ScreenStructure.Root.Mail.Imported) {
+    public fun updateQuery(screen: ScreenStructure.Root.Add.Imported) {
         val newQuery =
             ViewModelState.Query(
                 isLinked = screen.isLinked,
