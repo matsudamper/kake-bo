@@ -1,8 +1,6 @@
 package net.matsudamper.money.backend.graphql.resolver.mutation
 
-import java.security.SecureRandom
 import java.time.ZoneOffset
-import java.util.Base64
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import kotlin.contracts.ExperimentalContracts
@@ -28,6 +26,7 @@ import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
 import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
 import net.matsudamper.money.backend.lib.ChallengeModel
+import net.matsudamper.money.backend.logic.ApiTokenEncryptManager
 import net.matsudamper.money.backend.logic.IPasswordManager
 import net.matsudamper.money.backend.logic.PasswordManager
 import net.matsudamper.money.element.FidoId
@@ -830,20 +829,13 @@ class UserMutationResolverImpl : UserMutationResolver {
         val userId = context.verifyUserSessionAndGetUserId()
         val repository = context.diContainer.createApiTokenRepository()
 
-        val apiToken = buildList {
-            add("apikey_")
-            add(
-                Base64.getEncoder().encodeToString(
-                    ByteArray(256).also { SecureRandom().nextBytes(it) },
-                ),
-            )
-        }.joinToString("")
+        val createTokenResult = ApiTokenEncryptManager().createApiToken()
         val encryptApiToken = PasswordManager().create(
-            password = apiToken,
-            keyByteLength = 512,
-            iterationCount = 100000,
-            saltByteLength = 32,
-            algorithm = IPasswordManager.Algorithm.PBKDF2WithHmacSHA512,
+            password = createTokenResult.token,
+            keyByteLength = createTokenResult.encryptInfo.keyByteLength,
+            iterationCount = createTokenResult.encryptInfo.iterationCount,
+            saltByteLength = createTokenResult.encryptInfo.saltByteLength,
+            algorithm = IPasswordManager.Algorithm.entries.first { it.algorithmName == createTokenResult.encryptInfo.algorithmName },
         )
 
         repository.registerToken(
@@ -859,7 +851,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         return CompletableFuture.supplyAsync {
             QlRegisterApiTokenResult(
                 isSuccess = true,
-                apiToken = apiToken,
+                apiToken = createTokenResult.token,
             )
         }.toDataFetcher()
     }

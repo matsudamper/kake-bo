@@ -14,7 +14,7 @@ interface ApiTokenRepository {
         salt: ByteArray,
     )
 
-    fun verifyToken(id: UserId, hashedToken: String): VerifyTokenResult
+    fun verifyToken(hashedToken: ByteArray): VerifyTokenResult?
     fun getApiTokens(id: UserId): List<ApiToken>
 
     data class ApiToken(

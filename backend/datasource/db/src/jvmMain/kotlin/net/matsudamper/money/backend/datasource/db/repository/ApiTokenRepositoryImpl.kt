@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend.datasource.db.repository
 
 import java.time.ZoneOffset
+import java.util.Base64
 import kotlin.jvm.optionals.getOrNull
 import net.matsudamper.money.backend.app.interfaces.ApiTokenRepository
 import net.matsudamper.money.backend.datasource.db.DbConnection
@@ -13,6 +14,7 @@ class ApiTokenRepositoryImpl(
     private val dbConnection: DbConnection,
 ) : ApiTokenRepository {
     private val apiTokens = JApiTokens.API_TOKENS
+    private val bases64Encoder = Base64.getEncoder()
     override fun registerToken(
         id: UserId,
         name: String,
@@ -37,7 +39,8 @@ class ApiTokenRepositoryImpl(
         }
     }
 
-    override fun verifyToken(id: UserId, hashedToken: String): ApiTokenRepository.VerifyTokenResult {
+    override fun verifyToken(hashedToken: ByteArray): ApiTokenRepository.VerifyTokenResult? {
+        val encodedHashedToken = bases64Encoder.encodeToString(hashedToken)
         val result = dbConnection.use { con ->
             DSL.using(con)
                 .select(
@@ -47,12 +50,11 @@ class ApiTokenRepositoryImpl(
                 .from(apiTokens)
                 .where(
                     DSL.value(true)
-                        .and(apiTokens.USER_ID.eq(id.value))
-                        .and(apiTokens.TOKEN_HASH.eq(hashedToken)),
+                        .and(apiTokens.TOKEN_HASH.eq(encodedHashedToken)),
                 )
                 .fetchOptional()
                 .getOrNull()
-        } ?: throw IllegalArgumentException("Invalid token")
+        } ?: return null
 
         return ApiTokenRepository.VerifyTokenResult(
             userId = UserId(result.get(apiTokens.USER_ID)!!),

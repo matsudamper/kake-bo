@@ -111,15 +111,17 @@ fun Application.myApplicationModule() {
                 }
             }
             post<RegisterMailHandler.Request>("/api/register_mail/v1") { request ->
+                val apiKey = context.request.headers["Authorization"]
                 call.respondText(
                     contentType = ContentType.Application.Json,
                 ) {
                     return@respondText withTimeout(5.seconds) {
                         Json.Default.encodeToString(
                             RegisterMailHandler(
-                                cookieManager = CookieManagerImpl(call = call),
+                                apiTokenRepository = MainDiContainer().createApiTokenRepository(),
                             ).handle(
                                 request = request,
+                                apiKey = apiKey,
                             ),
                         )
                     }
