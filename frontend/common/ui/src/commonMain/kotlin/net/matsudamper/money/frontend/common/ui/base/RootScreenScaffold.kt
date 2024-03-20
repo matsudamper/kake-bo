@@ -112,11 +112,11 @@ internal fun RootScreenScaffold(
                             selected = currentScreen == RootScreenTab.Add,
                             onClick = { listener.onClickAdd() },
                             icon = {
-                                Icon(Icons.Default.Email, "")
+                                Icon(Icons.Default.Add, "")
                             },
                             label = {
                                 Text(
-                                    "メール",
+                                    "追加",
                                     fontFamily = rememberCustomFontFamily(),
                                 )
                             },
@@ -179,7 +179,7 @@ internal fun RootScreenScaffold(
                             },
                             label = {
                                 Text(
-                                    "メール",
+                                    "追加",
                                     fontFamily = rememberCustomFontFamily(),
                                 )
                             },
