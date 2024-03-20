@@ -9,12 +9,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -22,6 +21,7 @@ import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.derivedStateOf
@@ -162,7 +162,7 @@ internal fun RootScreenScaffold(
                             selected = currentScreen == RootScreenTab.List,
                             onClick = { listener.onClickList() },
                             icon = {
-                                Icon(Icons.Default.List, "")
+                                Icon(Icons.AutoMirrored.Filled.List, "")
                             },
                             label = {
                                 Text(
@@ -198,7 +198,7 @@ internal fun RootScreenScaffold(
                             },
                         )
                     }
-                    Divider(
+                    VerticalDivider(
                         modifier =
                         Modifier
                             .width(1.dp)
