@@ -13,7 +13,7 @@ class ApiTokenEncryptManager {
     )
 
     fun getEncryptInfo(apiToken: String): EncryptInfo? {
-        return if (V1_APIKEY_PREFIX.startsWith(apiToken)) {
+        return if (apiToken.startsWith(V1_APIKEY_PREFIX)) {
             v1EncryptInfo
         } else {
             null
