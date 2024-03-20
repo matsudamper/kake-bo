@@ -9,6 +9,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
@@ -112,18 +113,29 @@ fun Application.myApplicationModule() {
             }
             post<RegisterMailHandler.Request>("/api/register_mail/v1") { request ->
                 val apiKey = context.request.headers["Authorization"]
-                call.respondText(
-                    contentType = ContentType.Application.Json,
-                ) {
-                    return@respondText withTimeout(5.seconds) {
-                        Json.Default.encodeToString(
-                            RegisterMailHandler(
-                                diContainer = MainDiContainer(),
-                            ).handle(
-                                request = request,
-                                apiKey = apiKey,
-                            ),
-                        )
+                withTimeout(5.seconds) {
+                    val result = RegisterMailHandler(
+                        diContainer = MainDiContainer(),
+                    ).handle(
+                        request = request,
+                        apiKey = apiKey,
+                    )
+                    when (result) {
+                        RegisterMailHandler.Result.Forbidden -> {
+                            call.respondText(
+                                status = HttpStatusCode.Forbidden,
+                                text = HttpStatusCode.Forbidden.value.toString(),
+                            )
+                        }
+
+                        is RegisterMailHandler.Result.Success -> {
+                            call.respondText(
+                                contentType = ContentType.Application.Json,
+                                text = Json.Default.encodeToString(
+                                    result.response,
+                                ),
+                            )
+                        }
                     }
                 }
             }
