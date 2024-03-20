@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend.base.mailparser
 
 import java.time.Instant
+import jakarta.mail.Address
 import jakarta.mail.Multipart
 import jakarta.mail.Session
 import jakarta.mail.internet.InternetAddress
@@ -50,7 +51,11 @@ public object MailParser {
             messageID = MailId(message.messageID),
             content = contents,
             sendDate = Instant.ofEpochMilli(message.sentDate.time),
-            sender = (message.sender as InternetAddress).address,
+            sender = run sender@{
+                val sender: Address = message.sender ?: return@sender null
+
+                (sender as InternetAddress).address
+            },
             from = message.from
                 .map { it as InternetAddress }
                 .mapNotNull { it.address },
