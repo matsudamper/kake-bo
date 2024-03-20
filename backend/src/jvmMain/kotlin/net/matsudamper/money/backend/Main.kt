@@ -128,10 +128,17 @@ fun Application.myApplicationModule() {
                             )
                         }
 
+                        RegisterMailHandler.Result.InternalServerError -> {
+                            call.respondText(
+                                status = HttpStatusCode.InternalServerError,
+                                text = HttpStatusCode.InternalServerError.value.toString(),
+                            )
+                        }
+
                         is RegisterMailHandler.Result.Success -> {
                             call.respondText(
                                 contentType = ContentType.Application.Json,
-                                text = Json.Default.encodeToString(
+                                text = Json.encodeToString(
                                     result.response,
                                 ),
                             )
