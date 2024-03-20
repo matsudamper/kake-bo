@@ -34,8 +34,7 @@ class RegisterMailHandler(
         verifyResult.userId
         return Result.Success(
             Response(
-                status =
-                if (result.content.isEmpty()) {
+                status = if (result.content.isEmpty()) {
                     Response.Status.ERROR
                 } else {
                     Response.Status.OK
