@@ -99,7 +99,7 @@ internal fun RootScreenScaffold(
                             selected = currentScreen == RootScreenTab.List,
                             onClick = { listener.onClickList() },
                             icon = {
-                                Icon(Icons.Default.List, "")
+                                Icon(Icons.AutoMirrored.Filled.List, "")
                             },
                             label = {
                                 Text(
