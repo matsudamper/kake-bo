@@ -841,11 +841,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         repository.registerToken(
             id = userId,
             hashedToken = encryptApiToken.hashedPassword,
-            salt = encryptApiToken.salt,
-            iterationCount = encryptApiToken.iterationCount,
-            keyLength = encryptApiToken.keyLength,
             name = name,
-            algorithm = encryptApiToken.algorithm,
         )
 
         return CompletableFuture.supplyAsync {

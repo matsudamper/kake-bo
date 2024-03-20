@@ -18,22 +18,14 @@ class ApiTokenRepositoryImpl(
     override fun registerToken(
         id: UserId,
         name: String,
-        keyLength: Int,
-        iterationCount: Int,
         hashedToken: String,
-        algorithm: String,
-        salt: ByteArray,
     ) {
         dbConnection.use { con ->
             DSL.using(con)
                 .insertInto(apiTokens)
                 .set(apiTokens.USER_ID, id.value)
-                .set(apiTokens.KEY_LENGTH, keyLength)
-                .set(apiTokens.ITERATION_COUNT, iterationCount)
                 .set(apiTokens.TOKEN_HASH, hashedToken)
-                .set(apiTokens.SALT, salt)
                 .set(apiTokens.DISPLAY_NAME, name)
-                .set(apiTokens.ALGORITHM, algorithm)
                 .set(apiTokens.PERMISSIONS, "")
                 .execute()
         }

@@ -7,11 +7,7 @@ interface ApiTokenRepository {
     fun registerToken(
         id: UserId,
         name: String,
-        keyLength: Int,
-        iterationCount: Int,
         hashedToken: String,
-        algorithm: String,
-        salt: ByteArray,
     )
 
     fun verifyToken(hashedToken: ByteArray): VerifyTokenResult?

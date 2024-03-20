@@ -118,7 +118,7 @@ fun Application.myApplicationModule() {
                     return@respondText withTimeout(5.seconds) {
                         Json.Default.encodeToString(
                             RegisterMailHandler(
-                                apiTokenRepository = MainDiContainer().createApiTokenRepository(),
+                                diContainer = MainDiContainer(),
                             ).handle(
                                 request = request,
                                 apiKey = apiKey,

@@ -2,15 +2,16 @@ package net.matsudamper.money.backend
 
 import kotlinx.serialization.Serializable
 import com.fasterxml.jackson.annotation.JsonProperty
-import net.matsudamper.money.backend.app.interfaces.ApiTokenRepository
 import net.matsudamper.money.backend.base.mailparser.MailParser
+import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.logic.ApiTokenEncryptManager
 import net.matsudamper.money.backend.logic.IPasswordManager
 import net.matsudamper.money.backend.logic.PasswordManager
 
 class RegisterMailHandler(
-    private val apiTokenRepository: ApiTokenRepository,
+    private val diContainer: DiContainer,
 ) {
+    private val apiTokenRepository get() = diContainer.createApiTokenRepository()
     fun handle(
         request: Request,
         apiKey: String?,
@@ -21,7 +22,7 @@ class RegisterMailHandler(
 
         val hashedPassword = PasswordManager().getHashedPassword(
             password = apiKey,
-            salt = ByteArray(0),
+            salt = encryptInfo.salt,
             iterationCount = encryptInfo.iterationCount,
             keyLength = encryptInfo.keyByteLength,
             algorithm = IPasswordManager.Algorithm.entries.first { it.algorithmName == encryptInfo.algorithmName },

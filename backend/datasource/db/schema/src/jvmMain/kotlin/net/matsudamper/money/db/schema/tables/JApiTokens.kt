@@ -97,26 +97,6 @@ open class JApiTokens(
     val TOKEN_HASH: TableField<JApiTokensRecord, String?> = createField(DSL.name("token_hash"), SQLDataType.VARCHAR(512).nullable(false), this, "")
 
     /**
-     * The column <code>money.api_tokens.salt</code>.
-     */
-    val SALT: TableField<JApiTokensRecord, ByteArray?> = createField(DSL.name("salt"), SQLDataType.BINARY(32).nullable(false), this, "")
-
-    /**
-     * The column <code>money.api_tokens.iteration_count</code>.
-     */
-    val ITERATION_COUNT: TableField<JApiTokensRecord, Int?> = createField(DSL.name("iteration_count"), SQLDataType.INTEGER.nullable(false), this, "")
-
-    /**
-     * The column <code>money.api_tokens.algorithm</code>.
-     */
-    val ALGORITHM: TableField<JApiTokensRecord, String?> = createField(DSL.name("algorithm"), SQLDataType.VARCHAR(255).nullable(false), this, "")
-
-    /**
-     * The column <code>money.api_tokens.key_length</code>.
-     */
-    val KEY_LENGTH: TableField<JApiTokensRecord, Int?> = createField(DSL.name("key_length"), SQLDataType.INTEGER.nullable(false), this, "")
-
-    /**
      * The column <code>money.api_tokens.permissions</code>.
      */
     val PERMISSIONS: TableField<JApiTokensRecord, String?> = createField(DSL.name("permissions"), SQLDataType.CLOB.nullable(false), this, "")
