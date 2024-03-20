@@ -34,6 +34,8 @@ interface IPasswordManager {
     enum class Algorithm(val algorithmName: String) {
         PBKDF2WithHmacSHA512("PBKDF2WithHmacSHA512"),
     }
+
+    fun create(password: String, keyByteLength: Int, iterationCount: Int, salt: ByteArray, algorithm: Algorithm): CreateResult
 }
 
 class PasswordManager(
@@ -45,10 +47,9 @@ class PasswordManager(
         password: String,
         keyByteLength: Int,
         iterationCount: Int,
-        saltByteLength: Int,
+        salt: ByteArray,
         algorithm: IPasswordManager.Algorithm,
     ): IPasswordManager.CreateResult {
-        val salt = createSalt(saltByteLength)
         val spec = createKeySpec(
             password = password,
             salt = salt,
@@ -64,6 +65,23 @@ class PasswordManager(
             algorithm = algorithm.algorithmName,
             iterationCount = iterationCount,
             keyLength = keyByteLength,
+        )
+    }
+
+    override fun create(
+        password: String,
+        keyByteLength: Int,
+        iterationCount: Int,
+        saltByteLength: Int,
+        algorithm: IPasswordManager.Algorithm,
+    ): IPasswordManager.CreateResult {
+        val salt = createSalt(saltByteLength)
+        return create(
+            password = password,
+            keyByteLength = keyByteLength,
+            iterationCount = iterationCount,
+            salt = salt,
+            algorithm = algorithm,
         )
     }
 

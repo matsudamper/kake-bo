@@ -7,9 +7,8 @@ class ApiTokenEncryptManager {
     private val v1EncryptInfo = EncryptInfo(
         keyByteLength = 512,
         iterationCount = 100000,
-        saltByteLength = 32,
         algorithmName = "PBKDF2WithHmacSHA512",
-        salt = ByteArray(32),
+        salt = ByteArray(1),
     )
 
     fun getEncryptInfo(apiToken: String): EncryptInfo? {
@@ -44,7 +43,6 @@ class ApiTokenEncryptManager {
     data class EncryptInfo(
         val keyByteLength: Int,
         val iterationCount: Int,
-        val saltByteLength: Int,
         val algorithmName: String,
         val salt: ByteArray,
     )

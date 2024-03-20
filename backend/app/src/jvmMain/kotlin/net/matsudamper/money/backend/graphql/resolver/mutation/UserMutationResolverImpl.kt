@@ -834,7 +834,7 @@ class UserMutationResolverImpl : UserMutationResolver {
             password = createTokenResult.token,
             keyByteLength = createTokenResult.encryptInfo.keyByteLength,
             iterationCount = createTokenResult.encryptInfo.iterationCount,
-            saltByteLength = createTokenResult.encryptInfo.saltByteLength,
+            salt = createTokenResult.encryptInfo.salt,
             algorithm = IPasswordManager.Algorithm.entries.first { it.algorithmName == createTokenResult.encryptInfo.algorithmName },
         )
 
