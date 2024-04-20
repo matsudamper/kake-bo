@@ -62,11 +62,11 @@ dependencyResolutionManagement {
             library("compose.material3", "org.jetbrains.compose.material3:material3:$composeVersion")
 
             library("graphqlJava.extendedScalars", "com.graphql-java:graphql-java-extended-scalars:2023-01-24T02-11-56-babda5f")
-            library("graphqlJava", "com.graphql-java:graphql-java:21.5")
+            library("graphqlJava", "com.graphql-java:graphql-java:22.0")
             library("graphqlJavaKickstart.javaTools", "com.graphql-java-kickstart:graphql-java-tools:13.1.1")
             plugin("kobylynskyi.graphqlCodegen", "io.github.kobylynskyi.graphql.codegen").version("5.10.0")
 
-            library("log4j.api", "org.slf4j:slf4j-api:2.0.12")
+            library("log4j.api", "org.slf4j:slf4j-api:2.0.13")
             library("logback.classic", "ch.qos.logback:logback-classic:1.5.6")
 
             library("webauth4jCore", "com.webauthn4j:webauthn4j-core:0.23.0.RELEASE")
