@@ -27,6 +27,7 @@ import net.matsudamper.money.backend.mail.parser.services.RakutenUsageServices
 import net.matsudamper.money.backend.mail.parser.services.ShunsuguUsageService
 import net.matsudamper.money.backend.mail.parser.services.SteamUsageService
 import net.matsudamper.money.backend.mail.parser.services.UberEatsUsageService
+import net.matsudamper.money.backend.mail.parser.services.YahooShoppingUsageServices
 import net.matsudamper.money.backend.mail.parser.services.YodobashiUsageService
 import net.matsudamper.money.backend.mail.parser.services.YoutubeMembershipUsageServices
 import net.matsudamper.money.backend.mail.parser.services.YoutubeSuperChatUsageServices
@@ -44,6 +45,7 @@ public class MailMoneyUsageParser {
             YodobashiUsageService,
             MovieTicketUsageService,
             SteamUsageService,
+            YahooShoppingUsageServices,
             RakutenOfflineUsageService,
             RakutenOnlineUsageService,
             PayPalUsageService,

@@ -108,4 +108,8 @@ public enum class MoneyUsageServiceType(
         id = 27,
         displayName = "DMM",
     ),
+    YahooShopping(
+        id = 28,
+        displayName = "Yahoo!ショッピング",
+    ),
 }
