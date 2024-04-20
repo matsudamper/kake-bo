@@ -156,7 +156,7 @@ public class ScreenNavControllerImpl(
             Screens.Login -> ScreenStructure.Login
             Screens.Admin -> ScreenStructure.Admin
             Screens.MailImport -> ScreenStructure.Root.Add.Import
-            Screens.Add ->{
+            Screens.Add -> {
                 ScreenStructure.Root.Add.Root()
             }
 
