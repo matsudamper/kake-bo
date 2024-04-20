@@ -1,4 +1,4 @@
-FROM amazoncorretto:21-alpine
+FROM amazoncorretto:22-alpine
 CMD mkdir src
 COPY frontend/jsApp/build/distributions src
 
