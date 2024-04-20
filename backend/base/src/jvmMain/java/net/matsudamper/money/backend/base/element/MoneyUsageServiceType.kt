@@ -104,4 +104,8 @@ public enum class MoneyUsageServiceType(
         id = 26,
         displayName = "YouTube Membership",
     ),
+    Dmm(
+        id = 27,
+        displayName = "DMM",
+    ),
 }

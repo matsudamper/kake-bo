@@ -5,6 +5,7 @@ import net.matsudamper.money.backend.mail.parser.services.AmazonCoJpUsageService
 import net.matsudamper.money.backend.mail.parser.services.AuEasyPaymentUsageServices
 import net.matsudamper.money.backend.mail.parser.services.BicCameraUsageServices
 import net.matsudamper.money.backend.mail.parser.services.BookWalkerUsageServices
+import net.matsudamper.money.backend.mail.parser.services.DmmUsageServices
 import net.matsudamper.money.backend.mail.parser.services.ESekiReserveUsegeService
 import net.matsudamper.money.backend.mail.parser.services.EkiNetUsageServices
 import net.matsudamper.money.backend.mail.parser.services.FanzaDojinUsageServices
@@ -51,6 +52,7 @@ public class MailMoneyUsageParser {
             ESekiReserveUsegeService,
             UberEatsUsageService,
             FanzaDojinUsageServices,
+            DmmUsageServices,
             ShunsuguUsageService,
             RakutenUsageServices,
             PostCoffeeSubscriptionUsageServices,
