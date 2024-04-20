@@ -29,6 +29,10 @@ class AddUserUseCaseTest : DescribeSpec(
                                 )
                             }
 
+                            override fun create(password: String, keyByteLength: Int, iterationCount: Int, salt: ByteArray, algorithm: IPasswordManager.Algorithm): IPasswordManager.CreateResult {
+                                TODO("Not yet implemented")
+                            }
+
                             override fun getHashedPassword(password: String, salt: ByteArray, iterationCount: Int, keyLength: Int, algorithm: IPasswordManager.Algorithm): ByteArray {
                                 return ByteArray(0)
                             }
