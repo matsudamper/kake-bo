@@ -58,11 +58,19 @@ internal object YahooShoppingUsageServices : MoneyUsageServices {
             0,
             MoneyUsage(
                 title = storeName ?: displayName,
-                price = run {
+                price = run price@{
                     val parsedTotal = results.mapNotNull { it.price }.sum()
-                    val totalLine = lines.firstOrNull { it.startsWith("合計金額") }
-                        ?: return@run parsedTotal
-                    ParseUtil.getInt(totalLine) ?: parsedTotal
+                    val total = run {
+                        val total = lines.firstOrNull { it.startsWith("商品の合計金額") }
+                            ?: return@price parsedTotal
+                        ParseUtil.getInt(total) ?: return@price parsedTotal
+                    }
+                    val coupon = run {
+                        val coupon = lines.firstOrNull { it.startsWith("クーポン利用") }
+                            ?: return@price 0
+                        ParseUtil.getInt(coupon) ?: 0
+                    }
+                    total - coupon
                 },
                 description = run {
                     val startIndex = lines.indexOfFirst { it.startsWith("商品の合計金額") }
