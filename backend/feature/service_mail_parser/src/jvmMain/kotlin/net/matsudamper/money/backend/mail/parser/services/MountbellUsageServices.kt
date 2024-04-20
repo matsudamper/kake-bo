@@ -27,30 +27,36 @@ internal object MountbellUsageServices : MoneyUsageServices {
 
         val lines = ParseUtil.splitByNewLine(plain)
 
-        val productIndex =
-            lines.indexOf("【注文商品】")
-                .takeIf { it >= 0 }
         val results = mutableListOf<MoneyUsage>()
         run {
-            var cursorIndex = productIndex ?: return@run
-
-            while (true) {
-                val productSection =
-                    lines.drop(cursorIndex).let {
-                        it.take(it.indexOf("").takeIf { it >= 0 } ?: 0)
+            val productLines = lines.drop(
+                lines.indexOf("【注文商品】")
+                    .takeIf { it >= 0 } ?: return@run,
+            ).drop(1)
+            val blankLines = buildList {
+                add(0)
+                for ((index, line) in productLines.withIndex()) {
+                    if (line.isBlank()) {
+                        add(index)
                     }
+                }
+            }
+            val productsSections = blankLines.zip(blankLines.drop(1))
+                .map { (start, end) -> productLines.subList(start, end) }
 
+            for (productSections in productsSections) {
+                println(productSections)
                 val nameLine =
-                    productSection
+                    productSections
                         .firstOrNull { it.startsWith("商品名") }
                         ?.dropWhile { it != '：' }?.drop(1)?.trim() ?: break
                 val priceLine =
-                    productSection
+                    productSections
                         .firstOrNull { it.startsWith("単価(税込)") }
                         ?.dropWhile { it != '：' }?.drop(1)
                         ?.takeWhile { it != '円' }?.trim() ?: break
                 val countLine =
-                    productSection
+                    productSections
                         .firstOrNull { it.startsWith("数量") }
                         ?.dropWhile { it != '：' }?.drop(1)?.trim() ?: break
 
@@ -58,14 +64,23 @@ internal object MountbellUsageServices : MoneyUsageServices {
                     MoneyUsage(
                         title = nameLine,
                         price = (ParseUtil.getInt(priceLine) ?: 0) * (ParseUtil.getInt(countLine) ?: 1),
-                        description = productSection.joinToString("\n"),
+                        description = productSections.joinToString("\n"),
                         service = MoneyUsageServiceType.Mountbell,
                         dateTime = date,
                     ),
                 )
-                cursorIndex += productSection.size
             }
         }
+        results.add(
+            0,
+            MoneyUsage(
+                title = "モンベル",
+                price = results.mapNotNull { it.price }.sum(),
+                description = results.joinToString("\n\n") { it.description },
+                service = MoneyUsageServiceType.Mountbell,
+                dateTime = date,
+            ),
+        )
 
         return results
     }
