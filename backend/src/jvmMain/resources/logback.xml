@@ -4,6 +4,20 @@
             <pattern>%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
+
+    <appender name="FILE_TRACE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/trace.log</file>
+        <encoder>
+            <pattern>%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="FILE_ERROR" class="ch.qos.logback.core.FileAppender">
+        <file>logs/error.log</file>
+        <encoder>
+            <pattern>%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
     <logger name="io.netty" level="INFO">
         <appender-ref ref="STDOUT"/>
     </logger>
@@ -20,7 +34,13 @@
     </logger>
     <logger name="org.jooq.impl.DefaultBinding" level="trace" additivity="false">
     </logger>
+    <logger name="graphql.execution.ExecutionStrategy" level="DEBUG" additivity="false">
+    </logger>
+    <root level="ERROR">
+        <appender-ref ref="FILE_ERROR"/>
+    </root>
     <root level="trace">
-        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE_TRACE"/>
     </root>
 </configuration>
