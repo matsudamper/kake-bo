@@ -14,9 +14,9 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.call
 import io.ktor.server.application.install
-import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.http.content.staticFiles
+import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.callloging.CallLogging
 import io.ktor.server.plugins.compression.Compression
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
@@ -48,7 +48,7 @@ class Main {
 
             val engine =
                 embeddedServer(
-                    CIO,
+                    Netty,
                     port = ServerEnv.port,
                     module = Application::myApplicationModule,
                     configure = {
