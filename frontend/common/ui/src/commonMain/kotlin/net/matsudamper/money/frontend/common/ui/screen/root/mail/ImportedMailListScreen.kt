@@ -477,7 +477,7 @@ private fun CardSection(
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
                 .height(1.dp),
-            color = Color.White
+            color = Color.White,
         )
         Column(
             modifier = Modifier.padding(horizontal = textHorizontalPadding),

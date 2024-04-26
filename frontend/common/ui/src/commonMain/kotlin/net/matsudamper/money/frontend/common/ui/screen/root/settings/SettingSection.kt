@@ -28,7 +28,7 @@ internal fun SettingSection(
         Spacer(Modifier.height(8.dp))
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
         )
         Spacer(Modifier.height(8.dp))
         Column(

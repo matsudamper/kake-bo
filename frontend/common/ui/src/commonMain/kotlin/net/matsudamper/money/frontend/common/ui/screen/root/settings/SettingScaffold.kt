@@ -56,7 +56,7 @@ public fun SettingScaffold(
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth()
                 .padding(horizontal = settingHorizontalPadding),
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
         )
         Box(
             modifier = Modifier.fillMaxWidth(),

@@ -389,7 +389,7 @@ private fun SessionSection(
             )
             HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
             )
         }
         item {
@@ -413,7 +413,7 @@ private fun SessionSection(
             )
             HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
             )
         }
         items(sessionList) { session ->
@@ -552,7 +552,7 @@ private fun SettingSmallSection(
         }
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
         )
         Spacer(modifier = Modifier.height(8.dp))
         content()
