@@ -7,6 +7,7 @@ import java.time.temporal.ChronoField
 import net.matsudamper.money.backend.base.element.MoneyUsageServiceType
 import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
+import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 
@@ -20,13 +21,14 @@ internal object PayPalUsageService : MoneyUsageServices {
         plain: String,
         date: LocalDateTime,
     ): List<MoneyUsage> {
-        val canHandle =
-            sequence {
-                yield(canHandledWithFrom(from))
-                yield(canHandledWithHtml(plain))
-            }
+        val forwardedInfo = ParseUtil.parseForwarded(plain)
+        val canHandle = sequence {
+            yield(canHandledWithFrom(forwardedInfo?.from ?: from))
+            yield(canHandledWithHtml(plain))
+        }
         if (canHandle.any { it }.not()) return listOf()
 
+        val lines = ParseUtil.splitByNewLine(plain)
         val document = Jsoup.parse(html)
         val priceRawText: String?
         val price =
@@ -73,23 +75,19 @@ internal object PayPalUsageService : MoneyUsageServices {
                     ?.toIntOrNull()
         }
 
-        val parsedDate =
-            run date@{
-                val tmp =
-                    document.select(".ppsans").asSequence()
-                        .filter { it.select("strong").any { strong -> strong.text() == "取引日" } }
-                        .mapNotNull { it.select("span").getOrNull(1) }
-                        .map { "2023年11月10日 3:45:19 JST" }
-                        .onEach { println("paypal date") }
-                        .mapNotNull {
-                            runCatching { dateFormat.parse(it) }
-                                .onFailure { it.printStackTrace() }
-                                .getOrNull()
-                        }
-                        .firstOrNull()
-                        ?: return@date null
-                LocalDateTime.from(tmp)
-            }
+        val parsedDate = run date@{
+            val dateLine = lines
+                .dropWhile { it.contains("取引日").not() }
+                .drop(1).firstOrNull()
+                ?.trim()
+                ?: return@date null
+
+            val tmp = runCatching { dateFormat.parse(dateLine) }
+                .onFailure { it.printStackTrace() }
+                .getOrNull()
+                ?: return@date null
+            LocalDateTime.from(tmp)
+        }
 
         return listOf(
             MoneyUsage(
@@ -129,22 +127,21 @@ internal object PayPalUsageService : MoneyUsageServices {
     }
 
     // 2023年11月10日 3:45:19 JST
-    private val dateFormat =
-        DateTimeFormatterBuilder()
-            .appendValue(ChronoField.YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
-            .appendLiteral('年')
-            .appendValue(ChronoField.MONTH_OF_YEAR, 2)
-            .appendLiteral('月')
-            .appendValue(ChronoField.DAY_OF_MONTH, 2)
-            .appendLiteral('日')
-            .appendLiteral(' ')
-            .appendValue(ChronoField.HOUR_OF_DAY, 1, 2, SignStyle.NOT_NEGATIVE)
-            .appendLiteral(':')
-            .appendValue(ChronoField.MINUTE_OF_HOUR, 1, 2, SignStyle.NOT_NEGATIVE)
-            .optionalStart()
-            .appendLiteral(':')
-            .appendValue(ChronoField.SECOND_OF_MINUTE, 1, 2, SignStyle.NOT_NEGATIVE)
-            .optionalEnd()
-            .appendLiteral(" JST")
-            .toFormatter()
+    private val dateFormat = DateTimeFormatterBuilder()
+        .appendValue(ChronoField.YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
+        .appendLiteral('年')
+        .appendValue(ChronoField.MONTH_OF_YEAR, 1, 2, SignStyle.NOT_NEGATIVE)
+        .appendLiteral('月')
+        .appendValue(ChronoField.DAY_OF_MONTH, 1, 2, SignStyle.NOT_NEGATIVE)
+        .appendLiteral('日')
+        .appendLiteral(' ')
+        .appendValue(ChronoField.HOUR_OF_DAY, 1, 2, SignStyle.NOT_NEGATIVE)
+        .appendLiteral(':')
+        .appendValue(ChronoField.MINUTE_OF_HOUR, 1, 2, SignStyle.NOT_NEGATIVE)
+        .optionalStart()
+        .appendLiteral(':')
+        .appendValue(ChronoField.SECOND_OF_MINUTE, 1, 2, SignStyle.NOT_NEGATIVE)
+        .optionalEnd()
+        .appendLiteral(" JST")
+        .toFormatter()
 }
