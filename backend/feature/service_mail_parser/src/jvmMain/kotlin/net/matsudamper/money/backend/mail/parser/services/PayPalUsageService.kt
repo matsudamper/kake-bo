@@ -80,13 +80,26 @@ internal object PayPalUsageService : MoneyUsageServices {
                 .dropWhile { it.contains("取引日").not() }
                 .drop(1).firstOrNull()
                 ?.trim()
-                ?: return@date null
 
-            val tmp = runCatching { dateFormat.parse(dateLine) }
-                .onFailure { it.printStackTrace() }
-                .getOrNull()
-                ?: return@date null
-            LocalDateTime.from(tmp)
+            if (dateLine != null) {
+                val tmp = runCatching { dateFormat.parse(dateLine) }
+                    .onFailure { it.printStackTrace() }
+                    .getOrNull()
+                    ?: return@date null
+                LocalDateTime.from(tmp)
+            } else {
+                val tmp = document.select(".ppsans").asSequence()
+                    .filter { it.select("strong").any { strong -> strong.text() == "取引日" } }
+                    .mapNotNull { it.select("span").getOrNull(1)?.text()?.trim() }
+                    .mapNotNull {
+                        runCatching { dateFormat.parse(it) }
+                            .onFailure { it.printStackTrace() }
+                            .getOrNull()
+                    }
+                    .firstOrNull()
+                    ?: return@date null
+                LocalDateTime.from(tmp)
+            }
         }
 
         return listOf(
