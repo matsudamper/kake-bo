@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -50,7 +51,7 @@ internal fun UrlMenuDialog(
                         ),
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Divider(modifier = Modifier.fillMaxWidth())
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth())
                     val modifier =
                         Modifier
                             .fillMaxWidth()

@@ -21,7 +21,7 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -52,7 +52,7 @@ public data class RootUsageCalendarScreenUiState(
 ) {
     @Immutable
     public sealed interface LoadingState {
-        public object Loading : LoadingState
+        public data object Loading : LoadingState
 
         public data class Loaded(
             val calendarCells: ImmutableList<CalendarCell>,
@@ -72,7 +72,7 @@ public data class RootUsageCalendarScreenUiState(
             val text: String,
         ) : CalendarCell
 
-        public object Empty : CalendarCell
+        public data object Empty : CalendarCell
     }
 
     public data class CalendarDayItem(
@@ -232,12 +232,11 @@ private fun CalendarCell(
             text = uiState.text,
             style = MaterialTheme.typography.titleSmall,
         )
-        Divider(
-            modifier =
-            Modifier
+        HorizontalDivider(
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 2.dp)
-                .height(1.dp),
+                .height(1.dp)
         )
         uiState.items.forEach { item ->
             Spacer(Modifier.height(2.dp))

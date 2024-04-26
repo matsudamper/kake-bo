@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -26,9 +26,9 @@ internal fun SettingSection(
             title()
         }
         Spacer(Modifier.height(8.dp))
-        Divider(
+        HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
         )
         Spacer(Modifier.height(8.dp))
         Column(

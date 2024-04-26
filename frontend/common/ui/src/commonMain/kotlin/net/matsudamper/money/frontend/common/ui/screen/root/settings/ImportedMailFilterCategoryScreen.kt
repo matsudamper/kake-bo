@@ -21,15 +21,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -282,7 +282,7 @@ public fun ImportedMailFilterCategoryScreen(
                 },
                 navigation = {
                     IconButton(onClick = { uiState.event.onClickBack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 },
             )
@@ -428,7 +428,7 @@ private fun LoadedContent(
                         text = "次のカテゴリを適用する",
                         style = MaterialTheme.typography.titleMedium,
                     )
-                    Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
@@ -509,7 +509,7 @@ private fun LoadedContent(
                         Text("追加")
                     }
                 }
-                Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
             }
             if (uiState.conditions.isEmpty()) {
                 item {
@@ -671,7 +671,7 @@ private fun ConditionCard(
                         Text(
                             text = item.text,
                         )
-                        Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                        HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
                     }
                 }
             }

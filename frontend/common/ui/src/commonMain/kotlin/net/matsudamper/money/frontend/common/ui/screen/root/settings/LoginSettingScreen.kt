@@ -20,14 +20,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -153,7 +153,7 @@ public fun LoginSettingScreen(
                 },
                 navigation = {
                     IconButton(onClick = { uiState.event.onClickBack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = null)
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
                     }
                 },
             )
@@ -387,9 +387,9 @@ private fun SessionSection(
                 text = "現在のセッション",
                 style = MaterialTheme.typography.titleSmall,
             )
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
             )
         }
         item {
@@ -411,9 +411,9 @@ private fun SessionSection(
                 text = "その他のセッション",
                 style = MaterialTheme.typography.titleSmall,
             )
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
             )
         }
         items(sessionList) { session ->
@@ -550,9 +550,9 @@ private fun SettingSmallSection(
                 title()
             }
         }
-        Divider(
+        HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
         )
         Spacer(modifier = Modifier.height(8.dp))
         content()

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -42,12 +43,11 @@ public fun KakeBoTopAppBar(
                 }
             },
         )
-        Divider(
-            modifier =
-            Modifier
+        HorizontalDivider(
+            modifier = Modifier
                 .fillMaxWidth()
                 .height(1.dp),
-            color = CustomColors.MenuDividerColor,
+            color = CustomColors.MenuDividerColor
         )
     }
 }

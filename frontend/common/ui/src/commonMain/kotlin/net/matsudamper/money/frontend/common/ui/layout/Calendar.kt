@@ -13,6 +13,8 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Icon
@@ -87,7 +89,7 @@ public fun Calendar(
                 visibleCalendarDate = visibleCalendarDate.minus(1, DateTimeUnit.MONTH)
             }) {
                 Icon(
-                    imageVector = Icons.Default.KeyboardArrowLeft,
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                     contentDescription = "前の月",
                     tint = MaterialTheme.colorScheme.onSurface,
                 )
@@ -104,7 +106,7 @@ public fun Calendar(
                 visibleCalendarDate = visibleCalendarDate.plus(1, DateTimeUnit.MONTH)
             }) {
                 Icon(
-                    imageVector = Icons.Default.KeyboardArrowRight,
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = "後の月",
                     tint = MaterialTheme.colorScheme.onSurface,
                 )

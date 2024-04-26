@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -46,7 +46,7 @@ internal fun RootHomePeriodSection(
                     .clickable { onClickPreviousMonth() }
                     .padding(8.dp),
             ) {
-                Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "前の月")
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "前の月")
             }
             Box(
                 modifier =
@@ -54,7 +54,7 @@ internal fun RootHomePeriodSection(
                     .clickable { onClickNextMonth() }
                     .padding(8.dp),
             ) {
-                Icon(Icons.Default.KeyboardArrowRight, contentDescription = "次の月")
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "次の月")
             }
         }
         betweenText()

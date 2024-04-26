@@ -13,10 +13,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
-import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -286,7 +286,7 @@ private fun TitleBar(
                             .clickable { header.event.onClickPrevMonth() }
                             .padding(8.dp),
                     ) {
-                        Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "前の月")
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "前の月")
                     }
                     Box(
                         modifier =
@@ -295,7 +295,7 @@ private fun TitleBar(
                             .clickable { header.event.onClickNextMonth() }
                             .padding(8.dp),
                     ) {
-                        Icon(Icons.Default.KeyboardArrowRight, contentDescription = "次の月")
+                        Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "次の月")
                     }
                     Text(text = header.title)
                 }

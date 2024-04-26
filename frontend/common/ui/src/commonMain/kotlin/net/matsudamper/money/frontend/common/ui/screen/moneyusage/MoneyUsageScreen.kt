@@ -17,13 +17,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -256,7 +256,7 @@ public fun MoneyUsageScreen(
             KakeBoTopAppBar(
                 navigation = {
                     IconButton(onClick = { uiState.event.onClickBack() }) {
-                        Icon(Icons.Default.ArrowBack, "戻る")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "戻る")
                     }
                 },
                 title = {
@@ -307,7 +307,6 @@ public fun MoneyUsageScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LoadedContent(
     modifier: Modifier,
@@ -358,7 +357,7 @@ private fun LoadedContent(
                         }
                     }
                 }
-                Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
 
                 Card(
                     modifier =
@@ -379,7 +378,7 @@ private fun LoadedContent(
                     text = "連携されたメール",
                     style = MaterialTheme.typography.titleLarge,
                 )
-                Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
             }
             if (uiState.linkedMails.isNotEmpty()) {
                 items(uiState.linkedMails) { mail ->
@@ -584,7 +583,7 @@ private fun MoneyUsageSection(
                 title()
             }
         }
-        Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+        HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
         Row(
             modifier = Modifier.padding(12.dp),
         ) {

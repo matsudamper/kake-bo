@@ -15,8 +15,8 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Scaffold
@@ -164,7 +164,7 @@ public fun AddMoneyUsageScreen(
                         uiState.event.onClickDateChange()
                     },
                 )
-                Divider(Modifier.fillMaxWidth().height(1.dp))
+                HorizontalDivider(Modifier.fillMaxWidth().height(1.dp))
                 Section(
                     title = {
                         Text("タイトル")
@@ -176,7 +176,7 @@ public fun AddMoneyUsageScreen(
                         uiState.event.onClickTitleChange()
                     },
                 )
-                Divider(Modifier.fillMaxWidth().height(1.dp))
+                HorizontalDivider(Modifier.fillMaxWidth().height(1.dp))
                 Section(
                     title = {
                         Text("金額")
@@ -188,7 +188,7 @@ public fun AddMoneyUsageScreen(
                         uiState.event.onClickAmountChange()
                     },
                 )
-                Divider(Modifier.fillMaxWidth().height(1.dp))
+                HorizontalDivider(Modifier.fillMaxWidth().height(1.dp))
                 Section(
                     title = {
                         Text("カテゴリ")
@@ -200,7 +200,7 @@ public fun AddMoneyUsageScreen(
                         uiState.event.onClickCategoryChange()
                     },
                 )
-                Divider(Modifier.fillMaxWidth().height(1.dp))
+                HorizontalDivider(Modifier.fillMaxWidth().height(1.dp))
                 Section(
                     title = {
                         Text("説明")

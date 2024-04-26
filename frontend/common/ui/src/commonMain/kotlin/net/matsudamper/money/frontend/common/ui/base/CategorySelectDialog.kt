@@ -16,11 +16,13 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -185,14 +187,14 @@ private fun CategoryPage(
             IconButton(
                 onClick = { onBackRequest() },
             ) {
-                Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "戻る")
+                Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "戻る")
             }
             ProvideTextStyle(MaterialTheme.typography.titleLarge) {
                 title()
             }
         }
         Spacer(Modifier.height(12.dp))
-        Divider(Modifier.fillMaxWidth().height(1.dp))
+        HorizontalDivider(Modifier.fillMaxWidth().height(1.dp))
 
         if (items == null) {
             Box(

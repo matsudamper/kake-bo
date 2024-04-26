@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
@@ -53,11 +53,10 @@ public fun SettingScaffold(
             }
             menu()
         }
-        Divider(
-            modifier =
-            Modifier.fillMaxWidth()
+        HorizontalDivider(
+            modifier = Modifier.fillMaxWidth()
                 .padding(horizontal = settingHorizontalPadding),
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
         )
         Box(
             modifier = Modifier.fillMaxWidth(),

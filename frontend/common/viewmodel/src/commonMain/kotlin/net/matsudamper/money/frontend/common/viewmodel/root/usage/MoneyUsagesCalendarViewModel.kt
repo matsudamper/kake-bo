@@ -163,7 +163,7 @@ public class MoneyUsagesCalendarViewModel(
                                         buildList<LocalDate> {
                                             add(firstDay)
                                             while (last().month == firstDay.month) {
-                                                add(last().plus(DateTimeUnit.DayBased(1)))
+                                                add(last().plus(1, DateTimeUnit.DAY))
                                             }
                                             removeLast()
                                         }

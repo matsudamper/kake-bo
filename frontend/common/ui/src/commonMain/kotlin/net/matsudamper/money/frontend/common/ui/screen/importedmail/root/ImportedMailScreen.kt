@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
@@ -27,6 +28,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -192,7 +194,7 @@ public fun ImportedMailScreen(
                 navigation = {
                     IconButton(onClick = { uiState.event.onClickArrowBackButton() }) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = null,
                         )
                     }
@@ -308,7 +310,7 @@ private fun MainContent(
                         style = MaterialTheme.typography.headlineLarge,
                     )
                     Spacer(modifier = Modifier.height(12.dp))
-                    Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                    HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
                     Spacer(modifier = Modifier.height(12.dp))
                 }
                 items(uiState.usage) { item ->
@@ -326,7 +328,7 @@ private fun MainContent(
                     style = MaterialTheme.typography.headlineLarge,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
-                Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+                HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
                 Spacer(modifier = Modifier.height(12.dp))
             }
             if (uiState.usageSuggest.isEmpty()) {
@@ -380,7 +382,7 @@ private fun MailSection(uiState: MailScreenUiState.LoadingState.Loaded) {
             style = MaterialTheme.typography.headlineLarge,
         )
         Spacer(modifier = Modifier.height(12.dp))
-        Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+        HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
         Spacer(modifier = Modifier.height(12.dp))
         MailCard(
             modifier = Modifier.fillMaxWidth(),

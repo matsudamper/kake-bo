@@ -28,9 +28,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -90,7 +89,7 @@ public data class ImportedMailListScreenUiState(
             val showLastLoading: Boolean,
         ) : LoadingState
 
-        public object Loading : LoadingState
+        public data object Loading : LoadingState
     }
 
     public data class ListItem(
@@ -265,7 +264,6 @@ private fun MainContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Filter(
     modifier: Modifier = Modifier,
@@ -367,7 +365,7 @@ private fun Filter(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun SuggestUsageItem(
     modifier: Modifier = Modifier,
@@ -474,13 +472,12 @@ private fun CardSection(
         ) {
             title()
         }
-        Divider(
-            modifier =
-            Modifier
+        HorizontalDivider(
+            modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
                 .height(1.dp),
-            color = Color.White,
+            color = Color.White
         )
         Column(
             modifier = Modifier.padding(horizontal = textHorizontalPadding),

@@ -20,8 +20,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,7 +45,7 @@ public data class RootUsageListScreenUiState(
 ) {
     @Immutable
     public sealed interface LoadingState {
-        public object Loading : LoadingState
+        public data object Loading : LoadingState
 
         public data class Loaded(
             val loadToEnd: Boolean,
@@ -213,12 +212,11 @@ private fun ListItemTitle(
             text = item.title,
             style = MaterialTheme.typography.titleLarge,
         )
-        Divider(modifier = Modifier.fillMaxWidth().height(1.dp))
+        HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
         Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ListItemUsage(
     modifier: Modifier = Modifier,
