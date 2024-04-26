@@ -54,6 +54,7 @@ public data class RootUsageListScreenUiState(
         ) : LoadingState
     }
 
+    @Immutable
     public sealed interface Item {
         public data class Usage(
             val title: String,
