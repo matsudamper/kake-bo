@@ -16,7 +16,6 @@ import graphql.language.Value
 import graphql.scalars.ExtendedScalars
 import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
-import graphql.schema.visibility.NoIntrospectionGraphqlFieldVisibility
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageCategoryResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageResolverImpl
@@ -174,18 +173,12 @@ object MoneyGraphQlSchema {
             .options(
                 @Suppress("OPT_IN_USAGE")
                 SchemaParserOptions.defaultOptions().copy(
-                    objectMapperProvider =
-                    PerFieldConfiguringObjectMapperProvider { mapper, _ ->
+                    objectMapperProvider = PerFieldConfiguringObjectMapperProvider { mapper, _ ->
                         mapper.registerModule(
                             JavaTimeModule(),
                         )
                     },
-                    fieldVisibility =
-                    if (ServerEnv.isDebug) {
-                        null
-                    } else {
-                        NoIntrospectionGraphqlFieldVisibility.NO_INTROSPECTION_FIELD_VISIBILITY
-                    },
+                    introspectionEnabled = ServerEnv.isDebug,
                 ),
             )
             .build()
