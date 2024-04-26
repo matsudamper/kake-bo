@@ -8,9 +8,6 @@ kotlin {
         browser()
         binaries.executable()
     }
-    jvm {
-        withJava()
-    }
     sourceSets {
         jvmToolchain(17)
         val commonMain by getting {
@@ -35,18 +32,6 @@ kotlin {
         val jsTest by getting {
             dependencies {
                 implementation(kotlin("test"))
-            }
-        }
-        val jvmMain by getting {
-            dependencies {
-                implementation(kotlin("stdlib"))
-            }
-        }
-        val jvmTest by getting {
-            dependencies {
-                implementation(kotlin("test"))
-                implementation("io.kotest:kotest-runner-junit5:5.8.1")
-                implementation("io.mockk:mockk:1.13.10")
             }
         }
     }
