@@ -12,6 +12,11 @@ query AddMoneyUsageScreen($id: ImportedMailId!) {
             mail(id: $id) {
                 subject
                 dateTime
+                forwardedInfo {
+                    dateTime
+                    from
+                    subject
+                }
                 suggestUsages {
                     title
                     description

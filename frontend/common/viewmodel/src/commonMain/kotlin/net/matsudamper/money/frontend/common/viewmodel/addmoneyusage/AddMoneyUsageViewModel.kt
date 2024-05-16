@@ -247,18 +247,19 @@ public class AddMoneyUsageViewModel(
                     .onSuccess { result ->
                         val importedMailIndex = current.importedMailIndex
 
-                        val suggestUsage =
-                            result.data?.user?.importedMailAttributes?.mail?.suggestUsages
-                                ?.getOrNull(importedMailIndex ?: 0)
-
+                        val suggestUsage = result.data?.user?.importedMailAttributes?.mail?.suggestUsages
+                            ?.getOrNull(importedMailIndex ?: 0)
+                        val forwardedInfo = result.data?.user?.importedMailAttributes?.mail?.forwardedInfo
                         if (suggestUsage == null) {
                             val subject = result.data?.user?.importedMailAttributes?.mail?.subject.orEmpty()
                             val date = result.data?.user?.importedMailAttributes?.mail?.dateTime
                             viewModelStateFlow.update {
                                 it.copy(
                                     importedMailId = importedMailId,
-                                    usageTitle = subject,
-                                    usageDate = date?.date ?: Clock.System.todayIn(TimeZone.currentSystemDefault()),
+                                    usageTitle = forwardedInfo?.subject ?: subject,
+                                    usageDate = forwardedInfo?.dateTime?.date
+                                        ?: date?.date
+                                        ?: Clock.System.todayIn(TimeZone.currentSystemDefault()),
                                 )
                             }
                             return@launch
