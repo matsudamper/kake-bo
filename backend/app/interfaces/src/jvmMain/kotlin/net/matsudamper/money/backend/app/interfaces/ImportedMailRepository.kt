@@ -40,7 +40,7 @@ interface ImportedMailRepository {
         mailId: ImportedMailId,
     ): Boolean
 
-    public data class Mail(
+    data class Mail(
         val id: ImportedMailId,
         val plain: String?,
         val html: String?,

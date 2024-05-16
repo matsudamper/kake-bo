@@ -35,7 +35,14 @@ type ImportedMail {
     html: String @lazy
     hasHtml: Boolean! @lazy
     dateTime: LocalDateTime! @lazy
+    forwardedInfo: ImportedMailForwardedInfo @lazy
 
     suggestUsages: [MoneyUsageSuggest!]! @lazy
     usages: [MoneyUsage!]! @lazy
+}
+
+type ImportedMailForwardedInfo {
+    from: String!
+    subject: String!
+    dateTime: LocalDateTime!
 }

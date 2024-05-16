@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend.mail.parser
 
 import java.time.LocalDateTime
+import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 import net.matsudamper.money.backend.mail.parser.services.AmazonCoJpUsageServices
 import net.matsudamper.money.backend.mail.parser.services.AuEasyPaymentUsageServices
 import net.matsudamper.money.backend.mail.parser.services.BicCameraUsageServices
@@ -32,8 +33,8 @@ import net.matsudamper.money.backend.mail.parser.services.YodobashiUsageService
 import net.matsudamper.money.backend.mail.parser.services.YoutubeMembershipUsageServices
 import net.matsudamper.money.backend.mail.parser.services.YoutubeSuperChatUsageServices
 
-public class MailMoneyUsageParser {
-    public fun parse(
+public object MailParser {
+    public fun parseUsage(
         subject: String,
         from: String,
         html: String,
@@ -87,5 +88,14 @@ public class MailMoneyUsageParser {
             }
             .firstOrNull()
             .orEmpty()
+    }
+
+    public fun forwardedInfo(text: String): ForwardedInfo? {
+        val info = ParseUtil.parseForwarded(text) ?: return null
+        return ForwardedInfo(
+            from = info.from ?: return null,
+            subject = info.subject ?: return null,
+            dateTime = info.date ?: return null,
+        )
     }
 }

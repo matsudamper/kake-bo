@@ -10,15 +10,16 @@ import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageSuggestLocalContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
-import net.matsudamper.money.backend.mail.parser.MailMoneyUsageParser
+import net.matsudamper.money.backend.mail.parser.MailParser
 import net.matsudamper.money.graphql.model.ImportedMailResolver
 import net.matsudamper.money.graphql.model.QlImportedMail
+import net.matsudamper.money.graphql.model.QlImportedMailForwardedInfo
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageSuggest
 
 class ImportedMailResolverImpl : ImportedMailResolver {
     private val DataFetchingEnvironment.typedContext: GraphQlContext get() = graphQlContext.get(GraphQlContext::class.java.name)
-    
+
     override fun subject(
         importedMail: QlImportedMail,
         env: DataFetchingEnvironment,
@@ -155,21 +156,19 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                 importedMailId = importedMail.id,
             ),
         ).thenApplyAsync { mailLoader ->
-            val targetMail =
-                mailLoader ?: return@thenApplyAsync run {
-                    DataFetcherResult.newResult<List<QlMoneyUsageSuggest>>()
-                        .data(listOf())
-                        .build()
-                }
+            val targetMail = mailLoader ?: return@thenApplyAsync run {
+                DataFetcherResult.newResult<List<QlMoneyUsageSuggest>>()
+                    .data(listOf())
+                    .build()
+            }
 
-            val results =
-                MailMoneyUsageParser().parse(
-                    subject = targetMail.subject,
-                    from = targetMail.from,
-                    html = targetMail.html.orEmpty(),
-                    plain = targetMail.plain.orEmpty(),
-                    date = targetMail.dateTime,
-                )
+            val results = MailParser.parseUsage(
+                subject = targetMail.subject,
+                from = targetMail.from,
+                html = targetMail.html.orEmpty(),
+                plain = targetMail.plain.orEmpty(),
+                date = targetMail.dateTime,
+            )
 
             DataFetcherResult.newResult<List<QlMoneyUsageSuggest>>()
                 .data(
@@ -244,5 +243,30 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                 },
             )
         }.toDataFetcher()
+    }
+
+    override fun forwardedInfo(
+        importedMail: QlImportedMail,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlImportedMailForwardedInfo?>> {
+        val context = env.typedContext
+        val userId = context.verifyUserSessionAndGetUserId()
+
+        return context.dataLoaders.importedMailDataLoader.get(env)
+            .load(
+                ImportedMailDataLoaderDefine.Key(
+                    userId = userId,
+                    importedMailId = importedMail.id,
+                ),
+            ).thenApplyAsync { importedMailFuture ->
+                val parsed = MailParser
+                    .forwardedInfo(importedMailFuture.plain ?: return@thenApplyAsync null)
+                    ?: return@thenApplyAsync null
+                QlImportedMailForwardedInfo(
+                    from = parsed.from,
+                    subject = parsed.subject,
+                    dateTime = parsed.dateTime,
+                )
+            }.toDataFetcher()
     }
 }
