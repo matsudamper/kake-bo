@@ -4,7 +4,8 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 plugins {
     kotlin("multiplatform") apply false
     alias(libs.plugins.kotlin.serialization) apply false
-    alias(libs.plugins.compose) apply false
+    alias(libs.plugins.composeCompiler) apply false
+    alias(libs.plugins.jetbrainsCompose) apply false
     alias(libs.plugins.ktlint)
 }
 

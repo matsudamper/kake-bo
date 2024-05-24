@@ -36,7 +36,7 @@ pluginManagement {
 
     plugins {
         kotlin("multiplatform").version(extra["kotlin.version"] as String)
-        id("org.jetbrains.compose").version(extra["compose.version"] as String)
+        id("org.jetbrains.kotlin.plugin.compose").version(extra["kotlin.version"] as String)
     }
 }
 
@@ -58,7 +58,8 @@ dependencyResolutionManagement {
             library("kotlin.datetime", "org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
             library("kotlin.serialization.json", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
 
-            plugin("compose", "org.jetbrains.compose").version(extra["compose.version"] as String)
+            plugin("composeCompiler", "org.jetbrains.kotlin.plugin.compose").version(kotlinVersion)
+            plugin("jetbrainsCompose", "org.jetbrains.compose").version(composeVersion)
             library("compose.material3", "org.jetbrains.compose.material3:material3:$composeVersion")
 
             library("graphqlJava.extendedScalars", "com.graphql-java:graphql-java-extended-scalars:2023-01-24T02-11-56-babda5f")
@@ -72,22 +73,6 @@ dependencyResolutionManagement {
             library("webauth4jCore", "com.webauthn4j:webauthn4j-core:0.24.0.RELEASE")
 
             plugin("ktlint", "org.jlleitschuh.gradle.ktlint").version("12.1.1")
-
-            val ktorVersion = "2.3.12"
-            library("ktor.server.core", "io.ktor:ktor-server-core:$ktorVersion")
-            library("ktor.server.engine", "io.ktor:ktor-server-netty:$ktorVersion")
-            library("ktor.server.statusPages", "io.ktor:ktor-server-status-pages:$ktorVersion")
-            library("ktor.server.cors", "io.ktor:ktor-server-cors:$ktorVersion")
-            library("ktor.server.defaultHeaders", "io.ktor:ktor-server-default-headers:$ktorVersion")
-            library("ktor.server.fowardedHeader", "io.ktor:ktor-server-forwarded-header:$ktorVersion")
-            library("ktor.server.compression", "io.ktor:ktor-server-compression:$ktorVersion")
-            library("ktor.serialization.json", "io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
-            library("ktor.server.contentNegotiation", "io.ktor:ktor-server-content-negotiation:$ktorVersion")
-            library("ktor.server.callLogging", "io.ktor:ktor-server-call-logging:$ktorVersion")
-            library("ktor.client.core", "io.ktor:ktor-client-core:$ktorVersion")
-            library("ktor.client.cio", "io.ktor:ktor-client-cio:$ktorVersion")
-            library("ktor.client.js", "io.ktor:ktor-client-js:$ktorVersion")
-            library("ktor.client.logging", "io.ktor:ktor-client-logging:$ktorVersion")
 
             library("jakarta.mail.api", "jakarta.mail:jakarta.mail-api:2.1.3")
             library("jakarta.mail", "org.eclipse.angus:jakarta.mail:2.0.3")
@@ -107,6 +92,8 @@ dependencyResolutionManagement {
 
             library("jedis", "redis.clients:jedis:5.1.3")
             library("jsoup", "org.jsoup:jsoup:1.17.2")
+
+            from(files("build-logic/libs.versions.toml"))
         }
     }
 }

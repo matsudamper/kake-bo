@@ -21,8 +21,8 @@ kotlin {
         }
         val jsMain by getting {
             dependencies {
-                implementation(libs.ktor.client.js)
-                implementation(libs.ktor.client.logging)
+                implementation(libs.ktorClientJs)
+                implementation(libs.ktorClientLogging)
             }
         }
         val commonTest by getting {
