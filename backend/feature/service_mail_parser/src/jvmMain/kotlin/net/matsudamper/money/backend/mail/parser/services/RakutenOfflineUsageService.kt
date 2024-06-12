@@ -18,12 +18,11 @@ internal object RakutenOfflineUsageService : MoneyUsageServices {
         plain: String,
         date: LocalDateTime,
     ): List<MoneyUsage> {
-        val canHandle =
-            sequence {
-                yield(canHandledWithFrom(from))
-                yield(canHandledWithSubject(subject))
-                yield(canHandledWithPlain(plain))
-            }
+        val forwardedInfo = ParseUtil.parseForwarded(plain)
+        val canHandle = sequence {
+            yield(canHandledWithFrom(forwardedInfo?.from ?: from))
+            yield(canHandledWithSubject(forwardedInfo?.subject ?: subject))
+        }
         if (canHandle.any { it }.not()) return listOf()
 
         val price =
@@ -84,9 +83,5 @@ internal object RakutenOfflineUsageService : MoneyUsageServices {
 
     private fun canHandledWithSubject(subject: String): Boolean {
         return subject == "楽天ペイアプリご利用内容確認メール"
-    }
-
-    private fun canHandledWithPlain(plain: String): Boolean {
-        return plain.startsWith("楽天ペイアプリご利用内容確認メール")
     }
 }
