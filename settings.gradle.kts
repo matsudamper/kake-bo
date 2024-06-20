@@ -73,7 +73,7 @@ dependencyResolutionManagement {
 
             plugin("ktlint", "org.jlleitschuh.gradle.ktlint").version("12.1.1")
 
-            val ktorVersion = "2.3.11"
+            val ktorVersion = "2.3.12"
             library("ktor.server.core", "io.ktor:ktor-server-core:$ktorVersion")
             library("ktor.server.engine", "io.ktor:ktor-server-netty:$ktorVersion")
             library("ktor.server.statusPages", "io.ktor:ktor-server-status-pages:$ktorVersion")
