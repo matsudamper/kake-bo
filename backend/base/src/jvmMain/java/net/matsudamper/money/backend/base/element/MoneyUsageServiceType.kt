@@ -116,4 +116,8 @@ public enum class MoneyUsageServiceType(
         id = 29,
         displayName = "au PAY",
     ),
+    Booth(
+        id = 30,
+        displayName = "Booth",
+    )
 }
