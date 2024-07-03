@@ -15,7 +15,7 @@ plugins {
 buildscript {
     dependencies {
         classpath("org.jooq:jooq-codegen:3.19.8")
-        classpath("org.mariadb.jdbc:mariadb-java-client:3.3.3")
+        classpath("org.mariadb.jdbc:mariadb-java-client:3.4.0")
         classpath("org.jooq:jooq-meta:3.19.8")
     }
 }
