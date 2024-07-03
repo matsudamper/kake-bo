@@ -112,4 +112,8 @@ public enum class MoneyUsageServiceType(
         id = 28,
         displayName = "Yahoo!ショッピング",
     ),
+    AuPay(
+        id = 29,
+        displayName = "au PAY",
+    ),
 }

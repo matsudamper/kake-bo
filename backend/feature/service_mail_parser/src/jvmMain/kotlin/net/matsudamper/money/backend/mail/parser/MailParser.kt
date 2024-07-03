@@ -4,6 +4,7 @@ import java.time.LocalDateTime
 import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 import net.matsudamper.money.backend.mail.parser.services.AmazonCoJpUsageServices
 import net.matsudamper.money.backend.mail.parser.services.AuEasyPaymentUsageServices
+import net.matsudamper.money.backend.mail.parser.services.AuPayUsageService
 import net.matsudamper.money.backend.mail.parser.services.BicCameraUsageServices
 import net.matsudamper.money.backend.mail.parser.services.BookWalkerUsageServices
 import net.matsudamper.money.backend.mail.parser.services.DmmUsageServices
@@ -72,6 +73,7 @@ public object MailParser {
             NttEastBillingUsageServices,
             MountbellUsageServices,
             MitsuiSumitomoCardUsageServices,
+            AuPayUsageService,
         )
             .mapNotNull {
                 runCatching {
