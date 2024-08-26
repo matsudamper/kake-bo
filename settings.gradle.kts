@@ -68,7 +68,7 @@ dependencyResolutionManagement {
             plugin("kobylynskyi.graphqlCodegen", "io.github.kobylynskyi.graphql.codegen").version("5.10.0")
 
             library("log4j.api", "org.slf4j:slf4j-api:2.0.16")
-            library("logback.classic", "ch.qos.logback:logback-classic:1.5.6")
+            library("logback.classic", "ch.qos.logback:logback-classic:1.5.7")
 
             library("webauth4jCore", "com.webauthn4j:webauthn4j-core:0.24.0.RELEASE")
 
