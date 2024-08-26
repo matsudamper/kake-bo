@@ -47,7 +47,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation("io.kotest:kotest-runner-junit5:5.9.1")
-                implementation("io.mockk:mockk:1.13.11")
+                implementation("io.mockk:mockk:1.13.12")
             }
         }
     }

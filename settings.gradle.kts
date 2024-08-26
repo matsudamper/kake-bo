@@ -55,7 +55,7 @@ dependencyResolutionManagement {
             plugin("kotlin.multiplatform", "org.jetbrains.kotlin.multiplatform").version(kotlinVersion)
             plugin("kotlin.serialization", "org.jetbrains.kotlin.plugin.serialization").version(kotlinVersion)
             library("kotlin.coroutines.core", "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
-            library("kotlin.datetime", "org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
+            library("kotlin.datetime", "org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
             library("kotlin.serialization.json", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
 
             plugin("composeCompiler", "org.jetbrains.kotlin.plugin.compose").version(kotlinVersion)
@@ -67,7 +67,7 @@ dependencyResolutionManagement {
             library("graphqlJavaKickstart.javaTools", "com.graphql-java-kickstart:graphql-java-tools:13.1.1")
             plugin("kobylynskyi.graphqlCodegen", "io.github.kobylynskyi.graphql.codegen").version("5.10.0")
 
-            library("log4j.api", "org.slf4j:slf4j-api:2.0.13")
+            library("log4j.api", "org.slf4j:slf4j-api:2.0.16")
             library("logback.classic", "ch.qos.logback:logback-classic:1.5.6")
 
             library("webauth4jCore", "com.webauthn4j:webauthn4j-core:0.24.0.RELEASE")
@@ -84,7 +84,7 @@ dependencyResolutionManagement {
             library("jackson.kotlin", "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
             library("jackson.jsr310", "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1")
 
-            library("jedis", "redis.clients:jedis:5.1.3")
+            library("jedis", "redis.clients:jedis:5.1.5")
             library("jsoup", "org.jsoup:jsoup:1.18.1")
 
             from(files("build-logic/libs.versions.toml"))
