@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.apollo.plugin)
+    alias(libs.plugins.apollo)
 }
 
 kotlin {
@@ -16,10 +16,10 @@ kotlin {
                 implementation(projects.shared)
                 implementation(projects.frontend.common.base)
 
-                api(libs.apollo.runtime)
+                api(libs.apolloRuntime)
                 implementation(libs.kotlin.datetime)
-                api(libs.apollo.normalizedCache)
-                implementation(libs.apollo.adapters)
+                api(libs.apolloNormalizedCache)
+                implementation(libs.apolloAdapters)
             }
         }
     }

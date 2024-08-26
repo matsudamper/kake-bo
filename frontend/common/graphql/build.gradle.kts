@@ -14,10 +14,10 @@ kotlin {
                 implementation(projects.frontend.common.base)
                 api(projects.frontend.common.graphql.schema)
 
-                api(libs.apollo.runtime)
+                api(libs.apolloRuntime)
                 implementation(libs.kotlin.datetime)
-                api(libs.apollo.normalizedCache)
-                implementation(libs.apollo.adapters)
+                api(libs.apolloNormalizedCache)
+                implementation(libs.apolloAdapters)
             }
         }
     }

@@ -5,6 +5,7 @@ apollo = "4.0.0-beta.6"
 ktor = "3.0.0-beta-2"
 
 [plugins]
+apollo = { id = "com.apollographql.apollo3", version.ref = "apollo" }
 
 [libraries]
 ktorServerCore = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
@@ -21,3 +22,7 @@ ktorClientCore = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktorClientCio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktorClientJs = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
 ktorClientLogging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
+
+apolloRuntime = { module = "com.apollographql.apollo3:apollo-runtime", version.ref = "apollo" }
+apolloNormalizedCache = { module = "com.apollographql.apollo3:apollo-normalized-cache", version.ref = "apollo" }
+apolloAdapters = { module = "com.apollographql.apollo3:apollo-adapters", version.ref = "apollo" }

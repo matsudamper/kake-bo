@@ -79,12 +79,6 @@ dependencyResolutionManagement {
             library("angus.mail", "org.eclipse.angus:angus-mail:2.0.3")
             library("jakarta.activation.api", "jakarta.activation:jakarta.activation-api:2.1.3")
 
-            val apolloVersion = "3.8.4"
-            plugin("apollo.plugin", "com.apollographql.apollo3").version(apolloVersion)
-            library("apollo.runtime", "com.apollographql.apollo3:apollo-runtime:$apolloVersion")
-            library("apollo.normalizedCache", "com.apollographql.apollo3:apollo-normalized-cache:$apolloVersion")
-            library("apollo.adapters", "com.apollographql.apollo3:apollo-adapters:$apolloVersion")
-
             val jacksonVersion = "2.17.1"
             library("jackson.databind", "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
             library("jackson.kotlin", "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
