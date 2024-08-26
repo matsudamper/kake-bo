@@ -12,12 +12,11 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
-import io.ktor.server.application.call
 import io.ktor.server.application.install
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.http.content.staticFiles
 import io.ktor.server.netty.Netty
-import io.ktor.server.plugins.callloging.CallLogging
+import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.compression.Compression
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
@@ -51,8 +50,6 @@ class Main {
                     Netty,
                     port = ServerEnv.port,
                     module = Application::myApplicationModule,
-                    configure = {
-                    },
                 )
             Runtime.getRuntime().addShutdownHook(
                 Thread {
@@ -112,7 +109,7 @@ fun Application.myApplicationModule() {
                 }
             }
             post<RegisterMailHandler.Request>("/api/register_mail/v1") { request ->
-                val apiKey = context.request.headers["Authorization"]
+                val apiKey = call.request.headers["Authorization"]
                 withTimeout(5.seconds) {
                     val result = RegisterMailHandler(
                         diContainer = MainDiContainer(),

@@ -25,8 +25,8 @@ kotlin {
                 implementation(compose.ui)
 
                 implementation("io.ktor:ktor-client-logging-js:2.3.11")
-                implementation(libs.ktor.client.core)
-                implementation(libs.ktor.client.js)
+                implementation(libs.ktorClientCore)
+                implementation(libs.ktorClientJs)
             }
         }
         val jsTest by getting {
