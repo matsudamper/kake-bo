@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.apollographql.apollo3.ApolloClient
@@ -62,7 +61,6 @@ class ApolloPagingResponseCollector<D : Query.Data>(
                     .create(
                         apolloClient = apolloClient,
                         query = query,
-                        fetchThrows = true,
                         fetchPolicy = fetchPolicy,
                     )
             collector = tmp

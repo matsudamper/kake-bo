@@ -128,7 +128,7 @@ public class SettingScreenCategoryApi(
                 ),
             )
             .fetchPolicy(FetchPolicy.CacheAndNetwork)
-            .watch(fetchThrows = true)
+            .watch()
             .catch {
                 it.printStackTrace()
             }

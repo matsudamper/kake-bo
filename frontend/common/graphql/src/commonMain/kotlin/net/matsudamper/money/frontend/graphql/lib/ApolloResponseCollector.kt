@@ -18,8 +18,6 @@ import com.apollographql.apollo3.cache.normalized.watch
 public class ApolloResponseCollector<D : Query.Data>(
     private val apolloClient: ApolloClient,
     private val query: Query<D>,
-    private val fetchThrows: Boolean,
-    private val refetchThrows: Boolean,
     private val fetchPolicy: FetchPolicy,
 ) {
     private val _flow: MutableStateFlow<ApolloResponseState<ApolloResponse<D>>> =
@@ -43,10 +41,7 @@ public class ApolloResponseCollector<D : Query.Data>(
                 apolloClient
                     .query(query)
                     .fetchPolicy(fetchPolicy)
-                    .watch(
-                        fetchThrows = fetchThrows,
-                        refetchThrows = refetchThrows,
-                    )
+                    .watch()
                     .catch {
                         it.printStackTrace()
                         _flow.value = ApolloResponseState.failure(it)
@@ -66,15 +61,11 @@ public class ApolloResponseCollector<D : Query.Data>(
         fun <D : Query.Data> create(
             apolloClient: ApolloClient,
             query: Query<D>,
-            fetchThrows: Boolean = true,
-            refetchThrows: Boolean = false,
             fetchPolicy: FetchPolicy = FetchPolicy.CacheAndNetwork,
         ): ApolloResponseCollector<D> {
             return ApolloResponseCollector(
                 apolloClient = apolloClient,
                 query = query,
-                fetchThrows = fetchThrows,
-                refetchThrows = refetchThrows,
                 fetchPolicy = fetchPolicy,
             )
         }

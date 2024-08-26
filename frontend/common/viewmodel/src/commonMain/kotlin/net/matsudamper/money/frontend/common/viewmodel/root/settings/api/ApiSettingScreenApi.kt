@@ -16,10 +16,7 @@ public class ApiSettingScreenApi(
             .query(
                 ApiSettingScreenQuery(),
             )
-            .watch(
-                fetchThrows = true,
-                refetchThrows = false,
-            )
+            .watch()
     }
 
     public suspend fun registerToken(name: String): Result<ApolloResponse<ApiSettingScreenRegisterApiTokenMutation.Data>> {
