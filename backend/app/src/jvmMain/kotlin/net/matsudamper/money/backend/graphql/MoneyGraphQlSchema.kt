@@ -17,6 +17,7 @@ import graphql.scalars.ExtendedScalars
 import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
 import net.matsudamper.money.backend.base.ServerEnv
+import net.matsudamper.money.backend.di.MainDiContainer
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageCategoryResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageSubCategoryResolverImpl
@@ -48,6 +49,7 @@ import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 
 object MoneyGraphQlSchema {
+    private val diContainer = MainDiContainer()
     private fun getDebugSchemaFiles(): List<String> {
         return ClassLoader.getSystemClassLoader()
             .getResourceAsStream("graphql")!!
@@ -185,10 +187,10 @@ object MoneyGraphQlSchema {
             .makeExecutableSchema()
     }
 
-    public val graphql =
-        GraphQL.newGraphQL(schema)
-            .queryExecutionStrategy(AsyncExecutionStrategy())
-            .build()
+    val graphql: GraphQL = GraphQL.newGraphQL(schema)
+        .queryExecutionStrategy(AsyncExecutionStrategy())
+        .instrumentation(IdLoggerInstrumentation(diContainer.traceLogger()))
+        .build()
 
     private fun <T> createStringScalarType(
         name: String,
@@ -210,22 +212,6 @@ object MoneyGraphQlSchema {
         name: String,
         serialize: (T) -> Int,
         deserialize: (Int) -> T,
-    ): GraphQLScalarType {
-        return GraphQLScalarType.newScalar()
-            .coercing(
-                ValueClassCoercing(
-                    serialize = serialize,
-                    deserialize = deserialize,
-                ),
-            )
-            .name(name)
-            .build()
-    }
-
-    private fun <T> createLongScalarType(
-        name: String,
-        serialize: (T) -> Long,
-        deserialize: (Long) -> T,
     ): GraphQLScalarType {
         return GraphQLScalarType.newScalar()
             .coercing(

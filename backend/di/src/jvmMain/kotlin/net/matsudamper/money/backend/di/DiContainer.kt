@@ -18,6 +18,7 @@ import net.matsudamper.money.backend.app.interfaces.UserRepository
 import net.matsudamper.money.backend.app.interfaces.UserSessionRepository
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.base.ServerVariables
+import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.datasource.challenge.ChallengeRepositoryProvider
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.backend.datasource.db.repository.AdminRepositoryImpl
@@ -72,6 +73,7 @@ interface DiContainer {
 
     fun userLoginRepository(): UserLoginRepository
     fun createApiTokenRepository(): ApiTokenRepository
+    fun traceLogger(): TraceLogger
 }
 
 class MainDiContainer : DiContainer {
@@ -178,5 +180,9 @@ class MainDiContainer : DiContainer {
 
     override fun createApiTokenRepository(): ApiTokenRepository {
         return ApiTokenRepositoryImpl(dbConnection = DbConnectionImpl)
+    }
+
+    override fun traceLogger(): TraceLogger {
+        return TraceLogger.impl()
     }
 }

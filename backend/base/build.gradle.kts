@@ -19,6 +19,7 @@ kotlin {
                 implementation(libs.jackson.databind)
                 implementation(libs.jackson.kotlin)
                 implementation(libs.log4j.api)
+                implementation(libs.opentelemetryApi)
             }
         }
         val jvmTest by getting {

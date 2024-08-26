@@ -26,3 +26,5 @@ ktorClientLogging = { module = "io.ktor:ktor-client-logging", version.ref = "kto
 apolloRuntime = { module = "com.apollographql.apollo3:apollo-runtime", version.ref = "apollo" }
 apolloNormalizedCache = { module = "com.apollographql.apollo3:apollo-normalized-cache", version.ref = "apollo" }
 apolloAdapters = { module = "com.apollographql.apollo3:apollo-adapters", version.ref = "apollo" }
+
+opentelemetryApi = { module = "io.opentelemetry:opentelemetry-api", version.require = "1.41.0" }
