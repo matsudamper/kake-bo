@@ -119,5 +119,5 @@ public enum class MoneyUsageServiceType(
     Booth(
         id = 30,
         displayName = "Booth",
-    )
+    ),
 }
