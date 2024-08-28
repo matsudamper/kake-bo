@@ -56,7 +56,7 @@ dependencyResolutionManagement {
             plugin("kotlin.serialization", "org.jetbrains.kotlin.plugin.serialization").version(kotlinVersion)
             library("kotlin.coroutines.core", "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
             library("kotlin.datetime", "org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
-            library("kotlin.serialization.json", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
+            library("kotlin.serialization.json", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.2")
 
             plugin("composeCompiler", "org.jetbrains.kotlin.plugin.compose").version(kotlinVersion)
             plugin("jetbrainsCompose", "org.jetbrains.compose").version(composeVersion)
