@@ -8,6 +8,7 @@ import net.matsudamper.money.backend.graphql.DataFetcherResultBuilder
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsByCategoryLocalContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsLocalContext
+import net.matsudamper.money.backend.graphql.requireLocalContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.graphql.model.MoneyUsageAnalyticsResolver
 import net.matsudamper.money.graphql.model.QlMoneyUsageAnalytics
@@ -15,7 +16,7 @@ import net.matsudamper.money.graphql.model.QlMoneyUsageAnalyticsByCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
 
 class MoneyUsageAnalyticsResolverImpl : MoneyUsageAnalyticsResolver {
-    private val DataFetchingEnvironment.localContext get() = getLocalContext<MoneyUsageAnalyticsLocalContext>()
+    private val DataFetchingEnvironment.localContext get() = requireLocalContext<MoneyUsageAnalyticsLocalContext>()
 
     override fun totalAmount(
         moneyUsageAnalytics: QlMoneyUsageAnalytics,

@@ -11,6 +11,7 @@ import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.primeChildDataLoader
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageSuggestLocalContext
+import net.matsudamper.money.backend.graphql.requireLocalContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.graphql.model.MoneyUsageSuggestResolver
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
@@ -23,7 +24,7 @@ class MoneyUsageSuggestResolverImpl : MoneyUsageSuggestResolver {
     ): CompletionStage<DataFetcherResult<QlMoneyUsageSubCategory?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        val localContext = env.getLocalContext<MoneyUsageSuggestLocalContext>()
+        val localContext = env.requireLocalContext<MoneyUsageSuggestLocalContext>()
 
         val importedMailFuture =
             context.dataLoaders.importedMailDataLoader.get(env).load(
