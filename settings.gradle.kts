@@ -70,7 +70,7 @@ dependencyResolutionManagement {
             library("log4j.api", "org.slf4j:slf4j-api:2.0.16")
             library("logback.classic", "ch.qos.logback:logback-classic:1.5.8")
 
-            library("webauth4jCore", "com.webauthn4j:webauthn4j-core:0.24.0.RELEASE")
+            library("webauth4jCore", "com.webauthn4j:webauthn4j-core:0.26.0.RELEASE")
 
             plugin("ktlint", "org.jlleitschuh.gradle.ktlint").version("12.1.1")
 
