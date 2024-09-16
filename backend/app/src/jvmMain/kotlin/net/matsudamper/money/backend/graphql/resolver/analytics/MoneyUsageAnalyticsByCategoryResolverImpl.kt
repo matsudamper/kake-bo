@@ -7,6 +7,7 @@ import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.MoneyUsageAnalyticsBySubCategoryLoader
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsByCategoryLocalContext
+import net.matsudamper.money.backend.graphql.requireLocalContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.graphql.model.MoneyUsageAnalyticsByCategoryResolver
 import net.matsudamper.money.graphql.model.QlMoneyUsageAnalyticsByCategory
@@ -15,7 +16,7 @@ import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
 
 class MoneyUsageAnalyticsByCategoryResolverImpl : MoneyUsageAnalyticsByCategoryResolver {
     private val DataFetchingEnvironment.localContext: MoneyUsageAnalyticsByCategoryLocalContext
-        get() = getLocalContext()
+        get() = requireLocalContext()
 
     override fun bySubCategories(
         moneyUsageAnalyticsByCategory: QlMoneyUsageAnalyticsByCategory,
