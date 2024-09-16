@@ -68,7 +68,7 @@ public class RootUsageCalendarPagingModel(
         selectedMonth ?: return
         pagingFlow.value.add { responseStateList ->
             val cursor: String?
-            when (val lastState = responseStateList.lastOrNull()?.flow?.value) {
+            when (val lastState = responseStateList.lastOrNull()?.getFlow()?.value) {
                 is ApolloResponseState.Loading -> return@add null
                 is ApolloResponseState.Failure -> {
                     coroutineScope.launch {

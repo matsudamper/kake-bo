@@ -55,7 +55,7 @@ public class MoneyUsagesListFetchModel(
         val coroutineScope = CoroutineScope(coroutineContext)
         paging.add { collectors ->
             val cursor: String?
-            when (val lastState = collectors.lastOrNull()?.flow?.value) {
+            when (val lastState = collectors.lastOrNull()?.getFlow()?.value) {
                 is ApolloResponseState.Loading -> return@add null
                 is ApolloResponseState.Failure -> {
                     coroutineScope.launch {

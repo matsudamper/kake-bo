@@ -215,7 +215,7 @@ public class RootHomeMonthlyScreenViewModel(
     private fun fetch() {
         monthlyListState.add {
             val cursor: String? =
-                when (val lastState = it.lastOrNull()?.flow?.value) {
+                when (val lastState = it.lastOrNull()?.getFlow()?.value) {
                     is ApolloResponseState.Loading -> return@add null
                     is ApolloResponseState.Failure -> {
                         coroutineScope.launch {

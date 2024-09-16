@@ -13,6 +13,12 @@ public interface ScreenNavController<D : IScreenStructure<D>> {
     public fun navigateToHome()
 }
 
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+@Immutable
+public expect class ScreenNavControllerImpl(
+    initial: ScreenStructure,
+) : ScreenNavController<ScreenStructure>
+
 public interface DirectionTitle {
     public val title: String
 }
