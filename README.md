@@ -33,7 +33,7 @@
 - メールサーバー
   - ここに購入メールを転送する
 - MariaDB
-  - [テーブルを作成する](https://github.com/matsudamper/kake-bo/tree/70e838f4d1c31460ccb110290cb0a3343b124858/backend/db/src/jvmMain/resources/sql)
+  - [テーブルを作成する](https://github.com/matsudamper/kake-bo/tree/bb437645a426fdf7b61e40536a6406f02a41f1ed/backend/datasource/db/src/jvmMain/resources/sql)
 
 # 動作手順
 まずはフロントをビルドする。その後にバックエンドを起動する。
