@@ -8,14 +8,14 @@ import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
 
 public object WebAuthModel {
-    public suspend fun create(
+    public actual suspend fun create(
         id: String,
         name: String,
-        type: Type,
+        type: WebAuthModelType,
         challenge: String,
         domain: String,
         base64ExcludeCredentialIdList: List<String>,
-    ): CreateResult? {
+    ): WebAuthCreateResult? {
         val options =
             createOption(
                 userId = id,
@@ -43,19 +43,19 @@ public object WebAuthModel {
         val attestationObjectBase64 = result.response.attestationObject.toBase64()
         val clientDataJSONBase64 = result.response.clientDataJSON.toBase64()
 
-        return CreateResult(
+        return WebAuthCreateResult(
             attestationObjectBase64 = attestationObjectBase64,
             clientDataJSONBase64 = clientDataJSONBase64,
         )
     }
 
-    public suspend fun get(
+    public actual suspend fun get(
         userId: String,
         name: String,
-        type: Type,
+        type: WebAuthModelType,
         challenge: String,
         domain: String,
-    ): GetResult? {
+    ): WebAuthGetResult? {
         val options =
             createOption(
                 userId = userId,
@@ -75,7 +75,7 @@ public object WebAuthModel {
                 it.printStackTrace()
             }.getOrNull() ?: return null
         console.log(result)
-        return GetResult(
+        return WebAuthGetResult(
             credentialId = result.id,
             base64ClientDataJSON = result.response.clientDataJSON.toBase64(),
             base64Signature = result.response.signature.toBase64(),
@@ -87,7 +87,7 @@ public object WebAuthModel {
     private fun createOption(
         userId: String,
         name: String,
-        type: Type,
+        type: WebAuthModelType,
         challenge: String,
         domain: String,
         excludeCredentials: List<CredentialsContainerCreatePublicKeyOptions.ExcludeCredential>,
@@ -117,8 +117,8 @@ public object WebAuthModel {
                 CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection(
                     authenticatorAttachment =
                     when (type) {
-                        Type.PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_PLATFORM
-                        Type.CROSS_PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_CROSS_PLATFORM
+                        WebAuthModelType.PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_PLATFORM
+                        WebAuthModelType.CROSS_PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_CROSS_PLATFORM
                     },
                     userVerification = "required",
                     residentKey = "required",
@@ -132,19 +132,6 @@ public object WebAuthModel {
         )
     }
 
-    public data class CreateResult(
-        val attestationObjectBase64: String,
-        val clientDataJSONBase64: String,
-    )
-
-    public data class GetResult(
-        val base64AuthenticatorData: String,
-        val base64ClientDataJSON: String,
-        val base64Signature: String,
-        val base64UserHandle: String,
-        val credentialId: String,
-    )
-
     private fun ArrayBuffer.toBase64(): String {
         return buildList {
             val uint8Array = Uint8Array(this@toBase64)
@@ -152,10 +139,5 @@ public object WebAuthModel {
                 add(uint8Array[index])
             }
         }.toByteArray().encodeBase64()
-    }
-
-    public enum class Type {
-        PLATFORM,
-        CROSS_PLATFORM,
     }
 }
