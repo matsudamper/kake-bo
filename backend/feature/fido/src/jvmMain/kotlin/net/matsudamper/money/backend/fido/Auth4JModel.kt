@@ -13,7 +13,7 @@ import com.webauthn4j.data.RegistrationRequest
 import com.webauthn4j.data.attestation.statement.COSEAlgorithmIdentifier
 import com.webauthn4j.data.client.Origin
 import com.webauthn4j.server.ServerProperty
-import com.webauthn4j.validator.exception.ValidationException
+import com.webauthn4j.verifier.exception.VerificationException
 import net.matsudamper.money.backend.base.ServerEnv
 
 class Auth4JModel(
@@ -117,7 +117,7 @@ class Auth4JModel(
             )
         }.onFailure {
             when (it) {
-                is ValidationException -> Unit
+                is VerificationException -> Unit
                 else -> it.printStackTrace()
             }
         }.getOrThrow()
