@@ -26,4 +26,4 @@ apolloRuntime = { module = "com.apollographql.apollo3:apollo-runtime", version.r
 apolloNormalizedCache = { module = "com.apollographql.apollo3:apollo-normalized-cache", version.ref = "apollo" }
 apolloAdapters = { module = "com.apollographql.apollo3:apollo-adapters", version.ref = "apollo" }
 
-opentelemetryApi = { module = "io.opentelemetry:opentelemetry-api", version.require = "1.41.0" }
+opentelemetryApi = { module = "io.opentelemetry:opentelemetry-api", version.require = "1.42.1" }
