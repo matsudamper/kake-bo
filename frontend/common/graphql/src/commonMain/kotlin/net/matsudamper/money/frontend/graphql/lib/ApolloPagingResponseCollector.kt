@@ -23,7 +23,7 @@ class ApolloPagingResponseCollector<D : Query.Data>(
         MutableStateFlow(listOf())
 
     private val _flow: MutableStateFlow<List<ApolloResponseState<ApolloResponse<D>>>> = MutableStateFlow(listOf())
-    public val flow: StateFlow<List<ApolloResponseState<ApolloResponse<D>>>> = _flow.asStateFlow()
+    val flow: StateFlow<List<ApolloResponseState<ApolloResponse<D>>>> = _flow.asStateFlow()
 
     fun getFlow(): StateFlow<List<ApolloResponseState<ApolloResponse<D>>>> = flow
 
