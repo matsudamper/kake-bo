@@ -17,6 +17,7 @@ include(":backend:feature:service_mail_parser")
 include(":backend:feature:fido")
 
 include(":frontend:jsApp")
+include(":frontend:androidApp")
 include(":frontend:common:ui")
 include(":frontend:common:base")
 include(":frontend:common:viewmodel")
@@ -35,8 +36,14 @@ pluginManagement {
     }
 
     plugins {
-        kotlin("multiplatform").version(extra["kotlin.version"] as String)
-        id("org.jetbrains.kotlin.plugin.compose").version(extra["kotlin.version"] as String)
+        val kotlinVersion = extra["kotlin.version"] as String
+        val agpVersion = extra["agp.version"] as String
+        kotlin("multiplatform").version(kotlinVersion)
+        id("org.jetbrains.kotlin.plugin.compose").version(kotlinVersion)
+        kotlin("jvm").version(kotlinVersion)
+        kotlin("android").version(kotlinVersion)
+        id("com.android.application").version(agpVersion)
+        id("com.android.library").version(agpVersion)
     }
 }
 

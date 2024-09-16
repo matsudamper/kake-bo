@@ -24,9 +24,8 @@ public class ApolloResponseCollector<D : Query.Data>(
         MutableStateFlow(
             ApolloResponseState.loading(),
         )
-    public val flow: StateFlow<ApolloResponseState<ApolloResponse<D>>> = _flow.asStateFlow()
 
-    fun getFlow(): StateFlow<ApolloResponseState<ApolloResponse<D>>> = flow
+    fun getFlow(): StateFlow<ApolloResponseState<ApolloResponse<D>>> = _flow.asStateFlow()
 
     private var job: Job = Job()
 

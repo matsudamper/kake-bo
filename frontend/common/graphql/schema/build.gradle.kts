@@ -10,6 +10,7 @@ kotlin {
         browser()
         binaries.executable()
     }
+    jvm {}
     sourceSets {
         val commonMain by getting {
             dependencies {

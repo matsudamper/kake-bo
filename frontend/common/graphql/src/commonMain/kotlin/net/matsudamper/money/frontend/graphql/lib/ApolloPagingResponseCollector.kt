@@ -23,14 +23,13 @@ class ApolloPagingResponseCollector<D : Query.Data>(
         MutableStateFlow(listOf())
 
     private val _flow: MutableStateFlow<List<ApolloResponseState<ApolloResponse<D>>>> = MutableStateFlow(listOf())
-    val flow: StateFlow<List<ApolloResponseState<ApolloResponse<D>>>> = _flow.asStateFlow()
 
-    fun getFlow(): StateFlow<List<ApolloResponseState<ApolloResponse<D>>>> = flow
+    fun getFlow(): StateFlow<List<ApolloResponseState<ApolloResponse<D>>>> = _flow.asStateFlow()
 
     init {
         coroutineScope.launch {
             collectorFlow.collectLatest { collectors ->
-                combine(collectors.map { it.flow }) {
+                combine(collectors.map { it.getFlow() }) {
                     it.toList()
                 }.collectLatest {
                     _flow.value = it
@@ -41,7 +40,7 @@ class ApolloPagingResponseCollector<D : Query.Data>(
 
     fun lastRetry() {
         coroutineScope.launch {
-            when (collectorFlow.value.lastOrNull()?.flow?.value) {
+            when (collectorFlow.value.lastOrNull()?.getFlow()?.value) {
                 is ApolloResponseState.Failure -> collectorFlow.value.lastOrNull()?.fetch(this)
                 is ApolloResponseState.Loading,
                 is ApolloResponseState.Success,

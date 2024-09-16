@@ -8,6 +8,7 @@ kotlin {
         browser()
         binaries.executable()
     }
+    jvm {  }
     sourceSets {
         jvmToolchain(17)
         val commonMain by getting {
