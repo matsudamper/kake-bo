@@ -20,12 +20,12 @@ public class ApolloResponseCollector<D : Query.Data>(
     private val query: Query<D>,
     private val fetchPolicy: FetchPolicy,
 ) {
-    private val _flow: MutableStateFlow<ApolloResponseState<ApolloResponse<D>>> =
+    private val mutableStateFlow: MutableStateFlow<ApolloResponseState<ApolloResponse<D>>> =
         MutableStateFlow(
             ApolloResponseState.loading(),
         )
 
-    fun getFlow(): StateFlow<ApolloResponseState<ApolloResponse<D>>> = _flow.asStateFlow()
+    fun getFlow(): StateFlow<ApolloResponseState<ApolloResponse<D>>> = mutableStateFlow.asStateFlow()
 
     private var job: Job = Job()
 
@@ -43,11 +43,11 @@ public class ApolloResponseCollector<D : Query.Data>(
                     .watch()
                     .catch {
                         it.printStackTrace()
-                        _flow.value = ApolloResponseState.failure(it)
+                        mutableStateFlow.value = ApolloResponseState.failure(it)
                     }
                     .collect {
                         println("collect: Data(${it.data})")
-                        _flow.value = ApolloResponseState.success(it)
+                        mutableStateFlow.value = ApolloResponseState.success(it)
                     }
             }
     }

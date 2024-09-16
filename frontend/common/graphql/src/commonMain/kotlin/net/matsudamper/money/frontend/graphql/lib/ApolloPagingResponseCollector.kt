@@ -22,9 +22,9 @@ class ApolloPagingResponseCollector<D : Query.Data>(
     private val collectorFlow: MutableStateFlow<List<ApolloResponseCollector<D>>> =
         MutableStateFlow(listOf())
 
-    private val _flow: MutableStateFlow<List<ApolloResponseState<ApolloResponse<D>>>> = MutableStateFlow(listOf())
+    private val mutableStateFlow: MutableStateFlow<List<ApolloResponseState<ApolloResponse<D>>>> = MutableStateFlow(listOf())
 
-    fun getFlow(): StateFlow<List<ApolloResponseState<ApolloResponse<D>>>> = _flow.asStateFlow()
+    fun getFlow(): StateFlow<List<ApolloResponseState<ApolloResponse<D>>>> = mutableStateFlow.asStateFlow()
 
     init {
         coroutineScope.launch {
@@ -32,7 +32,7 @@ class ApolloPagingResponseCollector<D : Query.Data>(
                 combine(collectors.map { it.getFlow() }) {
                     it.toList()
                 }.collectLatest {
-                    _flow.value = it
+                    mutableStateFlow.value = it
                 }
             }
         }
@@ -77,7 +77,7 @@ class ApolloPagingResponseCollector<D : Query.Data>(
         collectorFlow.update {
             listOf()
         }
-        _flow.update {
+        mutableStateFlow.update {
             listOf()
         }
     }
