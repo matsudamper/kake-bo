@@ -47,7 +47,9 @@ kotlin {
         val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test"))
-                implementation("io.kotest:kotest-runner-junit5:5.9.1")
+                implementation(libs.kotestRunnerJunit5)
+                implementation(libs.kotlinRefrect)
+
             }
         }
         val jsTest by getting {
