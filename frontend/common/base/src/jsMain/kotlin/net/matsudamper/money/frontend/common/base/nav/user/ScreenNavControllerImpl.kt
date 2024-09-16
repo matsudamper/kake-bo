@@ -14,8 +14,8 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 
 @Immutable
-@Suppress("RegExpRedundantEscape")
-public class ScreenNavControllerImpl actual constructor(
+@Suppress("RegExpRedundantEscape", "EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+public actual class ScreenNavControllerImpl actual constructor(
     initial: ScreenStructure,
 ) : ScreenNavController<ScreenStructure> {
     private val directions = Screens.entries

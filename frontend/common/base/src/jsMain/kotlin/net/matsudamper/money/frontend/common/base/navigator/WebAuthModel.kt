@@ -7,7 +7,8 @@ import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
 
-public object WebAuthModel {
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+public actual object WebAuthModel {
     public actual suspend fun create(
         id: String,
         name: String,
