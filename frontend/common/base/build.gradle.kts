@@ -44,6 +44,12 @@ kotlin {
                 implementation(compose.ui)
             }
         }
+        val jvmTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+                implementation("io.kotest:kotest-runner-junit5:5.9.1")
+            }
+        }
         val jsTest by getting {
             dependencies {
                 implementation(kotlin("test"))
