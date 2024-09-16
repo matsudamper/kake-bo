@@ -35,7 +35,7 @@ android {
     namespace = "net.matsudamper.money"
     defaultConfig {
         minSdk = 34
-        targetSdk = 34
+        targetSdk = 35
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
