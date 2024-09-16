@@ -27,7 +27,6 @@ kotlin {
             }
         }
         val jvmMain by getting {
-
         }
         val commonTest by getting {
             dependencies {

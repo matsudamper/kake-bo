@@ -22,7 +22,6 @@ kotlin {
             }
         }
         val jvmMain by getting {
-
         }
     }
 }
