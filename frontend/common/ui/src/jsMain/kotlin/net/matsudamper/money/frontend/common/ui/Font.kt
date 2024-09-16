@@ -27,7 +27,7 @@ import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
-import io.ktor.client.statement.readBytes
+import io.ktor.client.statement.readRawBytes
 import io.ktor.http.Url
 
 private val LocalCustomFontsFlow =
@@ -61,7 +61,7 @@ private class LocalCustomFontsState {
                 }.onFailure {
                     it.printStackTrace()
                 }.onSuccess { response ->
-                    val byteArray = response.readBytes()
+                    val byteArray = response.readRawBytes()
                     fontsFlow.update {
                         it.plus(
                             fontSet to
