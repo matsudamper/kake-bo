@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    id("com.android.library")
 }
 
 kotlin {
@@ -7,7 +8,7 @@ kotlin {
         browser()
         binaries.executable()
     }
-    jvm {}
+    androidTarget()
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -21,7 +22,24 @@ kotlin {
                 implementation(libs.apolloAdapters)
             }
         }
-        val jvmMain by getting {
+        val androidMain by getting {
         }
+    }
+}
+
+android {
+    namespace = "net.matsudamper.money.frontend.graphql"
+    compileSdk = 34
+    defaultConfig {
+        minSdk = 33
+        buildConfigField("String", "SERVER_PROTOCOL", "\"${project.rootProject.properties["net.matsudamper.money.android.serverProtocol"]}\"")
+        buildConfigField("String", "SERVER_HOST", "\"${project.rootProject.properties["net.matsudamper.money.android.serverHost"]}\"")
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    buildFeatures {
+        buildConfig = true
     }
 }

@@ -1,6 +1,7 @@
 plugins {
     kotlin("multiplatform")
     id("net.matsudamper.money.buildlogic.compose")
+    id("com.android.library")
 }
 
 kotlin {
@@ -8,7 +9,7 @@ kotlin {
         browser()
         binaries.executable()
     }
-    jvm {}
+    androidTarget()
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -26,7 +27,15 @@ kotlin {
                 implementation(libs.ktorClientLogging)
             }
         }
-        val jvmMain by getting {
+        val androidMain by getting {
+            dependencies {
+                implementation(projects.frontend.common.base)
+                implementation(libs.kotlin.datetime)
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material3)
+                implementation(compose.components.uiToolingPreview)
+            }
         }
         val commonTest by getting {
             dependencies {
@@ -35,4 +44,17 @@ kotlin {
         }
     }
     explicitApi()
+}
+
+android {
+    compileSdk = 34
+    namespace = "net.matsudamper.money.frontend.common.ui"
+    defaultConfig {
+        minSdk = 34
+        targetSdk = 35
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
 }

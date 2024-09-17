@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.jetbrainsCompose)
     id("net.matsudamper.money.buildlogic.compose")
+    id("com.android.library")
 }
 
 kotlin {
@@ -13,7 +14,7 @@ kotlin {
         browser()
         binaries.executable()
     }
-    jvm {}
+    androidTarget()
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -24,12 +25,25 @@ kotlin {
                 implementation(projects.frontend.common.graphql)
 
                 implementation(kotlin("stdlib"))
+                implementation(kotlin("reflect"))
                 implementation(libs.kotlin.serialization.json)
                 implementation(compose.foundation)
                 implementation(compose.material3)
                 implementation(compose.runtime)
             }
         }
+    }
+}
+
+android {
+    namespace = "net.matsudamper.money.ui.root"
+    compileSdk = 34
+    defaultConfig {
+        minSdk = 33
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 

@@ -1,6 +1,7 @@
 plugins {
     kotlin("multiplatform")
     id("net.matsudamper.money.buildlogic.compose")
+    id("com.android.library")
 }
 
 kotlin {
@@ -8,7 +9,7 @@ kotlin {
         browser()
         binaries.executable()
     }
-    jvm {}
+    androidTarget()
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -29,4 +30,16 @@ kotlin {
         }
     }
     explicitApi()
+}
+
+android {
+    namespace = "net.matsudamper.money.frontend.common.viewmodel"
+    compileSdk = 34
+    defaultConfig {
+        minSdk = 33
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
 }
