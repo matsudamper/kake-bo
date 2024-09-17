@@ -5,6 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.font.Font
@@ -109,4 +110,9 @@ public actual fun rememberCustomFontFamily(): FontFamily {
         fontsFlow.load()
     }
     return fontsFlow.fontFamily
+}
+
+@Composable
+public actual fun rememberFontFamilyResolver(): FontFamily.Resolver {
+    return remember { androidx.compose.ui.text.font.createFontFamilyResolver() }
 }

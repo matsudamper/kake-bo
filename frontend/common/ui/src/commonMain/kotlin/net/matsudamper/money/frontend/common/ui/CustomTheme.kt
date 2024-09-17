@@ -5,14 +5,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.createFontFamilyResolver
+import androidx.compose.ui.text.font.FontFamily
 
 @Composable
-public fun CustomTheme(content: @Composable () -> Unit) {
+public fun CustomTheme(
+    fontFamilyResolver: FontFamily.Resolver = LocalFontFamilyResolver.current,
+    content: @Composable () -> Unit,
+) {
     MaterialTheme(
         colorScheme =
         MaterialTheme.colorScheme.copy(
@@ -35,16 +37,12 @@ public fun CustomTheme(content: @Composable () -> Unit) {
         typography = getTypography(),
     ) {
         CompositionLocalProvider(
-            LocalFontFamilyResolver provides
-                remember {
-                    createFontFamilyResolver()
-                },
-            LocalTextStyle provides
-                LocalTextStyle.current.merge(
-                    TextStyle(
-                        fontFamily = rememberCustomFontFamily(),
-                    ),
-                ).merge(MaterialTheme.typography.bodyMedium),
+            LocalFontFamilyResolver provides fontFamilyResolver,
+            LocalTextStyle provides LocalTextStyle.current.merge(
+                TextStyle(
+                    fontFamily = rememberCustomFontFamily(),
+                ),
+            ).merge(MaterialTheme.typography.bodyMedium),
         ) {
             content()
         }
