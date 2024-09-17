@@ -86,7 +86,7 @@ internal fun RootScreenScaffold(
                             selected = currentScreen == RootScreenTab.Home,
                             onClick = { listener.onClickHome() },
                             icon = {
-                                Icon(Icons.Default.Home, "")
+                                Icon(Icons.Default.Home, null)
                             },
                             label = {
                                 Text(
@@ -99,7 +99,7 @@ internal fun RootScreenScaffold(
                             selected = currentScreen == RootScreenTab.List,
                             onClick = { listener.onClickList() },
                             icon = {
-                                Icon(Icons.AutoMirrored.Filled.List, "")
+                                Icon(Icons.AutoMirrored.Filled.List, null)
                             },
                             label = {
                                 Text(
@@ -112,7 +112,7 @@ internal fun RootScreenScaffold(
                             selected = currentScreen == RootScreenTab.Add,
                             onClick = { listener.onClickAdd() },
                             icon = {
-                                Icon(Icons.Default.Add, "")
+                                Icon(Icons.Default.Add, null)
                             },
                             label = {
                                 Text(
@@ -125,7 +125,7 @@ internal fun RootScreenScaffold(
                             selected = currentScreen == RootScreenTab.Settings,
                             onClick = { listener.onClickSettings() },
                             icon = {
-                                Icon(Icons.Default.Settings, "")
+                                Icon(Icons.Default.Settings, null)
                             },
                             label = {
                                 Text(
@@ -149,7 +149,7 @@ internal fun RootScreenScaffold(
                             selected = currentScreen == RootScreenTab.Home,
                             onClick = { listener.onClickHome() },
                             icon = {
-                                Icon(Icons.Default.Home, "")
+                                Icon(Icons.Default.Home, null)
                             },
                             label = {
                                 Text(
@@ -162,7 +162,7 @@ internal fun RootScreenScaffold(
                             selected = currentScreen == RootScreenTab.List,
                             onClick = { listener.onClickList() },
                             icon = {
-                                Icon(Icons.AutoMirrored.Filled.List, "")
+                                Icon(Icons.AutoMirrored.Filled.List, null)
                             },
                             label = {
                                 Text(
@@ -175,7 +175,7 @@ internal fun RootScreenScaffold(
                             selected = currentScreen == RootScreenTab.Add,
                             onClick = { listener.onClickAdd() },
                             icon = {
-                                Icon(Icons.Default.Add, "")
+                                Icon(Icons.Default.Add, null)
                             },
                             label = {
                                 Text(
@@ -188,7 +188,7 @@ internal fun RootScreenScaffold(
                             selected = currentScreen == RootScreenTab.Settings,
                             onClick = { listener.onClickSettings() },
                             icon = {
-                                Icon(Icons.Default.Settings, "")
+                                Icon(Icons.Default.Settings, null)
                             },
                             label = {
                                 Text(
