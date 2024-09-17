@@ -32,6 +32,7 @@ public fun CustomTheme(
             outlineVariant = Color.LightGray,
             // Card
             surfaceVariant = CustomColors.surfaceColor,
+            surfaceContainer = CustomColors.surfaceColor,
             error = Color(0xffFF6075),
         ),
         typography = getTypography(),
