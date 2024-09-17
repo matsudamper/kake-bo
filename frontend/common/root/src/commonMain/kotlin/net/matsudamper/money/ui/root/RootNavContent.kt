@@ -94,7 +94,7 @@ internal fun RootNavContent(
                             is RootHomeScreenStructure.Home,
                             is RootHomeScreenStructure.PeriodAnalytics,
                             -> {
-                                holder.SaveableStateProvider(RootHomeScreenStructure.Period::class) {
+                                holder.SaveableStateProvider(RootHomeScreenStructure.Period::class.simpleName!!) {
                                     val allContentViewModel =
                                         remember {
                                             RootHomeTabPeriodAllContentViewModel(
