@@ -1,3 +1,5 @@
+package net.matsudamper.money.ui.root
+
 import net.matsudamper.money.frontend.common.viewmodel.IObjectMapper
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 

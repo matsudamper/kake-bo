@@ -1,4 +1,4 @@
-package event
+package net.matsudamper.money.ui.root
 
 import androidx.compose.material3.SnackbarHostState
 import kotlinx.browser.window
