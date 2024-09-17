@@ -427,8 +427,6 @@ private fun UsageMenuPopup(
     Popup(
         onDismissRequest = onDismissRequest,
         properties = PopupProperties(focusable = true),
-        onPreviewKeyEvent = { false },
-        onKeyEvent = { false },
     ) {
         Card(
             elevation =

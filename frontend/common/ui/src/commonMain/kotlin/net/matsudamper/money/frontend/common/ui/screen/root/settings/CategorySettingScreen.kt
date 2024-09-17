@@ -338,8 +338,6 @@ private fun SubCategoryItem(
                         showMenu = false
                     },
                     properties = PopupProperties(focusable = true),
-                    onPreviewKeyEvent = { false },
-                    onKeyEvent = { false },
                 ) {
                     Card(
                         elevation =

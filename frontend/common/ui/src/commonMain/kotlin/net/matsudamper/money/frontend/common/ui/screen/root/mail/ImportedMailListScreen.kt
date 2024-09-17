@@ -324,8 +324,6 @@ private fun Filter(
                         visiblePopup = false
                     },
                     properties = PopupProperties(focusable = true),
-                    onPreviewKeyEvent = { false },
-                    onKeyEvent = { false },
                 ) {
                     Card(
                         elevation =

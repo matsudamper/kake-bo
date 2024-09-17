@@ -475,8 +475,6 @@ private fun SessionItem(
                     Popup(
                         onDismissRequest = { visibleMenu = false },
                         properties = PopupProperties(focusable = true),
-                        onPreviewKeyEvent = { false },
-                        onKeyEvent = { false },
                     ) {
                         Card(
                             modifier = Modifier.width(IntrinsicSize.Max),
