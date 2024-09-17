@@ -68,7 +68,6 @@ dependencyResolutionManagement {
 
             plugin("composeCompiler", "org.jetbrains.kotlin.plugin.compose").version(kotlinVersion)
             plugin("jetbrainsCompose", "org.jetbrains.compose").version(composeVersion)
-            library("compose.material3", "org.jetbrains.compose.material3:material3:$composeVersion")
 
             library("graphqlJava.extendedScalars", "com.graphql-java:graphql-java-extended-scalars:2023-01-24T02-11-56-babda5f")
             library("graphqlJava", "com.graphql-java:graphql-java:22.3")

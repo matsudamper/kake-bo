@@ -18,7 +18,7 @@ kotlin {
                 implementation(projects.shared)
                 implementation(compose.runtime)
                 implementation(compose.foundation)
-                implementation(libs.compose.material3)
+                implementation(compose.material3)
                 implementation(libs.kotlin.datetime)
             }
         }
