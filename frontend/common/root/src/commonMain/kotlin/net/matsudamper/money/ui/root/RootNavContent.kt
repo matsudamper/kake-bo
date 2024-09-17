@@ -79,7 +79,7 @@ internal fun RootNavContent(
                                 viewModel.updateStructure(current)
                             }
                             LaunchedEffect(viewModel.eventHandler) {
-                                viewModelEventHandlers.handle(viewModel.eventHandler)
+                                viewModelEventHandlers.handleRootHomeMonthlyScreen(viewModel.eventHandler)
                             }
                             RootHomeMonthlyScreen(
                                 modifier = Modifier,
@@ -107,7 +107,7 @@ internal fun RootNavContent(
                                         allContentViewModel.updateStructure(current)
                                     }
                                     LaunchedEffect(allContentViewModel.eventHandler) {
-                                        viewModelEventHandlers.handle(allContentViewModel.eventHandler)
+                                        viewModelEventHandlers.handleRootHomeTabPeriodAllContent(allContentViewModel.eventHandler)
                                     }
                                     RootHomeTabPeriodAllScreen(
                                         modifier = Modifier.fillMaxSize(),
@@ -128,7 +128,7 @@ internal fun RootNavContent(
                                         )
                                     }
                                 LaunchedEffect(categoryViewModel.eventHandler) {
-                                    viewModelEventHandlers.handle(categoryViewModel.eventHandler)
+                                    viewModelEventHandlers.handleRootHomeTabPeriodCategoryContent(categoryViewModel.eventHandler)
                                 }
                                 LaunchedEffect(categoryViewModel, current) {
                                     categoryViewModel.updateStructure(current)
@@ -152,7 +152,7 @@ internal fun RootNavContent(
                                 )
                             }
                         LaunchedEffect(monthlyCategoryViewModel.eventHandler) {
-                            viewModelEventHandlers.handle(monthlyCategoryViewModel.eventHandler)
+                            viewModelEventHandlers.handleRootHomeMonthlyCategoryScreen(monthlyCategoryViewModel.eventHandler)
                         }
                         LaunchedEffect(monthlyCategoryViewModel, current) {
                             monthlyCategoryViewModel.updateStructure(current)

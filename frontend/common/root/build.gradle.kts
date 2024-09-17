@@ -13,6 +13,7 @@ kotlin {
         browser()
         binaries.executable()
     }
+    jvm {}
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -23,6 +24,7 @@ kotlin {
                 implementation(projects.frontend.common.graphql)
 
                 implementation(kotlin("stdlib"))
+                implementation(libs.kotlin.serialization.json)
                 implementation(compose.foundation)
                 implementation(compose.material3)
                 implementation(compose.runtime)

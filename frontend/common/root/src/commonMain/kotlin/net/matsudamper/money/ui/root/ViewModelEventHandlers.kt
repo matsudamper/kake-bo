@@ -1,7 +1,6 @@
 package net.matsudamper.money.ui.root
 
 import androidx.compose.material3.SnackbarHostState
-import kotlinx.browser.window
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import net.matsudamper.money.element.ImportedMailId
@@ -41,7 +40,7 @@ data class ViewModelEventHandlers(
     private val globalEventSender: EventSender<GlobalEvent>,
     private val rootScreenScaffoldListener: RootScreenScaffoldListener,
 ) {
-    suspend fun handle(handler: EventHandler<MailImportViewModelEvent>) {
+    suspend fun handleMailImport(handler: EventHandler<MailImportViewModelEvent>) {
         coroutineScope {
             val scope = this
             handler.collect(
@@ -58,7 +57,7 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<MailLinkViewModelEvent>) {
+    suspend fun handleMailLink(handler: EventHandler<MailLinkViewModelEvent>) {
         coroutineScope {
             val scope = this
             handler.collect(
@@ -87,7 +86,7 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<SettingViewModel.Event>) {
+    suspend fun handleSetting(handler: EventHandler<SettingViewModel.Event>) {
         coroutineScope {
             handler.collect(
                 object : SettingViewModel.Event {
@@ -108,14 +107,15 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun open(url: String) {
-                        window.open(url)
+                        // TODO
+//                        window.open(url)
                     }
                 },
             )
         }
     }
 
-    suspend fun handle(handler: EventHandler<SettingCategoriesViewModelEvent>) {
+    suspend fun handleSettingCategories(handler: EventHandler<SettingCategoriesViewModelEvent>) {
         coroutineScope {
             handler.collect(
                 object : SettingCategoriesViewModelEvent {
@@ -129,7 +129,7 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<SettingCategoryViewModel.Event>) {
+    suspend fun handleSettingCategory(handler: EventHandler<SettingCategoryViewModel.Event>) {
         coroutineScope {
             handler.collect(
                 object : SettingCategoryViewModel.Event {
@@ -138,7 +138,7 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<MoneyUsagesListViewModel.Event>) {
+    suspend fun handleMoneyUsagesList(handler: EventHandler<MoneyUsagesListViewModel.Event>) {
         coroutineScope {
             handler.collect(
                 object : MoneyUsagesListViewModel.Event {
@@ -150,7 +150,7 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<HomeAddTabScreenViewModel.NavigateEvent>) {
+    suspend fun handleHomeAddTabScreen(handler: EventHandler<HomeAddTabScreenViewModel.NavigateEvent>) {
         coroutineScope {
             handler.collect(
                 object : HomeAddTabScreenViewModel.NavigateEvent {
@@ -162,7 +162,7 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<ImportedMailScreenViewModel.Event>) {
+    suspend fun handleImportedMailScreen(handler: EventHandler<ImportedMailScreenViewModel.Event>) {
         coroutineScope {
             handler.collect(
                 object : ImportedMailScreenViewModel.Event {
@@ -179,18 +179,20 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun openWeb(url: String) {
-                        window.open(url)
+                        // TODO
+//                        window.open(url)
                     }
 
                     override fun copyToClipboard(text: String) {
-                        window.navigator.clipboard.writeText(text)
+                        // TODO
+//                        window.navigator.clipboard.writeText(text)
                     }
                 },
             )
         }
     }
 
-    suspend fun handle(handler: EventHandler<ImportedMailHtmlViewModel.Event>) {
+    suspend fun handleImportedMailHtml(handler: EventHandler<ImportedMailHtmlViewModel.Event>) {
         coroutineScope {
             handler.collect(
                 object : ImportedMailHtmlViewModel.Event {
@@ -202,7 +204,7 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<SettingMailCategoryFiltersViewModel.Event>) {
+    suspend fun handleSettingMailCategoryFilters(handler: EventHandler<SettingMailCategoryFiltersViewModel.Event>) {
         coroutineScope {
             handler.collect(
                 object : SettingMailCategoryFiltersViewModel.Event {
@@ -214,7 +216,7 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<ImportedMailFilterCategoryViewModel.Event>) {
+    suspend fun handleImportedMailFilterCategory(handler: EventHandler<ImportedMailFilterCategoryViewModel.Event>) {
         coroutineScope {
             val scope = this
             handler.collect(
@@ -233,7 +235,7 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<AddMoneyUsageViewModel.Event>) {
+    suspend fun handleAddMoneyUsage(handler: EventHandler<AddMoneyUsageViewModel.Event>) {
         coroutineScope {
             handler.collect(
                 object : AddMoneyUsageViewModel.Event {
@@ -245,7 +247,7 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<MoneyUsageScreenViewModel.Event>) {
+    suspend fun handleMoneyUsageScreen(handler: EventHandler<MoneyUsageScreenViewModel.Event>) {
         coroutineScope {
             handler.collect(
                 object : MoneyUsageScreenViewModel.Event {
@@ -258,18 +260,20 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun copyUrl(text: String) {
-                        window.navigator.clipboard.writeText(text)
+                        TODO()
+//                        window.navigator.clipboard.writeText(text)
                     }
 
                     override fun openUrl(text: String) {
-                        window.open(text)
+                        TODO()
+//                        window.open(text)
                     }
                 },
             )
         }
     }
 
-    suspend fun handle(handler: EventHandler<ImportedMailPlainViewModel.Event>) {
+    suspend fun handleImportedMailPlain(handler: EventHandler<ImportedMailPlainViewModel.Event>) {
         coroutineScope {
             handler.collect(
                 object : ImportedMailPlainViewModel.Event {
@@ -281,7 +285,7 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<RootUsageHostViewModel.RootNavigationEvent>) {
+    suspend fun handleRootUsageHost(handler: EventHandler<RootUsageHostViewModel.RootNavigationEvent>) {
         coroutineScope {
             handler.collect(
                 object : RootUsageHostViewModel.RootNavigationEvent {
@@ -293,7 +297,7 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<MoneyUsagesCalendarViewModel.Event>) {
+    suspend fun handleMoneyUsagesCalendar(handler: EventHandler<MoneyUsagesCalendarViewModel.Event>) {
         coroutineScope {
             handler.collect(
                 object : MoneyUsagesCalendarViewModel.Event {
@@ -305,7 +309,7 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<RootHomeTabPeriodAllContentViewModel.Event>) {
+    suspend fun handleRootHomeTabPeriodAllContent(handler: EventHandler<RootHomeTabPeriodAllContentViewModel.Event>) {
         coroutineScope {
             handler.collect(
                 object : RootHomeTabPeriodAllContentViewModel.Event {
@@ -317,7 +321,7 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<RootHomeTabScreenViewModel.Event>) {
+    suspend fun handleRootHomeTabScreen(handler: EventHandler<RootHomeTabScreenViewModel.Event>) {
         coroutineScope {
             handler.collect(
                 object : RootHomeTabScreenViewModel.Event {
@@ -329,7 +333,7 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<RootHomeTabPeriodCategoryContentViewModel.Event>) {
+    suspend fun handleRootHomeTabPeriodCategoryContent(handler: EventHandler<RootHomeTabPeriodCategoryContentViewModel.Event>) {
         coroutineScope {
             handler.collect(
                 object : RootHomeTabPeriodCategoryContentViewModel.Event {
@@ -341,7 +345,7 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<RootHomeMonthlyCategoryScreenViewModel.Event>) {
+    suspend fun handleRootHomeMonthlyCategoryScreen(handler: EventHandler<RootHomeMonthlyCategoryScreenViewModel.Event>) {
         coroutineScope {
             handler.collect(
                 object : RootHomeMonthlyCategoryScreenViewModel.Event {
@@ -353,7 +357,7 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<RootHomeMonthlyScreenViewModel.Event>) {
+    suspend fun handleRootHomeMonthlyScreen(handler: EventHandler<RootHomeMonthlyScreenViewModel.Event>) {
         coroutineScope {
             handler.collect(
                 object : RootHomeMonthlyScreenViewModel.Event {
@@ -365,7 +369,7 @@ data class ViewModelEventHandlers(
         }
     }
 
-    suspend fun handle(handler: EventHandler<LoginSettingViewModel.Event>) {
+    suspend fun handleLoginSetting(handler: EventHandler<LoginSettingViewModel.Event>) {
         coroutineScope {
             handler.collect(
                 object : LoginSettingViewModel.Event {
@@ -374,14 +378,15 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun showToast(text: String) {
-                        window.alert(text)
+                        TODO()
+//                        window.alert(text)
                     }
                 },
             )
         }
     }
 
-    suspend fun handle(
+    suspend fun handleApiSettingScreen(
         eventHandler: EventHandler<ApiSettingScreenViewModel.Event>,
         snackbarHostState: SnackbarHostState,
     ) {
@@ -393,11 +398,13 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun showToast(text: String) {
-                        window.alert(text)
+                        TODO()
+//                        window.alert(text)
                     }
 
                     override fun copyToClipboard(token: String) {
-                        window.navigator.clipboard.writeText(token)
+                        TODO()
+//                        window.navigator.clipboard.writeText(token)
                     }
 
                     override suspend fun showSnackbar(text: String) {

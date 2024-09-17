@@ -72,7 +72,7 @@ internal fun SettingNavContent(
                     }
 
                 LaunchedEffect(viewModel.viewModelEventHandler) {
-                    viewModelEventHandlers.handle(viewModel.viewModelEventHandler)
+                    viewModelEventHandlers.handleSettingCategories(viewModel.viewModelEventHandler)
                 }
                 LaunchedEffect(globalEvent, viewModel.globalEventHandler) {
                     viewModel.globalEventHandler.collect(globalEvent)
@@ -96,7 +96,7 @@ internal fun SettingNavContent(
                         )
                     }
                 LaunchedEffect(viewModel.viewModelEventHandler) {
-                    viewModelEventHandlers.handle(viewModel.viewModelEventHandler)
+                    viewModelEventHandlers.handleSettingCategory(viewModel.viewModelEventHandler)
                 }
                 LaunchedEffect(viewModel.globalEventHandler) {
                     viewModel.globalEventHandler.collect(globalEvent)
@@ -141,7 +141,7 @@ internal fun SettingNavContent(
                         )
                     }
                 LaunchedEffect(viewModel.eventHandler, viewModelEventHandlers) {
-                    viewModelEventHandlers.handle(viewModel.eventHandler)
+                    viewModelEventHandlers.handleSettingMailCategoryFilters(viewModel.eventHandler)
                 }
                 SettingMailCategoryFiltersScreen(
                     modifier = Modifier.fillMaxSize(),
@@ -163,7 +163,7 @@ internal fun SettingNavContent(
                     }
 
                 LaunchedEffect(viewModelEventHandlers, viewModel.eventHandler) {
-                    viewModelEventHandlers.handle(viewModel.eventHandler)
+                    viewModelEventHandlers.handleImportedMailFilterCategory(viewModel.eventHandler)
                 }
 
                 ImportedMailFilterCategoryScreen(
@@ -186,7 +186,7 @@ internal fun SettingNavContent(
                     }
 
                 LaunchedEffect(viewModelEventHandlers, viewModel.eventHandler) {
-                    viewModelEventHandlers.handle(viewModel.eventHandler)
+                    viewModelEventHandlers.handleLoginSetting(viewModel.eventHandler)
                 }
 
                 LoginSettingScreen(
@@ -207,7 +207,7 @@ internal fun SettingNavContent(
                 }
                 val snackbarHostState = remember { SnackbarHostState() }
                 LaunchedEffect(viewModelEventHandlers, viewModel.eventHandler, snackbarHostState) {
-                    viewModelEventHandlers.handle(
+                    viewModelEventHandlers.handleApiSettingScreen(
                         eventHandler = viewModel.eventHandler,
                         snackbarHostState = snackbarHostState,
                     )

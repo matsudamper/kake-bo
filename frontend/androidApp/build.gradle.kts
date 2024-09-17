@@ -13,6 +13,7 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation(projects.shared)
+                implementation(projects.frontend.common.root)
                 implementation(projects.frontend.common.base)
                 implementation(projects.frontend.common.ui)
                 implementation(projects.frontend.common.viewmodel)

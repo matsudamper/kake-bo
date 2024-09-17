@@ -76,7 +76,7 @@ import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
 fun Content(
     modifier: Modifier = Modifier,
     globalEventSender: EventSender<GlobalEvent>,
-    composeSizeProvider: () -> MutableStateFlow<IntSize>,
+    composeSizeProvider: () -> MutableStateFlow<IntSize> = { MutableStateFlow(IntSize.Zero) },
 ) {
     var alertDialogInfo: String? by remember { mutableStateOf(null) }
     val rootCoroutineScope = rememberCoroutineScope()
@@ -234,7 +234,7 @@ fun Content(
         }
 
     LaunchedEffect(mailScreenViewModel) {
-        viewModelEventHandlers.handle(
+        viewModelEventHandlers.handleHomeAddTabScreen(
             mailScreenViewModel.navigateEventHandler,
         )
     }
@@ -242,7 +242,7 @@ fun Content(
         viewModelEventHandlers,
         rootUsageHostViewModel.rootNavigationEventHandler,
     ) {
-        viewModelEventHandlers.handle(
+        viewModelEventHandlers.handleRootUsageHost(
             handler = rootUsageHostViewModel.rootNavigationEventHandler,
         )
     }
@@ -296,7 +296,7 @@ fun Content(
                         }
                     }
                     LaunchedEffect(viewModelEventHandlers, settingViewModel.backgroundEventHandler) {
-                        viewModelEventHandlers.handle(settingViewModel.backgroundEventHandler)
+                        viewModelEventHandlers.handleSetting(settingViewModel.backgroundEventHandler)
                     }
                     holder.SaveableStateProvider(ScreenStructure.Root::class.toString()) {
                         RootNavContent(
@@ -322,7 +322,7 @@ fun Content(
                                         )
                                     }
                                 LaunchedEffect(viewModel.viewModelEventHandler) {
-                                    viewModelEventHandlers.handle(
+                                    viewModelEventHandlers.handleMoneyUsagesCalendar(
                                         handler = viewModel.viewModelEventHandler,
                                     )
                                 }
@@ -338,7 +338,7 @@ fun Content(
                                         )
                                     }
                                 LaunchedEffect(viewModel.viewModelEventHandler) {
-                                    viewModelEventHandlers.handle(
+                                    viewModelEventHandlers.handleMoneyUsagesList(
                                         handler = viewModel.viewModelEventHandler,
                                     )
                                 }
@@ -346,7 +346,7 @@ fun Content(
                             },
                             importMailLinkScreenUiStateProvider = {
                                 LaunchedEffect(mailImportViewModel.eventHandler) {
-                                    viewModelEventHandlers.handle(mailImportViewModel.eventHandler)
+                                    viewModelEventHandlers.handleMailImport(mailImportViewModel.eventHandler)
                                 }
 
                                 mailImportViewModel.rootUiStateFlow.collectAsState().value
@@ -356,7 +356,7 @@ fun Content(
                                     importedMailListViewModel.updateQuery(screenStructure)
                                 }
                                 LaunchedEffect(importedMailListViewModel.eventHandler) {
-                                    viewModelEventHandlers.handle(importedMailListViewModel.eventHandler)
+                                    viewModelEventHandlers.handleMailLink(importedMailListViewModel.eventHandler)
                                 }
                                 importedMailListViewModel.rootUiStateFlow.collectAsState().value
                             },
@@ -445,7 +445,7 @@ fun Content(
                             )
                         }
                     LaunchedEffect(viewModel.eventHandler) {
-                        viewModelEventHandlers.handle(
+                        viewModelEventHandlers.handleAddMoneyUsage(
                             handler = viewModel.eventHandler,
                         )
                     }
@@ -472,7 +472,7 @@ fun Content(
                             )
                         }
                     LaunchedEffect(viewModel.viewModelEventHandler) {
-                        viewModelEventHandlers.handle(
+                        viewModelEventHandlers.handleImportedMailScreen(
                             handler = viewModel.viewModelEventHandler,
                         )
                     }
@@ -493,7 +493,7 @@ fun Content(
                             )
                         }
                     LaunchedEffect(viewModel.viewModelEventHandler) {
-                        viewModelEventHandlers.handle(viewModel.viewModelEventHandler)
+                        viewModelEventHandlers.handleImportedMailHtml(viewModel.viewModelEventHandler)
                     }
 
                     ImportedMailHtmlScreen(
@@ -513,7 +513,7 @@ fun Content(
                             )
                         }
                     LaunchedEffect(viewModel.viewModelEventHandler) {
-                        viewModelEventHandlers.handle(viewModel.viewModelEventHandler)
+                        viewModelEventHandlers.handleImportedMailPlain(viewModel.viewModelEventHandler)
                     }
 
                     ImportedMailPlainScreen(
@@ -534,7 +534,7 @@ fun Content(
                             )
                         }
                     LaunchedEffect(viewModel.eventHandler) {
-                        viewModelEventHandlers.handle(viewModel.eventHandler)
+                        viewModelEventHandlers.handleMoneyUsageScreen(viewModel.eventHandler)
                     }
                     MoneyUsageScreen(
                         modifier = Modifier.fillMaxSize(),

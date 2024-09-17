@@ -12,8 +12,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text2.BasicTextField2
-import androidx.compose.foundation.text2.input.rememberTextFieldState
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -166,8 +166,7 @@ private fun MainContent(
                         Text("GitHub")
                     }
                     Text("TextField2")
-                    @OptIn(ExperimentalFoundationApi::class)
-                    BasicTextField2(
+                    BasicTextField(
                         state = rememberTextFieldState(),
                     )
                     Text("TextField")
