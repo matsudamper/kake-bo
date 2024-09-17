@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.base
+package net.matsudamper.money.frontend.common.base.nav.user
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
@@ -12,15 +12,10 @@ import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
-import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
-import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
-import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.base.nav.user.Screens
-import net.matsudamper.money.frontend.common.base.nav.user.UrlPlaceHolderParser
 
 @Immutable
-@Suppress("RegExpRedundantEscape")
-public class ScreenNavControllerImpl(
+@Suppress("RegExpRedundantEscape", "EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
+public actual class ScreenNavControllerImpl actual constructor(
     initial: ScreenStructure,
 ) : ScreenNavController<ScreenStructure> {
     private val directions = Screens.entries

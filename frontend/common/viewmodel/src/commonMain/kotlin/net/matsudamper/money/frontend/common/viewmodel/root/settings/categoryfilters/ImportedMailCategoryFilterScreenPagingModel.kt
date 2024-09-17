@@ -43,7 +43,7 @@ public class ImportedMailCategoryFilterScreenPagingModel(
         pagingState.add(
             queryBlock = {
                 val cursor: String?
-                when (val last = it.lastOrNull()?.flow?.value) {
+                when (val last = it.lastOrNull()?.getFlow()?.value) {
                     is ApolloResponseState.Loading -> {
                         return@add null
                     }

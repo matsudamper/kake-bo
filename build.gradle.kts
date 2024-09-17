@@ -2,7 +2,10 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
+    kotlin("jvm") apply false
     kotlin("multiplatform") apply false
+    kotlin("android") apply false
+    id("com.android.application") apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.jetbrainsCompose) apply false

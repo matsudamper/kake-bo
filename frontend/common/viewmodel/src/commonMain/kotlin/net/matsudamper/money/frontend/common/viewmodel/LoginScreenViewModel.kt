@@ -11,6 +11,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.JsScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.navigator.WebAuthModel
+import net.matsudamper.money.frontend.common.base.navigator.WebAuthModelType
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.login.LoginScreenApi
@@ -121,14 +122,14 @@ public class LoginScreenViewModel(
                     override fun onClickSecurityKeyLogin() {
                         login(
                             userName = viewModelStateFlow.value.userName.text,
-                            type = WebAuthModel.Type.CROSS_PLATFORM,
+                            type = WebAuthModelType.CROSS_PLATFORM,
                         )
                     }
 
                     override fun onClickDeviceKeyLogin() {
                         login(
                             userName = viewModelStateFlow.value.userName.text,
-                            type = WebAuthModel.Type.PLATFORM,
+                            type = WebAuthModelType.PLATFORM,
                         )
                     }
                 },
@@ -174,7 +175,7 @@ public class LoginScreenViewModel(
 
     private fun login(
         userName: String,
-        type: WebAuthModel.Type,
+        type: WebAuthModelType,
     ) {
         coroutineScope.launch {
             val fidoInfo =

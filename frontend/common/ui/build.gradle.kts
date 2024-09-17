@@ -8,6 +8,7 @@ kotlin {
         browser()
         binaries.executable()
     }
+    jvm {}
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -24,6 +25,8 @@ kotlin {
                 implementation(libs.ktorClientJs)
                 implementation(libs.ktorClientLogging)
             }
+        }
+        val jvmMain by getting {
         }
         val commonTest by getting {
             dependencies {

@@ -17,7 +17,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -29,7 +28,6 @@ import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,45 +36,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import net.matsudamper.money.frontend.common.base.ImmutableList
-
-public data class CategorySelectDialogUiState(
-    val screenType: Screen,
-    val event: Event,
-) {
-    @Immutable
-    public sealed interface Screen {
-        public data class Root(
-            val category: String,
-            val subCategory: String,
-            val onClickCategory: () -> Unit,
-            val onClickSubCategory: () -> Unit,
-            val enableSubCategory: Boolean,
-        ) : Screen
-
-        public data class Category(
-            val categories: ImmutableList<CategorySelectDialogUiState.Category>,
-            val onBackRequest: () -> Unit,
-        ) : Screen
-
-        public data class SubCategory(
-            val subCategories: ImmutableList<CategorySelectDialogUiState.Category>?,
-            val onBackRequest: () -> Unit,
-        ) : Screen
-    }
-
-    public data class Category(
-        val name: String,
-        val isSelected: Boolean,
-        val onSelected: () -> Unit,
-    )
-
-    @Immutable
-    public interface Event {
-        public fun dismissRequest()
-
-        public fun selectCompleted()
-    }
-}
 
 @Composable
 internal fun CategorySelectDialog(uiState: CategorySelectDialogUiState) {

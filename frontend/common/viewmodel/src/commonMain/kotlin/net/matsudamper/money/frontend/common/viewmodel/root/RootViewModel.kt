@@ -2,7 +2,7 @@ package net.matsudamper.money.frontend.common.viewmodel.root
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import net.matsudamper.money.frontend.common.base.ScreenNavControllerImpl
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavControllerImpl
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
 

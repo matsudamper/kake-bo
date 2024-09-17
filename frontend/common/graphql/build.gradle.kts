@@ -7,6 +7,7 @@ kotlin {
         browser()
         binaries.executable()
     }
+    jvm {}
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -19,6 +20,8 @@ kotlin {
                 api(libs.apolloNormalizedCache)
                 implementation(libs.apolloAdapters)
             }
+        }
+        val jvmMain by getting {
         }
     }
 }

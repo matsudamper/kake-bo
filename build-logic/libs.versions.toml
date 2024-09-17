@@ -7,6 +7,7 @@ ktor = "3.0.0-beta-2"
 apollo = { id = "com.apollographql.apollo3", version.ref = "apollo" }
 
 [libraries]
+kotlinRefrect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 ktorServerCore = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 ktorServerEngine = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
 ktorServerStatusPages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
@@ -27,3 +28,6 @@ apolloNormalizedCache = { module = "com.apollographql.apollo3:apollo-normalized-
 apolloAdapters = { module = "com.apollographql.apollo3:apollo-adapters", version.ref = "apollo" }
 
 opentelemetryApi = { module = "io.opentelemetry:opentelemetry-api", version.require = "1.42.1" }
+
+# Test
+kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "5.9.1" }

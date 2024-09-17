@@ -17,6 +17,7 @@ import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmu
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.navigator.WebAuthModel
+import net.matsudamper.money.frontend.common.base.navigator.WebAuthModelType
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.LoginSettingScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -54,11 +55,11 @@ public class LoginSettingViewModel(
                     }
 
                     override fun onClickPlatform() {
-                        createFido(WebAuthModel.Type.PLATFORM)
+                        createFido(WebAuthModelType.PLATFORM)
                     }
 
                     override fun onClickCrossPlatform() {
-                        createFido(WebAuthModel.Type.CROSS_PLATFORM)
+                        createFido(WebAuthModelType.CROSS_PLATFORM)
                     }
 
                     override fun onClickLogout() {
@@ -104,7 +105,7 @@ public class LoginSettingViewModel(
                                 run sessionList@{
                                     val sessionList =
                                         viewModelState.apolloScreenResponse
-                                            ?.data?.user?.settings?.sessionAttributes?.sessions
+                                            .data?.user?.settings?.sessionAttributes?.sessions
                                     if (sessionList == null) {
                                         return@sessionList immutableListOf()
                                     }
@@ -157,7 +158,7 @@ public class LoginSettingViewModel(
         }
     }
 
-    private fun createFido(type: WebAuthModel.Type) {
+    private fun createFido(type: WebAuthModelType) {
         coroutineScope.launch {
             val fidoInfo =
                 fidoApi.getFidoInfo()
