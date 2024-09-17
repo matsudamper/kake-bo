@@ -2,7 +2,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -22,7 +21,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
-import kotlinx.browser.window
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -99,13 +97,13 @@ fun Content(
                 }
 
                 override fun showNativeNotification(message: String) {
-                    window.alert(message)
+                    alertDialogInfo = message
                 }
             }
         }
     run {
         val nonNullAlertDialogInfo = alertDialogInfo ?: return@run
-        
+
         BasicAlertDialog(
             onDismissRequest = {
                 alertDialogInfo = null
