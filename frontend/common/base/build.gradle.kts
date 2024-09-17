@@ -49,7 +49,6 @@ kotlin {
                 implementation(kotlin("test"))
                 implementation(libs.kotestRunnerJunit5)
                 implementation(libs.kotlinRefrect)
-
             }
         }
         val jsTest by getting {
