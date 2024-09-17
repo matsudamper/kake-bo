@@ -2,9 +2,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -69,20 +73,20 @@ import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
 import screen.RootNavContent
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Content(
     modifier: Modifier = Modifier,
     globalEventSender: EventSender<GlobalEvent>,
     composeSizeProvider: () -> MutableStateFlow<IntSize>,
 ) {
+    var alertDialogInfo: String? by remember { mutableStateOf(null) }
     val rootCoroutineScope = rememberCoroutineScope()
     var hostState by remember { mutableStateOf(SnackbarHostState()) }
     val globalEvent: GlobalEvent =
         remember(hostState, rootCoroutineScope) {
             object : GlobalEvent {
                 override fun showSnackBar(message: String) {
-                    console.error("show: $message")
-
                     // 二回目が表示されないのでstate自体を作成し直す
                     hostState = SnackbarHostState()
                     rootCoroutineScope.launch {
@@ -99,6 +103,17 @@ fun Content(
                 }
             }
         }
+    run {
+        val nonNullAlertDialogInfo = alertDialogInfo ?: return@run
+        
+        BasicAlertDialog(
+            onDismissRequest = {
+                alertDialogInfo = null
+            },
+        ) {
+            Text(nonNullAlertDialogInfo)
+        }
+    }
 
     val navController =
         remember {

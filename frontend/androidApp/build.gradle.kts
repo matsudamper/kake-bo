@@ -24,7 +24,8 @@ kotlin {
                 implementation(compose.material3)
                 implementation(compose.runtime)
 
-                implementation("androidx.appcompat:appcompat:1.7.0")
+                implementation(libs.androidActivityActivityCompose)
+                implementation(libs.androidAppCompatAppCompat)
             }
         }
     }
