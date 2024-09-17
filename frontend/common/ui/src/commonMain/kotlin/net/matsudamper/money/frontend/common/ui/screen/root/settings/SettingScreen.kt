@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.settings
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box

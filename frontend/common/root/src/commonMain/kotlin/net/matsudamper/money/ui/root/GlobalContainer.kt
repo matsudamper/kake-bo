@@ -10,6 +10,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 object GlobalContainer {
     private val json = Json
     val graphqlClient = GraphqlAdminQuery()
+
     @OptIn(InternalSerializationApi::class)
     val objectMapper =
         object : IObjectMapper {
