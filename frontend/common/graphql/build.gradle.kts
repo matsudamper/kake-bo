@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     id("com.android.library")
@@ -27,13 +29,19 @@ kotlin {
     }
 }
 
+val localProperties = Properties().also { properties ->
+    val propertiesFile = File("$rootDir/local.properties")
+    if (propertiesFile.exists()) {
+        properties.load(propertiesFile.inputStream())
+    }
+}
 android {
     namespace = "net.matsudamper.money.frontend.graphql"
     compileSdk = 34
     defaultConfig {
         minSdk = 33
-        buildConfigField("String", "SERVER_PROTOCOL", "\"${project.rootProject.properties["net.matsudamper.money.android.serverProtocol"]}\"")
-        buildConfigField("String", "SERVER_HOST", "\"${project.rootProject.properties["net.matsudamper.money.android.serverHost"]}\"")
+        buildConfigField("String", "SERVER_PROTOCOL", "\"${localProperties["net.matsudamper.money.android.serverProtocol"]}\"")
+        buildConfigField("String", "SERVER_HOST", "\"${localProperties["net.matsudamper.money.android.serverHost"]}\"")
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17

@@ -29,7 +29,7 @@ object GraphqlClient {
     private val cacheFactory = MemoryCacheFactory(maxSizeBytes = 10 * 1024 * 1024)
     val apolloClient: ApolloClient =
         ApolloClient.Builder()
-            .serverUrl("$serverProtocol//$serverHost/query")
+            .serverUrl("$serverProtocol://$serverHost/query")
             .normalizedCache(cacheFactory)
             .addCustomScalarAdapter(
                 ApolloLong.type,

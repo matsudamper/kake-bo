@@ -1,4 +1,4 @@
 package net.matsudamper.money.frontend.graphql
 
-actual val serverProtocol: String get() = TODO()
-actual val serverHost: String get() = TODO()
+actual val serverProtocol: String get() = BuildConfig.SERVER_PROTOCOL
+actual val serverHost: String get() = BuildConfig.SERVER_HOST
