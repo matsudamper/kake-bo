@@ -1,6 +1,7 @@
 plugins {
     kotlin("multiplatform")
     id("net.matsudamper.money.buildlogic.compose")
+    id("com.android.library")
 }
 
 kotlin {
@@ -8,7 +9,8 @@ kotlin {
         browser()
         binaries.executable()
     }
-    jvm { }
+    androidTarget()
+    jvm {  }
     sourceSets {
         jvmToolchain(17)
         val commonMain by getting {
@@ -44,6 +46,14 @@ kotlin {
                 implementation(compose.ui)
             }
         }
+        val androidMain by getting {
+            dependencies {
+                implementation(projects.shared)
+
+                implementation(compose.runtime)
+                implementation(compose.ui)
+            }
+        }
         val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test"))
@@ -62,4 +72,19 @@ kotlin {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
+}
+
+android {
+    namespace = "net.matsudamper.money.frontend.common.base"
+    compileSdk = 34
+    defaultConfig {
+        minSdk = 33
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+    buildFeatures {
+        buildConfig = true
+    }
 }
