@@ -48,26 +48,6 @@ dependencyResolutionManagement {
     @Suppress("UnstableApiUsage")
     versionCatalogs {
         create("libs") {
-            val composeVersion = extra["compose.version"] as String
-            library("kotlin.coroutines.core", "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
-            library("kotlin.datetime", "org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
-            library("kotlin.serialization.json", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.2")
-
-            plugin("jetbrainsCompose", "org.jetbrains.compose").version(composeVersion)
-
-            library("graphqlJava.extendedScalars", "com.graphql-java:graphql-java-extended-scalars:2023-01-24T02-11-56-babda5f")
-            library("graphqlJava", "com.graphql-java:graphql-java:22.3")
-            library("graphqlJavaKickstart.javaTools", "com.graphql-java-kickstart:graphql-java-tools:13.1.1")
-            plugin("kobylynskyi.graphqlCodegen", "io.github.kobylynskyi.graphql.codegen").version("5.10.0")
-
-            library("log4j.api", "org.slf4j:slf4j-api:2.0.16")
-            library("logback.classic", "ch.qos.logback:logback-classic:1.5.8")
-
-            plugin("ktlint", "org.jlleitschuh.gradle.ktlint").version("12.1.1")
-
-            library("jedis", "redis.clients:jedis:5.1.5")
-            library("jsoup", "org.jsoup:jsoup:1.18.1")
-
             from(files("build-logic/libs.versions.toml"))
         }
     }
