@@ -5,6 +5,7 @@ ktor = "3.0.0-rc-1"
 activity = "1.9.2"
 appcompat = "1.7.0"
 agp = "8.5.2"
+jackson = "2.17.2"
 
 [plugins]
 apollo = { id = "com.apollographql.apollo3", version.ref = "apollo" }
@@ -38,6 +39,11 @@ ktorClientLogging = { module = "io.ktor:ktor-client-logging", version.ref = "kto
 apolloRuntime = { module = "com.apollographql.apollo3:apollo-runtime", version.ref = "apollo" }
 apolloNormalizedCache = { module = "com.apollographql.apollo3:apollo-normalized-cache", version.ref = "apollo" }
 apolloAdapters = { module = "com.apollographql.apollo3:apollo-adapters", version.ref = "apollo" }
+
+# Jackson
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+jackson-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
 
 # WebAUth4J
 webauth4jCore = { module = "com.webauthn4j:webauthn4j-core", version.require = "0.26.0.RELEASE" }

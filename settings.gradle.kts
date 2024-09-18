@@ -70,11 +70,6 @@ dependencyResolutionManagement {
             library("angus.mail", "org.eclipse.angus:angus-mail:2.0.3")
             library("jakarta.activation.api", "jakarta.activation:jakarta.activation-api:2.1.3")
 
-            val jacksonVersion = "2.17.2"
-            library("jackson.databind", "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
-            library("jackson.kotlin", "com.fasterxml.jackson.module:jackson-module-kotlin:$jacksonVersion")
-            library("jackson.jsr310", "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.2")
-
             library("jedis", "redis.clients:jedis:5.1.5")
             library("jsoup", "org.jsoup:jsoup:1.18.1")
 
