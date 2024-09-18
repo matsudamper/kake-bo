@@ -27,7 +27,7 @@ val rootProperties = Properties().also {
 
 dependencies {
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin")
-    compileOnly("org.jetbrains.compose:compose-gradle-plugin:${rootProperties["compose.version"] as kotlin.String}")
+    compileOnly("org.jetbrains.compose:compose-gradle-plugin:${rootProperties["compose.version"] as String}")
     compileOnly("org.gradle.kotlin:gradle-kotlin-dsl-plugins:5.1.1")
 }
 
