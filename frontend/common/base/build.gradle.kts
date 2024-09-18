@@ -10,7 +10,7 @@ kotlin {
         binaries.executable()
     }
     androidTarget()
-    jvm {  }
+    jvm { }
     sourceSets {
         jvmToolchain(17)
         val commonMain by getting {
