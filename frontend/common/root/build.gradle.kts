@@ -20,6 +20,7 @@ kotlin {
             dependencies {
                 implementation(projects.shared)
                 implementation(projects.frontend.common.base)
+                implementation(projects.frontend.common.navigation)
                 implementation(projects.frontend.common.ui)
                 implementation(projects.frontend.common.viewmodel)
                 implementation(projects.frontend.common.graphql)

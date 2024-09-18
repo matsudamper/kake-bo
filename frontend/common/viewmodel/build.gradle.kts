@@ -14,6 +14,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(projects.frontend.common.base)
+                implementation(projects.frontend.common.navigation)
                 implementation(projects.frontend.common.ui)
                 implementation(projects.frontend.common.graphql)
                 implementation(projects.shared)

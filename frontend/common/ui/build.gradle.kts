@@ -14,6 +14,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(projects.frontend.common.base)
+                implementation(projects.frontend.common.navigation)
                 implementation(libs.kotlin.datetime)
                 implementation(compose.runtime)
                 implementation(compose.foundation)

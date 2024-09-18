@@ -22,6 +22,7 @@ include(":frontend:common:ui")
 include(":frontend:common:root")
 include(":frontend:common:base")
 include(":frontend:common:viewmodel")
+include(":frontend:common:navigation")
 include(":frontend:common:graphql:schema")
 include(":frontend:common:graphql")
 
