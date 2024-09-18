@@ -4,9 +4,11 @@ apollo = "4.0.0-beta.7"
 ktor = "3.0.0-rc-1"
 activity = "1.9.2"
 appcompat = "1.7.0"
+agp = "8.5.2"
 
 [plugins]
 apollo = { id = "com.apollographql.apollo3", version.ref = "apollo" }
+androidApplication = { id = "com.android.application", version.ref = "agp" }
 
 [libraries]
 kotlinRefrect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }

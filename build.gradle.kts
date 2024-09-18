@@ -5,7 +5,7 @@ plugins {
     kotlin("jvm") apply false
     kotlin("multiplatform") apply false
     kotlin("android") apply false
-    id("com.android.application") apply false
+    alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.composeCompiler) apply false
     alias(libs.plugins.jetbrainsCompose) apply false

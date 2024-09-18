@@ -39,13 +39,10 @@ pluginManagement {
 
     plugins {
         val kotlinVersion = extra["kotlin.version"] as String
-        val agpVersion = extra["agp.version"] as String
         kotlin("multiplatform").version(kotlinVersion)
         id("org.jetbrains.kotlin.plugin.compose").version(kotlinVersion)
         kotlin("jvm").version(kotlinVersion)
         kotlin("android").version(kotlinVersion)
-        id("com.android.application").version(agpVersion)
-        id("com.android.library").version(agpVersion)
     }
 }
 
