@@ -8,7 +8,7 @@ public actual object WebAuthModel {
         type: WebAuthModelType,
         challenge: String,
         domain: String,
-        base64ExcludeCredentialIdList: List<String>
+        base64ExcludeCredentialIdList: List<String>,
     ): WebAuthCreateResult? {
         TODO("Not yet implemented")
     }
@@ -18,7 +18,7 @@ public actual object WebAuthModel {
         name: String,
         type: WebAuthModelType,
         challenge: String,
-        domain: String
+        domain: String,
     ): WebAuthGetResult? {
         TODO("Not yet implemented")
     }

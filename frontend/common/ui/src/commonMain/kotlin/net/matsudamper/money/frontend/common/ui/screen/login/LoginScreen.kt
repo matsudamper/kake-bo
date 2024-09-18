@@ -36,7 +36,6 @@ import net.matsudamper.money.frontend.common.ui.layout.DummyTextField
 import net.matsudamper.money.frontend.common.ui.layout.DummyTextFieldDefaults
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 public fun LoginScreen(
