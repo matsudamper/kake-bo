@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     id("net.matsudamper.money.buildlogic.compose")
-    id("com.android.library")
+    id("net.matsudamper.money.buildlogic.androidLibrary")
 }
 
 kotlin {
@@ -48,14 +48,5 @@ kotlin {
 }
 
 android {
-    compileSdk = 34
     namespace = "net.matsudamper.money.frontend.common.ui"
-    defaultConfig {
-        minSdk = 34
-        targetSdk = 35
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
 }

@@ -2,7 +2,7 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    id("com.android.library")
+    id("net.matsudamper.money.buildlogic.androidLibrary")
 }
 
 kotlin {
@@ -37,15 +37,9 @@ val localProperties = Properties().also { properties ->
 }
 android {
     namespace = "net.matsudamper.money.frontend.graphql"
-    compileSdk = 34
     defaultConfig {
-        minSdk = 33
         buildConfigField("String", "SERVER_PROTOCOL", "\"${localProperties["net.matsudamper.money.android.serverProtocol"]}\"")
         buildConfigField("String", "SERVER_HOST", "\"${localProperties["net.matsudamper.money.android.serverHost"]}\"")
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         buildConfig = true

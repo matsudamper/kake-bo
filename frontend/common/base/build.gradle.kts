@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     id("net.matsudamper.money.buildlogic.compose")
-    id("com.android.library")
+    id("net.matsudamper.money.buildlogic.androidLibrary")
 }
 
 kotlin {
@@ -76,14 +76,6 @@ tasks.withType<Test>().configureEach {
 
 android {
     namespace = "net.matsudamper.money.frontend.common.base"
-    compileSdk = 34
-    defaultConfig {
-        minSdk = 33
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
     buildFeatures {
         buildConfig = true
     }

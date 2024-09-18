@@ -24,6 +24,7 @@ dependencies {
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin")
     compileOnly("org.jetbrains.compose:compose-gradle-plugin:1.7.0-beta02")
     compileOnly("org.gradle.kotlin:gradle-kotlin-dsl-plugins:5.1.1")
+    implementation("com.android.application:com.android.application.gradle.plugin:8.5.2")
 }
 
 gradlePlugin {
@@ -31,6 +32,10 @@ gradlePlugin {
         register("compose") {
             id = "net.matsudamper.money.buildlogic.compose"
             implementationClass = "net.matsudamper.money.buildlogic.ComposePlugin"
+        }
+        register("androidLibrary") {
+            id = "net.matsudamper.money.buildlogic.androidLibrary"
+            implementationClass = "net.matsudamper.money.buildlogic.AndroidLibraryPlugin"
         }
     }
 }

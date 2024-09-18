@@ -6,7 +6,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.jetbrainsCompose)
     id("net.matsudamper.money.buildlogic.compose")
-    id("com.android.library")
+    id("net.matsudamper.money.buildlogic.androidLibrary")
 }
 
 kotlin {
@@ -38,14 +38,6 @@ kotlin {
 
 android {
     namespace = "net.matsudamper.money.ui.root"
-    compileSdk = 34
-    defaultConfig {
-        minSdk = 33
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
 }
 
 // wasm
