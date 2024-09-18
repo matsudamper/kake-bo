@@ -21,10 +21,6 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
-val rootProperties = Properties().also {
-    it.load(file("../gradle.properties").inputStream())
-}
-
 dependencies {
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin")
     compileOnly("org.jetbrains.compose:compose-gradle-plugin:${rootProperties["compose.version"] as String}")
