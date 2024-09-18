@@ -23,7 +23,7 @@ java {
 
 dependencies {
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin")
-    compileOnly("org.jetbrains.compose:compose-gradle-plugin:${rootProperties["compose.version"] as String}")
+    compileOnly("org.jetbrains.compose:compose-gradle-plugin:1.7.0-beta02")
     compileOnly("org.gradle.kotlin:gradle-kotlin-dsl-plugins:5.1.1")
 }
 
