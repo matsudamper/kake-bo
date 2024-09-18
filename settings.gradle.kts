@@ -36,14 +36,6 @@ pluginManagement {
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
-
-    plugins {
-        val kotlinVersion = extra["kotlin.version"] as String
-        kotlin("multiplatform").version(kotlinVersion)
-        id("org.jetbrains.kotlin.plugin.compose").version(kotlinVersion)
-        kotlin("jvm").version(kotlinVersion)
-        kotlin("android").version(kotlinVersion)
-    }
 }
 
 dependencyResolutionManagement {
@@ -56,15 +48,11 @@ dependencyResolutionManagement {
     @Suppress("UnstableApiUsage")
     versionCatalogs {
         create("libs") {
-            val kotlinVersion = extra["kotlin.version"] as String
             val composeVersion = extra["compose.version"] as String
-            plugin("kotlin.multiplatform", "org.jetbrains.kotlin.multiplatform").version(kotlinVersion)
-            plugin("kotlin.serialization", "org.jetbrains.kotlin.plugin.serialization").version(kotlinVersion)
             library("kotlin.coroutines.core", "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
             library("kotlin.datetime", "org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
             library("kotlin.serialization.json", "org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.2")
 
-            plugin("composeCompiler", "org.jetbrains.kotlin.plugin.compose").version(kotlinVersion)
             plugin("jetbrainsCompose", "org.jetbrains.compose").version(composeVersion)
 
             library("graphqlJava.extendedScalars", "com.graphql-java:graphql-java-extended-scalars:2023-01-24T02-11-56-babda5f")
