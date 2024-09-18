@@ -32,9 +32,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import net.matsudamper.money.frontend.common.ui.layout.DummyTextField
-import net.matsudamper.money.frontend.common.ui.layout.DummyTextFieldDefaults
-import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.TextField
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
 @Composable
@@ -43,19 +41,6 @@ public fun LoginScreen(
     modifier: Modifier = Modifier,
 ) {
     val focusRequester = remember { FocusRequester() }
-    uiState.textInputDialog?.also { dialog ->
-        HtmlFullScreenTextInput(
-            title = dialog.title,
-            name = dialog.name,
-            default = dialog.text,
-            inputType = dialog.inputType,
-            onComplete = {
-                dialog.onComplete(it)
-            },
-            isMultiline = false,
-            canceled = { dialog.onCancel() },
-        )
-    }
     Surface(
         modifier = modifier.focusRequester(focusRequester),
         color = MaterialTheme.colorScheme.background,
@@ -84,18 +69,18 @@ public fun LoginScreen(
                         modifier = Modifier.align(Alignment.Center),
                         text = uiState.userName.text,
                         onNextClick = { userIdInput = false },
-                        onClickUserNameTextField = { uiState.listener.onClickUserNameTextField() },
                         textFieldTextStyle = textFieldTextStyle,
+                        onValueChange = { uiState.listener.onUserIdChanged(it) },
                     )
                 } else {
                     PasswordInput(
                         modifier = Modifier.align(Alignment.BottomCenter),
+                        onValueChange = { uiState.listener.onPasswordChanged(it) },
                         text = uiState.password.text,
                         onClickLogin = { uiState.listener.onClickLogin() },
                         textFieldTextStyle = textFieldTextStyle,
                         onClickSecurityKeyLogin = { uiState.listener.onClickSecurityKeyLogin() },
                         onClickDeviceKeyLogin = { uiState.listener.onClickDeviceKeyLogin() },
-                        onClickPasswordTextField = { uiState.listener.onClickPasswordTextField() },
                         onClickBack = { userIdInput = true },
                     )
                 }
@@ -119,7 +104,7 @@ public fun LoginScreen(
 @Composable
 private fun UserIdInput(
     onNextClick: () -> Unit,
-    onClickUserNameTextField: () -> Unit,
+    onValueChange: (String) -> Unit,
     text: String,
     textFieldTextStyle: TextStyle,
     modifier: Modifier = Modifier,
@@ -141,25 +126,14 @@ private fun UserIdInput(
             }
         },
         content = {
-            Box(
-                modifier =
-                Modifier.fillMaxWidth()
-                    .clickable { onClickUserNameTextField() },
-            ) {
-                DummyTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = text,
-                    textStyle = textFieldTextStyle,
-                    label = {
-                        Text(
-                            text = "User Name",
-                            style = textFieldTextStyle,
-                        )
-                    },
-                    maxLines = 1,
-                    colors = DummyTextFieldDefaults.colors(),
-                )
-            }
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                onValueChange = onValueChange,
+                text = text,
+                textStyle = textFieldTextStyle,
+                label = "User Name",
+                maxLines = 1,
+            )
         },
     )
 }
@@ -167,11 +141,11 @@ private fun UserIdInput(
 @Composable
 private fun PasswordInput(
     text: String,
+    onValueChange: (String) -> Unit,
     textFieldTextStyle: TextStyle,
     onClickLogin: () -> Unit,
     onClickSecurityKeyLogin: () -> Unit,
     onClickDeviceKeyLogin: () -> Unit,
-    onClickPasswordTextField: () -> Unit,
     onClickBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -204,36 +178,25 @@ private fun PasswordInput(
             }
         },
         content = {
-            Box(
-                modifier =
-                Modifier.fillMaxWidth()
-                    .clickable { onClickPasswordTextField() },
-            ) {
-                DummyTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = text,
-                    textStyle = textFieldTextStyle,
-                    label = {
-                        Text(
-                            text = "password",
-                            style = textFieldTextStyle,
+            TextField(
+                modifier = Modifier.fillMaxWidth(),
+                onValueChange = onValueChange,
+                text = text,
+                textStyle = textFieldTextStyle,
+                label = "password",
+                maxLines = 1,
+                trailingIcon = {
+                    IconButton(
+                        onClick = { onClickLogin() },
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = "login",
+                            tint = LocalContentColor.current,
                         )
-                    },
-                    maxLines = 1,
-                    trailingIcon = {
-                        IconButton(
-                            onClick = { onClickLogin() },
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                                contentDescription = "login",
-                                tint = LocalContentColor.current,
-                            )
-                        }
-                    },
-                    colors = DummyTextFieldDefaults.colors(),
-                )
-            }
+                    }
+                },
+            )
         },
     )
 }

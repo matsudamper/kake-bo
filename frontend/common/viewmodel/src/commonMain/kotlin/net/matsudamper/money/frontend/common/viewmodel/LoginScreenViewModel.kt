@@ -35,9 +35,20 @@ public class LoginScreenViewModel(
             LoginScreenUiState(
                 userName = TextFieldValue(),
                 password = TextFieldValue(),
-                textInputDialog = null,
                 listener =
                 object : LoginScreenUiState.Listener {
+                    override fun onPasswordChanged(text: String) {
+                        viewModelStateFlow.update {
+                            it.copy(password = TextFieldValue(text))
+                        }
+                    }
+
+                    override fun onUserIdChanged(text: String) {
+                        viewModelStateFlow.update {
+                            it.copy(userName = TextFieldValue(text))
+                        }
+                    }
+
                     override fun onClickLogin() {
                         coroutineScope.launch {
                             val result =
@@ -53,70 +64,6 @@ public class LoginScreenViewModel(
 
                     override fun onClickNavigateAdmin() {
                         navController.navigate(ScreenStructure.Admin)
-                    }
-
-                    override fun onClickUserNameTextField() {
-                        viewModelStateFlow.update { viewModelState ->
-                            viewModelState.copy(
-                                textInputDialogUiState =
-                                LoginScreenUiState.TextInputDialogUiState(
-                                    title = "username",
-                                    name = "username",
-                                    text = viewModelStateFlow.value.userName.text,
-                                    inputType = "text",
-                                    onComplete = { text ->
-                                        viewModelStateFlow.update {
-                                            it.copy(
-                                                userName = TextFieldValue(text),
-                                                textInputDialogUiState = null,
-                                            )
-                                        }
-                                    },
-                                    onConfirm = {
-                                        viewModelStateFlow.update {
-                                            it.copy(textInputDialogUiState = null)
-                                        }
-                                    },
-                                    onCancel = {
-                                        viewModelStateFlow.update {
-                                            it.copy(textInputDialogUiState = null)
-                                        }
-                                    },
-                                ),
-                            )
-                        }
-                    }
-
-                    override fun onClickPasswordTextField() {
-                        viewModelStateFlow.update { viewModelState ->
-                            viewModelState.copy(
-                                textInputDialogUiState =
-                                LoginScreenUiState.TextInputDialogUiState(
-                                    title = "password",
-                                    name = "password",
-                                    inputType = "password",
-                                    text = viewModelStateFlow.value.password.text,
-                                    onComplete = { text ->
-                                        viewModelStateFlow.update {
-                                            it.copy(
-                                                password = TextFieldValue(text),
-                                                textInputDialogUiState = null,
-                                            )
-                                        }
-                                    },
-                                    onConfirm = {
-                                        viewModelStateFlow.update {
-                                            it.copy(textInputDialogUiState = null)
-                                        }
-                                    },
-                                    onCancel = {
-                                        viewModelStateFlow.update {
-                                            it.copy(textInputDialogUiState = null)
-                                        }
-                                    },
-                                ),
-                            )
-                        }
                     }
 
                     override fun onClickSecurityKeyLogin() {
@@ -140,11 +87,7 @@ public class LoginScreenViewModel(
                     uiStateFlow.update { uiState ->
                         uiState.copy(
                             userName = viewModelState.userName,
-                            password =
-                            TextFieldValue(
-                                "●".repeat(viewModelState.password.text.length),
-                            ),
-                            textInputDialog = viewModelState.textInputDialogUiState,
+                            password = viewModelState.password,
                         )
                     }
                 }
@@ -223,6 +166,5 @@ public class LoginScreenViewModel(
     private data class ViewModelState(
         val userName: TextFieldValue = TextFieldValue(),
         val password: TextFieldValue = TextFieldValue(),
-        val textInputDialogUiState: LoginScreenUiState.TextInputDialogUiState? = null,
     )
 }

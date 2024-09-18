@@ -6,7 +6,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 public data class LoginScreenUiState(
     val userName: TextFieldValue,
     val password: TextFieldValue,
-    val textInputDialog: TextInputDialogUiState?,
     val listener: Listener,
 ) {
     public data class TextInputDialogUiState(
@@ -25,12 +24,11 @@ public data class LoginScreenUiState(
 
         public fun onClickNavigateAdmin()
 
-        public fun onClickUserNameTextField()
-
-        public fun onClickPasswordTextField()
-
         public fun onClickSecurityKeyLogin()
 
         public fun onClickDeviceKeyLogin()
+
+        public fun onUserIdChanged(text: String)
+        public fun onPasswordChanged(text: String)
     }
 }

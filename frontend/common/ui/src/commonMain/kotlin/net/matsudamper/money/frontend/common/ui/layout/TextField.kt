@@ -1,22 +1,20 @@
 package net.matsudamper.money.frontend.common.ui.layout
 
+import androidx.compose.runtime.Composable
+
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.VisualTransformation
 
-internal object DummyTextFieldDefaults {
+public object TextFieldDefaults {
     @Composable
-    fun colors(): TextFieldColors {
+    public fun colors(): TextFieldColors {
         return TextFieldDefaults.colors(
             focusedSupportingTextColor = MaterialTheme.colorScheme.surface,
             focusedContainerColor = MaterialTheme.colorScheme.surface,
@@ -32,15 +30,21 @@ internal object DummyTextFieldDefaults {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+public enum class TextFieldType {
+    Text,
+    Password,
+}
+
 @Composable
-internal fun DummyTextField(
+public expect fun TextField(
     text: String,
+    onValueChange: (String) -> Unit,
     modifier: Modifier = Modifier,
+    type: TextFieldType = TextFieldType.Text,
     textStyle: TextStyle = LocalTextStyle.current,
-    label: @Composable (() -> Unit)? = null,
+    label: String? = null,
     maxLines: Int = Int.MAX_VALUE,
-    placeholder: @Composable (() -> Unit)? = null,
+    placeholder: String? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     prefix: @Composable (() -> Unit)? = null,
@@ -51,31 +55,5 @@ internal fun DummyTextField(
     isError: Boolean = false,
     shape: Shape = TextFieldDefaults.shape,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    colors: TextFieldColors = DummyTextFieldDefaults.colors(),
-) {
-    TextFieldDefaults.DecorationBox(
-        value = text,
-        visualTransformation = VisualTransformation.None,
-        innerTextField = {
-            Text(
-                modifier = modifier,
-                text = text,
-                style = textStyle,
-                maxLines = maxLines,
-            )
-        },
-        placeholder = placeholder,
-        label = label,
-        leadingIcon = leadingIcon,
-        trailingIcon = trailingIcon,
-        prefix = prefix,
-        suffix = suffix,
-        supportingText = supportingText,
-        shape = shape,
-        singleLine = singleLine,
-        enabled = enabled,
-        isError = isError,
-        interactionSource = interactionSource,
-        colors = colors,
-    )
-}
+    colors: TextFieldColors = TextFieldDefaults.colors(),
+)
