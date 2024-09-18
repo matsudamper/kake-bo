@@ -81,26 +81,25 @@ fun Content(
     var alertDialogInfo: String? by remember { mutableStateOf(null) }
     val rootCoroutineScope = rememberCoroutineScope()
     var hostState by remember { mutableStateOf(SnackbarHostState()) }
-    val globalEvent: GlobalEvent =
-        remember(hostState, rootCoroutineScope) {
-            object : GlobalEvent {
-                override fun showSnackBar(message: String) {
-                    // 二回目が表示されないのでstate自体を作成し直す
-                    hostState = SnackbarHostState()
-                    rootCoroutineScope.launch {
-                        hostState.showSnackbar(
-                            message = message,
-                            duration = SnackbarDuration.Short,
-                            withDismissAction = true,
-                        )
-                    }
-                }
-
-                override fun showNativeNotification(message: String) {
-                    alertDialogInfo = message
+    val globalEvent: GlobalEvent = remember(hostState, rootCoroutineScope) {
+        object : GlobalEvent {
+            override fun showSnackBar(message: String) {
+                // 二回目が表示されないのでstate自体を作成し直す
+                hostState = SnackbarHostState()
+                rootCoroutineScope.launch {
+                    hostState.showSnackbar(
+                        message = message,
+                        duration = SnackbarDuration.Short,
+                        withDismissAction = true,
+                    )
                 }
             }
+
+            override fun showNativeNotification(message: String) {
+                alertDialogInfo = message
+            }
         }
+    }
     run {
         val nonNullAlertDialogInfo = alertDialogInfo ?: return@run
 
