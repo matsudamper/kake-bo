@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.user.JsScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -51,13 +52,12 @@ public class LoginScreenViewModel(
 
                     override fun onClickLogin() {
                         coroutineScope.launch {
-                            val result =
-                                runCatching {
-                                    graphqlQuery.login(
-                                        userName = viewModelStateFlow.value.userName.text,
-                                        password = viewModelStateFlow.value.password.text,
-                                    )
-                                }.getOrNull()
+                            val result = runCatching {
+                                graphqlQuery.login(
+                                    userName = viewModelStateFlow.value.userName.text,
+                                    password = viewModelStateFlow.value.password.text,
+                                )
+                            }.getOrNull()
                             postLogin(isSuccess = result?.data?.userMutation?.userLogin?.isSuccess == true)
                         }
                     }
