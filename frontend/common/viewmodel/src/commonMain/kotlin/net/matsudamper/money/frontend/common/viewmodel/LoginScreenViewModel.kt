@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.user.JsScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -131,33 +132,31 @@ public class LoginScreenViewModel(
                 return@launch
             }
 
-            val webAuthResult =
-                webAuthModel.get(
-                    userId = userName,
-                    name = userName,
-                    type = type,
-                    challenge = fidoInfo.challenge,
-                    domain = fidoInfo.domain,
-                )
+            val webAuthResult = webAuthModel.get(
+                userId = userName,
+                name = userName,
+                type = type,
+                challenge = fidoInfo.challenge,
+                domain = fidoInfo.domain,
+            )
             if (webAuthResult == null) {
                 globalEventSender.send {
                     it.showSnackBar("ログインに失敗しました")
                 }
                 return@launch
             }
-            val loginResult =
-                graphqlQuery.webAuthLogin(
-                    input =
-                    UserFidoLoginInput(
-                        base64AuthenticatorData = webAuthResult.base64AuthenticatorData,
-                        base64ClientDataJson = webAuthResult.base64ClientDataJSON,
-                        base64Signature = webAuthResult.base64Signature,
-                        base64UserHandle = webAuthResult.base64UserHandle,
-                        credentialId = webAuthResult.credentialId,
-                        userName = userName,
-                        challenge = fidoInfo.challenge,
-                    ),
-                )
+            val loginResult = graphqlQuery.webAuthLogin(
+                input = UserFidoLoginInput(
+                    base64AuthenticatorData = webAuthResult.base64AuthenticatorData,
+                    base64ClientDataJson = webAuthResult.base64ClientDataJSON,
+                    base64Signature = webAuthResult.base64Signature,
+                    base64UserHandle = webAuthResult.base64UserHandle,
+                    credentialId = webAuthResult.credentialId,
+                    userName = userName,
+                    challenge = fidoInfo.challenge,
+                ),
+            )
+            Logger.d("LOG", "loginResult: $userName ${loginResult.data}")
             postLogin(isSuccess = loginResult.data?.userMutation?.userFidoLogin?.isSuccess == true)
         }
     }

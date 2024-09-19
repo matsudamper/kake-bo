@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.serialization)
     id("net.matsudamper.money.buildlogic.compose")
     id("net.matsudamper.money.buildlogic.androidLibrary")
 }
@@ -15,6 +16,8 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(projects.shared)
+                implementation(projects.frontend.common.base)
+                implementation(libs.kotlin.serialization.json)
 
                 implementation(compose.runtime)
                 implementation(compose.ui)
