@@ -197,7 +197,7 @@ fun Application.myApplicationModule() {
                 }
             }
         accept(ContentType.Text.Html) {
-            get("{...}/") {
+            get("{...}") {
                 call.respondFile(
                     file = File(ServerEnv.htmlPath),
                 )
