@@ -19,9 +19,6 @@ kotlin {
             }
         }
     }
-    sourceSets.named("commonMain").configure {
-        kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
-    }
 }
 
 tasks.withType<Test>().configureEach {
