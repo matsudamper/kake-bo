@@ -1,6 +1,4 @@
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntSize
