@@ -182,6 +182,7 @@ internal fun SettingNavContent(
                             coroutineScope = coroutineScope,
                             api = LoginSettingScreenApi(),
                             fidoApi = FidoApi(),
+                            webAuthModel =,
                         )
                     }
 

@@ -16,8 +16,7 @@ import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.base.navigator.WebAuthModel
-import net.matsudamper.money.frontend.common.base.navigator.WebAuthModelType
+import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.LoginSettingScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -30,6 +29,7 @@ public class LoginSettingViewModel(
     private val coroutineScope: CoroutineScope,
     private val api: LoginSettingScreenApi,
     private val fidoApi: FidoApi,
+    private val webAuthModel: WebAuthModel,
 ) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> =
         MutableStateFlow(
@@ -55,11 +55,11 @@ public class LoginSettingViewModel(
                     }
 
                     override fun onClickPlatform() {
-                        createFido(WebAuthModelType.PLATFORM)
+                        createFido(WebAuthModel.WebAuthModelType.PLATFORM)
                     }
 
                     override fun onClickCrossPlatform() {
-                        createFido(WebAuthModelType.CROSS_PLATFORM)
+                        createFido(WebAuthModel.WebAuthModelType.CROSS_PLATFORM)
                     }
 
                     override fun onClickLogout() {
@@ -158,7 +158,7 @@ public class LoginSettingViewModel(
         }
     }
 
-    private fun createFido(type: WebAuthModelType) {
+    private fun createFido(type: WebAuthModel.WebAuthModelType) {
         coroutineScope.launch {
             val fidoInfo =
                 fidoApi.getFidoInfo()
@@ -168,8 +168,7 @@ public class LoginSettingViewModel(
                 return@launch
             }
 
-            val createResult =
-                WebAuthModel.create(
+            val createResult = webAuthModel.create(
                     id = fidoInfo.id,
                     name = fidoInfo.name,
                     type = type,

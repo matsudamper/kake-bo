@@ -376,6 +376,7 @@ fun Content(
                                 graphqlQuery = GraphqlUserLoginQuery(),
                                 globalEventSender = globalEventSender,
                                 screenApi = LoginScreenApi(),
+                                webAuthModel =
                             )
                         }
                     val uiState: LoginScreenUiState = viewModel.uiStateFlow.collectAsState().value

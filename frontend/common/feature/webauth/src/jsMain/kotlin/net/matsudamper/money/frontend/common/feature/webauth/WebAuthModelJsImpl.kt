@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.base.navigator
+package net.matsudamper.money.frontend.common.feature.webauth
 
 import kotlinx.coroutines.await
 import io.ktor.util.decodeBase64Bytes
@@ -7,16 +7,15 @@ import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
 
-@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
-public actual object WebAuthModel {
-    public actual suspend fun create(
+public class WebAuthModelJsImpl : WebAuthModel{
+    public override suspend fun create(
         id: String,
         name: String,
-        type: WebAuthModelType,
+        type: WebAuthModel.WebAuthModelType,
         challenge: String,
         domain: String,
         base64ExcludeCredentialIdList: List<String>,
-    ): WebAuthCreateResult? {
+    ): WebAuthModel.WebAuthCreateResult? {
         val options =
             createOption(
                 userId = id,
@@ -44,19 +43,19 @@ public actual object WebAuthModel {
         val attestationObjectBase64 = result.response.attestationObject.toBase64()
         val clientDataJSONBase64 = result.response.clientDataJSON.toBase64()
 
-        return WebAuthCreateResult(
+        return WebAuthModel.WebAuthCreateResult(
             attestationObjectBase64 = attestationObjectBase64,
             clientDataJSONBase64 = clientDataJSONBase64,
         )
     }
 
-    public actual suspend fun get(
+    public override suspend fun get(
         userId: String,
         name: String,
-        type: WebAuthModelType,
+        type: WebAuthModel.WebAuthModelType,
         challenge: String,
         domain: String,
-    ): WebAuthGetResult? {
+    ): WebAuthModel.WebAuthGetResult? {
         val options =
             createOption(
                 userId = userId,
@@ -76,7 +75,7 @@ public actual object WebAuthModel {
                 it.printStackTrace()
             }.getOrNull() ?: return null
         console.log(result)
-        return WebAuthGetResult(
+        return WebAuthModel.WebAuthGetResult(
             credentialId = result.id,
             base64ClientDataJSON = result.response.clientDataJSON.toBase64(),
             base64Signature = result.response.signature.toBase64(),
@@ -88,7 +87,7 @@ public actual object WebAuthModel {
     private fun createOption(
         userId: String,
         name: String,
-        type: WebAuthModelType,
+        type: WebAuthModel.WebAuthModelType,
         challenge: String,
         domain: String,
         excludeCredentials: List<CredentialsContainerCreatePublicKeyOptions.ExcludeCredential>,
@@ -118,8 +117,8 @@ public actual object WebAuthModel {
                 CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection(
                     authenticatorAttachment =
                     when (type) {
-                        WebAuthModelType.PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_PLATFORM
-                        WebAuthModelType.CROSS_PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_CROSS_PLATFORM
+                        WebAuthModel.WebAuthModelType.PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_PLATFORM
+                        WebAuthModel.WebAuthModelType.CROSS_PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_CROSS_PLATFORM
                     },
                     userVerification = "required",
                     residentKey = "required",

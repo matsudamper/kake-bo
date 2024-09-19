@@ -7,12 +7,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.user.JsScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.base.navigator.WebAuthModel
-import net.matsudamper.money.frontend.common.base.navigator.WebAuthModelType
+import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.login.LoginScreenApi
@@ -26,6 +24,7 @@ public class LoginScreenViewModel(
     private val screenApi: LoginScreenApi,
     private val navController: JsScreenNavController,
     private val globalEventSender: EventSender<GlobalEvent>,
+    private val webAuthModel: WebAuthModel,
 ) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> =
         MutableStateFlow(
@@ -69,14 +68,14 @@ public class LoginScreenViewModel(
                     override fun onClickSecurityKeyLogin() {
                         login(
                             userName = viewModelStateFlow.value.userName.text,
-                            type = WebAuthModelType.CROSS_PLATFORM,
+                            type = WebAuthModel.WebAuthModelType.CROSS_PLATFORM,
                         )
                     }
 
                     override fun onClickDeviceKeyLogin() {
                         login(
                             userName = viewModelStateFlow.value.userName.text,
-                            type = WebAuthModelType.PLATFORM,
+                            type = WebAuthModel.WebAuthModelType.PLATFORM,
                         )
                     }
                 },
@@ -118,7 +117,7 @@ public class LoginScreenViewModel(
 
     private fun login(
         userName: String,
-        type: WebAuthModelType,
+        type: WebAuthModel.WebAuthModelType,
     ) {
         coroutineScope.launch {
             val fidoInfo =
@@ -133,7 +132,7 @@ public class LoginScreenViewModel(
             }
 
             val webAuthResult =
-                WebAuthModel.get(
+                webAuthModel.get(
                     userId = userName,
                     name = userName,
                     type = type,

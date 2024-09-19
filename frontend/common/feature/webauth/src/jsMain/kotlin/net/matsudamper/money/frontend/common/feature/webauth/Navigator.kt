@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.base.navigator
+package net.matsudamper.money.frontend.common.feature.webauth
 
 import kotlin.js.Promise
 import org.khronos.webgl.ArrayBuffer
