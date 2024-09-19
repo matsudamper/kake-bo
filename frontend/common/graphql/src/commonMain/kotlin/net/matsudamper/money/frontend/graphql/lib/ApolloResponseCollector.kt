@@ -35,21 +35,20 @@ public class ApolloResponseCollector<D : Query.Data>(
 
     public fun fetch(coroutineScope: CoroutineScope) {
         job.cancel()
-        job =
-            coroutineScope.launch {
-                apolloClient
-                    .query(query)
-                    .fetchPolicy(fetchPolicy)
-                    .watch()
-                    .catch {
-                        it.printStackTrace()
-                        mutableStateFlow.value = ApolloResponseState.failure(it)
-                    }
-                    .collect {
-                        println("collect: Data(${it.data})")
-                        mutableStateFlow.value = ApolloResponseState.success(it)
-                    }
-            }
+        job = coroutineScope.launch {
+            apolloClient
+                .query(query)
+                .fetchPolicy(fetchPolicy)
+                .watch()
+                .catch {
+                    it.printStackTrace()
+                    mutableStateFlow.value = ApolloResponseState.failure(it)
+                }
+                .collect {
+                    println("collect: Data(${it.data})")
+                    mutableStateFlow.value = ApolloResponseState.success(it)
+                }
+        }
     }
 
     public fun cancel() {
