@@ -169,16 +169,16 @@ public class LoginSettingViewModel(
             }
 
             val createResult = webAuthModel.create(
-                    id = fidoInfo.id,
-                    name = fidoInfo.name,
-                    type = type,
-                    challenge = fidoInfo.challenge,
-                    domain = fidoInfo.domain,
-                    base64ExcludeCredentialIdList =
-                    viewModelStateFlow.value.apolloScreenResponse?.data?.user?.settings?.registeredFidoList.orEmpty().map {
-                        it.base64CredentialId
-                    },
-                )
+                id = fidoInfo.id,
+                name = fidoInfo.name,
+                type = type,
+                challenge = fidoInfo.challenge,
+                domain = fidoInfo.domain,
+                base64ExcludeCredentialIdList =
+                viewModelStateFlow.value.apolloScreenResponse?.data?.user?.settings?.registeredFidoList.orEmpty().map {
+                    it.base64CredentialId
+                },
+            )
 
             if (createResult == null) {
                 showAddFidoFailToast()

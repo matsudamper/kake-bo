@@ -8,10 +8,10 @@ import org.koin.core.Koin
 @Composable
 internal fun MoneyCompositionLocalProvider(
     koin: Koin,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     CompositionLocalProvider(
         LocalKoin provides koin,
-        content = content
+        content = content,
     )
 }

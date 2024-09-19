@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
-
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     id("net.matsudamper.money.buildlogic.androidLibrary")

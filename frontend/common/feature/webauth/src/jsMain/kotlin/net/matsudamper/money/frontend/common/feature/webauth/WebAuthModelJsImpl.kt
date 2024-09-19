@@ -7,7 +7,7 @@ import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
 
-public class WebAuthModelJsImpl : WebAuthModel{
+public class WebAuthModelJsImpl : WebAuthModel {
     public override suspend fun create(
         id: String,
         name: String,

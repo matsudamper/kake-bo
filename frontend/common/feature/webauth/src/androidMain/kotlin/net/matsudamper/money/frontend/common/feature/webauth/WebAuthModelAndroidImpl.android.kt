@@ -4,7 +4,7 @@ import android.content.Context
 
 public class WebAuthModelAndroidImpl(
     private val context: Context,
-): WebAuthModel {
+) : WebAuthModel {
     public override suspend fun create(
         id: String,
         name: String,
