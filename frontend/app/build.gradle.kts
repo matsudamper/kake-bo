@@ -62,11 +62,19 @@ android {
     compileSdk = 34
     namespace = "net.matsudamper.money"
     signingConfigs {
-        getByName("debug") {
+        create("release") {
             storeFile = file(localProperties["KEYSTORE_PATH"] as String)
             storePassword = localProperties["KEYSTORE_PASSWORD"] as String
             keyAlias = localProperties["KEY_ALIAS"] as String
             keyPassword = localProperties["KEY_PASSWORD"] as String
+        }
+    }
+    buildTypes {
+        debug {
+            signingConfig = signingConfigs.getByName("release")
+        }
+        release {
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     defaultConfig {
