@@ -4,7 +4,7 @@ public object ServerEnv {
     public val isSecure: Boolean get() = System.getenv()["IS_SECURE"].toBoolean()
     public val domain: String? get() = System.getenv()["DOMAIN"]
     public val port: Int get() = System.getenv()["PORT"]!!.toInt()
-    public val frontPath: String get() = System.getenv()["HTML_PATH"] ?: "../frontend/jsApp/build/dist/js/developmentExecutable"
+    public val frontPath: String get() = System.getenv()["HTML_PATH"] ?: "../frontend/app/build/dist/js/developmentExecutable"
     public val htmlPath: String get() = "$frontPath/index.html"
     public val isDebug: Boolean get() = System.getenv()["IS_DEBUG"]?.toBooleanStrictOrNull() ?: false
 
