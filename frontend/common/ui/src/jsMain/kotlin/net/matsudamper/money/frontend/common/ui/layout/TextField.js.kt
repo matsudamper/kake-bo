@@ -62,7 +62,7 @@ public actual fun TextField(
     }
     Box(
         modifier = modifier.clickable {
-            visibleInput = false
+            visibleInput = true
         },
     ) {
         TextFieldDefaults.DecorationBox(
