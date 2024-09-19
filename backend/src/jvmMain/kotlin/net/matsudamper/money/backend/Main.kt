@@ -191,13 +191,39 @@ fun Application.myApplicationModule() {
                 }
             }
         accept(ContentType.Text.Html) {
-            get("{...}") {
+            get("{...}/") {
                 call.respondFile(
                     file = File(ServerEnv.htmlPath),
                 )
             }
         }
+        get("/.well-known/assetlinks.json") {
+            call.respondText(
+                contentType = ContentType.Application.Json,
+            ) {
+                getAssetLinkJson()
+            }
+        }
     }
+}
+
+private fun getAssetLinkJson(): String {
+    return """
+        [
+          {
+            "relation": [
+              "delegate_permission/common.handle_all_urls"
+            ],
+            "target": {
+              "namespace": "android_app",
+              "package_name": "${ServerEnv.appPackageName}",
+              "sha256_cert_fingerprints": [
+                "${ServerEnv.appFingerprint}"
+              ]
+            }
+          }
+        ]
+    """.trimIndent()
 }
 
 private fun File.allFiles(): List<File> {

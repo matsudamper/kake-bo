@@ -14,6 +14,9 @@ public object ServerEnv {
     public val dbUserName: String get() = System.getenv()["DB_USERNAME"]!!
     public val dbPassword: String get() = System.getenv()["DB_PASSWORD"]!!
 
+    public val appPackageName: String get() = System.getenv()["APP_PACKAGE_NAME"]!!
+    public val appFingerprint: String get() = System.getenv()["APP_FINGERPRINT"]!!
+
     public val adminPassword: String get() = System.getenv()["ADMIN_PASSWORD"]!!
 
     public val userPasswordPepper: String get() = System.getenv("USER_PASSWORD_PEPPER")!!
