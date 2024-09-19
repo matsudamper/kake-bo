@@ -48,6 +48,7 @@ internal fun SettingNavContent(
     viewModelEventHandlers: ViewModelEventHandlers,
     rootScreenScaffoldListener: RootScreenScaffoldListener,
 ) {
+    val koin = LocalKoin.current
     val coroutineScope = rememberCoroutineScope()
     val holder = rememberSaveableStateHolder()
     when (state) {
@@ -176,15 +177,14 @@ internal fun SettingNavContent(
 
         ScreenStructure.Root.Settings.Login -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel =
-                    remember(coroutineScope) {
-                        LoginSettingViewModel(
-                            coroutineScope = coroutineScope,
-                            api = LoginSettingScreenApi(),
-                            fidoApi = FidoApi(),
-                            webAuthModel =,
-                        )
-                    }
+                val viewModel = remember(coroutineScope) {
+                    LoginSettingViewModel(
+                        coroutineScope = coroutineScope,
+                        api = LoginSettingScreenApi(),
+                        fidoApi = FidoApi(),
+                        webAuthModel = koin.get(),
+                    )
+                }
 
                 LaunchedEffect(viewModelEventHandlers, viewModel.eventHandler) {
                     viewModelEventHandlers.handleLoginSetting(viewModel.eventHandler)

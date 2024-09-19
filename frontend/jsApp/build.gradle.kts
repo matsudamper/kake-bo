@@ -29,6 +29,8 @@ kotlin {
                 implementation(compose.material3)
                 implementation(compose.html.core)
                 implementation(compose.runtime)
+
+                implementation(libs.koinCore)
             }
         }
     }

@@ -14,7 +14,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(projects.frontend.common.base)
-                implementation(projects.frontend.common.feature.webauth)
+                api(projects.frontend.common.feature.webauth)
                 implementation(projects.frontend.common.navigation)
                 implementation(projects.frontend.common.ui)
                 implementation(projects.frontend.common.graphql)
@@ -23,6 +23,8 @@ kotlin {
                 implementation(compose.foundation)
                 implementation(compose.material3)
                 implementation(libs.kotlin.datetime)
+
+                implementation(libs.koinCore)
             }
         }
         val commonTest by getting {

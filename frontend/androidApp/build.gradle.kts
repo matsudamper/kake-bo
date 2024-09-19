@@ -27,6 +27,8 @@ kotlin {
 
                 implementation(libs.androidActivityActivityCompose)
                 implementation(libs.androidAppCompatAppCompat)
+
+                implementation(libs.koinCore)
             }
         }
     }

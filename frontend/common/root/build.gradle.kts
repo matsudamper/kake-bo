@@ -19,6 +19,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(projects.shared)
+                implementation(projects.frontend.common.di)
                 implementation(projects.frontend.common.base)
                 implementation(projects.frontend.common.navigation)
                 implementation(projects.frontend.common.ui)
@@ -31,6 +32,8 @@ kotlin {
                 implementation(compose.foundation)
                 implementation(compose.material3)
                 implementation(compose.runtime)
+
+                implementation(libs.koinCore)
             }
         }
     }

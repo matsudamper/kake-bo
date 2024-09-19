@@ -1,6 +1,10 @@
 package net.matsudamper.money.frontend.common.feature.webauth
 
-public interface WebAuthModelAndroidImpl: WebAuthModel {
+import android.content.Context
+
+public class WebAuthModelAndroidImpl(
+    private val context: Context,
+): WebAuthModel {
     public override suspend fun create(
         id: String,
         name: String,

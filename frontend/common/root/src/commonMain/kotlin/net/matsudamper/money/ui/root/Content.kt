@@ -78,6 +78,7 @@ fun Content(
     globalEventSender: EventSender<GlobalEvent>,
     composeSizeProvider: () -> MutableStateFlow<IntSize> = { MutableStateFlow(IntSize.Zero) },
 ) {
+    val koin = LocalKoin.current
     var alertDialogInfo: String? by remember { mutableStateOf(null) }
     val rootCoroutineScope = rememberCoroutineScope()
     var hostState by remember { mutableStateOf(SnackbarHostState()) }
@@ -376,7 +377,7 @@ fun Content(
                                 graphqlQuery = GraphqlUserLoginQuery(),
                                 globalEventSender = globalEventSender,
                                 screenApi = LoginScreenApi(),
-                                webAuthModel =
+                                webAuthModel = koin.get(),
                             )
                         }
                     val uiState: LoginScreenUiState = viewModel.uiStateFlow.collectAsState().value
