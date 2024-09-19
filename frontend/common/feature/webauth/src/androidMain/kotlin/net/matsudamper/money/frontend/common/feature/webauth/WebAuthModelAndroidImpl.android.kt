@@ -7,7 +7,6 @@ import androidx.credentials.GetPublicKeyCredentialOption
 import androidx.credentials.PublicKeyCredential
 import java.util.Base64
 import kotlinx.serialization.json.Json
-import net.matsudamper.money.frontend.common.base.Logger
 
 public class WebAuthModelAndroidImpl(
     private val context: Context,
