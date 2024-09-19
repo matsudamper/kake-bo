@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.ui.layout
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldColors
@@ -69,7 +70,7 @@ public actual fun TextField(
             visualTransformation = VisualTransformation.None,
             innerTextField = {
                 Text(
-                    modifier = Modifier,
+                    modifier = Modifier.fillMaxWidth(),
                     text = text,
                     style = textStyle,
                     maxLines = maxLines,
