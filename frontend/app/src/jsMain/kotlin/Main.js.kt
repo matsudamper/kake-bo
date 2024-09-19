@@ -3,7 +3,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextDirection.Companion.Content
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.window.CanvasBasedWindow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +16,6 @@ import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.ui.root.Content
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.koin.core.context.startKoin
-import org.koin.dsl.module
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main(
