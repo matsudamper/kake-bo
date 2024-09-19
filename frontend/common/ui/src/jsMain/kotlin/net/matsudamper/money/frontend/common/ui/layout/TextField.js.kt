@@ -76,12 +76,16 @@ public actual fun TextField(
                 )
             },
             placeholder = run {
-                placeholder ?: return@run null {
+                placeholder ?: return@run null
+                //
+                {
                     Text(placeholder)
                 }
             },
             label = run {
-                label ?: return@run null {
+                label ?: return@run null
+                //
+                {
                     Text(label)
                 }
             },
