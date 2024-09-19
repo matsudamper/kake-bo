@@ -144,7 +144,13 @@ fun Application.myApplicationModule() {
                 }
             }
         }
-
+        get("/.well-known/assetlinks.json") {
+            call.respondText(
+                contentType = ContentType.Application.Json,
+            ) {
+                getAssetLinkJson()
+            }
+        }
         File(ServerEnv.frontPath).allFiles()
             .filterNot { "index.html" == it.name }
             .forEach {
@@ -197,13 +203,6 @@ fun Application.myApplicationModule() {
                 )
             }
         }
-        get("/.well-known/assetlinks.json") {
-            call.respondText(
-                contentType = ContentType.Application.Json,
-            ) {
-                getAssetLinkJson()
-            }
-        }
     }
 }
 
@@ -212,6 +211,7 @@ private fun getAssetLinkJson(): String {
         [
           {
             "relation": [
+              "delegate_permission/common.handle_all_urls",
               "delegate_permission/common.get_login_creds"
             ],
             "target": {
