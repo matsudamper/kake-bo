@@ -56,24 +56,22 @@ public class WebAuthModelJsImpl : WebAuthModel {
         challenge: String,
         domain: String,
     ): WebAuthModel.WebAuthGetResult? {
-        val options =
-            createOption(
-                userId = userId,
-                name = name,
-                type = type,
-                challenge = challenge,
-                domain = domain,
-                excludeCredentials = emptyList(),
-            )
+        val options = createOption(
+            userId = userId,
+            name = name,
+            type = type,
+            challenge = challenge,
+            domain = domain,
+            excludeCredentials = emptyList(),
+        )
 
-        val result =
-            runCatching {
-                navigator.credentials.get(
-                    options,
-                ).await()
-            }.onFailure {
-                it.printStackTrace()
-            }.getOrNull() ?: return null
+        val result = runCatching {
+            navigator.credentials.get(
+                options,
+            ).await()
+        }.onFailure {
+            it.printStackTrace()
+        }.getOrNull() ?: return null
         console.log(result)
         return WebAuthModel.WebAuthGetResult(
             credentialId = result.id,
