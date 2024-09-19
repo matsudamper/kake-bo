@@ -97,14 +97,12 @@ public class WebAuthModelJsImpl : WebAuthModel {
             publicKey =
             CredentialsContainerCreatePublicKeyOptions(
                 challenge = Uint8Array(challenge.encodeToByteArray().toTypedArray()),
-                user =
-                CredentialsContainerCreatePublicKeyOptions.User(
+                user = CredentialsContainerCreatePublicKeyOptions.User(
                     id = id,
                     name = name,
                     displayName = name,
                 ),
-                pubKeyCredParams =
-                arrayOf(
+                pubKeyCredParams = arrayOf(
                     // ES256
                     CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -7),
                     // RS256
@@ -115,16 +113,14 @@ public class WebAuthModelJsImpl : WebAuthModel {
                 excludeCredentials = excludeCredentials.toTypedArray(),
                 authenticatorSelection =
                 CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection(
-                    authenticatorAttachment =
-                    when (type) {
+                    authenticatorAttachment = when (type) {
                         WebAuthModel.WebAuthModelType.PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_PLATFORM
                         WebAuthModel.WebAuthModelType.CROSS_PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_CROSS_PLATFORM
                     },
                     userVerification = "required",
                     residentKey = "required",
                 ),
-                rp =
-                CredentialsContainerCreatePublicKeyOptions.Rp(
+                rp = CredentialsContainerCreatePublicKeyOptions.Rp(
                     name = domain,
                     id = domain,
                 ),
