@@ -3,7 +3,6 @@ package net.matsudamper.money.frontend.common.feature.webauth
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-
 @Serializable
 internal data class AndroidWebAuthResult(
     @SerialName("id") val id: String? = null,

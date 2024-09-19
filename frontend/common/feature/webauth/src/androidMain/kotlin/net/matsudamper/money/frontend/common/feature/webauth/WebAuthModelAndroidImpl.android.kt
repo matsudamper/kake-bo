@@ -75,7 +75,7 @@ public class WebAuthModelAndroidImpl(
                     "userVerification": "required",
                     "timeout": 1800000
                 }
-            """.trimIndent().also { Logger.d("LOG", it) },
+            """.trimIndent(),
             null,
         )
         val getCredentialRequest = GetCredentialRequest(
@@ -85,21 +85,4 @@ public class WebAuthModelAndroidImpl(
         )
         return getCredentialRequest
     }
-
-//    private fun signInWithSavedCredentials(getCredentialRequest: GetCredentialRequest): View.OnClickListener {
-//        return View.OnClickListener {
-//
-//            lifecycleScope.launch {
-//                configureViews(View.VISIBLE, false)
-//
-//                val data = getSavedCredentials(getCredentialRequest)
-//
-//                configureViews(View.INVISIBLE, true)
-//
-//                data?.let {
-//                    showHome()
-//                }
-//            }
-//        }
-//    }
 }
