@@ -41,25 +41,26 @@ public class WebAuthModelAndroidImpl(
         return if (credentialResult.credential is PublicKeyCredential) {
             val cred = credentialResult.credential as PublicKeyCredential
             val json = Json.decodeFromString<AndroidWebAuthResult>(cred.authenticationResponseJson)
-
             WebAuthModel.WebAuthGetResult(
-                base64AuthenticatorData = Base64.getEncoder().encodeToString(
-                    json.response.authenticatorData?.encodeToByteArray() ?: return null,
-                ),
-                base64ClientDataJSON = Base64.getEncoder().encodeToString(
-                    json.response.clientDataJSON?.encodeToByteArray() ?: return null,
-                ),
-                base64Signature = Base64.getEncoder().encodeToString(
-                    json.response.signature?.encodeToByteArray() ?: return null,
-                ),
-                base64UserHandle = Base64.getEncoder().encodeToString(
-                    json.response.userHandle?.encodeToByteArray() ?: return null,
-                ),
+                base64AuthenticatorData = json.response.authenticatorData.base64UrlToBase64() ?: return null,
+                base64ClientDataJSON = json.response.clientDataJSON.base64UrlToBase64() ?: return null,
+                base64Signature = json.response.signature.base64UrlToBase64() ?: return null,
+                base64UserHandle = json.response.userHandle.base64UrlToBase64() ?: return null,
                 credentialId = json.id ?: return null,
             )
         } else {
             null
         }
+    }
+
+    private fun String?.base64UrlToBase64(): String? {
+        this ?: return null
+        return Base64.getEncoder()
+            .encode(
+                Base64.getUrlDecoder()
+                    .decode(this),
+            )
+            .decodeToString()
     }
 
     private fun configureGetCredentialRequest(
@@ -69,7 +70,7 @@ public class WebAuthModelAndroidImpl(
         val getPublicKeyCredentialOption = GetPublicKeyCredentialOption(
             """
                 {
-                    "challenge": "$challenge",
+                    "challenge": "${Base64.getEncoder().encodeToString(challenge.toByteArray())}",
                     "rpId": "$domain",
                     "userVerification": "required",
                     "timeout": 1800000

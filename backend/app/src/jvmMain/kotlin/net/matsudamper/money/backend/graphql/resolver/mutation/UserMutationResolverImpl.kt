@@ -218,11 +218,10 @@ class UserMutationResolverImpl : UserMutationResolver {
         return CompletableFuture.supplyAsync {
             runBlocking {
                 minExecutionTime(1000) {
-                    val requestUserId =
-                        userRepository.getUserId(userName = userFidoLoginInput.userName)
-                            ?: return@minExecutionTime QlUserLoginResult(
-                                isSuccess = false,
-                            )
+                    val requestUserId = userRepository.getUserId(userName = userFidoLoginInput.userName)
+                        ?: return@minExecutionTime QlUserLoginResult(
+                            isSuccess = false,
+                        )
                     val fidoList = fidoRepository.getFidoList(requestUserId)
                     if (ChallengeModel(challengeRepository).validateChallenge(
                             challenge = userFidoLoginInput.challenge,
@@ -306,7 +305,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                     is ImportMailUseCase.Result.Success -> true
                     is ImportMailUseCase.Result.Failure,
                     is ImportMailUseCase.Result.ImapConfigNotFound,
-                    -> false
+                        -> false
                 },
             )
         }.toDataFetcher()
@@ -719,10 +718,9 @@ class UserMutationResolverImpl : UserMutationResolver {
             ) {
                 throw GraphqlExceptions.BadRequest("challenge is invalid")
             }
-            val auth4JModel =
-                Auth4JModel(
-                    challenge = input.challenge,
-                )
+            val auth4JModel = Auth4JModel(
+                challenge = input.challenge,
+            )
             val base64Result =
                 auth4JModel.register(
                     base64AttestationObject = input.base64AttestationObject.toByteArray(),

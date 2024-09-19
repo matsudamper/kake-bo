@@ -22,7 +22,11 @@ class Auth4JModel(
     private val decoder = Base64.getDecoder()
     private val serverProperty =
         ServerProperty(
-            Origin("https://${ServerEnv.domain!!}"),
+            setOf(
+                Origin("https://${ServerEnv.domain!!}"),
+                // https://passkeys-auth.com/docs/implementation/flutter/android/#origin
+                Origin("android:apk-key-hash:${ServerEnv.apkKeyHash}"),
+            ),
             ServerEnv.domain!!,
             { challenge.toByteArray() },
             null,

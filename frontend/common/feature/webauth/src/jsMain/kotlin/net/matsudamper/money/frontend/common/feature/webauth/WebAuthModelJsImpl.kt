@@ -92,8 +92,7 @@ public class WebAuthModelJsImpl : WebAuthModel {
     ): CredentialsContainerCreateOptions {
         val id = Uint8Array(userId.encodeToByteArray().toTypedArray())
         return CredentialsContainerCreateOptions(
-            publicKey =
-            CredentialsContainerCreatePublicKeyOptions(
+            publicKey = CredentialsContainerCreatePublicKeyOptions(
                 challenge = Uint8Array(challenge.encodeToByteArray().toTypedArray()),
                 user = CredentialsContainerCreatePublicKeyOptions.User(
                     id = id,
