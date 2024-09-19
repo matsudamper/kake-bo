@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
@@ -50,9 +52,23 @@ kotlin {
     }
 }
 
+val localProperties = Properties().also { properties ->
+    val propertiesFile = File("$rootDir/local.properties")
+    if (propertiesFile.exists()) {
+        properties.load(propertiesFile.inputStream())
+    }
+}
 android {
     compileSdk = 34
     namespace = "net.matsudamper.money"
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file(localProperties["KEYSTORE_PATH"] as String)
+            storePassword = localProperties["KEYSTORE_PASSWORD"] as String
+            keyAlias = localProperties["KEY_ALIAS"] as String
+            keyPassword = localProperties["KEY_PASSWORD"] as String
+        }
+    }
     defaultConfig {
         minSdk = 34
         targetSdk = 35
