@@ -6,7 +6,8 @@
     <application
             android:icon="@mipmap/ic_app_icon"
             android:label="@string/app_name"
-            android:theme="@style/Theme.ImageViewer">
+            android:theme="@style/Theme.ImageViewer"
+            android:name=".Application">
 
         <activity android:exported="true" android:name="net.matsudamper.money.MainActivity">
             <intent-filter>
