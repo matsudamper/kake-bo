@@ -3,7 +3,6 @@ package net.matsudamper.money.ui.root
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -245,7 +244,6 @@ fun Content(
     LaunchedEffect(navController.currentNavigation) {
         rootViewModel.navigateChanged()
     }
-
     Scaffold(
         modifier = modifier
             .fillMaxSize()
@@ -265,8 +263,7 @@ fun Content(
     ) { paddingValues ->
         val tabHolder = rememberSaveableStateHolder()
         Box(
-            modifier = Modifier.fillMaxSize()
-                .padding(paddingValues),
+            modifier = Modifier.fillMaxSize(),
         ) {
             val holder = rememberSaveableStateHolder()
             when (val current = navController.currentNavigation) {
@@ -294,6 +291,7 @@ fun Content(
                     }
                     holder.SaveableStateProvider(ScreenStructure.Root::class.toString()) {
                         RootNavContent(
+                            contentPadding = paddingValues,
                             tabHolder = tabHolder,
                             current = current,
                             rootScreenScaffoldListener = rootScreenScaffoldListener,
@@ -382,6 +380,7 @@ fun Content(
                     LoginScreen(
                         modifier = Modifier.fillMaxSize(),
                         uiState = uiState,
+                        contentPadding = paddingValues,
                     )
                 }
 
@@ -423,6 +422,7 @@ fun Content(
                             }
                             adminAddUserScreenViewModel.uiStateFlow.collectAsState().value
                         },
+                        contentPadding = paddingValues,
                     )
                 }
 
@@ -453,6 +453,7 @@ fun Content(
                     AddMoneyUsageScreen(
                         modifier = Modifier.fillMaxSize(),
                         uiState = viewModel.uiStateFlow.collectAsState().value,
+                        contentPadding = paddingValues,
                     )
                 }
 
@@ -479,6 +480,7 @@ fun Content(
                     ImportedMailScreen(
                         modifier = Modifier.fillMaxSize(),
                         uiState = viewModel.uiStateFlow.collectAsState().value,
+                        contentPadding = paddingValues,
                     )
                 }
 
@@ -499,6 +501,7 @@ fun Content(
                         modifier = Modifier.fillMaxSize(),
                         uiState = viewModel.uiStateFlow.collectAsState().value,
                         kakeboScaffoldListener = kakeboScaffoldListener,
+                        contentPadding = paddingValues,
                     )
                 }
 
@@ -519,6 +522,7 @@ fun Content(
                         modifier = Modifier.fillMaxSize(),
                         uiState = viewModel.uiStateFlow.collectAsState().value,
                         kakeboScaffoldListener = kakeboScaffoldListener,
+                        contentPadding = paddingValues,
                     )
                 }
 
@@ -541,6 +545,7 @@ fun Content(
                         modifier = Modifier.fillMaxSize(),
                         uiState = viewModel.uiStateFlow.collectAsState().value,
                         kakeboScaffoldListener = kakeboScaffoldListener,
+                        contentPadding = paddingValues,
                     )
                 }
             }

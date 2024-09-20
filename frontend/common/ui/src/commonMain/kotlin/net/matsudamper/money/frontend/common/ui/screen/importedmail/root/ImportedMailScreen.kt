@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -169,6 +168,7 @@ public data class MailScreenUiState(
 public fun ImportedMailScreen(
     modifier: Modifier = Modifier,
     uiState: MailScreenUiState,
+    contentPadding: PaddingValues,
 ) {
     if (uiState.confirmDialog != null) {
         AlertDialog(

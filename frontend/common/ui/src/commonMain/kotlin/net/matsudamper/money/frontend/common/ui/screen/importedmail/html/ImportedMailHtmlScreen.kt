@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.ui.screen.importedmail.html
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -50,6 +51,7 @@ public fun ImportedMailHtmlScreen(
     modifier: Modifier = Modifier,
     uiState: ImportedMailHtmlScreenUiState,
     kakeboScaffoldListener: KakeboScaffoldListener,
+    contentPadding: PaddingValues,
 ) {
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
@@ -66,7 +68,7 @@ public fun ImportedMailHtmlScreen(
 
         is ImportedMailHtmlScreenUiState.LoadingState.Loading -> {
             KakeboScaffold(
-                modifier = modifier,
+                modifier = modifier.padding(contentPadding),
                 topBar = {
                     KakeBoTopAppBar(
                         navigation = {
@@ -106,7 +108,7 @@ public fun ImportedMailHtmlScreen(
 
         ImportedMailHtmlScreenUiState.LoadingState.Error -> {
             LoadingErrorContent(
-                modifier = modifier,
+                modifier = modifier.padding(contentPadding),
                 onClickRetry = {
                     uiState.event.onClickRetry()
                 },

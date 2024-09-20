@@ -1,5 +1,6 @@
 package net.matsudamper.money.ui.root
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,6 +57,7 @@ internal fun RootNavContent(
     importMailLinkScreenUiStateProvider: @Composable (ScreenStructure.Root.Add.Import) -> ImportMailScreenUiState,
     homeAddTabScreenUiStateProvider: @Composable () -> HomeAddTabScreenUiState,
     settingUiStateProvider: @Composable () -> RootSettingScreenUiState,
+    contentPadding: PaddingValues,
 ) {
     val koin = LocalKoin.current
     val usageHost = rememberSaveableStateHolder()

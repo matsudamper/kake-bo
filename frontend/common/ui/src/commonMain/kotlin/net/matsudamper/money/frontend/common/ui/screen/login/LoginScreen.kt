@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.ui.screen.login
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,10 +39,13 @@ import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 public fun LoginScreen(
     uiState: LoginScreenUiState,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues,
 ) {
     val focusRequester = remember { FocusRequester() }
     Surface(
-        modifier = modifier.focusRequester(focusRequester),
+        modifier = modifier
+            .padding(contentPadding)
+            .focusRequester(focusRequester),
         color = MaterialTheme.colorScheme.background,
         contentColor = MaterialTheme.colorScheme.onBackground,
     ) {
