@@ -265,8 +265,7 @@ fun Content(
     ) { paddingValues ->
         val tabHolder = rememberSaveableStateHolder()
         Box(
-            modifier =
-            Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize()
                 .padding(paddingValues),
         ) {
             val holder = rememberSaveableStateHolder()
@@ -365,21 +364,20 @@ fun Content(
 
                 ScreenStructure.Login -> {
                     val coroutineScope = rememberCoroutineScope()
-                    val viewModel =
-                        remember {
-                            LoginScreenViewModel(
-                                coroutineScope = coroutineScope,
-                                navController = navController,
-                                graphqlQuery = GraphqlUserLoginQuery(
-                                    graphqlClient = koin.get(),
-                                ),
-                                globalEventSender = globalEventSender,
-                                screenApi = LoginScreenApi(
-                                    graphqlClient = koin.get(),
-                                ),
-                                webAuthModel = koin.get(),
-                            )
-                        }
+                    val viewModel = remember {
+                        LoginScreenViewModel(
+                            coroutineScope = coroutineScope,
+                            navController = navController,
+                            graphqlQuery = GraphqlUserLoginQuery(
+                                graphqlClient = koin.get(),
+                            ),
+                            globalEventSender = globalEventSender,
+                            screenApi = LoginScreenApi(
+                                graphqlClient = koin.get(),
+                            ),
+                            webAuthModel = koin.get(),
+                        )
+                    }
                     val uiState: LoginScreenUiState = viewModel.uiStateFlow.collectAsState().value
                     LoginScreen(
                         modifier = Modifier.fillMaxSize(),
@@ -391,26 +389,24 @@ fun Content(
                     val coroutineScope = rememberCoroutineScope()
                     val controller = rememberAdminScreenController()
 
-                    val adminRootViewModel =
-                        remember(coroutineScope, controller) {
-                            AdminRootScreenViewModel(
-                                controller = controller,
-                                coroutineScope = coroutineScope,
-                                graphqlClient = koin.get(),
-                            )
-                        }
+                    val adminRootViewModel = remember(coroutineScope, controller) {
+                        AdminRootScreenViewModel(
+                            controller = controller,
+                            coroutineScope = coroutineScope,
+                            graphqlClient = koin.get(),
+                        )
+                    }
                     AdminRootScreen(
                         adminScreenController = controller,
                         adminLoginScreenUiStateProvider = {
                             val loginScreenCoroutineScope = rememberCoroutineScope()
-                            val loginViewModel =
-                                remember(loginScreenCoroutineScope, controller) {
-                                    AdminLoginScreenViewModel(
-                                        coroutineScope = loginScreenCoroutineScope,
-                                        controller = controller,
-                                        graphqlClient = koin.get(),
-                                    )
-                                }
+                            val loginViewModel = remember(loginScreenCoroutineScope, controller) {
+                                AdminLoginScreenViewModel(
+                                    coroutineScope = loginScreenCoroutineScope,
+                                    controller = controller,
+                                    graphqlClient = koin.get(),
+                                )
+                            }
                             loginViewModel.uiStateFlow.collectAsState().value
                         },
                         adminRootScreenUiStateProvider = {
@@ -418,14 +414,13 @@ fun Content(
                         },
                         adminAddUserUiStateProvider = {
                             val loginScreenCoroutineScope = rememberCoroutineScope()
-                            val adminAddUserScreenViewModel =
-                                remember(loginScreenCoroutineScope, controller) {
-                                    AdminAddUserScreenViewModel(
-                                        coroutineScope = loginScreenCoroutineScope,
-                                        controller = controller,
-                                        graphqlClient = koin.get(),
-                                    )
-                                }
+                            val adminAddUserScreenViewModel = remember(loginScreenCoroutineScope, controller) {
+                                AdminAddUserScreenViewModel(
+                                    coroutineScope = loginScreenCoroutineScope,
+                                    controller = controller,
+                                    graphqlClient = koin.get(),
+                                )
+                            }
                             adminAddUserScreenViewModel.uiStateFlow.collectAsState().value
                         },
                     )
@@ -438,16 +433,15 @@ fun Content(
                 }
 
                 is ScreenStructure.AddMoneyUsage -> {
-                    val viewModel =
-                        remember {
-                            AddMoneyUsageViewModel(
-                                coroutineScope = rootCoroutineScope,
-                                graphqlApi = AddMoneyUsageScreenApi(
-                                    graphqlClient = koin.get(),
-                                ),
+                    val viewModel = remember {
+                        AddMoneyUsageViewModel(
+                            coroutineScope = rootCoroutineScope,
+                            graphqlApi = AddMoneyUsageScreenApi(
                                 graphqlClient = koin.get(),
-                            )
-                        }
+                            ),
+                            graphqlClient = koin.get(),
+                        )
+                    }
                     LaunchedEffect(viewModel.eventHandler) {
                         viewModelEventHandlers.handleAddMoneyUsage(
                             handler = viewModel.eventHandler,
@@ -464,19 +458,18 @@ fun Content(
 
                 is ScreenStructure.ImportedMail -> {
                     val coroutineScope = rememberCoroutineScope()
-                    val viewModel =
-                        remember(
-                            coroutineScope,
-                            current,
-                        ) {
-                            ImportedMailScreenViewModel(
-                                coroutineScope = coroutineScope,
-                                api = ImportedMailScreenGraphqlApi(
-                                    graphqlClient = koin.get(),
-                                ),
-                                importedMailId = current.id,
-                            )
-                        }
+                    val viewModel = remember(
+                        coroutineScope,
+                        current,
+                    ) {
+                        ImportedMailScreenViewModel(
+                            coroutineScope = coroutineScope,
+                            api = ImportedMailScreenGraphqlApi(
+                                graphqlClient = koin.get(),
+                            ),
+                            importedMailId = current.id,
+                        )
+                    }
                     LaunchedEffect(viewModel.viewModelEventHandler) {
                         viewModelEventHandlers.handleImportedMailScreen(
                             handler = viewModel.viewModelEventHandler,
@@ -491,14 +484,13 @@ fun Content(
 
                 is ScreenStructure.ImportedMailHTML -> {
                     val coroutineScope = rememberCoroutineScope()
-                    val viewModel =
-                        remember {
-                            ImportedMailHtmlViewModel(
-                                id = current.id,
-                                coroutineScope = coroutineScope,
-                                graphqlClient = koin.get(),
-                            )
-                        }
+                    val viewModel = remember {
+                        ImportedMailHtmlViewModel(
+                            id = current.id,
+                            coroutineScope = coroutineScope,
+                            graphqlClient = koin.get(),
+                        )
+                    }
                     LaunchedEffect(viewModel.viewModelEventHandler) {
                         viewModelEventHandlers.handleImportedMailHtml(viewModel.viewModelEventHandler)
                     }
@@ -512,14 +504,13 @@ fun Content(
 
                 is ScreenStructure.ImportedMailPlain -> {
                     val coroutineScope = rememberCoroutineScope()
-                    val viewModel =
-                        remember {
-                            ImportedMailPlainViewModel(
-                                id = current.id,
-                                coroutineScope = coroutineScope,
-                                graphqlClient = koin.get(),
-                            )
-                        }
+                    val viewModel = remember {
+                        ImportedMailPlainViewModel(
+                            id = current.id,
+                            coroutineScope = coroutineScope,
+                            graphqlClient = koin.get(),
+                        )
+                    }
                     LaunchedEffect(viewModel.viewModelEventHandler) {
                         viewModelEventHandlers.handleImportedMailPlain(viewModel.viewModelEventHandler)
                     }
@@ -533,17 +524,16 @@ fun Content(
 
                 is ScreenStructure.MoneyUsage -> {
                     val coroutineScope = rememberCoroutineScope()
-                    val viewModel =
-                        remember {
-                            MoneyUsageScreenViewModel(
-                                moneyUsageId = current.id,
-                                coroutineScope = coroutineScope,
-                                api = MoneyUsageScreenViewModelApi(
-                                    graphqlClient = koin.get(),
-                                ),
+                    val viewModel = remember {
+                        MoneyUsageScreenViewModel(
+                            moneyUsageId = current.id,
+                            coroutineScope = coroutineScope,
+                            api = MoneyUsageScreenViewModelApi(
                                 graphqlClient = koin.get(),
-                            )
-                        }
+                            ),
+                            graphqlClient = koin.get(),
+                        )
+                    }
                     LaunchedEffect(viewModel.eventHandler) {
                         viewModelEventHandlers.handleMoneyUsageScreen(viewModel.eventHandler)
                     }
