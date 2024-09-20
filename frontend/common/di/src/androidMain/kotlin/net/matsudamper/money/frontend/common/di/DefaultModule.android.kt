@@ -1,7 +1,9 @@
 package net.matsudamper.money.frontend.common.di
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.runBlocking
 import com.apollographql.apollo3.annotations.ApolloExperimental
 import com.apollographql.apollo3.api.ApolloRequest
 import com.apollographql.apollo3.api.ApolloResponse
@@ -10,6 +12,7 @@ import com.apollographql.apollo3.api.http.get
 import com.apollographql.apollo3.interceptor.ApolloInterceptor
 import com.apollographql.apollo3.interceptor.ApolloInterceptorChain
 import com.apollographql.apollo3.network.http.HttpInfo
+import net.matsudamper.money.frontend.common.feature.localstore.DataStores
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModelAndroidImpl
 import net.matsudamper.money.frontend.graphql.GraphqlClient
@@ -18,14 +21,14 @@ import org.koin.core.scope.Scope
 
 internal actual val factory: Factory = object : Factory() {
     private val UserSessionIdKey = "user_session_id"
-    private var user_session_id: String = ""
     override fun createWebAuthModule(scope: Scope): WebAuthModel {
         return WebAuthModelAndroidImpl(
             context = scope.get(),
         )
     }
 
-    override fun createGraphQlClient(): GraphqlClient {
+    override fun createGraphQlClient(scope: Scope): GraphqlClient {
+        val sessionDataStore = scope.get<DataStores>().sessionDataStore
         return GraphqlClientImpl(
             interceptors = listOf(
                 object : ApolloInterceptor {
@@ -33,9 +36,10 @@ internal actual val factory: Factory = object : Factory() {
                         request: ApolloRequest<D>,
                         chain: ApolloInterceptorChain,
                     ): Flow<ApolloResponse<D>> {
+                        val userSessionId = runBlocking { sessionDataStore.data.firstOrNull() }?.userSessionId.orEmpty()
                         val response = chain.proceed(
                             request.newBuilder()
-                                .addHttpHeader("Cookie", "$UserSessionIdKey=$user_session_id")
+                                .addHttpHeader("Cookie", "$UserSessionIdKey=${userSessionId}")
                                 .build(),
                         )
 
@@ -54,7 +58,11 @@ internal actual val factory: Factory = object : Factory() {
                                     }
                                 }
                                 if (key != UserSessionIdKey) continue
-                                user_session_id = value
+                                sessionDataStore.updateData {
+                                    it.toBuilder()
+                                        .setUserSessionId(value)
+                                        .build()
+                                }
                             }
                         }
                     }

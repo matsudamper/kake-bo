@@ -10,11 +10,11 @@ internal expect val factory: Factory
 object DefaultModule {
     val module = module {
         factory<WebAuthModel> { factory.createWebAuthModule(scope = this) }
-        single<GraphqlClient> { factory.createGraphQlClient() }
+        single<GraphqlClient> { factory.createGraphQlClient(scope = this) }
     }
 }
 
 internal abstract class Factory {
     abstract fun createWebAuthModule(scope: Scope): WebAuthModel
-    abstract fun createGraphQlClient(): GraphqlClient
+    abstract fun createGraphQlClient(scope: Scope): GraphqlClient
 }

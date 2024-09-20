@@ -7,6 +7,7 @@ appcompat = "1.7.0"
 agp = "8.5.2"
 jackson = "2.17.2"
 compose = "1.7.0-beta02"
+protoBuf = "4.28.1"
 
 [plugins]
 apollo = { id = "com.apollographql.apollo3", version.ref = "apollo" }
@@ -19,6 +20,7 @@ kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.require = "12.1.1" }
 kobylynskyi-graphqlCodegen = { id = "io.github.kobylynskyi.graphql.codegen", version.require = "5.10.0" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose" }
+protobuf = { id = "com.google.protobuf", version.require = "0.9.4" }
 
 [libraries]
 kotlinRefrect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
@@ -28,6 +30,10 @@ kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializat
 
 # Plugin
 androidGradlePlugin = { module = "com.android.application:com.android.application.gradle.plugin", version.ref = "agp" }
+
+# ProtoBuf
+protobufProtobufJavalite = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protoBuf" }
+protobufProtoc = { module = "com.google.protobuf:protoc", version.ref = "protoBuf" }
 
 # Ktor
 ktorServerCore = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
@@ -84,6 +90,9 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.require =
 graphqlJava-extendedScalars = { module = "com.graphql-java:graphql-java-extended-scalars", version.require = "2023-01-24T02-11-56-babda5f" }
 graphqlJava = { module = "com.graphql-java:graphql-java", version.require = "22.3" }
 graphqlJavaKickstart-JavaTools = { module = "com.graphql-java-kickstart:graphql-java-tools", version.require = "13.1.1" }
+
+# DataStore
+androidxDatastoreDatastore = { module = "androidx.datastore:datastore", version.require = "1.1.1" }
 
 # Other
 jedis = { module = "redis.clients:jedis", version.require = "5.1.5" }

@@ -14,6 +14,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(projects.frontend.common.feature.webauth)
+                implementation(projects.frontend.common.feature.localstore)
                 implementation(projects.frontend.common.graphql)
 
                 implementation(libs.koinCore)
