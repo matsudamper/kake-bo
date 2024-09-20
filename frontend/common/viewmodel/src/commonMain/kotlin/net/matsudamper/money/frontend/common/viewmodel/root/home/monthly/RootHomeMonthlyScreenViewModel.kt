@@ -56,34 +56,31 @@ public class RootHomeMonthlyScreenViewModel(
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
-    private val tabViewModel =
-        RootHomeTabScreenViewModel(
-            coroutineScope = coroutineScope,
-            loginCheckUseCase = loginCheckUseCase,
-        ).also { viewModel ->
-            coroutineScope.launch {
-                viewModel.viewModelEventHandler.collect(
-                    object : RootHomeTabScreenViewModel.Event {
-                        override fun navigate(screen: ScreenStructure) {
-                            coroutineScope.launch { eventSender.send { it.navigate(screen) } }
-                        }
-                    },
-                )
-            }
+    private val tabViewModel = RootHomeTabScreenViewModel(
+        coroutineScope = coroutineScope,
+        loginCheckUseCase = loginCheckUseCase,
+    ).also { viewModel ->
+        coroutineScope.launch {
+            viewModel.viewModelEventHandler.collect(
+                object : RootHomeTabScreenViewModel.Event {
+                    override fun navigate(screen: ScreenStructure) {
+                        coroutineScope.launch { eventSender.send { it.navigate(screen) } }
+                    }
+                },
+            )
         }
-    private val loadedEvent =
-        object : RootHomeMonthlyScreenUiState.LoadedEvent {
-            override fun loadMore() {
-                coroutineScope.launch { fetch() }
-            }
+    }
+    private val loadedEvent = object : RootHomeMonthlyScreenUiState.LoadedEvent {
+        override fun loadMore() {
+            coroutineScope.launch { fetch() }
         }
+    }
     public val uiStateFlow: StateFlow<RootHomeMonthlyScreenUiState> =
         MutableStateFlow(
             RootHomeMonthlyScreenUiState(
                 loadingState = RootHomeMonthlyScreenUiState.LoadingState.Loading,
                 rootHomeTabUiState = tabViewModel.uiStateFlow.value,
-                event =
-                object : RootHomeMonthlyScreenUiState.Event {
+                event = object : RootHomeMonthlyScreenUiState.Event {
                     override suspend fun onViewInitialized() {
                         coroutineScope.launch {
                             viewModelStateFlow.map { viewModelState ->
@@ -138,7 +135,7 @@ public class RootHomeMonthlyScreenViewModel(
                             when (viewModelState.monthlyListResponses.firstOrNull()) {
                                 null,
                                 is ApolloResponseState.Loading,
-                                -> RootHomeMonthlyScreenUiState.LoadingState.Loading
+                                    -> RootHomeMonthlyScreenUiState.LoadingState.Loading
 
                                 is ApolloResponseState.Failure -> RootHomeMonthlyScreenUiState.LoadingState.Error
 
@@ -257,9 +254,9 @@ public class RootHomeMonthlyScreenViewModel(
 
     private fun createSinceLocalDateTime(): LocalDateTime {
         val tmp = (
-            viewModelStateFlow.value.argument.date
-                ?: Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-            )
+                viewModelStateFlow.value.argument.date
+                    ?: Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+                )
 
         return LocalDateTime(
             date =
