@@ -24,6 +24,7 @@ public fun CustomTheme(
             background = CustomColors.backgroundColor,
             onBackground = Color.White,
             surface = CustomColors.backgroundColor,
+            surfaceContainerHighest = CustomColors.surfaceColor,
             onSurface = Color.White,
             onSecondary = Color.Green,
             // Card->Text, Button->Icon/Text
