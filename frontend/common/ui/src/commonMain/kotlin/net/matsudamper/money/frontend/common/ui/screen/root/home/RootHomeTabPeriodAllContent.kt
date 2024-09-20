@@ -70,9 +70,7 @@ public fun RootHomeTabPeriodAllScreen(
         when (val loadingState = uiState.loadingState) {
             is RootHomeTabPeriodAllContentUiState.LoadingState.Loaded -> {
                 BoxWithConstraints(
-                    modifier =
-                    Modifier
-                        .fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                 ) {
                     val containerWidth = maxWidth
                     val width by rememberUpdatedState(containerWidth)

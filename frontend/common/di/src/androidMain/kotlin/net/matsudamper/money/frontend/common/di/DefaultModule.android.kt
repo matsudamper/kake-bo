@@ -39,7 +39,7 @@ internal actual val factory: Factory = object : Factory() {
                         val userSessionId = runBlocking { sessionDataStore.data.firstOrNull() }?.userSessionId.orEmpty()
                         val response = chain.proceed(
                             request.newBuilder()
-                                .addHttpHeader("Cookie", "$UserSessionIdKey=${userSessionId}")
+                                .addHttpHeader("Cookie", "$UserSessionIdKey=$userSessionId")
                                 .build(),
                         )
 

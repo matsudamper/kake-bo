@@ -96,17 +96,16 @@ internal fun RootNavContent(
                             is RootHomeScreenStructure.PeriodAnalytics,
                             -> {
                                 holder.SaveableStateProvider(RootHomeScreenStructure.Period::class.simpleName!!) {
-                                    val allContentViewModel =
-                                        remember {
-                                            RootHomeTabPeriodAllContentViewModel(
-                                                coroutineScope = rootCoroutineScope,
-                                                api = RootHomeTabScreenApi(
-                                                    graphqlClient = koin.get(),
-                                                ),
-                                                loginCheckUseCase = loginCheckUseCase,
+                                    val allContentViewModel = remember {
+                                        RootHomeTabPeriodAllContentViewModel(
+                                            coroutineScope = rootCoroutineScope,
+                                            api = RootHomeTabScreenApi(
                                                 graphqlClient = koin.get(),
-                                            )
-                                        }
+                                            ),
+                                            loginCheckUseCase = loginCheckUseCase,
+                                            graphqlClient = koin.get(),
+                                        )
+                                    }
                                     LaunchedEffect(allContentViewModel, current) {
                                         allContentViewModel.updateStructure(current)
                                     }

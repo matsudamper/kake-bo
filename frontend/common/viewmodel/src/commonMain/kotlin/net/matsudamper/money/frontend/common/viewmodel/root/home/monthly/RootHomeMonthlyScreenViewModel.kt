@@ -41,12 +41,11 @@ public class RootHomeMonthlyScreenViewModel(
     loginCheckUseCase: LoginCheckUseCase,
     graphqlClient: GraphqlClient,
 ) {
-    private val viewModelStateFlow =
-        MutableStateFlow(
-            ViewModelState(
-                argument = argument,
-            ),
-        )
+    private val viewModelStateFlow = MutableStateFlow(
+        ViewModelState(
+            argument = argument,
+        ),
+    )
     private val monthlyListState: ApolloPagingResponseCollector<MonthlyScreenListQuery.Data> =
         ApolloPagingResponseCollector.create(
             graphqlClient = graphqlClient,
@@ -129,23 +128,21 @@ public class RootHomeMonthlyScreenViewModel(
             }
             coroutineScope.launch {
                 viewModelStateFlow.collectLatest { viewModelState ->
-                    uiStateFlow.value =
-                        uiStateFlow.value.copy(
-                            loadingState =
-                            when (viewModelState.monthlyListResponses.firstOrNull()) {
-                                null,
-                                is ApolloResponseState.Loading,
-                                    -> RootHomeMonthlyScreenUiState.LoadingState.Loading
+                    uiStateFlow.value = uiStateFlow.value.copy(
+                        loadingState = when (viewModelState.monthlyListResponses.firstOrNull()) {
+                            null,
+                            is ApolloResponseState.Loading,
+                                -> RootHomeMonthlyScreenUiState.LoadingState.Loading
 
-                                is ApolloResponseState.Failure -> RootHomeMonthlyScreenUiState.LoadingState.Error
+                            is ApolloResponseState.Failure -> RootHomeMonthlyScreenUiState.LoadingState.Error
 
-                                is ApolloResponseState.Success -> {
-                                    createLoadedUiState(
-                                        viewModelState = viewModelState,
-                                    )
-                                }
-                            },
-                        )
+                            is ApolloResponseState.Success -> {
+                                createLoadedUiState(
+                                    viewModelState = viewModelState,
+                                )
+                            }
+                        },
+                    )
                 }
             }
         }.asStateFlow()
@@ -253,10 +250,8 @@ public class RootHomeMonthlyScreenViewModel(
     }
 
     private fun createSinceLocalDateTime(): LocalDateTime {
-        val tmp = (
-                viewModelStateFlow.value.argument.date
-                    ?: Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-                )
+        val tmp = viewModelStateFlow.value.argument.date
+            ?: Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 
         return LocalDateTime(
             date =

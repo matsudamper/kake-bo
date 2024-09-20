@@ -26,73 +26,68 @@ public class RootHomeTabPeriodScreenViewModel(
     private val api: RootHomeTabScreenApi,
     initialCategoryId: MoneyUsageCategoryId?,
 ) {
-    private val viewModelStateFlow =
-        MutableStateFlow(
-            ViewModelState(
-                categoryId = initialCategoryId,
-            ),
-        )
+    private val viewModelStateFlow = MutableStateFlow(
+        ViewModelState(
+            categoryId = initialCategoryId,
+        ),
+    )
 
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
-    private val event =
-        object : RootHomeTabPeriodUiState.Event {
-            override fun onClickNextMonth() {
-                viewModelStateFlow.update {
-                    val period = viewModelStateFlow.value.displayPeriod
-                    it.copy(
-                        displayPeriod =
-                        period.copy(
-                            sinceDate = period.sinceDate.addMonth(1),
-                        ),
-                    )
-                }
-                updateSinceDate()
+    private val event = object : RootHomeTabPeriodUiState.Event {
+        override fun onClickNextMonth() {
+            viewModelStateFlow.update {
+                val period = viewModelStateFlow.value.displayPeriod
+                it.copy(
+                    displayPeriod =
+                    period.copy(
+                        sinceDate = period.sinceDate.addMonth(1),
+                    ),
+                )
             }
-
-            override fun onClickPreviousMonth() {
-                viewModelStateFlow.update {
-                    val period = viewModelStateFlow.value.displayPeriod
-                    it.copy(
-                        displayPeriod =
-                        period.copy(
-                            sinceDate = period.sinceDate.addMonth(-1),
-                        ),
-                    )
-                }
-                updateSinceDate()
-            }
-
-            override fun onClickRange(range: Int) {
-                val currentEndYearMonth =
-                    viewModelStateFlow.value.displayPeriod.let { period ->
-                        period.sinceDate.addMonth(period.monthCount)
-                    }
-                val newSinceDate =
-                    currentEndYearMonth
-                        .addMonth(-range)
-
-                viewModelStateFlow.update {
-                    it.copy(
-                        displayPeriod =
-                        ViewModelState.Period(
-                            sinceDate = newSinceDate,
-                            monthCount = range,
-                        ),
-                    )
-                }
-                updateSinceDate()
-            }
-
-            override fun onViewInitialized() {
-                collectScreenInfo()
-            }
-
-            // TODO Remove
-            override fun onClickRetry() {
-            }
+            updateSinceDate()
         }
+
+        override fun onClickPreviousMonth() {
+            viewModelStateFlow.update {
+                val period = viewModelStateFlow.value.displayPeriod
+                it.copy(
+                    displayPeriod =
+                    period.copy(
+                        sinceDate = period.sinceDate.addMonth(-1),
+                    ),
+                )
+            }
+            updateSinceDate()
+        }
+
+        override fun onClickRange(range: Int) {
+            val currentEndYearMonth = viewModelStateFlow.value.displayPeriod.let { period ->
+                period.sinceDate.addMonth(period.monthCount)
+            }
+            val newSinceDate = currentEndYearMonth
+                .addMonth(-range)
+
+            viewModelStateFlow.update {
+                it.copy(
+                    displayPeriod = ViewModelState.Period(
+                        sinceDate = newSinceDate,
+                        monthCount = range,
+                    ),
+                )
+            }
+            updateSinceDate()
+        }
+
+        override fun onViewInitialized() {
+            collectScreenInfo()
+        }
+
+        // TODO Remove
+        override fun onClickRetry() {
+        }
+    }
 
     public val uiStateFlow: StateFlow<RootHomeTabPeriodUiState> =
         MutableStateFlow(

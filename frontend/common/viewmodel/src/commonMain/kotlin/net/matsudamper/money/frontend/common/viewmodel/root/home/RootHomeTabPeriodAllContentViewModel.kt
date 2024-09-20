@@ -42,21 +42,20 @@ public class RootHomeTabPeriodAllContentViewModel(
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState())
     private val reservedColorModel = ReservedColorModel()
 
-    private val tabViewModel =
-        RootHomeTabScreenViewModel(
-            coroutineScope = coroutineScope,
-            loginCheckUseCase = loginCheckUseCase,
-        ).also { viewModel ->
-            coroutineScope.launch {
-                viewModel.viewModelEventHandler.collect(
-                    object : RootHomeTabScreenViewModel.Event {
-                        override fun navigate(screen: ScreenStructure) {
-                            coroutineScope.launch { eventSender.send { it.navigate(screen) } }
-                        }
-                    },
-                )
-            }
+    private val tabViewModel = RootHomeTabScreenViewModel(
+        coroutineScope = coroutineScope,
+        loginCheckUseCase = loginCheckUseCase,
+    ).also { viewModel ->
+        coroutineScope.launch {
+            viewModel.viewModelEventHandler.collect(
+                object : RootHomeTabScreenViewModel.Event {
+                    override fun navigate(screen: ScreenStructure) {
+                        coroutineScope.launch { eventSender.send { it.navigate(screen) } }
+                    }
+                },
+            )
         }
+    }
     private val periodViewModel =
         RootHomeTabPeriodScreenViewModel(
             coroutineScope = coroutineScope,
