@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.graphql
 
-import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.cache.normalized.FetchPolicy

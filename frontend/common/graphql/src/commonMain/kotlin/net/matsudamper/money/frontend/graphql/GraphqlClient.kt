@@ -1,5 +1,25 @@
 package net.matsudamper.money.frontend.graphql
 
+import kotlin.Int
+import kotlin.Long
+import kotlin.String
+import kotlin.let
+import com.apollographql.apollo3.ApolloClient
+import com.apollographql.apollo3.api.Adapter
+import com.apollographql.apollo3.api.CustomScalarAdapters
+import com.apollographql.apollo3.api.json.JsonReader
+import com.apollographql.apollo3.api.json.JsonWriter
+import com.apollographql.apollo3.cache.normalized.api.MemoryCacheFactory
+import com.apollographql.apollo3.cache.normalized.normalizedCache
+import com.apollographql.apollo3.interceptor.ApolloInterceptor
+import net.matsudamper.money.element.FidoId
+import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
+import net.matsudamper.money.element.ImportedMailCategoryFilterId
+import net.matsudamper.money.element.ImportedMailId
+import net.matsudamper.money.element.MailId
+import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.graphql.type.FidoId as ApolloFidoId
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterConditionId as ApolloImportedMailCategoryFilterConditionId
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterId as ApolloImportedMailCategoryFilterId
@@ -9,34 +29,6 @@ import net.matsudamper.money.frontend.graphql.type.MailId as ApolloMailId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoryId as ApolloMoneyUsageCategoryId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageId as ApolloMoneyUsageId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryId as ApolloMoneyUsageSubCategoryId
-import kotlin.Int
-import kotlin.Long
-import kotlin.String
-import kotlin.let
-import kotlin.to
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.onEach
-import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.Adapter
-import com.apollographql.apollo3.api.ApolloRequest
-import com.apollographql.apollo3.api.ApolloResponse
-import com.apollographql.apollo3.api.CustomScalarAdapters
-import com.apollographql.apollo3.api.Operation
-import com.apollographql.apollo3.api.json.JsonReader
-import com.apollographql.apollo3.api.json.JsonWriter
-import com.apollographql.apollo3.cache.normalized.api.MemoryCacheFactory
-import com.apollographql.apollo3.cache.normalized.normalizedCache
-import com.apollographql.apollo3.interceptor.ApolloInterceptor
-import com.apollographql.apollo3.interceptor.ApolloInterceptorChain
-import com.apollographql.apollo3.network.http.HttpInfo
-import net.matsudamper.money.element.FidoId
-import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
-import net.matsudamper.money.element.ImportedMailCategoryFilterId
-import net.matsudamper.money.element.ImportedMailId
-import net.matsudamper.money.element.MailId
-import net.matsudamper.money.element.MoneyUsageCategoryId
-import net.matsudamper.money.element.MoneyUsageId
-import net.matsudamper.money.element.MoneyUsageSubCategoryId
 
 public interface GraphqlClient {
     val apolloClient: ApolloClient

@@ -1,7 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.addmoneyusage
 
 import kotlinx.datetime.LocalDateTime
-import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
