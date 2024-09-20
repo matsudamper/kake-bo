@@ -7,7 +7,6 @@ import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import com.apollographql.apollo3.cache.normalized.watch
 import net.matsudamper.money.element.FidoId
-import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenChangeSessionNameMutation
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenDeleteSessionMutation
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenLogoutMutation

@@ -18,7 +18,6 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
-import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MoneyUsageSelectDialogCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.MoneyUsageSelectDialogSubCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector

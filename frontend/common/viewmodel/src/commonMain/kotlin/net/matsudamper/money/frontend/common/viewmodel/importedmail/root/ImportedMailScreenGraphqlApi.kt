@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.importedmail.root
 
-import com.apollographql.apollo3.ApolloClient
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenDeleteMailMutation

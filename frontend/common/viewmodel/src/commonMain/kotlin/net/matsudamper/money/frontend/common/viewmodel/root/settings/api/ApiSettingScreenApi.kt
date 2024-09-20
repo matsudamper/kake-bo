@@ -6,7 +6,6 @@ import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.cache.normalized.watch
 import net.matsudamper.money.frontend.graphql.ApiSettingScreenQuery
 import net.matsudamper.money.frontend.graphql.ApiSettingScreenRegisterApiTokenMutation
-import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 public class ApiSettingScreenApi(
     private val apolloClient: ApolloClient,

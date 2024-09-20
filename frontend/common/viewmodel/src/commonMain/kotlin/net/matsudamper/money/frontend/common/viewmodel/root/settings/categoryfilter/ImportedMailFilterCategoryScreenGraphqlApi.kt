@@ -7,7 +7,6 @@ import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImportedMailFilterCategoryScreenUiState
-import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenAddConditionMutation
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenDeleteConditionMutation
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFilterScreenDeleteFilterMutation

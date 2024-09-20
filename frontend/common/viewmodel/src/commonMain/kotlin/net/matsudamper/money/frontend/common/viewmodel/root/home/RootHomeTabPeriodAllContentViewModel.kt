@@ -60,7 +60,7 @@ public class RootHomeTabPeriodAllContentViewModel(
     private val periodViewModel =
         RootHomeTabPeriodScreenViewModel(
             coroutineScope = coroutineScope,
-            api = RootHomeTabScreenApi(graphqlClient=graphqlClient),
+            api = RootHomeTabScreenApi(graphqlClient = graphqlClient),
             initialCategoryId = null,
         ).also { viewModel ->
             coroutineScope.launch {

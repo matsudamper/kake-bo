@@ -16,7 +16,6 @@ import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenCategoriesP
 import net.matsudamper.money.frontend.graphql.CategorySettingScreenQuery
 import net.matsudamper.money.frontend.graphql.CategorySettingScreenSubCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.DeleteSubCategoryMutation
-import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.UpdateCategoryMutation
 import net.matsudamper.money.frontend.graphql.UpdateSubCategoryMutation
 import net.matsudamper.money.frontend.graphql.type.AddCategoryInput
