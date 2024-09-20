@@ -113,113 +113,103 @@ fun Content(
         }
     }
 
-    val navController =
-        remember {
-            ScreenNavControllerImpl(
-                initial = RootHomeScreenStructure.Home,
-            )
-        }
-    val loginCheckUseCase =
-        remember {
-            LoginCheckUseCase(
-                ioDispatcher = Dispatchers.Unconfined,
-                navController = navController,
-                globalEventSender = globalEventSender,
-                graphqlQuery = GraphqlUserLoginQuery(
-                    graphqlClient = koin.get(),
-                ),
-            )
-        }
-    val rootViewModel =
-        remember {
-            RootViewModel(
-                loginCheckUseCase = loginCheckUseCase,
-                coroutineScope = rootCoroutineScope,
-                navController = navController,
-            )
-        }
-    val importedMailListViewModel =
-        remember {
-            ImportedMailListViewModel(
-                coroutineScope = rootCoroutineScope,
-                ioDispatcher = Dispatchers.Unconfined,
-                graphqlApi = MailLinkScreenGraphqlApi(
-                    graphqlClient = koin.get(),
-                ),
-            )
-        }
-    val mailImportViewModel =
-        remember {
-            MailImportViewModel(
-                coroutineScope = rootCoroutineScope,
-                ioDispatcher = Dispatchers.Unconfined,
-                graphqlApi = MailImportScreenGraphqlApi(
-                    graphqlClient = koin.get(),
-                ),
-                loginCheckUseCase = loginCheckUseCase,
-            )
-        }
+    val navController = remember {
+        ScreenNavControllerImpl(
+            initial = RootHomeScreenStructure.Home,
+        )
+    }
+    val loginCheckUseCase = remember {
+        LoginCheckUseCase(
+            ioDispatcher = Dispatchers.Unconfined,
+            navController = navController,
+            globalEventSender = globalEventSender,
+            graphqlQuery = GraphqlUserLoginQuery(
+                graphqlClient = koin.get(),
+            ),
+        )
+    }
+    val rootViewModel = remember {
+        RootViewModel(
+            loginCheckUseCase = loginCheckUseCase,
+            coroutineScope = rootCoroutineScope,
+            navController = navController,
+        )
+    }
+    val importedMailListViewModel = remember {
+        ImportedMailListViewModel(
+            coroutineScope = rootCoroutineScope,
+            ioDispatcher = Dispatchers.Unconfined,
+            graphqlApi = MailLinkScreenGraphqlApi(
+                graphqlClient = koin.get(),
+            ),
+        )
+    }
+    val mailImportViewModel = remember {
+        MailImportViewModel(
+            coroutineScope = rootCoroutineScope,
+            ioDispatcher = Dispatchers.Unconfined,
+            graphqlApi = MailImportScreenGraphqlApi(
+                graphqlClient = koin.get(),
+            ),
+            loginCheckUseCase = loginCheckUseCase,
+        )
+    }
 
-    val rootUsageHostViewModel =
-        remember {
-            RootUsageHostViewModel(
+    val rootUsageHostViewModel = remember {
+        RootUsageHostViewModel(
+            coroutineScope = rootCoroutineScope,
+            calendarPagingModel =
+            RootUsageCalendarPagingModel(
                 coroutineScope = rootCoroutineScope,
-                calendarPagingModel =
-                RootUsageCalendarPagingModel(
-                    coroutineScope = rootCoroutineScope,
-                    graphqlClient = koin.get(),
-                ),
-            )
-        }
-    val mailScreenViewModel =
-        remember {
-            HomeAddTabScreenViewModel(
-                coroutineScope = rootCoroutineScope,
-            )
-        }
-    val settingViewModel =
-        remember {
-            SettingViewModel(
-                coroutineScope = rootCoroutineScope,
-                globalEventSender = globalEventSender,
-                ioDispatchers = Dispatchers.Unconfined,
-            )
-        }
-    val kakeboScaffoldListener: KakeboScaffoldListener =
-        remember {
-            object : KakeboScaffoldListener {
-                override fun onClickTitle() {
-                    navController.navigateToHome()
-                }
+                graphqlClient = koin.get(),
+            ),
+        )
+    }
+    val mailScreenViewModel = remember {
+        HomeAddTabScreenViewModel(
+            coroutineScope = rootCoroutineScope,
+        )
+    }
+    val settingViewModel = remember {
+        SettingViewModel(
+            coroutineScope = rootCoroutineScope,
+            globalEventSender = globalEventSender,
+            ioDispatchers = Dispatchers.Unconfined,
+        )
+    }
+    val kakeboScaffoldListener: KakeboScaffoldListener = remember {
+        object : KakeboScaffoldListener {
+            override fun onClickTitle() {
+                navController.navigateToHome()
             }
         }
-    val rootScreenScaffoldListener: RootScreenScaffoldListener =
-        remember(
-            navController,
-            mailScreenViewModel,
-        ) {
-            object : RootScreenScaffoldListener {
-                override val kakeboScaffoldListener: KakeboScaffoldListener = kakeboScaffoldListener
+    }
+    val rootScreenScaffoldListener: RootScreenScaffoldListener = remember(
+        navController,
+        mailScreenViewModel,
+    ) {
+        object : RootScreenScaffoldListener {
+            override val kakeboScaffoldListener: KakeboScaffoldListener = kakeboScaffoldListener
 
-                override fun onClickHome() {
-                    navController.navigate(RootHomeScreenStructure.Home)
-                }
+            override fun onClickHome() {
+                navController.navigate(RootHomeScreenStructure.Home)
+            }
 
-                override fun onClickList() {
-                    rootUsageHostViewModel.requestNavigate()
-                }
+            override fun onClickList() {
+                rootUsageHostViewModel.requestNavigate()
+            }
 
-                override fun onClickSettings() {
-                    settingViewModel.requestNavigate(
-                        currentScreen = navController.currentNavigation,
-                    )
-                }
+            override fun onClickSettings() {
+                settingViewModel.requestNavigate(
+                    currentScreen = navController.currentNavigation,
+                )
+            }
 
-                override fun onClickAdd() {
-                    mailScreenViewModel.requestNavigate()
-                }
+            override fun onClickAdd() {
+                mailScreenViewModel.requestNavigate()
             }
         }
+    }
 
     LaunchedEffect(globalEventSender, globalEvent) {
         globalEventSender.asHandler().collect(
@@ -227,18 +217,17 @@ fun Content(
         )
     }
 
-    val viewModelEventHandlers =
-        remember(
-            navController,
-            globalEventSender,
-            rootScreenScaffoldListener,
-        ) {
-            ViewModelEventHandlers(
-                navController = navController,
-                globalEventSender = globalEventSender,
-                rootScreenScaffoldListener = rootScreenScaffoldListener,
-            )
-        }
+    val viewModelEventHandlers = remember(
+        navController,
+        globalEventSender,
+        rootScreenScaffoldListener,
+    ) {
+        ViewModelEventHandlers(
+            navController = navController,
+            globalEventSender = globalEventSender,
+            rootScreenScaffoldListener = rootScreenScaffoldListener,
+        )
+    }
 
     LaunchedEffect(mailScreenViewModel) {
         viewModelEventHandlers.handleHomeAddTabScreen(
@@ -258,8 +247,7 @@ fun Content(
     }
 
     Scaffold(
-        modifier =
-        modifier
+        modifier = modifier
             .fillMaxSize()
             .onSizeChanged {
                 composeSizeProvider().value = it
