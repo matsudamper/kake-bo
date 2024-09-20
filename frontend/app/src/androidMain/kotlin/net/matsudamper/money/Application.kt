@@ -2,7 +2,7 @@ package net.matsudamper.money
 
 import android.app.Application
 import android.content.Context
-import net.matsudamper.money.frontend.common.feature.webauth.DefaultModule
+import net.matsudamper.money.frontend.common.di.DefaultModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
 

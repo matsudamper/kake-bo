@@ -9,7 +9,7 @@ import net.matsudamper.money.frontend.graphql.ApiSettingScreenRegisterApiTokenMu
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 public class ApiSettingScreenApi(
-    private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    private val apolloClient: ApolloClient,
 ) {
     public fun get(): Flow<ApolloResponse<ApiSettingScreenQuery.Data>> {
         return apolloClient

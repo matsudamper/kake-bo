@@ -10,7 +10,7 @@ import net.matsudamper.money.frontend.graphql.MoneyUsageScreenUpdateUsageMutatio
 import net.matsudamper.money.frontend.graphql.type.UpdateUsageQuery
 
 public class MoneyUsageScreenViewModelApi(
-    private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    private val graphqlClient: GraphqlClient,
 ) {
     public suspend fun updateUsage(
         id: MoneyUsageId,
@@ -21,7 +21,7 @@ public class MoneyUsageScreenViewModelApi(
         subCategoryId: net.matsudamper.money.element.MoneyUsageSubCategoryId? = null,
     ): Boolean {
         return runCatching {
-            apolloClient
+            graphqlClient.apolloClient
                 .mutation(
                     MoneyUsageScreenUpdateUsageMutation(
                         query =
@@ -48,7 +48,7 @@ public class MoneyUsageScreenViewModelApi(
 
     public suspend fun deleteUsage(id: MoneyUsageId): Boolean {
         return runCatching {
-            apolloClient
+            graphqlClient.apolloClient
                 .mutation(
                     MoneyUsageScreenDeleteUsageMutation(
                         id = id,

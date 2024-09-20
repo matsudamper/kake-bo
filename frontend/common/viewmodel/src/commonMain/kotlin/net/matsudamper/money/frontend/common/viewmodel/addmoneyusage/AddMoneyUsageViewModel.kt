@@ -14,6 +14,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import com.apollographql.apollo3.ApolloClient
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
@@ -23,10 +24,12 @@ import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDial
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
+import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 public class AddMoneyUsageViewModel(
     private val coroutineScope: CoroutineScope,
     private val graphqlApi: AddMoneyUsageScreenApi,
+    private val graphqlClient: GraphqlClient,
 ) {
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
@@ -44,11 +47,11 @@ public class AddMoneyUsageViewModel(
                         viewModel.dismissDialog()
                     }
                 }
-            val viewModel =
-                CategorySelectDialogViewModel(
-                    coroutineScope = coroutineScope,
-                    event = event,
-                )
+            val viewModel = CategorySelectDialogViewModel(
+                coroutineScope = coroutineScope,
+                event = event,
+                apolloClient = graphqlClient.apolloClient,
+            )
         }.viewModel
 
     private val viewModelStateFlow =

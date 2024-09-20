@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import lib.compose.JsCompose
 import lib.js.NormalizeInputKeyCapture
 import net.matsudamper.money.MoneyCompositionLocalProvider
-import net.matsudamper.money.frontend.common.feature.webauth.DefaultModule
+import net.matsudamper.money.frontend.common.di.DefaultModule
 import net.matsudamper.money.frontend.common.ui.CustomTheme
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent

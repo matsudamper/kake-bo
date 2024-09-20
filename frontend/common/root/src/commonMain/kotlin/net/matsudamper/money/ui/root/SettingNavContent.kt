@@ -37,6 +37,7 @@ import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategorie
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingScreenCategoryApi
 import net.matsudamper.money.frontend.common.viewmodel.shared.FidoApi
+import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.GraphqlUserConfigQuery
 
 @Composable
@@ -68,7 +69,9 @@ internal fun SettingNavContent(
                     remember {
                         SettingCategoriesViewModel(
                             coroutineScope = coroutineScope,
-                            api = SettingScreenCategoryApi(),
+                            api = SettingScreenCategoryApi(
+                                apolloClient = koin.get<GraphqlClient>().apolloClient,
+                            ),
                         )
                     }
 
@@ -92,7 +95,9 @@ internal fun SettingNavContent(
                     remember {
                         SettingCategoryViewModel(
                             coroutineScope = coroutineScope,
-                            api = SettingScreenCategoryApi(),
+                            api = SettingScreenCategoryApi(
+                                apolloClient = koin.get<GraphqlClient>().apolloClient,
+                            ),
                             categoryId = state.id,
                         )
                     }
@@ -115,7 +120,9 @@ internal fun SettingNavContent(
                     remember {
                         ImapSettingViewModel(
                             coroutineScope = coroutineScope,
-                            graphqlQuery = GraphqlUserConfigQuery(),
+                            graphqlQuery = GraphqlUserConfigQuery(
+                                graphqlClient = koin.get(),
+                            ),
                             globalEventSender = globalEventSender,
                             ioDispatchers = Dispatchers.Unconfined,
                         )
@@ -137,8 +144,11 @@ internal fun SettingNavContent(
                             pagingModel =
                             ImportedMailCategoryFilterScreenPagingModel(
                                 coroutineScope = coroutineScope,
+                                graphqlClient = koin.get(),
                             ),
-                            api = SettingImportedMailCategoryFilterApi(),
+                            api = SettingImportedMailCategoryFilterApi(
+                                apolloClient = koin.get<GraphqlClient>().apolloClient,
+                            ),
                         )
                     }
                 LaunchedEffect(viewModel.eventHandler, viewModelEventHandlers) {
@@ -159,7 +169,10 @@ internal fun SettingNavContent(
                         ImportedMailFilterCategoryViewModel(
                             coroutineScope = coroutineScope,
                             id = state.id,
-                            api = ImportedMailFilterCategoryScreenGraphqlApi(),
+                            api = ImportedMailFilterCategoryScreenGraphqlApi(
+                                apolloClient = koin.get<GraphqlClient>().apolloClient,
+                            ),
+                            graphqlClient = koin.get(),
                         )
                     }
 
@@ -180,8 +193,12 @@ internal fun SettingNavContent(
                 val viewModel = remember(coroutineScope) {
                     LoginSettingViewModel(
                         coroutineScope = coroutineScope,
-                        api = LoginSettingScreenApi(),
-                        fidoApi = FidoApi(),
+                        api = LoginSettingScreenApi(
+                            apolloClient = koin.get<GraphqlClient>().apolloClient,
+                        ),
+                        fidoApi = FidoApi(
+                            apolloClient = koin.get<GraphqlClient>().apolloClient,
+                        ),
                         webAuthModel = koin.get(),
                     )
                 }
@@ -203,7 +220,9 @@ internal fun SettingNavContent(
                 val viewModel = remember {
                     ApiSettingScreenViewModel(
                         coroutineScope = coroutineScope,
-                        api = ApiSettingScreenApi(),
+                        api = ApiSettingScreenApi(
+                            apolloClient = koin.get<GraphqlClient>().apolloClient,
+                        ),
                     )
                 }
                 val snackbarHostState = remember { SnackbarHostState() }

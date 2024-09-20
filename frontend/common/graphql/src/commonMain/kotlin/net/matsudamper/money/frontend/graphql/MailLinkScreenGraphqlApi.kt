@@ -11,14 +11,14 @@ import net.matsudamper.money.frontend.graphql.type.ImportedMailQueryFilter
 import net.matsudamper.money.frontend.graphql.type.ImportedMailSortKey
 
 class MailLinkScreenGraphqlApi(
-    private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    private val graphqlClient: GraphqlClient,
 ) {
     suspend fun getMail(
         cursor: String?,
         isLinked: Boolean?,
     ): ApolloResponse<ImportedMailListScreenMailPagingQuery.Data>? {
         return runCatching {
-            apolloClient
+            graphqlClient.apolloClient
                 .query(
                     ImportedMailListScreenMailPagingQuery(
                         query =

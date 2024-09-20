@@ -8,11 +8,11 @@ import net.matsudamper.money.frontend.graphql.ImportedMailScreenQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector
 
 public class ImportedMailScreenGraphqlApi(
-    private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    private val graphqlClient: GraphqlClient,
 ) {
     public suspend fun delete(id: ImportedMailId): Boolean {
         return runCatching {
-            apolloClient
+            graphqlClient.apolloClient
                 .mutation(ImportedMailScreenDeleteMailMutation(id = id))
                 .execute()
         }.onFailure {
@@ -27,7 +27,7 @@ public class ImportedMailScreenGraphqlApi(
 
     public fun get(id: ImportedMailId): ApolloResponseCollector<ImportedMailScreenQuery.Data> {
         return ApolloResponseCollector.create(
-            apolloClient = apolloClient,
+            apolloClient = graphqlClient.apolloClient,
             query =
             ImportedMailScreenQuery(
                 id = id,

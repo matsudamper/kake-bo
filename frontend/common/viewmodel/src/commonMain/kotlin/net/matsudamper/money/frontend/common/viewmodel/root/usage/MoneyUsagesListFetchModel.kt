@@ -22,20 +22,20 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryFilter
 
 public class MoneyUsagesListFetchModel(
-    apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    graphqlClient: GraphqlClient,
     coroutineScope: CoroutineScope,
 ) {
     private val state = MutableStateFlow(State())
     private val paging =
         ApolloPagingResponseCollector.create<UsageListScreenPagingQuery.Data>(
-            apolloClient = apolloClient,
+            graphqlClient = graphqlClient,
             coroutineScope = coroutineScope,
         )
 
     private val pagingFlow =
         MutableStateFlow(
             ApolloPagingResponseCollector.create<UsageListScreenPagingQuery.Data>(
-                apolloClient = apolloClient,
+                graphqlClient = graphqlClient,
                 coroutineScope = coroutineScope,
             ),
         )

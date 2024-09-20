@@ -28,14 +28,14 @@ import net.matsudamper.money.frontend.graphql.type.ImportedMailFilterCategoryCon
 
 public class ImportedMailFilterCategoryViewModel(
     private val coroutineScope: CoroutineScope,
-    private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    private val graphqlClient: GraphqlClient,
     private val id: ImportedMailCategoryFilterId,
     private val api: ImportedMailFilterCategoryScreenGraphqlApi,
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
     private val apiResponseCollector =
         ApolloResponseCollector.create(
-            apolloClient = apolloClient,
+            apolloClient = graphqlClient.apolloClient,
             query = ImportedMailCategoryFilterScreenQuery(id = id),
         )
 
@@ -60,6 +60,7 @@ public class ImportedMailFilterCategoryViewModel(
                 CategorySelectDialogViewModel(
                     coroutineScope = coroutineScope,
                     event = event,
+                    apolloClient = graphqlClient.apolloClient,
                 )
         }.viewModel
 

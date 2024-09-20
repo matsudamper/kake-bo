@@ -21,7 +21,7 @@ import net.matsudamper.money.frontend.graphql.type.UpdateImportedMailCategoryFil
 import net.matsudamper.money.frontend.graphql.type.UpdateImportedMailCategoryFilterInput
 
 public class ImportedMailFilterCategoryScreenGraphqlApi(
-    private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    private val apolloClient: ApolloClient,
 ) {
     public suspend fun addCondition(id: ImportedMailCategoryFilterId): Result<ApolloResponse<ImportedMailCategoryFilterScreenAddConditionMutation.Data>> {
         return runCatching {

@@ -16,12 +16,12 @@ import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersQuery
 
 public class ImportedMailCategoryFilterScreenPagingModel(
-    apolloClient: ApolloClient = GraphqlClient.apolloClient,
     private val coroutineScope: CoroutineScope,
+    graphqlClient: GraphqlClient,
 ) {
     private val pagingState =
         ApolloPagingResponseCollector<ImportedMailCategoryFiltersScreenPagingQuery.Data>(
-            apolloClient = apolloClient,
+            graphqlClient = graphqlClient,
             coroutineScope = coroutineScope,
         )
 

@@ -36,7 +36,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
     private val coroutineScope: CoroutineScope,
     argument: RootHomeScreenStructure.MonthlyCategory,
     loginCheckUseCase: LoginCheckUseCase,
-    private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    private val graphqlClient: GraphqlClient,
 ) {
     private val viewModelStateFlow =
         MutableStateFlow(
@@ -51,7 +51,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
 
     private val monthlyCategoryResultState: ApolloPagingResponseCollector<MonthlyCategoryScreenListQuery.Data> =
         ApolloPagingResponseCollector.create(
-            apolloClient = apolloClient,
+            graphqlClient = graphqlClient,
             fetchPolicy = FetchPolicy.CacheFirst,
             coroutineScope = coroutineScope,
         )
@@ -88,7 +88,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                             }.stateIn(this).collectLatest { categoryId ->
                                 val collector =
                                     ApolloResponseCollector.create(
-                                        apolloClient = apolloClient,
+                                        apolloClient = graphqlClient.apolloClient,
                                         fetchPolicy = FetchPolicy.CacheFirst,
                                         query =
                                         MonthlyCategoryScreenQuery(

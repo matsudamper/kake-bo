@@ -2,9 +2,11 @@ package net.matsudamper.money.frontend.graphql
 
 import com.apollographql.apollo3.api.ApolloResponse
 
-class GraphqlAdminQuery {
+class GraphqlAdminQuery(
+    private val graphqlClient: GraphqlClient,
+) {
     suspend fun adminLogin(password: String): ApolloResponse<AdminLoginMutation.Data> {
-        return GraphqlClient.apolloClient
+        return graphqlClient.apolloClient
             .mutation(
                 AdminLoginMutation(
                     password = password,
@@ -17,7 +19,7 @@ class GraphqlAdminQuery {
         userName: String,
         password: String,
     ): ApolloResponse<AdminAddUserMutation.Data> {
-        return GraphqlClient.apolloClient.mutation(
+        return graphqlClient.apolloClient.mutation(
             AdminAddUserMutation(
                 userName = userName,
                 password = password,

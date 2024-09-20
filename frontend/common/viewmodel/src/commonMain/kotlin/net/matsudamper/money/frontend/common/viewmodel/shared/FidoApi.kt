@@ -8,7 +8,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenGetFidoInfoQuery
 
 public class FidoApi(
-    private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    private val apolloClient: ApolloClient,
 ) {
     public suspend fun getFidoInfo(): Result<ApolloResponse<LoginSettingScreenGetFidoInfoQuery.Data>> {
         return runCatching {

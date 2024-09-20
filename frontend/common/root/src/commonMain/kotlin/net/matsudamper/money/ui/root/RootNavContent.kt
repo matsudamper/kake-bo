@@ -57,6 +57,7 @@ internal fun RootNavContent(
     homeAddTabScreenUiStateProvider: @Composable () -> HomeAddTabScreenUiState,
     settingUiStateProvider: @Composable () -> RootSettingScreenUiState,
 ) {
+    val koin = LocalKoin.current
     val usageHost = rememberSaveableStateHolder()
     when (current) {
         is RootHomeScreenStructure -> {
@@ -67,14 +68,14 @@ internal fun RootNavContent(
                     is RootHomeScreenStructure.Monthly -> {
                         holder.SaveableStateProvider(RootHomeScreenStructure.Monthly::class) {
                             val coroutineScope = rememberCoroutineScope()
-                            val viewModel =
-                                remember {
-                                    RootHomeMonthlyScreenViewModel(
-                                        coroutineScope = coroutineScope,
-                                        loginCheckUseCase = loginCheckUseCase,
-                                        argument = current,
-                                    )
-                                }
+                            val viewModel = remember {
+                                RootHomeMonthlyScreenViewModel(
+                                    coroutineScope = coroutineScope,
+                                    loginCheckUseCase = loginCheckUseCase,
+                                    argument = current,
+                                    graphqlClient = koin.get(),
+                                )
+                            }
                             LaunchedEffect(viewModel, current) {
                                 viewModel.updateStructure(current)
                             }
@@ -93,14 +94,17 @@ internal fun RootNavContent(
                         when (current) {
                             is RootHomeScreenStructure.Home,
                             is RootHomeScreenStructure.PeriodAnalytics,
-                            -> {
+                                -> {
                                 holder.SaveableStateProvider(RootHomeScreenStructure.Period::class.simpleName!!) {
                                     val allContentViewModel =
                                         remember {
                                             RootHomeTabPeriodAllContentViewModel(
                                                 coroutineScope = rootCoroutineScope,
-                                                api = RootHomeTabScreenApi(),
+                                                api = RootHomeTabScreenApi(
+                                                    graphqlClient = koin.get(),
+                                                ),
                                                 loginCheckUseCase = loginCheckUseCase,
+                                                graphqlClient = koin.get(),
                                             )
                                         }
                                     LaunchedEffect(allContentViewModel, current) {
@@ -123,8 +127,11 @@ internal fun RootNavContent(
                                         RootHomeTabPeriodCategoryContentViewModel(
                                             initialCategoryId = current.categoryId,
                                             coroutineScope = rootCoroutineScope,
-                                            api = RootHomeTabScreenApi(),
+                                            api = RootHomeTabScreenApi(
+                                                graphqlClient = koin.get(),
+                                            ),
                                             loginCheckUseCase = loginCheckUseCase,
+                                            graphqlClient = koin.get(),
                                         )
                                     }
                                 LaunchedEffect(categoryViewModel.eventHandler) {
@@ -149,6 +156,7 @@ internal fun RootNavContent(
                                     argument = current,
                                     coroutineScope = rootCoroutineScope,
                                     loginCheckUseCase = loginCheckUseCase,
+                                    graphqlClient = koin.get(),
                                 )
                             }
                         LaunchedEffect(monthlyCategoryViewModel.eventHandler) {

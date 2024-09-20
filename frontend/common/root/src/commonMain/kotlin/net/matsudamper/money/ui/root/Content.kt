@@ -125,7 +125,9 @@ fun Content(
                 ioDispatcher = Dispatchers.Unconfined,
                 navController = navController,
                 globalEventSender = globalEventSender,
-                graphqlQuery = GraphqlUserLoginQuery(),
+                graphqlQuery = GraphqlUserLoginQuery(
+                    graphqlClient = koin.get(),
+                ),
             )
         }
     val rootViewModel =
@@ -141,7 +143,9 @@ fun Content(
             ImportedMailListViewModel(
                 coroutineScope = rootCoroutineScope,
                 ioDispatcher = Dispatchers.Unconfined,
-                graphqlApi = MailLinkScreenGraphqlApi(),
+                graphqlApi = MailLinkScreenGraphqlApi(
+                    graphqlClient = koin.get(),
+                ),
             )
         }
     val mailImportViewModel =
@@ -149,7 +153,9 @@ fun Content(
             MailImportViewModel(
                 coroutineScope = rootCoroutineScope,
                 ioDispatcher = Dispatchers.Unconfined,
-                graphqlApi = MailImportScreenGraphqlApi(),
+                graphqlApi = MailImportScreenGraphqlApi(
+                    graphqlClient = koin.get(),
+                ),
                 loginCheckUseCase = loginCheckUseCase,
             )
         }
@@ -161,6 +167,7 @@ fun Content(
                 calendarPagingModel =
                 RootUsageCalendarPagingModel(
                     coroutineScope = rootCoroutineScope,
+                    graphqlClient = koin.get(),
                 ),
             )
         }
@@ -335,6 +342,7 @@ fun Content(
                                         MoneyUsagesListViewModel(
                                             coroutineScope = coroutineScope,
                                             rootUsageHostViewModel = rootUsageHostViewModel,
+                                            graphqlClient = koin.get(),
                                         )
                                     }
                                 LaunchedEffect(viewModel.viewModelEventHandler) {
@@ -374,9 +382,13 @@ fun Content(
                             LoginScreenViewModel(
                                 coroutineScope = coroutineScope,
                                 navController = navController,
-                                graphqlQuery = GraphqlUserLoginQuery(),
+                                graphqlQuery = GraphqlUserLoginQuery(
+                                    graphqlClient = koin.get(),
+                                ),
                                 globalEventSender = globalEventSender,
-                                screenApi = LoginScreenApi(),
+                                screenApi = LoginScreenApi(
+                                    graphqlClient = koin.get(),
+                                ),
                                 webAuthModel = koin.get(),
                             )
                         }
@@ -396,7 +408,7 @@ fun Content(
                             AdminRootScreenViewModel(
                                 controller = controller,
                                 coroutineScope = coroutineScope,
-                                graphqlClient = GlobalContainer.graphqlClient,
+                                graphqlClient = koin.get(),
                             )
                         }
                     AdminRootScreen(
@@ -408,7 +420,7 @@ fun Content(
                                     AdminLoginScreenViewModel(
                                         coroutineScope = loginScreenCoroutineScope,
                                         controller = controller,
-                                        graphqlClient = GlobalContainer.graphqlClient,
+                                        graphqlClient = koin.get(),
                                     )
                                 }
                             loginViewModel.uiStateFlow.collectAsState().value
@@ -423,7 +435,7 @@ fun Content(
                                     AdminAddUserScreenViewModel(
                                         coroutineScope = loginScreenCoroutineScope,
                                         controller = controller,
-                                        graphqlClient = GlobalContainer.graphqlClient,
+                                        graphqlClient = koin.get(),
                                     )
                                 }
                             adminAddUserScreenViewModel.uiStateFlow.collectAsState().value
@@ -442,7 +454,10 @@ fun Content(
                         remember {
                             AddMoneyUsageViewModel(
                                 coroutineScope = rootCoroutineScope,
-                                graphqlApi = AddMoneyUsageScreenApi(),
+                                graphqlApi = AddMoneyUsageScreenApi(
+                                    graphqlClient = koin.get(),
+                                ),
+                                graphqlClient = koin.get(),
                             )
                         }
                     LaunchedEffect(viewModel.eventHandler) {
@@ -468,7 +483,9 @@ fun Content(
                         ) {
                             ImportedMailScreenViewModel(
                                 coroutineScope = coroutineScope,
-                                api = ImportedMailScreenGraphqlApi(),
+                                api = ImportedMailScreenGraphqlApi(
+                                    graphqlClient = koin.get(),
+                                ),
                                 importedMailId = current.id,
                             )
                         }
@@ -491,6 +508,7 @@ fun Content(
                             ImportedMailHtmlViewModel(
                                 id = current.id,
                                 coroutineScope = coroutineScope,
+                                graphqlClient = koin.get(),
                             )
                         }
                     LaunchedEffect(viewModel.viewModelEventHandler) {
@@ -511,6 +529,7 @@ fun Content(
                             ImportedMailPlainViewModel(
                                 id = current.id,
                                 coroutineScope = coroutineScope,
+                                graphqlClient = koin.get(),
                             )
                         }
                     LaunchedEffect(viewModel.viewModelEventHandler) {
@@ -531,7 +550,10 @@ fun Content(
                             MoneyUsageScreenViewModel(
                                 moneyUsageId = current.id,
                                 coroutineScope = coroutineScope,
-                                api = MoneyUsageScreenViewModelApi(),
+                                api = MoneyUsageScreenViewModelApi(
+                                    graphqlClient = koin.get(),
+                                ),
+                                graphqlClient = koin.get(),
                             )
                         }
                     LaunchedEffect(viewModel.eventHandler) {

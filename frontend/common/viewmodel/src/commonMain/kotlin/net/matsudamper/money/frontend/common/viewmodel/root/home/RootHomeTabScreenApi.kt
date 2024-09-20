@@ -4,7 +4,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
-import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
@@ -16,10 +15,10 @@ import net.matsudamper.money.frontend.graphql.RootHomeTabScreenQuery
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageAnalyticsQuery
 
 public class RootHomeTabScreenApi(
-    private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    private val graphqlClient: GraphqlClient,
 ) {
     public fun screenFlow(): Flow<ApolloResponse<RootHomeTabScreenQuery.Data>> {
-        return apolloClient
+        return graphqlClient.apolloClient
             .query(RootHomeTabScreenQuery())
             .toFlow()
     }
@@ -33,7 +32,7 @@ public class RootHomeTabScreenApi(
         useCache: Boolean,
     ): Result<ApolloResponse<RootHomeTabScreenAnalyticsByCategoryQuery.Data>> {
         return runCatching {
-            apolloClient.query(
+            graphqlClient.apolloClient.query(
                 RootHomeTabScreenAnalyticsByCategoryQuery(
                     id = id,
                     query =
@@ -72,7 +71,7 @@ public class RootHomeTabScreenApi(
         useCache: Boolean,
     ): Result<ApolloResponse<RootHomeTabScreenAnalyticsByDateQuery.Data>> {
         return runCatching {
-            apolloClient.query(
+            graphqlClient.apolloClient.query(
                 RootHomeTabScreenAnalyticsByDateQuery(
                     query =
                     MoneyUsageAnalyticsQuery(

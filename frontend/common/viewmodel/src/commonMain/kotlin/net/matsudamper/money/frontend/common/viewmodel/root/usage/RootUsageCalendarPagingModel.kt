@@ -16,7 +16,6 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.plus
-import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import net.matsudamper.money.frontend.graphql.GraphqlClient
@@ -28,14 +27,14 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryFilter
 
 public class RootUsageCalendarPagingModel(
     private val coroutineScope: CoroutineScope,
-    private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    private val graphqlClient: GraphqlClient,
 ) {
     private val modelStateFlow = MutableStateFlow(ModelState())
 
     private val pagingFlow =
         MutableStateFlow(
             ApolloPagingResponseCollector.create<UsageCalendarScreenPagingQuery.Data>(
-                apolloClient = apolloClient,
+                graphqlClient = graphqlClient,
                 coroutineScope = coroutineScope,
             ),
         )
@@ -143,7 +142,7 @@ public class RootUsageCalendarPagingModel(
         }
         pagingFlow.value =
             ApolloPagingResponseCollector.create(
-                apolloClient = apolloClient,
+                graphqlClient = graphqlClient,
                 coroutineScope = coroutineScope,
             )
     }
@@ -157,7 +156,7 @@ public class RootUsageCalendarPagingModel(
         }
         pagingFlow.value =
             ApolloPagingResponseCollector.create(
-                apolloClient = apolloClient,
+                graphqlClient = graphqlClient,
                 coroutineScope = coroutineScope,
             )
     }

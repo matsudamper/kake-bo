@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.feature.webauth
+package net.matsudamper.money.frontend.common.di
 
 import android.content.Context
 import org.koin.dsl.module

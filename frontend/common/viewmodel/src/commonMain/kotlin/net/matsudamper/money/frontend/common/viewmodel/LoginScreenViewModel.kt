@@ -156,7 +156,6 @@ public class LoginScreenViewModel(
                     challenge = fidoInfo.challenge,
                 ),
             )
-            Logger.d("LOG", "loginResult: $userName ${loginResult.data}")
             postLogin(isSuccess = loginResult.data?.userMutation?.userFidoLogin?.isSuccess == true)
         }
     }

@@ -14,7 +14,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.type.AddUsageQuery
 
 public class AddMoneyUsageScreenApi(
-    private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    private val graphqlClient: GraphqlClient,
 ) {
     public suspend fun addMoneyUsage(
         title: String,
@@ -25,7 +25,7 @@ public class AddMoneyUsageScreenApi(
         importedMailId: ImportedMailId?,
     ): ApolloResponse<AddMoneyUsageMutation.Data>? {
         return runCatching {
-            apolloClient
+            graphqlClient.apolloClient
                 .mutation(
                     AddMoneyUsageMutation(
                         AddUsageQuery(
@@ -44,7 +44,7 @@ public class AddMoneyUsageScreenApi(
 
     public suspend fun get(id: ImportedMailId): Result<ApolloResponse<AddMoneyUsageScreenQuery.Data>> {
         return runCatching {
-            apolloClient
+            graphqlClient.apolloClient
                 .query(
                     AddMoneyUsageScreenQuery(
                         id = id,

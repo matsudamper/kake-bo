@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.graphql
 
-import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
@@ -9,11 +8,11 @@ import net.matsudamper.money.element.MailId
 import net.matsudamper.money.frontend.graphql.type.MailQuery
 
 class MailImportScreenGraphqlApi(
-    private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    private val graphqlClient: GraphqlClient,
 ) {
     suspend fun getMail(cursor: String?): ApolloResponse<GetMailQuery.Data>? {
         return runCatching {
-            apolloClient
+            graphqlClient.apolloClient
                 .query(
                     GetMailQuery(
                         MailQuery(
@@ -29,7 +28,7 @@ class MailImportScreenGraphqlApi(
 
     suspend fun mailImport(mailIds: List<MailId>): ApolloResponse<ImportMailMutation.Data>? {
         return runCatching {
-            apolloClient
+            graphqlClient.apolloClient
                 .mutation(
                     ImportMailMutation(
                         mailIds = mailIds,
@@ -41,7 +40,7 @@ class MailImportScreenGraphqlApi(
 
     suspend fun deleteMail(mailIds: List<MailId>): ApolloResponse<DeleteMailMutation.Data>? {
         return runCatching {
-            apolloClient
+            graphqlClient.apolloClient
                 .mutation(
                     DeleteMailMutation(
                         mailIds = mailIds,

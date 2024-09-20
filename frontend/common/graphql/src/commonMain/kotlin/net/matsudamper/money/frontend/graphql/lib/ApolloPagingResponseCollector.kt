@@ -15,7 +15,7 @@ import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 class ApolloPagingResponseCollector<D : Query.Data>(
-    private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    private val graphqlClient: GraphqlClient,
     private val coroutineScope: CoroutineScope,
     private val fetchPolicy: FetchPolicy = FetchPolicy.NetworkOnly,
 ) {
@@ -45,7 +45,7 @@ class ApolloPagingResponseCollector<D : Query.Data>(
                 is ApolloResponseState.Loading,
                 is ApolloResponseState.Success,
                 null,
-                -> Unit
+                    -> Unit
             }
         }
     }
@@ -58,7 +58,7 @@ class ApolloPagingResponseCollector<D : Query.Data>(
             val tmp =
                 ApolloResponseCollector
                     .create(
-                        apolloClient = apolloClient,
+                        apolloClient = graphqlClient.apolloClient,
                         query = query,
                         fetchPolicy = fetchPolicy,
                     )
@@ -84,12 +84,12 @@ class ApolloPagingResponseCollector<D : Query.Data>(
 
     companion object {
         fun <D : Query.Data> create(
-            apolloClient: ApolloClient,
+            graphqlClient: GraphqlClient,
             coroutineScope: CoroutineScope,
             fetchPolicy: FetchPolicy = FetchPolicy.NetworkOnly,
         ): ApolloPagingResponseCollector<D> {
             return ApolloPagingResponseCollector(
-                apolloClient = apolloClient,
+                graphqlClient = graphqlClient,
                 coroutineScope = coroutineScope,
                 fetchPolicy = fetchPolicy,
             )

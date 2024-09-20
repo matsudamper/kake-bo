@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
-import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
@@ -31,7 +30,7 @@ public class MoneyUsageScreenViewModel(
     private val coroutineScope: CoroutineScope,
     private val moneyUsageId: MoneyUsageId,
     private val api: MoneyUsageScreenViewModelApi,
-    apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    graphqlClient: GraphqlClient,
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
@@ -61,6 +60,7 @@ public class MoneyUsageScreenViewModel(
                 CategorySelectDialogViewModel(
                     coroutineScope = coroutineScope,
                     event = event,
+                    apolloClient = graphqlClient.apolloClient,
                 )
         }.viewModel
     public val uiStateFlow: StateFlow<MoneyUsageScreenUiState> =
@@ -354,7 +354,7 @@ public class MoneyUsageScreenViewModel(
 
     private val apolloCollector =
         ApolloResponseCollector.create(
-            apolloClient = apolloClient,
+            apolloClient = graphqlClient.apolloClient,
             query =
             MoneyUsageScreenQuery(
                 id = moneyUsageId,

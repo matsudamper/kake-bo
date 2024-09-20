@@ -1,19 +1,18 @@
 package net.matsudamper.money.frontend.graphql
 
-import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import net.matsudamper.money.frontend.graphql.type.UserFidoLoginInput
 
 class GraphqlUserLoginQuery(
-    private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    private val graphqlClient: GraphqlClient,
 ) {
     suspend fun login(
         userName: String,
         password: String,
     ): ApolloResponse<UserLoginMutation.Data> {
-        return apolloClient
+        return graphqlClient.apolloClient
             .mutation(
                 UserLoginMutation(
                     userName = userName,
@@ -24,7 +23,7 @@ class GraphqlUserLoginQuery(
     }
 
     suspend fun webAuthLogin(input: UserFidoLoginInput): ApolloResponse<UserWebAuthnLoginMutation.Data> {
-        return apolloClient
+        return graphqlClient.apolloClient
             .mutation(
                 UserWebAuthnLoginMutation(input = input),
             )
@@ -33,7 +32,7 @@ class GraphqlUserLoginQuery(
 
     suspend fun isLoggedIn(): Boolean {
         return runCatching {
-            apolloClient
+            graphqlClient.apolloClient
                 .query(UserIsLoggedInQuery())
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()

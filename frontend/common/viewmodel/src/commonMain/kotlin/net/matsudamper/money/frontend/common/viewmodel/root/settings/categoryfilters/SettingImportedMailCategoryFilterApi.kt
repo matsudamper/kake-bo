@@ -7,7 +7,7 @@ import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFiltersScreenA
 import net.matsudamper.money.frontend.graphql.type.AddImportedMailCategoryFilterInput
 
 public class SettingImportedMailCategoryFilterApi(
-    private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    private val apolloClient: ApolloClient,
 ) {
     public suspend fun addFilter(title: String): Result<ApolloResponse<ImportedMailCategoryFiltersScreenAddImportedMailCategoryMutation.Data>> {
         return runCatching {

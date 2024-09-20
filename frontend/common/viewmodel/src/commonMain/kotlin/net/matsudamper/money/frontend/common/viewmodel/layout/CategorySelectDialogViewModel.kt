@@ -28,7 +28,7 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryQuery
 
 internal class CategorySelectDialogViewModel(
     private val coroutineScope: CoroutineScope,
-    private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    private val apolloClient: ApolloClient,
     private val event: Event,
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())

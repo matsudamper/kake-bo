@@ -21,7 +21,7 @@ import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 public class ImportedMailPlainViewModel(
     id: ImportedMailId,
     private val coroutineScope: CoroutineScope,
-    apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    graphqlClient: GraphqlClient,
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
@@ -30,7 +30,7 @@ public class ImportedMailPlainViewModel(
 
     private val apolloResponseCollector =
         ApolloResponseCollector.create(
-            apolloClient = apolloClient,
+            apolloClient = graphqlClient.apolloClient,
             query =
             ImportedMailPlainScreenQuery(
                 id = id,

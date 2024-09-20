@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
-import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -26,14 +25,14 @@ import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class MoneyUsagesListViewModel(
     private val coroutineScope: CoroutineScope,
-    apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    graphqlClient: GraphqlClient,
     rootUsageHostViewModel: RootUsageHostViewModel,
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val pagingModel =
         MoneyUsagesListFetchModel(
-            apolloClient = apolloClient,
+            graphqlClient = graphqlClient,
             coroutineScope = coroutineScope,
         )
 

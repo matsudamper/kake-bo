@@ -1,0 +1,64 @@
+package net.matsudamper.money.frontend.common.di
+
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.onEach
+import com.apollographql.apollo3.annotations.ApolloExperimental
+import com.apollographql.apollo3.api.ApolloRequest
+import com.apollographql.apollo3.api.ApolloResponse
+import com.apollographql.apollo3.api.Operation
+import com.apollographql.apollo3.api.http.get
+import com.apollographql.apollo3.interceptor.ApolloInterceptor
+import com.apollographql.apollo3.interceptor.ApolloInterceptorChain
+import com.apollographql.apollo3.network.http.HttpInfo
+import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
+import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModelAndroidImpl
+import net.matsudamper.money.frontend.graphql.GraphqlClient
+import net.matsudamper.money.frontend.graphql.GraphqlClientImpl
+import org.koin.core.scope.Scope
+
+internal actual val factory: Factory = object : Factory() {
+    private var user_session_id: String = ""
+    override fun createWebAuthModule(scope: Scope): WebAuthModel {
+        return WebAuthModelAndroidImpl(
+            context = scope.get(),
+        )
+    }
+
+    override fun createGraphQlClient(): GraphqlClient {
+        return GraphqlClientImpl(
+            interceptors = listOf(
+                object : ApolloInterceptor {
+                    override fun <D : Operation.Data> intercept(
+                        request: ApolloRequest<D>,
+                        chain: ApolloInterceptorChain,
+                    ): Flow<ApolloResponse<D>> {
+                        val response = chain.proceed(
+                            request.newBuilder()
+                                .addHttpHeader("Cookie", "user_session_id=$user_session_id")
+                                .build(),
+                        )
+
+                        return response.onEach { eachResponse ->
+                            @OptIn(ApolloExperimental::class)
+                            val cookies = eachResponse.executionContext[HttpInfo]?.headers
+                                ?.get("Set-Cookie")
+                                ?: return@onEach
+                            for (cookie in cookies.split(";")) {
+                                val key: String
+                                val value: String
+                                run {
+                                    cookie.split("=").let {
+                                        key = it[0]
+                                        value = it[1]
+                                    }
+                                }
+                                if (key != "user_session_id") continue
+                                user_session_id = value
+                            }
+                        }
+                    }
+                },
+            ),
+        )
+    }
+}

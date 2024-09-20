@@ -30,11 +30,13 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
+import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByDateQuery
 
 public class RootHomeTabPeriodAllContentViewModel(
     private val coroutineScope: CoroutineScope,
     private val api: RootHomeTabScreenApi,
+    graphqlClient: GraphqlClient,
     loginCheckUseCase: LoginCheckUseCase,
 ) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState())
@@ -58,7 +60,7 @@ public class RootHomeTabPeriodAllContentViewModel(
     private val periodViewModel =
         RootHomeTabPeriodScreenViewModel(
             coroutineScope = coroutineScope,
-            api = RootHomeTabScreenApi(),
+            api = RootHomeTabScreenApi(graphqlClient=graphqlClient),
             initialCategoryId = null,
         ).also { viewModel ->
             coroutineScope.launch {

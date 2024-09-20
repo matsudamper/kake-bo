@@ -17,7 +17,7 @@ import net.matsudamper.money.frontend.graphql.SettingScreenDeleteFidoMutation
 import net.matsudamper.money.frontend.graphql.type.RegisterFidoInput
 
 public class LoginSettingScreenApi(
-    private val apolloClient: ApolloClient = GraphqlClient.apolloClient,
+    private val apolloClient: ApolloClient,
 ) {
     public fun getScreen(): Flow<ApolloResponse<LoginSettingScreenQuery.Data>> {
         return apolloClient

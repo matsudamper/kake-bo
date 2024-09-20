@@ -14,6 +14,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
@@ -29,12 +30,14 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
+import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByCategoryQuery
 
 public class RootHomeTabPeriodCategoryContentViewModel(
     initialCategoryId: MoneyUsageCategoryId,
     private val coroutineScope: CoroutineScope,
     private val api: RootHomeTabScreenApi,
+    graphqlClient: GraphqlClient,
     loginCheckUseCase: LoginCheckUseCase,
 ) {
     private val reservedColorModel = ReservedColorModel()
@@ -58,7 +61,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
     private val periodViewModel =
         RootHomeTabPeriodScreenViewModel(
             coroutineScope = coroutineScope,
-            api = RootHomeTabScreenApi(),
+            api = RootHomeTabScreenApi(graphqlClient=graphqlClient),
             initialCategoryId = initialCategoryId,
         ).also { viewModel ->
             coroutineScope.launch {
