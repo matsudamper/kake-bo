@@ -63,10 +63,10 @@ android {
     namespace = "net.matsudamper.money"
     signingConfigs {
         create("release") {
-            storeFile = file(localProperties["KEYSTORE_PATH"] as String)
-            storePassword = localProperties["KEYSTORE_PASSWORD"] as String
-            keyAlias = localProperties["KEY_ALIAS"] as String
-            keyPassword = localProperties["KEY_PASSWORD"] as String
+            storeFile = (localProperties["KEYSTORE_PATH"] as? String)?.let { file(it) } ?: return@create
+            storePassword = localProperties["KEYSTORE_PASSWORD"] as? String ?: return@create
+            keyAlias = localProperties["KEY_ALIAS"] as? String ?: return@create
+            keyPassword = localProperties["KEY_PASSWORD"] as? String ?: return@create
         }
     }
     buildTypes {
