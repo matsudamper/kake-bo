@@ -121,10 +121,9 @@ internal fun BarGraph(
                                     when (releasePointer.type) {
                                         PointerEventType.Release -> {
                                             for (change in releasePointer.changes) {
-                                                val clickedIndex =
-                                                    measureState.graphRangeRects.indexOfFirst { it.contains(change.position) }
-                                                        .takeIf { it >= 0 }
-                                                        ?: continue
+                                                val clickedIndex = measureState.graphRangeRects.indexOfFirst { it.contains(change.position) }
+                                                    .takeIf { it >= 0 }
+                                                    ?: continue
                                                 latestUiState.items.getOrNull(clickedIndex)?.event?.onClick()
                                                 break
                                             }
@@ -147,24 +146,21 @@ internal fun BarGraph(
             val multilineLabel = (measureState.spaceWidth + measureState.barWidth) <= (textMeasureCache.xLabels.maxOfOrNull { it.size.width } ?: 0).plus(8.dp.toPx())
 
             val maxLabelHeight = textMeasureCache.xLabels.maxOfOrNull { it.size.height } ?: 0
-            val labelBoxHeight =
-                (maxLabelHeight)
-                    .times(if (multilineLabel) 2 else 1)
-                    .plus(if (multilineLabel) config.multilineLabelHeightPadding else 0f)
-            val graphYHeight =
-                size.height
-                    .minus(labelBoxHeight)
-                    .minus(config.graphAndLabelPadding)
+            val labelBoxHeight = (maxLabelHeight)
+                .times(if (multilineLabel) 2 else 1)
+                .plus(if (multilineLabel) config.multilineLabelHeightPadding else 0f)
+            val graphYHeight = size.height
+                .minus(labelBoxHeight)
+                .minus(config.graphAndLabelPadding)
 
             val heightParAmount = graphYHeight / maxTotalValue
 
             textMeasureCache.xLabels.forEachIndexed { index, item ->
-                val y =
-                    if (multilineLabel && index % 2 == 1) {
-                        maxLabelHeight.toFloat() + config.multilineLabelHeightPadding
-                    } else {
-                        0f
-                    }.plus(graphYHeight + config.graphAndLabelPadding)
+                val y = if (multilineLabel && index % 2 == 1) {
+                    maxLabelHeight.toFloat() + config.multilineLabelHeightPadding
+                } else {
+                    0f
+                }.plus(graphYHeight + config.graphAndLabelPadding)
 
                 drawText(
                     textLayoutResult = item,
