@@ -17,6 +17,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlClientImpl
 import org.koin.core.scope.Scope
 
 internal actual val factory: Factory = object : Factory() {
+    private val UserSessionIdKey = "user_session_id"
     private var user_session_id: String = ""
     override fun createWebAuthModule(scope: Scope): WebAuthModel {
         return WebAuthModelAndroidImpl(
@@ -34,7 +35,7 @@ internal actual val factory: Factory = object : Factory() {
                     ): Flow<ApolloResponse<D>> {
                         val response = chain.proceed(
                             request.newBuilder()
-                                .addHttpHeader("Cookie", "user_session_id=$user_session_id")
+                                .addHttpHeader("Cookie", "$UserSessionIdKey=$user_session_id")
                                 .build(),
                         )
 
@@ -52,7 +53,7 @@ internal actual val factory: Factory = object : Factory() {
                                         value = it[1]
                                     }
                                 }
-                                if (key != "user_session_id") continue
+                                if (key != UserSessionIdKey) continue
                                 user_session_id = value
                             }
                         }
