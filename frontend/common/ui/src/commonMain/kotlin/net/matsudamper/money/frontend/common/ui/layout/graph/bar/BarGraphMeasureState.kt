@@ -72,16 +72,6 @@ internal class BarGraphMeasureState(
         }
     }
 
-    /**
-     * まだスナップショットが作成されていないのでエラーになるので、コード上すぐに必要な値を遅延して取得できるようにする
-     * Reading a state that was created after the snapsho…en or in a snapshot that has not yet been applied
-     */
-    @Stable
-    @Composable
-    fun getGraphRangeRectsKey(): Any? {
-        return remember { snapshotFlow { graphRangeRects } }.collectAsState(null).value
-    }
-
     val graphRangeRects by derivedStateOf {
         (0 until itemSize).map { index ->
             val x = graphBaseX + (spaceWidth + barWidth).times(index)

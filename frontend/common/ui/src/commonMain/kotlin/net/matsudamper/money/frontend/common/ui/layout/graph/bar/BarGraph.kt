@@ -84,14 +84,13 @@ internal fun BarGraph(
 
     BoxWithConstraints(modifier = modifier) {
         var cursorPosition by remember { mutableStateOf(Offset.Zero) }
-        val measureState =
-            remember(density, config) {
-                BarGraphMeasureState(
-                    density = density,
-                    config = config,
-                    textMeasureCache = textMeasureCache,
-                )
-            }
+        val measureState = remember(density, config) {
+            BarGraphMeasureState(
+                density = density,
+                config = config,
+                textMeasureCache = textMeasureCache,
+            )
+        }
         LaunchedEffect(constraints) {
             measureState.update(
                 constraints = constraints,
@@ -110,7 +109,7 @@ internal fun BarGraph(
                         cursorPosition = pointer.changes.firstOrNull()?.position ?: return@awaitEachGesture
                     }
                 }
-                .pointerInput(measureState.getGraphRangeRectsKey()) {
+                .pointerInput(Unit) {
                     awaitEachGesture {
                         val pointer = awaitPointerEvent()
 
