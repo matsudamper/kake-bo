@@ -66,7 +66,7 @@ internal fun RootNavContent(
 
                 when (current) {
                     is RootHomeScreenStructure.Monthly -> {
-                        holder.SaveableStateProvider(RootHomeScreenStructure.Monthly::class) {
+                        holder.SaveableStateProvider(RootHomeScreenStructure.Monthly::class.simpleName!!) {
                             val coroutineScope = rememberCoroutineScope()
                             val viewModel = remember {
                                 RootHomeMonthlyScreenViewModel(
