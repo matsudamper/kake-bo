@@ -11,7 +11,7 @@ internal actual val factory: Factory = object : Factory() {
         return WebAuthModelJsImpl()
     }
 
-    override fun createGraphQlClient(): GraphqlClient {
+    override fun createGraphQlClient(scope: Scope): GraphqlClient {
         return GraphqlClientImpl(
             interceptors = listOf(),
         )
