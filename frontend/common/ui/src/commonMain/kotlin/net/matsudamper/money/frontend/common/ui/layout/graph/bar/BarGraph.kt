@@ -1,32 +1,38 @@
 package net.matsudamper.money.frontend.common.ui.layout.graph.bar
 
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.requiredHeight
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.drawText
-import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.Logger
 
 internal class BarGraphConfig(
     density: Density,
@@ -67,154 +73,102 @@ internal fun BarGraph(
     uiState: BarGraphUiState,
     contentColor: Color = MaterialTheme.colorScheme.secondary,
 ) {
-    val latestUiState by rememberUpdatedState(uiState)
-    val density = LocalDensity.current
-    val textMeasurer = rememberTextMeasurer(cacheSize = 2 + 12)
-    val config = remember { BarGraphConfig(density) }
-    val maxTotalValue by remember { derivedStateOf { latestUiState.items.maxOfOrNull { it.total } ?: 0 } }
-    val textMeasureCache =
-        remember(textMeasurer) {
-            BarGraphTextMeasureCache(
-                textMeasurer = textMeasurer,
-            )
+    var maxValue by remember { mutableLongStateOf(0) }
+    LaunchedEffect(uiState) {
+        uiState.items.map { item ->
+            val value = item.items.sumOf { it.value }
+            maxValue = maxValue.coerceAtLeast(value)
         }
-    LaunchedEffect(latestUiState.items) {
-        textMeasureCache.updateItems(latestUiState.items)
     }
 
-    BoxWithConstraints(modifier = modifier) {
-        var cursorPosition by remember { mutableStateOf(Offset.Zero) }
-        val measureState = remember(density, config) {
-            BarGraphMeasureState(
-                density = density,
-                config = config,
-                textMeasureCache = textMeasureCache,
-            )
-        }
-        LaunchedEffect(constraints) {
-            measureState.update(
-                constraints = constraints,
-            )
-        }
-        LaunchedEffect(latestUiState.items.size) {
-            measureState.size(latestUiState.items.size)
-        }
-        Canvas(
-            modifier =
-            Modifier.fillMaxHeight()
-                .width(with(density) { measureState.containerWidth.toDp() })
-                .pointerInput(Unit) {
-                    awaitEachGesture {
-                        val pointer = awaitPointerEvent()
-                        cursorPosition = pointer.changes.firstOrNull()?.position ?: return@awaitEachGesture
-                    }
-                }
-                .pointerInput(Unit) {
-                    awaitEachGesture {
-                        val pointer = awaitPointerEvent()
-
-                        when (pointer.type) {
-                            PointerEventType.Press -> {
-                                pointer.changes.forEach { it.consume() }
-                                while (true) {
-                                    val releasePointer = awaitPointerEvent()
-                                    when (releasePointer.type) {
-                                        PointerEventType.Release -> {
-                                            for (change in releasePointer.changes) {
-                                                val clickedIndex = measureState.graphRangeRects.indexOfFirst { it.contains(change.position) }
-                                                    .takeIf { it >= 0 }
-                                                    ?: continue
-                                                latestUiState.items.getOrNull(clickedIndex)?.event?.onClick()
-                                                break
-                                            }
-                                            break
-                                        }
-
-                                        PointerEventType.Exit -> break
-                                    }
-                                }
-                            }
-
-                            else -> Unit
-                        }
-                    }
-                },
+    Column(modifier = modifier) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f),
+            verticalAlignment = Alignment.Bottom,
         ) {
-            if (latestUiState.items.isEmpty()) return@Canvas
-            if (textMeasureCache.initialized.not()) return@Canvas
-
-            val multilineLabel = (measureState.spaceWidth + measureState.barWidth) <= (textMeasureCache.xLabels.maxOfOrNull { it.size.width } ?: 0).plus(8.dp.toPx())
-
-            val maxLabelHeight = textMeasureCache.xLabels.maxOfOrNull { it.size.height } ?: 0
-            val labelBoxHeight = (maxLabelHeight)
-                .times(if (multilineLabel) 2 else 1)
-                .plus(if (multilineLabel) config.multilineLabelHeightPadding else 0f)
-            val graphYHeight = size.height
-                .minus(labelBoxHeight)
-                .minus(config.graphAndLabelPadding)
-
-            val heightParAmount = graphYHeight / maxTotalValue
-
-            textMeasureCache.xLabels.forEachIndexed { index, item ->
-                val y = if (multilineLabel && index % 2 == 1) {
-                    maxLabelHeight.toFloat() + config.multilineLabelHeightPadding
-                } else {
-                    0f
-                }.plus(graphYHeight + config.graphAndLabelPadding)
-
-                drawText(
-                    textLayoutResult = item,
-                    color = contentColor,
-                    topLeft =
-                    Offset(
-                        x =
-                        measureState.graphBaseX
-                            .plus((measureState.spaceWidth + measureState.barWidth) * index)
-                            .plus(measureState.barWidth / 2)
-                            .minus(item.size.width / 2),
-                        y = y,
-                    ),
+            for (item in uiState.items) {
+                SingleBarGraph(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f),
+                    maxValue = maxValue,
+                    items = item.items,
                 )
             }
-            drawText(
-                textLayoutResult = textMeasureCache.minTextMeasureResult,
-                color = contentColor,
-                topLeft = Offset(0f, graphYHeight - (textMeasureCache.minTextMeasureResult.size.height / 2)),
-            )
-            drawText(
-                textLayoutResult = textMeasureCache.maxTextMeasureResult,
-                color = contentColor,
-                topLeft = Offset(0f, 0f),
-            )
-            latestUiState.items.forEachIndexed { index, periodData ->
-                val x = measureState.graphBaseX + (measureState.spaceWidth + measureState.barWidth).times(index)
-                var beforeY = graphYHeight
+        }
 
-                periodData.items.forEach { item ->
-                    val itemHeight = (item.value * heightParAmount)
-                    drawRect(
-                        color = item.color,
-                        topLeft =
-                        Offset(
-                            x = x,
-                            y = beforeY - itemHeight,
-                        ),
-                        size =
-                        Size(
-                            width = measureState.barWidth,
-                            height = itemHeight,
-                        ),
-                    )
-                    beforeY -= itemHeight
-                }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            for ((index, item) in uiState.items.withIndex()) {
+                Text(
+                    modifier = Modifier
+                        .weight(1f)
+                        .layout { measurable, constraints ->
+                            val placeable = measurable.measure(
+                                constraints.copy(
+                                    maxWidth = Constraints.Infinity,
+                                ),
+                            )
+                            val y = if (index % 2 == 0) {
+                                0
+                            } else {
+                                placeable.height
+                            }
+                            layout(placeable.width, placeable.height * 2) {
+                                placeable.place(
+                                    x = (constraints.maxWidth - placeable.width) / 2,
+                                    y = y,
+                                )
+                            }
+                            layout(placeable.width, placeable.height * 2) {
+                                placeable.place(0, y)
+                            }
+                        },
+                    text = if (item.month == 0 || index == 0) {
+                        "${item.year}/${item.month}"
+                    } else {
+                        item.month.toString()
+                    },
+                    color = contentColor,
+                    style = MaterialTheme.typography.titleSmall,
+                    textAlign = TextAlign.Center,
+                )
+
             }
+        }
+    }
+}
 
-            measureState.graphRangeRects.forEach { rect ->
-                if (rect.contains(cursorPosition)) {
-                    drawRect(
-                        color = Color.Black.copy(alpha = 0.1f),
-                        topLeft = rect.topLeft,
-                        size = rect.size,
+@Composable
+private fun SingleBarGraph(
+    maxValue: Long,
+    items: ImmutableList<BarGraphUiState.Item>,
+    modifier: Modifier = Modifier,
+) {
+    val density = LocalDensity.current
+    if (maxValue != 0L) {
+        BoxWithConstraints(modifier = modifier) {
+            val containerHeight = this.maxHeight
+            val containerWidth = this.maxWidth
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Bottom,
+            ) {
+                for (item in items.reversed()) {
+                    Box(
+                        modifier = Modifier
+                            .background(item.color)
+                            .requiredWidth(containerWidth)
+                            .requiredHeight(
+                                with(density) {
+                                    val heightPx = containerHeight.toPx() * item.value / maxValue
+                                    heightPx.toDp()
+                                },
+                            ),
                     )
                 }
             }
