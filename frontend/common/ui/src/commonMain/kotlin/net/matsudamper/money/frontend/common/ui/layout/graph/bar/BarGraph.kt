@@ -66,62 +66,64 @@ internal fun BarGraph(
         }
     }
 
-    Column(modifier = modifier) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f),
-            verticalAlignment = Alignment.Bottom,
-        ) {
-            for (item in uiState.items) {
-                SingleBarGraph(
-                    modifier = Modifier
-                        .fillMaxHeight()
-                        .weight(1f),
-                    maxValue = maxValue,
-                    items = item.items,
-                )
+    if (maxValue != 0L) {
+        Column(modifier = modifier) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                verticalAlignment = Alignment.Bottom,
+            ) {
+                for (item in uiState.items) {
+                    SingleBarGraph(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .weight(1f),
+                        maxValue = maxValue,
+                        items = item.items,
+                    )
+                }
             }
-        }
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.Bottom,
-        ) {
-            for ((index, item) in uiState.items.withIndex()) {
-                Text(
-                    modifier = Modifier
-                        .weight(1f)
-                        .layout { measurable, constraints ->
-                            val placeable = measurable.measure(
-                                constraints.copy(
-                                    maxWidth = Constraints.Infinity,
-                                ),
-                            )
-                            val y = if (index % 2 == 0) {
-                                0
-                            } else {
-                                placeable.height
-                            }
-                            layout(placeable.width, placeable.height * 2) {
-                                placeable.place(
-                                    x = (constraints.maxWidth - placeable.width) / 2,
-                                    y = y,
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Bottom,
+            ) {
+                for ((index, item) in uiState.items.withIndex()) {
+                    Text(
+                        modifier = Modifier
+                            .weight(1f)
+                            .layout { measurable, constraints ->
+                                val placeable = measurable.measure(
+                                    constraints.copy(
+                                        maxWidth = Constraints.Infinity,
+                                    ),
                                 )
-                            }
-                            layout(placeable.width, placeable.height * 2) {
-                                placeable.place(0, y)
-                            }
+                                val y = if (index % 2 == 0) {
+                                    0
+                                } else {
+                                    placeable.height
+                                }
+                                layout(placeable.width, placeable.height * 2) {
+                                    placeable.place(
+                                        x = (constraints.maxWidth - placeable.width) / 2,
+                                        y = y,
+                                    )
+                                }
+                                layout(placeable.width, placeable.height * 2) {
+                                    placeable.place(0, y)
+                                }
+                            },
+                        text = if (item.month == 0 || index == 0) {
+                            "${item.year}/${item.month}"
+                        } else {
+                            item.month.toString()
                         },
-                    text = if (item.month == 0 || index == 0) {
-                        "${item.year}/${item.month}"
-                    } else {
-                        item.month.toString()
-                    },
-                    color = contentColor,
-                    style = MaterialTheme.typography.titleSmall,
-                    textAlign = TextAlign.Center,
-                )
+                        color = contentColor,
+                        style = MaterialTheme.typography.titleSmall,
+                        textAlign = TextAlign.Center,
+                    )
+                }
             }
         }
     }
@@ -134,27 +136,25 @@ private fun SingleBarGraph(
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
-    if (maxValue != 0L) {
-        BoxWithConstraints(modifier = modifier) {
-            val containerHeight = this.maxHeight
-            val containerWidth = this.maxWidth
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Bottom,
-            ) {
-                for (item in items.reversed()) {
-                    Box(
-                        modifier = Modifier
-                            .background(item.color)
-                            .requiredWidth(containerWidth)
-                            .requiredHeight(
-                                with(density) {
-                                    val heightPx = containerHeight.toPx() * item.value / maxValue
-                                    heightPx.toDp()
-                                },
-                            ),
-                    )
-                }
+    BoxWithConstraints(modifier = modifier) {
+        val containerHeight = this.maxHeight
+        val containerWidth = this.maxWidth
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Bottom,
+        ) {
+            for (item in items.reversed()) {
+                Box(
+                    modifier = Modifier
+                        .background(item.color)
+                        .requiredWidth(containerWidth)
+                        .requiredHeight(
+                            with(density) {
+                                val heightPx = containerHeight.toPx() * item.value / maxValue
+                                heightPx.toDp()
+                            },
+                        ),
+                )
             }
         }
     }
