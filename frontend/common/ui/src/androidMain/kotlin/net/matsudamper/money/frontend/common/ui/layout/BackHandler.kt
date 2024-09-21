@@ -7,5 +7,7 @@ public actual fun BackHandler(
     enable: Boolean,
     block: () -> Unit,
 ) {
-    // TODO
+    androidx.activity.compose.BackHandler(enable) {
+        block()
+    }
 }

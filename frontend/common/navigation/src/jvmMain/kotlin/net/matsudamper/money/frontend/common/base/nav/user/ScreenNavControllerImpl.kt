@@ -10,11 +10,13 @@ import androidx.compose.runtime.setValue
 public actual class ScreenNavControllerImpl actual constructor(
     initial: ScreenStructure,
 ) : ScreenNavController<ScreenStructure> {
-    private var internalCurrentNavigation: ScreenStructure by mutableStateOf(initial)
-    override val currentNavigation: ScreenStructure get() = internalCurrentNavigation
+    private var internalCurrentNavigation: List<ScreenStructure> by mutableStateOf(mutableListOf(initial))
+    override val currentNavigation: ScreenStructure get() = internalCurrentNavigation.last()
+
+    public override val canGoBack: Boolean get() = internalCurrentNavigation.size > 1
 
     override fun back() {
-        // TODO
+        internalCurrentNavigation = internalCurrentNavigation.dropLast(1).toMutableList()
     }
 
     override fun navigateToHome() {
@@ -22,6 +24,6 @@ public actual class ScreenNavControllerImpl actual constructor(
     }
 
     override fun navigate(navigation: ScreenStructure) {
-        internalCurrentNavigation = navigation
+        internalCurrentNavigation = internalCurrentNavigation.plus(navigation)
     }
 }

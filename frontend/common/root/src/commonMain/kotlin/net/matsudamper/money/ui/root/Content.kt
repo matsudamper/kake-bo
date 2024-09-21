@@ -32,6 +32,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.MySnackBarHost
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.layout.BackHandler
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreen
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
 import net.matsudamper.money.frontend.common.ui.screen.importedmail.html.ImportedMailHtmlScreen
@@ -243,6 +244,9 @@ fun Content(
     }
     LaunchedEffect(navController.currentNavigation) {
         rootViewModel.navigateChanged()
+    }
+    BackHandler(true) {
+        navController.back()
     }
     Scaffold(
         modifier = modifier

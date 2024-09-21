@@ -30,6 +30,7 @@ public actual class ScreenNavControllerImpl actual constructor(
         get() {
             return screenState.current
         }
+    override val canGoBack: Boolean = true
 
     init {
         updateScreenState(

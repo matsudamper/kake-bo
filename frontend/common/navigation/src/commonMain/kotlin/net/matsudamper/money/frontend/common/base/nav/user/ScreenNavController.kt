@@ -6,6 +6,8 @@ import androidx.compose.runtime.Immutable
 public interface ScreenNavController<D : IScreenStructure<D>> {
     public val currentNavigation: D
 
+    public val canGoBack: Boolean
+
     public fun back()
 
     public fun navigate(navigation: D)

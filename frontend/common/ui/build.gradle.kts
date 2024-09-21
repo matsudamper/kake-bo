@@ -36,6 +36,8 @@ kotlin {
                 implementation(compose.foundation)
                 implementation(compose.material3)
                 implementation(compose.components.uiToolingPreview)
+
+                implementation(libs.androidActivityActivityCompose)
             }
         }
         val commonTest by getting {
