@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.di
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.runBlocking
 import com.apollographql.apollo3.annotations.ApolloExperimental
@@ -12,6 +13,7 @@ import com.apollographql.apollo3.api.http.get
 import com.apollographql.apollo3.interceptor.ApolloInterceptor
 import com.apollographql.apollo3.interceptor.ApolloInterceptorChain
 import com.apollographql.apollo3.network.http.HttpInfo
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.feature.localstore.DataStores
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModelAndroidImpl
@@ -63,6 +65,20 @@ internal actual val factory: Factory = object : Factory() {
                                         .setUserSessionId(value)
                                         .build()
                                 }
+                            }
+                        }
+                    }
+                },
+                object : ApolloInterceptor {
+                    override fun <D : Operation.Data> intercept(
+                        request: ApolloRequest<D>,
+                        chain: ApolloInterceptorChain,
+                    ): Flow<ApolloResponse<D>> {
+                        Logger.i("Graphql", "-->Operation: ${request.operation.name()}(${request.requestUuid})")
+
+                        return chain.proceed(request).onEach {
+                            it.executionContext[HttpInfo]?.let { httpInfo ->
+                                Logger.i("Graphql", "<--Operation: ${request.operation.name()}(${request.requestUuid}) ${httpInfo.statusCode}")
                             }
                         }
                     }

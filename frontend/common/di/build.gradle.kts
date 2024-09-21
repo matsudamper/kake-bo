@@ -13,6 +13,7 @@ kotlin {
         jvmToolchain(17)
         val commonMain by getting {
             dependencies {
+                implementation(projects.frontend.common.base)
                 implementation(projects.frontend.common.feature.webauth)
                 implementation(projects.frontend.common.feature.localstore)
                 implementation(projects.frontend.common.graphql)
