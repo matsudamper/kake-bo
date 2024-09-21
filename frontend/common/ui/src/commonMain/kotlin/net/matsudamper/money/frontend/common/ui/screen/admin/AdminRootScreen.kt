@@ -31,7 +31,7 @@ public fun AdminRootScreen(
         when (screenStack.lastOrNull()) {
             null,
             AdminScreenType.Login,
-                -> {
+            -> {
                 val uiState = adminLoginScreenUiStateProvider()
                 AdminLoginScreen(
                     uiState = uiState,

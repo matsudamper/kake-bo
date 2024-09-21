@@ -132,7 +132,7 @@ public class RootHomeMonthlyScreenViewModel(
                         loadingState = when (viewModelState.monthlyListResponses.firstOrNull()) {
                             null,
                             is ApolloResponseState.Loading,
-                                -> RootHomeMonthlyScreenUiState.LoadingState.Loading
+                            -> RootHomeMonthlyScreenUiState.LoadingState.Loading
 
                             is ApolloResponseState.Failure -> RootHomeMonthlyScreenUiState.LoadingState.Error
 
