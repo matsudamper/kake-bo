@@ -21,7 +21,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -117,8 +116,7 @@ private fun SmallContent(
                 modifier = Modifier.padding(16.dp),
             ) {
                 BarGraph(
-                    modifier =
-                    Modifier
+                    modifier = Modifier
                         .fillMaxWidth()
                         .height(600.dp),
                     uiState = loadingState.barGraph,
@@ -157,16 +155,14 @@ private fun LargeContent(
             modifier = Modifier.padding(16.dp),
         ) {
             BarGraph(
-                modifier =
-                Modifier
+                modifier = Modifier
                     .height(600.dp),
                 uiState = loadingState.barGraph,
                 contentColor = LocalContentColor.current,
             )
             Spacer(modifier = Modifier.width(12.dp))
             Column(
-                modifier =
-                Modifier
+                modifier = Modifier
                     .width(IntrinsicSize.Min)
                     .widthIn(max = 400.dp),
             ) {
@@ -192,8 +188,7 @@ private fun MonthlyTotal(
     Column(modifier = modifier) {
         loadingState.monthTotalItems.forEach { item ->
             Row(
-                modifier =
-                Modifier
+                modifier = Modifier
                     .clip(MaterialTheme.shapes.medium)
                     .clickable { item.event.onClick() }
                     .padding(8.dp),
