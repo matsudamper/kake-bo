@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.material3.MaterialTheme
@@ -28,19 +27,7 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
-
-internal class BarGraphConfig(
-    density: Density,
-) {
-    val maxBarWidth = with(density) { 42.dp.toPx() }
-    val minSpaceWidth = with(density) { 2.dp.toPx() }
-    val defaultSpaceWidth = with(density) { 16.dp.toPx() }
-    val multilineLabelHeightPadding = with(density) { 4.dp.toPx() }
-    val graphAndLabelPadding = with(density) { 8.dp.toPx() }
-}
 
 public data class BarGraphUiState(
     val items: ImmutableList<PeriodData>,
