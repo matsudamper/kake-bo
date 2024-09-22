@@ -89,40 +89,43 @@ public data class RootHomeMonthlyScreenUiState(
 public fun RootHomeMonthlyScreen(
     uiState: RootHomeMonthlyScreenUiState,
     scaffoldListener: RootScreenScaffoldListener,
+    windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
     }
     RootHomeTabScreenScaffold(
-        modifier = modifier,
         uiState = uiState.rootHomeTabUiState,
         scaffoldListener = scaffoldListener,
-    ) {
-        when (val loadingState = uiState.loadingState) {
-            is RootHomeMonthlyScreenUiState.LoadingState.Loaded -> {
-                LoadedContent(
-                    modifier = Modifier.fillMaxSize(),
-                    loadingState = loadingState,
-                )
-            }
+        modifier = modifier,
+        content = {
+            when (val loadingState = uiState.loadingState) {
+                is RootHomeMonthlyScreenUiState.LoadingState.Loaded -> {
+                    LoadedContent(
+                        modifier = Modifier.fillMaxSize(),
+                        loadingState = loadingState,
+                    )
+                }
 
-            RootHomeMonthlyScreenUiState.LoadingState.Loading -> {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                RootHomeMonthlyScreenUiState.LoadingState.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    }
+                }
+
+                RootHomeMonthlyScreenUiState.LoadingState.Error -> {
+                    LoadingErrorContent(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClickRetry = {
+                            // TODO
+                        },
+                    )
                 }
             }
-
-            RootHomeMonthlyScreenUiState.LoadingState.Error -> {
-                LoadingErrorContent(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClickRetry = {
-                        // TODO
-                    },
-                )
-            }
-        }
-    }
+        },
+        contentPadding = windowInsets,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

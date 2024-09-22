@@ -92,6 +92,7 @@ public fun ImportedMailPlainScreen(
                                 text = "家計簿",
                             )
                         },
+                        windowInsets = contentPadding,
                     )
                 },
             ) {

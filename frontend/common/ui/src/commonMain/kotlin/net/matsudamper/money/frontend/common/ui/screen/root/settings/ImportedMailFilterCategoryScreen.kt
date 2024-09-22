@@ -215,6 +215,7 @@ public fun ImportedMailFilterCategoryScreen(
     modifier: Modifier = Modifier,
     uiState: ImportedMailFilterCategoryScreenUiState,
     rootScreenScaffoldListener: RootScreenScaffoldListener,
+    windowInsets: PaddingValues,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect(Unit) {
@@ -268,6 +269,11 @@ public fun ImportedMailFilterCategoryScreen(
         currentScreen = RootScreenTab.Settings,
         topBar = {
             KakeBoTopAppBar(
+                navigation = {
+                    IconButton(onClick = { uiState.event.onClickBack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                    }
+                },
                 title = {
                     Text(
                         modifier =
@@ -280,11 +286,7 @@ public fun ImportedMailFilterCategoryScreen(
                         text = "家計簿",
                     )
                 },
-                navigation = {
-                    IconButton(onClick = { uiState.event.onClickBack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    }
-                },
+                windowInsets = windowInsets,
             )
         },
         snackbarHostState = snackbarHostState,

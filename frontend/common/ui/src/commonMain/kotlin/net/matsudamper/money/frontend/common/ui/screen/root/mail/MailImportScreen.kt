@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -58,6 +59,7 @@ import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 public fun MailImportScreen(
     uiState: ImportMailScreenUiState,
     rootScreenScaffoldListener: RootScreenScaffoldListener,
+    windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
     LaunchedEffect(uiState.event) {
@@ -91,6 +93,7 @@ public fun MailImportScreen(
                         text = "家計簿",
                     )
                 },
+                windowInsets = windowInsets,
             )
         },
     ) {

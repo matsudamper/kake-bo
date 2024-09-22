@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.ui.screen.root.home
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -52,6 +53,7 @@ public fun RootHomeTabScreenScaffold(
     scaffoldListener: RootScreenScaffoldListener,
     modifier: Modifier = Modifier,
     menu: @Composable () -> Unit = {},
+    contentPadding: PaddingValues,
     content: @Composable () -> Unit,
 ) {
     LaunchedEffect(uiState.event) {
@@ -63,6 +65,7 @@ public fun RootHomeTabScreenScaffold(
         listener = scaffoldListener,
         topBar = {
             KakeBoTopAppBar(
+                windowInsets=contentPadding,
                 title = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,

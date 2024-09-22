@@ -20,7 +20,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.KeyboardArrowLeft
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -50,6 +49,7 @@ public data class HomeAddTabScreenUiState(
 public fun HomeAddTabScreen(
     rootScreenScaffoldListener: RootScreenScaffoldListener,
     uiState: HomeAddTabScreenUiState,
+    windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
     RootScreenScaffold(
@@ -70,6 +70,7 @@ public fun HomeAddTabScreen(
                         text = "家計簿",
                     )
                 },
+                windowInsets = windowInsets,
             )
         },
     ) {

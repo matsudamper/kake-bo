@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -110,6 +111,7 @@ public fun RootUsageHostScreen(
     modifier: Modifier = Modifier,
     uiState: RootUsageHostScreenUiState,
     listener: RootScreenScaffoldListener,
+    windowInsets: PaddingValues,
     content: @Composable () -> Unit,
 ) {
     uiState.textInputUiState?.also {
@@ -134,12 +136,6 @@ public fun RootUsageHostScreen(
         listener = listener,
         topBar = {
             KakeBoTopAppBar(
-                title = {
-                    TitleBar(
-                        header = uiState.header,
-                        onClickTitle = uiState.event::onClickCalendar,
-                    )
-                },
                 menu = {
                     Menu(
                         type = uiState.type,
@@ -147,6 +143,13 @@ public fun RootUsageHostScreen(
                         onClickList = uiState.event::onClickList,
                     )
                 },
+                title = {
+                    TitleBar(
+                        header = uiState.header,
+                        onClickTitle = uiState.event::onClickCalendar,
+                    )
+                },
+                windowInsets = windowInsets,
             )
         },
         content = {

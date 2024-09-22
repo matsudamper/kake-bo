@@ -1,5 +1,6 @@
 package net.matsudamper.money.ui.root
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -48,6 +49,8 @@ internal fun SettingNavContent(
     settingUiStateProvider: @Composable () -> RootSettingScreenUiState,
     viewModelEventHandlers: ViewModelEventHandlers,
     rootScreenScaffoldListener: RootScreenScaffoldListener,
+    windowInsets: PaddingValues,
+    modifier: Modifier = Modifier,
 ) {
     val koin = LocalKoin.current
     val coroutineScope = rememberCoroutineScope()
@@ -56,24 +59,24 @@ internal fun SettingNavContent(
         ScreenStructure.Root.Settings.Root -> {
             holder.SaveableStateProvider(state::class.toString()) {
                 SettingRootScreen(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = modifier.fillMaxSize(),
                     uiState = settingUiStateProvider(),
                     listener = rootScreenScaffoldListener,
+                    windowInsets = windowInsets,
                 )
             }
         }
 
         ScreenStructure.Root.Settings.Categories -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel =
-                    remember {
-                        SettingCategoriesViewModel(
-                            coroutineScope = coroutineScope,
-                            api = SettingScreenCategoryApi(
-                                apolloClient = koin.get<GraphqlClient>().apolloClient,
-                            ),
-                        )
-                    }
+                val viewModel = remember {
+                    SettingCategoriesViewModel(
+                        coroutineScope = coroutineScope,
+                        api = SettingScreenCategoryApi(
+                            apolloClient = koin.get<GraphqlClient>().apolloClient,
+                        ),
+                    )
+                }
 
                 LaunchedEffect(viewModel.viewModelEventHandler) {
                     viewModelEventHandlers.handleSettingCategories(viewModel.viewModelEventHandler)
@@ -85,22 +88,23 @@ internal fun SettingNavContent(
                 SettingCategoriesScreen(
                     rootScreenScaffoldListener = rootScreenScaffoldListener,
                     uiState = viewModel.uiState.collectAsState().value,
+                    modifier = modifier,
+                    windowInsets = windowInsets,
                 )
             }
         }
 
         is ScreenStructure.Root.Settings.Category -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel =
-                    remember {
-                        SettingCategoryViewModel(
-                            coroutineScope = coroutineScope,
-                            api = SettingScreenCategoryApi(
-                                apolloClient = koin.get<GraphqlClient>().apolloClient,
-                            ),
-                            categoryId = state.id,
-                        )
-                    }
+                val viewModel = remember {
+                    SettingCategoryViewModel(
+                        coroutineScope = coroutineScope,
+                        api = SettingScreenCategoryApi(
+                            apolloClient = koin.get<GraphqlClient>().apolloClient,
+                        ),
+                        categoryId = state.id,
+                    )
+                }
                 LaunchedEffect(viewModel.viewModelEventHandler) {
                     viewModelEventHandlers.handleSettingCategory(viewModel.viewModelEventHandler)
                 }
@@ -110,80 +114,83 @@ internal fun SettingNavContent(
                 SettingCategoryScreen(
                     rootScreenScaffoldListener = rootScreenScaffoldListener,
                     uiState = viewModel.uiState.collectAsState().value,
+                    modifier = modifier,
+                    windowInsets = windowInsets,
                 )
             }
         }
 
         ScreenStructure.Root.Settings.Imap -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel =
-                    remember {
-                        ImapSettingViewModel(
-                            coroutineScope = coroutineScope,
-                            graphqlQuery = GraphqlUserConfigQuery(
-                                graphqlClient = koin.get(),
-                            ),
-                            globalEventSender = globalEventSender,
-                            ioDispatchers = Dispatchers.Unconfined,
-                        )
-                    }
+                val viewModel = remember {
+                    ImapSettingViewModel(
+                        coroutineScope = coroutineScope,
+                        graphqlQuery = GraphqlUserConfigQuery(
+                            graphqlClient = koin.get(),
+                        ),
+                        globalEventSender = globalEventSender,
+                        ioDispatchers = Dispatchers.Unconfined,
+                    )
+                }
 
                 ImapConfigScreen(
                     uiState = viewModel.uiState.collectAsState().value,
                     listener = rootScreenScaffoldListener,
+                    modifier = modifier,
+                    windowInsets = windowInsets,
                 )
             }
         }
 
         ScreenStructure.Root.Settings.MailCategoryFilters -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel =
-                    remember(coroutineScope) {
-                        SettingMailCategoryFiltersViewModel(
+                val viewModel = remember(coroutineScope) {
+                    SettingMailCategoryFiltersViewModel(
+                        coroutineScope = coroutineScope,
+                        pagingModel =
+                        ImportedMailCategoryFilterScreenPagingModel(
                             coroutineScope = coroutineScope,
-                            pagingModel =
-                            ImportedMailCategoryFilterScreenPagingModel(
-                                coroutineScope = coroutineScope,
-                                graphqlClient = koin.get(),
-                            ),
-                            api = SettingImportedMailCategoryFilterApi(
-                                apolloClient = koin.get<GraphqlClient>().apolloClient,
-                            ),
-                        )
-                    }
+                            graphqlClient = koin.get(),
+                        ),
+                        api = SettingImportedMailCategoryFilterApi(
+                            apolloClient = koin.get<GraphqlClient>().apolloClient,
+                        ),
+                    )
+                }
                 LaunchedEffect(viewModel.eventHandler, viewModelEventHandlers) {
                     viewModelEventHandlers.handleSettingMailCategoryFilters(viewModel.eventHandler)
                 }
                 SettingMailCategoryFiltersScreen(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = modifier.fillMaxSize(),
                     uiState = viewModel.uiStateFlow.collectAsState().value,
                     rootScreenScaffoldListener = rootScreenScaffoldListener,
+                    windowInsets = windowInsets,
                 )
             }
         }
 
         is ScreenStructure.Root.Settings.MailCategoryFilter -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel =
-                    remember(coroutineScope) {
-                        ImportedMailFilterCategoryViewModel(
-                            coroutineScope = coroutineScope,
-                            id = state.id,
-                            api = ImportedMailFilterCategoryScreenGraphqlApi(
-                                apolloClient = koin.get<GraphqlClient>().apolloClient,
-                            ),
-                            graphqlClient = koin.get(),
-                        )
-                    }
+                val viewModel = remember(coroutineScope) {
+                    ImportedMailFilterCategoryViewModel(
+                        coroutineScope = coroutineScope,
+                        id = state.id,
+                        api = ImportedMailFilterCategoryScreenGraphqlApi(
+                            apolloClient = koin.get<GraphqlClient>().apolloClient,
+                        ),
+                        graphqlClient = koin.get(),
+                    )
+                }
 
                 LaunchedEffect(viewModelEventHandlers, viewModel.eventHandler) {
                     viewModelEventHandlers.handleImportedMailFilterCategory(viewModel.eventHandler)
                 }
 
                 ImportedMailFilterCategoryScreen(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = modifier.fillMaxSize(),
                     uiState = viewModel.uiStateFlow.collectAsState().value,
                     rootScreenScaffoldListener = rootScreenScaffoldListener,
+                    windowInsets = windowInsets,
                 )
             }
         }
@@ -208,9 +215,10 @@ internal fun SettingNavContent(
                 }
 
                 LoginSettingScreen(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = modifier.fillMaxSize(),
                     uiState = viewModel.uiStateFlow.collectAsState().value,
                     rootScreenScaffoldListener = rootScreenScaffoldListener,
+                    windowInsets = windowInsets,
                 )
             }
         }
@@ -236,6 +244,8 @@ internal fun SettingNavContent(
                     rootScreenScaffoldListener = rootScreenScaffoldListener,
                     uiState = viewModel.uiStateFlow.collectAsState().value,
                     snackbarHostState = snackbarHostState,
+                    modifier = modifier,
+                    windowInsets = windowInsets,
                 )
             }
         }

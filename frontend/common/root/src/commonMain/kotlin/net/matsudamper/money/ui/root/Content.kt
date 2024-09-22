@@ -295,7 +295,7 @@ fun Content(
                     }
                     holder.SaveableStateProvider(ScreenStructure.Root::class.toString()) {
                         RootNavContent(
-                            contentPadding = paddingValues,
+                            windowInsets = paddingValues,
                             tabHolder = tabHolder,
                             current = current,
                             rootScreenScaffoldListener = rootScreenScaffoldListener,

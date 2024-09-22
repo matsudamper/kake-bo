@@ -99,6 +99,7 @@ public fun SettingMailCategoryFiltersScreen(
     modifier: Modifier = Modifier,
     rootScreenScaffoldListener: RootScreenScaffoldListener,
     uiState: SettingMailCategoryFilterScreenUiState,
+    windowInsets: PaddingValues,
 ) {
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
@@ -116,6 +117,11 @@ public fun SettingMailCategoryFiltersScreen(
         modifier = modifier,
         topBar = {
             KakeBoTopAppBar(
+                navigation = {
+                    IconButton(onClick = { uiState.event.onClickBack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                    }
+                },
                 title = {
                     Text(
                         modifier =
@@ -128,11 +134,7 @@ public fun SettingMailCategoryFiltersScreen(
                         text = "家計簿",
                     )
                 },
-                navigation = {
-                    IconButton(onClick = { uiState.event.onClickBack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    }
-                },
+                windowInsets = windowInsets,
             )
         },
         currentScreen = RootScreenTab.Settings,

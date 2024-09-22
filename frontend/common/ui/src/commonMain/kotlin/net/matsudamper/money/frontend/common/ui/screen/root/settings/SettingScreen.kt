@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -61,6 +62,7 @@ public fun SettingRootScreen(
     modifier: Modifier = Modifier,
     uiState: RootSettingScreenUiState,
     listener: RootScreenScaffoldListener,
+    windowInsets: PaddingValues,
 ) {
     LaunchedEffect(Unit) {
         uiState.event.onResume()
@@ -84,6 +86,7 @@ public fun SettingRootScreen(
                         text = "家計簿",
                     )
                 },
+                windowInsets = windowInsets,
             )
         },
         content = {
@@ -207,6 +210,7 @@ private fun Preview() {
                 override fun onClickApiSetting() {}
             },
         ),
+        windowInsets = PaddingValues(),
         listener = object : RootScreenScaffoldListener {
             override val kakeboScaffoldListener: KakeboScaffoldListener = object : KakeboScaffoldListener {
                 override fun onClickTitle() {}

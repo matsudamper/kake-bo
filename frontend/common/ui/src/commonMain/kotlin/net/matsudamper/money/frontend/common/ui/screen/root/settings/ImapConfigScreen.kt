@@ -4,6 +4,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -89,6 +90,7 @@ public fun ImapConfigScreen(
     modifier: Modifier = Modifier,
     uiState: ImapSettingScreenUiState,
     listener: RootScreenScaffoldListener,
+    windowInsets: PaddingValues,
 ) {
     LaunchedEffect(Unit) {
         uiState.event.onResume()
@@ -127,6 +129,7 @@ public fun ImapConfigScreen(
                         text = "家計簿",
                     )
                 },
+                windowInsets = windowInsets,
             )
         },
         content = {

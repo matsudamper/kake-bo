@@ -1,11 +1,13 @@
 package net.matsudamper.money.frontend.common.ui.base
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 
 @Immutable
 public interface KakeboScaffoldListener {
@@ -30,6 +32,7 @@ public fun KakeboScaffold(
         },
         snackbarHost = snackbarHost,
         bottomBar = bottomBar,
+        contentWindowInsets = WindowInsets(0.dp),
     ) {
         content(it)
     }

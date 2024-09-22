@@ -90,6 +90,7 @@ public fun RootHomeMonthlyCategoryScreen(
     uiState: RootHomeMonthlyCategoryScreenUiState,
     modifier: Modifier = Modifier,
     scaffoldListener: RootScreenScaffoldListener,
+    windowInsets: PaddingValues,
 ) {
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
@@ -99,9 +100,10 @@ public fun RootHomeMonthlyCategoryScreen(
         currentScreen = RootScreenTab.Home,
         listener = scaffoldListener,
         topBar = {
-            KakeBoTopAppBar {
+            KakeBoTopAppBar(title = {
                 Text(uiState.title)
-            }
+            }, windowInsets = windowInsets
+            )
         },
     ) {
         when (val loadingState = uiState.loadingState) {

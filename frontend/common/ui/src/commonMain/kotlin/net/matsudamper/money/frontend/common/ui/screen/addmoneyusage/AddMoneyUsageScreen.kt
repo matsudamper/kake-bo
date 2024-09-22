@@ -118,6 +118,7 @@ public fun AddMoneyUsageScreen(
                         Text("追加")
                     }
                 },
+                windowInsets = contentPadding,
             )
         },
         bottomBar = {

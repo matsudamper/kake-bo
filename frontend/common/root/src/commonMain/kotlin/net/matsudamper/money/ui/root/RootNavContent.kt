@@ -2,6 +2,7 @@ package net.matsudamper.money.ui.root
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -57,7 +58,7 @@ internal fun RootNavContent(
     importMailLinkScreenUiStateProvider: @Composable (ScreenStructure.Root.Add.Import) -> ImportMailScreenUiState,
     homeAddTabScreenUiStateProvider: @Composable () -> HomeAddTabScreenUiState,
     settingUiStateProvider: @Composable () -> RootSettingScreenUiState,
-    contentPadding: PaddingValues,
+    windowInsets: PaddingValues,
 ) {
     val koin = LocalKoin.current
     val usageHost = rememberSaveableStateHolder()
@@ -88,6 +89,7 @@ internal fun RootNavContent(
                                 modifier = Modifier,
                                 scaffoldListener = rootScreenScaffoldListener,
                                 uiState = viewModel.uiStateFlow.collectAsState().value,
+                                windowInsets = windowInsets,
                             )
                         }
                     }
@@ -116,6 +118,7 @@ internal fun RootNavContent(
                                     }
                                     RootHomeTabPeriodAllScreen(
                                         modifier = Modifier.fillMaxSize(),
+                                        contentPadding=windowInsets,
                                         uiState = allContentViewModel.uiStateFlow.collectAsState().value,
                                         scaffoldListener = rootScreenScaffoldListener,
                                     )
@@ -145,6 +148,7 @@ internal fun RootNavContent(
                                     modifier = Modifier.fillMaxSize(),
                                     uiState = categoryViewModel.uiStateFlow.collectAsState().value,
                                     scaffoldListener = rootScreenScaffoldListener,
+                                    windowInsets=windowInsets,
                                 )
                             }
                         }
@@ -171,6 +175,7 @@ internal fun RootNavContent(
                             modifier = Modifier.fillMaxSize(),
                             uiState = monthlyCategoryViewModel.uiStateFlow.collectAsState().value,
                             scaffoldListener = rootScreenScaffoldListener,
+                            windowInsets=windowInsets,
                         )
                     }
                 }
@@ -186,6 +191,7 @@ internal fun RootNavContent(
                                 modifier = Modifier.fillMaxSize(),
                                 uiState = rootUiState,
                                 listener = rootScreenScaffoldListener,
+                                windowInsets=windowInsets,
                             ) {
                                 content()
                             }
@@ -198,7 +204,8 @@ internal fun RootNavContent(
                             val uiState = usageCalendarUiStateProvider(current.yearMonth)
                             rootScreen(uiState.hostScreenUiState) {
                                 RootUsageCalendarScreen(
-                                    modifier = Modifier.fillMaxSize(),
+                                    modifier = Modifier.fillMaxSize()
+                                        .padding(windowInsets),
                                     uiState = uiState,
                                 )
                             }
@@ -210,7 +217,8 @@ internal fun RootNavContent(
                             val uiState = usageListUiStateProvider()
                             rootScreen(uiState.hostScreenUiState) {
                                 RootUsageListScreen(
-                                    modifier = Modifier.fillMaxSize(),
+                                    modifier = Modifier.fillMaxSize()
+                                        .padding(windowInsets),
                                     uiState = uiState,
                                 )
                             }
@@ -227,6 +235,7 @@ internal fun RootNavContent(
                         HomeAddTabScreen(
                             rootScreenScaffoldListener = rootScreenScaffoldListener,
                             uiState = homeAddTabScreenUiStateProvider(),
+                            windowInsets=windowInsets,
                         )
                     }
 
@@ -234,6 +243,7 @@ internal fun RootNavContent(
                         MailImportScreen(
                             uiState = importMailLinkScreenUiStateProvider(current),
                             rootScreenScaffoldListener = rootScreenScaffoldListener,
+                            windowInsets=windowInsets,
                         )
                     }
 
@@ -241,6 +251,7 @@ internal fun RootNavContent(
                         ImportedMailListScreen(
                             uiState = importMailScreenUiStateProvider(current),
                             rootScreenScaffoldListener = rootScreenScaffoldListener,
+                            windowInsets=windowInsets,
                         )
                     }
                 }
@@ -256,6 +267,7 @@ internal fun RootNavContent(
                     rootScreenScaffoldListener = rootScreenScaffoldListener,
                     viewModelEventHandlers = viewModelEventHandlers,
                     settingUiStateProvider = settingUiStateProvider,
+                    windowInsets = windowInsets,
                 )
             }
         }

@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.ui.screen.root.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -94,6 +95,7 @@ public fun RootHomeTabPeriodScaffold(
     scaffoldListener: RootScreenScaffoldListener,
     modifier: Modifier = Modifier,
     menu: @Composable () -> Unit = {},
+    windowInsets: PaddingValues,
     content: @Composable () -> Unit,
 ) {
     val density = LocalDensity.current
@@ -109,11 +111,11 @@ public fun RootHomeTabPeriodScaffold(
         uiState = homeUiState,
         scaffoldListener = scaffoldListener,
         menu = menu,
+        contentPadding=windowInsets,
     ) {
         var containerHeight by remember { mutableStateOf(0.dp) }
         Box(
-            modifier =
-            Modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .onSizeChanged {
                     containerHeight = with(density) { it.height.toDp() }

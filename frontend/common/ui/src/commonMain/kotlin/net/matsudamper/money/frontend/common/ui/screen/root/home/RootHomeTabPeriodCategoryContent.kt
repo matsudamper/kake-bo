@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.ui.screen.root.home
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -51,35 +52,38 @@ public fun RootHomeTabPeriodCategoryScreen(
     modifier: Modifier = Modifier,
     uiState: RootHomeTabPeriodCategoryContentUiState,
     scaffoldListener: RootScreenScaffoldListener,
+    windowInsets: PaddingValues,
 ) {
     RootHomeTabPeriodScaffold(
-        modifier = Modifier.fillMaxSize(),
         uiState = uiState.rootHomeTabPeriodUiState,
         homeUiState = uiState.rootHomeTabUiState,
         scaffoldListener = scaffoldListener,
-    ) {
-        when (val loadingState = uiState.loadingState) {
-            is RootHomeTabPeriodCategoryContentUiState.LoadingState.Loaded -> {
-                LoadedContent(
-                    modifier = Modifier.fillMaxSize(),
-                    loadingState = loadingState,
-                )
-            }
+        modifier = Modifier.fillMaxSize(),
+        content = {
+            when (val loadingState = uiState.loadingState) {
+                is RootHomeTabPeriodCategoryContentUiState.LoadingState.Loaded -> {
+                    LoadedContent(
+                        modifier = Modifier.fillMaxSize(),
+                        loadingState = loadingState,
+                    )
+                }
 
-            RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading -> {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                    }
+                }
+
+                RootHomeTabPeriodCategoryContentUiState.LoadingState.Error -> {
+                    LoadingErrorContent(
+                        modifier = modifier,
+                        onClickRetry = { /* TODO */ },
+                    )
                 }
             }
-
-            RootHomeTabPeriodCategoryContentUiState.LoadingState.Error -> {
-                LoadingErrorContent(
-                    modifier = modifier,
-                    onClickRetry = { /* TODO */ },
-                )
-            }
-        }
-    }
+        },
+        windowInsets = windowInsets,
+    )
 }
 
 @Composable

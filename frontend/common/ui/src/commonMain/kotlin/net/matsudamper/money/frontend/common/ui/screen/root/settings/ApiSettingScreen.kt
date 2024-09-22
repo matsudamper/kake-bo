@@ -21,7 +21,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -107,6 +106,7 @@ public fun ApiSettingScreen(
     uiState: ApiSettingScreenUiState,
     rootScreenScaffoldListener: RootScreenScaffoldListener,
     snackbarHostState: SnackbarHostState,
+    windowInsets: PaddingValues,
 ) {
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
@@ -178,6 +178,11 @@ public fun ApiSettingScreen(
         snackbarHostState = snackbarHostState,
         topBar = {
             KakeBoTopAppBar(
+                navigation = {
+                    IconButton(onClick = { uiState.event.onClickBack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                    }
+                },
                 title = {
                     Text(
                         modifier =
@@ -190,11 +195,7 @@ public fun ApiSettingScreen(
                         text = "家計簿",
                     )
                 },
-                navigation = {
-                    IconButton(onClick = { uiState.event.onClickBack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    }
-                },
+                windowInsets = windowInsets,
             )
         },
         listener = rootScreenScaffoldListener,

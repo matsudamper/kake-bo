@@ -124,6 +124,7 @@ public fun LoginSettingScreen(
     uiState: LoginSettingScreenUiState,
     rootScreenScaffoldListener: RootScreenScaffoldListener,
     modifier: Modifier = Modifier,
+    windowInsets: PaddingValues,
 ) {
     uiState.textInputDialogState?.also { textInputDialogState ->
         HtmlFullScreenTextInput(
@@ -139,6 +140,11 @@ public fun LoginSettingScreen(
         currentScreen = RootScreenTab.Settings,
         topBar = {
             KakeBoTopAppBar(
+                navigation = {
+                    IconButton(onClick = { uiState.event.onClickBack() }) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
+                    }
+                },
                 title = {
                     Text(
                         modifier =
@@ -151,11 +157,7 @@ public fun LoginSettingScreen(
                         text = "家計簿",
                     )
                 },
-                navigation = {
-                    IconButton(onClick = { uiState.event.onClickBack() }) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = null)
-                    }
-                },
+                windowInsets = windowInsets,
             )
         },
         listener = rootScreenScaffoldListener,

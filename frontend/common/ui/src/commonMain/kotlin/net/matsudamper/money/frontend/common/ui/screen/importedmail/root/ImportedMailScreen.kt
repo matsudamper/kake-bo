@@ -220,19 +220,21 @@ public fun ImportedMailScreen(
                         }
                     }
                 },
-            ) {
-                Box(
-                    modifier =
-                    Modifier
-                        .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
-                            uiState.event.onClickTitle()
-                        },
-                ) {
-                    Text(
-                        text = "家計簿 - メール",
-                    )
-                }
-            }
+                title = {
+                    Box(
+                        modifier =
+                        Modifier
+                            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
+                                uiState.event.onClickTitle()
+                            },
+                    ) {
+                        Text(
+                            text = "家計簿 - メール",
+                        )
+                    }
+                },
+                windowInsets = contentPadding,
+            )
         },
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) { paddingValues ->

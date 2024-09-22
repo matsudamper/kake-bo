@@ -117,6 +117,7 @@ public fun SettingCategoryScreen(
     modifier: Modifier = Modifier,
     uiState: SettingCategoryScreenUiState,
     rootScreenScaffoldListener: RootScreenScaffoldListener,
+    windowInsets: PaddingValues,
 ) {
     LaunchedEffect(Unit) {
         uiState.event.onResume()
@@ -178,6 +179,7 @@ public fun SettingCategoryScreen(
                         text = "家計簿",
                     )
                 },
+                windowInsets = windowInsets,
             )
         },
         content = {

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -59,12 +60,14 @@ public fun RootHomeTabPeriodAllScreen(
     modifier: Modifier = Modifier,
     uiState: RootHomeTabPeriodAllContentUiState,
     scaffoldListener: RootScreenScaffoldListener,
+    contentPadding: PaddingValues,
 ) {
     RootHomeTabPeriodScaffold(
         modifier = modifier.fillMaxSize(),
         uiState = uiState.rootHomeTabPeriodUiState,
         homeUiState = uiState.rootHomeTabUiState,
         scaffoldListener = scaffoldListener,
+        windowInsets = contentPadding,
     ) {
         when (val loadingState = uiState.loadingState) {
             is RootHomeTabPeriodAllContentUiState.LoadingState.Loaded -> {

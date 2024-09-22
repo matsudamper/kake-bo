@@ -132,6 +132,7 @@ public fun ImportedMailListScreen(
     modifier: Modifier = Modifier,
     uiState: ImportedMailListScreenUiState,
     rootScreenScaffoldListener: RootScreenScaffoldListener,
+    windowInsets: PaddingValues,
 ) {
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
@@ -155,6 +156,7 @@ public fun ImportedMailListScreen(
                         text = "家計簿",
                     )
                 },
+                windowInsets = windowInsets,
             )
         },
     ) {

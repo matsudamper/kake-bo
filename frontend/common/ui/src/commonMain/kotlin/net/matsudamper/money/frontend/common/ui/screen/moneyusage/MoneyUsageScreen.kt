@@ -271,6 +271,7 @@ public fun MoneyUsageScreen(
                         text = "家計簿",
                     )
                 },
+                windowInsets = contentPadding,
             )
         },
     ) { paddingValues ->
