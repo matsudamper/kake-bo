@@ -247,7 +247,7 @@ public fun MoneyUsageScreen(
     }
 
     KakeboScaffold(
-        modifier = modifier.padding(windowInsets),
+        modifier = modifier,
         topBar = {
             KakeBoTopAppBar(
                 navigation = {
