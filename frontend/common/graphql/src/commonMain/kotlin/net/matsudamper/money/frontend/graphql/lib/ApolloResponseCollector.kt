@@ -13,6 +13,7 @@ import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Query
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
+import com.apollographql.apollo3.cache.normalized.isFromCache
 import com.apollographql.apollo3.cache.normalized.watch
 
 public class ApolloResponseCollector<D : Query.Data>(
@@ -45,7 +46,8 @@ public class ApolloResponseCollector<D : Query.Data>(
                     mutableStateFlow.value = ApolloResponseState.failure(it)
                 }
                 .collect {
-                    println("collect: Data(${it.data})")
+                    // 最初のロードでネットワークから情報が来る前にdataにnullが来る事がある
+                    if (it.isFromCache && it.data == null) return@collect
                     mutableStateFlow.value = ApolloResponseState.success(it)
                 }
         }
