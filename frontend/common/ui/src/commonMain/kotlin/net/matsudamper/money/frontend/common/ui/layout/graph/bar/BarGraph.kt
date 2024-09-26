@@ -66,7 +66,6 @@ internal fun BarGraph(
             maxValue = maxValue.coerceAtLeast(value)
         }
     }
-
     if (maxValue != 0L) {
         Column(modifier = modifier) {
             Row(
@@ -75,15 +74,45 @@ internal fun BarGraph(
                     .weight(1f),
                 verticalAlignment = Alignment.Bottom,
             ) {
-                for (item in uiState.items) {
-                    SingleBarGraph(
+                for ((index, item) in uiState.items.withIndex()) {
+                    Box(
                         modifier = Modifier
                             .fillMaxHeight()
                             .weight(1f),
-                        maxValue = maxValue,
-                        items = item.items,
-                        onClick = { item.event.onClick() },
-                    )
+                    ) {
+                        if (index == 0) {
+                            Box(
+                                modifier = Modifier.fillMaxHeight()
+                                    .layout { measurable, constraints ->
+                                        val placeable = measurable.measure(
+                                            constraints.copy(
+                                                maxWidth = Constraints.Infinity,
+                                            ),
+                                        )
+                                        layout(constraints.maxWidth, constraints.maxHeight) {
+                                            placeable.place(0, 0)
+                                        }
+                                    },
+                            ) {
+                                val maxValueString = maxValue.toString()
+                                    .reversed()
+                                    .chunked(3)
+                                    .joinToString(",")
+                                    .reversed()
+                                Text(
+                                    text = maxValueString,
+                                    style = MaterialTheme.typography.labelSmall,
+                                )
+                            }
+                        }
+                        SingleBarGraph(
+                            modifier = Modifier
+                                .fillMaxHeight(),
+                            maxValue = maxValue,
+                            items = item.items,
+                            onClick = { item.event.onClick() },
+                        )
+                    }
                 }
             }
 
