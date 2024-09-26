@@ -12,7 +12,7 @@ import kotlinx.browser.window
 import org.w3c.dom.events.EventListener
 
 @Composable
-internal actual fun BackHandler(
+public actual fun BackHandler(
     enable: Boolean,
     block: () -> Unit,
 ) {
