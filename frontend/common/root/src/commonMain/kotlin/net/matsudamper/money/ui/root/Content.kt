@@ -11,7 +11,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.collectAsState
@@ -30,7 +29,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.admin.rememberAdminScreenController
 import net.matsudamper.money.frontend.common.base.nav.user.JsScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
@@ -135,7 +133,6 @@ fun Content(
                 factory<GlobalEventHandlerLoginCheckUseCaseDelegate> {
                     GlobalEventHandlerLoginCheckUseCaseDelegate(
                         useCase = LoginCheckUseCaseImpl(
-                            ioDispatcher = Dispatchers.Unconfined,
                             graphqlQuery = GraphqlUserLoginQuery(
                                 graphqlClient = get(),
                             ),

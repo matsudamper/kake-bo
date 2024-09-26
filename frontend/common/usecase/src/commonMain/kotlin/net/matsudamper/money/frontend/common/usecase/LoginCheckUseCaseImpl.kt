@@ -1,7 +1,8 @@
 package net.matsudamper.money.frontend.common.usecase
 
-import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 
 public interface LoginCheckUseCase {
@@ -9,13 +10,12 @@ public interface LoginCheckUseCase {
 }
 
 public class LoginCheckUseCaseImpl(
-    private val ioDispatcher: CoroutineDispatcher,
     private val graphqlQuery: GraphqlUserLoginQuery,
     private val eventListener: EventListener,
 ) : LoginCheckUseCase {
     override suspend fun check(): Boolean {
         return runCatching {
-            withContext(ioDispatcher) {
+            withContext(Dispatchers.IO) {
                 graphqlQuery.isLoggedIn()
             }
         }.onFailure { e ->
