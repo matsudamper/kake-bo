@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.ui.layout.graph.bar
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -54,8 +55,8 @@ public data class BarGraphUiState(
 
 @Composable
 internal fun BarGraph(
-    modifier: Modifier = Modifier,
     uiState: BarGraphUiState,
+    modifier: Modifier = Modifier,
     contentColor: Color = MaterialTheme.colorScheme.secondary,
 ) {
     var maxValue by remember { mutableLongStateOf(0) }
@@ -81,6 +82,7 @@ internal fun BarGraph(
                             .weight(1f),
                         maxValue = maxValue,
                         items = item.items,
+                        onClick = { item.event.onClick() },
                     )
                 }
             }
@@ -133,6 +135,7 @@ internal fun BarGraph(
 private fun SingleBarGraph(
     maxValue: Long,
     items: ImmutableList<BarGraphUiState.Item>,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
@@ -140,7 +143,8 @@ private fun SingleBarGraph(
         val containerHeight = this.maxHeight
         val containerWidth = this.maxWidth
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize()
+                .clickable { onClick() },
             verticalArrangement = Arrangement.Bottom,
         ) {
             for (item in items.reversed()) {
