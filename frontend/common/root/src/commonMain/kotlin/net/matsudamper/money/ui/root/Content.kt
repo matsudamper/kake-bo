@@ -77,7 +77,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostV
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
-import net.matsudamper.money.ui.root.platform.rememberUrlOpener
+import net.matsudamper.money.ui.root.platform.PlatformTools
 import org.koin.dsl.module
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -85,6 +85,7 @@ import org.koin.dsl.module
 fun Content(
     modifier: Modifier = Modifier,
     globalEventSender: EventSender<GlobalEvent>,
+    platformToolsProvider: () -> PlatformTools,
     composeSizeProvider: () -> MutableStateFlow<IntSize> = { MutableStateFlow(IntSize.Zero) },
 ) {
     val koin = LocalKoin.current
@@ -248,18 +249,17 @@ fun Content(
         )
     }
 
-    val urlOpener = rememberUrlOpener()
     val viewModelEventHandlers = remember(
         navController,
         globalEventSender,
         rootScreenScaffoldListener,
-        urlOpener,
+        platformToolsProvider,
     ) {
         ViewModelEventHandlers(
             navController = navController,
             globalEventSender = globalEventSender,
             rootScreenScaffoldListener = rootScreenScaffoldListener,
-            urlOpener = urlOpener,
+            platformToolsProvider = platformToolsProvider,
         )
     }
     remember {

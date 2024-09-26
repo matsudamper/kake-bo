@@ -34,13 +34,13 @@ import net.matsudamper.money.frontend.common.viewmodel.root.usage.MoneyUsagesLis
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
-import net.matsudamper.money.ui.root.platform.UrlOpener
+import net.matsudamper.money.ui.root.platform.PlatformTools
 
 data class ViewModelEventHandlers(
     private val navController: JsScreenNavController,
     private val globalEventSender: EventSender<GlobalEvent>,
     private val rootScreenScaffoldListener: RootScreenScaffoldListener,
-    private val urlOpener: UrlOpener,
+    private val platformToolsProvider: () -> PlatformTools,
 ) {
     suspend fun handleMailImport(handler: EventHandler<MailImportViewModelEvent>) {
         coroutineScope {
@@ -109,7 +109,7 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun open(url: String) {
-                        urlOpener.open(url)
+                        platformToolsProvider().urlOpener.open(url)
                     }
                 },
             )
@@ -180,12 +180,11 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun openWeb(url: String) {
-                        urlOpener.open(url)
+                        platformToolsProvider().urlOpener.open(url)
                     }
 
                     override fun copyToClipboard(text: String) {
-                        // TODO
-//                        window.navigator.clipboard.writeText(text)
+                        platformToolsProvider().clipboardManager.copy(text)
                     }
                 },
             )
@@ -260,12 +259,11 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun copyUrl(text: String) {
-                        TODO()
-//                        window.navigator.clipboard.writeText(text)
+                        platformToolsProvider().clipboardManager.copy(text)
                     }
 
                     override fun openUrl(text: String) {
-                        urlOpener.open(text)
+                        platformToolsProvider().urlOpener.open(text)
                     }
                 },
             )
@@ -402,8 +400,7 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun copyToClipboard(token: String) {
-                        TODO()
-//                        window.navigator.clipboard.writeText(token)
+                        platformToolsProvider().clipboardManager.copy(token)
                     }
 
                     override suspend fun showSnackbar(text: String) {

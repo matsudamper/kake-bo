@@ -10,7 +10,11 @@ import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.ui.CustomTheme
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
+import net.matsudamper.money.platform.PlatFormToolsImpl
 import net.matsudamper.money.ui.root.Content
+import net.matsudamper.money.ui.root.platform.ClipboardManager
+import net.matsudamper.money.ui.root.platform.PlatformTools
+import net.matsudamper.money.ui.root.platform.UrlOpener
 import org.koin.core.context.GlobalContext
 
 class MainActivity : ComponentActivity() {
@@ -26,6 +30,7 @@ class MainActivity : ComponentActivity() {
                     Content(
                         modifier = Modifier.fillMaxSize(),
                         globalEventSender = globalEventSender,
+                        platformToolsProvider = { PlatFormToolsImpl(this) },
                     )
                 }
             }

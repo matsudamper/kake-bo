@@ -14,6 +14,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.ui.root.Content
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.koin.core.context.startKoin
+import platform.PlatformToolsProvider
 
 @OptIn(ExperimentalComposeUiApi::class)
 fun main(
@@ -41,6 +42,7 @@ fun main(
                             modifier = Modifier.fillMaxSize(),
                             globalEventSender = globalEventSender,
                             composeSizeProvider = { composeSize },
+                            platformToolsProvider = { PlatformToolsProvider() },
                         )
                     }
                 }
