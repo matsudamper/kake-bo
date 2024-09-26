@@ -16,6 +16,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructu
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlyCategoryScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllContentUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.monthly.RootHomeMonthlyScreen
@@ -53,6 +54,7 @@ internal fun RootNavContent(
     usageCalendarUiStateProvider: @Composable (ScreenStructure.Root.Usage.Calendar.YearMonth?) -> RootUsageCalendarScreenUiState,
     importMailScreenUiStateProvider: @Composable (ScreenStructure.Root.Add.Imported) -> ImportedMailListScreenUiState,
     importMailLinkScreenUiStateProvider: @Composable (ScreenStructure.Root.Add.Import) -> ImportMailScreenUiState,
+    rootHomeTabPeriodAllContentUiStateProvider: @Composable (RootHomeScreenStructure.Period) -> RootHomeTabPeriodAllContentUiState,
     homeAddTabScreenUiStateProvider: @Composable () -> HomeAddTabScreenUiState,
     settingUiStateProvider: @Composable () -> RootSettingScreenUiState,
     windowInsets: PaddingValues,
@@ -97,26 +99,10 @@ internal fun RootNavContent(
                             is RootHomeScreenStructure.PeriodAnalytics,
                             -> {
                                 holder.SaveableStateProvider(RootHomeScreenStructure.Period::class.simpleName!!) {
-                                    val allContentViewModel = remember {
-                                        RootHomeTabPeriodAllContentViewModel(
-                                            coroutineScope = rootCoroutineScope,
-                                            api = RootHomeTabScreenApi(
-                                                graphqlClient = koin.get(),
-                                            ),
-                                            loginCheckUseCase = koin.get(),
-                                            graphqlClient = koin.get(),
-                                        )
-                                    }
-                                    LaunchedEffect(allContentViewModel, current) {
-                                        allContentViewModel.updateStructure(current)
-                                    }
-                                    LaunchedEffect(allContentViewModel.eventHandler) {
-                                        viewModelEventHandlers.handleRootHomeTabPeriodAllContent(allContentViewModel.eventHandler)
-                                    }
                                     RootHomeTabPeriodAllScreen(
                                         modifier = Modifier.fillMaxSize(),
                                         contentPadding = windowInsets,
-                                        uiState = allContentViewModel.uiStateFlow.collectAsState().value,
+                                        uiState = rootHomeTabPeriodAllContentUiStateProvider(current),
                                         scaffoldListener = rootScreenScaffoldListener,
                                     )
                                 }

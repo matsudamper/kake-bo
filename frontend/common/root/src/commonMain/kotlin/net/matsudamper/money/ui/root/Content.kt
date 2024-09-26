@@ -67,6 +67,8 @@ import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.RootViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.LoginCheckUseCaseEventListenerImpl
+import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodAllContentViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeAddTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.ImportedMailListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModel
@@ -501,6 +503,25 @@ private fun RootScreenContainer(
             },
             settingUiStateProvider = {
                 settingViewModel.uiState.collectAsState().value
+            },
+            rootHomeTabPeriodAllContentUiStateProvider = { current ->
+                val allContentViewModel = remember {
+                    RootHomeTabPeriodAllContentViewModel(
+                        coroutineScope = rootCoroutineScope,
+                        api = RootHomeTabScreenApi(
+                            graphqlClient = koin.get(),
+                        ),
+                        loginCheckUseCase = koin.get(),
+                        graphqlClient = koin.get(),
+                    )
+                }
+                LaunchedEffect(allContentViewModel, current) {
+                    allContentViewModel.updateStructure(current)
+                }
+                LaunchedEffect(allContentViewModel.eventHandler) {
+                    viewModelEventHandlers.handleRootHomeTabPeriodAllContent(allContentViewModel.eventHandler)
+                }
+                allContentViewModel.uiStateFlow.collectAsState().value
             },
         )
     }
