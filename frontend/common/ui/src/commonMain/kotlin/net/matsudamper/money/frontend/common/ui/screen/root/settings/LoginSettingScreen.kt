@@ -45,15 +45,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import net.matsudamper.money.frontend.common.base.ImmutableList
-import net.matsudamper.money.frontend.common.ui.ScrollButtons
-import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
@@ -202,7 +199,6 @@ private fun LoadedContent(
 ) {
     Box(modifier = modifier) {
         val layoutDirection = LocalLayoutDirection.current
-        var scrollButtonHeightPx by remember { mutableIntStateOf(0) }
         val lazyListState = rememberLazyListState()
         var listHeightPx by remember { mutableIntStateOf(0) }
         LazyColumn(
@@ -218,8 +214,7 @@ private fun LoadedContent(
                 top = paddingValues.calculateTopPadding(),
                 bottom =
                 paddingValues.calculateBottomPadding()
-                    .plus(24.dp)
-                    .plus(with(LocalDensity.current) { scrollButtonHeightPx.toDp() }),
+                    .plus(24.dp),
             ),
             state = lazyListState,
         ) {
@@ -276,17 +271,6 @@ private fun LoadedContent(
                 }
             }
         }
-
-        ScrollButtons(
-            modifier =
-            Modifier
-                .onSizeChanged { scrollButtonHeightPx = it.height }
-                .align(Alignment.BottomEnd)
-                .padding(ScrollButtonsDefaults.padding)
-                .height(ScrollButtonsDefaults.height),
-            scrollState = lazyListState,
-            scrollSize = listHeightPx * 0.4f,
-        )
     }
 }
 

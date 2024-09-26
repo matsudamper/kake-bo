@@ -1,7 +1,5 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.usage
 
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -28,14 +26,11 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import net.matsudamper.money.frontend.common.base.ImmutableList
-import net.matsudamper.money.frontend.common.ui.ScrollButtons
-import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 
 public data class RootUsageListScreenUiState(
@@ -90,12 +85,10 @@ public fun RootUsageListScreen(
     modifier: Modifier = Modifier,
     uiState: RootUsageListScreenUiState,
 ) {
-    val density = LocalDensity.current
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
     }
     BoxWithConstraints(modifier) {
-        val height = maxHeight
         when (uiState.loadingState) {
             is RootUsageListScreenUiState.LoadingState.Loaded -> {
                 val lazyListState = rememberLazyListState()
@@ -104,23 +97,6 @@ public fun RootUsageListScreen(
                     uiState = uiState.loadingState,
                     paddingValues = PaddingValues(),
                     lazyListState = lazyListState,
-                )
-
-                ScrollButtons(
-                    modifier =
-                    Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(ScrollButtonsDefaults.padding)
-                        .height(ScrollButtonsDefaults.height),
-                    scrollState = lazyListState,
-                    scrollSize =
-                    with(density) {
-                        height.toPx() * 0.7f
-                    },
-                    animationSpec =
-                    spring(
-                        stiffness = Spring.StiffnessLow,
-                    ),
                 )
             }
 

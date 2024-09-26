@@ -27,7 +27,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -42,12 +41,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import net.matsudamper.money.frontend.common.ui.ScrollButtons
-import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
@@ -118,7 +114,6 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
         remember(uiState.isLoading, uiState.mails) {
             uiState.mails.isNotEmpty() || uiState.isLoading.not()
         }
-    var scrollBarHeight by remember { mutableIntStateOf(0) }
     var containerHeight by remember { mutableIntStateOf(0) }
     val lazyListState = rememberLazyListState()
     Scaffold(
@@ -153,19 +148,6 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                             )
                         }
                     }
-
-                    ScrollButtons(
-                        modifier =
-                        Modifier
-                            .onSizeChanged {
-                                scrollBarHeight = it.height
-                            }
-                            .align(Alignment.Bottom)
-                            .padding(ScrollButtonsDefaults.padding)
-                            .height(ScrollButtonsDefaults.height),
-                        scrollState = lazyListState,
-                        scrollSize = containerHeight * 0.4f,
-                    )
                 }
             }
         },
@@ -307,7 +289,6 @@ private fun MailDeleteConfirmDialog(uiState: ImportMailScreenUiState.MailDeleteD
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MailContent(
     modifier: Modifier = Modifier,

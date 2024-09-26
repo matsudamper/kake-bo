@@ -35,15 +35,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
-import net.matsudamper.money.frontend.common.ui.ScrollButtons
-import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 
 public data class RootUsageCalendarScreenUiState(
     val event: Event,
@@ -126,31 +123,6 @@ public fun RootUsageCalendarScreen(
                         bottom = with(density) { buttonSize.height.toDp() },
                     ),
                 )
-
-                Column(
-                    modifier =
-                    Modifier.align(Alignment.BottomEnd)
-                        .onSizeChanged {
-                            buttonSize = it
-                        },
-                    horizontalAlignment = Alignment.End,
-                ) {
-                    ScrollButtons(
-                        modifier =
-                        Modifier
-                            .padding(ScrollButtonsDefaults.padding)
-                            .height(ScrollButtonsDefaults.height),
-                        scrollState = lazyGridState,
-                        scrollSize =
-                        with(density) {
-                            height.toPx() * 0.4f
-                        },
-                        animationSpec =
-                        spring(
-                            stiffness = Spring.StiffnessLow,
-                        ),
-                    )
-                }
             }
 
             is RootUsageCalendarScreenUiState.LoadingState.Loading -> {

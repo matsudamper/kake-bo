@@ -47,20 +47,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
-import net.matsudamper.money.frontend.common.ui.ScrollButtons
-import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -394,13 +389,10 @@ private fun LoadedContent(
     uiState: ImportedMailFilterCategoryScreenUiState.LoadingState.Loaded,
     contentPadding: PaddingValues,
 ) {
-    val density = LocalDensity.current
     BoxWithConstraints(
         modifier = modifier,
     ) {
-        val height by rememberUpdatedState(maxHeight)
         val lazyListState = rememberLazyListState()
-        var scrollButtonSize by remember { mutableStateOf(0.dp) }
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -537,19 +529,6 @@ private fun LoadedContent(
                 }
             }
         }
-
-        ScrollButtons(
-            modifier =
-            Modifier
-                .onSizeChanged {
-                    scrollButtonSize = with(density) { it.height.toDp() }
-                }
-                .align(Alignment.BottomEnd)
-                .padding(ScrollButtonsDefaults.padding)
-                .height(ScrollButtonsDefaults.height),
-            scrollState = lazyListState,
-            scrollSize = with(density) { height.toPx() } * 0.4f,
-        )
     }
 }
 

@@ -19,7 +19,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -29,8 +28,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
-import net.matsudamper.money.frontend.common.ui.ScrollButtons
-import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
@@ -139,7 +136,6 @@ public fun RootHomeTabPeriodScaffold(
 
                 is RootHomeTabPeriodUiState.LoadingState.Loaded -> {
                     val scrollState = rememberScrollState()
-                    var scrollBarHeight by remember { mutableIntStateOf(0) }
                     Column(
                         modifier =
                         Modifier
@@ -165,23 +161,7 @@ public fun RootHomeTabPeriodScaffold(
                             content = content,
                         )
                         Spacer(modifier = Modifier.height(12.dp))
-                        Spacer(modifier = Modifier.height(with(density) { scrollBarHeight.toDp() }))
                     }
-                    ScrollButtons(
-                        modifier =
-                        Modifier
-                            .onSizeChanged {
-                                scrollBarHeight = it.height
-                            }
-                            .align(Alignment.BottomEnd)
-                            .padding(ScrollButtonsDefaults.padding)
-                            .height(ScrollButtonsDefaults.height),
-                        scrollState = scrollState,
-                        scrollSize =
-                        with(density) {
-                            containerHeight.toPx() * 0.4f
-                        },
-                    )
                 }
             }
         }

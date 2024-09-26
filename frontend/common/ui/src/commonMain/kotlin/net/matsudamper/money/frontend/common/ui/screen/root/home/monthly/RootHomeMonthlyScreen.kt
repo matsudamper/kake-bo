@@ -18,26 +18,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import net.matsudamper.money.frontend.common.ui.ScrollButtons
-import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreenScaffold
@@ -128,25 +118,20 @@ public fun RootHomeMonthlyScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LoadedContent(
     loadingState: RootHomeMonthlyScreenUiState.LoadingState.Loaded,
     modifier: Modifier = Modifier,
 ) {
-    val density = LocalDensity.current
     BoxWithConstraints(
         modifier = modifier,
     ) {
         val lazyListState = rememberLazyListState()
-        val height by rememberUpdatedState(maxHeight)
-        var scrollButtonHeight by remember { mutableIntStateOf(0) }
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState,
-            contentPadding =
-            PaddingValues(
-                bottom = with(density) { scrollButtonHeight.toDp() } + 8.dp,
+            contentPadding = PaddingValues(
+                bottom = 8.dp,
                 top = 8.dp,
                 start = 8.dp,
                 end = 8.dp,
@@ -230,16 +215,5 @@ private fun LoadedContent(
                 }
             }
         }
-        ScrollButtons(
-            modifier =
-            Modifier.align(Alignment.BottomEnd)
-                .padding(ScrollButtonsDefaults.padding)
-                .height(ScrollButtonsDefaults.height)
-                .onSizeChanged {
-                    scrollButtonHeight = it.height
-                },
-            scrollState = lazyListState,
-            scrollSize = with(density) { height.toPx() } * 0.4f,
-        )
     }
 }

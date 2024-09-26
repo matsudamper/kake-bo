@@ -28,17 +28,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
-import net.matsudamper.money.frontend.common.ui.ScrollButtons
-import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
@@ -185,11 +180,9 @@ private fun LoadedContent(
     uiState: SettingMailCategoryFilterScreenUiState.LoadingState.Loaded,
     contentPadding: PaddingValues,
 ) {
-    val density = LocalDensity.current
     val layoutDirection = LocalLayoutDirection.current
     val lazyListState = rememberLazyListState()
     BoxWithConstraints(modifier = modifier) {
-        val height by rememberUpdatedState(maxHeight)
         Column(
             modifier =
             Modifier.fillMaxSize()
@@ -232,14 +225,5 @@ private fun LoadedContent(
                 }
             }
         }
-        ScrollButtons(
-            modifier =
-            Modifier
-                .align(Alignment.BottomEnd)
-                .padding(ScrollButtonsDefaults.padding)
-                .height(ScrollButtonsDefaults.height),
-            scrollState = lazyListState,
-            scrollSize = with(density) { height.toPx() } * 0.4f,
-        )
     }
 }

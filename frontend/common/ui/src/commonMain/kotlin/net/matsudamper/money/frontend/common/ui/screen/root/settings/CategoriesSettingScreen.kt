@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -35,8 +34,6 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
-import net.matsudamper.money.frontend.common.ui.ScrollButtons
-import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
@@ -130,7 +127,7 @@ public fun SettingCategoriesScreen(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 public fun MainContent(
     modifier: Modifier,
@@ -194,16 +191,6 @@ public fun MainContent(
                             Spacer(Modifier.height(24.dp))
                         }
                     }
-
-                    ScrollButtons(
-                        modifier =
-                        Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(ScrollButtonsDefaults.padding)
-                            .height(ScrollButtonsDefaults.height),
-                        scrollState = lazyListState,
-                        scrollSize = listHeightPx * 0.4f,
-                    )
                 }
             }
 

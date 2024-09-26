@@ -43,8 +43,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -53,8 +51,6 @@ import androidx.compose.ui.window.PopupProperties
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import net.matsudamper.money.frontend.common.base.ImmutableList
-import net.matsudamper.money.frontend.common.ui.ScrollButtons
-import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
@@ -190,8 +186,6 @@ private fun MainContent(
     uiState: ImportedMailListScreenUiState.LoadingState.Loaded,
     moreLoading: () -> Unit,
 ) {
-    val density = LocalDensity.current
-    var scrollButtonSize by remember { mutableStateOf(0.dp) }
     Column(modifier = modifier) {
         Filter(
             modifier = Modifier.fillMaxWidth(),
@@ -208,15 +202,10 @@ private fun MainContent(
             Modifier.fillMaxWidth()
                 .weight(1f),
         ) {
-            val height = maxHeight
             val lazyListState = rememberLazyListState()
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 state = lazyListState,
-                contentPadding =
-                PaddingValues(
-                    bottom = scrollButtonSize,
-                ),
             ) {
                 items(uiState.listItems) { mail ->
                     SuggestUsageItem(
@@ -249,19 +238,6 @@ private fun MainContent(
                     }
                 }
             }
-
-            ScrollButtons(
-                modifier =
-                Modifier
-                    .onSizeChanged {
-                        scrollButtonSize = with(density) { it.height.toDp() }
-                    }
-                    .align(Alignment.BottomEnd)
-                    .padding(ScrollButtonsDefaults.padding)
-                    .height(ScrollButtonsDefaults.height),
-                scrollState = lazyListState,
-                scrollSize = with(density) { height.toPx() } * 0.4f,
-            )
         }
     }
 }

@@ -29,8 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import net.matsudamper.money.frontend.common.ui.ScrollButtons
-import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
@@ -181,16 +179,6 @@ private fun MainContent(
                     )
                 }
             }
-
-            ScrollButtons(
-                modifier =
-                Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(ScrollButtonsDefaults.padding)
-                    .height(ScrollButtonsDefaults.height),
-                scrollState = scrollState,
-                scrollSize = scrollContainerHeightPx * 0.4f,
-            )
         }
     }
 }

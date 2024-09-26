@@ -38,16 +38,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import kotlinx.datetime.LocalDate
 import net.matsudamper.money.frontend.common.base.ImmutableList
-import net.matsudamper.money.frontend.common.ui.ScrollButtons
-import net.matsudamper.money.frontend.common.ui.ScrollButtonsDefaults
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -313,22 +309,15 @@ private fun LoadedContent(
     modifier: Modifier,
     uiState: MoneyUsageScreenUiState.LoadingState.Loaded,
 ) {
-    val density = LocalDensity.current
     val state = rememberLazyListState()
     BoxWithConstraints(
         modifier = modifier,
     ) {
-        val containerHeight = maxHeight
-        var scrollButtonHeight by remember { mutableStateOf(0.dp) }
         LazyColumn(
             modifier =
             Modifier
                 .fillMaxSize()
                 .padding(horizontal = 12.dp),
-            contentPadding =
-            PaddingValues(
-                bottom = scrollButtonHeight + 8.dp,
-            ),
             state = state,
         ) {
             item {
@@ -408,16 +397,6 @@ private fun LoadedContent(
                 }
             }
         }
-        ScrollButtons(
-            modifier =
-            Modifier
-                .onSizeChanged { scrollButtonHeight = with(density) { it.height.toDp() } }
-                .align(Alignment.BottomEnd)
-                .padding(ScrollButtonsDefaults.padding)
-                .height(ScrollButtonsDefaults.height),
-            scrollState = state,
-            scrollSize = remember(density, containerHeight) { with(density) { (containerHeight * 0.7f).toPx() } },
-        )
     }
 }
 
