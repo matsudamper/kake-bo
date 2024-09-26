@@ -51,7 +51,7 @@ public fun ImportedMailHtmlScreen(
     modifier: Modifier = Modifier,
     uiState: ImportedMailHtmlScreenUiState,
     kakeboScaffoldListener: KakeboScaffoldListener,
-    contentPadding: PaddingValues,
+    windowInsets: PaddingValues,
 ) {
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
@@ -68,7 +68,7 @@ public fun ImportedMailHtmlScreen(
 
         is ImportedMailHtmlScreenUiState.LoadingState.Loading -> {
             KakeboScaffold(
-                modifier = modifier.padding(contentPadding),
+                modifier = modifier.padding(windowInsets),
                 topBar = {
                     KakeBoTopAppBar(
                         navigation = {
@@ -92,7 +92,7 @@ public fun ImportedMailHtmlScreen(
                                 text = "家計簿",
                             )
                         },
-                        windowInsets = contentPadding,
+                        windowInsets = windowInsets,
                     )
                 },
             ) {
@@ -109,7 +109,7 @@ public fun ImportedMailHtmlScreen(
 
         ImportedMailHtmlScreenUiState.LoadingState.Error -> {
             LoadingErrorContent(
-                modifier = modifier.padding(contentPadding),
+                modifier = modifier.padding(windowInsets),
                 onClickRetry = {
                     uiState.event.onClickRetry()
                 },

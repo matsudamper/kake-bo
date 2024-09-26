@@ -39,12 +39,12 @@ import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 public fun LoginScreen(
     uiState: LoginScreenUiState,
     modifier: Modifier = Modifier,
-    contentPadding: PaddingValues,
+    windowInsets: PaddingValues,
 ) {
     val focusRequester = remember { FocusRequester() }
     Surface(
         modifier = modifier
-            .padding(contentPadding)
+            .padding(windowInsets)
             .focusRequester(focusRequester),
         color = MaterialTheme.colorScheme.background,
         contentColor = MaterialTheme.colorScheme.onBackground,

@@ -92,7 +92,7 @@ public data class AddMoneyUsageScreenUiState(
 public fun AddMoneyUsageScreen(
     modifier: Modifier = Modifier,
     uiState: AddMoneyUsageScreenUiState,
-    contentPadding: PaddingValues,
+    windowInsets: PaddingValues,
 ) {
     if (uiState.fullScreenTextInputDialog != null) {
         HtmlFullScreenTextInput(
@@ -118,7 +118,7 @@ public fun AddMoneyUsageScreen(
                         Text("追加")
                     }
                 },
-                windowInsets = contentPadding,
+                windowInsets = windowInsets,
             )
         },
         bottomBar = {
@@ -139,7 +139,7 @@ public fun AddMoneyUsageScreen(
             }
         },
         contentColor = MaterialTheme.colorScheme.onSurface,
-        contentWindowInsets = contentPadding.asWindowInsets(),
+        contentWindowInsets = windowInsets.asWindowInsets(),
     ) { paddingValues ->
         Box(
             modifier =

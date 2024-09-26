@@ -18,7 +18,7 @@ public fun AdminRootScreen(
     adminRootScreenUiStateProvider: @Composable () -> AdminRootScreenUiState,
     adminLoginScreenUiStateProvider: @Composable () -> AdminLoginScreenUiState,
     adminAddUserUiStateProvider: @Composable () -> AdminAddUserUiState,
-    contentPadding: PaddingValues,
+    windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
     val adminScreenControllerImpl = adminScreenController as AdminScreenControllerImpl
@@ -27,7 +27,7 @@ public fun AdminRootScreen(
     BackHandler(screenStack.size > 1) {
         adminScreenControllerImpl.popBackStack()
     }
-    Box(modifier = modifier.padding(contentPadding)) {
+    Box(modifier = modifier.padding(windowInsets)) {
         when (screenStack.lastOrNull()) {
             null,
             AdminScreenType.Login,

@@ -193,7 +193,7 @@ public fun MoneyUsageScreen(
     modifier: Modifier = Modifier,
     uiState: MoneyUsageScreenUiState,
     kakeboScaffoldListener: KakeboScaffoldListener,
-    contentPadding: PaddingValues,
+    windowInsets: PaddingValues,
 ) {
     LaunchedEffect(uiState.event) {
         uiState.event.onViewInitialized()
@@ -251,7 +251,7 @@ public fun MoneyUsageScreen(
     }
 
     KakeboScaffold(
-        modifier = modifier.padding(contentPadding),
+        modifier = modifier.padding(windowInsets),
         topBar = {
             KakeBoTopAppBar(
                 navigation = {
@@ -271,7 +271,7 @@ public fun MoneyUsageScreen(
                         text = "家計簿",
                     )
                 },
-                windowInsets = contentPadding,
+                windowInsets = windowInsets,
             )
         },
     ) { paddingValues ->

@@ -168,7 +168,7 @@ public data class MailScreenUiState(
 public fun ImportedMailScreen(
     modifier: Modifier = Modifier,
     uiState: MailScreenUiState,
-    contentPadding: PaddingValues,
+    windowInsets: PaddingValues,
 ) {
     if (uiState.confirmDialog != null) {
         AlertDialog(
@@ -233,7 +233,7 @@ public fun ImportedMailScreen(
                         )
                     }
                 },
-                windowInsets = contentPadding,
+                windowInsets = windowInsets,
             )
         },
         contentColor = MaterialTheme.colorScheme.onSurface,

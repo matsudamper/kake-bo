@@ -288,6 +288,7 @@ fun Content(
                         globalEventSender = globalEventSender,
                         loginCheckUseCase = loginCheckUseCase,
                         globalEvent = globalEvent,
+                        windowInsets = paddingValues,
                     )
                 }
 
@@ -299,7 +300,9 @@ fun Content(
                 }
 
                 ScreenStructure.Admin -> {
-                    AdminContainer()
+                    AdminContainer(
+                        windowInsets = paddingValues,
+                    )
                 }
 
                 ScreenStructure.NotFound -> {
@@ -313,6 +316,7 @@ fun Content(
                         rootCoroutineScope = rootCoroutineScope,
                         current = current,
                         viewModelEventHandlers = viewModelEventHandlers,
+                        windowInsets = paddingValues,
                     )
                 }
 
@@ -320,6 +324,7 @@ fun Content(
                     ImportedMailScreenContainer(
                         current = current,
                         viewModelEventHandlers = viewModelEventHandlers,
+                        windowInsets = paddingValues,
                     )
                 }
 
@@ -328,6 +333,7 @@ fun Content(
                         current = current,
                         viewModelEventHandlers = viewModelEventHandlers,
                         kakeboScaffoldListener = kakeboScaffoldListener,
+                        windowInsets = paddingValues,
                     )
                 }
 
@@ -336,6 +342,7 @@ fun Content(
                         screen = current,
                         viewModelEventHandlers = viewModelEventHandlers,
                         kakeboScaffoldListener = kakeboScaffoldListener,
+                        windowInsets = paddingValues,
                     )
                 }
 
@@ -344,6 +351,7 @@ fun Content(
                         screen = current,
                         viewModelEventHandlers = viewModelEventHandlers,
                         kakeboScaffoldListener = kakeboScaffoldListener,
+                        windowInsets = paddingValues,
                     )
                 }
             }
@@ -366,6 +374,7 @@ private fun RootScreenContainer(
     loginCheckUseCase: LoginCheckUseCase,
     globalEvent: GlobalEvent,
     rootScreenScaffoldListener: RootScreenScaffoldListener,
+    windowInsets: PaddingValues,
 ) {
     val koin = LocalKoin.current
     LaunchedEffect(current, settingViewModel) {
@@ -391,14 +400,14 @@ private fun RootScreenContainer(
     }
     holder.SaveableStateProvider(ScreenStructure.Root::class.toString()) {
         RootNavContent(
-            windowInsets = paddingValues,
+            windowInsets = windowInsets,
             tabHolder = holder,
             current = current,
             rootScreenScaffoldListener = rootScreenScaffoldListener,
             viewModelEventHandlers = viewModelEventHandlers,
             rootCoroutineScope = rootCoroutineScope,
             globalEventSender = globalEventSender,
-            loginCheckUseCase = loginCheckUseCase,
+            navController = navController,
             globalEvent = globalEvent,
             homeAddTabScreenUiStateProvider = {
                 mailScreenViewModel.uiStateFlow.collectAsState().value
@@ -463,6 +472,7 @@ private fun AddMoneyUsageScreenContainer(
     current: ScreenStructure.AddMoneyUsage,
     viewModelEventHandlers: ViewModelEventHandlers,
     rootCoroutineScope: CoroutineScope,
+    windowInsets: PaddingValues,
 ) {
     val koin = LocalKoin.current
     val viewModel = remember {
@@ -485,7 +495,7 @@ private fun AddMoneyUsageScreenContainer(
     AddMoneyUsageScreen(
         modifier = Modifier.fillMaxSize(),
         uiState = viewModel.uiStateFlow.collectAsState().value,
-        contentPadding = paddingValues,
+        windowInsets = windowInsets,
     )
 }
 
@@ -493,6 +503,7 @@ private fun AddMoneyUsageScreenContainer(
 private fun ImportedMailScreenContainer(
     current: ScreenStructure.ImportedMail,
     viewModelEventHandlers: ViewModelEventHandlers,
+    windowInsets: PaddingValues,
 ) {
     val koin = LocalKoin.current
     val coroutineScope = rememberCoroutineScope()
@@ -517,7 +528,7 @@ private fun ImportedMailScreenContainer(
     ImportedMailScreen(
         modifier = Modifier.fillMaxSize(),
         uiState = viewModel.uiStateFlow.collectAsState().value,
-        contentPadding = paddingValues,
+        windowInsets = windowInsets,
     )
 }
 
@@ -526,6 +537,7 @@ private fun ImportedMailHtmlContainer(
     current: ScreenStructure.ImportedMailHTML,
     viewModelEventHandlers: ViewModelEventHandlers,
     kakeboScaffoldListener: KakeboScaffoldListener,
+    windowInsets: PaddingValues,
 ) {
     val koin = LocalKoin.current
     val coroutineScope = rememberCoroutineScope()
@@ -544,7 +556,7 @@ private fun ImportedMailHtmlContainer(
         modifier = Modifier.fillMaxSize(),
         uiState = viewModel.uiStateFlow.collectAsState().value,
         kakeboScaffoldListener = kakeboScaffoldListener,
-        contentPadding = paddingValues,
+        windowInsets = windowInsets,
     )
 }
 
@@ -553,6 +565,7 @@ private fun ImportedMailPlainScreenContainer(
     screen: ScreenStructure.ImportedMailPlain,
     viewModelEventHandlers: ViewModelEventHandlers,
     kakeboScaffoldListener: KakeboScaffoldListener,
+    windowInsets: PaddingValues,
 ) {
     val koin = LocalKoin.current
     val coroutineScope = rememberCoroutineScope()
@@ -571,7 +584,7 @@ private fun ImportedMailPlainScreenContainer(
         modifier = Modifier.fillMaxSize(),
         uiState = viewModel.uiStateFlow.collectAsState().value,
         kakeboScaffoldListener = kakeboScaffoldListener,
-        contentPadding = paddingValues,
+        windowInsets = windowInsets,
     )
 }
 
@@ -580,6 +593,7 @@ private fun MoneyUsageContainer(
     screen: ScreenStructure.MoneyUsage,
     viewModelEventHandlers: ViewModelEventHandlers,
     kakeboScaffoldListener: KakeboScaffoldListener,
+    windowInsets: PaddingValues,
 ) {
     val koin = LocalKoin.current
     val coroutineScope = rememberCoroutineScope()
@@ -600,7 +614,7 @@ private fun MoneyUsageContainer(
         modifier = Modifier.fillMaxSize(),
         uiState = viewModel.uiStateFlow.collectAsState().value,
         kakeboScaffoldListener = kakeboScaffoldListener,
-        contentPadding = paddingValues,
+        windowInsets = windowInsets,
     )
 }
 
@@ -608,6 +622,7 @@ private fun MoneyUsageContainer(
 private fun LoginScreenContainer(
     navController: JsScreenNavController,
     globalEventSender: EventSender<GlobalEvent>,
+    windowInsets: PaddingValues,
 ) {
     val koin = LocalKoin.current
     val coroutineScope = rememberCoroutineScope()
@@ -629,12 +644,14 @@ private fun LoginScreenContainer(
     LoginScreen(
         modifier = Modifier.fillMaxSize(),
         uiState = uiState,
-        contentPadding = paddingValues,
+        windowInsets = windowInsets,
     )
 }
 
 @Composable
-private fun AdminContainer() {
+private fun AdminContainer(
+    windowInsets: PaddingValues,
+) {
     val koin = LocalKoin.current
     val coroutineScope = rememberCoroutineScope()
     val controller = rememberAdminScreenController()
@@ -673,6 +690,6 @@ private fun AdminContainer() {
             }
             adminAddUserScreenViewModel.uiStateFlow.collectAsState().value
         },
-        contentPadding = paddingValues,
+        windowInsets = windowInsets,
     )
 }
