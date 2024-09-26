@@ -181,19 +181,18 @@ internal fun RootNavContent(
 
         is ScreenStructure.Root.Usage -> {
             tabHolder.SaveableStateProvider(ScreenStructure.Root.Usage::class.toString()) {
-                val rootScreen =
-                    remember {
-                        movableContentOf { rootUiState: RootUsageHostScreenUiState, content: @Composable () -> Unit ->
-                            RootUsageHostScreen(
-                                modifier = Modifier.fillMaxSize(),
-                                uiState = rootUiState,
-                                listener = rootScreenScaffoldListener,
-                                windowInsets = windowInsets,
-                            ) {
-                                content()
-                            }
+                val rootScreen = remember {
+                    movableContentOf { rootUiState: RootUsageHostScreenUiState, content: @Composable () -> Unit ->
+                        RootUsageHostScreen(
+                            modifier = Modifier.fillMaxSize(),
+                            uiState = rootUiState,
+                            listener = rootScreenScaffoldListener,
+                            windowInsets = windowInsets,
+                        ) {
+                            content()
                         }
                     }
+                }
 
                 when (current) {
                     is ScreenStructure.Root.Usage.Calendar -> {
