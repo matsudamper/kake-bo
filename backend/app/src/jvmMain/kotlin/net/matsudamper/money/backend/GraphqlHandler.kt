@@ -60,18 +60,16 @@ class GraphqlHandler(
                 .query(request.query)
                 .variables(request.variables)
 
-        val result =
-            MoneyGraphQlSchema.graphql
-                .execute(executionInputBuilder)
+        val result = MoneyGraphQlSchema.graphql
+            .execute(executionInputBuilder)
 
         val handleError = handleError(result.errors)
 
-        val responseResult =
-            ExecutionResult.newExecutionResult()
-                .data(result.getData())
-                .extensions(
-                    mapOf(
-                        "errors" to
+        val responseResult = ExecutionResult.newExecutionResult()
+            .data(result.getData())
+            .extensions(
+                mapOf(
+                    "errors" to
                             handleError.map { e ->
                                 when (e) {
                                     is GraphqlMoneyException.SessionNotVerify -> {
@@ -79,68 +77,67 @@ class GraphqlHandler(
                                     }
                                 }
                             },
-                    ),
-                )
-                .build()
+                ),
+            )
+            .build()
 
         return ObjectMapper.jackson.writeValueAsString(responseResult)
     }
 
     private fun handleError(errors: MutableList<GraphQLError>): List<GraphqlMoneyException> {
         val graphqlMoneyExceptions = mutableListOf<GraphqlMoneyException>()
-        val exceptions =
-            errors.mapNotNull {
-                when (it) {
-                    is ExceptionWhileDataFetching -> {
-                        runCatching {
-                            when (val e = it.exception) {
-                                is UndeclaredThrowableException -> {
-                                    when (val undeclaredThrowable = e.undeclaredThrowable) {
-                                        is GraphqlMoneyException -> {
-                                            graphqlMoneyExceptions.add(undeclaredThrowable)
-                                            return@runCatching null
-                                        }
-
-                                        else -> Unit
+        val exceptions = errors.mapNotNull {
+            when (it) {
+                is ExceptionWhileDataFetching -> {
+                    runCatching {
+                        when (val e = it.exception) {
+                            is UndeclaredThrowableException -> {
+                                when (val undeclaredThrowable = e.undeclaredThrowable) {
+                                    is GraphqlMoneyException -> {
+                                        graphqlMoneyExceptions.add(undeclaredThrowable)
+                                        return@runCatching null
                                     }
-                                }
 
-                                else -> Unit
+                                    else -> Unit
+                                }
                             }
 
-                            throw IllegalStateException(
-                                it.message,
-                                it.exception,
-                            )
-                        }.fold(
-                            onSuccess = { null },
-                            onFailure = { it },
+                            else -> Unit
+                        }
+
+                        throw IllegalStateException(
+                            it.message,
+                            it.exception,
                         )
-                    }
+                    }.fold(
+                        onSuccess = { null },
+                        onFailure = { it },
+                    )
+                }
 
-                    is ValidationError -> {
-                        IllegalStateException(it.message)
-                    }
+                is ValidationError -> {
+                    IllegalStateException(it.message)
+                }
 
-                    is InvalidSyntaxError -> {
-                        IllegalStateException(it.message)
-                    }
+                is InvalidSyntaxError -> {
+                    IllegalStateException(it.message)
+                }
 
-                    is NonNullableFieldWasNullError -> {
-                        IllegalStateException(
-                            "NonNullableFieldWasNullError: message=${it.message}, path=${it.path}",
-                        )
-                    }
+                is NonNullableFieldWasNullError -> {
+                    IllegalStateException(
+                        "NonNullableFieldWasNullError: message=${it.message}, path=${it.path}",
+                    )
+                }
 
-                    is Throwable -> it
+                is Throwable -> it
 
-                    else -> {
-                        IllegalStateException(
-                            "NotHandleError:$it message=${it.message}, path=${it.path}",
-                        )
-                    }
+                else -> {
+                    IllegalStateException(
+                        "NotHandleError:$it message=${it.message}, path=${it.path}",
+                    )
                 }
             }
+        }
 
         if (exceptions.isNotEmpty()) {
             throw GraphQlMultiException(exceptions)
