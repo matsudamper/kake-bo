@@ -164,20 +164,19 @@ public class RootHomeTabPeriodScreenViewModel(
                 val newCategories = response.data?.user?.moneyUsageCategories?.nodes.orEmpty()
                 val category = newCategories.firstOrNull { it.id == viewModelStateFlow.value.categoryId }
                 viewModelStateFlow.update { viewModelState ->
-                    val newContentType =
-                        run type@{
-                            if (viewModelState.categories.isNotEmpty()) {
-                                return@type viewModelState.contentType
-                            }
-                            if (category != null) {
-                                ViewModelState.ContentType.Category(
-                                    categoryId = category.id,
-                                    name = category.name,
-                                )
-                            } else {
-                                ViewModelState.ContentType.All
-                            }
+                    val newContentType = run type@{
+                        if (viewModelState.categories.isNotEmpty()) {
+                            return@type viewModelState.contentType
                         }
+                        if (category != null) {
+                            ViewModelState.ContentType.Category(
+                                categoryId = category.id,
+                                name = category.name,
+                            )
+                        } else {
+                            ViewModelState.ContentType.All
+                        }
+                    }
                     viewModelState.copy(
                         categories = newCategories,
                         contentType = newContentType,
