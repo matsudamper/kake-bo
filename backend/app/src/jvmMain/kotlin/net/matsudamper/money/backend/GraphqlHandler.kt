@@ -86,7 +86,7 @@ class GraphqlHandler(
 
     private fun handleError(errors: MutableList<GraphQLError>): List<GraphqlMoneyException> {
         val graphqlMoneyExceptions = mutableListOf<GraphqlMoneyException>()
-        val exceptions = errors.mapNotNull {
+        val internalException = errors.mapNotNull {
             when (it) {
                 is ExceptionWhileDataFetching -> {
                     runCatching {
@@ -111,7 +111,7 @@ class GraphqlHandler(
                         )
                     }.fold(
                         onSuccess = { null },
-                        onFailure = { it },
+                        onFailure = { e -> e },
                     )
                 }
 
@@ -139,8 +139,8 @@ class GraphqlHandler(
             }
         }
 
-        if (exceptions.isNotEmpty()) {
-            throw GraphQlMultiException(exceptions)
+        if (internalException.isNotEmpty()) {
+            throw GraphQlMultiException(internalException)
         }
 
         return graphqlMoneyExceptions
