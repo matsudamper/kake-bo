@@ -14,18 +14,18 @@ class DeleteMailUseCase(
     ): Result {
         return runBlocking {
             runCatching {
-                val imapConfig = repositoryFactory.createUserConfigRepository().getImapConfig(userId) ?: return@runBlocking Result.ImapConfigNotFound
+                val imapConfig = repositoryFactory.createUserConfigRepository().getImapConfig(userId)
+                    ?: return@runBlocking Result.ImapConfigNotFound
                 val host = imapConfig.host ?: return@runBlocking Result.ImapConfigNotFound
                 val port = imapConfig.port ?: return@runBlocking Result.ImapConfigNotFound
                 val userName = imapConfig.userName ?: return@runBlocking Result.ImapConfigNotFound
                 val password = imapConfig.password ?: return@runBlocking Result.ImapConfigNotFound
-                val mailRepository =
-                    repositoryFactory.createMailRepository(
-                        host = host,
-                        port = port,
-                        userName = userName,
-                        password = password,
-                    )
+                val mailRepository = repositoryFactory.createMailRepository(
+                    host = host,
+                    port = port,
+                    userName = userName,
+                    password = password,
+                )
 
                 mailRepository.deleteMessage(mailIds)
             }.fold(
