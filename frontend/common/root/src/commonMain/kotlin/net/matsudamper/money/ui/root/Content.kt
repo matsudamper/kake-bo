@@ -323,7 +323,6 @@ fun Content(
                         rootScreenScaffoldListener = rootScreenScaffoldListener,
                         rootCoroutineScope = rootCoroutineScope,
                         globalEventSender = globalEventSender,
-                        navController = navController,
                         globalEvent = globalEvent,
                         windowInsets = paddingValues,
                     )
@@ -411,7 +410,6 @@ private fun RootScreenContainer(
     globalEventSender: EventSender<GlobalEvent>,
     globalEvent: GlobalEvent,
     rootScreenScaffoldListener: RootScreenScaffoldListener,
-    navController: JsScreenNavController,
     windowInsets: PaddingValues,
 ) {
     val koin = LocalKoin.current
