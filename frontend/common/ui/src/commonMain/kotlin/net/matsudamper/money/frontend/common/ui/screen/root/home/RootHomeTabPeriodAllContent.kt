@@ -153,12 +153,13 @@ private fun LargeContent(
     loadingState: RootHomeTabPeriodAllContentUiState.LoadingState.Loaded,
     modifier: Modifier = Modifier,
 ) {
-    Card(modifier = modifier) {
+    Card(modifier = modifier.widthIn(max = 1200.dp)) {
         Row(
             modifier = Modifier.padding(16.dp),
         ) {
             BarGraph(
                 modifier = Modifier
+                    .weight(1f)
                     .height(600.dp),
                 uiState = loadingState.barGraph,
                 contentColor = LocalContentColor.current,
