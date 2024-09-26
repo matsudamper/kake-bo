@@ -445,7 +445,6 @@ private fun RootScreenContainer(
             viewModelEventHandlers = viewModelEventHandlers,
             rootCoroutineScope = rootCoroutineScope,
             globalEventSender = globalEventSender,
-            navController = navController,
             globalEvent = globalEvent,
             homeAddTabScreenUiStateProvider = {
                 mailScreenViewModel.uiStateFlow.collectAsState().value

@@ -13,7 +13,6 @@ import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
-import net.matsudamper.money.frontend.common.base.nav.user.JsScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
@@ -51,7 +50,6 @@ internal fun RootNavContent(
     globalEvent: GlobalEvent,
     rootCoroutineScope: CoroutineScope,
     globalEventSender: EventSender<GlobalEvent>,
-    navController: JsScreenNavController,
     usageListUiStateProvider: @Composable () -> RootUsageListScreenUiState,
     usageCalendarUiStateProvider: @Composable (ScreenStructure.Root.Usage.Calendar.YearMonth?) -> RootUsageCalendarScreenUiState,
     importMailScreenUiStateProvider: @Composable (ScreenStructure.Root.Add.Imported) -> ImportedMailListScreenUiState,
