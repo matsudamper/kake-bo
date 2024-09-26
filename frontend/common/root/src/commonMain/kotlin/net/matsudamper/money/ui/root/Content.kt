@@ -311,14 +311,13 @@ fun Content(
                             },
                             usageCalendarUiStateProvider = { yearMonth ->
                                 val coroutineScope = rememberCoroutineScope()
-                                val viewModel =
-                                    remember {
-                                        MoneyUsagesCalendarViewModel(
-                                            coroutineScope = coroutineScope,
-                                            rootUsageHostViewModel = rootUsageHostViewModel,
-                                            yearMonth = yearMonth,
-                                        )
-                                    }
+                                val viewModel = remember {
+                                    MoneyUsagesCalendarViewModel(
+                                        coroutineScope = coroutineScope,
+                                        rootUsageHostViewModel = rootUsageHostViewModel,
+                                        yearMonth = yearMonth,
+                                    )
+                                }
                                 LaunchedEffect(viewModel.viewModelEventHandler) {
                                     viewModelEventHandlers.handleMoneyUsagesCalendar(
                                         handler = viewModel.viewModelEventHandler,
@@ -328,14 +327,13 @@ fun Content(
                             },
                             usageListUiStateProvider = {
                                 val coroutineScope = rememberCoroutineScope()
-                                val viewModel =
-                                    remember {
-                                        MoneyUsagesListViewModel(
-                                            coroutineScope = coroutineScope,
-                                            rootUsageHostViewModel = rootUsageHostViewModel,
-                                            graphqlClient = koin.get(),
-                                        )
-                                    }
+                                val viewModel = remember {
+                                    MoneyUsagesListViewModel(
+                                        coroutineScope = coroutineScope,
+                                        rootUsageHostViewModel = rootUsageHostViewModel,
+                                        graphqlClient = koin.get(),
+                                    )
+                                }
                                 LaunchedEffect(viewModel.viewModelEventHandler) {
                                     viewModelEventHandlers.handleMoneyUsagesList(
                                         handler = viewModel.viewModelEventHandler,
