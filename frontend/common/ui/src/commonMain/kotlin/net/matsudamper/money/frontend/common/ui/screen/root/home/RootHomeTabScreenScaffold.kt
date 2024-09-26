@@ -65,7 +65,7 @@ public fun RootHomeTabScreenScaffold(
         listener = scaffoldListener,
         topBar = {
             KakeBoTopAppBar(
-                windowInsets=contentPadding,
+                windowInsets = contentPadding,
                 title = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,

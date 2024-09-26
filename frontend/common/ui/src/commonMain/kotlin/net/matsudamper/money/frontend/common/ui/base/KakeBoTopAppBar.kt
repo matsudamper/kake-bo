@@ -32,7 +32,7 @@ public fun KakeBoTopAppBar(
     ) {
         TopAppBar(
             windowInsets = windowInsets.asWindowInsets().only(
-                WindowInsetsSides.Horizontal + WindowInsetsSides.Top
+                WindowInsetsSides.Horizontal + WindowInsetsSides.Top,
             ),
             modifier = Modifier.fillMaxWidth(),
             navigationIcon = navigation,

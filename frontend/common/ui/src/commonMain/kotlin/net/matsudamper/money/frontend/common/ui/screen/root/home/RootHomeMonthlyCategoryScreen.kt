@@ -100,9 +100,11 @@ public fun RootHomeMonthlyCategoryScreen(
         currentScreen = RootScreenTab.Home,
         listener = scaffoldListener,
         topBar = {
-            KakeBoTopAppBar(title = {
-                Text(uiState.title)
-            }, windowInsets = windowInsets
+            KakeBoTopAppBar(
+                title = {
+                    Text(uiState.title)
+                },
+                windowInsets = windowInsets,
             )
         },
     ) {

@@ -111,7 +111,7 @@ public fun RootHomeTabPeriodScaffold(
         uiState = homeUiState,
         scaffoldListener = scaffoldListener,
         menu = menu,
-        contentPadding=windowInsets,
+        contentPadding = windowInsets,
     ) {
         var containerHeight by remember { mutableStateOf(0.dp) }
         Box(

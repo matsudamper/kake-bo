@@ -118,7 +118,7 @@ internal fun RootNavContent(
                                     }
                                     RootHomeTabPeriodAllScreen(
                                         modifier = Modifier.fillMaxSize(),
-                                        contentPadding=windowInsets,
+                                        contentPadding = windowInsets,
                                         uiState = allContentViewModel.uiStateFlow.collectAsState().value,
                                         scaffoldListener = rootScreenScaffoldListener,
                                     )
@@ -148,7 +148,7 @@ internal fun RootNavContent(
                                     modifier = Modifier.fillMaxSize(),
                                     uiState = categoryViewModel.uiStateFlow.collectAsState().value,
                                     scaffoldListener = rootScreenScaffoldListener,
-                                    windowInsets=windowInsets,
+                                    windowInsets = windowInsets,
                                 )
                             }
                         }
@@ -175,7 +175,7 @@ internal fun RootNavContent(
                             modifier = Modifier.fillMaxSize(),
                             uiState = monthlyCategoryViewModel.uiStateFlow.collectAsState().value,
                             scaffoldListener = rootScreenScaffoldListener,
-                            windowInsets=windowInsets,
+                            windowInsets = windowInsets,
                         )
                     }
                 }
@@ -191,7 +191,7 @@ internal fun RootNavContent(
                                 modifier = Modifier.fillMaxSize(),
                                 uiState = rootUiState,
                                 listener = rootScreenScaffoldListener,
-                                windowInsets=windowInsets,
+                                windowInsets = windowInsets,
                             ) {
                                 content()
                             }
@@ -235,7 +235,7 @@ internal fun RootNavContent(
                         HomeAddTabScreen(
                             rootScreenScaffoldListener = rootScreenScaffoldListener,
                             uiState = homeAddTabScreenUiStateProvider(),
-                            windowInsets=windowInsets,
+                            windowInsets = windowInsets,
                         )
                     }
 
@@ -243,7 +243,7 @@ internal fun RootNavContent(
                         MailImportScreen(
                             uiState = importMailLinkScreenUiStateProvider(current),
                             rootScreenScaffoldListener = rootScreenScaffoldListener,
-                            windowInsets=windowInsets,
+                            windowInsets = windowInsets,
                         )
                     }
 
@@ -251,7 +251,7 @@ internal fun RootNavContent(
                         ImportedMailListScreen(
                             uiState = importMailScreenUiStateProvider(current),
                             rootScreenScaffoldListener = rootScreenScaffoldListener,
-                            windowInsets=windowInsets,
+                            windowInsets = windowInsets,
                         )
                     }
                 }

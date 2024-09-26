@@ -2,7 +2,6 @@ package net.matsudamper.money.frontend.common.di
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.runBlocking
 import com.apollographql.apollo3.annotations.ApolloExperimental
