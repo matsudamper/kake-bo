@@ -101,7 +101,7 @@ public fun SettingCategoriesScreen(
         modifier = modifier.fillMaxSize(),
         currentScreen = RootScreenTab.Settings,
         listener = rootScreenScaffoldListener,
-        windowInsets=windowInsets,
+        windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(
                 title = {

@@ -110,7 +110,7 @@ public fun SettingMailCategoryFiltersScreen(
     }
     RootScreenScaffold(
         modifier = modifier,
-        windowInsets=windowInsets,
+        windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(
                 navigation = {

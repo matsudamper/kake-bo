@@ -176,7 +176,7 @@ public fun ApiSettingScreen(
         modifier = modifier,
         currentScreen = RootScreenTab.Settings,
         snackbarHostState = snackbarHostState,
-        windowInsets=windowInsets,
+        windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(
                 navigation = {

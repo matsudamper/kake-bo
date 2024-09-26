@@ -70,7 +70,7 @@ public fun SettingRootScreen(
         modifier = modifier.fillMaxSize(),
         currentScreen = RootScreenTab.Settings,
         listener = listener,
-        windowInsets=windowInsets,
+        windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(
                 title = {

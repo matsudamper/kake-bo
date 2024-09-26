@@ -176,7 +176,7 @@ public fun SettingCategoryScreen(
                 windowInsets = windowInsets,
             )
         },
-        windowInsets=windowInsets,
+        windowInsets = windowInsets,
         content = {
             MainContent(
                 modifier = Modifier.fillMaxSize(),

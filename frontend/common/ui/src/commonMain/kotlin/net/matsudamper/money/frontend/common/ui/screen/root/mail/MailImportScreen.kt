@@ -75,7 +75,7 @@ public fun MailImportScreen(
         modifier = modifier,
         currentScreen = RootScreenTab.Add,
         listener = rootScreenScaffoldListener,
-        windowInsets=windowInsets,
+        windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(
                 title = {

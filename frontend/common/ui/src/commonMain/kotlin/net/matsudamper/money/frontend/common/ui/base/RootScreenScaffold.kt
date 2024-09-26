@@ -62,7 +62,7 @@ internal fun RootScreenScaffold(
     modifier: Modifier = Modifier,
     currentScreen: RootScreenTab,
     topBar: @Composable () -> Unit,
-    windowInsets:  PaddingValues,
+    windowInsets: PaddingValues,
     listener: RootScreenScaffoldListener,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     content: @Composable BoxScope.() -> Unit,

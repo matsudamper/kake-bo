@@ -135,7 +135,7 @@ public fun LoginSettingScreen(
     RootScreenScaffold(
         modifier = modifier,
         currentScreen = RootScreenTab.Settings,
-        windowInsets=windowInsets,
+        windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(
                 navigation = {

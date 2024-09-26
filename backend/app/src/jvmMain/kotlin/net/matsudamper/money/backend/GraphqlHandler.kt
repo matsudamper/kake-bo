@@ -70,13 +70,13 @@ class GraphqlHandler(
             .extensions(
                 mapOf(
                     "errors" to
-                            handleError.map { e ->
-                                when (e) {
-                                    is GraphqlMoneyException.SessionNotVerify -> {
-                                        "SessionNotVerify"
-                                    }
+                        handleError.map { e ->
+                            when (e) {
+                                is GraphqlMoneyException.SessionNotVerify -> {
+                                    "SessionNotVerify"
                                 }
-                            },
+                            }
+                        },
                 ),
             )
             .build()
