@@ -77,6 +77,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostV
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
+import net.matsudamper.money.ui.root.platform.rememberUrlOpener
 import org.koin.dsl.module
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -247,15 +248,18 @@ fun Content(
         )
     }
 
+    val urlOpener = rememberUrlOpener()
     val viewModelEventHandlers = remember(
         navController,
         globalEventSender,
         rootScreenScaffoldListener,
+        urlOpener,
     ) {
         ViewModelEventHandlers(
             navController = navController,
             globalEventSender = globalEventSender,
             rootScreenScaffoldListener = rootScreenScaffoldListener,
+            urlOpener = urlOpener,
         )
     }
     remember {

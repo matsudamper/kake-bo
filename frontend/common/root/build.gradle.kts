@@ -36,6 +36,11 @@ kotlin {
                 implementation(libs.koinCore)
             }
         }
+        val androidMain by getting {
+            dependencies {
+                implementation(libs.androidxCoreKtx)
+            }
+        }
     }
 }
 

@@ -34,11 +34,13 @@ import net.matsudamper.money.frontend.common.viewmodel.root.usage.MoneyUsagesLis
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
+import net.matsudamper.money.ui.root.platform.UrlOpener
 
 data class ViewModelEventHandlers(
     private val navController: JsScreenNavController,
     private val globalEventSender: EventSender<GlobalEvent>,
     private val rootScreenScaffoldListener: RootScreenScaffoldListener,
+    private val urlOpener: UrlOpener,
 ) {
     suspend fun handleMailImport(handler: EventHandler<MailImportViewModelEvent>) {
         coroutineScope {
@@ -107,8 +109,7 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun open(url: String) {
-                        // TODO
-//                        window.open(url)
+                        urlOpener.open(url)
                     }
                 },
             )
@@ -179,8 +180,7 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun openWeb(url: String) {
-                        // TODO
-//                        window.open(url)
+                        urlOpener.open(url)
                     }
 
                     override fun copyToClipboard(text: String) {
@@ -265,8 +265,7 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun openUrl(text: String) {
-                        TODO()
-//                        window.open(text)
+                        urlOpener.open(text)
                     }
                 },
             )
