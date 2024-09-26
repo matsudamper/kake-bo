@@ -89,6 +89,7 @@ public fun RootHomeMonthlyCategoryScreen(
         modifier = modifier,
         currentScreen = RootScreenTab.Home,
         listener = scaffoldListener,
+        windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(
                 title = {

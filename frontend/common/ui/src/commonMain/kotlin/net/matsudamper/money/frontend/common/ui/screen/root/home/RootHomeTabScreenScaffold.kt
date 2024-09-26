@@ -53,7 +53,7 @@ public fun RootHomeTabScreenScaffold(
     scaffoldListener: RootScreenScaffoldListener,
     modifier: Modifier = Modifier,
     menu: @Composable () -> Unit = {},
-    contentPadding: PaddingValues,
+    windowInsets: PaddingValues,
     content: @Composable () -> Unit,
 ) {
     LaunchedEffect(uiState.event) {
@@ -63,9 +63,10 @@ public fun RootHomeTabScreenScaffold(
         modifier = modifier.fillMaxSize(),
         currentScreen = RootScreenTab.Home,
         listener = scaffoldListener,
+        windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(
-                windowInsets = contentPadding,
+                windowInsets = windowInsets,
                 title = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,

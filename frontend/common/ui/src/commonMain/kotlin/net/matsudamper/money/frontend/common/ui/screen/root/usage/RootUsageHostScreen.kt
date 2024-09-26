@@ -134,6 +134,7 @@ public fun RootUsageHostScreen(
         modifier = modifier.fillMaxSize(),
         currentScreen = RootScreenTab.List,
         listener = listener,
+        windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(
                 menu = {

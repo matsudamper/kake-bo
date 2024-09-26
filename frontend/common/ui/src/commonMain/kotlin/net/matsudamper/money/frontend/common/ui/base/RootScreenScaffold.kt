@@ -3,9 +3,12 @@ package net.matsudamper.money.frontend.common.ui.base
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -31,6 +34,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.CustomColors
+import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
 @Immutable
@@ -58,6 +62,7 @@ internal fun RootScreenScaffold(
     modifier: Modifier = Modifier,
     currentScreen: RootScreenTab,
     topBar: @Composable () -> Unit,
+    windowInsets:  PaddingValues,
     listener: RootScreenScaffoldListener,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     content: @Composable BoxScope.() -> Unit,
@@ -81,7 +86,10 @@ internal fun RootScreenScaffold(
             },
             bottomBar = {
                 if (isLargeScreen.not()) {
-                    NavigationBar {
+                    NavigationBar(
+                        windowInsets = windowInsets.asWindowInsets()
+                            .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal),
+                    ) {
                         NavigationBarItem(
                             selected = currentScreen == RootScreenTab.Home,
                             onClick = { listener.onClickHome() },

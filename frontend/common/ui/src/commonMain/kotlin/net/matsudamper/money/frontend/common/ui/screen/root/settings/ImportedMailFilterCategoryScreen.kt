@@ -284,6 +284,7 @@ public fun ImportedMailFilterCategoryScreen(
                 windowInsets = windowInsets,
             )
         },
+        windowInsets=windowInsets,
         snackbarHostState = snackbarHostState,
         listener = rootScreenScaffoldListener,
     ) {

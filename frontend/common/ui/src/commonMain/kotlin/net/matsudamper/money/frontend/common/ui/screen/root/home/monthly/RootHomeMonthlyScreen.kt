@@ -114,7 +114,7 @@ public fun RootHomeMonthlyScreen(
                 }
             }
         },
-        contentPadding = windowInsets,
+        windowInsets = windowInsets,
     )
 }
 

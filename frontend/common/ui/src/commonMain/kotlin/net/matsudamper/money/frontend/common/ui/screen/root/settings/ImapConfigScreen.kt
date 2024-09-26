@@ -132,6 +132,7 @@ public fun ImapConfigScreen(
                 windowInsets = windowInsets,
             )
         },
+        windowInsets=windowInsets,
         content = {
             when (val loadingState = uiState.loadingState) {
                 is ImapSettingScreenUiState.LoadingState.Loaded -> {
