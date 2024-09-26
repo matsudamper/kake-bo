@@ -375,8 +375,7 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun showToast(text: String) {
-                        TODO()
-//                        window.alert(text)
+                        platformToolsProvider().applicationNotificationManager.notify(text)
                     }
                 },
             )
@@ -395,8 +394,7 @@ data class ViewModelEventHandlers(
                     }
 
                     override fun showToast(text: String) {
-                        TODO()
-//                        window.alert(text)
+                        platformToolsProvider().applicationNotificationManager.notify(text)
                     }
 
                     override fun copyToClipboard(token: String) {
