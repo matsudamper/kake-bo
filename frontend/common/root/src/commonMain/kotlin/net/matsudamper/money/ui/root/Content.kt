@@ -1,6 +1,7 @@
 package net.matsudamper.money.ui.root
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.BasicAlertDialog
@@ -10,7 +11,9 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.admin.rememberAdminScreenController
 import net.matsudamper.money.frontend.common.base.nav.user.JsScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
@@ -45,7 +49,8 @@ import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.moneyusage.MoneyUsageScreen
 import net.matsudamper.money.frontend.common.ui.screen.status.NotFoundScreen
-import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
+import net.matsudamper.money.frontend.common.usecase.LoginCheckUseCaseImpl
+import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.LoginScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.addmoneyusage.AddMoneyUsageScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.addmoneyusage.AddMoneyUsageViewModel
@@ -63,6 +68,7 @@ import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScre
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.RootViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.home.LoginCheckUseCaseEventListenerImpl
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeAddTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.ImportedMailListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModel
@@ -73,6 +79,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostV
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
+import org.koin.dsl.module
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -121,19 +128,42 @@ fun Content(
             initial = RootHomeScreenStructure.Home,
         )
     }
-    val loginCheckUseCase = remember {
-        LoginCheckUseCase(
-            ioDispatcher = Dispatchers.Unconfined,
-            navController = navController,
-            globalEventSender = globalEventSender,
-            graphqlQuery = GraphqlUserLoginQuery(
-                graphqlClient = koin.get(),
-            ),
+
+    remember(Unit) {
+        val modules = listOf(
+            module {
+                factory<GlobalEventHandlerLoginCheckUseCaseDelegate> {
+                    GlobalEventHandlerLoginCheckUseCaseDelegate(
+                        useCase = LoginCheckUseCaseImpl(
+                            ioDispatcher = Dispatchers.Unconfined,
+                            graphqlQuery = GraphqlUserLoginQuery(
+                                graphqlClient = get(),
+                            ),
+                            eventListener = LoginCheckUseCaseEventListenerImpl(
+                                navController = navController,
+                                globalEventSender = globalEventSender,
+                                coroutineScope = rootCoroutineScope,
+                            ),
+                        ),
+                    )
+                }
+            },
         )
+        koin.loadModules(modules)
+        object : RememberObserver {
+            override fun onAbandoned() {}
+            override fun onRemembered() {
+            }
+
+            override fun onForgotten() {
+                koin.unloadModules(modules)
+            }
+        }
     }
+
     val rootViewModel = remember {
         RootViewModel(
-            loginCheckUseCase = loginCheckUseCase,
+            loginCheckUseCase = koin.get(),
             coroutineScope = rootCoroutineScope,
             navController = navController,
         )
@@ -154,7 +184,7 @@ fun Content(
             graphqlApi = MailImportScreenGraphqlApi(
                 graphqlClient = koin.get(),
             ),
-            loginCheckUseCase = loginCheckUseCase,
+            loginCheckUseCase = koin.get(),
         )
     }
 
@@ -231,6 +261,16 @@ fun Content(
             rootScreenScaffoldListener = rootScreenScaffoldListener,
         )
     }
+    remember {
+        object : RememberObserver {
+            override fun onAbandoned() {}
+            override fun onRemembered() {
+            }
+
+            override fun onForgotten() {
+            }
+        }
+    }
 
     LaunchedEffect(mailScreenViewModel) {
         viewModelEventHandlers.handleHomeAddTabScreen(
@@ -286,7 +326,7 @@ fun Content(
                         rootScreenScaffoldListener = rootScreenScaffoldListener,
                         rootCoroutineScope = rootCoroutineScope,
                         globalEventSender = globalEventSender,
-                        loginCheckUseCase = loginCheckUseCase,
+                        navController = navController,
                         globalEvent = globalEvent,
                         windowInsets = paddingValues,
                     )
@@ -296,6 +336,7 @@ fun Content(
                     LoginScreenContainer(
                         navController = navController,
                         globalEventSender = globalEventSender,
+                        windowInsets = paddingValues,
                     )
                 }
 
@@ -371,9 +412,9 @@ private fun RootScreenContainer(
     holder: SaveableStateHolder,
     rootCoroutineScope: CoroutineScope,
     globalEventSender: EventSender<GlobalEvent>,
-    loginCheckUseCase: LoginCheckUseCase,
     globalEvent: GlobalEvent,
     rootScreenScaffoldListener: RootScreenScaffoldListener,
+    navController: JsScreenNavController,
     windowInsets: PaddingValues,
 ) {
     val koin = LocalKoin.current

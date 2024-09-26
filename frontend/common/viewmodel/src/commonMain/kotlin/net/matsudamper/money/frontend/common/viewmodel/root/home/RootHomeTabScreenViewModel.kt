@@ -10,43 +10,43 @@ import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreenScaffoldUiState
-import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
+import net.matsudamper.money.frontend.common.usecase.LoginCheckUseCaseImpl
+import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
 public class RootHomeTabScreenViewModel(
     private val coroutineScope: CoroutineScope,
-    private val loginCheckUseCase: LoginCheckUseCase,
+    private val loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
 ) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
-    private val uiStateEvent =
-        object : RootHomeTabScreenScaffoldUiState.Event {
-            override fun onViewInitialized() {
-                coroutineScope.launch {
-                    loginCheckUseCase.check()
-                }
+    private val uiStateEvent = object : RootHomeTabScreenScaffoldUiState.Event {
+        override fun onViewInitialized() {
+            coroutineScope.launch {
+                loginCheckUseCase.check()
             }
+        }
 
-            override fun onClickMonth() {
-                coroutineScope.launch {
-                    viewModelEventSender.send {
-                        it.navigate(RootHomeScreenStructure.Monthly())
-                    }
-                }
-            }
-
-            override fun onClickPeriod() {
-                coroutineScope.launch {
-                    viewModelEventSender.send {
-                        it.navigate(RootHomeScreenStructure.PeriodAnalytics())
-                    }
+        override fun onClickMonth() {
+            coroutineScope.launch {
+                viewModelEventSender.send {
+                    it.navigate(RootHomeScreenStructure.Monthly())
                 }
             }
         }
+
+        override fun onClickPeriod() {
+            coroutineScope.launch {
+                viewModelEventSender.send {
+                    it.navigate(RootHomeScreenStructure.PeriodAnalytics())
+                }
+            }
+        }
+    }
 
     public val uiStateFlow: StateFlow<RootHomeTabScreenScaffoldUiState> =
         MutableStateFlow(

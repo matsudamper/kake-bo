@@ -10,25 +10,27 @@ kotlin {
     }
     androidTarget()
     sourceSets {
-        jvmToolchain(17)
         val commonMain by getting {
             dependencies {
                 implementation(projects.frontend.common.base)
-                implementation(projects.frontend.common.feature.webauth)
-                implementation(projects.frontend.common.feature.localstore)
+                api(projects.frontend.common.feature.webauth)
+                implementation(projects.frontend.common.ui)
                 implementation(projects.frontend.common.graphql)
-                implementation(projects.frontend.common.usecase)
+                implementation(projects.shared)
+                implementation(libs.kotlin.datetime)
 
                 implementation(libs.koinCore)
             }
         }
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
+        }
     }
-}
-
-tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
+    explicitApi()
 }
 
 android {
-    namespace = "net.matsudamper.money.frontend.common.di"
+    namespace = "net.matsudamper.money.frontend.common.usecase"
 }

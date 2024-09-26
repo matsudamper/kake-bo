@@ -18,6 +18,7 @@ kotlin {
                 implementation(projects.frontend.common.navigation)
                 implementation(projects.frontend.common.ui)
                 implementation(projects.frontend.common.graphql)
+                implementation(projects.frontend.common.usecase)
                 implementation(projects.shared)
                 implementation(compose.runtime)
                 implementation(compose.foundation)

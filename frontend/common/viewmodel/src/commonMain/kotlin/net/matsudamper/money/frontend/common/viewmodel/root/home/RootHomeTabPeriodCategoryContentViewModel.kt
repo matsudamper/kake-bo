@@ -23,7 +23,8 @@ import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.GraphTitleChipUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodCategoryContentUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodUiState
-import net.matsudamper.money.frontend.common.viewmodel.LoginCheckUseCase
+import net.matsudamper.money.frontend.common.usecase.LoginCheckUseCaseImpl
+import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -37,7 +38,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
     private val coroutineScope: CoroutineScope,
     private val api: RootHomeTabScreenApi,
     graphqlClient: GraphqlClient,
-    loginCheckUseCase: LoginCheckUseCase,
+    loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
 ) {
     private val reservedColorModel = ReservedColorModel()
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState(categoryId = initialCategoryId))

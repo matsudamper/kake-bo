@@ -23,6 +23,7 @@ kotlin {
                 implementation(projects.frontend.common.navigation)
                 implementation(projects.frontend.common.ui)
                 implementation(projects.frontend.common.viewmodel)
+                implementation(projects.frontend.common.usecase)
                 implementation(projects.frontend.common.graphql)
 
                 implementation(kotlin("stdlib"))
@@ -40,6 +41,9 @@ kotlin {
 
 android {
     namespace = "net.matsudamper.money.ui.root"
+}
+dependencies {
+    implementation(project(":frontend:common:di"))
 }
 
 // wasm
