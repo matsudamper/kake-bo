@@ -12,7 +12,7 @@ import net.matsudamper.money.backend.base.mailparser.MailParser
 import net.matsudamper.money.element.MailId
 import org.eclipse.angus.mail.imap.IMAPMessage
 
-class MailMailRepository(
+class MailRepositoryImpl(
     private val host: String,
     private val port: Int,
     private val userName: String,

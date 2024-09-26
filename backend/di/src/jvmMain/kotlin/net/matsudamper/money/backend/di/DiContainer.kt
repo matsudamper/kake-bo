@@ -35,7 +35,7 @@ import net.matsudamper.money.backend.datasource.db.repository.DbUserConfigReposi
 import net.matsudamper.money.backend.datasource.db.repository.DbUserLoginRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbUserRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbUserSessionRepository
-import net.matsudamper.money.backend.mail.MailMailRepository
+import net.matsudamper.money.backend.mail.MailRepositoryImpl
 
 interface DiContainer {
     fun createMailRepository(
@@ -87,7 +87,7 @@ class MainDiContainer : DiContainer {
         userName: String,
         password: String,
     ): MailRepository {
-        return MailMailRepository(
+        return MailRepositoryImpl(
             host = host,
             port = port,
             userName = userName,
