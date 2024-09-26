@@ -68,7 +68,8 @@ public fun ImportedMailHtmlScreen(
 
         is ImportedMailHtmlScreenUiState.LoadingState.Loading -> {
             KakeboScaffold(
-                modifier = modifier.padding(windowInsets),
+                modifier = modifier,
+                windowInsets = windowInsets,
                 topBar = {
                     KakeBoTopAppBar(
                         navigation = {

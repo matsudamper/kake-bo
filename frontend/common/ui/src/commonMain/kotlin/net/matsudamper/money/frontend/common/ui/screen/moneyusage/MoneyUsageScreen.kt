@@ -248,6 +248,7 @@ public fun MoneyUsageScreen(
 
     KakeboScaffold(
         modifier = modifier,
+        windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(
                 navigation = {
@@ -274,18 +275,16 @@ public fun MoneyUsageScreen(
         when (val state = uiState.loadingState) {
             is MoneyUsageScreenUiState.LoadingState.Loaded -> {
                 LoadedContent(
-                    modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(paddingValues),
+                    modifier = Modifier
+                        .fillMaxWidth(),
                     uiState = state,
+                    paddingValues = paddingValues,
                 )
             }
 
             is MoneyUsageScreenUiState.LoadingState.Loading -> {
                 Box(
-                    modifier =
-                    Modifier
+                    modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues),
                     contentAlignment = Alignment.Center,
@@ -308,17 +307,18 @@ public fun MoneyUsageScreen(
 private fun LoadedContent(
     modifier: Modifier,
     uiState: MoneyUsageScreenUiState.LoadingState.Loaded,
+    paddingValues: PaddingValues,
 ) {
     val state = rememberLazyListState()
     BoxWithConstraints(
         modifier = modifier,
     ) {
         LazyColumn(
-            modifier =
-            Modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 12.dp),
             state = state,
+            contentPadding = paddingValues,
         ) {
             item {
                 Row(

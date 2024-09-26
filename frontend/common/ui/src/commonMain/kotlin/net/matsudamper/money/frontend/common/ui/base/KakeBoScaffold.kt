@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
 
 @Immutable
 public interface KakeboScaffoldListener {
@@ -17,6 +18,7 @@ public interface KakeboScaffoldListener {
 @Composable
 public fun KakeboScaffold(
     modifier: Modifier = Modifier,
+    windowInsets: PaddingValues,
     topBar: (@Composable () -> Unit)? = null,
     bottomBar: @Composable () -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
@@ -32,7 +34,7 @@ public fun KakeboScaffold(
         },
         snackbarHost = snackbarHost,
         bottomBar = bottomBar,
-        contentWindowInsets = WindowInsets(0.dp),
+        contentWindowInsets = windowInsets.asWindowInsets(),
     ) {
         content(it)
     }

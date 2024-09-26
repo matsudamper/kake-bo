@@ -79,6 +79,7 @@ internal fun RootScreenScaffold(
         KakeboScaffold(
             modifier = Modifier.fillMaxWidth(),
             topBar = topBar,
+            windowInsets = windowInsets,
             snackbarHost = {
                 MySnackBarHost(
                     hostState = snackbarHostState,
