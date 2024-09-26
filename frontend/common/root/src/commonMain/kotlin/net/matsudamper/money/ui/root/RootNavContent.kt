@@ -200,8 +200,7 @@ internal fun RootNavContent(
                             val uiState = usageCalendarUiStateProvider(current.yearMonth)
                             rootScreen(uiState.hostScreenUiState) {
                                 RootUsageCalendarScreen(
-                                    modifier = Modifier.fillMaxSize()
-                                        .padding(windowInsets),
+                                    modifier = Modifier.fillMaxSize(),
                                     uiState = uiState,
                                 )
                             }
@@ -213,8 +212,7 @@ internal fun RootNavContent(
                             val uiState = usageListUiStateProvider()
                             rootScreen(uiState.hostScreenUiState) {
                                 RootUsageListScreen(
-                                    modifier = Modifier.fillMaxSize()
-                                        .padding(windowInsets),
+                                    modifier = Modifier.fillMaxSize(),
                                     uiState = uiState,
                                 )
                             }
