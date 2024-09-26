@@ -42,11 +42,10 @@ public class MoneyUsageScreenViewModel(
             object : CategorySelectDialogViewModel.Event {
                 override fun selected(result: CategorySelectDialogViewModel.SelectedResult) {
                     coroutineScope.launch {
-                        val isSuccess =
-                            api.updateUsage(
-                                id = moneyUsageId,
-                                subCategoryId = result.subCategoryId,
-                            )
+                        val isSuccess = api.updateUsage(
+                            id = moneyUsageId,
+                            subCategoryId = result.subCategoryId,
+                        )
                         if (isSuccess) {
                             viewModel.dismissDialog()
                         } else {
