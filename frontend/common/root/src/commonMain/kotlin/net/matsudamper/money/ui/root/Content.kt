@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -267,101 +268,27 @@ fun Content(
             }
         },
     ) { paddingValues ->
-        val tabHolder = rememberSaveableStateHolder()
+        val rootHolder = rememberSaveableStateHolder()
         Box(
             modifier = Modifier.fillMaxSize(),
         ) {
-            val holder = rememberSaveableStateHolder()
             when (val current = navController.currentNavigation) {
                 is ScreenStructure.Root -> {
-                    LaunchedEffect(current, settingViewModel) {
-                        when (current) {
-                            is RootHomeScreenStructure -> {
-                            }
-
-                            is ScreenStructure.Root.Add -> {
-                                mailScreenViewModel.updateScreenStructure(current)
-                            }
-
-                            is ScreenStructure.Root.Settings -> {
-                                settingViewModel.updateLastStructure(current)
-                            }
-
-                            is ScreenStructure.Root.Usage -> {
-                                rootUsageHostViewModel.updateStructure(current)
-                            }
-                        }
-                    }
-                    LaunchedEffect(viewModelEventHandlers, settingViewModel.backgroundEventHandler) {
-                        viewModelEventHandlers.handleSetting(settingViewModel.backgroundEventHandler)
-                    }
-                    holder.SaveableStateProvider(ScreenStructure.Root::class.toString()) {
-                        RootNavContent(
-                            windowInsets = paddingValues,
-                            tabHolder = tabHolder,
-                            current = current,
-                            rootScreenScaffoldListener = rootScreenScaffoldListener,
-                            viewModelEventHandlers = viewModelEventHandlers,
-                            rootCoroutineScope = rootCoroutineScope,
-                            globalEventSender = globalEventSender,
-                            loginCheckUseCase = loginCheckUseCase,
-                            globalEvent = globalEvent,
-                            homeAddTabScreenUiStateProvider = {
-                                mailScreenViewModel.uiStateFlow.collectAsState().value
-                            },
-                            usageCalendarUiStateProvider = { yearMonth ->
-                                val coroutineScope = rememberCoroutineScope()
-                                val viewModel = remember {
-                                    MoneyUsagesCalendarViewModel(
-                                        coroutineScope = coroutineScope,
-                                        rootUsageHostViewModel = rootUsageHostViewModel,
-                                        yearMonth = yearMonth,
-                                    )
-                                }
-                                LaunchedEffect(viewModel.viewModelEventHandler) {
-                                    viewModelEventHandlers.handleMoneyUsagesCalendar(
-                                        handler = viewModel.viewModelEventHandler,
-                                    )
-                                }
-                                viewModel.uiStateFlow.collectAsState().value
-                            },
-                            usageListUiStateProvider = {
-                                val coroutineScope = rememberCoroutineScope()
-                                val viewModel = remember {
-                                    MoneyUsagesListViewModel(
-                                        coroutineScope = coroutineScope,
-                                        rootUsageHostViewModel = rootUsageHostViewModel,
-                                        graphqlClient = koin.get(),
-                                    )
-                                }
-                                LaunchedEffect(viewModel.viewModelEventHandler) {
-                                    viewModelEventHandlers.handleMoneyUsagesList(
-                                        handler = viewModel.viewModelEventHandler,
-                                    )
-                                }
-                                viewModel.uiStateFlow.collectAsState().value
-                            },
-                            importMailLinkScreenUiStateProvider = {
-                                LaunchedEffect(mailImportViewModel.eventHandler) {
-                                    viewModelEventHandlers.handleMailImport(mailImportViewModel.eventHandler)
-                                }
-
-                                mailImportViewModel.rootUiStateFlow.collectAsState().value
-                            },
-                            importMailScreenUiStateProvider = { screenStructure ->
-                                LaunchedEffect(screenStructure) {
-                                    importedMailListViewModel.updateQuery(screenStructure)
-                                }
-                                LaunchedEffect(importedMailListViewModel.eventHandler) {
-                                    viewModelEventHandlers.handleMailLink(importedMailListViewModel.eventHandler)
-                                }
-                                importedMailListViewModel.rootUiStateFlow.collectAsState().value
-                            },
-                            settingUiStateProvider = {
-                                settingViewModel.uiState.collectAsState().value
-                            },
-                        )
-                    }
+                    RootScreenContainer(
+                        current = current,
+                        settingViewModel = settingViewModel,
+                        mailScreenViewModel = mailScreenViewModel,
+                        rootUsageHostViewModel = rootUsageHostViewModel,
+                        viewModelEventHandlers = viewModelEventHandlers,
+                        mailImportViewModel = mailImportViewModel,
+                        importedMailListViewModel = importedMailListViewModel,
+                        holder = rootHolder,
+                        rootScreenScaffoldListener = rootScreenScaffoldListener,
+                        rootCoroutineScope = rootCoroutineScope,
+                        globalEventSender = globalEventSender,
+                        loginCheckUseCase = loginCheckUseCase,
+                        globalEvent = globalEvent,
+                    )
                 }
 
                 ScreenStructure.Login -> {
@@ -421,6 +348,113 @@ fun Content(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun RootScreenContainer(
+    current: ScreenStructure.Root,
+    settingViewModel: SettingViewModel,
+    mailScreenViewModel: HomeAddTabScreenViewModel,
+    rootUsageHostViewModel: RootUsageHostViewModel,
+    viewModelEventHandlers: ViewModelEventHandlers,
+    mailImportViewModel: MailImportViewModel,
+    importedMailListViewModel: ImportedMailListViewModel,
+    holder: SaveableStateHolder,
+    rootCoroutineScope: CoroutineScope,
+    globalEventSender: EventSender<GlobalEvent>,
+    loginCheckUseCase: LoginCheckUseCase,
+    globalEvent: GlobalEvent,
+    rootScreenScaffoldListener: RootScreenScaffoldListener,
+) {
+    val koin = LocalKoin.current
+    LaunchedEffect(current, settingViewModel) {
+        when (current) {
+            is RootHomeScreenStructure -> {
+            }
+
+            is ScreenStructure.Root.Add -> {
+                mailScreenViewModel.updateScreenStructure(current)
+            }
+
+            is ScreenStructure.Root.Settings -> {
+                settingViewModel.updateLastStructure(current)
+            }
+
+            is ScreenStructure.Root.Usage -> {
+                rootUsageHostViewModel.updateStructure(current)
+            }
+        }
+    }
+    LaunchedEffect(viewModelEventHandlers, settingViewModel.backgroundEventHandler) {
+        viewModelEventHandlers.handleSetting(settingViewModel.backgroundEventHandler)
+    }
+    holder.SaveableStateProvider(ScreenStructure.Root::class.toString()) {
+        RootNavContent(
+            windowInsets = paddingValues,
+            tabHolder = holder,
+            current = current,
+            rootScreenScaffoldListener = rootScreenScaffoldListener,
+            viewModelEventHandlers = viewModelEventHandlers,
+            rootCoroutineScope = rootCoroutineScope,
+            globalEventSender = globalEventSender,
+            loginCheckUseCase = loginCheckUseCase,
+            globalEvent = globalEvent,
+            homeAddTabScreenUiStateProvider = {
+                mailScreenViewModel.uiStateFlow.collectAsState().value
+            },
+            usageCalendarUiStateProvider = { yearMonth ->
+                val coroutineScope = rememberCoroutineScope()
+                val viewModel = remember {
+                    MoneyUsagesCalendarViewModel(
+                        coroutineScope = coroutineScope,
+                        rootUsageHostViewModel = rootUsageHostViewModel,
+                        yearMonth = yearMonth,
+                    )
+                }
+                LaunchedEffect(viewModel.viewModelEventHandler) {
+                    viewModelEventHandlers.handleMoneyUsagesCalendar(
+                        handler = viewModel.viewModelEventHandler,
+                    )
+                }
+                viewModel.uiStateFlow.collectAsState().value
+            },
+            usageListUiStateProvider = {
+                val coroutineScope = rememberCoroutineScope()
+                val viewModel = remember {
+                    MoneyUsagesListViewModel(
+                        coroutineScope = coroutineScope,
+                        rootUsageHostViewModel = rootUsageHostViewModel,
+                        graphqlClient = koin.get(),
+                    )
+                }
+                LaunchedEffect(viewModel.viewModelEventHandler) {
+                    viewModelEventHandlers.handleMoneyUsagesList(
+                        handler = viewModel.viewModelEventHandler,
+                    )
+                }
+                viewModel.uiStateFlow.collectAsState().value
+            },
+            importMailLinkScreenUiStateProvider = {
+                LaunchedEffect(mailImportViewModel.eventHandler) {
+                    viewModelEventHandlers.handleMailImport(mailImportViewModel.eventHandler)
+                }
+
+                mailImportViewModel.rootUiStateFlow.collectAsState().value
+            },
+            importMailScreenUiStateProvider = { screenStructure ->
+                LaunchedEffect(screenStructure) {
+                    importedMailListViewModel.updateQuery(screenStructure)
+                }
+                LaunchedEffect(importedMailListViewModel.eventHandler) {
+                    viewModelEventHandlers.handleMailLink(importedMailListViewModel.eventHandler)
+                }
+                importedMailListViewModel.rootUiStateFlow.collectAsState().value
+            },
+            settingUiStateProvider = {
+                settingViewModel.uiState.collectAsState().value
+            },
+        )
     }
 }
 
