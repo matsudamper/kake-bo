@@ -129,7 +129,7 @@ internal fun SettingNavContent(
                             graphqlClient = koin.get(),
                         ),
                         globalEventSender = globalEventSender,
-                        ioDispatchers = Dispatchers.Unconfined,
+                        ioDispatchers = Dispatchers.IO,
                     )
                 }
 

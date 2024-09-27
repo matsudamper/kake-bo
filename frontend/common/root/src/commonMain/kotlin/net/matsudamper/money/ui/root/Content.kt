@@ -29,6 +29,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.nav.admin.rememberAdminScreenController
 import net.matsudamper.money.frontend.common.base.nav.user.JsScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
@@ -175,7 +176,7 @@ fun Content(
     val importedMailListViewModel = remember {
         ImportedMailListViewModel(
             coroutineScope = rootCoroutineScope,
-            ioDispatcher = Dispatchers.Unconfined,
+            ioDispatcher = Dispatchers.IO,
             graphqlApi = MailLinkScreenGraphqlApi(
                 graphqlClient = koin.get(),
             ),
@@ -184,7 +185,7 @@ fun Content(
     val mailImportViewModel = remember {
         MailImportViewModel(
             coroutineScope = rootCoroutineScope,
-            ioDispatcher = Dispatchers.Unconfined,
+            ioDispatcher = Dispatchers.IO,
             graphqlApi = MailImportScreenGraphqlApi(
                 graphqlClient = koin.get(),
             ),
@@ -211,7 +212,7 @@ fun Content(
         SettingViewModel(
             coroutineScope = rootCoroutineScope,
             globalEventSender = globalEventSender,
-            ioDispatchers = Dispatchers.Unconfined,
+            ioDispatchers = Dispatchers.IO,
         )
     }
     val kakeboScaffoldListener: KakeboScaffoldListener = remember {
