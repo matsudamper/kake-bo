@@ -30,7 +30,8 @@ private class ViewModelProviderImpl<T : Any>(
     override fun get(id: String): T {
         val coroutineViewModel = viewModel(
             key = ViewModelKey(
-                className = "${PlatformCoroutineViewModel.viewModelKey}#${kClass.simpleName!!}",
+                featureClassName = PlatformCoroutineViewModel.viewModelKey,
+                viewModelClassName = kClass.simpleName!!,
                 id = id,
             ).toString(),
         ) {
@@ -39,7 +40,8 @@ private class ViewModelProviderImpl<T : Any>(
 
         return viewModel(
             key = ViewModelKey(
-                className = "${PlatformViewModelWrapper.viewModelKey}#${kClass.simpleName!!}",
+                featureClassName = PlatformViewModelWrapper.viewModelKey,
+                viewModelClassName = kClass.simpleName!!,
                 id = id,
             ).toString(),
         ) {
@@ -69,6 +71,7 @@ private class ViewModelFeatureImpl(
 }
 
 private data class ViewModelKey(
-    val className: String,
+    val featureClassName: String,
+    val viewModelClassName: String,
     val id: String,
 )
