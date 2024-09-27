@@ -1,7 +1,6 @@
 package net.matsudamper.money.ui.root.viewmodel
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -77,7 +76,6 @@ internal class ViewModelProviders(
                 ),
                 loginCheckUseCase = koin.get(),
             )
-
         }.get()
     }
 

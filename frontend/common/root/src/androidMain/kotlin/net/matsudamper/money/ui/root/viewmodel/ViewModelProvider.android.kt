@@ -12,7 +12,7 @@ actual fun <T : Any> createViewModelProvider(factory: () -> T, kClass: KClass<T>
     )
 }
 
-private class ViewModelProviderImpl<T: Any>(
+private class ViewModelProviderImpl<T : Any>(
     private val factory: () -> T,
     private val kClass: KClass<T>,
 ) : ViewModelProvider<T> {

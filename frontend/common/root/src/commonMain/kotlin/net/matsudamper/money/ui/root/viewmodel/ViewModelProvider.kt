@@ -17,7 +17,7 @@ expect fun <T : Any> createViewModelProvider(
 ): ViewModelProvider<T>
 
 inline fun <reified T : Any> createViewModelProvider(
-    noinline factory: () -> T
+    noinline factory: () -> T,
 ): ViewModelProvider<T> {
     return createViewModelProvider(
         factory = factory,
