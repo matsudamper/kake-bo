@@ -173,25 +173,6 @@ fun Content(
     }
 
     val rootViewModel = koin.get<ViewModelProviders>().rootViewModel()
-    val importedMailListViewModel = remember {
-        ImportedMailListViewModel(
-            coroutineScope = rootCoroutineScope,
-            ioDispatcher = Dispatchers.IO,
-            graphqlApi = MailLinkScreenGraphqlApi(
-                graphqlClient = koin.get(),
-            ),
-        )
-    }
-    val mailImportViewModel = remember {
-        MailImportViewModel(
-            coroutineScope = rootCoroutineScope,
-            ioDispatcher = Dispatchers.IO,
-            graphqlApi = MailImportScreenGraphqlApi(
-                graphqlClient = koin.get(),
-            ),
-            loginCheckUseCase = koin.get(),
-        )
-    }
 
     val rootUsageHostViewModel = remember {
         RootUsageHostViewModel(
@@ -327,8 +308,6 @@ fun Content(
                         mailScreenViewModel = mailScreenViewModel,
                         rootUsageHostViewModel = rootUsageHostViewModel,
                         viewModelEventHandlers = viewModelEventHandlers,
-                        mailImportViewModel = mailImportViewModel,
-                        importedMailListViewModel = importedMailListViewModel,
                         holder = rootHolder,
                         rootScreenScaffoldListener = rootScreenScaffoldListener,
                         rootCoroutineScope = rootCoroutineScope,
@@ -413,8 +392,6 @@ private fun RootScreenContainer(
     mailScreenViewModel: HomeAddTabScreenViewModel,
     rootUsageHostViewModel: RootUsageHostViewModel,
     viewModelEventHandlers: ViewModelEventHandlers,
-    mailImportViewModel: MailImportViewModel,
-    importedMailListViewModel: ImportedMailListViewModel,
     holder: SaveableStateHolder,
     rootCoroutineScope: CoroutineScope,
     globalEventSender: EventSender<GlobalEvent>,
@@ -490,6 +467,16 @@ private fun RootScreenContainer(
                 viewModel.uiStateFlow.collectAsState().value
             },
             importMailLinkScreenUiStateProvider = {
+                val mailImportViewModel = remember {
+                    MailImportViewModel(
+                        coroutineScope = rootCoroutineScope,
+                        ioDispatcher = Dispatchers.IO,
+                        graphqlApi = MailImportScreenGraphqlApi(
+                            graphqlClient = koin.get(),
+                        ),
+                        loginCheckUseCase = koin.get(),
+                    )
+                }
                 LaunchedEffect(mailImportViewModel.eventHandler) {
                     viewModelEventHandlers.handleMailImport(mailImportViewModel.eventHandler)
                 }
@@ -497,6 +484,15 @@ private fun RootScreenContainer(
                 mailImportViewModel.rootUiStateFlow.collectAsState().value
             },
             importMailScreenUiStateProvider = { screenStructure ->
+                val importedMailListViewModel = remember {
+                    ImportedMailListViewModel(
+                        coroutineScope = rootCoroutineScope,
+                        ioDispatcher = Dispatchers.IO,
+                        graphqlApi = MailLinkScreenGraphqlApi(
+                            graphqlClient = koin.get(),
+                        ),
+                    )
+                }
                 LaunchedEffect(screenStructure) {
                     importedMailListViewModel.updateQuery(screenStructure)
                 }
