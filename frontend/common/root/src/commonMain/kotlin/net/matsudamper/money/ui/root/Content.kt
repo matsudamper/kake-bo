@@ -212,17 +212,6 @@ fun Content(
             platformToolsProvider = platformToolsProvider,
         )
     }
-    remember {
-        object : RememberObserver {
-            override fun onAbandoned() {}
-            override fun onRemembered() {
-            }
-
-            override fun onForgotten() {
-            }
-        }
-    }
-
     LaunchedEffect(mailScreenViewModel) {
         viewModelEventHandlers.handleHomeAddTabScreen(
             mailScreenViewModel.navigateEventHandler,
