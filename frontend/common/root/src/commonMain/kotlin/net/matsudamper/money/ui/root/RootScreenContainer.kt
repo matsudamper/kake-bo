@@ -4,30 +4,18 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.SaveableStateHolder
-import androidx.compose.runtime.setValue
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodAllContentViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeAddTabScreenViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.mail.ImportedMailListViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.usage.MoneyUsagesCalendarViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.usage.MoneyUsagesListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
-import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
-import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
+import net.matsudamper.money.ui.root.viewmodel.ViewModelProviders
 
 @Composable
 internal fun RootScreenContainer(
@@ -80,13 +68,13 @@ internal fun RootScreenContainer(
             },
             usageCalendarUiStateProvider = { yearMonth ->
                 val coroutineScope = rememberCoroutineScope()
-                val viewModel = remember {
-                    MoneyUsagesCalendarViewModel(
+                val viewModel = koin.get<ViewModelProviders>()
+                    .moneyUsagesCalendarViewModel(
                         coroutineScope = coroutineScope,
                         rootUsageHostViewModel = rootUsageHostViewModel,
                         yearMonth = yearMonth,
                     )
-                }
+
                 LaunchedEffect(viewModel.viewModelEventHandler) {
                     viewModelEventHandlers.handleMoneyUsagesCalendar(
                         handler = viewModel.viewModelEventHandler,
@@ -96,13 +84,11 @@ internal fun RootScreenContainer(
             },
             usageListUiStateProvider = {
                 val coroutineScope = rememberCoroutineScope()
-                val viewModel = remember {
-                    MoneyUsagesListViewModel(
+                val viewModel = koin.get<ViewModelProviders>()
+                    .moneyUsagesListViewModel(
                         coroutineScope = coroutineScope,
                         rootUsageHostViewModel = rootUsageHostViewModel,
-                        graphqlClient = koin.get(),
                     )
-                }
                 LaunchedEffect(viewModel.viewModelEventHandler) {
                     viewModelEventHandlers.handleMoneyUsagesList(
                         handler = viewModel.viewModelEventHandler,
@@ -111,16 +97,8 @@ internal fun RootScreenContainer(
                 viewModel.uiStateFlow.collectAsState().value
             },
             importMailLinkScreenUiStateProvider = {
-                val mailImportViewModel = remember {
-                    MailImportViewModel(
-                        coroutineScope = rootCoroutineScope,
-                        ioDispatcher = Dispatchers.IO,
-                        graphqlApi = MailImportScreenGraphqlApi(
-                            graphqlClient = koin.get(),
-                        ),
-                        loginCheckUseCase = koin.get(),
-                    )
-                }
+                val mailImportViewModel = koin.get<ViewModelProviders>()
+                    .mailImportViewModel()
                 LaunchedEffect(mailImportViewModel.eventHandler) {
                     viewModelEventHandlers.handleMailImport(mailImportViewModel.eventHandler)
                 }
@@ -128,15 +106,8 @@ internal fun RootScreenContainer(
                 mailImportViewModel.rootUiStateFlow.collectAsState().value
             },
             importMailScreenUiStateProvider = { screenStructure ->
-                val importedMailListViewModel = remember {
-                    ImportedMailListViewModel(
-                        coroutineScope = rootCoroutineScope,
-                        ioDispatcher = Dispatchers.IO,
-                        graphqlApi = MailLinkScreenGraphqlApi(
-                            graphqlClient = koin.get(),
-                        ),
-                    )
-                }
+                val importedMailListViewModel = koin.get<ViewModelProviders>()
+                    .importedMailListViewModel()
                 LaunchedEffect(screenStructure) {
                     importedMailListViewModel.updateQuery(screenStructure)
                 }
@@ -149,16 +120,8 @@ internal fun RootScreenContainer(
                 settingViewModel.uiState.collectAsState().value
             },
             rootHomeTabPeriodAllContentUiStateProvider = { current ->
-                val allContentViewModel = remember {
-                    RootHomeTabPeriodAllContentViewModel(
-                        coroutineScope = rootCoroutineScope,
-                        api = RootHomeTabScreenApi(
-                            graphqlClient = koin.get(),
-                        ),
-                        loginCheckUseCase = koin.get(),
-                        graphqlClient = koin.get(),
-                    )
-                }
+                val allContentViewModel = koin.get<ViewModelProviders>()
+                    .rootHomeTabPeriodAllContentViewModel()
                 LaunchedEffect(allContentViewModel, current) {
                     allContentViewModel.updateStructure(current)
                 }
