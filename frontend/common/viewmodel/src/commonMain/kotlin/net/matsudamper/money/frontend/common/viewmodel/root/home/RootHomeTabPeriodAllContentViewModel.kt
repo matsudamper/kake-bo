@@ -17,7 +17,6 @@ import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
-import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
@@ -233,7 +232,6 @@ public class RootHomeTabPeriodAllContentViewModel(
                                     }
                                 }
                             }.onFailure {
-                                Logger.d("LOG", "Error: ${it.message}")
                                 viewModelStateFlow.update {
                                     it.copy(
                                         allResponseMap = it.allResponseMap

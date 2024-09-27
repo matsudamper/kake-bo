@@ -5,9 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
@@ -148,9 +146,7 @@ public class RootUsageHostViewModel(
     }
 
     public fun requestNavigate() {
-        Logger.d("LOG", "isActive: ${viewModelScope.isActive}")
         viewModelScope.launch {
-            Logger.d("LOG", "send")
             rootNavigationEventSender.send {
                 it.navigate(
                     mutableViewModelStateFlow.value.screenStructure
