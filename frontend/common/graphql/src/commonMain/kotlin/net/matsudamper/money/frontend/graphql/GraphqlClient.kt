@@ -29,6 +29,7 @@ import net.matsudamper.money.frontend.graphql.type.MailId as ApolloMailId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoryId as ApolloMoneyUsageCategoryId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageId as ApolloMoneyUsageId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryId as ApolloMoneyUsageSubCategoryId
+import com.apollographql.apollo3.network.http.DefaultHttpEngine
 
 public interface GraphqlClient {
     val apolloClient: ApolloClient
@@ -41,6 +42,7 @@ class GraphqlClientImpl(
     override val apolloClient: ApolloClient =
         ApolloClient.Builder()
             .serverUrl("$serverProtocol://$serverHost/query")
+            .httpEngine(DefaultHttpEngine(timeoutMillis = 5000))
             .interceptors(interceptors)
             .normalizedCache(cacheFactory)
             .addCustomScalarAdapter(
