@@ -63,7 +63,7 @@ public class RootHomeTabScreenApi(
         }
     }
 
-    public suspend fun fetchAll(
+    public fun fetchAll(
         startYear: Int,
         startMonth: Int,
         endYear: Int,
@@ -71,23 +71,21 @@ public class RootHomeTabScreenApi(
         useCache: Boolean,
     ): Result<Flow<ApolloResponse<RootHomeTabScreenAnalyticsByDateQuery.Data>>> {
         return runCatching {
-            graphqlClient.apolloClient.query(
-                RootHomeTabScreenAnalyticsByDateQuery(
-                    query =
-                    MoneyUsageAnalyticsQuery(
-                        sinceDateTime =
-                        LocalDateTime(
-                            LocalDate(startYear, startMonth, 1),
-                            LocalTime(0, 0, 0),
-                        ),
-                        untilDateTime =
-                        LocalDateTime(
-                            LocalDate(endYear, endMonth, 1),
-                            LocalTime(0, 0, 0),
+            graphqlClient.apolloClient
+                .query(
+                    RootHomeTabScreenAnalyticsByDateQuery(
+                        query = MoneyUsageAnalyticsQuery(
+                            sinceDateTime = LocalDateTime(
+                                LocalDate(startYear, startMonth, 1),
+                                LocalTime(0, 0, 0),
+                            ),
+                            untilDateTime = LocalDateTime(
+                                LocalDate(endYear, endMonth, 1),
+                                LocalTime(0, 0, 0),
+                            ),
                         ),
                     ),
-                ),
-            )
+                )
                 .fetchPolicy(
                     if (useCache) {
                         FetchPolicy.CacheFirst
