@@ -99,25 +99,24 @@ public class RootHomeTabPeriodScreenViewModel(
         ).also { uiStateFlow ->
             viewModelScope.launch {
                 viewModelStateFlow.collectLatest { viewModelState ->
-                    val loadingState =
-                        run screenState@{
-                            val displayPeriods =
-                                (0 until viewModelState.displayPeriod.monthCount).map { index ->
-                                    viewModelState.displayPeriod.sinceDate.addMonth(index)
-                                }
+                    val loadingState = run screenState@{
+                        val displayPeriods =
+                            (0 until viewModelState.displayPeriod.monthCount).map { index ->
+                                viewModelState.displayPeriod.sinceDate.addMonth(index)
+                            }
 
-                            RootHomeTabPeriodUiState.LoadingState.Loaded(
-                                categoryType =
-                                when (viewModelState.contentType) {
-                                    is ViewModelState.ContentType.All -> "すべて"
-                                    is ViewModelState.ContentType.Category -> viewModelState.contentType.name
-                                    is ViewModelState.ContentType.Loading -> ""
-                                },
-                                categoryTypes = createCategoryTypes(categories = viewModelState.categories).toImmutableList(),
-                                between = "${displayPeriods.first().year}/${displayPeriods.first().month} - ${displayPeriods.last().year}/${displayPeriods.last().month}",
-                                rangeText = "${viewModelState.displayPeriod.monthCount}ヶ月",
-                            )
-                        }
+                        RootHomeTabPeriodUiState.LoadingState.Loaded(
+                            categoryType =
+                            when (viewModelState.contentType) {
+                                is ViewModelState.ContentType.All -> "すべて"
+                                is ViewModelState.ContentType.Category -> viewModelState.contentType.name
+                                is ViewModelState.ContentType.Loading -> ""
+                            },
+                            categoryTypes = createCategoryTypes(categories = viewModelState.categories).toImmutableList(),
+                            between = "${displayPeriods.first().year}/${displayPeriods.first().month} - ${displayPeriods.last().year}/${displayPeriods.last().month}",
+                            rangeText = "${viewModelState.displayPeriod.monthCount}ヶ月",
+                        )
+                    }
 
                     uiStateFlow.value =
                         RootHomeTabPeriodUiState(
