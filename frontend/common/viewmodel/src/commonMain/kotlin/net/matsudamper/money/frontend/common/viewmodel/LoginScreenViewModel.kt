@@ -1,7 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel
 
 import androidx.compose.ui.text.input.TextFieldValue
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,13 +18,13 @@ import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.type.UserFidoLoginInput
 
 public class LoginScreenViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     private val graphqlQuery: GraphqlUserLoginQuery,
     private val screenApi: LoginScreenApi,
     private val navController: JsScreenNavController,
     private val globalEventSender: EventSender<GlobalEvent>,
     private val webAuthModel: WebAuthModel,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> =
         MutableStateFlow(
             ViewModelState(),
@@ -50,7 +49,7 @@ public class LoginScreenViewModel(
                     }
 
                     override fun onClickLogin() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             val result = runCatching {
                                 graphqlQuery.login(
                                     userName = viewModelStateFlow.value.userName.text,
@@ -81,7 +80,7 @@ public class LoginScreenViewModel(
                 },
             ),
         ).also { uiStateFlow ->
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelStateFlow.collect { viewModelState ->
                     uiStateFlow.update { uiState ->
                         uiState.copy(
@@ -107,7 +106,7 @@ public class LoginScreenViewModel(
     }
 
     init {
-        coroutineScope.launch {
+        viewModelScope.launch {
             val isLoggedIn = graphqlQuery.isLoggedIn()
             if (isLoggedIn) {
                 navController.navigate(RootHomeScreenStructure.Home)

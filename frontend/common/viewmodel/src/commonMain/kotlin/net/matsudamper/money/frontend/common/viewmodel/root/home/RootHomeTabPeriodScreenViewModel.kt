@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.home
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,15 +17,16 @@ import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmu
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenQuery
 
 public class RootHomeTabPeriodScreenViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     private val api: RootHomeTabScreenApi,
     initialCategoryId: MoneyUsageCategoryId?,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val viewModelStateFlow = MutableStateFlow(
         ViewModelState(
             categoryId = initialCategoryId,
@@ -97,7 +97,7 @@ public class RootHomeTabPeriodScreenViewModel(
                 event = event,
             ),
         ).also { uiStateFlow ->
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelStateFlow.collectLatest { viewModelState ->
                     val loadingState =
                         run screenState@{

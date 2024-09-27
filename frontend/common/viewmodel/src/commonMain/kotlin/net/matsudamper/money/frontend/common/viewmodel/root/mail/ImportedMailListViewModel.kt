@@ -1,7 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.mail
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +15,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState.Filters.LinkStatus
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
@@ -23,10 +23,10 @@ import net.matsudamper.money.frontend.graphql.ImportedMailListScreenMailPagingQu
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
 
 public class ImportedMailListViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     private val ioDispatcher: CoroutineDispatcher,
     private val graphqlApi: MailLinkScreenGraphqlApi,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val viewModelEventSender = EventSender<MailLinkViewModelEvent>()
     public val eventHandler: EventHandler<MailLinkViewModelEvent> = viewModelEventSender.asHandler()
 
@@ -58,7 +58,7 @@ public class ImportedMailListViewModel(
                 loadingState = ImportedMailListScreenUiState.LoadingState.Loading,
             ),
         ).also { uiStateFlow ->
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelStateFlow.collect { viewModelState ->
                     uiStateFlow.update { uiState ->
                         uiState.copy(

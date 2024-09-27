@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.moneyusage
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,6 +15,7 @@ import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.screen.moneyusage.MoneyUsageScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -28,11 +28,11 @@ import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class MoneyUsageScreenViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     private val moneyUsageId: MoneyUsageId,
     private val api: MoneyUsageScreenViewModelApi,
     graphqlClient: GraphqlClient,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val eventSender = EventSender<Event>()
@@ -42,7 +42,7 @@ public class MoneyUsageScreenViewModel(
         private val event: CategorySelectDialogViewModel.Event =
             object : CategorySelectDialogViewModel.Event {
                 override fun selected(result: CategorySelectDialogViewModel.SelectedResult) {
-                    coroutineScope.launch {
+                    viewModelScope.launch {
                         val isSuccess = api.updateUsage(
                             id = moneyUsageId,
                             subCategoryId = result.subCategoryId,
@@ -56,7 +56,7 @@ public class MoneyUsageScreenViewModel(
                 }
             }
         val viewModel = CategorySelectDialogViewModel(
-            coroutineScope = coroutineScope,
+            viewModelFeature = viewModelFeature,
             event = event,
             apolloClient = graphqlClient.apolloClient,
         )
@@ -65,19 +65,19 @@ public class MoneyUsageScreenViewModel(
         MoneyUsageScreenUiState(
             event = object : MoneyUsageScreenUiState.Event {
                 override fun onViewInitialized() {
-                    coroutineScope.launch {
+                    viewModelScope.launch {
                         apolloCollector.fetch()
                     }
                 }
 
                 override fun onClickRetry() {
-                    coroutineScope.launch {
+                    viewModelScope.launch {
                         apolloCollector.fetch()
                     }
                 }
 
                 override fun onClickBack() {
-                    coroutineScope.launch {
+                    viewModelScope.launch {
                         eventSender.send {
                             it.navigateBack()
                         }
@@ -93,7 +93,7 @@ public class MoneyUsageScreenViewModel(
             numberInputDialog = null,
         ),
     ).also { uiStateFlow ->
-        coroutineScope.launch {
+        viewModelScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
                 val loadingState = run loadingState@{
                     when (val state = viewModelState.apolloResponseState) {
@@ -132,7 +132,7 @@ public class MoneyUsageScreenViewModel(
                                         date = mail.dateTime.toString(),
                                         event = object : MoneyUsageScreenUiState.MailItemEvent {
                                             override fun onClick() {
-                                                coroutineScope.launch {
+                                                viewModelScope.launch {
                                                     eventSender.send {
                                                         it.navigate(ScreenStructure.ImportedMail(id = mail.id))
                                                     }
@@ -335,7 +335,7 @@ public class MoneyUsageScreenViewModel(
     )
 
     init {
-        coroutineScope.launch {
+        viewModelScope.launch {
             apolloCollector.getFlow().collectLatest { apolloResponseState ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
@@ -344,7 +344,7 @@ public class MoneyUsageScreenViewModel(
                 }
             }
         }
-        coroutineScope.launch {
+        viewModelScope.launch {
             categorySelectDialogViewModel.getUiStateFlow().collectLatest { categorySelectDialogUiState ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(

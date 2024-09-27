@@ -39,6 +39,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeri
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.RootHomeMonthlyScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.category.RootHomeMonthlyCategoryScreenViewModel
+import net.matsudamper.money.ui.root.viewmodel.provideViewModel
 
 @Composable
 internal fun RootNavContent(
@@ -69,9 +70,9 @@ internal fun RootNavContent(
                     is RootHomeScreenStructure.Monthly -> {
                         holder.SaveableStateProvider(RootHomeScreenStructure.Monthly::class.simpleName!!) {
                             val coroutineScope = rememberCoroutineScope()
-                            val viewModel = remember {
+                            val viewModel = provideViewModel {
                                 RootHomeMonthlyScreenViewModel(
-                                    coroutineScope = coroutineScope,
+                                    viewModelFeature = it,
                                     loginCheckUseCase = koin.get(),
                                     argument = current,
                                     graphqlClient = koin.get(),
@@ -108,10 +109,10 @@ internal fun RootNavContent(
                             }
 
                             is RootHomeScreenStructure.PeriodCategory -> {
-                                val categoryViewModel = remember {
+                                val categoryViewModel = provideViewModel {
                                     RootHomeTabPeriodCategoryContentViewModel(
                                         initialCategoryId = current.categoryId,
-                                        coroutineScope = rootCoroutineScope,
+                                        viewModelFeature = it,
                                         api = RootHomeTabScreenApi(
                                             graphqlClient = koin.get(),
                                         ),
@@ -136,15 +137,14 @@ internal fun RootNavContent(
                     }
 
                     is RootHomeScreenStructure.MonthlyCategory -> {
-                        val monthlyCategoryViewModel =
-                            remember {
-                                RootHomeMonthlyCategoryScreenViewModel(
-                                    argument = current,
-                                    coroutineScope = rootCoroutineScope,
-                                    loginCheckUseCase = koin.get(),
-                                    graphqlClient = koin.get(),
-                                )
-                            }
+                        val monthlyCategoryViewModel = provideViewModel {
+                            RootHomeMonthlyCategoryScreenViewModel(
+                                argument = current,
+                                viewModelFeature = it,
+                                loginCheckUseCase = koin.get(),
+                                graphqlClient = koin.get(),
+                            )
+                        }
                         LaunchedEffect(monthlyCategoryViewModel.eventHandler) {
                             viewModelEventHandlers.handleRootHomeMonthlyCategoryScreen(monthlyCategoryViewModel.eventHandler)
                         }

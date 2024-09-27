@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,6 +11,7 @@ import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmu
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingMailCategoryFilterScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFiltersScreenPagingQuery
@@ -20,8 +20,8 @@ import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 public class SettingMailCategoryFiltersViewModel(
     private val pagingModel: ImportedMailCategoryFilterScreenPagingModel,
     private val api: SettingImportedMailCategoryFilterApi,
-    coroutineScope: CoroutineScope,
-) : CommonViewModel(coroutineScope) {
+    viewModelFeature: ViewModelFeature,
+) : CommonViewModel(viewModelFeature) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState())
 
     private val eventSender = EventSender<Event>()
@@ -41,7 +41,7 @@ public class SettingMailCategoryFiltersViewModel(
                 return SettingMailCategoryFilterScreenUiState.TextInput(
                     title = "メールカテゴリフィルタの追加",
                     onCompleted = { text ->
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             runCatching {
                                 api.addFilter(text)
                             }.onSuccess {
@@ -76,19 +76,19 @@ public class SettingMailCategoryFiltersViewModel(
                 event =
                 object : SettingMailCategoryFilterScreenUiState.Event {
                     override fun onClickRetry() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             pagingModel.fetch()
                         }
                     }
 
                     override fun onViewInitialized() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             pagingModel.fetch()
                         }
                     }
 
                     override fun onClickBack() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             eventSender.send {
                                 it.navigate(ScreenStructure.Root.Settings.Root)
                             }
@@ -97,7 +97,7 @@ public class SettingMailCategoryFiltersViewModel(
                 },
             ),
         ).also { uiStateFlow ->
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelStateFlow.collectLatest { viewModelState ->
                     uiStateFlow.update { uiState ->
                         val loadingState =
@@ -133,7 +133,7 @@ public class SettingMailCategoryFiltersViewModel(
                                                             event =
                                                             object : SettingMailCategoryFilterScreenUiState.ItemEvent {
                                                                 override fun onClick() {
-                                                                    coroutineScope.launch {
+                                                                    viewModelScope.launch {
                                                                         eventSender.send {
                                                                             it.navigate(
                                                                                 ScreenStructure.Root.Settings.MailCategoryFilter(
@@ -164,7 +164,7 @@ public class SettingMailCategoryFiltersViewModel(
         }.asStateFlow()
 
     init {
-        coroutineScope.launch {
+        viewModelScope.launch {
             pagingModel.getFlow().collectLatest { apolloResponseStates ->
                 viewModelStateFlow.update {
                     it.copy(

@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.home
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +26,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeri
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -35,23 +35,23 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByDateQuery
 
 public class RootHomeTabPeriodAllContentViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     private val api: RootHomeTabScreenApi,
     graphqlClient: GraphqlClient,
     loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState())
     private val reservedColorModel = ReservedColorModel()
 
     private val tabViewModel = RootHomeTabScreenViewModel(
-        coroutineScope = coroutineScope,
+        viewModelFeature = viewModelFeature,
         loginCheckUseCase = loginCheckUseCase,
     ).also { viewModel ->
-        coroutineScope.launch {
+        viewModelScope.launch {
             viewModel.viewModelEventHandler.collect(
                 object : RootHomeTabScreenViewModel.Event {
                     override fun navigate(screen: ScreenStructure) {
-                        coroutineScope.launch { eventSender.send { it.navigate(screen) } }
+                        viewModelScope.launch { eventSender.send { it.navigate(screen) } }
                     }
                 },
             )
@@ -59,15 +59,15 @@ public class RootHomeTabPeriodAllContentViewModel(
     }
     private val periodViewModel =
         RootHomeTabPeriodScreenViewModel(
-            coroutineScope = coroutineScope,
+            viewModelFeature = viewModelFeature,
             api = RootHomeTabScreenApi(graphqlClient = graphqlClient),
             initialCategoryId = null,
         ).also { viewModel ->
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModel.viewModelEventHandler.collect(
                     object : RootHomeTabPeriodScreenViewModel.Event {
                         override fun onClickAllFilter() {
-                            coroutineScope.launch {
+                            viewModelScope.launch {
                                 eventSender.send {
                                     it.navigate(
                                         RootHomeScreenStructure.PeriodAnalytics(
@@ -79,7 +79,7 @@ public class RootHomeTabPeriodAllContentViewModel(
                         }
 
                         override fun onClickCategoryFilter(categoryId: MoneyUsageCategoryId) {
-                            coroutineScope.launch {
+                            viewModelScope.launch {
                                 eventSender.send {
                                     it.navigate(
                                         RootHomeScreenStructure.PeriodCategory(
@@ -96,7 +96,7 @@ public class RootHomeTabPeriodAllContentViewModel(
                             month: Int,
                             period: Int,
                         ) {
-                            coroutineScope.launch {
+                            viewModelScope.launch {
                                 eventSender.send {
                                     it.navigate(
                                         RootHomeScreenStructure.PeriodAnalytics(
@@ -134,7 +134,7 @@ public class RootHomeTabPeriodAllContentViewModel(
                 },
             ),
         ).also { uiStateFlow ->
-            coroutineScope.launch {
+            viewModelScope.launch {
                 tabViewModel.uiStateFlow.collectLatest { tabUiState ->
                     uiStateFlow.update { uiState ->
                         uiState.copy(
@@ -143,7 +143,7 @@ public class RootHomeTabPeriodAllContentViewModel(
                     }
                 }
             }
-            coroutineScope.launch {
+            viewModelScope.launch {
                 periodViewModel.uiStateFlow.collectLatest { periodUiState ->
                     uiStateFlow.update { uiState ->
                         uiState.copy(
@@ -152,7 +152,7 @@ public class RootHomeTabPeriodAllContentViewModel(
                     }
                 }
             }
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelStateFlow.collectLatest { viewModelState ->
                     val displayPeriods =
                         (0 until viewModelState.displayPeriod.monthCount).map { index ->

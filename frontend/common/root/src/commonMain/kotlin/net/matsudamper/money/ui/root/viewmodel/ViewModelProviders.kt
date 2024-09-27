@@ -29,7 +29,7 @@ internal class ViewModelProviders(
         return createViewModelProvider {
             RootViewModel(
                 loginCheckUseCase = koin.get(),
-                coroutineScope = rootCoroutineScope,
+                viewModelFeature = it,
                 navController = navController,
             )
         }.get()
@@ -43,7 +43,7 @@ internal class ViewModelProviders(
     ): MoneyUsagesCalendarViewModel {
         return createViewModelProvider {
             MoneyUsagesCalendarViewModel(
-                coroutineScope = coroutineScope,
+                viewModelFeature = it,
                 rootUsageHostViewModel = rootUsageHostViewModel,
                 yearMonth = yearMonth,
             )
@@ -57,7 +57,7 @@ internal class ViewModelProviders(
     ): MoneyUsagesListViewModel {
         return createViewModelProvider {
             MoneyUsagesListViewModel(
-                coroutineScope = coroutineScope,
+                viewModelFeature = it,
                 rootUsageHostViewModel = rootUsageHostViewModel,
                 graphqlClient = koin.get(),
             )
@@ -69,7 +69,7 @@ internal class ViewModelProviders(
         val coroutineScope = rememberCoroutineScope()
         return createViewModelProvider {
             MailImportViewModel(
-                coroutineScope = coroutineScope,
+                viewModelFeature = it,
                 ioDispatcher = Dispatchers.IO,
                 graphqlApi = MailImportScreenGraphqlApi(
                     graphqlClient = koin.get(),
@@ -84,7 +84,7 @@ internal class ViewModelProviders(
         val coroutineScope = rememberCoroutineScope()
         return createViewModelProvider {
             ImportedMailListViewModel(
-                coroutineScope = coroutineScope,
+                viewModelFeature = it,
                 ioDispatcher = Dispatchers.IO,
                 graphqlApi = MailLinkScreenGraphqlApi(
                     graphqlClient = koin.get(),
@@ -95,10 +95,9 @@ internal class ViewModelProviders(
 
     @Composable
     fun rootHomeTabPeriodAllContentViewModel(): RootHomeTabPeriodAllContentViewModel {
-        val coroutineScope = rememberCoroutineScope()
         return createViewModelProvider {
             RootHomeTabPeriodAllContentViewModel(
-                coroutineScope = coroutineScope,
+                viewModelFeature = it,
                 api = RootHomeTabScreenApi(
                     graphqlClient = koin.get(),
                 ),

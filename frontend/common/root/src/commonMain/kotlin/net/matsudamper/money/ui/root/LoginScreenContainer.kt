@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -17,6 +16,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.login.LoginScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
+import net.matsudamper.money.ui.root.viewmodel.provideViewModel
 
 @Composable
 internal fun LoginScreenContainer(
@@ -26,9 +26,9 @@ internal fun LoginScreenContainer(
 ) {
     val koin = LocalKoin.current
     val coroutineScope = rememberCoroutineScope()
-    val viewModel = remember {
+    val viewModel = provideViewModel {
         LoginScreenViewModel(
-            coroutineScope = coroutineScope,
+            viewModelFeature = it,
             navController = navController,
             graphqlQuery = GraphqlUserLoginQuery(
                 graphqlClient = koin.get(),

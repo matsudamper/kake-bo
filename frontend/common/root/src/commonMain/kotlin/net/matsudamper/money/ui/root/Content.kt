@@ -26,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.IO
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavControllerImpl
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -46,6 +47,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostV
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.ui.root.platform.PlatformTools
 import net.matsudamper.money.ui.root.viewmodel.ViewModelProviders
+import net.matsudamper.money.ui.root.viewmodel.provideViewModel
 import org.koin.dsl.module
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -137,24 +139,23 @@ public fun Content(
 
     val rootViewModel = koin.get<ViewModelProviders>().rootViewModel()
 
-    val rootUsageHostViewModel = remember {
+    val rootUsageHostViewModel = provideViewModel {
         RootUsageHostViewModel(
-            coroutineScope = rootCoroutineScope,
-            calendarPagingModel =
-            RootUsageCalendarPagingModel(
+            viewModelFeature = it,
+            calendarPagingModel = RootUsageCalendarPagingModel(
                 coroutineScope = rootCoroutineScope,
                 graphqlClient = koin.get(),
             ),
         )
     }
-    val mailScreenViewModel = remember {
+    val mailScreenViewModel = provideViewModel {
         HomeAddTabScreenViewModel(
-            coroutineScope = rootCoroutineScope,
+            viewModelFeature = it,
         )
     }
-    val settingViewModel = remember {
+    val settingViewModel = provideViewModel {
         SettingViewModel(
-            coroutineScope = rootCoroutineScope,
+            viewModelFeature = it,
             globalEventSender = globalEventSender,
             ioDispatchers = Dispatchers.IO,
         )
@@ -178,6 +179,7 @@ public fun Content(
             }
 
             override fun onClickList() {
+                Logger.d("LOG", "onclickList")
                 rootUsageHostViewModel.requestNavigate()
             }
 

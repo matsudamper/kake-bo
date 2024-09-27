@@ -6,14 +6,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.importedmail.root.ImportedMailScreen
 import net.matsudamper.money.frontend.common.viewmodel.importedmail.root.ImportedMailScreenGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.importedmail.root.ImportedMailScreenViewModel
+import net.matsudamper.money.ui.root.viewmodel.provideViewModel
 
 @Composable
 internal fun ImportedMailScreenContainer(
@@ -22,13 +21,9 @@ internal fun ImportedMailScreenContainer(
     windowInsets: PaddingValues,
 ) {
     val koin = LocalKoin.current
-    val coroutineScope = rememberCoroutineScope()
-    val viewModel = remember(
-        coroutineScope,
-        current,
-    ) {
+    val viewModel = provideViewModel {
         ImportedMailScreenViewModel(
-            coroutineScope = coroutineScope,
+            viewModelFeature = it,
             api = ImportedMailScreenGraphqlApi(
                 graphqlClient = koin.get(),
             ),

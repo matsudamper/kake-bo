@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.mail
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -9,12 +8,13 @@ import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeAddTabScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
 public class HomeAddTabScreenViewModel(
-    coroutineScope: CoroutineScope,
-) : CommonViewModel(coroutineScope) {
+    viewModelFeature: ViewModelFeature,
+) : CommonViewModel(viewModelFeature) {
     private val _viewModelStateFlow = MutableStateFlow(ViewModelState())
     private val viewModelStateFlow: StateFlow<ViewModelState> = _viewModelStateFlow.asStateFlow()
 
@@ -26,7 +26,7 @@ public class HomeAddTabScreenViewModel(
             HomeAddTabScreenUiState(
                 event = object : HomeAddTabScreenUiState.Event {
                     override fun onClickImportButton() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             navigateEventSender.send {
                                 it.navigate(
                                     viewModelStateFlow.value.lastImportMailStructure
@@ -37,7 +37,7 @@ public class HomeAddTabScreenViewModel(
                     }
 
                     override fun onClickImportedButton() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             navigateEventSender.send {
                                 it.navigate(
                                     viewModelStateFlow.value.lastImportedMailStructure

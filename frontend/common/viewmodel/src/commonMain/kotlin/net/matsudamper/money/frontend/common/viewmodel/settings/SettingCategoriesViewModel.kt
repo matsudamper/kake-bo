@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.settings
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -10,6 +9,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoriesScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
@@ -17,8 +17,8 @@ import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenCategoriesP
 
 public class SettingCategoriesViewModel(
     private val api: SettingScreenCategoryApi,
-    coroutineScope: CoroutineScope,
-) : CommonViewModel(coroutineScope) {
+    viewModelFeature: ViewModelFeature,
+) : CommonViewModel(viewModelFeature) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> =
         MutableStateFlow(
             ViewModelState(
@@ -43,7 +43,7 @@ public class SettingCategoriesViewModel(
                     }
 
                     override fun dismissCategoryInput() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             viewModelStateFlow.update {
                                 it.copy(
                                     showCategoryNameInput = false,
@@ -53,7 +53,7 @@ public class SettingCategoriesViewModel(
                     }
 
                     override fun onClickAddCategoryButton() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             viewModelStateFlow.update {
                                 it.copy(
                                     showCategoryNameInput = true,
@@ -63,7 +63,7 @@ public class SettingCategoriesViewModel(
                     }
 
                     override fun categoryInputCompleted(text: String) {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             val result = api.addCategory(text)?.data?.userMutation?.addCategory?.category
                             if (result == null) {
                                 globalEventSender.send {
@@ -89,7 +89,7 @@ public class SettingCategoriesViewModel(
                 showCategoryNameInput = false,
             ),
         ).also { uiStateFlow ->
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelStateFlow.collect { viewModelState ->
                     uiStateFlow.update { uiState ->
                         val loadingState =
@@ -108,7 +108,7 @@ public class SettingCategoriesViewModel(
                                             event =
                                             object : SettingCategoriesScreenUiState.CategoryItem.Event {
                                                 override fun onClick() {
-                                                    coroutineScope.launch {
+                                                    viewModelScope.launch {
                                                         viewModelEventSender.send {
                                                             it.navigateToCategoryDetail(
                                                                 id = item.id,

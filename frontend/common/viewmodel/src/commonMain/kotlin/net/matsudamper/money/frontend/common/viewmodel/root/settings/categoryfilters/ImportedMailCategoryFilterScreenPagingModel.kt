@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
@@ -9,20 +8,22 @@ import kotlinx.coroutines.launch
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFiltersScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloPagingResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersQuery
 
+// TODO 後でViewModelではなくする
 public class ImportedMailCategoryFilterScreenPagingModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     graphqlClient: GraphqlClient,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val pagingState =
         ApolloPagingResponseCollector<ImportedMailCategoryFiltersScreenPagingQuery.Data>(
             graphqlClient = graphqlClient,
-            coroutineScope = coroutineScope,
+            coroutineScope = viewModelScope,
         )
 
     internal suspend fun getFlow(): Flow<List<ApolloResponseState<ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data>>>> {

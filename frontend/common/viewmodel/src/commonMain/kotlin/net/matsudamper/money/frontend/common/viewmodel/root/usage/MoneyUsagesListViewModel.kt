@@ -17,6 +17,7 @@ import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmu
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
@@ -25,17 +26,16 @@ import net.matsudamper.money.frontend.graphql.UsageListScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class MoneyUsagesListViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     graphqlClient: GraphqlClient,
     rootUsageHostViewModel: RootUsageHostViewModel,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
-    private val pagingModel =
-        MoneyUsagesListFetchModel(
-            graphqlClient = graphqlClient,
-            coroutineScope = coroutineScope,
-        )
+    private val pagingModel = MoneyUsagesListFetchModel(
+        graphqlClient = graphqlClient,
+        coroutineScope = viewModelScope,
+    )
 
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
@@ -75,7 +75,7 @@ public class MoneyUsagesListViewModel(
                 },
             ),
         ).also { uiStateFlow ->
-            coroutineScope.launch {
+            viewModelScope.launch {
                 rootUsageHostViewModel.uiStateFlow
                     .collectLatest { hostUiState ->
                         uiStateFlow.update { uiState ->
@@ -85,7 +85,7 @@ public class MoneyUsagesListViewModel(
                         }
                     }
             }
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelStateFlow
                     .collectLatest { viewModelState ->
                         val nodes =
@@ -125,7 +125,7 @@ public class MoneyUsagesListViewModel(
                                             event =
                                             object : RootUsageListScreenUiState.ItemEvent {
                                                 override fun onClick() {
-                                                    coroutineScope.launch {
+                                                    viewModelScope.launch {
                                                         viewModelEventSender.send {
                                                             it.navigate(
                                                                 ScreenStructure.MoneyUsage(
@@ -155,7 +155,7 @@ public class MoneyUsagesListViewModel(
                                     event =
                                     object : RootUsageListScreenUiState.LoadedEvent {
                                         override fun loadMore() {
-                                            coroutineScope.launch {
+                                            viewModelScope.launch {
                                                 pagingModel.fetch()
                                             }
                                         }

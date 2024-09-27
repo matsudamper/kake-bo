@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.importedmail.root
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,6 +12,7 @@ import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmu
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.importedmail.root.MailScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -21,10 +21,10 @@ import net.matsudamper.money.frontend.graphql.ImportedMailScreenQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class ImportedMailScreenViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     private val api: ImportedMailScreenGraphqlApi,
     private val importedMailId: ImportedMailId,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val viewModelEventSender = EventSender<Event>()
@@ -38,7 +38,7 @@ public class ImportedMailScreenViewModel(
             }
 
             override fun onClickArrowBackButton() {
-                coroutineScope.launch {
+                viewModelScope.launch {
                     viewModelEventSender.send {
                         it.navigateToBack()
                     }
@@ -46,7 +46,7 @@ public class ImportedMailScreenViewModel(
             }
 
             override fun onClickTitle() {
-                coroutineScope.launch {
+                viewModelScope.launch {
                     viewModelEventSender.send {
                         it.navigateToHome()
                     }
@@ -54,7 +54,7 @@ public class ImportedMailScreenViewModel(
             }
 
             override fun onClickDelete() {
-                coroutineScope.launch {
+                viewModelScope.launch {
                     viewModelStateFlow.update { viewModelState ->
                         viewModelState.copy(
                             confirmDialog =
@@ -62,7 +62,7 @@ public class ImportedMailScreenViewModel(
                                 onDismissRequest = { dismissConfirmDialog() },
                                 onClickNegative = { dismissConfirmDialog() },
                                 onClickPositive = {
-                                    coroutineScope.launch {
+                                    viewModelScope.launch {
                                         val isSuccess = api.delete(id = importedMailId)
                                         if (isSuccess) {
                                             dismissConfirmDialog()
@@ -87,7 +87,7 @@ public class ImportedMailScreenViewModel(
                 urlMenuDialog = null,
             ),
         ).also { uiStateFlow ->
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelStateFlow.collectLatest { viewModelState ->
                     uiStateFlow.update { uiState ->
                         uiState.copy(
@@ -253,7 +253,7 @@ public class ImportedMailScreenViewModel(
 
     init {
         fetch()
-        coroutineScope.launch {
+        viewModelScope.launch {
             apolloResponseCollector.getFlow().collectLatest { response ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(

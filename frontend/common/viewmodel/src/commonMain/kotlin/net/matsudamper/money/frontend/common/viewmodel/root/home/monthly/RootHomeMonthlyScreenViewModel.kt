@@ -26,6 +26,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.home.monthly.RootHomeMonthlyScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
@@ -37,11 +38,11 @@ import net.matsudamper.money.frontend.graphql.lib.ApolloPagingResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class RootHomeMonthlyScreenViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     argument: RootHomeScreenStructure.Monthly,
     loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
     graphqlClient: GraphqlClient,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val viewModelStateFlow = MutableStateFlow(
         ViewModelState(
             argument = argument,
@@ -50,21 +51,21 @@ public class RootHomeMonthlyScreenViewModel(
     private val monthlyListState: ApolloPagingResponseCollector<MonthlyScreenListQuery.Data> =
         ApolloPagingResponseCollector.create(
             graphqlClient = graphqlClient,
-            coroutineScope = coroutineScope,
+            coroutineScope = viewModelScope,
         )
 
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
     private val tabViewModel = RootHomeTabScreenViewModel(
-        coroutineScope = coroutineScope,
+        viewModelFeature = viewModelFeature,
         loginCheckUseCase = loginCheckUseCase,
     ).also { viewModel ->
-        coroutineScope.launch {
+        viewModelScope.launch {
             viewModel.viewModelEventHandler.collect(
                 object : RootHomeTabScreenViewModel.Event {
                     override fun navigate(screen: ScreenStructure) {
-                        coroutineScope.launch { eventSender.send { it.navigate(screen) } }
+                        viewModelScope.launch { eventSender.send { it.navigate(screen) } }
                     }
                 },
             )
@@ -72,7 +73,7 @@ public class RootHomeMonthlyScreenViewModel(
     }
     private val loadedEvent = object : RootHomeMonthlyScreenUiState.LoadedEvent {
         override fun loadMore() {
-            coroutineScope.launch { fetch() }
+            viewModelScope.launch { fetch() }
         }
     }
     public val uiStateFlow: StateFlow<RootHomeMonthlyScreenUiState> =
@@ -82,7 +83,7 @@ public class RootHomeMonthlyScreenViewModel(
                 rootHomeTabUiState = tabViewModel.uiStateFlow.value,
                 event = object : RootHomeMonthlyScreenUiState.Event {
                     override suspend fun onViewInitialized() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             viewModelStateFlow.map { viewModelState ->
                                 viewModelState.argument
                             }.stateIn(this).collectLatest {
@@ -107,7 +108,7 @@ public class RootHomeMonthlyScreenViewModel(
                                 }
                             }
                         }
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             monthlyListState.getFlow().collectLatest { responses ->
                                 viewModelStateFlow.value =
                                     viewModelStateFlow.value.copy(
@@ -119,7 +120,7 @@ public class RootHomeMonthlyScreenViewModel(
                 },
             ),
         ).also { uiStateFlow ->
-            coroutineScope.launch {
+            viewModelScope.launch {
                 tabViewModel.uiStateFlow.collectLatest { rootHomeTabUiState ->
                     uiStateFlow.value =
                         uiStateFlow.value.copy(
@@ -127,7 +128,7 @@ public class RootHomeMonthlyScreenViewModel(
                         )
                 }
             }
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelStateFlow.collectLatest { viewModelState ->
                     uiStateFlow.value = uiStateFlow.value.copy(
                         loadingState = when (viewModelState.monthlyListResponses.firstOrNull()) {

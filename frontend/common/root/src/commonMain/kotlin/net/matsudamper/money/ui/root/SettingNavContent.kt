@@ -7,10 +7,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.Dispatchers
+import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ApiSettingScreen
@@ -40,6 +40,7 @@ import net.matsudamper.money.frontend.common.viewmodel.settings.SettingScreenCat
 import net.matsudamper.money.frontend.common.viewmodel.shared.FidoApi
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.GraphqlUserConfigQuery
+import net.matsudamper.money.ui.root.viewmodel.provideViewModel
 
 @Composable
 internal fun SettingNavContent(
@@ -53,7 +54,6 @@ internal fun SettingNavContent(
     modifier: Modifier = Modifier,
 ) {
     val koin = LocalKoin.current
-    val coroutineScope = rememberCoroutineScope()
     val holder = rememberSaveableStateHolder()
     when (state) {
         ScreenStructure.Root.Settings.Root -> {
@@ -69,9 +69,9 @@ internal fun SettingNavContent(
 
         ScreenStructure.Root.Settings.Categories -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel = remember {
+                val viewModel = provideViewModel {
                     SettingCategoriesViewModel(
-                        coroutineScope = coroutineScope,
+                        viewModelFeature = it,
                         api = SettingScreenCategoryApi(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),
@@ -96,9 +96,9 @@ internal fun SettingNavContent(
 
         is ScreenStructure.Root.Settings.Category -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel = remember {
+                val viewModel = provideViewModel {
                     SettingCategoryViewModel(
-                        coroutineScope = coroutineScope,
+                        viewModelFeature = it,
                         api = SettingScreenCategoryApi(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),
@@ -122,9 +122,9 @@ internal fun SettingNavContent(
 
         ScreenStructure.Root.Settings.Imap -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel = remember {
+                val viewModel = provideViewModel {
                     ImapSettingViewModel(
-                        coroutineScope = coroutineScope,
+                        viewModelFeature = it,
                         graphqlQuery = GraphqlUserConfigQuery(
                             graphqlClient = koin.get(),
                         ),
@@ -144,12 +144,11 @@ internal fun SettingNavContent(
 
         ScreenStructure.Root.Settings.MailCategoryFilters -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel = remember(coroutineScope) {
+                val viewModel = provideViewModel {
                     SettingMailCategoryFiltersViewModel(
-                        coroutineScope = coroutineScope,
-                        pagingModel =
-                        ImportedMailCategoryFilterScreenPagingModel(
-                            coroutineScope = coroutineScope,
+                        viewModelFeature = it,
+                        pagingModel = ImportedMailCategoryFilterScreenPagingModel(
+                            viewModelFeature = it,
                             graphqlClient = koin.get(),
                         ),
                         api = SettingImportedMailCategoryFilterApi(
@@ -171,9 +170,9 @@ internal fun SettingNavContent(
 
         is ScreenStructure.Root.Settings.MailCategoryFilter -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel = remember(coroutineScope) {
+                val viewModel = provideViewModel {
                     ImportedMailFilterCategoryViewModel(
-                        coroutineScope = coroutineScope,
+                        viewModelFeature = it,
                         id = state.id,
                         api = ImportedMailFilterCategoryScreenGraphqlApi(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
@@ -197,9 +196,9 @@ internal fun SettingNavContent(
 
         ScreenStructure.Root.Settings.Login -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel = remember(coroutineScope) {
+                val viewModel = provideViewModel {
                     LoginSettingViewModel(
-                        coroutineScope = coroutineScope,
+                        viewModelFeature = it,
                         api = LoginSettingScreenApi(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),
@@ -225,9 +224,9 @@ internal fun SettingNavContent(
 
         ScreenStructure.Root.Settings.Api -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel = remember {
+                val viewModel = provideViewModel {
                     ApiSettingScreenViewModel(
-                        coroutineScope = coroutineScope,
+                        viewModelFeature = it,
                         api = ApiSettingScreenApi(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),

@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.importedmail.html
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,6 +10,7 @@ import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.ui.screen.importedmail.html.ImportedMailHtmlScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.GraphqlClient
@@ -20,9 +20,9 @@ import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class ImportedMailHtmlViewModel(
     id: ImportedMailId,
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     graphqlClient: GraphqlClient,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val viewModelEventSender = EventSender<Event>()
@@ -48,7 +48,7 @@ public class ImportedMailHtmlViewModel(
                     }
 
                     override fun onClickClose() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             viewModelEventSender.send {
                                 it.backRequest()
                             }
@@ -61,7 +61,7 @@ public class ImportedMailHtmlViewModel(
                 },
             ),
         ).also { uiStateFlow ->
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelStateFlow.collectLatest { viewModelState ->
                     val loadingState =
                         when (val resultWrapper = viewModelState.apolloResponseState) {

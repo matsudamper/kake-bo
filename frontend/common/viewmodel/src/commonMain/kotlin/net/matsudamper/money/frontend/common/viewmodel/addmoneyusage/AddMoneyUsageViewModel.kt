@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.addmoneyusage
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,6 +19,7 @@ import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -27,10 +27,10 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 public class AddMoneyUsageViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     private val graphqlApi: AddMoneyUsageScreenApi,
     private val graphqlClient: GraphqlClient,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
@@ -48,7 +48,7 @@ public class AddMoneyUsageViewModel(
                     }
                 }
             val viewModel = CategorySelectDialogViewModel(
-                coroutineScope = coroutineScope,
+                viewModelFeature = viewModelFeature,
                 event = event,
                 apolloClient = graphqlClient.apolloClient,
             )
@@ -184,7 +184,7 @@ public class AddMoneyUsageViewModel(
         }
 
     init {
-        coroutineScope.launch {
+        viewModelScope.launch {
             categorySelectDialogViewModel.getUiStateFlow().collectLatest { categoryUiState ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
@@ -312,7 +312,7 @@ public class AddMoneyUsageViewModel(
                 event = uiEvent,
             ),
         ).also { uiStateFlow ->
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelStateFlow.collect { viewModelState ->
                     uiStateFlow.update { uiState ->
                         uiState.copy(

@@ -1,22 +1,24 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.usage
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
 public class RootUsageHostViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     public val calendarPagingModel: RootUsageCalendarPagingModel,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val mutableViewModelStateFlow = MutableStateFlow(ViewModelState())
     public val viewModelStateFlow: StateFlow<ViewModelState> = mutableViewModelStateFlow.asStateFlow()
 
@@ -28,7 +30,7 @@ public class RootUsageHostViewModel(
             }
 
             override fun onClickAdd() {
-                coroutineScope.launch {
+                viewModelScope.launch {
                     rootNavigationEventSender.send {
                         it.navigate(ScreenStructure.AddMoneyUsage())
                     }
@@ -36,7 +38,7 @@ public class RootUsageHostViewModel(
             }
 
             override fun onClickCalendar() {
-                coroutineScope.launch {
+                viewModelScope.launch {
                     rootNavigationEventSender.send {
                         it.navigate(ScreenStructure.Root.Usage.Calendar())
                     }
@@ -44,7 +46,7 @@ public class RootUsageHostViewModel(
             }
 
             override fun onClickList() {
-                coroutineScope.launch {
+                viewModelScope.launch {
                     rootNavigationEventSender.send {
                         it.navigate(ScreenStructure.Root.Usage.List())
                     }
@@ -104,7 +106,7 @@ public class RootUsageHostViewModel(
                 event = event,
             ),
         ).also { uiStateFlow ->
-            coroutineScope.launch {
+            viewModelScope.launch {
                 mutableViewModelStateFlow
                     .collectLatest { viewModelState ->
                         viewModelState.screenStructure ?: return@collectLatest
@@ -146,7 +148,9 @@ public class RootUsageHostViewModel(
     }
 
     public fun requestNavigate() {
+        Logger.d("LOG", "isActive: ${viewModelScope.isActive}")
         viewModelScope.launch {
+            Logger.d("LOG", "send")
             rootNavigationEventSender.send {
                 it.navigate(
                     mutableViewModelStateFlow.value.screenStructure

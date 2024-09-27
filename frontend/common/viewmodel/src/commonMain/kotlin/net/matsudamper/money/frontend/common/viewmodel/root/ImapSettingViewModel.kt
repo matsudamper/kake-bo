@@ -1,7 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.root
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,16 +11,17 @@ import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmu
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImapSettingScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.GraphqlUserConfigQuery
 import net.matsudamper.money.frontend.graphql.fragment.DisplayImapConfig
 
 public class ImapSettingViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     private val graphqlQuery: GraphqlUserConfigQuery,
     private val globalEventSender: EventSender<GlobalEvent>,
     private val ioDispatchers: CoroutineDispatcher,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     public val uiState: StateFlow<ImapSettingScreenUiState> =
@@ -45,7 +45,7 @@ public class ImapSettingViewModel(
                 },
             ),
         ).also { uiStateFlow ->
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelStateFlow
                     .collect { viewModelState ->
                         val imapConfig = viewModelState.imapConfig
@@ -263,7 +263,7 @@ public class ImapSettingViewModel(
                             text: String,
                             event: ImapSettingScreenUiState.TextInputUiState,
                         ) {
-                            coroutineScope.launch {
+                            viewModelScope.launch {
                                 complete(text, event)
                             }
                         }

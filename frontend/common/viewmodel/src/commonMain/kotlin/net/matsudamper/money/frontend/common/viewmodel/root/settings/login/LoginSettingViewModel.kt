@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.settings.login
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +18,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.LoginSettingScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -27,11 +27,11 @@ import net.matsudamper.money.frontend.common.viewmodel.shared.FidoApi
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenQuery
 
 public class LoginSettingViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     private val api: LoginSettingScreenApi,
     private val fidoApi: FidoApi,
     private val webAuthModel: WebAuthModel,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> =
         MutableStateFlow(
             ViewModelState(
@@ -50,7 +50,7 @@ public class LoginSettingViewModel(
                 event =
                 object : LoginSettingScreenUiState.Event {
                     override fun onClickBack() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             eventSender.send { it.navigate(ScreenStructure.Root.Settings.Root) }
                         }
                     }
@@ -64,7 +64,7 @@ public class LoginSettingViewModel(
                     }
 
                     override fun onClickLogout() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             val result = api.logout()
                             if (result) {
                                 eventSender.send { it.navigate(ScreenStructure.Login) }
@@ -76,7 +76,7 @@ public class LoginSettingViewModel(
                 },
             ),
         ).also { uiStateFlow ->
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelStateFlow.collectLatest { viewModelState ->
                     val loadedState =
                         run loaded@{
@@ -148,7 +148,7 @@ public class LoginSettingViewModel(
         }.asStateFlow()
 
     init {
-        coroutineScope.launch {
+        viewModelScope.launch {
             api.getScreen().collectLatest { apolloResponse ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(

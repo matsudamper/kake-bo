@@ -1,7 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.root
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -10,14 +9,15 @@ import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.RootSettingScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
 public class SettingViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     private val globalEventSender: EventSender<GlobalEvent>,
     private val ioDispatchers: CoroutineDispatcher,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val viewModelState =
         MutableStateFlow<ViewModelState>(
             ViewModelState(),
@@ -34,7 +34,7 @@ public class SettingViewModel(
                     }
 
                     override fun onClickLoginSetting() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             backgroundEventSender.send {
                                 it.navigate(
                                     ScreenStructure.Root.Settings.Login,
@@ -44,7 +44,7 @@ public class SettingViewModel(
                     }
 
                     override fun onClickImapButton() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             backgroundEventSender.send {
                                 it.navigateToImapConfig()
                             }
@@ -52,7 +52,7 @@ public class SettingViewModel(
                     }
 
                     override fun onClickCategoryButton() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             backgroundEventSender.send {
                                 it.navigateToCategoriesConfig()
                             }
@@ -60,7 +60,7 @@ public class SettingViewModel(
                     }
 
                     override fun onClickApiSetting() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             backgroundEventSender.send {
                                 it.navigateToApiSetting()
                             }
@@ -68,7 +68,7 @@ public class SettingViewModel(
                     }
 
                     override fun onClickMailFilter() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             backgroundEventSender.send {
                                 it.navigate(
                                     ScreenStructure.Root.Settings.MailCategoryFilters,
@@ -78,7 +78,7 @@ public class SettingViewModel(
                     }
 
                     override fun onClickGitHub() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             backgroundEventSender.send {
                                 it.open("https://github.com/matsudamper/kake-bo")
                             }

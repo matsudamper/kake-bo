@@ -1,7 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.admin
 
 import androidx.compose.ui.text.input.TextFieldValue
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -10,13 +9,14 @@ import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenController
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminLoginScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 
 public class AdminLoginScreenViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     private val graphqlClient: GraphqlAdminQuery,
     private val controller: AdminScreenController,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     public val uiStateFlow: StateFlow<AdminLoginScreenUiState> =
@@ -30,7 +30,7 @@ public class AdminLoginScreenViewModel(
                 },
             ),
         ).also { uiStateFlow ->
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelStateFlow.collect {
                 }
             }

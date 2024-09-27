@@ -1,7 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.mail
 
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,6 +15,7 @@ import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportMailScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.GetMailQuery
@@ -23,11 +23,11 @@ import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.type.DeleteMailResultError
 
 public class MailImportViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     private val ioDispatcher: CoroutineDispatcher,
     private val graphqlApi: MailImportScreenGraphqlApi,
     private val loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val viewModelEventSender = EventSender<MailImportViewModelEvent>()
     public val eventHandler: EventHandler<MailImportViewModelEvent> = viewModelEventSender.asHandler()
 
@@ -50,7 +50,7 @@ public class MailImportViewModel(
                     }
 
                     override fun onViewInitialized() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             val result = loginCheckUseCase.check()
                             if (result.not()) return@launch
                             fetch()
@@ -67,7 +67,7 @@ public class MailImportViewModel(
                 },
             ),
         ).also {
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelStateFlow.collect { viewModelState ->
                     it.update {
                         it.copy(

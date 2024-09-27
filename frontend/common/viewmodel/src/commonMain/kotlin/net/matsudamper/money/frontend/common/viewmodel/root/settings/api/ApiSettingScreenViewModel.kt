@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.settings.api
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,15 +14,16 @@ import kotlinx.datetime.toLocalDateTime
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ApiSettingScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.ApiSettingScreenQuery
 import net.matsudamper.money.frontend.graphql.ApiSettingScreenRegisterApiTokenMutation
 
 public class ApiSettingScreenViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     private val api: ApiSettingScreenApi,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
@@ -35,7 +35,7 @@ public class ApiSettingScreenViewModel(
                 addDialogUiState = ApiSettingScreenUiState.AddDialogUiState(
                     event = object : ApiSettingScreenUiState.AddDialogUiState.Event {
                         override fun onComplete(name: String) {
-                            coroutineScope.launch {
+                            viewModelScope.launch {
                                 val result = api.registerToken(name)
                                 viewModelStateFlow.value = viewModelStateFlow.value.copy(
                                     addTokenResult = result.getOrNull()?.data,
@@ -72,7 +72,7 @@ public class ApiSettingScreenViewModel(
         ApiSettingScreenUiState(
             event = object : ApiSettingScreenUiState.Event {
                 override suspend fun onViewInitialized() {
-                    withContext(coroutineScope.coroutineContext) {
+                    withContext(viewModelScope.coroutineContext) {
                         launch {
                             api.get()
                                 .catch {
@@ -102,7 +102,7 @@ public class ApiSettingScreenViewModel(
                 }
 
                 override fun onClickReloadButton() {
-                    coroutineScope.launch {
+                    viewModelScope.launch {
                         viewModelStateFlow.value = viewModelStateFlow.value.copy(
                             loadingState = ViewModelState.LoadingState.Loading,
                         )
@@ -111,7 +111,7 @@ public class ApiSettingScreenViewModel(
                 }
 
                 override fun onClickBack() {
-                    coroutineScope.launch {
+                    viewModelScope.launch {
                         eventSender.send {
                             it.navigate(ScreenStructure.Root.Settings.Root)
                         }
@@ -123,7 +123,7 @@ public class ApiSettingScreenViewModel(
             addTokenResult = null,
         ),
     ).also { uiStateFlow ->
-        coroutineScope.launch {
+        viewModelScope.launch {
             viewModelStateFlow.collect { viewModelState ->
                 uiStateFlow.value = ApiSettingScreenUiState(
                     loadingState = when (viewModelState.loadingState) {
@@ -161,7 +161,7 @@ public class ApiSettingScreenViewModel(
                                 }
 
                                 override fun onClickCopy() {
-                                    coroutineScope.launch {
+                                    viewModelScope.launch {
                                         eventSender.send { event ->
                                             event.copyToClipboard(token)
                                             event.showToast("トークンをコピーしました")

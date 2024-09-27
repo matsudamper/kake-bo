@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.layout
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -19,6 +18,7 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.graphql.MoneyUsageSelectDialogCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.MoneyUsageSelectDialogSubCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector
@@ -27,10 +27,10 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoriesInput
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryQuery
 
 internal class CategorySelectDialogViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     private val apolloClient: ApolloClient,
     private val event: Event,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val apolloResponseCollector =
@@ -66,7 +66,7 @@ internal class CategorySelectDialogViewModel(
     }
 
     init {
-        coroutineScope.launch {
+        viewModelScope.launch {
             apolloResponseCollector.getFlow().collectLatest { apolloResponseState ->
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
@@ -75,7 +75,7 @@ internal class CategorySelectDialogViewModel(
                 }
             }
         }
-        coroutineScope.launch {
+        viewModelScope.launch {
             subCategoriesFlow.collectLatest { map ->
                 combine(map.toList().map { pair -> pair.second.getFlow().map { pair.first to it } }) {
                     it

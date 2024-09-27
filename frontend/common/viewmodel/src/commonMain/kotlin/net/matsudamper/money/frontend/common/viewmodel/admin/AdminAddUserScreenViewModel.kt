@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.admin
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -9,13 +8,14 @@ import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenController
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminAddUserUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 
 public class AdminAddUserScreenViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     private val graphqlClient: GraphqlAdminQuery,
     private val controller: AdminScreenController,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     public val uiStateFlow: StateFlow<AdminAddUserUiState> =
@@ -32,7 +32,7 @@ public class AdminAddUserScreenViewModel(
                     }
                 },
                 onClickAddButton = {
-                    coroutineScope.launch {
+                    viewModelScope.launch {
                         val result =
                             graphqlClient.addUser(
                                 userName = viewModelStateFlow.value.userName,

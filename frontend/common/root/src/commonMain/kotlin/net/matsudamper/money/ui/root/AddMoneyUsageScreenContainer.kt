@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
@@ -14,6 +13,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreen
 import net.matsudamper.money.frontend.common.viewmodel.addmoneyusage.AddMoneyUsageScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.addmoneyusage.AddMoneyUsageViewModel
+import net.matsudamper.money.ui.root.viewmodel.provideViewModel
 
 @Composable
 internal fun AddMoneyUsageScreenContainer(
@@ -23,9 +23,9 @@ internal fun AddMoneyUsageScreenContainer(
     windowInsets: PaddingValues,
 ) {
     val koin = LocalKoin.current
-    val viewModel = remember {
+    val viewModel = provideViewModel { viewModelFeature ->
         AddMoneyUsageViewModel(
-            coroutineScope = rootCoroutineScope,
+            viewModelFeature = viewModelFeature,
             graphqlApi = AddMoneyUsageScreenApi(
                 graphqlClient = koin.get(),
             ),

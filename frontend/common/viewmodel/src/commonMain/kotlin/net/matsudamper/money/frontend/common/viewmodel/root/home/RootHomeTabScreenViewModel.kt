@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.home
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,13 +11,14 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreenScaffoldUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
 public class RootHomeTabScreenViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     private val loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val viewModelEventSender = EventSender<Event>()
@@ -26,13 +26,13 @@ public class RootHomeTabScreenViewModel(
 
     private val uiStateEvent = object : RootHomeTabScreenScaffoldUiState.Event {
         override fun onViewInitialized() {
-            coroutineScope.launch {
+            viewModelScope.launch {
                 loginCheckUseCase.check()
             }
         }
 
         override fun onClickMonth() {
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelEventSender.send {
                     it.navigate(RootHomeScreenStructure.Monthly())
                 }
@@ -40,7 +40,7 @@ public class RootHomeTabScreenViewModel(
         }
 
         override fun onClickPeriod() {
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelEventSender.send {
                     it.navigate(RootHomeScreenStructure.PeriodAnalytics())
                 }
@@ -52,7 +52,7 @@ public class RootHomeTabScreenViewModel(
         MutableStateFlow(
             createUiState(viewModelStateFlow.value),
         ).also { uiStateFlow ->
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelStateFlow.collectLatest { viewModelState ->
                     uiStateFlow.value = createUiState(viewModelState)
                 }

@@ -25,16 +25,17 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalendarScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.UsageCalendarScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class MoneyUsagesCalendarViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     private val rootUsageHostViewModel: RootUsageHostViewModel,
     private val yearMonth: ScreenStructure.Root.Usage.Calendar.YearMonth?,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     internal val viewModelStateFlow =
         MutableStateFlow(
             ViewModelState(
@@ -119,7 +120,7 @@ public class MoneyUsagesCalendarViewModel(
                 },
             ),
         ).also { uiStateFlow ->
-            coroutineScope.launch {
+            viewModelScope.launch {
                 rootUsageHostViewModel.uiStateFlow.collectLatest {
                     uiStateFlow.update { uiState ->
                         uiState.copy(
@@ -128,7 +129,7 @@ public class MoneyUsagesCalendarViewModel(
                     }
                 }
             }
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelStateFlow.collectLatest {
                     val calendarViewModelState = it
                     rootUsageHostViewModel.updateHeader(
@@ -139,7 +140,7 @@ public class MoneyUsagesCalendarViewModel(
                     )
                 }
             }
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelStateFlow
                     .collectLatest { viewModelState ->
                         val nodes =
@@ -224,7 +225,7 @@ public class MoneyUsagesCalendarViewModel(
                                                         event =
                                                         object : RootUsageCalendarScreenUiState.CalendarDayEvent {
                                                             override fun onClick() {
-                                                                coroutineScope.launch {
+                                                                viewModelScope.launch {
                                                                     viewModelEventSender.send {
                                                                         it.navigate(ScreenStructure.MoneyUsage(day.id))
                                                                     }
@@ -247,7 +248,7 @@ public class MoneyUsagesCalendarViewModel(
                                     event =
                                     object : RootUsageCalendarScreenUiState.LoadedEvent {
                                         override fun loadMore() {
-                                            coroutineScope.launch {
+                                            viewModelScope.launch {
                                                 rootUsageHostViewModel.calendarPagingModel.fetch()
                                             }
                                         }

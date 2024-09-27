@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.category
 
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -22,6 +21,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlyCategoryScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
+import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
@@ -33,11 +33,11 @@ import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class RootHomeMonthlyCategoryScreenViewModel(
-    coroutineScope: CoroutineScope,
+    viewModelFeature: ViewModelFeature,
     argument: RootHomeScreenStructure.MonthlyCategory,
     loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
     private val graphqlClient: GraphqlClient,
-) : CommonViewModel(coroutineScope) {
+) : CommonViewModel(viewModelFeature) {
     private val viewModelStateFlow =
         MutableStateFlow(
             ViewModelState(
@@ -53,12 +53,12 @@ public class RootHomeMonthlyCategoryScreenViewModel(
         ApolloPagingResponseCollector.create(
             graphqlClient = graphqlClient,
             fetchPolicy = FetchPolicy.CacheFirst,
-            coroutineScope = coroutineScope,
+            coroutineScope = viewModelScope,
         )
     private val loadedEvent =
         object : RootHomeMonthlyCategoryScreenUiState.LoadedEvent {
             override fun loadMore() {
-                coroutineScope.launch {
+                viewModelScope.launch {
                     fetch()
                 }
             }
@@ -70,10 +70,10 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                 event =
                 object : RootHomeMonthlyCategoryScreenUiState.Event {
                     override fun onViewInitialized() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             loginCheckUseCase.check()
                         }
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             monthlyCategoryResultState.getFlow().collectLatest { results ->
                                 viewModelStateFlow.update { viewModelState ->
                                     viewModelState.copy(
@@ -82,7 +82,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                                 }
                             }
                         }
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             viewModelStateFlow.map { viewModelState ->
                                 viewModelState.categoryId
                             }.stateIn(this).collectLatest { categoryId ->
@@ -106,7 +106,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                                 }
                             }
                         }
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             fetch()
                         }
                     }
@@ -115,7 +115,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                 title = "",
             ),
         ).also { uiStateFlow ->
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelStateFlow.collectLatest { viewModelState ->
                     val state =
                         when (viewModelState.apolloResponses.firstOrNull()) {
