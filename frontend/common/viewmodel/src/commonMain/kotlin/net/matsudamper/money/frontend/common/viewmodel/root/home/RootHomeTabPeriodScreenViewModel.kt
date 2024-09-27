@@ -90,42 +90,38 @@ public class RootHomeTabPeriodScreenViewModel(
         }
     }
 
-    public val uiStateFlow: StateFlow<RootHomeTabPeriodUiState> =
-        MutableStateFlow(
-            RootHomeTabPeriodUiState(
-                loadingState = RootHomeTabPeriodUiState.LoadingState.Loading,
-                event = event,
-            ),
-        ).also { uiStateFlow ->
-            viewModelScope.launch {
-                viewModelStateFlow.collectLatest { viewModelState ->
-                    val loadingState = run screenState@{
-                        val displayPeriods =
-                            (0 until viewModelState.displayPeriod.monthCount).map { index ->
-                                viewModelState.displayPeriod.sinceDate.addMonth(index)
-                            }
-
-                        RootHomeTabPeriodUiState.LoadingState.Loaded(
-                            categoryType =
-                            when (viewModelState.contentType) {
-                                is ViewModelState.ContentType.All -> "すべて"
-                                is ViewModelState.ContentType.Category -> viewModelState.contentType.name
-                                is ViewModelState.ContentType.Loading -> ""
-                            },
-                            categoryTypes = createCategoryTypes(categories = viewModelState.categories).toImmutableList(),
-                            between = "${displayPeriods.first().year}/${displayPeriods.first().month} - ${displayPeriods.last().year}/${displayPeriods.last().month}",
-                            rangeText = "${viewModelState.displayPeriod.monthCount}ヶ月",
-                        )
+    public val uiStateFlow: StateFlow<RootHomeTabPeriodUiState> = MutableStateFlow(
+        RootHomeTabPeriodUiState(
+            loadingState = RootHomeTabPeriodUiState.LoadingState.Loading,
+            event = event,
+        ),
+    ).also { uiStateFlow ->
+        viewModelScope.launch {
+            viewModelStateFlow.collectLatest { viewModelState ->
+                val loadingState = run screenState@{
+                    val displayPeriods = (0 until viewModelState.displayPeriod.monthCount).map { index ->
+                        viewModelState.displayPeriod.sinceDate.addMonth(index)
                     }
 
-                    uiStateFlow.value =
-                        RootHomeTabPeriodUiState(
-                            loadingState = loadingState,
-                            event = event,
-                        )
+                    RootHomeTabPeriodUiState.LoadingState.Loaded(
+                        categoryType = when (viewModelState.contentType) {
+                            is ViewModelState.ContentType.All -> "すべて"
+                            is ViewModelState.ContentType.Category -> viewModelState.contentType.name
+                            is ViewModelState.ContentType.Loading -> ""
+                        },
+                        categoryTypes = createCategoryTypes(categories = viewModelState.categories).toImmutableList(),
+                        between = "${displayPeriods.first().year}/${displayPeriods.first().month} - ${displayPeriods.last().year}/${displayPeriods.last().month}",
+                        rangeText = "${viewModelState.displayPeriod.monthCount}ヶ月",
+                    )
                 }
+
+                uiStateFlow.value = RootHomeTabPeriodUiState(
+                    loadingState = loadingState,
+                    event = event,
+                )
             }
-        }.asStateFlow()
+        }
+    }.asStateFlow()
 
     public fun updateScreenStructure(current: RootHomeScreenStructure.Period) {
         val since = current.since
