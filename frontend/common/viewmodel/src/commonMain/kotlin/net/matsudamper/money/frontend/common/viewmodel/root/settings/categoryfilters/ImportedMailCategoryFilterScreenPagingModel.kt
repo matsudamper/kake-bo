@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFiltersScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloPagingResponseCollector
@@ -15,9 +16,9 @@ import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersQuery
 
 public class ImportedMailCategoryFilterScreenPagingModel(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     graphqlClient: GraphqlClient,
-) {
+) : CommonViewModel(coroutineScope) {
     private val pagingState =
         ApolloPagingResponseCollector<ImportedMailCategoryFiltersScreenPagingQuery.Data>(
             graphqlClient = graphqlClient,
@@ -48,7 +49,7 @@ public class ImportedMailCategoryFilterScreenPagingModel(
                     }
 
                     is ApolloResponseState.Failure -> {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             pagingState.lastRetry()
                         }
                         return@add null
@@ -57,7 +58,7 @@ public class ImportedMailCategoryFilterScreenPagingModel(
                     is ApolloResponseState.Success -> {
                         val response = last.value.data?.user?.importedMailCategoryFilters
                         if (response == null) {
-                            coroutineScope.launch {
+                            viewModelScope.launch {
                                 pagingState.lastRetry()
                             }
                             return@add null

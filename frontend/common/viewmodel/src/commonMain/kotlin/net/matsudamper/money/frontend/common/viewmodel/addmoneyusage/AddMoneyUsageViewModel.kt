@@ -19,6 +19,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -26,10 +27,10 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 public class AddMoneyUsageViewModel(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val graphqlApi: AddMoneyUsageScreenApi,
     private val graphqlClient: GraphqlClient,
-) {
+) : CommonViewModel(coroutineScope) {
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
@@ -197,7 +198,7 @@ public class AddMoneyUsageViewModel(
     private fun addMoneyUsage() {
         val date = viewModelStateFlow.value.usageDate
 
-        coroutineScope.launch {
+        viewModelScope.launch {
             val result =
                 graphqlApi.addMoneyUsage(
                     title = viewModelStateFlow.value.usageTitle,
@@ -222,7 +223,7 @@ public class AddMoneyUsageViewModel(
             viewModelStateFlow.update {
                 ViewModelState()
             }
-            coroutineScope.launch {
+            viewModelScope.launch {
                 eventSender.send {
                     it.navigate(ScreenStructure.AddMoneyUsage())
                 }
@@ -244,7 +245,7 @@ public class AddMoneyUsageViewModel(
         }
 
         usageFromMailIdJob =
-            coroutineScope.launch {
+            viewModelScope.launch {
                 graphqlApi.get(importedMailId)
                     .onSuccess { result ->
                         val importedMailIndex = current.importedMailIndex

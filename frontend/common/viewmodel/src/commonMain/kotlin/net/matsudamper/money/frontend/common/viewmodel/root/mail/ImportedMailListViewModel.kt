@@ -15,6 +15,7 @@ import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmu
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState.Filters.LinkStatus
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
@@ -22,10 +23,10 @@ import net.matsudamper.money.frontend.graphql.ImportedMailListScreenMailPagingQu
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
 
 public class ImportedMailListViewModel(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val ioDispatcher: CoroutineDispatcher,
     private val graphqlApi: MailLinkScreenGraphqlApi,
-) {
+) : CommonViewModel(coroutineScope) {
     private val viewModelEventSender = EventSender<MailLinkViewModelEvent>()
     public val eventHandler: EventHandler<MailLinkViewModelEvent> = viewModelEventSender.asHandler()
 
@@ -149,7 +150,7 @@ public class ImportedMailListViewModel(
             viewModelStateFlow.value.mailState.query.copy(
                 isLinked = isLinked,
             )
-        coroutineScope.launch {
+        viewModelScope.launch {
             viewModelEventSender.send {
                 it.changeQuery(isLinked = isLinked)
             }
@@ -171,7 +172,7 @@ public class ImportedMailListViewModel(
     private fun createMailEvent(mail: ImportedMailListScreenMailPagingQuery.Node): ImportedMailListScreenUiState.ListItemEvent {
         return object : ImportedMailListScreenUiState.ListItemEvent {
             override fun onClickMailDetail() {
-                coroutineScope.launch {
+                viewModelScope.launch {
                     viewModelEventSender.send {
                         it.navigateToMailContent(mail.id)
                     }
@@ -179,7 +180,7 @@ public class ImportedMailListViewModel(
             }
 
             override fun onClick() {
-                coroutineScope.launch {
+                viewModelScope.launch {
                     viewModelEventSender.send { it.navigateToMailDetail(mail.id) }
                 }
             }
@@ -192,7 +193,7 @@ public class ImportedMailListViewModel(
         val mailState = viewModelStateFlow.value.mailState
         if (mailState.finishLoadingToEnd == true) return
         fetchJob.cancel()
-        coroutineScope.launch(
+        viewModelScope.launch(
             Job().also { fetchJob = it },
         ) {
             viewModelStateFlow.update { viewModelState ->

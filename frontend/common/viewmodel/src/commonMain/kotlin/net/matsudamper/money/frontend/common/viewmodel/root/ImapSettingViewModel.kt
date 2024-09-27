@@ -11,16 +11,17 @@ import kotlinx.coroutines.withContext
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImapSettingScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.GraphqlUserConfigQuery
 import net.matsudamper.money.frontend.graphql.fragment.DisplayImapConfig
 
 public class ImapSettingViewModel(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val graphqlQuery: GraphqlUserConfigQuery,
     private val globalEventSender: EventSender<GlobalEvent>,
     private val ioDispatchers: CoroutineDispatcher,
-) {
+) : CommonViewModel(coroutineScope) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     public val uiState: StateFlow<ImapSettingScreenUiState> =
@@ -281,7 +282,7 @@ public class ImapSettingViewModel(
 
     private fun load() {
         println("load")
-        coroutineScope.launch {
+        viewModelScope.launch {
             val configFLow =
                 withContext(ioDispatchers) {
                     runCatching {

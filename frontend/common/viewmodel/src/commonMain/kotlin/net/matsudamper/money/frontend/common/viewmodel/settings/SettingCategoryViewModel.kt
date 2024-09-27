@@ -11,6 +11,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoryScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
@@ -19,9 +20,9 @@ import net.matsudamper.money.frontend.graphql.CategorySettingScreenSubCategories
 
 public class SettingCategoryViewModel(
     private val categoryId: MoneyUsageCategoryId,
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val api: SettingScreenCategoryApi,
-) {
+) : CommonViewModel(coroutineScope) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> =
         MutableStateFlow(
             ViewModelState(
@@ -216,7 +217,7 @@ public class SettingCategoryViewModel(
                 }
 
                 override fun onClickDelete() {
-                    coroutineScope.launch {
+                    viewModelScope.launch {
                         val isSuccess =
                             api.deleteSubCategory(
                                 id = item.id,
@@ -252,7 +253,7 @@ public class SettingCategoryViewModel(
                         }
 
                         override fun onTextInputCompleted(text: String) {
-                            coroutineScope.launch {
+                            viewModelScope.launch {
                                 val result =
                                     api.updateSubCategory(
                                         id = item.id,
@@ -289,7 +290,7 @@ public class SettingCategoryViewModel(
     }
 
     private fun fetchCategoryInfo() {
-        coroutineScope.launch {
+        viewModelScope.launch {
             val flowResult = api.getCategoryInfo(id = categoryId)
 
             flowResult
@@ -311,7 +312,7 @@ public class SettingCategoryViewModel(
     }
 
     private fun initialFetchSubCategories() {
-        coroutineScope.launch {
+        viewModelScope.launch {
             val data = api.getSubCategoriesPaging(id = categoryId)?.data?.user?.moneyUsageCategory?.subCategories
 
             if (data == null) {

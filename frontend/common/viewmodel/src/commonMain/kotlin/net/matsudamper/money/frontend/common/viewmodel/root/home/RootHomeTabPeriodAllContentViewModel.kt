@@ -24,6 +24,7 @@ import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.GraphTitleChipUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllContentUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
@@ -34,11 +35,11 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByDateQuery
 
 public class RootHomeTabPeriodAllContentViewModel(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val api: RootHomeTabScreenApi,
     graphqlClient: GraphqlClient,
     loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
-) {
+) : CommonViewModel(coroutineScope) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState())
     private val reservedColorModel = ReservedColorModel()
 
@@ -207,7 +208,7 @@ public class RootHomeTabPeriodAllContentViewModel(
         period: ViewModelState.Period,
         forceReFetch: Boolean,
     ) {
-        coroutineScope.launch {
+        viewModelScope.launch {
             (0 until period.monthCount)
                 .map { index ->
                     val start = period.sinceDate.addMonth(index)
@@ -281,7 +282,7 @@ public class RootHomeTabPeriodAllContentViewModel(
                         event =
                         object : BarGraphUiState.PeriodDataEvent {
                             override fun onClick() {
-                                coroutineScope.launch {
+                                viewModelScope.launch {
                                     eventSender.send {
                                         it.navigate(
                                             RootHomeScreenStructure.Monthly(
@@ -301,7 +302,7 @@ public class RootHomeTabPeriodAllContentViewModel(
                     color = reservedColorModel.getColor(category.id.value.toString()),
                     title = category.name,
                     onClick = {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             eventSender.send {
                                 it.navigate(RootHomeScreenStructure.PeriodCategory(category.id))
                             }
@@ -328,7 +329,7 @@ public class RootHomeTabPeriodAllContentViewModel(
         private val yearMonth: ViewModelState.YearMonth,
     ) : RootHomeTabPeriodUiState.MonthTotalItem.Event, EqualsImpl(yearMonth) {
         override fun onClick() {
-            coroutineScope.launch {
+            viewModelScope.launch {
                 eventSender.send {
                     it.navigate(
                         RootHomeScreenStructure.Monthly(

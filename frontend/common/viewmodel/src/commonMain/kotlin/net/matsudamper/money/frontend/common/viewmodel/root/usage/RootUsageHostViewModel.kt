@@ -9,13 +9,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
 public class RootUsageHostViewModel(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     public val calendarPagingModel: RootUsageCalendarPagingModel,
-) {
+) : CommonViewModel(coroutineScope) {
     private val mutableViewModelStateFlow = MutableStateFlow(ViewModelState())
     public val viewModelStateFlow: StateFlow<ViewModelState> = mutableViewModelStateFlow.asStateFlow()
 
@@ -145,7 +146,7 @@ public class RootUsageHostViewModel(
     }
 
     public fun requestNavigate() {
-        coroutineScope.launch {
+        viewModelScope.launch {
             rootNavigationEventSender.send {
                 it.navigate(
                     mutableViewModelStateFlow.value.screenStructure

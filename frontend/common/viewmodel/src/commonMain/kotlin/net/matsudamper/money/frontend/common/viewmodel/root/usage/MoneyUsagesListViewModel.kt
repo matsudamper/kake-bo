@@ -16,6 +16,7 @@ import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
@@ -24,10 +25,10 @@ import net.matsudamper.money.frontend.graphql.UsageListScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class MoneyUsagesListViewModel(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     graphqlClient: GraphqlClient,
     rootUsageHostViewModel: RootUsageHostViewModel,
-) {
+) : CommonViewModel(coroutineScope) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val pagingModel =

@@ -15,6 +15,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.screen.moneyusage.MoneyUsageScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -27,11 +28,11 @@ import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class MoneyUsageScreenViewModel(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val moneyUsageId: MoneyUsageId,
     private val api: MoneyUsageScreenViewModelApi,
     graphqlClient: GraphqlClient,
-) {
+) : CommonViewModel(coroutineScope) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val eventSender = EventSender<Event>()
@@ -170,7 +171,7 @@ public class MoneyUsageScreenViewModel(
                             title = "削除しますか？",
                             description = null,
                             onConfirm = {
-                                coroutineScope.launch {
+                                viewModelScope.launch {
                                     val isSuccess =
                                         api.deleteUsage(
                                             id = moneyUsageId,
@@ -202,7 +203,7 @@ public class MoneyUsageScreenViewModel(
                             isMultiline = false,
                             title = "タイトル",
                             onComplete = { text ->
-                                coroutineScope.launch {
+                                viewModelScope.launch {
                                     val isSuccess =
                                         api.updateUsage(
                                             id = moneyUsageId,
@@ -236,7 +237,7 @@ public class MoneyUsageScreenViewModel(
                     viewModelState.copy(
                         calendarDialog = MoneyUsageScreenUiState.CalendarDialog(
                             onSelectedDate = { date ->
-                                coroutineScope.launch {
+                                viewModelScope.launch {
                                     val isSuccess = api.updateUsage(
                                         id = moneyUsageId,
                                         date = LocalDateTime(date, item.date.time),
@@ -274,7 +275,7 @@ public class MoneyUsageScreenViewModel(
                                 numberInputDialog = null,
                             )
                             value ?: return@NumberInputDialog
-                            coroutineScope.launch {
+                            viewModelScope.launch {
                                 val isSuccess = runCatching {
                                     api.updateUsage(
                                         id = moneyUsageId,
@@ -305,7 +306,7 @@ public class MoneyUsageScreenViewModel(
                             isMultiline = true,
                             title = "説明",
                             onComplete = { text ->
-                                coroutineScope.launch {
+                                viewModelScope.launch {
                                     val isSuccess = api.updateUsage(
                                         id = moneyUsageId,
                                         description = text,
@@ -384,7 +385,7 @@ public class MoneyUsageScreenViewModel(
                 url = url,
                 event = object : MoneyUsageScreenUiState.UrlMenuDialogEvent {
                     override fun onClickOpen() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             eventSender.send {
                                 it.openUrl(url)
                             }
@@ -393,7 +394,7 @@ public class MoneyUsageScreenViewModel(
                     }
 
                     override fun onClickCopy() {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             eventSender.send {
                                 it.copyUrl(url)
                             }
@@ -414,7 +415,7 @@ public class MoneyUsageScreenViewModel(
                     }
                 },
             )
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelStateFlow.update {
                     it.copy(
                         urlMenuDialog = dialog,
@@ -424,7 +425,7 @@ public class MoneyUsageScreenViewModel(
         }
 
         override fun onLongClickUrl(text: String) {
-            coroutineScope.launch {
+            viewModelScope.launch {
                 eventSender.send {
                     it.copyUrl(text)
                 }

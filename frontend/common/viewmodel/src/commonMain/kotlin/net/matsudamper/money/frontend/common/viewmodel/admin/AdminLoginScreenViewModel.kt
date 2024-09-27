@@ -9,13 +9,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenController
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminLoginScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 
 public class AdminLoginScreenViewModel(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val graphqlClient: GraphqlAdminQuery,
     private val controller: AdminScreenController,
-) {
+) : CommonViewModel(coroutineScope) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     public val uiStateFlow: StateFlow<AdminLoginScreenUiState> =
@@ -37,7 +38,7 @@ public class AdminLoginScreenViewModel(
 
     private fun login(password: String) {
         // TODO: validate  "!@#$%^&*()_+-?<>,."
-        coroutineScope.launch {
+        viewModelScope.launch {
             val result = graphqlClient.adminLogin(password)
 
             val isSuccess = result.data?.adminMutation?.adminLogin?.isSuccess ?: false

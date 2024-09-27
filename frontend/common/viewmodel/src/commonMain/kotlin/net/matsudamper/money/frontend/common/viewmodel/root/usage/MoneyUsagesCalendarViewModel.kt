@@ -24,16 +24,17 @@ import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmu
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalendarScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.UsageCalendarScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class MoneyUsagesCalendarViewModel(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val rootUsageHostViewModel: RootUsageHostViewModel,
     private val yearMonth: ScreenStructure.Root.Usage.Calendar.YearMonth?,
-) {
+) : CommonViewModel(coroutineScope) {
     internal val viewModelStateFlow =
         MutableStateFlow(
             ViewModelState(
@@ -266,7 +267,7 @@ public class MoneyUsagesCalendarViewModel(
                 displayMonth = month,
             )
         }
-        coroutineScope.launch {
+        viewModelScope.launch {
             viewModelEventSender.send {
                 it.navigate(
                     ScreenStructure.Root.Usage.Calendar(
@@ -290,7 +291,7 @@ public class MoneyUsagesCalendarViewModel(
                 displayMonth = month,
             )
         }
-        coroutineScope.launch {
+        viewModelScope.launch {
             viewModelEventSender.send {
                 it.navigate(
                     ScreenStructure.Root.Usage.Calendar(

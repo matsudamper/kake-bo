@@ -20,6 +20,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlyCategoryScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -32,11 +33,11 @@ import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class RootHomeMonthlyCategoryScreenViewModel(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     argument: RootHomeScreenStructure.MonthlyCategory,
     loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
     private val graphqlClient: GraphqlClient,
-) {
+) : CommonViewModel(coroutineScope) {
     private val viewModelStateFlow =
         MutableStateFlow(
             ViewModelState(
@@ -172,7 +173,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
             event =
             object : RootHomeMonthlyCategoryScreenUiState.Item.Event {
                 override fun onClick() {
-                    coroutineScope.launch {
+                    viewModelScope.launch {
                         eventSender.send {
                             it.navigate(
                                 ScreenStructure.MoneyUsage(
@@ -194,7 +195,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                 categoryId = current.categoryId,
             )
         }
-        coroutineScope.launch {
+        viewModelScope.launch {
             fetch()
         }
     }

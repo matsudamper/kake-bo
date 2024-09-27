@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.ui.screen.importedmail.plain.ImportedMailPlainScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.GraphqlClient
@@ -19,9 +20,9 @@ import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class ImportedMailPlainViewModel(
     id: ImportedMailId,
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     graphqlClient: GraphqlClient,
-) {
+) : CommonViewModel(coroutineScope) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val viewModelEventSender = EventSender<Event>()
@@ -101,7 +102,7 @@ public class ImportedMailPlainViewModel(
         }.asStateFlow()
 
     private fun fetch() {
-        coroutineScope.launch {
+        viewModelScope.launch {
             apolloResponseCollector.fetch()
             apolloResponseCollector.getFlow().collectLatest { apolloResponseState ->
                 viewModelStateFlow.update { viewModelState ->

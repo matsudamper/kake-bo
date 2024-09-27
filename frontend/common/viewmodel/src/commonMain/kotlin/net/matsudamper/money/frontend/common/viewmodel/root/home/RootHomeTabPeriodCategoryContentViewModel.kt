@@ -23,6 +23,7 @@ import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.GraphTitleChipUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodCategoryContentUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
@@ -34,11 +35,11 @@ import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByCatego
 
 public class RootHomeTabPeriodCategoryContentViewModel(
     initialCategoryId: MoneyUsageCategoryId,
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val api: RootHomeTabScreenApi,
     graphqlClient: GraphqlClient,
     loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
-) {
+) : CommonViewModel(coroutineScope) {
     private val reservedColorModel = ReservedColorModel()
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState(categoryId = initialCategoryId))
 
@@ -246,7 +247,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                                 event =
                                 object : BarGraphUiState.PeriodDataEvent {
                                     override fun onClick() {
-                                        coroutineScope.launch {
+                                        viewModelScope.launch {
                                             eventSender.send {
                                                 it.navigate(
                                                     RootHomeScreenStructure.MonthlyCategory(
@@ -310,7 +311,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
         private val yearMonth: ViewModelState.YearMonth,
     ) : RootHomeTabPeriodUiState.MonthTotalItem.Event, EqualsImpl(yearMonth) {
         override fun onClick() {
-            coroutineScope.launch {
+            viewModelScope.launch {
                 eventSender.send {
                     it.navigate(
                         RootHomeScreenStructure.Monthly(
@@ -327,7 +328,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
         categoryId: MoneyUsageCategoryId,
         forceReFetch: Boolean = false,
     ) {
-        coroutineScope.launch {
+        viewModelScope.launch {
             (0 until period.monthCount)
                 .map { index ->
                     val start = period.sinceDate.addMonth(index)

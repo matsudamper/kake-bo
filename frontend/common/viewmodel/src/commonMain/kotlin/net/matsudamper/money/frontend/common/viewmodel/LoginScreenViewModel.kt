@@ -19,13 +19,13 @@ import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.type.UserFidoLoginInput
 
 public class LoginScreenViewModel(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val graphqlQuery: GraphqlUserLoginQuery,
     private val screenApi: LoginScreenApi,
     private val navController: JsScreenNavController,
     private val globalEventSender: EventSender<GlobalEvent>,
     private val webAuthModel: WebAuthModel,
-) {
+) : CommonViewModel(coroutineScope) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> =
         MutableStateFlow(
             ViewModelState(),
@@ -119,7 +119,7 @@ public class LoginScreenViewModel(
         userName: String,
         type: WebAuthModel.WebAuthModelType,
     ) {
-        coroutineScope.launch {
+        viewModelScope.launch {
             val fidoInfo =
                 screenApi.fidoLoginInfo()
                     .data?.fidoLoginInfo

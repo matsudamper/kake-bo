@@ -17,15 +17,16 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenQuery
 
 public class RootHomeTabPeriodScreenViewModel(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val api: RootHomeTabScreenApi,
     initialCategoryId: MoneyUsageCategoryId?,
-) {
+) : CommonViewModel(coroutineScope) {
     private val viewModelStateFlow = MutableStateFlow(
         ViewModelState(
             categoryId = initialCategoryId,
@@ -146,7 +147,7 @@ public class RootHomeTabPeriodScreenViewModel(
     }
 
     private fun updateSinceDate() {
-        coroutineScope.launch {
+        viewModelScope.launch {
             val newPeriod = viewModelStateFlow.value.displayPeriod
             viewModelEventSender.send {
                 it.updateSinceDate(
@@ -159,7 +160,7 @@ public class RootHomeTabPeriodScreenViewModel(
     }
 
     private fun collectScreenInfo() {
-        coroutineScope.launch {
+        viewModelScope.launch {
             api.screenFlow().collectLatest { response ->
                 val newCategories = response.data?.user?.moneyUsageCategories?.nodes.orEmpty()
                 val category = newCategories.firstOrNull { it.id == viewModelStateFlow.value.categoryId }
@@ -198,7 +199,7 @@ public class RootHomeTabPeriodScreenViewModel(
                             )
                         }
 
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             viewModelEventSender.send {
                                 it.onClickAllFilter()
                             }
@@ -211,7 +212,7 @@ public class RootHomeTabPeriodScreenViewModel(
                     RootHomeTabPeriodUiState.CategoryTypes(
                         title = category.name,
                         onClick = {
-                            coroutineScope.launch {
+                            viewModelScope.launch {
                                 viewModelEventSender.send {
                                     it.onClickCategoryFilter(category.id)
                                 }

@@ -18,6 +18,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.graphql.MoneyUsageSelectDialogCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.MoneyUsageSelectDialogSubCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector
@@ -26,10 +27,10 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoriesInput
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryQuery
 
 internal class CategorySelectDialogViewModel(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val apolloClient: ApolloClient,
     private val event: Event,
-) {
+) : CommonViewModel(coroutineScope) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val apolloResponseCollector =
@@ -61,7 +62,7 @@ internal class CategorySelectDialogViewModel(
                     },
                 )
             }
-        }.stateIn(coroutineScope, SharingStarted.Lazily, null)
+        }.stateIn(viewModelScope, SharingStarted.Lazily, null)
     }
 
     init {
@@ -134,7 +135,7 @@ internal class CategorySelectDialogViewModel(
         ) {
             // TODO ページング
             // TODO error handling
-            coroutineScope.launch {
+            viewModelScope.launch {
                 apolloResponseCollector.fetch()
             }
         }
@@ -156,7 +157,7 @@ internal class CategorySelectDialogViewModel(
     private fun fetchSubCategories(id: MoneyUsageCategoryId) {
         val beforeItem = subCategoriesFlow.value[id]
         if (beforeItem != null) {
-            coroutineScope.launch {
+            viewModelScope.launch {
                 beforeItem.fetch()
             }
             return
@@ -180,7 +181,7 @@ internal class CategorySelectDialogViewModel(
             subCategories.plus(id to collector)
         }
 
-        coroutineScope.launch {
+        viewModelScope.launch {
             collector.fetch()
         }
     }

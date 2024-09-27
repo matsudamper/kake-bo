@@ -14,6 +14,7 @@ import net.matsudamper.money.element.MailId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportMailScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -22,11 +23,11 @@ import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.type.DeleteMailResultError
 
 public class MailImportViewModel(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val ioDispatcher: CoroutineDispatcher,
     private val graphqlApi: MailImportScreenGraphqlApi,
     private val loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
-) {
+) : CommonViewModel(coroutineScope) {
     private val viewModelEventSender = EventSender<MailImportViewModelEvent>()
     public val eventHandler: EventHandler<MailImportViewModelEvent> = viewModelEventSender.asHandler()
 
@@ -105,7 +106,7 @@ public class MailImportViewModel(
     private fun createMailDeleteDialogEvent(mailDeleteDialog: GetMailQuery.UsrMail): ImportMailScreenUiState.MailDeleteDialog.Event {
         return object : ImportMailScreenUiState.MailDeleteDialog.Event {
             override fun onClickDelete() {
-                coroutineScope.launch {
+                viewModelScope.launch {
                     viewModelStateFlow.update {
                         it.copy(
                             mailDeleteDialogState =
@@ -210,7 +211,7 @@ public class MailImportViewModel(
     private fun fetch() {
         if (viewModelStateFlow.value.finishLoadingToEnd == true) return
         fetchJob.cancel()
-        coroutineScope.launch(
+        viewModelScope.launch(
             Job().also { fetchJob = it },
         ) {
             viewModelStateFlow.update { viewModelState ->
@@ -249,7 +250,7 @@ public class MailImportViewModel(
     }
 
     private fun import() {
-        coroutineScope.launch {
+        viewModelScope.launch {
             val result =
                 runCatching {
                     graphqlApi.mailImport(viewModelStateFlow.value.checked)

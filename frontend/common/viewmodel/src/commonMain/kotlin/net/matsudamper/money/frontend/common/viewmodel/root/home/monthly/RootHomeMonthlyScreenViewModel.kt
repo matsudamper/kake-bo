@@ -24,6 +24,7 @@ import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.home.monthly.RootHomeMonthlyScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -36,11 +37,11 @@ import net.matsudamper.money.frontend.graphql.lib.ApolloPagingResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class RootHomeMonthlyScreenViewModel(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     argument: RootHomeScreenStructure.Monthly,
     loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
     graphqlClient: GraphqlClient,
-) {
+) : CommonViewModel(coroutineScope) {
     private val viewModelStateFlow = MutableStateFlow(
         ViewModelState(
             argument = argument,
@@ -160,7 +161,7 @@ public class RootHomeMonthlyScreenViewModel(
                     category = node.moneyUsageSubCategory?.name.orEmpty(),
                     event =
                     ItemEventImpl(
-                        coroutineScope = coroutineScope,
+                        coroutineScope = viewModelScope,
                         eventSender = eventSender,
                         id = node.id,
                     ),
@@ -200,7 +201,7 @@ public class RootHomeMonthlyScreenViewModel(
         viewModelStateFlow.value = viewModelStateFlow.value.copy(argument = current)
         tabViewModel.updateScreenStructure(current)
 
-        coroutineScope.launch {
+        viewModelScope.launch {
             fetch()
         }
     }
@@ -211,7 +212,7 @@ public class RootHomeMonthlyScreenViewModel(
                 when (val lastState = it.lastOrNull()?.getFlow()?.value) {
                     is ApolloResponseState.Loading -> return@add null
                     is ApolloResponseState.Failure -> {
-                        coroutineScope.launch {
+                        viewModelScope.launch {
                             monthlyListState.lastRetry()
                         }
                         return@add null
@@ -222,7 +223,7 @@ public class RootHomeMonthlyScreenViewModel(
                     is ApolloResponseState.Success -> {
                         val result = lastState.value.data?.user?.moneyUsages
                         if (result == null) {
-                            coroutineScope.launch {
+                            viewModelScope.launch {
                                 monthlyListState.lastRetry()
                             }
                             return@add null

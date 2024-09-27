@@ -12,6 +12,7 @@ import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.importedmail.root.MailScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -20,10 +21,10 @@ import net.matsudamper.money.frontend.graphql.ImportedMailScreenQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class ImportedMailScreenViewModel(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val api: ImportedMailScreenGraphqlApi,
     private val importedMailId: ImportedMailId,
-) {
+) : CommonViewModel(coroutineScope) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val viewModelEventSender = EventSender<Event>()
@@ -145,7 +146,7 @@ public class ImportedMailScreenViewModel(
                     event =
                     object : MailScreenUiState.LinkedUsageEvent {
                         override fun onClick() {
-                            coroutineScope.launch {
+                            viewModelScope.launch {
                                 viewModelEventSender.send { event ->
                                     event.navigate(
                                         ScreenStructure.MoneyUsage(
@@ -193,7 +194,7 @@ public class ImportedMailScreenViewModel(
                     event =
                     object : MailScreenUiState.UsageSuggest.Event {
                         override fun onClickRegister() {
-                            coroutineScope.launch {
+                            viewModelScope.launch {
                                 viewModelEventSender.send {
                                     it.navigate(
                                         ScreenStructure.AddMoneyUsage(
@@ -212,7 +213,7 @@ public class ImportedMailScreenViewModel(
             event =
             object : MailScreenUiState.LoadedEvent {
                 override fun onClickMailHtml() {
-                    coroutineScope.launch {
+                    viewModelScope.launch {
                         viewModelEventSender.send {
                             it.navigate(
                                 ScreenStructure.ImportedMailHTML(
@@ -224,7 +225,7 @@ public class ImportedMailScreenViewModel(
                 }
 
                 override fun onClickMailPlain() {
-                    coroutineScope.launch {
+                    viewModelScope.launch {
                         viewModelEventSender.send {
                             it.navigate(
                                 ScreenStructure.ImportedMailPlain(
@@ -236,7 +237,7 @@ public class ImportedMailScreenViewModel(
                 }
 
                 override fun onClickRegister() {
-                    coroutineScope.launch {
+                    viewModelScope.launch {
                         viewModelEventSender.send {
                             it.navigate(
                                 ScreenStructure.AddMoneyUsage(
@@ -264,13 +265,13 @@ public class ImportedMailScreenViewModel(
     }
 
     private fun fetch() {
-        coroutineScope.launch {
+        viewModelScope.launch {
             apolloResponseCollector.fetch()
         }
     }
 
     private fun dismissConfirmDialog() {
-        coroutineScope.launch {
+        viewModelScope.launch {
             viewModelStateFlow.update {
                 it.copy(
                     confirmDialog = null,
@@ -289,7 +290,7 @@ public class ImportedMailScreenViewModel(
                     event =
                     object : MailScreenUiState.UrlMenuDialogEvent {
                         override fun onClickOpen() {
-                            coroutineScope.launch {
+                            viewModelScope.launch {
                                 viewModelEventSender.send {
                                     it.openWeb(text)
                                 }
@@ -298,7 +299,7 @@ public class ImportedMailScreenViewModel(
                         }
 
                         override fun onClickCopy() {
-                            coroutineScope.launch {
+                            viewModelScope.launch {
                                 viewModelEventSender.send {
                                     it.copyToClipboard(text)
                                 }
@@ -328,7 +329,7 @@ public class ImportedMailScreenViewModel(
 
         // スマホだと長押しが効かない: 1.5.10-rc01
         override fun onLongClickUrl(text: String) {
-            coroutineScope.launch {
+            viewModelScope.launch {
                 viewModelEventSender.send {
                     it.copyToClipboard(text)
                 }

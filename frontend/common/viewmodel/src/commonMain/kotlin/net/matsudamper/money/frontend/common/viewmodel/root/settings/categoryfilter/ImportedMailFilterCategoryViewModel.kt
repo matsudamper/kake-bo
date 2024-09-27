@@ -14,6 +14,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImportedMailFilterCategoryScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -26,11 +27,11 @@ import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterDat
 import net.matsudamper.money.frontend.graphql.type.ImportedMailFilterCategoryConditionOperator
 
 public class ImportedMailFilterCategoryViewModel(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val graphqlClient: GraphqlClient,
     private val id: ImportedMailCategoryFilterId,
     private val api: ImportedMailFilterCategoryScreenGraphqlApi,
-) {
+) : CommonViewModel(coroutineScope) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
     private val apiResponseCollector =
         ApolloResponseCollector.create(
@@ -217,7 +218,7 @@ public class ImportedMailFilterCategoryViewModel(
                                         ImportedMailFilterCategoryScreenUiState.TextInput(
                                             title = "条件のテキストを編集",
                                             onCompleted = { text ->
-                                                coroutineScope.launch {
+                                                viewModelScope.launch {
                                                     api.updateCondition(
                                                         id = condition.id,
                                                         text = text,
@@ -238,7 +239,7 @@ public class ImportedMailFilterCategoryViewModel(
                             }
 
                             override fun selectedSource(source: ImportedMailFilterCategoryScreenUiState.DataSource) {
-                                coroutineScope.launch {
+                                viewModelScope.launch {
                                     api.updateCondition(
                                         id = condition.id,
                                         dataSource = source,
@@ -251,7 +252,7 @@ public class ImportedMailFilterCategoryViewModel(
                             }
 
                             override fun selectedConditionType(type: ImportedMailFilterCategoryScreenUiState.ConditionType) {
-                                coroutineScope.launch {
+                                viewModelScope.launch {
                                     api.updateCondition(
                                         id = condition.id,
                                         type = type,
@@ -274,7 +275,7 @@ public class ImportedMailFilterCategoryViewModel(
                                                 dismissConfirmDialog()
                                             },
                                             onConfirm = {
-                                                coroutineScope.launch {
+                                                viewModelScope.launch {
                                                     val isSuccess = api.deleteCondition(id = condition.id)
                                                     dismissConfirmDialog()
                                                     if (isSuccess) {
@@ -311,7 +312,7 @@ public class ImportedMailFilterCategoryViewModel(
             event =
             object : ImportedMailFilterCategoryScreenUiState.LoadedEvent {
                 override fun onClickAddCondition() {
-                    coroutineScope.launch {
+                    viewModelScope.launch {
                         api.addCondition(id = id)
                             .onFailure {
                                 eventSender.send {
@@ -328,7 +329,7 @@ public class ImportedMailFilterCategoryViewModel(
                             ImportedMailFilterCategoryScreenUiState.TextInput(
                                 title = "タイトルを変更",
                                 onCompleted = {
-                                    coroutineScope.launch {
+                                    viewModelScope.launch {
                                         api.updateFilter(id = id, title = it)
                                             .onSuccess {
                                                 dismissTextInput()
@@ -348,7 +349,7 @@ public class ImportedMailFilterCategoryViewModel(
                 }
 
                 override fun onSelectedOperator(operator: ImportedMailFilterCategoryScreenUiState.Operator) {
-                    coroutineScope.launch {
+                    viewModelScope.launch {
                         runCatching {
                             api.updateFilter(
                                 id = id,

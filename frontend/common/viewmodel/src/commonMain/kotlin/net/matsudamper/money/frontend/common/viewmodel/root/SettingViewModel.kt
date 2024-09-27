@@ -9,14 +9,15 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.RootSettingScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
 public class SettingViewModel(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val globalEventSender: EventSender<GlobalEvent>,
     private val ioDispatchers: CoroutineDispatcher,
-) {
+) : CommonViewModel(coroutineScope) {
     private val viewModelState =
         MutableStateFlow<ViewModelState>(
             ViewModelState(),
@@ -96,7 +97,7 @@ public class SettingViewModel(
     }
 
     public fun requestNavigate(currentScreen: ScreenStructure) {
-        coroutineScope.launch {
+        viewModelScope.launch {
             backgroundEventSender.send {
                 it.navigate(
                     if (currentScreen is ScreenStructure.Root.Settings) {

@@ -8,12 +8,13 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeAddTabScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
 public class HomeAddTabScreenViewModel(
-    private val coroutineScope: CoroutineScope,
-) {
+    coroutineScope: CoroutineScope,
+) : CommonViewModel(coroutineScope) {
     private val _viewModelStateFlow = MutableStateFlow(ViewModelState())
     private val viewModelStateFlow: StateFlow<ViewModelState> = _viewModelStateFlow.asStateFlow()
 
@@ -64,7 +65,7 @@ public class HomeAddTabScreenViewModel(
     }
 
     public fun requestNavigate() {
-        coroutineScope.launch {
+        viewModelScope.launch {
             navigateEventSender.send {
                 it.navigate(
                     ScreenStructure.Root.Add.Root(),

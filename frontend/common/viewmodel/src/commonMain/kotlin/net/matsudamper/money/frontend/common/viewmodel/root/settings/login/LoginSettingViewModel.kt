@@ -18,6 +18,7 @@ import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.LoginSettingScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -26,11 +27,11 @@ import net.matsudamper.money.frontend.common.viewmodel.shared.FidoApi
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenQuery
 
 public class LoginSettingViewModel(
-    private val coroutineScope: CoroutineScope,
+    coroutineScope: CoroutineScope,
     private val api: LoginSettingScreenApi,
     private val fidoApi: FidoApi,
     private val webAuthModel: WebAuthModel,
-) {
+) : CommonViewModel(coroutineScope) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> =
         MutableStateFlow(
             ViewModelState(
@@ -159,7 +160,7 @@ public class LoginSettingViewModel(
     }
 
     private fun createFido(type: WebAuthModel.WebAuthModelType) {
-        coroutineScope.launch {
+        viewModelScope.launch {
             val fidoInfo =
                 fidoApi.getFidoInfo()
                     .getOrNull()?.data?.user?.settings?.fidoAddInfo
@@ -185,7 +186,7 @@ public class LoginSettingViewModel(
                 return@launch
             }
             val onConfirm: (String) -> Unit = { name ->
-                coroutineScope.launch onConfirm@{
+                viewModelScope.launch onConfirm@{
                     if (name.isBlank()) {
                         eventSender.send { it.showToast("入力してください") }
                         return@onConfirm
@@ -237,7 +238,7 @@ public class LoginSettingViewModel(
     }
 
     private fun showAddFidoFailToast() {
-        coroutineScope.launch {
+        viewModelScope.launch {
             eventSender.send { it.showToast("追加に失敗しました") }
         }
     }
@@ -254,7 +255,7 @@ public class LoginSettingViewModel(
         private val name: String,
     ) : LoginSettingScreenUiState.Session.Event, EqualsImpl(name) {
         override fun onClickDelete() {
-            coroutineScope.launch {
+            viewModelScope.launch {
                 val result = api.deleteSession(name)
                 if (result) {
                     eventSender.send { it.showToast("削除しました") }
@@ -288,7 +289,7 @@ public class LoginSettingViewModel(
         }
 
         private fun changeName(name: String) {
-            coroutineScope.launch {
+            viewModelScope.launch {
                 val result = api.changeSessionName(name)
                 if (result) {
                     api.getScreen().first()
@@ -303,7 +304,7 @@ public class LoginSettingViewModel(
         private val item: LoginSettingScreenQuery.RegisteredFidoList,
     ) : LoginSettingScreenUiState.Fido.Event, EqualsImpl(item) {
         override fun onClickDelete() {
-            coroutineScope.launch {
+            viewModelScope.launch {
                 val result = api.deleteFido(item.id)
                 if (result) {
                     eventSender.send { it.showToast("「${item.name}」を削除しました") }

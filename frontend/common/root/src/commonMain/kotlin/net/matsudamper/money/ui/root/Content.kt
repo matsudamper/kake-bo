@@ -80,6 +80,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
 import net.matsudamper.money.ui.root.platform.PlatformTools
+import org.koin.core.Koin
 import org.koin.dsl.module
 
 @OptIn(ExperimentalMaterial3Api::class)
