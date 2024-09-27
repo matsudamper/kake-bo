@@ -25,7 +25,7 @@ internal class ViewModelProviders(
     private val rootCoroutineScope: CoroutineScope,
 ) {
     @Composable
-    public fun rootViewModel(): RootViewModel {
+    fun rootViewModel(): RootViewModel {
         return createViewModelProvider {
             RootViewModel(
                 loginCheckUseCase = koin.get(),
@@ -36,7 +36,7 @@ internal class ViewModelProviders(
     }
 
     @Composable
-    public fun moneyUsagesCalendarViewModel(
+    fun moneyUsagesCalendarViewModel(
         coroutineScope: CoroutineScope,
         rootUsageHostViewModel: RootUsageHostViewModel,
         yearMonth: ScreenStructure.Root.Usage.Calendar.YearMonth?,
@@ -51,7 +51,7 @@ internal class ViewModelProviders(
     }
 
     @Composable
-    public fun moneyUsagesListViewModel(
+    fun moneyUsagesListViewModel(
         coroutineScope: CoroutineScope,
         rootUsageHostViewModel: RootUsageHostViewModel,
     ): MoneyUsagesListViewModel {
@@ -65,7 +65,7 @@ internal class ViewModelProviders(
     }
 
     @Composable
-    public fun mailImportViewModel(): MailImportViewModel {
+    fun mailImportViewModel(): MailImportViewModel {
         val coroutineScope = rememberCoroutineScope()
         return createViewModelProvider {
             MailImportViewModel(
@@ -80,7 +80,7 @@ internal class ViewModelProviders(
     }
 
     @Composable
-    public fun importedMailListViewModel(): ImportedMailListViewModel {
+    fun importedMailListViewModel(): ImportedMailListViewModel {
         val coroutineScope = rememberCoroutineScope()
         return createViewModelProvider {
             ImportedMailListViewModel(
@@ -94,7 +94,7 @@ internal class ViewModelProviders(
     }
 
     @Composable
-    public fun rootHomeTabPeriodAllContentViewModel(): RootHomeTabPeriodAllContentViewModel {
+    fun rootHomeTabPeriodAllContentViewModel(): RootHomeTabPeriodAllContentViewModel {
         val coroutineScope = rememberCoroutineScope()
         return createViewModelProvider {
             RootHomeTabPeriodAllContentViewModel(
