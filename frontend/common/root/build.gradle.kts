@@ -39,6 +39,8 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation(libs.androidxCoreKtx)
+                implementation(libs.androidxLifecycleViewModelKtx)
+                implementation(libs.androidxLifecycleViewModelCompose)
             }
         }
     }

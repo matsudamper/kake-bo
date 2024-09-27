@@ -80,6 +80,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
 import net.matsudamper.money.ui.root.platform.PlatformTools
+import net.matsudamper.money.ui.root.viewmodel.ViewModelProviders
 import org.koin.core.Koin
 import org.koin.dsl.module
 
@@ -149,6 +150,13 @@ fun Content(
                         ),
                     )
                 }
+                factory<ViewModelProviders> {
+                    ViewModelProviders(
+                        koin = this.getKoin(),
+                        navController = navController,
+                        rootCoroutineScope = rootCoroutineScope,
+                    )
+                }
             },
         )
         koin.loadModules(modules)
@@ -163,13 +171,7 @@ fun Content(
         }
     }
 
-    val rootViewModel = remember {
-        RootViewModel(
-            loginCheckUseCase = koin.get(),
-            coroutineScope = rootCoroutineScope,
-            navController = navController,
-        )
-    }
+    val rootViewModel = koin.get<ViewModelProviders>().rootViewModel()
     val importedMailListViewModel = remember {
         ImportedMailListViewModel(
             coroutineScope = rootCoroutineScope,
