@@ -167,7 +167,11 @@ internal data class ViewModelEventHandlers(
             handler.collect(
                 object : ImportedMailScreenViewModel.Event {
                     override fun navigateToBack() {
-                        navController.back()
+                        if (navController.canGoBack) {
+                            navController.back()
+                        } else {
+                            platformToolsProvider().backPressDispatcher.onBackPressed()
+                        }
                     }
 
                     override fun navigateToHome() {
@@ -195,7 +199,11 @@ internal data class ViewModelEventHandlers(
             handler.collect(
                 object : ImportedMailHtmlViewModel.Event {
                     override fun backRequest() {
-                        navController.back()
+                        if (navController.canGoBack) {
+                            navController.back()
+                        } else {
+                            platformToolsProvider().backPressDispatcher.onBackPressed()
+                        }
                     }
                 },
             )
@@ -254,7 +262,11 @@ internal data class ViewModelEventHandlers(
                     }
 
                     override fun navigateBack() {
-                        navController.back()
+                        if (navController.canGoBack) {
+                            navController.back()
+                        } else {
+                            platformToolsProvider().backPressDispatcher.onBackPressed()
+                        }
                     }
 
                     override fun copyUrl(text: String) {
@@ -274,7 +286,11 @@ internal data class ViewModelEventHandlers(
             handler.collect(
                 object : ImportedMailPlainViewModel.Event {
                     override fun backRequest() {
-                        navController.back()
+                        if (navController.canGoBack) {
+                            navController.back()
+                        } else {
+                            platformToolsProvider().backPressDispatcher.onBackPressed()
+                        }
                     }
                 },
             )

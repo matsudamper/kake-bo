@@ -230,7 +230,7 @@ public fun Content(
     LaunchedEffect(navController.currentNavigation) {
         rootViewModel.navigateChanged()
     }
-    BackHandler(true) {
+    BackHandler(navController.canGoBack) {
         navController.back()
     }
     Scaffold(
