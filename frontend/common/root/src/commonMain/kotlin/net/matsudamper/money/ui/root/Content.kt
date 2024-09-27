@@ -50,7 +50,7 @@ import org.koin.dsl.module
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Content(
+public fun Content(
     modifier: Modifier = Modifier,
     globalEventSender: EventSender<GlobalEvent>,
     platformToolsProvider: () -> PlatformTools,

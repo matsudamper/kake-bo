@@ -5,7 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlin.reflect.KClass
 
-actual fun <T : Any> createViewModelProvider(factory: () -> T, kClass: KClass<T>): ViewModelProvider<T> {
+internal actual fun <T : Any> createViewModelProvider(factory: () -> T, kClass: KClass<T>): ViewModelProvider<T> {
     return ViewModelProviderImpl(
         factory = factory,
         kClass = kClass,
@@ -38,7 +38,7 @@ private class PlatformViewModelWrapper<T>(
     val viewModel: T,
 ) : ViewModel()
 
-data class ViewModelKey(
+private data class ViewModelKey(
     val className: String,
     val id: String,
 )

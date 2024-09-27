@@ -3,20 +3,20 @@ package net.matsudamper.money.ui.root.viewmodel
 import androidx.compose.runtime.Composable
 import kotlin.reflect.KClass
 
-interface ViewModelProvider<T> {
+internal interface ViewModelProvider<T> {
     @Composable
-    fun get(id: String): T
+    public fun get(id: String): T
 
     @Composable
-    fun get(): T
+    public fun get(): T
 }
 
-expect fun <T : Any> createViewModelProvider(
+internal expect fun <T : Any> createViewModelProvider(
     factory: () -> T,
     kClass: KClass<T>,
 ): ViewModelProvider<T>
 
-inline fun <reified T : Any> createViewModelProvider(
+internal inline fun <reified T : Any> createViewModelProvider(
     noinline factory: () -> T,
 ): ViewModelProvider<T> {
     return createViewModelProvider(

@@ -35,7 +35,7 @@ import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategorie
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
 import net.matsudamper.money.ui.root.platform.PlatformTools
 
-data class ViewModelEventHandlers(
+internal data class ViewModelEventHandlers(
     private val navController: JsScreenNavController,
     private val globalEventSender: EventSender<GlobalEvent>,
     private val rootScreenScaffoldListener: RootScreenScaffoldListener,

@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import kotlin.reflect.KClass
 
-actual fun <T : Any> createViewModelProvider(
+internal fun <T : Any> createViewModelProvider(
     factory: () -> T,
     kClass: KClass<T>,
 ): ViewModelProvider<T> {

@@ -1,5 +1,5 @@
 package net.matsudamper.money.ui.root.platform
 
-interface ApplicationNotificationManager {
-    fun notify(message: String)
+public interface ApplicationNotificationManager {
+    public fun notify(message: String)
 }

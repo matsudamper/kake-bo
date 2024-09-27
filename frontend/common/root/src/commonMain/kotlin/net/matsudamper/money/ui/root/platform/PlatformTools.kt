@@ -1,7 +1,7 @@
 package net.matsudamper.money.ui.root.platform
 
-interface PlatformTools {
-    val urlOpener: UrlOpener
-    val clipboardManager: ClipboardManager
-    val applicationNotificationManager: ApplicationNotificationManager
+public interface PlatformTools {
+    public val urlOpener: UrlOpener
+    public val clipboardManager: ClipboardManager
+    public val applicationNotificationManager: ApplicationNotificationManager
 }

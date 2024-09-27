@@ -43,6 +43,7 @@ kotlin {
                 implementation(libs.androidxLifecycleViewModelCompose)
             }
         }
+        explicitApi()
     }
 }
 
