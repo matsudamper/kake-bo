@@ -211,20 +211,31 @@ public class RootHomeTabPeriodAllContentViewModel(
                 }
                 .map { (startYearMonth, endYearMonth) ->
                     async {
-                        val result = api.fetchAll(
+                        val flowResult = api.fetchAll(
                             startYear = startYearMonth.year,
                             startMonth = startYearMonth.month,
                             endYear = endYearMonth.year,
                             endMonth = endYearMonth.month,
                             useCache = forceReFetch.not(),
                         )
-
-                        viewModelStateFlow.update {
-                            it.copy(
-                                allResponseMap = it.allResponseMap
-                                    .plus(startYearMonth to result.getOrNull()),
-                            )
-                        }
+                        flowResult
+                            .onSuccess { flow ->
+                                flow.collectLatest { apolloResponse ->
+                                    viewModelStateFlow.update {
+                                        it.copy(
+                                            allResponseMap = it.allResponseMap
+                                                .plus(startYearMonth to apolloResponse),
+                                        )
+                                    }
+                                }
+                            }.onFailure {
+                                viewModelStateFlow.update {
+                                    it.copy(
+                                        allResponseMap = it.allResponseMap
+                                            .plus(startYearMonth to null),
+                                    )
+                                }
+                            }
                     }
                 }.awaitAll()
             viewModelStateFlow.update {

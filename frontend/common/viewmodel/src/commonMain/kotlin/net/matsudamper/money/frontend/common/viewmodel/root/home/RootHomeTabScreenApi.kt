@@ -69,7 +69,7 @@ public class RootHomeTabScreenApi(
         endYear: Int,
         endMonth: Int,
         useCache: Boolean,
-    ): Result<ApolloResponse<RootHomeTabScreenAnalyticsByDateQuery.Data>> {
+    ): Result<Flow<ApolloResponse<RootHomeTabScreenAnalyticsByDateQuery.Data>>> {
         return runCatching {
             graphqlClient.apolloClient.query(
                 RootHomeTabScreenAnalyticsByDateQuery(
@@ -95,7 +95,7 @@ public class RootHomeTabScreenApi(
                         FetchPolicy.NetworkOnly
                     },
                 )
-                .execute()
+                .toFlow()
         }.onFailure {
             it.printStackTrace()
         }
