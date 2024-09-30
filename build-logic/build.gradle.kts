@@ -22,7 +22,7 @@ java {
 
 dependencies {
     compileOnly("org.jetbrains.kotlin:kotlin-gradle-plugin")
-    compileOnly("org.jetbrains.compose:compose-gradle-plugin:1.7.0-beta02")
+    compileOnly("org.jetbrains.compose:compose-gradle-plugin:1.7.0-rc01")
     compileOnly("org.gradle.kotlin:gradle-kotlin-dsl-plugins:5.1.1")
     implementation("com.android.application:com.android.application.gradle.plugin:8.6.0-alpha07")
 }
