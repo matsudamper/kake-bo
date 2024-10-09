@@ -33,7 +33,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(libs.kotestRunnerJunit5)
-                implementation("io.mockk:mockk:1.13.12")
+                implementation("io.mockk:mockk:1.13.13")
             }
         }
     }
