@@ -12,6 +12,7 @@ import com.apollographql.apollo3.api.json.JsonWriter
 import com.apollographql.apollo3.cache.normalized.api.MemoryCacheFactory
 import com.apollographql.apollo3.cache.normalized.normalizedCache
 import com.apollographql.apollo3.interceptor.ApolloInterceptor
+import com.apollographql.apollo3.network.http.DefaultHttpEngine
 import net.matsudamper.money.element.FidoId
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
@@ -29,7 +30,6 @@ import net.matsudamper.money.frontend.graphql.type.MailId as ApolloMailId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoryId as ApolloMoneyUsageCategoryId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageId as ApolloMoneyUsageId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryId as ApolloMoneyUsageSubCategoryId
-import com.apollographql.apollo3.network.http.DefaultHttpEngine
 
 public interface GraphqlClient {
     val apolloClient: ApolloClient
