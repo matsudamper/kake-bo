@@ -24,7 +24,9 @@ jobs:
         uses: gradle/gradle-build-action@v3
       - run: ./gradlew :backend:assemble
       - run: ./gradlew :frontend:app:jsBrowserProductionWebpack
-      - run: ./gradlew :frontend:app:assembleDebug
+      - env:
+          CI: true
+        run: ./gradlew :frontend:app:assembleDebug
       - run: ./gradlew allTests
       - run: ./gradlew ktlintCheck --continue
       - name: collect reports file

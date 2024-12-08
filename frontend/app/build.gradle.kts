@@ -71,7 +71,10 @@ android {
     }
     buildTypes {
         debug {
-            signingConfig = signingConfigs.getByName("release")
+            val isCI = System.getenv("CI")?.toBoolean() ?: false
+            if (isCI.not()) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
         release {
             signingConfig = signingConfigs.getByName("release")
