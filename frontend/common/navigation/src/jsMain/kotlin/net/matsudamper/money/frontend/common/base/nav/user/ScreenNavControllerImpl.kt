@@ -73,6 +73,10 @@ public actual class ScreenNavControllerImpl actual constructor(
         )
     }
 
+    override fun back() {
+        window.history.back()
+    }
+
     private fun parseQueryParams(query: String): Map<String, List<String>> {
         return ParametersBuilder().apply {
             appendAll(
@@ -103,10 +107,6 @@ public actual class ScreenNavControllerImpl actual constructor(
                     else -> screenState.lastHome
                 },
             )
-    }
-
-    override fun back() {
-        window.history.back()
     }
 
     private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryParams: Map<String, List<String>>): ScreenStructure {
