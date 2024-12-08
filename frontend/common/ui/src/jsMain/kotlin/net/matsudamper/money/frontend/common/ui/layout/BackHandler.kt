@@ -18,19 +18,18 @@ public actual fun BackHandler(
 ) {
     if (enable) {
         var beforeClick: Duration? by remember { mutableStateOf(null) }
-        val eventListener =
-            remember {
-                EventListener {
-                    val capturedBeforeClick = beforeClick
-                    if (capturedBeforeClick == null ||
-                        capturedBeforeClick + 100.milliseconds < window.performance.now().milliseconds
-                    ) {
-                        beforeClick = window.performance.now().milliseconds
-                        block()
-                    }
-                    window.history.go(1)
+        val eventListener = remember {
+            EventListener {
+                val capturedBeforeClick = beforeClick
+                if (capturedBeforeClick == null ||
+                    capturedBeforeClick + 100.milliseconds < window.performance.now().milliseconds
+                ) {
+                    beforeClick = window.performance.now().milliseconds
+                    block()
                 }
+                window.history.go(1)
             }
+        }
         DisposableEffect(eventListener) {
             window.history.pushState(null, "", window.location.href)
             window.addEventListener(
