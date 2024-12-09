@@ -24,11 +24,12 @@ private class IdSaveableStateHolderImpl(
 ) : SaveableStateHolder {
     @Composable
     override fun SaveableStateProvider(key: Any, content: @Composable () -> Unit) {
-        holder.SaveableStateProvider(key = IdSaveableStateKey(id, key), content = content)
+        // TODO: AndroidではSerializableにしないといけないので、とりあえずStringにしておく
+        holder.SaveableStateProvider(key = IdSaveableStateKey(id, key).toString(), content = content)
     }
 
     override fun removeState(key: Any) {
-        holder.removeState(IdSaveableStateKey(id, key))
+        holder.removeState(IdSaveableStateKey(id, key).toString())
     }
 
     private data class IdSaveableStateKey(
