@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
@@ -58,7 +59,7 @@ public class RootUsageHostViewModel(
                         RootUsageHostScreenUiState.TextInputUiState(
                             title = "検索",
                             default = mutableViewModelStateFlow.value.searchText,
-                            inputType = "text",
+                            inputType = TextFieldType.Text,
                             textComplete = { text ->
                                 updateSearchText(text)
                                 closeTextInput()

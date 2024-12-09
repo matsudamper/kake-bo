@@ -45,7 +45,8 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
-import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
+import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
 public data class RootUsageHostScreenUiState(
     val type: Type,
@@ -57,7 +58,7 @@ public data class RootUsageHostScreenUiState(
     public data class TextInputUiState(
         val title: String,
         val default: String,
-        val inputType: String,
+        val inputType: TextFieldType,
         val textComplete: (String) -> Unit,
         val canceled: () -> Unit,
         val isMultiline: Boolean,
@@ -115,7 +116,7 @@ public fun RootUsageHostScreen(
     content: @Composable () -> Unit,
 ) {
     uiState.textInputUiState?.also {
-        HtmlFullScreenTextInput(
+        FullScreenTextInput(
             title = it.title,
             default = it.default,
             inputType = it.inputType,

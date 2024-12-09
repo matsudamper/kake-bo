@@ -44,7 +44,7 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
-import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
 public data class ApiSettingScreenUiState(
     val loadingState: LoadingState,
@@ -113,7 +113,7 @@ public fun ApiSettingScreen(
     }
     if (uiState.addDialog != null) {
         Dialog(onDismissRequest = { uiState.addDialog.event.dismissRequest() }) {
-            HtmlFullScreenTextInput(
+            FullScreenTextInput(
                 title = "トークンを追加",
                 onComplete = { uiState.addDialog.event.onComplete(it) },
                 canceled = { uiState.addDialog.event.dismissRequest() },

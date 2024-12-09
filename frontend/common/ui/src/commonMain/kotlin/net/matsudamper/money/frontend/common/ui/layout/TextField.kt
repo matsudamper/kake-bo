@@ -32,6 +32,14 @@ public object TextFieldDefaults {
 public enum class TextFieldType {
     Text,
     Password,
+    ;
+
+    public fun htmlString(): String {
+        return when (this) {
+            Text -> "text"
+            Password -> "password"
+        }
+    }
 }
 
 @Composable

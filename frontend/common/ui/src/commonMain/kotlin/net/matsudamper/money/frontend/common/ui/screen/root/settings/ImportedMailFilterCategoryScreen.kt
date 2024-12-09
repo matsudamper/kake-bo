@@ -65,7 +65,7 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
-import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
 public data class ImportedMailFilterCategoryScreenUiState(
     val loadingState: LoadingState,
@@ -251,7 +251,7 @@ public fun ImportedMailFilterCategoryScreen(
         }
     }
     uiState.textInput?.also { textInput ->
-        HtmlFullScreenTextInput(
+        FullScreenTextInput(
             title = textInput.title,
             onComplete = { textInput.onCompleted(it) },
             canceled = { textInput.dismiss() },

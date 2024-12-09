@@ -55,7 +55,8 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
-import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
+import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
 public data class LoginSettingScreenUiState(
     val textInputDialogState: TextInputDialogState?,
@@ -89,7 +90,7 @@ public data class LoginSettingScreenUiState(
     public data class TextInputDialogState(
         val title: String,
         val text: String,
-        val type: String,
+        val type: TextFieldType,
         val onConfirm: (String) -> Unit,
         val onCancel: () -> Unit,
     )
@@ -124,7 +125,7 @@ public fun LoginSettingScreen(
     windowInsets: PaddingValues,
 ) {
     uiState.textInputDialogState?.also { textInputDialogState ->
-        HtmlFullScreenTextInput(
+        FullScreenTextInput(
             title = textInputDialogState.title,
             default = textInputDialogState.text,
             inputType = textInputDialogState.type,

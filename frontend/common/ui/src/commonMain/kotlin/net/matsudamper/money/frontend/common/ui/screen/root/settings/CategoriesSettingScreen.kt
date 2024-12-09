@@ -38,7 +38,7 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
-import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
 public data class SettingCategoriesScreenUiState(
     val event: Event,
@@ -85,7 +85,7 @@ public fun SettingCategoriesScreen(
     }
 
     if (uiState.showCategoryNameInput) {
-        HtmlFullScreenTextInput(
+        FullScreenTextInput(
             title = "カテゴリー名",
             onComplete = { text ->
                 uiState.event.categoryInputCompleted(text)

@@ -57,7 +57,7 @@ import net.matsudamper.money.frontend.common.ui.layout.NumberInput
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.layout.UrlClickableText
 import net.matsudamper.money.frontend.common.ui.layout.UrlMenuDialog
-import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
 public data class MoneyUsageScreenUiState(
     val event: Event,
@@ -212,7 +212,7 @@ public fun MoneyUsageScreen(
         )
     }
     if (uiState.textInputDialog != null) {
-        HtmlFullScreenTextInput(
+        FullScreenTextInput(
             isMultiline = uiState.textInputDialog.isMultiline,
             title = uiState.textInputDialog.title,
             default = uiState.textInputDialog.default,

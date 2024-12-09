@@ -39,7 +39,7 @@ import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
-import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
 public data class SettingMailCategoryFilterScreenUiState(
     public val event: Event,
@@ -100,7 +100,7 @@ public fun SettingMailCategoryFiltersScreen(
         uiState.event.onViewInitialized()
     }
     uiState.textInput?.also { textInput ->
-        HtmlFullScreenTextInput(
+        FullScreenTextInput(
             title = textInput.title,
             onComplete = { textInput.onCompleted(it) },
             canceled = { textInput.dismiss() },

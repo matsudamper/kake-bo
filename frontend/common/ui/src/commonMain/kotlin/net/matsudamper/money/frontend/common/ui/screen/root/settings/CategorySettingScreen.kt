@@ -50,7 +50,7 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
-import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
 public data class SettingCategoryScreenUiState(
     val event: Event,
@@ -118,7 +118,7 @@ public fun SettingCategoryScreen(
     }
 
     if (uiState.showCategoryNameInput) {
-        HtmlFullScreenTextInput(
+        FullScreenTextInput(
             title = "サブカテゴリー名",
             onComplete = { text ->
                 uiState.event.subCategoryNameInputCompleted(text)
@@ -131,7 +131,7 @@ public fun SettingCategoryScreen(
     }
 
     if (uiState.showCategoryNameChangeDialog != null) {
-        HtmlFullScreenTextInput(
+        FullScreenTextInput(
             title = "カテゴリー名変更",
             onComplete = { text ->
                 uiState.showCategoryNameChangeDialog.event.onTextInputCompleted(text)
@@ -143,7 +143,7 @@ public fun SettingCategoryScreen(
         )
     }
     if (uiState.showSubCategoryNameChangeDialog != null) {
-        HtmlFullScreenTextInput(
+        FullScreenTextInput(
             title = "サブカテゴリー名変更",
             onComplete = { text ->
                 uiState.showSubCategoryNameChangeDialog.event.onTextInputCompleted(text)

@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
-import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.HtmlFullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,14 +44,11 @@ public actual fun TextField(
 ) {
     var visibleInput by remember { mutableStateOf(false) }
     if (visibleInput) {
-        HtmlFullScreenTextInput(
+        FullScreenTextInput(
             title = label ?: "",
             name = label ?: "",
             default = text,
-            inputType = when (type) {
-                TextFieldType.Text -> "text"
-                TextFieldType.Password -> "password"
-            },
+            inputType = type,
             onComplete = {
                 onValueChange(it)
                 visibleInput = false
