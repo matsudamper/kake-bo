@@ -18,75 +18,72 @@ public class SettingViewModel(
     private val globalEventSender: EventSender<GlobalEvent>,
     private val ioDispatchers: CoroutineDispatcher,
 ) : CommonViewModel(viewModelFeature) {
-    private val viewModelState =
-        MutableStateFlow<ViewModelState>(
-            ViewModelState(),
-        )
+    private val viewModelState = MutableStateFlow<ViewModelState>(
+        ViewModelState(),
+    )
     private val backgroundEventSender = EventSender<Event>()
     public val backgroundEventHandler: EventHandler<Event> = backgroundEventSender.asHandler()
 
-    public val uiState: StateFlow<RootSettingScreenUiState> =
-        MutableStateFlow(
-            RootSettingScreenUiState(
-                event =
-                object : RootSettingScreenUiState.Event {
-                    override fun onResume() {
-                    }
+    public val uiState: StateFlow<RootSettingScreenUiState> = MutableStateFlow(
+        RootSettingScreenUiState(
+            event = object : RootSettingScreenUiState.Event {
+                override fun onResume() {
+                }
 
-                    override fun onClickLoginSetting() {
-                        viewModelScope.launch {
-                            backgroundEventSender.send {
-                                it.navigate(
-                                    ScreenStructure.Root.Settings.Login,
-                                )
-                            }
+                override fun onClickLoginSetting() {
+                    viewModelScope.launch {
+                        backgroundEventSender.send {
+                            it.navigate(
+                                ScreenStructure.Root.Settings.Login,
+                            )
                         }
                     }
+                }
 
-                    override fun onClickImapButton() {
-                        viewModelScope.launch {
-                            backgroundEventSender.send {
-                                it.navigateToImapConfig()
-                            }
+                override fun onClickImapButton() {
+                    viewModelScope.launch {
+                        backgroundEventSender.send {
+                            it.navigateToImapConfig()
                         }
                     }
+                }
 
-                    override fun onClickCategoryButton() {
-                        viewModelScope.launch {
-                            backgroundEventSender.send {
-                                it.navigateToCategoriesConfig()
-                            }
+                override fun onClickCategoryButton() {
+                    viewModelScope.launch {
+                        backgroundEventSender.send {
+                            it.navigateToCategoriesConfig()
                         }
                     }
+                }
 
-                    override fun onClickApiSetting() {
-                        viewModelScope.launch {
-                            backgroundEventSender.send {
-                                it.navigateToApiSetting()
-                            }
+                override fun onClickApiSetting() {
+                    viewModelScope.launch {
+                        backgroundEventSender.send {
+                            it.navigateToApiSetting()
                         }
                     }
+                }
 
-                    override fun onClickMailFilter() {
-                        viewModelScope.launch {
-                            backgroundEventSender.send {
-                                it.navigate(
-                                    ScreenStructure.Root.Settings.MailCategoryFilters,
-                                )
-                            }
+                override fun onClickMailFilter() {
+                    viewModelScope.launch {
+                        backgroundEventSender.send {
+                            it.navigate(
+                                ScreenStructure.Root.Settings.MailCategoryFilters,
+                            )
                         }
                     }
+                }
 
-                    override fun onClickGitHub() {
-                        viewModelScope.launch {
-                            backgroundEventSender.send {
-                                it.open("https://github.com/matsudamper/kake-bo")
-                            }
+                override fun onClickGitHub() {
+                    viewModelScope.launch {
+                        backgroundEventSender.send {
+                            it.open("https://github.com/matsudamper/kake-bo")
                         }
                     }
-                },
-            ),
-        ).asStateFlow()
+                }
+            },
+        ),
+    ).asStateFlow()
 
     public fun updateLastStructure(state: ScreenStructure.Root.Settings) {
         viewModelState.update {
