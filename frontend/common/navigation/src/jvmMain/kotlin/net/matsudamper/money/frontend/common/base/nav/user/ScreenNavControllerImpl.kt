@@ -23,7 +23,7 @@ internal actual class ScreenNavControllerImpl actual constructor(
 
     override fun navigateToHome() {
         while (internalCurrentNavigation.isNotEmpty()) {
-            when(internalCurrentNavigation.last()) {
+            when (internalCurrentNavigation.last()) {
                 is ScreenStructure.Root -> {
                     break
                 }
