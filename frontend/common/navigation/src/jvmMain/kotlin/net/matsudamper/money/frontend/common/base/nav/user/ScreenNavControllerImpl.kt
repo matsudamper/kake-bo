@@ -17,7 +17,6 @@ internal actual class ScreenNavControllerImpl actual constructor(
 
     override fun back() {
         val dropTarget = internalCurrentNavigation.dropLast(1)
-        dropTarget[0]
         internalCurrentNavigation = dropTarget.toMutableList()
     }
 
