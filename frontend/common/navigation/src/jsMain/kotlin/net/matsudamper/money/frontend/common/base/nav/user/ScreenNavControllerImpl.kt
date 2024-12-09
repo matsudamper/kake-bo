@@ -97,7 +97,6 @@ internal actual class ScreenNavControllerImpl actual constructor(
     }
 
     private fun updateScreenState(screenStructure: ScreenStructure) {
-        println("updateScreenState: $screenStructure, ${screenStructure.createUrl()}")
         screenState =
             screenState.copy(
                 current = screenStructure,
