@@ -6,6 +6,7 @@ import net.matsudamper.money.frontend.common.base.nav.ScopedObjectStore
 
 @Stable
 public interface ScreenNavController {
+    public val backstackEntries: List<NavStackEntry>
     public val currentBackstackEntry: NavStackEntry
 
     public val canGoBack: Boolean
@@ -23,7 +24,6 @@ public interface ScreenNavController {
     public data class NavStackEntry(
         val structure: IScreenStructure,
         val isHome: Boolean,
-        val scopedObjectStore: ScopedObjectStore,
     )
 
     public interface RemovedBackstackEntryListener {

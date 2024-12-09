@@ -11,12 +11,11 @@ import androidx.compose.runtime.toMutableStateList
 internal class ScreenNavControllerImpl(
     initial: ScreenStructure,
     private val savedStateHolder: SaveableStateHolder,
-    private val navViewModel: NavViewModel,
 ) : ScreenNavController {
     private val removedBackstackEntryListeners = mutableSetOf<ScreenNavController.RemovedBackstackEntryListener>()
-    private var internalCurrentNavigation: List<InternalNavStackEntry> by mutableStateOf(
+    override var backstackEntries: List<ScreenNavController.NavStackEntry> by mutableStateOf(
         mutableListOf(
-            InternalNavStackEntry(
+            ScreenNavController.NavStackEntry(
                 structure = initial,
                 isHome = true,
             ),
@@ -24,39 +23,37 @@ internal class ScreenNavControllerImpl(
     )
     override val currentBackstackEntry: ScreenNavController.NavStackEntry
         get() {
-            val item = internalCurrentNavigation.last()
+            val item = backstackEntries.last()
             return ScreenNavController.NavStackEntry(
                 structure = item.structure,
                 isHome = item.isHome,
-                scopedObjectStore = navViewModel.createOrGetScopedObjectStore(item.structure),
             )
         }
 
-    public override val canGoBack: Boolean get() = internalCurrentNavigation.size > 1
+    public override val canGoBack: Boolean get() = backstackEntries.size > 1
 
     override fun back() {
-        val dropTarget = internalCurrentNavigation.last()
+        val dropTarget = backstackEntries.last()
         removedBackstackEntryListeners.forEach { t ->
             t.onRemoved(
                 ScreenNavController.NavStackEntry(
                     structure = dropTarget.structure,
                     isHome = dropTarget.isHome,
-                    scopedObjectStore = navViewModel.createOrGetScopedObjectStore(dropTarget.structure),
                 ),
             )
         }
-        internalCurrentNavigation = internalCurrentNavigation.toMutableStateList().also {
+        backstackEntries = backstackEntries.toMutableStateList().also {
             it.remove(dropTarget)
         }
-        val hasOtherBothStructure = internalCurrentNavigation.any { it.structure == dropTarget.structure }
-        if (hasOtherBothStructure.not()) {
-            navViewModel.removeScopedObjectStore(dropTarget.structure)
-        }
+//        val hasOtherBothStructure = internalCurrentNavigation.any { it.structure == dropTarget.structure }
+//        if (hasOtherBothStructure.not()) {
+//            navViewModel.removeScopedObjectStore(dropTarget.structure)
+//        }
     }
 
     override fun navigateToHome() {
-        while (internalCurrentNavigation.isNotEmpty()) {
-            if (internalCurrentNavigation.last().isHome) {
+        while (backstackEntries.isNotEmpty()) {
+            if (backstackEntries.last().isHome) {
                 break
             }
             back()
@@ -72,16 +69,11 @@ internal class ScreenNavControllerImpl(
     }
 
     override fun navigate(navigation: IScreenStructure) {
-        internalCurrentNavigation = internalCurrentNavigation.plus(
-            InternalNavStackEntry(
+        backstackEntries = backstackEntries.plus(
+            ScreenNavController.NavStackEntry(
                 structure = navigation,
                 isHome = navigation is ScreenStructure.Root,
             ),
         )
     }
-
-    private data class InternalNavStackEntry(
-        val structure: IScreenStructure,
-        val isHome: Boolean,
-    )
 }
