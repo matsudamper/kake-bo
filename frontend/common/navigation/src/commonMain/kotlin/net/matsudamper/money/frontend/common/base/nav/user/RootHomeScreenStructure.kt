@@ -43,7 +43,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
             return direction.placeholderUrl.plus(urlParam)
         }
 
-        override fun equalScreen(other: ScreenStructure): Boolean {
+        override fun equalScreen(other: IScreenStructure): Boolean {
             return other is PeriodAnalytics
         }
 
@@ -92,7 +92,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
                 .plus(urlParam)
         }
 
-        override fun equalScreen(other: ScreenStructure): Boolean {
+        override fun equalScreen(other: IScreenStructure): Boolean {
             return other is PeriodAnalytics
         }
 
@@ -166,7 +166,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
                 .replace("{$CATEGORY_KEY}", categoryId.value.toString())
         }
 
-        override fun equalScreen(other: ScreenStructure): Boolean {
+        override fun equalScreen(other: IScreenStructure): Boolean {
             return other is MonthlyCategory
         }
 

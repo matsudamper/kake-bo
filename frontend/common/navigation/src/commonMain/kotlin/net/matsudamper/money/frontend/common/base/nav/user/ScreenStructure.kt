@@ -5,7 +5,7 @@ import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 
-public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
+public sealed interface ScreenStructure : IScreenStructure {
     public sealed interface Root : ScreenStructure {
         public sealed interface Settings : Root {
             public data object Root : Settings {
@@ -74,7 +74,7 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                     return direction.placeholderUrl.plus(urlParam)
                 }
 
-                override fun equalScreen(other: ScreenStructure): Boolean {
+                override fun equalScreen(other: IScreenStructure): Boolean {
                     return other is Imported
                 }
 
@@ -105,7 +105,7 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
             public class List : Usage {
                 override val direction: Screens = Screens.UsageList
 
-                override fun equalScreen(other: ScreenStructure): Boolean {
+                override fun equalScreen(other: IScreenStructure): Boolean {
                     return other is List
                 }
             }
@@ -115,7 +115,7 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
             ) : Usage {
                 override val direction: Screens = Screens.UsageCalendar
 
-                override fun equalScreen(other: ScreenStructure): Boolean {
+                override fun equalScreen(other: IScreenStructure): Boolean {
                     return other is Calendar
                 }
 
@@ -178,7 +178,7 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                 .replace("{id}", id.id.toString())
         }
 
-        override fun equalScreen(other: ScreenStructure): Boolean {
+        override fun equalScreen(other: IScreenStructure): Boolean {
             return this == other
         }
     }
@@ -193,7 +193,7 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                 .replace("{id}", id.id.toString())
         }
 
-        override fun equalScreen(other: ScreenStructure): Boolean {
+        override fun equalScreen(other: IScreenStructure): Boolean {
             return this == other
         }
     }
@@ -208,7 +208,7 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                 .replace("{id}", id.id.toString())
         }
 
-        override fun equalScreen(other: ScreenStructure): Boolean {
+        override fun equalScreen(other: IScreenStructure): Boolean {
             return this == other
         }
     }
@@ -223,7 +223,7 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
                 .replace("{id}", id.id.toString())
         }
 
-        override fun equalScreen(other: ScreenStructure): Boolean {
+        override fun equalScreen(other: IScreenStructure): Boolean {
             return this == other
         }
     }
@@ -247,7 +247,7 @@ public sealed interface ScreenStructure : IScreenStructure<ScreenStructure> {
             )
         }
 
-        override fun equalScreen(other: ScreenStructure): Boolean {
+        override fun equalScreen(other: IScreenStructure): Boolean {
             return other is AddMoneyUsage
         }
 

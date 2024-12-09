@@ -5,7 +5,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 
 @Stable
-public interface ScreenNavController<D : IScreenStructure<D>> {
+public interface ScreenNavController<D : IScreenStructure> {
     public val currentNavigation: D
 
     public val canGoBack: Boolean
