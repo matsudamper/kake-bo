@@ -3,14 +3,9 @@ package net.matsudamper.money.frontend.common.base.nav
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
-
-public val LocalScopedObjectStore: ProvidableCompositionLocal<ScopedObjectStore> = compositionLocalOf<ScopedObjectStore> {
-    error("No ScopedObjectStore provided")
-}
 
 @Composable
 public fun NavHost(
