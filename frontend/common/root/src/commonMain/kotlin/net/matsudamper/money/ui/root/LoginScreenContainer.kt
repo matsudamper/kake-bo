@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreen
 import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreenUiState
@@ -19,7 +18,7 @@ import net.matsudamper.money.ui.root.viewmodel.provideViewModel
 
 @Composable
 internal fun LoginScreenContainer(
-    navController: ScreenNavController<IScreenStructure>,
+    navController: ScreenNavController,
     globalEventSender: EventSender<GlobalEvent>,
     windowInsets: PaddingValues,
 ) {

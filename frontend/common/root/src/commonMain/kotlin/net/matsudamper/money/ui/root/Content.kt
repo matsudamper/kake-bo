@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.Logger
-import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -56,7 +55,7 @@ public fun Content(
     modifier: Modifier = Modifier,
     globalEventSender: EventSender<GlobalEvent>,
     platformToolsProvider: () -> PlatformTools,
-    navController: ScreenNavController<IScreenStructure>,
+    navController: ScreenNavController,
     composeSizeProvider: () -> MutableStateFlow<IntSize> = { MutableStateFlow(IntSize.Zero) },
 ) {
     val koin = LocalKoin.current
@@ -180,7 +179,7 @@ public fun Content(
 
             override fun onClickSettings() {
                 settingViewModel.requestNavigate(
-                    currentScreen = navController.currentNavigation,
+                    currentScreen = navController.currentBackstackEntry.structure,
                 )
             }
 
@@ -222,7 +221,7 @@ public fun Content(
             handler = rootUsageHostViewModel.rootNavigationEventHandler,
         )
     }
-    LaunchedEffect(navController.currentNavigation) {
+    LaunchedEffect(navController.currentBackstackEntry) {
         rootViewModel.navigateChanged()
     }
     Scaffold(
@@ -246,7 +245,7 @@ public fun Content(
         Box(
             modifier = Modifier.fillMaxSize(),
         ) {
-            when (val current = navController.currentNavigation) {
+            when (val current = navController.currentBackstackEntry.structure) {
                 is ScreenStructure -> {
                     when (current) {
                         is ScreenStructure.Root -> {

@@ -3,14 +3,23 @@ package net.matsudamper.money.frontend.common.base.nav.user
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.setValue
 
 @Stable
 internal class ScreenNavControllerImpl(
     initial: ScreenStructure,
-) : ScreenNavController<IScreenStructure> {
-    private var internalCurrentNavigation: List<IScreenStructure> by mutableStateOf(mutableListOf(initial))
-    override val currentNavigation: IScreenStructure get() = internalCurrentNavigation.last()
+    private val savedStateHolder: SaveableStateHolder,
+) : ScreenNavController {
+    private var internalCurrentNavigation: List<ScreenNavController.NavStackEntry> by mutableStateOf(
+        mutableListOf(
+            ScreenNavController.NavStackEntry(
+                structure = initial,
+                isHome = true,
+            ),
+        ),
+    )
+    override val currentBackstackEntry: ScreenNavController.NavStackEntry get() = internalCurrentNavigation.last()
 
     public override val canGoBack: Boolean get() = internalCurrentNavigation.size > 1
 
@@ -21,16 +30,19 @@ internal class ScreenNavControllerImpl(
 
     override fun navigateToHome() {
         while (internalCurrentNavigation.isNotEmpty()) {
-            when (internalCurrentNavigation.last()) {
-                is ScreenStructure.Root -> {
-                    break
-                }
-                else -> back()
+            if (internalCurrentNavigation.last().isHome) {
+                break
             }
+            back()
         }
     }
 
     override fun navigate(navigation: IScreenStructure) {
-        internalCurrentNavigation = internalCurrentNavigation.plus(navigation)
+        internalCurrentNavigation = internalCurrentNavigation.plus(
+            ScreenNavController.NavStackEntry(
+                structure = navigation,
+                isHome = navigation is ScreenStructure.Root,
+            ),
+        )
     }
 }

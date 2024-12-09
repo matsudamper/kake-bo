@@ -6,7 +6,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -22,7 +21,7 @@ public class LoginScreenViewModel(
     viewModelFeature: ViewModelFeature,
     private val graphqlQuery: GraphqlUserLoginQuery,
     private val screenApi: LoginScreenApi,
-    private val navController: ScreenNavController<IScreenStructure>,
+    private val navController: ScreenNavController,
     private val globalEventSender: EventSender<GlobalEvent>,
     private val webAuthModel: WebAuthModel,
 ) : CommonViewModel(viewModelFeature) {

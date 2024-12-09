@@ -4,6 +4,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import kotlinx.browser.window
 import io.ktor.http.ParametersBuilder
 import io.ktor.util.StringValues
@@ -15,20 +16,22 @@ import net.matsudamper.money.element.MoneyUsageId
 
 @Stable
 internal class ScreenNavControllerImpl(
-    initial: ScreenStructure,
-) : ScreenNavController<IScreenStructure> {
+    initial: IScreenStructure,
+) : ScreenNavController {
 
     private val directions = Screens.entries
     private val parser = UrlPlaceHolderParser(directions)
-    private var screenState: ScreenState by mutableStateOf(
-        ScreenState(
-            current = initial,
-            lastHome = null,
+    private var backStackEntries: List<ScreenNavController.NavStackEntry> by mutableStateOf(
+        listOf(
+            ScreenNavController.NavStackEntry(
+                structure = initial,
+                isHome = true,
+            ),
         ),
     )
-    override val currentNavigation: IScreenStructure
+    override val currentBackstackEntry: ScreenNavController.NavStackEntry
         get() {
-            return screenState.current
+            return backStackEntries.last()
         }
     override val canGoBack: Boolean = true
 
@@ -51,7 +54,7 @@ internal class ScreenNavControllerImpl(
 
     override fun navigate(navigation: IScreenStructure) {
         val url = navigation.createUrl()
-        if (screenState.current.equalScreen(navigation)) {
+        if (backStackEntries.last().structure.equalScreen(navigation)) {
             window.history.replaceState(
                 data = null,
                 title = navigation.direction.title,
@@ -68,8 +71,16 @@ internal class ScreenNavControllerImpl(
     }
 
     override fun navigateToHome() {
+        while (backStackEntries.isNotEmpty()) {
+            when (backStackEntries.last().structure) {
+                is ScreenStructure.Root -> {
+                    break
+                }
+                else -> back()
+            }
+        }
         navigate(
-            screenState.lastHome ?: RootHomeScreenStructure.Home,
+            backStackEntries.lastOrNull()?.structure ?: RootHomeScreenStructure.Home,
         )
     }
 
@@ -97,13 +108,18 @@ internal class ScreenNavControllerImpl(
     }
 
     private fun updateScreenState(screenStructure: IScreenStructure) {
-        screenState = screenState.copy(
-            current = screenStructure,
-            lastHome = when (screenStructure) {
-                is ScreenStructure.Root -> screenStructure
-                else -> screenState.lastHome
-            },
-        )
+        backStackEntries = backStackEntries.toMutableStateList().also {
+            val last = it.removeLast()
+            it.add(
+                last.copy(
+                    structure = screenStructure,
+                    isHome = when (screenStructure) {
+                        is ScreenStructure.Root -> true
+                        else -> false
+                    },
+                ),
+            )
+        }
     }
 
     private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryParams: Map<String, List<String>>): ScreenStructure {
@@ -146,6 +162,7 @@ internal class ScreenNavControllerImpl(
                 ScreenStructure.Root.Usage.Calendar.fromQueryParams(
                     queryParams = queryParams,
                 )
+
             Screens.Login -> ScreenStructure.Login
             Screens.Admin -> ScreenStructure.Admin
             Screens.MailImport -> ScreenStructure.Root.Add.Import
@@ -228,9 +245,4 @@ internal class ScreenNavControllerImpl(
             }
         }
     }
-
-    data class ScreenState(
-        val current: IScreenStructure,
-        val lastHome: IScreenStructure?,
-    )
 }

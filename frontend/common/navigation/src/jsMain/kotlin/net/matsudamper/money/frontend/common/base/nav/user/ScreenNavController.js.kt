@@ -4,6 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 
 @Composable
-public actual fun rememberMainScreenNavController(): ScreenNavController<IScreenStructure> {
+public actual fun rememberMainScreenNavController(): ScreenNavController {
     return remember { ScreenNavControllerImpl(initial = RootHomeScreenStructure.Home) }
 }
