@@ -5,7 +5,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.matsudamper.money.frontend.common.base.IO
-import net.matsudamper.money.frontend.common.base.nav.user.MainScreenNavController
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.viewmodel.root.RootViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodAllContentViewModel
@@ -21,7 +21,7 @@ import org.koin.core.Koin
 
 internal class ViewModelProviders(
     private val koin: Koin,
-    private val navController: MainScreenNavController,
+    private val navController: ScreenNavController<ScreenStructure>,
     private val rootCoroutineScope: CoroutineScope,
 ) {
     @Composable

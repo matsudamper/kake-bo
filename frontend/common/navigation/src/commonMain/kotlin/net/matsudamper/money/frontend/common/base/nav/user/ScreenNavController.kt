@@ -4,8 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 
-public typealias MainScreenNavController = ScreenNavController<ScreenStructure>
-
 @Stable
 public interface ScreenNavController<D : IScreenStructure<D>> {
     public val currentNavigation: D
@@ -23,10 +21,10 @@ public interface ScreenNavController<D : IScreenStructure<D>> {
 @Stable
 internal expect class ScreenNavControllerImpl(
     initial: ScreenStructure,
-) : MainScreenNavController
+) : ScreenNavController<ScreenStructure>
 
 @Composable
-public fun rememberMainScreenNavController(): MainScreenNavController {
+public fun rememberMainScreenNavController(): ScreenNavController<ScreenStructure> {
     return remember { ScreenNavControllerImpl(RootHomeScreenStructure.Home) }
 }
 

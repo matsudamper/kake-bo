@@ -1,6 +1,6 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
-public interface IScreenStructure<S> {
+public interface IScreenStructure<S: IScreenStructure<S>> {
     public val direction: Direction
 
     /***

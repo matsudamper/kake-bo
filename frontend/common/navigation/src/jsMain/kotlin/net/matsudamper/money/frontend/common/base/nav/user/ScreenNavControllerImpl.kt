@@ -17,7 +17,8 @@ import net.matsudamper.money.element.MoneyUsageId
 @Suppress("RegExpRedundantEscape", "EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 internal actual class ScreenNavControllerImpl actual constructor(
     initial: ScreenStructure,
-) : MainScreenNavController {
+) : ScreenNavController<ScreenStructure> {
+
     private val directions = Screens.entries
     private val parser = UrlPlaceHolderParser(directions)
     private var screenState: ScreenState by mutableStateOf(
