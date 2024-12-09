@@ -9,7 +9,6 @@ import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.SaveableStateHolder
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
@@ -40,10 +39,15 @@ import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScre
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.RootHomeMonthlyScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.category.RootHomeMonthlyCategoryScreenViewModel
 import net.matsudamper.money.ui.root.viewmodel.provideViewModel
+import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolder
+
+private enum class SavedStateHolderKey {
+    TabHolder,
+    UsageHost,
+}
 
 @Composable
 internal fun RootNavContent(
-    tabHolder: SaveableStateHolder,
     current: ScreenStructure.Root,
     rootScreenScaffoldListener: RootScreenScaffoldListener,
     viewModelEventHandlers: ViewModelEventHandlers,
@@ -59,17 +63,19 @@ internal fun RootNavContent(
     settingUiStateProvider: @Composable () -> RootSettingScreenUiState,
     windowInsets: PaddingValues,
 ) {
+    val tabHolder: SaveableStateHolder = rememberSaveableStateHolder(
+        id = SavedStateHolderKey.TabHolder,
+    )
     val koin = LocalKoin.current
-    val usageHost = rememberSaveableStateHolder()
+    val usageHost = rememberSaveableStateHolder(SavedStateHolderKey.UsageHost)
     when (current) {
         is RootHomeScreenStructure -> {
             tabHolder.SaveableStateProvider(current::class.toString()) {
-                val holder = rememberSaveableStateHolder()
+                val holder = rememberSaveableStateHolder(current::class.toString())
 
                 when (current) {
                     is RootHomeScreenStructure.Monthly -> {
                         holder.SaveableStateProvider(RootHomeScreenStructure.Monthly::class.simpleName!!) {
-                            val coroutineScope = rememberCoroutineScope()
                             val viewModel = provideViewModel {
                                 RootHomeMonthlyScreenViewModel(
                                     viewModelFeature = it,
@@ -97,7 +103,7 @@ internal fun RootNavContent(
                         when (current) {
                             is RootHomeScreenStructure.Home,
                             is RootHomeScreenStructure.PeriodAnalytics,
-                            -> {
+                                -> {
                                 holder.SaveableStateProvider(RootHomeScreenStructure.Period::class.simpleName!!) {
                                     RootHomeTabPeriodAllScreen(
                                         modifier = Modifier.fillMaxSize(),

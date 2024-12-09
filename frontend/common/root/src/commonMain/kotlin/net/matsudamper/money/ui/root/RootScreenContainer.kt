@@ -56,7 +56,6 @@ internal fun RootScreenContainer(
     holder.SaveableStateProvider(ScreenStructure.Root::class.toString()) {
         RootNavContent(
             windowInsets = windowInsets,
-            tabHolder = holder,
             current = current,
             rootScreenScaffoldListener = rootScreenScaffoldListener,
             viewModelEventHandlers = viewModelEventHandlers,
