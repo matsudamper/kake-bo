@@ -70,7 +70,7 @@ opentelemetryApi = { module = "io.opentelemetry:opentelemetry-api", version.requ
 # Android
 androidActivityActivityCompose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
 androidAppCompatAppCompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
-androidxCoreKtx = { module = "androidx.core:core-ktx", version.require = "1.13.1" }
+androidxCoreKtx = { module = "androidx.core:core-ktx", version.require = "1.15.0" }
 androidxLifecycleViewModelKtx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 androidxLifecycleViewModelCompose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 
