@@ -35,6 +35,8 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
+                implementation(projects.frontend.common.navigation)
+
                 implementation(kotlin("stdlib"))
                 implementation(libs.kotlin.serialization.json)
 
@@ -44,6 +46,8 @@ kotlin {
         }
         val jsMain by getting {
             dependencies {
+                implementation(projects.frontend.common.navigation)
+
                 implementation(kotlin("stdlib"))
                 implementation(libs.kotlin.serialization.json)
                 implementation(compose.html.core)

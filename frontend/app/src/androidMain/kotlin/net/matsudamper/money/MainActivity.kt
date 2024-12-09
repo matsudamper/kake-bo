@@ -2,11 +2,13 @@ package net.matsudamper.money
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import net.matsudamper.money.frontend.common.base.nav.user.rememberMainScreenNavController
 import net.matsudamper.money.frontend.common.ui.CustomTheme
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
@@ -24,10 +26,15 @@ class MainActivity : ComponentActivity() {
                 koin = remember { GlobalContext.get() },
             ) {
                 CustomTheme {
+                    val navController = rememberMainScreenNavController()
+                    BackHandler(navController.canGoBack) {
+                        navController.back()
+                    }
                     Content(
                         modifier = Modifier.fillMaxSize(),
                         globalEventSender = globalEventSender,
                         platformToolsProvider = { PlatFormToolsImpl(this) },
+                        navController = navController,
                     )
                 }
             }

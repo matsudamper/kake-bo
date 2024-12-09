@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenController
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenControllerImpl
 import net.matsudamper.money.frontend.common.base.nav.admin.AdminScreenType
-import net.matsudamper.money.frontend.common.ui.layout.BackHandler
 
 @Composable
 public fun AdminRootScreen(
@@ -24,9 +23,6 @@ public fun AdminRootScreen(
     val adminScreenControllerImpl = adminScreenController as AdminScreenControllerImpl
     val saveableStateHolder = rememberSaveableStateHolder()
     val screenStack = adminScreenControllerImpl.screen.collectAsState().value
-    BackHandler(screenStack.size > 1) {
-        adminScreenControllerImpl.popBackStack()
-    }
     Box(modifier = modifier.padding(windowInsets)) {
         when (screenStack.lastOrNull()) {
             null,

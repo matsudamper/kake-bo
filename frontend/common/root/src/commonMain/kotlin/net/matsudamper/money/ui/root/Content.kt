@@ -27,13 +27,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.Logger
+import net.matsudamper.money.frontend.common.base.nav.user.MainScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
-import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavControllerImpl
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.MySnackBarHost
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.layout.BackHandler
 import net.matsudamper.money.frontend.common.ui.screen.status.NotFoundScreen
 import net.matsudamper.money.frontend.common.usecase.LoginCheckUseCaseImpl
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
@@ -56,6 +55,7 @@ public fun Content(
     modifier: Modifier = Modifier,
     globalEventSender: EventSender<GlobalEvent>,
     platformToolsProvider: () -> PlatformTools,
+    navController: MainScreenNavController,
     composeSizeProvider: () -> MutableStateFlow<IntSize> = { MutableStateFlow(IntSize.Zero) },
 ) {
     val koin = LocalKoin.current
@@ -91,12 +91,6 @@ public fun Content(
         ) {
             Text(nonNullAlertDialogInfo)
         }
-    }
-
-    val navController = remember {
-        ScreenNavControllerImpl(
-            initial = RootHomeScreenStructure.Home,
-        )
     }
 
     remember(Unit) {
@@ -229,9 +223,6 @@ public fun Content(
     }
     LaunchedEffect(navController.currentNavigation) {
         rootViewModel.navigateChanged()
-    }
-    BackHandler(navController.canGoBack) {
-        navController.back()
     }
     Scaffold(
         modifier = modifier

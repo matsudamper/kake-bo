@@ -7,9 +7,9 @@ import androidx.compose.runtime.setValue
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 @Immutable
-public actual class ScreenNavControllerImpl actual constructor(
+internal actual class ScreenNavControllerImpl actual constructor(
     initial: ScreenStructure,
-) : ScreenNavController<ScreenStructure> {
+) : MainScreenNavController {
     private var internalCurrentNavigation: List<ScreenStructure> by mutableStateOf(mutableListOf(initial))
     override val currentNavigation: ScreenStructure get() = internalCurrentNavigation.last()
 
