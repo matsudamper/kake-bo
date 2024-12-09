@@ -26,6 +26,7 @@ public class SettingViewModel(
 
     public val uiState: StateFlow<RootSettingScreenUiState> = MutableStateFlow(
         RootSettingScreenUiState(
+            kotlinVersion = KotlinVersion.CURRENT.toString(),
             event = object : RootSettingScreenUiState.Event {
                 override fun onResume() {
                 }

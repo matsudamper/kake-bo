@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
@@ -37,6 +38,7 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 public data class RootSettingScreenUiState(
+    val kotlinVersion: String,
     val event: Event,
 ) {
     public interface Event {
@@ -178,6 +180,15 @@ private fun MainContent(
                             textFieldValue = it
                         },
                     )
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = "Kotlin version: ${uiState.kotlinVersion}",
+                            textAlign = TextAlign.End,
+                        )
+                    }
                 }
             }
         }
@@ -189,6 +200,7 @@ private fun MainContent(
 private fun Preview() {
     SettingRootScreen(
         uiState = RootSettingScreenUiState(
+            kotlinVersion = "preview",
             object : RootSettingScreenUiState.Event {
                 override fun onResume() {}
                 override fun onClickImapButton() {}
@@ -204,6 +216,7 @@ private fun Preview() {
             override val kakeboScaffoldListener: KakeboScaffoldListener = object : KakeboScaffoldListener {
                 override fun onClickTitle() {}
             }
+
             override fun onClickHome() {}
             override fun onClickList() {}
             override fun onClickSettings() {}
