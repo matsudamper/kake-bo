@@ -17,7 +17,7 @@ public interface ScreenNavController<D : IScreenStructure> {
 }
 
 @Composable
-public expect fun rememberMainScreenNavController(): ScreenNavController<ScreenStructure>
+public expect fun rememberMainScreenNavController(): ScreenNavController<IScreenStructure>
 
 public interface DirectionTitle {
     public val title: String

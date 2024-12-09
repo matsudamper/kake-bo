@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.RootSettingScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
@@ -94,7 +95,7 @@ public class SettingViewModel(
         }
     }
 
-    public fun requestNavigate(currentScreen: ScreenStructure) {
+    public fun requestNavigate(currentScreen: IScreenStructure) {
         viewModelScope.launch {
             backgroundEventSender.send {
                 it.navigate(

@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.Logger
+import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -55,7 +56,7 @@ public fun Content(
     modifier: Modifier = Modifier,
     globalEventSender: EventSender<GlobalEvent>,
     platformToolsProvider: () -> PlatformTools,
-    navController: ScreenNavController<ScreenStructure>,
+    navController: ScreenNavController<IScreenStructure>,
     composeSizeProvider: () -> MutableStateFlow<IntSize> = { MutableStateFlow(IntSize.Zero) },
 ) {
     val koin = LocalKoin.current

@@ -16,7 +16,7 @@ import net.matsudamper.money.element.MoneyUsageId
 @Stable
 internal class ScreenNavControllerImpl(
     initial: ScreenStructure,
-) : ScreenNavController<ScreenStructure> {
+) : ScreenNavController<IScreenStructure> {
 
     private val directions = Screens.entries
     private val parser = UrlPlaceHolderParser(directions)
@@ -26,7 +26,7 @@ internal class ScreenNavControllerImpl(
             lastHome = null,
         ),
     )
-    override val currentNavigation: ScreenStructure
+    override val currentNavigation: IScreenStructure
         get() {
             return screenState.current
         }
@@ -49,7 +49,7 @@ internal class ScreenNavControllerImpl(
         )
     }
 
-    override fun navigate(navigation: ScreenStructure) {
+    override fun navigate(navigation: IScreenStructure) {
         val url = navigation.createUrl()
         if (screenState.current.equalScreen(navigation)) {
             window.history.replaceState(
@@ -96,7 +96,7 @@ internal class ScreenNavControllerImpl(
         }.build().toMap()
     }
 
-    private fun updateScreenState(screenStructure: ScreenStructure) {
+    private fun updateScreenState(screenStructure: IScreenStructure) {
         screenState = screenState.copy(
             current = screenStructure,
             lastHome = when (screenStructure) {
@@ -230,7 +230,7 @@ internal class ScreenNavControllerImpl(
     }
 
     data class ScreenState(
-        val current: ScreenStructure,
-        val lastHome: ScreenStructure.Root?,
+        val current: IScreenStructure,
+        val lastHome: IScreenStructure?,
     )
 }
