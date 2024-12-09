@@ -1,12 +1,13 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
-@Immutable
+@Stable
 internal actual class ScreenNavControllerImpl actual constructor(
     initial: ScreenStructure,
 ) : MainScreenNavController {

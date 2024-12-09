@@ -1,12 +1,12 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 
 public typealias MainScreenNavController = ScreenNavController<ScreenStructure>
 
-@Immutable
+@Stable
 public interface ScreenNavController<D : IScreenStructure<D>> {
     public val currentNavigation: D
 
@@ -20,7 +20,7 @@ public interface ScreenNavController<D : IScreenStructure<D>> {
 }
 
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
-@Immutable
+@Stable
 internal expect class ScreenNavControllerImpl(
     initial: ScreenStructure,
 ) : MainScreenNavController
