@@ -97,15 +97,13 @@ internal actual class ScreenNavControllerImpl actual constructor(
     }
 
     private fun updateScreenState(screenStructure: ScreenStructure) {
-        screenState =
-            screenState.copy(
-                current = screenStructure,
-                lastHome =
-                when (screenStructure) {
-                    is ScreenStructure.Root -> screenStructure
-                    else -> screenState.lastHome
-                },
-            )
+        screenState = screenState.copy(
+            current = screenStructure,
+            lastHome = when (screenStructure) {
+                is ScreenStructure.Root -> screenStructure
+                else -> screenState.lastHome
+            },
+        )
     }
 
     private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryParams: Map<String, List<String>>): ScreenStructure {
