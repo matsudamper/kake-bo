@@ -173,7 +173,7 @@ private fun MainContent(
                     }
                     Text("TextField2")
                     BasicTextField(
-                        modifier  = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                             .clip(MaterialTheme.shapes.large)
                             .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
                             .padding(12.dp),
