@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
