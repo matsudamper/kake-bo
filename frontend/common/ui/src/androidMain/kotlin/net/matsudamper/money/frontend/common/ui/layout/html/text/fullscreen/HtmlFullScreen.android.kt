@@ -60,7 +60,7 @@ public actual fun FullScreenTextInput(
                 BasicTextField(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(8.dp))
+                        .clip(MaterialTheme.shapes.large)
                         .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f))
                         .padding(8.dp),
                     textStyle = MaterialTheme.typography.bodyLarge.merge(
