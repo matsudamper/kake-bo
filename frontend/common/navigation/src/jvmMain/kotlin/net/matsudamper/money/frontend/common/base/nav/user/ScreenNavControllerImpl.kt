@@ -5,9 +5,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
-@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 @Stable
-internal actual class ScreenNavControllerImpl actual constructor(
+internal class ScreenNavControllerImpl(
     initial: ScreenStructure,
 ) : ScreenNavController<ScreenStructure> {
     private var internalCurrentNavigation: List<ScreenStructure> by mutableStateOf(mutableListOf(initial))

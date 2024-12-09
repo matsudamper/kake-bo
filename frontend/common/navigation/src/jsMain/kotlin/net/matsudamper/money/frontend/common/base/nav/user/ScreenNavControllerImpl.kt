@@ -14,8 +14,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 
 @Stable
-@Suppress("RegExpRedundantEscape", "EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
-internal actual class ScreenNavControllerImpl actual constructor(
+internal class ScreenNavControllerImpl(
     initial: ScreenStructure,
 ) : ScreenNavController<ScreenStructure> {
 
@@ -230,7 +229,7 @@ internal actual class ScreenNavControllerImpl actual constructor(
         }
     }
 
-    public data class ScreenState(
+    data class ScreenState(
         val current: ScreenStructure,
         val lastHome: ScreenStructure.Root?,
     )
