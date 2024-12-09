@@ -59,7 +59,7 @@ val localProperties = Properties().also { properties ->
     }
 }
 android {
-    compileSdk = 34
+    compileSdk = 35
     namespace = "net.matsudamper.money"
     signingConfigs {
         create("release") {
