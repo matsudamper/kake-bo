@@ -14,12 +14,12 @@ import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import net.matsudamper.money.element.ImportedMailId
+import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
-import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -27,10 +27,10 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 public class AddMoneyUsageViewModel(
-    viewModelFeature: ViewModelFeature,
+    scopedObjectFeature: ScopedObjectFeature,
     private val graphqlApi: AddMoneyUsageScreenApi,
     private val graphqlClient: GraphqlClient,
-) : CommonViewModel(viewModelFeature) {
+) : CommonViewModel(scopedObjectFeature) {
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
@@ -48,7 +48,7 @@ public class AddMoneyUsageViewModel(
                     }
                 }
             val viewModel = CategorySelectDialogViewModel(
-                viewModelFeature = viewModelFeature,
+                scopedObjectFeature = scopedObjectFeature,
                 event = event,
                 apolloClient = graphqlClient.apolloClient,
             )

@@ -73,6 +73,7 @@ androidAppCompatAppCompat = { module = "androidx.appcompat:appcompat", version.r
 androidxCoreKtx = { module = "androidx.core:core-ktx", version.require = "1.15.0" }
 androidxLifecycleViewModelKtx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 androidxLifecycleViewModelCompose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+androidxLifecycleRuntimeCompose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 
 # Test
 kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "5.9.1" }

@@ -10,12 +10,12 @@ import kotlinx.datetime.LocalDateTime
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.screen.moneyusage.MoneyUsageScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
-import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -28,11 +28,11 @@ import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class MoneyUsageScreenViewModel(
-    viewModelFeature: ViewModelFeature,
+    scopedObjectFeature: ScopedObjectFeature,
     private val moneyUsageId: MoneyUsageId,
     private val api: MoneyUsageScreenViewModelApi,
     graphqlClient: GraphqlClient,
-) : CommonViewModel(viewModelFeature) {
+) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val eventSender = EventSender<Event>()
@@ -56,7 +56,7 @@ public class MoneyUsageScreenViewModel(
                 }
             }
         val viewModel = CategorySelectDialogViewModel(
-            viewModelFeature = viewModelFeature,
+            scopedObjectFeature = scopedObjectFeature,
             event = event,
             apolloClient = graphqlClient.apolloClient,
         )

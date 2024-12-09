@@ -23,7 +23,7 @@ internal fun ImportedMailPlainScreenContainer(
     val viewModel = provideViewModel {
         ImportedMailPlainViewModel(
             id = screen.id,
-            viewModelFeature = it,
+            scopedObjectFeature = it,
             graphqlClient = koin.get(),
         )
     }

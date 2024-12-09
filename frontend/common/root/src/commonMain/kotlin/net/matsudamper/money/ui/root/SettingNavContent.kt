@@ -71,7 +71,7 @@ internal fun SettingNavContent(
             holder.SaveableStateProvider(state::class.toString()) {
                 val viewModel = provideViewModel {
                     SettingCategoriesViewModel(
-                        viewModelFeature = it,
+                        scopedObjectFeature = it,
                         api = SettingScreenCategoryApi(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),
@@ -98,7 +98,7 @@ internal fun SettingNavContent(
             holder.SaveableStateProvider(state::class.toString()) {
                 val viewModel = provideViewModel {
                     SettingCategoryViewModel(
-                        viewModelFeature = it,
+                        scopedObjectFeature = it,
                         api = SettingScreenCategoryApi(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),
@@ -124,7 +124,7 @@ internal fun SettingNavContent(
             holder.SaveableStateProvider(state::class.toString()) {
                 val viewModel = provideViewModel {
                     ImapSettingViewModel(
-                        viewModelFeature = it,
+                        scopedObjectFeature = it,
                         graphqlQuery = GraphqlUserConfigQuery(
                             graphqlClient = koin.get(),
                         ),
@@ -146,9 +146,9 @@ internal fun SettingNavContent(
             holder.SaveableStateProvider(state::class.toString()) {
                 val viewModel = provideViewModel {
                     SettingMailCategoryFiltersViewModel(
-                        viewModelFeature = it,
+                        scopedObjectFeature = it,
                         pagingModel = ImportedMailCategoryFilterScreenPagingModel(
-                            viewModelFeature = it,
+                            scopedObjectFeature = it,
                             graphqlClient = koin.get(),
                         ),
                         api = SettingImportedMailCategoryFilterApi(
@@ -172,7 +172,7 @@ internal fun SettingNavContent(
             holder.SaveableStateProvider(state::class.toString()) {
                 val viewModel = provideViewModel {
                     ImportedMailFilterCategoryViewModel(
-                        viewModelFeature = it,
+                        scopedObjectFeature = it,
                         id = state.id,
                         api = ImportedMailFilterCategoryScreenGraphqlApi(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
@@ -198,7 +198,7 @@ internal fun SettingNavContent(
             holder.SaveableStateProvider(state::class.toString()) {
                 val viewModel = provideViewModel {
                     LoginSettingViewModel(
-                        viewModelFeature = it,
+                        scopedObjectFeature = it,
                         api = LoginSettingScreenApi(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),
@@ -226,7 +226,7 @@ internal fun SettingNavContent(
             holder.SaveableStateProvider(state::class.toString()) {
                 val viewModel = provideViewModel {
                     ApiSettingScreenViewModel(
-                        viewModelFeature = it,
+                        scopedObjectFeature = it,
                         api = ApiSettingScreenApi(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),

@@ -16,12 +16,12 @@ import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlyCategoryScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
-import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
@@ -33,11 +33,11 @@ import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class RootHomeMonthlyCategoryScreenViewModel(
-    viewModelFeature: ViewModelFeature,
+    scopedObjectFeature: ScopedObjectFeature,
     argument: RootHomeScreenStructure.MonthlyCategory,
     loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
     private val graphqlClient: GraphqlClient,
-) : CommonViewModel(viewModelFeature) {
+) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow =
         MutableStateFlow(
             ViewModelState(

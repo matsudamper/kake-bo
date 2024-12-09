@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.Logger
+import net.matsudamper.money.frontend.common.base.nav.NavHost
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -135,7 +136,7 @@ public fun Content(
 
     val rootUsageHostViewModel = provideViewModel {
         RootUsageHostViewModel(
-            viewModelFeature = it,
+            scopedObjectFeature = it,
             calendarPagingModel = RootUsageCalendarPagingModel(
                 coroutineScope = rootCoroutineScope,
                 graphqlClient = koin.get(),
@@ -144,12 +145,12 @@ public fun Content(
     }
     val mailScreenViewModel = provideViewModel {
         HomeAddTabScreenViewModel(
-            viewModelFeature = it,
+            scopedObjectFeature = it,
         )
     }
     val settingViewModel = provideViewModel {
         SettingViewModel(
-            viewModelFeature = it,
+            scopedObjectFeature = it,
             globalEventSender = globalEventSender,
             ioDispatchers = Dispatchers.IO,
         )
@@ -245,91 +246,95 @@ public fun Content(
         Box(
             modifier = Modifier.fillMaxSize(),
         ) {
-            when (val current = navController.currentBackstackEntry.structure) {
-                is ScreenStructure -> {
-                    when (current) {
-                        is ScreenStructure.Root -> {
-                            RootScreenContainer(
-                                current = current,
-                                settingViewModel = settingViewModel,
-                                mailScreenViewModel = mailScreenViewModel,
-                                rootUsageHostViewModel = rootUsageHostViewModel,
-                                viewModelEventHandlers = viewModelEventHandlers,
-                                holder = rootHolder,
-                                rootScreenScaffoldListener = rootScreenScaffoldListener,
-                                rootCoroutineScope = rootCoroutineScope,
-                                globalEventSender = globalEventSender,
-                                globalEvent = globalEvent,
-                                windowInsets = paddingValues,
-                            )
-                        }
+            NavHost(
+                navController = navController,
+            ) {
+                when (val current = it.structure) {
+                    is ScreenStructure -> {
+                        when (current) {
+                            is ScreenStructure.Root -> {
+                                RootScreenContainer(
+                                    current = current,
+                                    settingViewModel = settingViewModel,
+                                    mailScreenViewModel = mailScreenViewModel,
+                                    rootUsageHostViewModel = rootUsageHostViewModel,
+                                    viewModelEventHandlers = viewModelEventHandlers,
+                                    holder = rootHolder,
+                                    rootScreenScaffoldListener = rootScreenScaffoldListener,
+                                    rootCoroutineScope = rootCoroutineScope,
+                                    globalEventSender = globalEventSender,
+                                    globalEvent = globalEvent,
+                                    windowInsets = paddingValues,
+                                )
+                            }
 
-                        ScreenStructure.Login -> {
-                            LoginScreenContainer(
-                                navController = navController,
-                                globalEventSender = globalEventSender,
-                                windowInsets = paddingValues,
-                            )
-                        }
+                            ScreenStructure.Login -> {
+                                LoginScreenContainer(
+                                    navController = navController,
+                                    globalEventSender = globalEventSender,
+                                    windowInsets = paddingValues,
+                                )
+                            }
 
-                        ScreenStructure.Admin -> {
-                            AdminContainer(
-                                windowInsets = paddingValues,
-                            )
-                        }
+                            ScreenStructure.Admin -> {
+                                AdminContainer(
+                                    windowInsets = paddingValues,
+                                )
+                            }
 
-                        ScreenStructure.NotFound -> {
-                            NotFoundScreen(
-                                paddingValues = paddingValues,
-                            )
-                        }
+                            ScreenStructure.NotFound -> {
+                                NotFoundScreen(
+                                    paddingValues = paddingValues,
+                                )
+                            }
 
-                        is ScreenStructure.AddMoneyUsage -> {
-                            AddMoneyUsageScreenContainer(
-                                rootCoroutineScope = rootCoroutineScope,
-                                current = current,
-                                viewModelEventHandlers = viewModelEventHandlers,
-                                windowInsets = paddingValues,
-                            )
-                        }
+                            is ScreenStructure.AddMoneyUsage -> {
+                                AddMoneyUsageScreenContainer(
+                                    rootCoroutineScope = rootCoroutineScope,
+                                    current = current,
+                                    viewModelEventHandlers = viewModelEventHandlers,
+                                    windowInsets = paddingValues,
+                                )
+                            }
 
-                        is ScreenStructure.ImportedMail -> {
-                            ImportedMailScreenContainer(
-                                current = current,
-                                viewModelEventHandlers = viewModelEventHandlers,
-                                windowInsets = paddingValues,
-                            )
-                        }
+                            is ScreenStructure.ImportedMail -> {
+                                ImportedMailScreenContainer(
+                                    current = current,
+                                    viewModelEventHandlers = viewModelEventHandlers,
+                                    windowInsets = paddingValues,
+                                )
+                            }
 
-                        is ScreenStructure.ImportedMailHTML -> {
-                            ImportedMailHtmlContainer(
-                                current = current,
-                                viewModelEventHandlers = viewModelEventHandlers,
-                                kakeboScaffoldListener = kakeboScaffoldListener,
-                                windowInsets = paddingValues,
-                            )
-                        }
+                            is ScreenStructure.ImportedMailHTML -> {
+                                ImportedMailHtmlContainer(
+                                    current = current,
+                                    viewModelEventHandlers = viewModelEventHandlers,
+                                    kakeboScaffoldListener = kakeboScaffoldListener,
+                                    windowInsets = paddingValues,
+                                )
+                            }
 
-                        is ScreenStructure.ImportedMailPlain -> {
-                            ImportedMailPlainScreenContainer(
-                                screen = current,
-                                viewModelEventHandlers = viewModelEventHandlers,
-                                kakeboScaffoldListener = kakeboScaffoldListener,
-                                windowInsets = paddingValues,
-                            )
-                        }
+                            is ScreenStructure.ImportedMailPlain -> {
+                                ImportedMailPlainScreenContainer(
+                                    screen = current,
+                                    viewModelEventHandlers = viewModelEventHandlers,
+                                    kakeboScaffoldListener = kakeboScaffoldListener,
+                                    windowInsets = paddingValues,
+                                )
+                            }
 
-                        is ScreenStructure.MoneyUsage -> {
-                            MoneyUsageContainer(
-                                screen = current,
-                                viewModelEventHandlers = viewModelEventHandlers,
-                                kakeboScaffoldListener = kakeboScaffoldListener,
-                                windowInsets = paddingValues,
-                            )
+                            is ScreenStructure.MoneyUsage -> {
+                                MoneyUsageContainer(
+                                    screen = current,
+                                    viewModelEventHandlers = viewModelEventHandlers,
+                                    kakeboScaffoldListener = kakeboScaffoldListener,
+                                    windowInsets = paddingValues,
+                                )
+                            }
                         }
                     }
+                    else -> throw NotImplementedError("$current is not implemented")
                 }
-                else -> throw NotImplementedError("$current is not implemented")
             }
         }
     }

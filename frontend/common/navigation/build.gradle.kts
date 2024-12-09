@@ -42,6 +42,8 @@ kotlin {
 
                 implementation(compose.runtime)
                 implementation(compose.ui)
+                implementation(libs.androidxLifecycleRuntimeCompose)
+                implementation(libs.androidxLifecycleViewModelCompose)
             }
         }
         val jvmTest by getting {

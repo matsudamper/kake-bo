@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
@@ -25,7 +23,7 @@ internal fun ImportedMailHtmlContainer(
     val viewModel = provideViewModel {
         ImportedMailHtmlViewModel(
             id = current.id,
-            viewModelFeature = it,
+            scopedObjectFeature = it,
             graphqlClient = koin.get(),
         )
     }

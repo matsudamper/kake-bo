@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -25,7 +23,7 @@ internal fun AddMoneyUsageScreenContainer(
     val koin = LocalKoin.current
     val viewModel = provideViewModel { viewModelFeature ->
         AddMoneyUsageViewModel(
-            viewModelFeature = viewModelFeature,
+            scopedObjectFeature = viewModelFeature,
             graphqlApi = AddMoneyUsageScreenApi(
                 graphqlClient = koin.get(),
             ),

@@ -5,10 +5,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlin.reflect.KClass
-import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
+import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 
 internal actual fun <T : Any> createViewModelProvider(
-    factory: (ViewModelFeature) -> T,
+    factory: (ScopedObjectFeature) -> T,
     kClass: KClass<T>,
 ): ViewModelProvider<T> {
     return ViewModelProviderImpl(
@@ -18,7 +18,7 @@ internal actual fun <T : Any> createViewModelProvider(
 }
 
 private class ViewModelProviderImpl<T : Any>(
-    private val factory: (ViewModelFeature) -> T,
+    private val factory: (ScopedObjectFeature) -> T,
     private val kClass: KClass<T>,
 ) : ViewModelProvider<T> {
     @Composable
@@ -45,7 +45,7 @@ private class ViewModelProviderImpl<T : Any>(
                 id = id,
             ).toString(),
         ) {
-            PlatformViewModelWrapper(factory(ViewModelFeatureImpl(coroutineViewModel)))
+            PlatformViewModelWrapper(factory(ScopedObjectFeatureImpl(coroutineViewModel)))
         }.viewModel
     }
 }
@@ -64,9 +64,9 @@ private class PlatformCoroutineViewModel : ViewModel() {
     }
 }
 
-private class ViewModelFeatureImpl(
+private class ScopedObjectFeatureImpl(
     private val coroutineViewModel: PlatformCoroutineViewModel,
-) : ViewModelFeature {
+) : ScopedObjectFeature {
     override val coroutineScope get() = coroutineViewModel.viewModelScope
 }
 

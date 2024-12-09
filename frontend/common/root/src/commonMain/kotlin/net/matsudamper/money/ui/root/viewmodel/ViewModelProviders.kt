@@ -29,7 +29,7 @@ internal class ViewModelProviders(
         return createViewModelProvider {
             RootViewModel(
                 loginCheckUseCase = koin.get(),
-                viewModelFeature = it,
+                scopedObjectFeature = it,
                 navController = navController,
             )
         }.get()
@@ -43,7 +43,7 @@ internal class ViewModelProviders(
     ): MoneyUsagesCalendarViewModel {
         return createViewModelProvider {
             MoneyUsagesCalendarViewModel(
-                viewModelFeature = it,
+                scopedObjectFeature = it,
                 rootUsageHostViewModel = rootUsageHostViewModel,
                 yearMonth = yearMonth,
             )
@@ -57,7 +57,7 @@ internal class ViewModelProviders(
     ): MoneyUsagesListViewModel {
         return createViewModelProvider {
             MoneyUsagesListViewModel(
-                viewModelFeature = it,
+                scopedObjectFeature = it,
                 rootUsageHostViewModel = rootUsageHostViewModel,
                 graphqlClient = koin.get(),
             )
@@ -69,7 +69,7 @@ internal class ViewModelProviders(
         val coroutineScope = rememberCoroutineScope()
         return createViewModelProvider {
             MailImportViewModel(
-                viewModelFeature = it,
+                scopedObjectFeature = it,
                 ioDispatcher = Dispatchers.IO,
                 graphqlApi = MailImportScreenGraphqlApi(
                     graphqlClient = koin.get(),
@@ -84,7 +84,7 @@ internal class ViewModelProviders(
         val coroutineScope = rememberCoroutineScope()
         return createViewModelProvider {
             ImportedMailListViewModel(
-                viewModelFeature = it,
+                scopedObjectFeature = it,
                 ioDispatcher = Dispatchers.IO,
                 graphqlApi = MailLinkScreenGraphqlApi(
                     graphqlClient = koin.get(),
@@ -97,7 +97,7 @@ internal class ViewModelProviders(
     fun rootHomeTabPeriodAllContentViewModel(): RootHomeTabPeriodAllContentViewModel {
         return createViewModelProvider {
             RootHomeTabPeriodAllContentViewModel(
-                viewModelFeature = it,
+                scopedObjectFeature = it,
                 api = RootHomeTabScreenApi(
                     graphqlClient = koin.get(),
                 ),

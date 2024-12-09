@@ -3,8 +3,6 @@ package net.matsudamper.money.ui.root
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import net.matsudamper.money.frontend.common.base.nav.admin.rememberAdminScreenController
 import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminAddUserScreenViewModel
@@ -21,7 +19,7 @@ internal fun AdminContainer(
 
     val adminRootViewModel = provideViewModel {
         AdminRootScreenViewModel(
-            viewModelFeature = it,
+            scopedObjectFeature = it,
             controller = controller,
             graphqlClient = koin.get(),
         )
@@ -31,7 +29,7 @@ internal fun AdminContainer(
         adminLoginScreenUiStateProvider = {
             val loginViewModel = provideViewModel {
                 AdminLoginScreenViewModel(
-                    viewModelFeature = it,
+                    scopedObjectFeature = it,
                     controller = controller,
                     graphqlClient = koin.get(),
                 )
@@ -44,7 +42,7 @@ internal fun AdminContainer(
         adminAddUserUiStateProvider = {
             val adminAddUserScreenViewModel = provideViewModel {
                 AdminAddUserScreenViewModel(
-                    viewModelFeature = it,
+                    scopedObjectFeature = it,
                     controller = controller,
                     graphqlClient = koin.get(),
                 )

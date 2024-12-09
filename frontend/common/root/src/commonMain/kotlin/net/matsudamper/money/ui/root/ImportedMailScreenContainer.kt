@@ -5,14 +5,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import net.matsudamper.money.frontend.common.base.nav.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.importedmail.root.ImportedMailScreen
 import net.matsudamper.money.frontend.common.viewmodel.importedmail.root.ImportedMailScreenGraphqlApi
 import net.matsudamper.money.frontend.common.viewmodel.importedmail.root.ImportedMailScreenViewModel
-import net.matsudamper.money.ui.root.viewmodel.provideViewModel
 
 @Composable
 internal fun ImportedMailScreenContainer(
@@ -21,9 +19,9 @@ internal fun ImportedMailScreenContainer(
     windowInsets: PaddingValues,
 ) {
     val koin = LocalKoin.current
-    val viewModel = provideViewModel {
+    val viewModel = LocalScopedObjectStore.current.putOrGet(current.id) {
         ImportedMailScreenViewModel(
-            viewModelFeature = it,
+            scopedObjectFeature = it,
             api = ImportedMailScreenGraphqlApi(
                 graphqlClient = koin.get(),
             ),

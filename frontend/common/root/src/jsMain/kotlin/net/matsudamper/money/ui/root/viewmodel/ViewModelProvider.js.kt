@@ -5,10 +5,10 @@ import androidx.compose.runtime.remember
 import kotlin.reflect.KClass
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
+import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 
 internal actual fun <T : Any> createViewModelProvider(
-    factory: (ViewModelFeature) -> T,
+    factory: (ScopedObjectFeature) -> T,
     kClass: KClass<T>,
 ): ViewModelProvider<T> {
     return ViewModelProviderImpl(
@@ -17,7 +17,7 @@ internal actual fun <T : Any> createViewModelProvider(
 }
 
 private class ViewModelProviderImpl<T : Any>(
-    private val factory: (ViewModelFeature) -> T,
+    private val factory: (ScopedObjectFeature) -> T,
 ) : ViewModelProvider<T> {
     @Composable
     override fun get(): T {
@@ -28,7 +28,7 @@ private class ViewModelProviderImpl<T : Any>(
     override fun get(id: String): T {
         return remember {
             factory(
-                ViewModelProviderScopeImpl(
+                ScopedObjectProviderScopeImpl(
                     // TODO Navigationと共にLifecycleを作成する
                     coroutineScope = CoroutineScope(Job()),
                 ),
@@ -37,6 +37,6 @@ private class ViewModelProviderImpl<T : Any>(
     }
 }
 
-private class ViewModelProviderScopeImpl(
+private class ScopedObjectProviderScopeImpl(
     override val coroutineScope: CoroutineScope,
-) : ViewModelFeature
+) : ScopedObjectFeature

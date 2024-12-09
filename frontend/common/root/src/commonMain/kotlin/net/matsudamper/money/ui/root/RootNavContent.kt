@@ -77,7 +77,7 @@ internal fun RootNavContent(
                         holder.SaveableStateProvider(RootHomeScreenStructure.Monthly::class.simpleName!!) {
                             val viewModel = provideViewModel {
                                 RootHomeMonthlyScreenViewModel(
-                                    viewModelFeature = it,
+                                    scopedObjectFeature = it,
                                     loginCheckUseCase = koin.get(),
                                     argument = current,
                                     graphqlClient = koin.get(),
@@ -117,7 +117,7 @@ internal fun RootNavContent(
                                 val categoryViewModel = provideViewModel {
                                     RootHomeTabPeriodCategoryContentViewModel(
                                         initialCategoryId = current.categoryId,
-                                        viewModelFeature = it,
+                                        scopedObjectFeature = it,
                                         api = RootHomeTabScreenApi(
                                             graphqlClient = koin.get(),
                                         ),
@@ -145,7 +145,7 @@ internal fun RootNavContent(
                         val monthlyCategoryViewModel = provideViewModel {
                             RootHomeMonthlyCategoryScreenViewModel(
                                 argument = current,
-                                viewModelFeature = it,
+                                scopedObjectFeature = it,
                                 loginCheckUseCase = koin.get(),
                                 graphqlClient = koin.get(),
                             )

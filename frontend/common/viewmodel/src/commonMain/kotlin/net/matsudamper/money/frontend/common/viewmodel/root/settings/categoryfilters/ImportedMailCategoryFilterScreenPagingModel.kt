@@ -7,8 +7,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
+import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
-import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFiltersScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloPagingResponseCollector
@@ -17,9 +17,9 @@ import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersQu
 
 // TODO 後でViewModelではなくする
 public class ImportedMailCategoryFilterScreenPagingModel(
-    viewModelFeature: ViewModelFeature,
+    scopedObjectFeature: ScopedObjectFeature,
     graphqlClient: GraphqlClient,
-) : CommonViewModel(viewModelFeature) {
+) : CommonViewModel(scopedObjectFeature) {
     private val pagingState =
         ApolloPagingResponseCollector<ImportedMailCategoryFiltersScreenPagingQuery.Data>(
             graphqlClient = graphqlClient,

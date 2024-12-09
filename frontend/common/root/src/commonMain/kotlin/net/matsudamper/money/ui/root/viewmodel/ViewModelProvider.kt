@@ -2,7 +2,7 @@ package net.matsudamper.money.ui.root.viewmodel
 
 import androidx.compose.runtime.Composable
 import kotlin.reflect.KClass
-import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
+import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 
 internal interface ViewModelProvider<T> {
     @Composable
@@ -13,12 +13,12 @@ internal interface ViewModelProvider<T> {
 }
 
 internal expect fun <T : Any> createViewModelProvider(
-    factory: (ViewModelFeature) -> T,
+    factory: (ScopedObjectFeature) -> T,
     kClass: KClass<T>,
 ): ViewModelProvider<T>
 
 internal inline fun <reified T : Any> createViewModelProvider(
-    noinline factory: (ViewModelFeature) -> T,
+    noinline factory: (ScopedObjectFeature) -> T,
 ): ViewModelProvider<T> {
     return createViewModelProvider(
         factory = factory,
@@ -28,7 +28,7 @@ internal inline fun <reified T : Any> createViewModelProvider(
 
 @Composable
 internal inline fun <reified T : Any> provideViewModel(
-    noinline factory: (ViewModelFeature) -> T,
+    noinline factory: (ScopedObjectFeature) -> T,
 ): T {
     return createViewModelProvider(
         factory = factory,

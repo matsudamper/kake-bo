@@ -7,9 +7,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoriesScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
-import net.matsudamper.money.frontend.common.viewmodel.ViewModelFeature
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
@@ -17,8 +17,8 @@ import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenCategoriesP
 
 public class SettingCategoriesViewModel(
     private val api: SettingScreenCategoryApi,
-    viewModelFeature: ViewModelFeature,
-) : CommonViewModel(viewModelFeature) {
+    scopedObjectFeature: ScopedObjectFeature,
+) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> =
         MutableStateFlow(
             ViewModelState(

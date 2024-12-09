@@ -26,7 +26,7 @@ internal fun LoginScreenContainer(
     val coroutineScope = rememberCoroutineScope()
     val viewModel = provideViewModel {
         LoginScreenViewModel(
-            viewModelFeature = it,
+            scopedObjectFeature = it,
             navController = navController,
             graphqlQuery = GraphqlUserLoginQuery(
                 graphqlClient = koin.get(),

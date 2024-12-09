@@ -6,16 +6,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import kotlinx.browser.window
+import net.matsudamper.money.frontend.common.base.nav.ScopedObjectStore
 
 @Stable
 internal class ScreenNavControllerImpl(
     private val initial: IScreenStructure,
     private val currentScreenStructureProvider: () -> IScreenStructure,
 ) : ScreenNavController {
+    private val scopedObjectStoreProvider = mutableMapOf<IScreenStructure, ScopedObjectStore>()
 
-    private var backStackEntries: List<ScreenNavController.NavStackEntry> by mutableStateOf(
+    private var backStackEntries: List<InternalNavStackEntry> by mutableStateOf(
         listOf(
-            ScreenNavController.NavStackEntry(
+            InternalNavStackEntry(
                 structure = initial,
                 isHome = true,
             ),
@@ -23,7 +25,14 @@ internal class ScreenNavControllerImpl(
     )
     override val currentBackstackEntry: ScreenNavController.NavStackEntry
         get() {
-            return backStackEntries.last()
+            val item = backStackEntries.last()
+            return ScreenNavController.NavStackEntry(
+                structure = item.structure,
+                isHome = item.isHome,
+                scopedObjectStore = scopedObjectStoreProvider.getOrPut(item.structure) {
+                    ScopedObjectStore()
+                },
+            )
         }
     override val canGoBack: Boolean = true
 
@@ -73,6 +82,7 @@ internal class ScreenNavControllerImpl(
     }
 
     override fun back() {
+        // TODO: Storeを消すか検討する
         window.history.back()
     }
 
@@ -90,4 +100,9 @@ internal class ScreenNavControllerImpl(
             )
         }
     }
+
+    private data class InternalNavStackEntry(
+        val structure: IScreenStructure,
+        val isHome: Boolean,
+    )
 }
