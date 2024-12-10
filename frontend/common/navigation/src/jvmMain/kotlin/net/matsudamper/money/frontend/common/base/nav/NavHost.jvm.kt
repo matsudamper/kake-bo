@@ -10,7 +10,8 @@ public actual fun rememberScopedObjectStoreOwner(key: String): ScopedObjectStore
         key = key,
         initializer = {
             ScopedObjectStoreOwnerImpl()
-        })
+        },
+    )
     return owner
 }
 

@@ -15,7 +15,7 @@ public class ScopedObjectStore {
         return putOrGet(id, T::class, provider)
     }
 
-    public fun <T : Any> putOrGet(id: Any, clazz: KClass<T>,provider: (ScopedObjectFeature) -> T): T {
+    public fun <T : Any> putOrGet(id: Any, clazz: KClass<T>, provider: (ScopedObjectFeature) -> T): T {
         val item = store[Key(id, clazz)]
         if (item != null) {
             @Suppress("UNCHECKED_CAST")
