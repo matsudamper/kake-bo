@@ -77,15 +77,16 @@ internal class ScreenNavControllerImpl(
     }
 
     override fun back() {
-        // TODO: Storeを消すか検討する
         window.history.back()
     }
 
     private fun updateScreenState(screenStructure: IScreenStructure) {
+        /**
+         * JSの場合はキャンセルさせず、上に積む。ブラウザの履歴のハンドリングが大変なので
+         */
         backstackEntries = backstackEntries.toMutableStateList().also {
-            val last = it.removeLast()
             it.add(
-                last.copy(
+                ScreenNavController.NavStackEntry(
                     structure = screenStructure,
                     isHome = when (screenStructure) {
                         is ScreenStructure.Root -> true
