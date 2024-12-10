@@ -12,7 +12,6 @@ internal class ScreenNavControllerImpl(
     private val initial: IScreenStructure,
     private val currentScreenStructureProvider: () -> IScreenStructure,
 ) : ScreenNavController {
-    private val removedBackstackEntryListeners = mutableSetOf<ScreenNavController.RemovedBackstackEntryListener>()
     override var backstackEntries: List<ScreenNavController.NavStackEntry> by mutableStateOf(
         listOf(
             ScreenNavController.NavStackEntry(

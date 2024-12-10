@@ -1,10 +1,10 @@
 package net.matsudamper.money.ui.root.viewmodel
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.matsudamper.money.frontend.common.base.IO
+import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.viewmodel.root.RootViewModel
@@ -26,13 +26,13 @@ internal class ViewModelProviders(
 ) {
     @Composable
     fun rootViewModel(): RootViewModel {
-        return createViewModelProvider {
+        return LocalScopedObjectStore.current.putOrGet(Unit) { feature ->
             RootViewModel(
                 loginCheckUseCase = koin.get(),
-                scopedObjectFeature = it,
+                scopedObjectFeature = feature,
                 navController = navController,
             )
-        }.get()
+        }
     }
 
     @Composable
@@ -41,13 +41,13 @@ internal class ViewModelProviders(
         rootUsageHostViewModel: RootUsageHostViewModel,
         yearMonth: ScreenStructure.Root.Usage.Calendar.YearMonth?,
     ): MoneyUsagesCalendarViewModel {
-        return createViewModelProvider {
+        return LocalScopedObjectStore.current.putOrGet(Unit) { feature ->
             MoneyUsagesCalendarViewModel(
-                scopedObjectFeature = it,
+                scopedObjectFeature = feature,
                 rootUsageHostViewModel = rootUsageHostViewModel,
                 yearMonth = yearMonth,
             )
-        }.get()
+        }
     }
 
     @Composable
@@ -55,42 +55,40 @@ internal class ViewModelProviders(
         coroutineScope: CoroutineScope,
         rootUsageHostViewModel: RootUsageHostViewModel,
     ): MoneyUsagesListViewModel {
-        return createViewModelProvider {
+        return LocalScopedObjectStore.current.putOrGet(Unit) { feature ->
             MoneyUsagesListViewModel(
-                scopedObjectFeature = it,
+                scopedObjectFeature = feature,
                 rootUsageHostViewModel = rootUsageHostViewModel,
                 graphqlClient = koin.get(),
             )
-        }.get()
+        }
     }
 
     @Composable
     fun mailImportViewModel(): MailImportViewModel {
-        val coroutineScope = rememberCoroutineScope()
-        return createViewModelProvider {
+        return LocalScopedObjectStore.current.putOrGet(Unit) { feature ->
             MailImportViewModel(
-                scopedObjectFeature = it,
+                scopedObjectFeature = feature,
                 ioDispatcher = Dispatchers.IO,
                 graphqlApi = MailImportScreenGraphqlApi(
                     graphqlClient = koin.get(),
                 ),
                 loginCheckUseCase = koin.get(),
             )
-        }.get()
+        }
     }
 
     @Composable
     fun importedMailListViewModel(): ImportedMailListViewModel {
-        val coroutineScope = rememberCoroutineScope()
-        return createViewModelProvider {
+        return LocalScopedObjectStore.current.putOrGet(Unit) { feature ->
             ImportedMailListViewModel(
-                scopedObjectFeature = it,
+                scopedObjectFeature = feature,
                 ioDispatcher = Dispatchers.IO,
                 graphqlApi = MailLinkScreenGraphqlApi(
                     graphqlClient = koin.get(),
                 ),
             )
-        }.get()
+        }
     }
 
     @Composable

@@ -18,14 +18,14 @@ public fun NavHost(
     content: @Composable (ScreenNavController.NavStackEntry) -> Unit,
 ) {
     val holder = rememberSaveableStateHolder()
-    val scopedObjectStoreOwner = rememberScopedObjectStoreOwner()
+    val scopedObjectStoreOwner = rememberScopedObjectStoreOwner("NavHost")
     run {
         var beforeEntries: List<ScreenNavController.NavStackEntry> by remember { mutableStateOf(listOf()) }
         LaunchedEffect(navController.backstackEntries) {
             beforeEntries
                 .filterNot { navController.backstackEntries.contains(it) }
                 .forEach { entry ->
-                    scopedObjectStoreOwner.removeScopedObjectStore(entry.structure)
+                    holder.removeState(entry.structure.toString())
                 }
             beforeEntries = navController.backstackEntries
         }
@@ -52,11 +52,11 @@ public fun NavHost(
     }
 }
 
-internal interface ScopedObjectStoreOwner {
-    fun createOrGetScopedObjectStore(key: Any): ScopedObjectStore
-    fun removeScopedObjectStore(key: Any)
-    fun keys(): Set<Any>
+public interface ScopedObjectStoreOwner {
+    public fun createOrGetScopedObjectStore(key: Any): ScopedObjectStore
+    public fun removeScopedObjectStore(key: Any)
+    public fun keys(): Set<Any>
 }
 
 @Composable
-internal expect fun rememberScopedObjectStoreOwner(): ScopedObjectStoreOwner
+public expect fun rememberScopedObjectStoreOwner(key: String): ScopedObjectStoreOwner

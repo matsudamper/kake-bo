@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 
 @Composable
-internal actual fun rememberScopedObjectStoreOwner(): ScopedObjectStoreOwner {
-    return remember { NavViewModel() }
+public actual fun rememberScopedObjectStoreOwner(key: String): ScopedObjectStoreOwner {
+    return remember(key) { NavViewModel() }
 }
 
 private class NavViewModel() : ScopedObjectStoreOwner {

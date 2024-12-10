@@ -47,7 +47,7 @@ public class RootUsageHostViewModel(
             override fun onClickList() {
                 viewModelScope.launch {
                     rootNavigationEventSender.send {
-                        it.navigate(ScreenStructure.Root.Usage.List())
+                        it.navigate(ScreenStructure.Root.Usage.List)
                     }
                 }
             }

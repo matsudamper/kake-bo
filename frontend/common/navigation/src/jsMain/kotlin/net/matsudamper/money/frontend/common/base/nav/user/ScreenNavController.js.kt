@@ -80,7 +80,7 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
             ScreenStructure.Root.Settings.Login
         }
 
-        Screens.UsageList -> ScreenStructure.Root.Usage.List()
+        Screens.UsageList -> ScreenStructure.Root.Usage.List
         Screens.UsageCalendar ->
             ScreenStructure.Root.Usage.Calendar.fromQueryParams(
                 queryParams = queryParams,
@@ -90,7 +90,7 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
         Screens.Admin -> ScreenStructure.Admin
         Screens.MailImport -> ScreenStructure.Root.Add.Import
         Screens.Add -> {
-            ScreenStructure.Root.Add.Root()
+            ScreenStructure.Root.Add.Root
         }
 
         Screens.AddMoneyUsage -> {

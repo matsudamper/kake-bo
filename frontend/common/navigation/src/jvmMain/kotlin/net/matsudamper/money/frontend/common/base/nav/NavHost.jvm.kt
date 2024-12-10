@@ -5,10 +5,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 
 @Composable
-internal actual fun rememberScopedObjectStoreOwner(): ScopedObjectStoreOwner {
-    val owner = viewModel(initializer = {
-        ScopedObjectStoreOwnerImpl()
-    })
+public actual fun rememberScopedObjectStoreOwner(key: String): ScopedObjectStoreOwner {
+    val owner = viewModel(
+        key = key,
+        initializer = {
+            ScopedObjectStoreOwnerImpl()
+        })
     return owner
 }
 

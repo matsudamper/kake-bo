@@ -28,7 +28,7 @@ public sealed interface ScreenStructure : IScreenStructure {
                 override val direction: Screens = Screens.SettingsCategory
             }
 
-            public class Category(
+            public data class Category(
                 public val id: MoneyUsageCategoryId,
             ) : Settings {
                 override val direction: Screens = Screens.SettingsCategoryId
@@ -54,11 +54,11 @@ public sealed interface ScreenStructure : IScreenStructure {
         }
 
         public sealed interface Add : Root {
-            public class Root : Add {
+            public data object Root : Add {
                 override val direction: Screens = Screens.Add
             }
 
-            public class Imported(
+            public data class Imported(
                 public val isLinked: Boolean?,
             ) : Add {
                 override val direction: Screens = Screens.ImportedMailList
@@ -102,7 +102,7 @@ public sealed interface ScreenStructure : IScreenStructure {
         }
 
         public sealed interface Usage : Root {
-            public class List : Usage {
+            public data object List : Usage {
                 override val direction: Screens = Screens.UsageList
 
                 override fun equalScreen(other: IScreenStructure): Boolean {

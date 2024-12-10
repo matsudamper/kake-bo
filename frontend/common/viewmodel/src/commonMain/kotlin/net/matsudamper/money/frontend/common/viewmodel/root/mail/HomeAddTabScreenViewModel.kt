@@ -68,7 +68,7 @@ public class HomeAddTabScreenViewModel(
         viewModelScope.launch {
             navigateEventSender.send {
                 it.navigate(
-                    ScreenStructure.Root.Add.Root(),
+                    ScreenStructure.Root.Add.Root,
                 )
             }
         }
