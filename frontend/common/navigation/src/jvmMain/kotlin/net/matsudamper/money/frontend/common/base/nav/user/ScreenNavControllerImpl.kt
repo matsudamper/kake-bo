@@ -14,7 +14,7 @@ internal class ScreenNavControllerImpl(
 ) : ScreenNavController {
     private val removedBackstackEntryListeners = mutableSetOf<ScreenNavController.RemovedBackstackEntryListener>()
     override var backstackEntries: List<ScreenNavController.NavStackEntry> by mutableStateOf(
-        mutableListOf(
+        listOf(
             ScreenNavController.NavStackEntry(
                 structure = initial,
                 isHome = true,
@@ -45,10 +45,6 @@ internal class ScreenNavControllerImpl(
         backstackEntries = backstackEntries.toMutableStateList().also {
             it.remove(dropTarget)
         }
-//        val hasOtherBothStructure = internalCurrentNavigation.any { it.structure == dropTarget.structure }
-//        if (hasOtherBothStructure.not()) {
-//            navViewModel.removeScopedObjectStore(dropTarget.structure)
-//        }
     }
 
     override fun navigateToHome() {
@@ -58,14 +54,6 @@ internal class ScreenNavControllerImpl(
             }
             back()
         }
-    }
-
-    override fun addRemovedBackstackEntryListener(listener: ScreenNavController.RemovedBackstackEntryListener) {
-        removedBackstackEntryListeners.add(listener)
-    }
-
-    override fun removeRemovedBackstackEntryListener(listener: ScreenNavController.RemovedBackstackEntryListener) {
-        removedBackstackEntryListeners.remove(listener)
     }
 
     override fun navigate(navigation: IScreenStructure) {

@@ -2,10 +2,10 @@ package net.matsudamper.money.frontend.common.base.nav
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
+import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 
 @Composable
@@ -15,26 +15,17 @@ public fun NavHost(
 ) {
     val holder = rememberSaveableStateHolder()
     val scopedObjectStoreOwner = rememberScopedObjectStoreOwner()
-    DisposableEffect(Unit) {
-        val listener = object : ScreenNavController.RemovedBackstackEntryListener {
-            override fun onRemoved(entry: ScreenNavController.NavStackEntry) {
-                holder.removeState(entry.structure.toString())
-            }
-        }
-        navController.addRemovedBackstackEntryListener(listener)
-        onDispose {
-            navController.removeRemovedBackstackEntryListener(listener)
-        }
-    }
     LaunchedEffect(navController.backstackEntries) {
         for (entry in navController.backstackEntries) {
             scopedObjectStoreOwner.createOrGetScopedObjectStore(entry.structure)
         }
         val backStackStructures = navController.backstackEntries.map { it.structure }
         scopedObjectStoreOwner.keys()
+            .map { it as IScreenStructure }
             .filterNot { it in backStackStructures }
-            .forEach {
-                scopedObjectStoreOwner.removeScopedObjectStore(it)
+            .forEach { structure ->
+                scopedObjectStoreOwner.removeScopedObjectStore(structure)
+                holder.removeState(structure.toString())
             }
     }
     CompositionLocalProvider(

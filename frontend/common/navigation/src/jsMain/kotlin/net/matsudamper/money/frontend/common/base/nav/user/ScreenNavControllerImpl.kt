@@ -6,18 +6,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 import kotlinx.browser.window
-import net.matsudamper.money.frontend.common.base.nav.ScopedObjectStore
 
 @Stable
 internal class ScreenNavControllerImpl(
     private val initial: IScreenStructure,
     private val currentScreenStructureProvider: () -> IScreenStructure,
 ) : ScreenNavController {
-    private val scopedObjectStoreProvider = mutableMapOf<IScreenStructure, ScopedObjectStore>()
-
-    private var backStackEntries: List<InternalNavStackEntry> by mutableStateOf(
+    private val removedBackstackEntryListeners = mutableSetOf<ScreenNavController.RemovedBackstackEntryListener>()
+    override var backstackEntries: List<ScreenNavController.NavStackEntry> by mutableStateOf(
         listOf(
-            InternalNavStackEntry(
+            ScreenNavController.NavStackEntry(
                 structure = initial,
                 isHome = true,
             ),
@@ -25,13 +23,10 @@ internal class ScreenNavControllerImpl(
     )
     override val currentBackstackEntry: ScreenNavController.NavStackEntry
         get() {
-            val item = backStackEntries.last()
+            val item = backstackEntries.last()
             return ScreenNavController.NavStackEntry(
                 structure = item.structure,
                 isHome = item.isHome,
-                scopedObjectStore = scopedObjectStoreProvider.getOrPut(item.structure) {
-                    ScopedObjectStore()
-                },
             )
         }
     override val canGoBack: Boolean = true
@@ -53,7 +48,7 @@ internal class ScreenNavControllerImpl(
 
     override fun navigate(navigation: IScreenStructure) {
         val url = navigation.createUrl()
-        if (backStackEntries.last().structure.equalScreen(navigation)) {
+        if (backstackEntries.last().structure.equalScreen(navigation)) {
             window.history.replaceState(
                 data = null,
                 title = navigation.direction.title,
@@ -70,14 +65,14 @@ internal class ScreenNavControllerImpl(
     }
 
     override fun navigateToHome() {
-        while (backStackEntries.isNotEmpty()) {
-            if (backStackEntries.last().isHome) {
+        while (backstackEntries.isNotEmpty()) {
+            if (backstackEntries.last().isHome) {
                 break
             }
             back()
         }
         navigate(
-            backStackEntries.lastOrNull()?.structure ?: initial,
+            backstackEntries.lastOrNull()?.structure ?: initial,
         )
     }
 
@@ -87,7 +82,7 @@ internal class ScreenNavControllerImpl(
     }
 
     private fun updateScreenState(screenStructure: IScreenStructure) {
-        backStackEntries = backStackEntries.toMutableStateList().also {
+        backstackEntries = backstackEntries.toMutableStateList().also {
             val last = it.removeLast()
             it.add(
                 last.copy(
@@ -100,9 +95,4 @@ internal class ScreenNavControllerImpl(
             )
         }
     }
-
-    private data class InternalNavStackEntry(
-        val structure: IScreenStructure,
-        val isHome: Boolean,
-    )
 }

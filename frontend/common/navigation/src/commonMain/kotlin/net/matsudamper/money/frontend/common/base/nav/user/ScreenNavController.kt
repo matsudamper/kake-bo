@@ -2,7 +2,6 @@ package net.matsudamper.money.frontend.common.base.nav.user
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import net.matsudamper.money.frontend.common.base.nav.ScopedObjectStore
 
 @Stable
 public interface ScreenNavController {
@@ -16,10 +15,6 @@ public interface ScreenNavController {
     public fun navigate(navigation: IScreenStructure)
 
     public fun navigateToHome()
-
-    public fun addRemovedBackstackEntryListener(listener: RemovedBackstackEntryListener)
-
-    public fun removeRemovedBackstackEntryListener(listener: RemovedBackstackEntryListener)
 
     public data class NavStackEntry(
         val structure: IScreenStructure,
