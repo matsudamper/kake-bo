@@ -167,7 +167,7 @@ public class MoneyUsagesCalendarViewModel(
                                             while (last().month == firstDay.month) {
                                                 add(last().plus(1, DateTimeUnit.DAY))
                                             }
-                                            removeLast()
+                                            removeAt(lastIndex)
                                         }
                                     }
                                 val padding =
