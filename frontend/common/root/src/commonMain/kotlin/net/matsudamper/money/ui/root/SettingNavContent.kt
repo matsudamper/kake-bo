@@ -11,6 +11,7 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.Dispatchers
 import net.matsudamper.money.frontend.common.base.IO
+import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ApiSettingScreen
@@ -96,7 +97,7 @@ internal fun SettingNavContent(
 
         is ScreenStructure.Root.Settings.Category -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel = provideViewModel {
+                val viewModel = LocalScopedObjectStore.current.putOrGet(state.id) {
                     SettingCategoryViewModel(
                         scopedObjectFeature = it,
                         api = SettingScreenCategoryApi(
