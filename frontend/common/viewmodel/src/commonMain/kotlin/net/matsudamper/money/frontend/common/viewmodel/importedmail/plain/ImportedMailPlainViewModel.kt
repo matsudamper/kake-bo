@@ -31,8 +31,7 @@ public class ImportedMailPlainViewModel(
     private val apolloResponseCollector =
         ApolloResponseCollector.create(
             apolloClient = graphqlClient.apolloClient,
-            query =
-            ImportedMailPlainScreenQuery(
+            query = ImportedMailPlainScreenQuery(
                 id = id,
             ),
         )
@@ -41,8 +40,7 @@ public class ImportedMailPlainViewModel(
         MutableStateFlow(
             ImportedMailPlainScreenUiState(
                 loadingState = ImportedMailPlainScreenUiState.LoadingState.Loading,
-                event =
-                object : ImportedMailPlainScreenUiState.Event {
+                event = object : ImportedMailPlainScreenUiState.Event {
                     override fun onViewInitialized() {
                         fetch()
                     }
@@ -76,8 +74,7 @@ public class ImportedMailPlainViewModel(
                                     ImportedMailPlainScreenUiState.LoadingState.Error
                                 } else {
                                     ImportedMailPlainScreenUiState.LoadingState.Loaded(
-                                        html =
-                                        sequence {
+                                        html = sequence {
                                             yield(
                                                 mail.plain
                                                     ?.replace("\r\n", "<br>")

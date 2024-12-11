@@ -3,9 +3,12 @@ package net.matsudamper.money.frontend.common.ui.screen.importedmail.html
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.CircularProgressIndicator
@@ -17,6 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffold
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
@@ -58,12 +62,19 @@ public fun ImportedMailHtmlScreen(
     }
     when (uiState.loadingState) {
         is ImportedMailHtmlScreenUiState.LoadingState.Loaded -> {
-            Html(
-                html = uiState.loadingState.html,
-                onDismissRequest = {
-                    uiState.event.onClickClose()
-                },
-            )
+            Column(
+                modifier = Modifier.fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 4.dp)
+                    .padding(windowInsets),
+            ) {
+                Html(
+                    html = uiState.loadingState.html,
+                    onDismissRequest = {
+                        uiState.event.onClickClose()
+                    },
+                )
+            }
         }
 
         is ImportedMailHtmlScreenUiState.LoadingState.Loading -> {
