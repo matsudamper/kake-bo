@@ -67,6 +67,11 @@ internal class ScreenNavControllerImpl(
                 list.addAll(targetRange)
 
                 backstackEntries = list
+                window.history.pushState(
+                    data = null,
+                    title = backstackEntries.last().structure.direction.title,
+                    url = backstackEntries.last().structure.createUrl(),
+                )
                 return
             }
         }
