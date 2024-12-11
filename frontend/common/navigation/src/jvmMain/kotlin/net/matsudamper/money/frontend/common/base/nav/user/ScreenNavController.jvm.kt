@@ -10,7 +10,6 @@ public actual fun rememberMainScreenNavController(): ScreenNavController {
     return remember(holder) {
         ScreenNavControllerImpl(
             initial = RootHomeScreenStructure.Home,
-            savedStateHolder = holder,
         )
     }
 }

@@ -17,6 +17,7 @@ internal class ScreenNavControllerImpl(
             ScreenNavController.NavStackEntry(
                 structure = initial,
                 isHome = true,
+                savedState = false,
             ),
         ),
     )
@@ -26,6 +27,7 @@ internal class ScreenNavControllerImpl(
             return ScreenNavController.NavStackEntry(
                 structure = item.structure,
                 isHome = item.isHome,
+                savedState = false,
             )
         }
     override val canGoBack: Boolean = true
@@ -45,7 +47,7 @@ internal class ScreenNavControllerImpl(
         )
     }
 
-    override fun navigate(navigation: IScreenStructure) {
+    override fun navigate(navigation: IScreenStructure, savedState: Boolean, isRoot: Boolean) {
         val url = navigation.createUrl()
         if (backstackEntries.last().structure.equalScreen(navigation)) {
             window.history.replaceState(
@@ -60,7 +62,7 @@ internal class ScreenNavControllerImpl(
                 url = url,
             )
         }
-        updateScreenState(navigation)
+        updateScreenState(navigation, savedState = savedState, isRoot = isRoot)
     }
 
     override fun navigateToHome() {
@@ -79,7 +81,7 @@ internal class ScreenNavControllerImpl(
         window.history.back()
     }
 
-    private fun updateScreenState(screenStructure: IScreenStructure) {
+    private fun updateScreenState(screenStructure: IScreenStructure, savedState: Boolean = false, isRoot: Boolean = false) {
         /**
          * JSの場合はキャンセルさせず、上に積む。ブラウザの履歴のハンドリングが大変なので
          */
@@ -91,6 +93,7 @@ internal class ScreenNavControllerImpl(
                         is ScreenStructure.Root -> true
                         else -> false
                     },
+                    savedState = savedState,
                 ),
             )
         }

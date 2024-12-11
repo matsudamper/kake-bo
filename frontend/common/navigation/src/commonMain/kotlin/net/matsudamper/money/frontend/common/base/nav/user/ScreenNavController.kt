@@ -12,13 +12,18 @@ public interface ScreenNavController {
 
     public fun back()
 
-    public fun navigate(navigation: IScreenStructure)
+    public fun navigate(
+        navigation: IScreenStructure,
+        savedState: Boolean = false,
+        isRoot: Boolean = false,
+    )
 
     public fun navigateToHome()
 
     public data class NavStackEntry(
         val structure: IScreenStructure,
         val isHome: Boolean,
+        val savedState: Boolean,
     )
 
     public interface RemovedBackstackEntryListener {

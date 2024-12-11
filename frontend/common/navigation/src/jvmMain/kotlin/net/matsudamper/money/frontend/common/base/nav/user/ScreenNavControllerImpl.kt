@@ -3,45 +3,31 @@ package net.matsudamper.money.frontend.common.base.nav.user
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 
 @Stable
 internal class ScreenNavControllerImpl(
-    initial: ScreenStructure,
-    private val savedStateHolder: SaveableStateHolder,
+    initial: IScreenStructure,
 ) : ScreenNavController {
-    private val removedBackstackEntryListeners = mutableSetOf<ScreenNavController.RemovedBackstackEntryListener>()
     override var backstackEntries: List<ScreenNavController.NavStackEntry> by mutableStateOf(
         listOf(
             ScreenNavController.NavStackEntry(
                 structure = initial,
                 isHome = true,
+                savedState = false,
             ),
         ),
     )
     override val currentBackstackEntry: ScreenNavController.NavStackEntry
         get() {
-            val item = backstackEntries.last()
-            return ScreenNavController.NavStackEntry(
-                structure = item.structure,
-                isHome = item.isHome,
-            )
+            return backstackEntries.last()
         }
 
     public override val canGoBack: Boolean get() = backstackEntries.size > 1
 
     override fun back() {
         val dropTarget = backstackEntries.last()
-        removedBackstackEntryListeners.forEach { t ->
-            t.onRemoved(
-                ScreenNavController.NavStackEntry(
-                    structure = dropTarget.structure,
-                    isHome = dropTarget.isHome,
-                ),
-            )
-        }
         backstackEntries = backstackEntries.toMutableStateList().also {
             it.remove(dropTarget)
         }
@@ -56,11 +42,34 @@ internal class ScreenNavControllerImpl(
         }
     }
 
-    override fun navigate(navigation: IScreenStructure) {
+    override fun navigate(navigation: IScreenStructure, savedState: Boolean, isRoot: Boolean) {
+        println("${backstackEntries.map { it.structure.direction.title }} -> ${navigation.direction.title}")
+        if (navigation.groupId != currentBackstackEntry.structure.groupId) {
+            val targetGroupTailIndex = backstackEntries.indexOfLast { it.structure.groupId == navigation.groupId }
+                .takeIf { it >= 0 }
+                ?.plus(1)
+
+            if (targetGroupTailIndex != null) {
+                val targetGroupStartIndex = backstackEntries.take(targetGroupTailIndex)
+                    .indexOfLast { it.structure.groupId != navigation.groupId }
+                    .plus(1)
+
+                val list = backstackEntries.toMutableList()
+                val targetRange = list.subList(targetGroupStartIndex, targetGroupTailIndex).toList()
+                repeat(targetRange.size) {
+                    list.removeAt(targetGroupStartIndex)
+                }
+                list.addAll(targetRange)
+
+                backstackEntries = list
+                return
+            }
+        }
         backstackEntries = backstackEntries.plus(
             ScreenNavController.NavStackEntry(
                 structure = navigation,
                 isHome = navigation is ScreenStructure.Root,
+                savedState = savedState,
             ),
         )
     }
