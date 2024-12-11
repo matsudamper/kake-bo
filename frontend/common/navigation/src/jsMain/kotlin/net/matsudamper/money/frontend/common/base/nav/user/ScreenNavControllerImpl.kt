@@ -48,6 +48,29 @@ internal class ScreenNavControllerImpl(
     }
 
     override fun navigate(navigation: IScreenStructure, savedState: Boolean, isRoot: Boolean) {
+        println("${backstackEntries.map { it.structure.direction.title }} -> ${navigation.direction.title}")
+        if (navigation.groupId != currentBackstackEntry.structure.groupId) {
+            val targetGroupTailIndex = backstackEntries.indexOfLast { it.structure.groupId == navigation.groupId }
+                .takeIf { it >= 0 }
+                ?.plus(1)
+
+            if (targetGroupTailIndex != null) {
+                val targetGroupStartIndex = backstackEntries.take(targetGroupTailIndex)
+                    .indexOfLast { it.structure.groupId != navigation.groupId }
+                    .plus(1)
+
+                val list = backstackEntries.toMutableList()
+                val targetRange = list.subList(targetGroupStartIndex, targetGroupTailIndex).toList()
+                repeat(targetRange.size) {
+                    list.removeAt(targetGroupStartIndex)
+                }
+                list.addAll(targetRange)
+
+                backstackEntries = list
+                return
+            }
+        }
+
         val url = navigation.createUrl()
         if (backstackEntries.last().structure.equalScreen(navigation)) {
             window.history.replaceState(
