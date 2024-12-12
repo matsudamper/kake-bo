@@ -128,4 +128,8 @@ public enum class MoneyUsageServiceType(
         id = 32,
         displayName = "にじさんじオフィシャルストア",
     ),
+    Rentio(
+        id = 33,
+        displayName = "Rentio",
+    ),
 }
