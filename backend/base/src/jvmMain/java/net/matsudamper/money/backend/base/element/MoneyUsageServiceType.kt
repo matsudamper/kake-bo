@@ -124,4 +124,8 @@ public enum class MoneyUsageServiceType(
         id = 31,
         displayName = "povo",
     ),
+    NijisanjiOfficialStore(
+        id = 32,
+        displayName = "にじさんじオフィシャルストア",
+    )
 }
