@@ -62,6 +62,7 @@ public data class ImportedMailListScreenUiState(
     val event: Event,
     val filters: Filters,
     val loadingState: LoadingState,
+    val rootScreenScaffoldListener: RootScreenScaffoldListener,
 ) {
     public data class Filters(
         val link: Link,
@@ -127,7 +128,6 @@ public data class ImportedMailListScreenUiState(
 public fun ImportedMailListScreen(
     modifier: Modifier = Modifier,
     uiState: ImportedMailListScreenUiState,
-    rootScreenScaffoldListener: RootScreenScaffoldListener,
     windowInsets: PaddingValues,
 ) {
     LaunchedEffect(Unit) {
@@ -137,7 +137,7 @@ public fun ImportedMailListScreen(
     RootScreenScaffold(
         modifier = modifier,
         currentScreen = RootScreenTab.Add,
-        listener = rootScreenScaffoldListener,
+        listener = uiState.rootScreenScaffoldListener,
         windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(
@@ -148,7 +148,7 @@ public fun ImportedMailListScreen(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
-                            rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                            uiState.rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
                         },
                         text = "家計簿",
                     )

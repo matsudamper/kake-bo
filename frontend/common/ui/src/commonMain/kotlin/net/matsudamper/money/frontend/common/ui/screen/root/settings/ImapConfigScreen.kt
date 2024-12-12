@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
@@ -33,6 +34,7 @@ public data class ImapSettingScreenUiState(
     val textInputEvents: ImmutableList<TextInputUiState>,
     val loadingState: LoadingState,
     val event: Event,
+    val rootScaffoldListener: RootScreenScaffoldListener,
 ) {
     @Immutable
     public sealed interface LoadingState {
@@ -89,7 +91,6 @@ public data class ImapSettingScreenUiState(
 public fun ImapConfigScreen(
     modifier: Modifier = Modifier,
     uiState: ImapSettingScreenUiState,
-    listener: RootScreenScaffoldListener,
     windowInsets: PaddingValues,
 ) {
     LaunchedEffect(Unit) {
@@ -114,7 +115,7 @@ public fun ImapConfigScreen(
     RootScreenScaffold(
         modifier = modifier.fillMaxSize(),
         currentScreen = RootScreenTab.Settings,
-        listener = listener,
+        listener = uiState.rootScaffoldListener,
         topBar = {
             KakeBoTopAppBar(
                 title = {
@@ -124,7 +125,7 @@ public fun ImapConfigScreen(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
-                            listener.kakeboScaffoldListener.onClickTitle()
+                            uiState.rootScaffoldListener.kakeboScaffoldListener.onClickTitle()
                         },
                         text = "家計簿",
                     )

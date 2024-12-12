@@ -28,6 +28,7 @@ public data class RootHomeTabPeriodCategoryContentUiState(
     val loadingState: LoadingState,
     val rootHomeTabUiState: RootHomeTabScreenScaffoldUiState,
     val rootHomeTabPeriodUiState: RootHomeTabPeriodUiState,
+    val rootScaffoldListener: RootScreenScaffoldListener,
     val event: Event,
 ) {
     public sealed interface LoadingState {
@@ -51,13 +52,12 @@ public data class RootHomeTabPeriodCategoryContentUiState(
 public fun RootHomeTabPeriodCategoryScreen(
     modifier: Modifier = Modifier,
     uiState: RootHomeTabPeriodCategoryContentUiState,
-    scaffoldListener: RootScreenScaffoldListener,
     windowInsets: PaddingValues,
 ) {
     RootHomeTabPeriodScaffold(
         uiState = uiState.rootHomeTabPeriodUiState,
         homeUiState = uiState.rootHomeTabUiState,
-        scaffoldListener = scaffoldListener,
+        scaffoldListener = uiState.rootScaffoldListener,
         modifier = Modifier.fillMaxSize(),
         content = {
             when (val loadingState = uiState.loadingState) {

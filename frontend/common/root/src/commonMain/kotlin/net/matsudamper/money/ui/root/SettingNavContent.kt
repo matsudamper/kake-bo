@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import kotlinx.coroutines.Dispatchers
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ApiSettingScreen
@@ -47,10 +48,10 @@ import net.matsudamper.money.ui.root.viewmodel.provideViewModel
 internal fun SettingNavContent(
     state: ScreenStructure.Root.Settings,
     globalEventSender: EventSender<GlobalEvent>,
+    navController: ScreenNavController,
     globalEvent: GlobalEvent,
     settingUiStateProvider: @Composable () -> RootSettingScreenUiState,
     viewModelEventHandlers: ViewModelEventHandlers,
-    rootScreenScaffoldListener: RootScreenScaffoldListener,
     windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
@@ -62,7 +63,6 @@ internal fun SettingNavContent(
                 SettingRootScreen(
                     modifier = modifier.fillMaxSize(),
                     uiState = settingUiStateProvider(),
-                    listener = rootScreenScaffoldListener,
                     windowInsets = windowInsets,
                 )
             }
@@ -76,6 +76,7 @@ internal fun SettingNavContent(
                         api = SettingScreenCategoryApi(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),
+                        navController = navController,
                     )
                 }
 
@@ -87,7 +88,6 @@ internal fun SettingNavContent(
                 }
 
                 SettingCategoriesScreen(
-                    rootScreenScaffoldListener = rootScreenScaffoldListener,
                     uiState = viewModel.uiState.collectAsState().value,
                     modifier = modifier,
                     windowInsets = windowInsets,
@@ -104,6 +104,7 @@ internal fun SettingNavContent(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),
                         categoryId = state.id,
+                        navController = navController,
                     )
                 }
                 LaunchedEffect(viewModel.viewModelEventHandler) {
@@ -113,7 +114,6 @@ internal fun SettingNavContent(
                     viewModel.globalEventHandler.collect(globalEvent)
                 }
                 SettingCategoryScreen(
-                    rootScreenScaffoldListener = rootScreenScaffoldListener,
                     uiState = viewModel.uiState.collectAsState().value,
                     modifier = modifier,
                     windowInsets = windowInsets,
@@ -131,12 +131,12 @@ internal fun SettingNavContent(
                         ),
                         globalEventSender = globalEventSender,
                         ioDispatchers = Dispatchers.IO,
+                        navController = navController,
                     )
                 }
 
                 ImapConfigScreen(
                     uiState = viewModel.uiState.collectAsState().value,
-                    listener = rootScreenScaffoldListener,
                     modifier = modifier,
                     windowInsets = windowInsets,
                 )
@@ -155,6 +155,7 @@ internal fun SettingNavContent(
                         api = SettingImportedMailCategoryFilterApi(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),
+                        navController = navController,
                     )
                 }
                 LaunchedEffect(viewModel.eventHandler, viewModelEventHandlers) {
@@ -163,7 +164,6 @@ internal fun SettingNavContent(
                 SettingMailCategoryFiltersScreen(
                     modifier = modifier.fillMaxSize(),
                     uiState = viewModel.uiStateFlow.collectAsState().value,
-                    rootScreenScaffoldListener = rootScreenScaffoldListener,
                     windowInsets = windowInsets,
                 )
             }
@@ -179,6 +179,7 @@ internal fun SettingNavContent(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),
                         graphqlClient = koin.get(),
+                        navController = navController,
                     )
                 }
 
@@ -189,7 +190,6 @@ internal fun SettingNavContent(
                 ImportedMailFilterCategoryScreen(
                     modifier = modifier.fillMaxSize(),
                     uiState = viewModel.uiStateFlow.collectAsState().value,
-                    rootScreenScaffoldListener = rootScreenScaffoldListener,
                     windowInsets = windowInsets,
                 )
             }
@@ -207,6 +207,7 @@ internal fun SettingNavContent(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),
                         webAuthModel = koin.get(),
+                        navController = navController,
                     )
                 }
 
@@ -217,7 +218,6 @@ internal fun SettingNavContent(
                 LoginSettingScreen(
                     modifier = modifier.fillMaxSize(),
                     uiState = viewModel.uiStateFlow.collectAsState().value,
-                    rootScreenScaffoldListener = rootScreenScaffoldListener,
                     windowInsets = windowInsets,
                 )
             }
@@ -231,6 +231,7 @@ internal fun SettingNavContent(
                         api = ApiSettingScreenApi(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),
+                        navController = navController,
                     )
                 }
                 val snackbarHostState = remember { SnackbarHostState() }
@@ -241,7 +242,6 @@ internal fun SettingNavContent(
                     )
                 }
                 ApiSettingScreen(
-                    rootScreenScaffoldListener = rootScreenScaffoldListener,
                     uiState = viewModel.uiStateFlow.collectAsState().value,
                     snackbarHostState = snackbarHostState,
                     modifier = modifier,

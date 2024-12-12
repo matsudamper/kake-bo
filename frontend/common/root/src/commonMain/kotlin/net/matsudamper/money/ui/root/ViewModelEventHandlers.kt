@@ -38,7 +38,6 @@ import net.matsudamper.money.ui.root.platform.PlatformTools
 internal data class ViewModelEventHandlers(
     private val navController: ScreenNavController,
     private val globalEventSender: EventSender<GlobalEvent>,
-    private val rootScreenScaffoldListener: RootScreenScaffoldListener,
     private val platformToolsProvider: () -> PlatformTools,
 ) {
     suspend fun handleMailImport(handler: EventHandler<MailImportViewModelEvent>) {

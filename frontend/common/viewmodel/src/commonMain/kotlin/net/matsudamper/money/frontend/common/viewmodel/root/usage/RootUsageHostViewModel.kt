@@ -7,16 +7,19 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
 public class RootUsageHostViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     public val calendarPagingModel: RootUsageCalendarPagingModel,
+    navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val mutableViewModelStateFlow = MutableStateFlow(ViewModelState())
     public val viewModelStateFlow: StateFlow<ViewModelState> = mutableViewModelStateFlow.asStateFlow()
@@ -103,6 +106,7 @@ public class RootUsageHostViewModel(
                 textInputUiState = null,
                 searchText = "",
                 event = event,
+                scaffoldListener = RootScreenScaffoldListenerDefaultImpl(navController)
             ),
         ).also { uiStateFlow ->
             viewModelScope.launch {
@@ -112,15 +116,15 @@ public class RootUsageHostViewModel(
 
                         uiStateFlow.update {
                             it.copy(
-                                type =
-                                when (viewModelState.screenStructure) {
+                                type = when (viewModelState.screenStructure) {
                                     is ScreenStructure.Root.Usage.Calendar -> RootUsageHostScreenUiState.Type.Calendar
                                     is ScreenStructure.Root.Usage.List -> RootUsageHostScreenUiState.Type.List
+                                    null -> RootUsageHostScreenUiState.Type.Calendar
                                 },
-                                header =
-                                when (viewModelState.screenStructure) {
+                                header = when (viewModelState.screenStructure) {
                                     is ScreenStructure.Root.Usage.Calendar -> viewModelState.calendarHeader
                                     is ScreenStructure.Root.Usage.List -> RootUsageHostScreenUiState.Header.None
+                                    null -> viewModelState.calendarHeader
                                 } ?: RootUsageHostScreenUiState.Header.None,
                                 textInputUiState = viewModelState.textInputUiState,
                                 searchText = viewModelState.searchText,

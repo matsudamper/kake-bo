@@ -9,9 +9,11 @@ import kotlinx.coroutines.launch
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingMailCategoryFilterScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFiltersScreenPagingQuery
@@ -21,6 +23,7 @@ public class SettingMailCategoryFiltersViewModel(
     private val pagingModel: ImportedMailCategoryFilterScreenPagingModel,
     private val api: SettingImportedMailCategoryFilterApi,
     scopedObjectFeature: ScopedObjectFeature,
+    navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState())
 
@@ -73,8 +76,8 @@ public class SettingMailCategoryFiltersViewModel(
             SettingMailCategoryFilterScreenUiState(
                 loadingState = SettingMailCategoryFilterScreenUiState.LoadingState.Loading,
                 textInput = null,
-                event =
-                object : SettingMailCategoryFilterScreenUiState.Event {
+                rootScreenScaffoldListener = RootScreenScaffoldListenerDefaultImpl(navController),
+                event = object : SettingMailCategoryFilterScreenUiState.Event {
                     override fun onClickRetry() {
                         viewModelScope.launch {
                             pagingModel.fetch()

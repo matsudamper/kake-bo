@@ -48,6 +48,17 @@ public interface RootScreenScaffoldListener {
     public fun onClickSettings()
 
     public fun onClickAdd()
+    public companion object {
+        internal val previewImpl = object: RootScreenScaffoldListener {
+            override fun onClickAdd() {}
+            override fun onClickSettings() {}
+            override fun onClickHome() {}
+            override fun onClickList() {}
+            override val kakeboScaffoldListener: KakeboScaffoldListener = object: KakeboScaffoldListener {
+                override fun onClickTitle() {}
+            }
+        }
+    }
 }
 
 public enum class RootScreenTab {

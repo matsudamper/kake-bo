@@ -38,6 +38,7 @@ public data class RootHomeMonthlyCategoryScreenUiState(
     val loadingState: LoadingState,
     val title: String,
     val event: Event,
+    val scaffoldListener: RootScreenScaffoldListener,
 ) {
     public data class Item(
         val title: String,
@@ -79,7 +80,6 @@ public data class RootHomeMonthlyCategoryScreenUiState(
 public fun RootHomeMonthlyCategoryScreen(
     uiState: RootHomeMonthlyCategoryScreenUiState,
     modifier: Modifier = Modifier,
-    scaffoldListener: RootScreenScaffoldListener,
     windowInsets: PaddingValues,
 ) {
     LaunchedEffect(Unit) {
@@ -88,7 +88,7 @@ public fun RootHomeMonthlyCategoryScreen(
     RootScreenScaffold(
         modifier = modifier,
         currentScreen = RootScreenTab.Home,
-        listener = scaffoldListener,
+        listener = uiState.scaffoldListener,
         windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(

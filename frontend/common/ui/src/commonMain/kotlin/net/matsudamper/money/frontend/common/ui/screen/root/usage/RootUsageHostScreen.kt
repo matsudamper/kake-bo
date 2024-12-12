@@ -54,6 +54,7 @@ public data class RootUsageHostScreenUiState(
     val textInputUiState: TextInputUiState?,
     val searchText: String,
     val event: Event,
+    val scaffoldListener: RootScreenScaffoldListener,
 ) {
     public data class TextInputUiState(
         val title: String,
@@ -111,7 +112,6 @@ public data class RootUsageHostScreenUiState(
 public fun RootUsageHostScreen(
     modifier: Modifier = Modifier,
     uiState: RootUsageHostScreenUiState,
-    listener: RootScreenScaffoldListener,
     windowInsets: PaddingValues,
     content: @Composable () -> Unit,
 ) {
@@ -134,7 +134,7 @@ public fun RootUsageHostScreen(
     RootScreenScaffold(
         modifier = modifier.fillMaxSize(),
         currentScreen = RootScreenTab.List,
-        listener = listener,
+        listener = uiState.scaffoldListener,
         windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(

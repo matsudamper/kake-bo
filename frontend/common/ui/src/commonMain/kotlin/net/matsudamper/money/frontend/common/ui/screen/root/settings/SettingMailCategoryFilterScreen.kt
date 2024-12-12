@@ -45,6 +45,7 @@ public data class SettingMailCategoryFilterScreenUiState(
     public val event: Event,
     public val textInput: TextInput?,
     public val loadingState: LoadingState,
+    public val rootScreenScaffoldListener: RootScreenScaffoldListener,
 ) {
     public data class TextInput(
         val title: String,
@@ -92,7 +93,6 @@ public data class SettingMailCategoryFilterScreenUiState(
 @Composable
 public fun SettingMailCategoryFiltersScreen(
     modifier: Modifier = Modifier,
-    rootScreenScaffoldListener: RootScreenScaffoldListener,
     uiState: SettingMailCategoryFilterScreenUiState,
     windowInsets: PaddingValues,
 ) {
@@ -125,7 +125,7 @@ public fun SettingMailCategoryFiltersScreen(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
-                            rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                            uiState.rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
                         },
                         text = "家計簿",
                     )
@@ -134,7 +134,7 @@ public fun SettingMailCategoryFiltersScreen(
             )
         },
         currentScreen = RootScreenTab.Settings,
-        listener = rootScreenScaffoldListener,
+        listener = uiState.rootScreenScaffoldListener,
     ) {
         SettingScaffold(
             title = {

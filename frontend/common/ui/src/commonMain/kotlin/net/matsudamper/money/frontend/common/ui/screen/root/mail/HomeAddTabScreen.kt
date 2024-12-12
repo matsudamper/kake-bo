@@ -36,6 +36,7 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 
 public data class HomeAddTabScreenUiState(
+    val rootScreenScaffoldListener: RootScreenScaffoldListener,
     val event: Event,
 ) {
     @Immutable
@@ -47,7 +48,6 @@ public data class HomeAddTabScreenUiState(
 
 @Composable
 public fun HomeAddTabScreen(
-    rootScreenScaffoldListener: RootScreenScaffoldListener,
     uiState: HomeAddTabScreenUiState,
     windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
@@ -55,7 +55,7 @@ public fun HomeAddTabScreen(
     RootScreenScaffold(
         modifier = modifier,
         currentScreen = RootScreenTab.Add,
-        listener = rootScreenScaffoldListener,
+        listener = uiState.rootScreenScaffoldListener,
         windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(
@@ -66,7 +66,7 @@ public fun HomeAddTabScreen(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
-                            rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                            uiState.rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
                         },
                         text = "家計簿",
                     )

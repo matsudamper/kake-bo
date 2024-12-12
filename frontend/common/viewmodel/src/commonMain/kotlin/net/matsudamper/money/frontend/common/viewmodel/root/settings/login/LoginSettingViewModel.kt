@@ -15,11 +15,13 @@ import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.LoginSettingScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -32,6 +34,7 @@ public class LoginSettingViewModel(
     private val api: LoginSettingScreenApi,
     private val fidoApi: FidoApi,
     private val webAuthModel: WebAuthModel,
+    navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> =
         MutableStateFlow(
@@ -48,8 +51,8 @@ public class LoginSettingViewModel(
             LoginSettingScreenUiState(
                 textInputDialogState = null,
                 loadingState = LoginSettingScreenUiState.LoadingState.Loading,
-                event =
-                object : LoginSettingScreenUiState.Event {
+                rootScreenScaffoldListener = RootScreenScaffoldListenerDefaultImpl(navController),
+                event = object : LoginSettingScreenUiState.Event {
                     override fun onClickBack() {
                         viewModelScope.launch {
                             eventSender.send { it.navigate(ScreenStructure.Root.Settings.Root) }
@@ -88,54 +91,53 @@ public class LoginSettingViewModel(
 
                             LoginSettingScreenUiState.LoadingState.Loaded(
                                 fidoList =
-                                run fidoList@{
-                                    val fidoList =
-                                        viewModelState.apolloScreenResponse
-                                            .data?.user?.settings?.registeredFidoList
-                                    if (fidoList == null) {
-                                        return@fidoList immutableListOf()
-                                    }
-
-                                    fidoList.map { fido ->
-                                        LoginSettingScreenUiState.Fido(
-                                            name = fido.name,
-                                            event = FidoEventImpl(fido),
-                                        )
-                                    }.toImmutableList()
-                                },
+                                    run fidoList@{
+                                        val fidoList = viewModelState.apolloScreenResponse
+                                            ?.data?.user?.settings?.registeredFidoList
+                                        if (fidoList == null) {
+                                            immutableListOf()
+                                        } else {
+                                            fidoList.map { fido ->
+                                                LoginSettingScreenUiState.Fido(
+                                                    name = fido.name,
+                                                    event = FidoEventImpl(fido),
+                                                )
+                                            }.toImmutableList()
+                                        }
+                                    },
                                 sessionList =
-                                run sessionList@{
-                                    val sessionList =
-                                        viewModelState.apolloScreenResponse
-                                            .data?.user?.settings?.sessionAttributes?.sessions
-                                    if (sessionList == null) {
-                                        return@sessionList immutableListOf()
-                                    }
-
-                                    sessionList
-                                        .filterNot { it.name == currentSession.name }
-                                        .map { session ->
-                                            LoginSettingScreenUiState.Session(
-                                                name = session.name,
-                                                lastAccess =
-                                                Formatter.formatDateTime(
-                                                    session.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
-                                                ),
-                                                event = SessionEventImpl(name = session.name),
-                                            )
-                                        }.toImmutableList()
-                                },
+                                    run sessionList@{
+                                        val sessionList =
+                                            viewModelState.apolloScreenResponse
+                                                ?.data?.user?.settings?.sessionAttributes?.sessions
+                                        if (sessionList == null) {
+                                            return@sessionList immutableListOf()
+                                        } else {
+                                            sessionList
+                                                .filterNot { it.name == currentSession.name }
+                                                .map { session ->
+                                                    LoginSettingScreenUiState.Session(
+                                                        name = session.name,
+                                                        lastAccess =
+                                                            Formatter.formatDateTime(
+                                                                session.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
+                                                            ),
+                                                        event = SessionEventImpl(name = session.name),
+                                                    )
+                                                }.toImmutableList()
+                                        }
+                                    },
                                 currentSession =
-                                run currentSession@{
-                                    LoginSettingScreenUiState.Session(
-                                        name = currentSession.name,
-                                        lastAccess =
-                                        Formatter.formatDateTime(
-                                            currentSession.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
-                                        ),
-                                        event = SessionEventImpl(name = currentSession.name),
-                                    )
-                                },
+                                    run currentSession@{
+                                        LoginSettingScreenUiState.Session(
+                                            name = currentSession.name,
+                                            lastAccess =
+                                                Formatter.formatDateTime(
+                                                    currentSession.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
+                                                ),
+                                            event = SessionEventImpl(name = currentSession.name),
+                                        )
+                                    },
                             )
                         }
                     uiStateFlow.update { uiState ->
@@ -177,9 +179,9 @@ public class LoginSettingViewModel(
                 challenge = fidoInfo.challenge,
                 domain = fidoInfo.domain,
                 base64ExcludeCredentialIdList =
-                viewModelStateFlow.value.apolloScreenResponse?.data?.user?.settings?.registeredFidoList.orEmpty().map {
-                    it.base64CredentialId
-                },
+                    viewModelStateFlow.value.apolloScreenResponse?.data?.user?.settings?.registeredFidoList.orEmpty().map {
+                        it.base64CredentialId
+                    },
             )
 
             if (createResult == null) {
@@ -226,13 +228,13 @@ public class LoginSettingViewModel(
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     textInputDialogState =
-                    LoginSettingScreenUiState.TextInputDialogState(
-                        title = "キーの名前を入力してください",
-                        text = "",
-                        onConfirm = onConfirm,
-                        onCancel = onCancel,
-                        type = TextFieldType.Text,
-                    ),
+                        LoginSettingScreenUiState.TextInputDialogState(
+                            title = "キーの名前を入力してください",
+                            text = "",
+                            onConfirm = onConfirm,
+                            onCancel = onCancel,
+                            type = TextFieldType.Text,
+                        ),
                 )
             }
         }

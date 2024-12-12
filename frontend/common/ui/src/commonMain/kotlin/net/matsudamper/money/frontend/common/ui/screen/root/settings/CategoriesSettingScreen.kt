@@ -44,6 +44,7 @@ public data class SettingCategoriesScreenUiState(
     val event: Event,
     val loadingState: LoadingState,
     val showCategoryNameInput: Boolean,
+    val rootScreenScaffoldListener: RootScreenScaffoldListener,
 ) {
     public sealed interface LoadingState {
         public data object Loading : LoadingState
@@ -77,7 +78,6 @@ public data class SettingCategoriesScreenUiState(
 public fun SettingCategoriesScreen(
     modifier: Modifier = Modifier,
     uiState: SettingCategoriesScreenUiState,
-    rootScreenScaffoldListener: RootScreenScaffoldListener,
     windowInsets: PaddingValues,
 ) {
     LaunchedEffect(Unit) {
@@ -100,7 +100,7 @@ public fun SettingCategoriesScreen(
     RootScreenScaffold(
         modifier = modifier.fillMaxSize(),
         currentScreen = RootScreenTab.Settings,
-        listener = rootScreenScaffoldListener,
+        listener = uiState.rootScreenScaffoldListener,
         windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(
@@ -111,7 +111,7 @@ public fun SettingCategoriesScreen(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
-                            rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                            uiState.rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
                         },
                         text = "家計簿",
                     )

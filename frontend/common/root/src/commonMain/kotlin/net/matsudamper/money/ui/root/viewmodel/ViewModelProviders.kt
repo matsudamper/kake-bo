@@ -74,6 +74,7 @@ internal class ViewModelProviders(
                     graphqlClient = koin.get(),
                 ),
                 loginCheckUseCase = koin.get(),
+                navController = navController,
             )
         }
     }
@@ -87,6 +88,7 @@ internal class ViewModelProviders(
                 graphqlApi = MailLinkScreenGraphqlApi(
                     graphqlClient = koin.get(),
                 ),
+                navController = navController,
             )
         }
     }
@@ -101,6 +103,7 @@ internal class ViewModelProviders(
                 ),
                 loginCheckUseCase = koin.get(),
                 graphqlClient = koin.get(),
+                navController = navController,
             )
         }.get()
     }

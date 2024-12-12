@@ -18,10 +18,12 @@ import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlyCategoryScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
+import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
@@ -36,6 +38,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     argument: RootHomeScreenStructure.MonthlyCategory,
     loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
+    private val navController: ScreenNavController,
     private val graphqlClient: GraphqlClient,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow =
@@ -67,8 +70,8 @@ public class RootHomeMonthlyCategoryScreenViewModel(
     public val uiStateFlow: StateFlow<RootHomeMonthlyCategoryScreenUiState> =
         MutableStateFlow(
             RootHomeMonthlyCategoryScreenUiState(
-                event =
-                object : RootHomeMonthlyCategoryScreenUiState.Event {
+                scaffoldListener = RootScreenScaffoldListenerDefaultImpl(navController),
+                event = object : RootHomeMonthlyCategoryScreenUiState.Event {
                     override fun onViewInitialized() {
                         viewModelScope.launch {
                             loginCheckUseCase.check()
@@ -91,9 +94,9 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                                         apolloClient = graphqlClient.apolloClient,
                                         fetchPolicy = FetchPolicy.CacheFirst,
                                         query =
-                                        MonthlyCategoryScreenQuery(
-                                            id = categoryId,
-                                        ),
+                                            MonthlyCategoryScreenQuery(
+                                                id = categoryId,
+                                            ),
                                     )
                                 collector.fetch()
                                 collector.getFlow().collectLatest { responseState ->
@@ -125,23 +128,23 @@ public class RootHomeMonthlyCategoryScreenViewModel(
 
                             null,
                             is ApolloResponseState.Loading,
-                            -> {
+                                -> {
                                 RootHomeMonthlyCategoryScreenUiState.LoadingState.Loading
                             }
 
                             is ApolloResponseState.Success -> {
                                 RootHomeMonthlyCategoryScreenUiState.LoadingState.Loaded(
                                     items =
-                                    viewModelState.apolloResponses.flatMap {
-                                        it.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.nodes.orEmpty()
-                                    }.map { node ->
-                                        createItem(node)
-                                    },
+                                        viewModelState.apolloResponses.flatMap {
+                                            it.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.nodes.orEmpty()
+                                        }.map { node ->
+                                            createItem(node)
+                                        },
                                     event = loadedEvent,
                                     hasMoreItem =
-                                    viewModelState.apolloResponses.lastOrNull()
-                                        ?.getSuccessOrNull()?.value
-                                        ?.data?.user?.moneyUsages?.hasMore != false,
+                                        viewModelState.apolloResponses.lastOrNull()
+                                            ?.getSuccessOrNull()?.value
+                                            ?.data?.user?.moneyUsages?.hasMore != false,
                                 )
                             }
                         }
@@ -149,16 +152,16 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                         uiStateFlow.value.copy(
                             loadingState = state,
                             title =
-                            run {
-                                val yearText = "${viewModelState.year}年${viewModelState.month}月"
-                                val descriptionText =
-                                    if (viewModelState.categoryName == null) {
-                                        "カテゴリ別一覧"
-                                    } else {
-                                        "${viewModelState.categoryName}"
-                                    }
-                                "$yearText $descriptionText"
-                            },
+                                run {
+                                    val yearText = "${viewModelState.year}年${viewModelState.month}月"
+                                    val descriptionText =
+                                        if (viewModelState.categoryName == null) {
+                                            "カテゴリ別一覧"
+                                        } else {
+                                            "${viewModelState.categoryName}"
+                                        }
+                                    "$yearText $descriptionText"
+                                },
                         )
                 }
             }
@@ -171,19 +174,19 @@ public class RootHomeMonthlyCategoryScreenViewModel(
             subCategory = node.moneyUsageSubCategory?.name.orEmpty(),
             date = Formatter.formatDateTime(node.date),
             event =
-            object : RootHomeMonthlyCategoryScreenUiState.Item.Event {
-                override fun onClick() {
-                    viewModelScope.launch {
-                        eventSender.send {
-                            it.navigate(
-                                ScreenStructure.MoneyUsage(
-                                    id = node.id,
-                                ),
-                            )
+                object : RootHomeMonthlyCategoryScreenUiState.Item.Event {
+                    override fun onClick() {
+                        viewModelScope.launch {
+                            eventSender.send {
+                                it.navigate(
+                                    ScreenStructure.MoneyUsage(
+                                        id = node.id,
+                                    ),
+                                )
+                            }
                         }
                     }
-                }
-            },
+                },
         )
     }
 
@@ -217,7 +220,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
 
                     is ApolloResponseState.Failure,
                     is ApolloResponseState.Loading,
-                    -> return@add null
+                        -> return@add null
                 }
             val date =
                 LocalDate(
@@ -230,19 +233,19 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                 size = 50,
                 category = viewModelStateFlow.value.categoryId,
                 sinceDateTime =
-                Optional.present(
-                    LocalDateTime(
-                        date = date,
-                        time = LocalTime(0, 0),
+                    Optional.present(
+                        LocalDateTime(
+                            date = date,
+                            time = LocalTime(0, 0),
+                        ),
                     ),
-                ),
                 untilDateTime =
-                Optional.present(
-                    LocalDateTime(
-                        date = date.plus(1, DateTimeUnit.MONTH),
-                        time = LocalTime(0, 0),
+                    Optional.present(
+                        LocalDateTime(
+                            date = date.plus(1, DateTimeUnit.MONTH),
+                            time = LocalTime(0, 0),
+                        ),
                     ),
-                ),
             )
         }
     }

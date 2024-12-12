@@ -30,12 +30,10 @@ import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.NavHost
 import net.matsudamper.money.frontend.common.base.nav.rememberScopedObjectStoreOwner
-import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.MySnackBarHost
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.status.NotFoundScreen
 import net.matsudamper.money.frontend.common.usecase.LoginCheckUseCaseImpl
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
@@ -147,6 +145,7 @@ public fun Content(
         val rootUsageHostViewModel = provideViewModel {
             RootUsageHostViewModel(
                 scopedObjectFeature = it,
+                navController = navController,
                 calendarPagingModel = RootUsageCalendarPagingModel(
                     coroutineScope = rootCoroutineScope,
                     graphqlClient = koin.get(),
@@ -156,6 +155,7 @@ public fun Content(
         val mailScreenViewModel = provideViewModel {
             HomeAddTabScreenViewModel(
                 scopedObjectFeature = it,
+                navController = navController,
             )
         }
         val settingViewModel = provideViewModel {
@@ -163,36 +163,13 @@ public fun Content(
                 scopedObjectFeature = it,
                 globalEventSender = globalEventSender,
                 ioDispatchers = Dispatchers.IO,
+                navController = navController,
             )
         }
         val kakeboScaffoldListener: KakeboScaffoldListener = remember {
             object : KakeboScaffoldListener {
                 override fun onClickTitle() {
                     navController.navigateToHome()
-                }
-            }
-        }
-        val rootScreenScaffoldListener: RootScreenScaffoldListener = remember(
-            navController,
-            mailScreenViewModel,
-        ) {
-            object : RootScreenScaffoldListener {
-                override val kakeboScaffoldListener: KakeboScaffoldListener = kakeboScaffoldListener
-
-                override fun onClickHome() {
-                    navController.navigate(RootHomeScreenStructure.Home)
-                }
-
-                override fun onClickList() {
-                    rootUsageHostViewModel.requestNavigate()
-                }
-
-                override fun onClickSettings() {
-                    settingViewModel.requestNavigate()
-                }
-
-                override fun onClickAdd() {
-                    mailScreenViewModel.requestNavigate()
                 }
             }
         }
@@ -206,13 +183,11 @@ public fun Content(
         val viewModelEventHandlers = remember(
             navController,
             globalEventSender,
-            rootScreenScaffoldListener,
             platformToolsProvider,
         ) {
             ViewModelEventHandlers(
                 navController = navController,
                 globalEventSender = globalEventSender,
-                rootScreenScaffoldListener = rootScreenScaffoldListener,
                 platformToolsProvider = platformToolsProvider,
             )
         }
@@ -264,11 +239,11 @@ public fun Content(
                                 is ScreenStructure.Root -> {
                                     RootScreenContainer(
                                         current = current,
+                                        navController = navController,
                                         settingViewModel = settingViewModel,
                                         mailScreenViewModel = mailScreenViewModel,
                                         rootUsageHostViewModel = rootUsageHostViewModel,
                                         viewModelEventHandlers = viewModelEventHandlers,
-                                        rootScreenScaffoldListener = rootScreenScaffoldListener,
                                         rootCoroutineScope = rootCoroutineScope,
                                         globalEventSender = globalEventSender,
                                         globalEvent = globalEvent,

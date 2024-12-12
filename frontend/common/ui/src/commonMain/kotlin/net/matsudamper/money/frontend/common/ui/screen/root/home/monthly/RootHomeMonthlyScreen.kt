@@ -36,6 +36,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScre
 public data class RootHomeMonthlyScreenUiState(
     val loadingState: LoadingState,
     val rootHomeTabUiState: RootHomeTabScreenScaffoldUiState,
+    val scaffoldListener: RootScreenScaffoldListener,
     val event: Event,
 ) {
     public sealed interface LoadingState {
@@ -78,7 +79,6 @@ public data class RootHomeMonthlyScreenUiState(
 @Composable
 public fun RootHomeMonthlyScreen(
     uiState: RootHomeMonthlyScreenUiState,
-    scaffoldListener: RootScreenScaffoldListener,
     windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
@@ -87,7 +87,7 @@ public fun RootHomeMonthlyScreen(
     }
     RootHomeTabScreenScaffold(
         uiState = uiState.rootHomeTabUiState,
-        scaffoldListener = scaffoldListener,
+        scaffoldListener = uiState.scaffoldListener,
         modifier = modifier,
         content = {
             when (val loadingState = uiState.loadingState) {

@@ -62,6 +62,7 @@ public data class LoginSettingScreenUiState(
     val textInputDialogState: TextInputDialogState?,
     val loadingState: LoadingState,
     val event: Event,
+    val rootScreenScaffoldListener: RootScreenScaffoldListener,
 ) {
     @Immutable
     public sealed interface LoadingState {
@@ -120,7 +121,6 @@ public data class LoginSettingScreenUiState(
 @Composable
 public fun LoginSettingScreen(
     uiState: LoginSettingScreenUiState,
-    rootScreenScaffoldListener: RootScreenScaffoldListener,
     modifier: Modifier = Modifier,
     windowInsets: PaddingValues,
 ) {
@@ -151,7 +151,7 @@ public fun LoginSettingScreen(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
-                            rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                            uiState.rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
                         },
                         text = "家計簿",
                     )
@@ -159,7 +159,7 @@ public fun LoginSettingScreen(
                 windowInsets = windowInsets,
             )
         },
-        listener = rootScreenScaffoldListener,
+        listener = uiState.rootScreenScaffoldListener,
     ) {
         SettingScaffold(
             title = {

@@ -51,6 +51,7 @@ public data class ApiSettingScreenUiState(
     val addDialog: AddDialogUiState?,
     val addTokenResult: AddTokenResult?,
     val event: Event,
+    val rootScreenScaffoldListener: RootScreenScaffoldListener,
 ) {
     public data class AddTokenResult(
         val name: String,
@@ -104,7 +105,6 @@ public data class ApiSettingScreenUiState(
 public fun ApiSettingScreen(
     modifier: Modifier = Modifier,
     uiState: ApiSettingScreenUiState,
-    rootScreenScaffoldListener: RootScreenScaffoldListener,
     snackbarHostState: SnackbarHostState,
     windowInsets: PaddingValues,
 ) {
@@ -191,7 +191,7 @@ public fun ApiSettingScreen(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
-                            rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                            uiState.rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
                         },
                         text = "家計簿",
                     )
@@ -199,7 +199,7 @@ public fun ApiSettingScreen(
                 windowInsets = windowInsets,
             )
         },
-        listener = rootScreenScaffoldListener,
+        listener = uiState.rootScreenScaffoldListener,
     ) {
         SettingScaffold(
             title = {

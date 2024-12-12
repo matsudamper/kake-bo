@@ -12,10 +12,12 @@ import kotlinx.coroutines.withContext
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState.Filters.LinkStatus
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
@@ -26,6 +28,7 @@ public class ImportedMailListViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     private val ioDispatcher: CoroutineDispatcher,
     private val graphqlApi: MailLinkScreenGraphqlApi,
+    navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelEventSender = EventSender<MailLinkViewModelEvent>()
     public val eventHandler: EventHandler<MailLinkViewModelEvent> = viewModelEventSender.asHandler()
@@ -56,6 +59,7 @@ public class ImportedMailListViewModel(
                     }
                 },
                 loadingState = ImportedMailListScreenUiState.LoadingState.Loading,
+                rootScreenScaffoldListener = RootScreenScaffoldListenerDefaultImpl(navController),
             ),
         ).also { uiStateFlow ->
             viewModelScope.launch {

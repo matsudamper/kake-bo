@@ -19,6 +19,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.GraphTitleChipUiState
@@ -27,6 +28,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeri
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
+import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -39,6 +41,7 @@ public class RootHomeTabPeriodAllContentViewModel(
     private val api: RootHomeTabScreenApi,
     graphqlClient: GraphqlClient,
     loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
+    navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState())
     private val reservedColorModel = ReservedColorModel()
@@ -119,6 +122,7 @@ public class RootHomeTabPeriodAllContentViewModel(
             loadingState = RootHomeTabPeriodAllContentUiState.LoadingState.Loading,
             rootHomeTabPeriodUiState = periodViewModel.uiStateFlow.value,
             rootHomeTabUiState = tabViewModel.uiStateFlow.value,
+            scaffoldListener = RootScreenScaffoldListenerDefaultImpl(navController),
             event = object : RootHomeTabPeriodAllContentUiState.Event {
                 override suspend fun onViewInitialized() {
                     val period = viewModelStateFlow.value.displayPeriod

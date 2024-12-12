@@ -73,6 +73,7 @@ public data class ImportedMailFilterCategoryScreenUiState(
     val confirmDialog: ConfirmDialog?,
     val snackbarEventState: SnackbarEventState,
     val categorySelectDialogUiState: CategorySelectDialogUiState?,
+    val rootScreenScaffoldListener: RootScreenScaffoldListener,
     val event: Event,
 ) {
     public data class ConfirmDialog(
@@ -209,7 +210,6 @@ public data class ImportedMailFilterCategoryScreenUiState(
 public fun ImportedMailFilterCategoryScreen(
     modifier: Modifier = Modifier,
     uiState: ImportedMailFilterCategoryScreenUiState,
-    rootScreenScaffoldListener: RootScreenScaffoldListener,
     windowInsets: PaddingValues,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -276,7 +276,7 @@ public fun ImportedMailFilterCategoryScreen(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
-                            rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                            uiState.rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
                         },
                         text = "家計簿",
                     )
@@ -286,7 +286,7 @@ public fun ImportedMailFilterCategoryScreen(
         },
         windowInsets = windowInsets,
         snackbarHostState = snackbarHostState,
-        listener = rootScreenScaffoldListener,
+        listener = uiState.rootScreenScaffoldListener,
     ) {
         SettingScaffold(
             title = {

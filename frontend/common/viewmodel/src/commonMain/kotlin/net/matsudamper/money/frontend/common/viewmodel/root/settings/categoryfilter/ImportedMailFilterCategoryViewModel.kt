@@ -10,11 +10,13 @@ import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImportedMailFilterCategoryScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -31,6 +33,7 @@ public class ImportedMailFilterCategoryViewModel(
     private val graphqlClient: GraphqlClient,
     private val id: ImportedMailCategoryFilterId,
     private val api: ImportedMailFilterCategoryScreenGraphqlApi,
+    navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
     private val apiResponseCollector =
@@ -73,8 +76,8 @@ public class ImportedMailFilterCategoryViewModel(
                 categorySelectDialogUiState = null,
                 snackbarEventState = snackbarEventState,
                 confirmDialog = null,
-                event =
-                object : ImportedMailFilterCategoryScreenUiState.Event {
+                rootScreenScaffoldListener = RootScreenScaffoldListenerDefaultImpl(navController),
+                event = object : ImportedMailFilterCategoryScreenUiState.Event {
                     override fun onViewInitialized() {
                         viewModelScope.launch {
                             apiResponseCollector.fetch()

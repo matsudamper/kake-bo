@@ -42,6 +42,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 public data class RootSettingScreenUiState(
     val kotlinVersion: String,
+    val rootScreenScaffoldListener: RootScreenScaffoldListener,
     val event: Event,
 ) {
     public interface Event {
@@ -64,7 +65,6 @@ public data class RootSettingScreenUiState(
 public fun SettingRootScreen(
     modifier: Modifier = Modifier,
     uiState: RootSettingScreenUiState,
-    listener: RootScreenScaffoldListener,
     windowInsets: PaddingValues,
 ) {
     LaunchedEffect(Unit) {
@@ -74,7 +74,7 @@ public fun SettingRootScreen(
     RootScreenScaffold(
         modifier = modifier.fillMaxSize(),
         currentScreen = RootScreenTab.Settings,
-        listener = listener,
+        listener = uiState.rootScreenScaffoldListener,
         windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(
@@ -85,7 +85,7 @@ public fun SettingRootScreen(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
-                            listener.kakeboScaffoldListener.onClickTitle()
+                            uiState.rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
                         },
                         text = "家計簿",
                     )
@@ -211,7 +211,8 @@ private fun Preview() {
     SettingRootScreen(
         uiState = RootSettingScreenUiState(
             kotlinVersion = "preview",
-            object : RootSettingScreenUiState.Event {
+            rootScreenScaffoldListener = RootScreenScaffoldListener.previewImpl,
+            event = object : RootSettingScreenUiState.Event {
                 override fun onResume() {}
                 override fun onClickImapButton() {}
                 override fun onClickCategoryButton() {}
@@ -222,15 +223,5 @@ private fun Preview() {
             },
         ),
         windowInsets = PaddingValues(),
-        listener = object : RootScreenScaffoldListener {
-            override val kakeboScaffoldListener: KakeboScaffoldListener = object : KakeboScaffoldListener {
-                override fun onClickTitle() {}
-            }
-
-            override fun onClickHome() {}
-            override fun onClickList() {}
-            override fun onClickSettings() {}
-            override fun onClickAdd() {}
-        },
     )
 }

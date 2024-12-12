@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
 import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolder
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlyCategoryScreen
@@ -48,7 +49,7 @@ private enum class SavedStateHolderKey {
 @Composable
 internal fun RootNavContent(
     current: ScreenStructure.Root,
-    rootScreenScaffoldListener: RootScreenScaffoldListener,
+    navController: ScreenNavController,
     viewModelEventHandlers: ViewModelEventHandlers,
     globalEvent: GlobalEvent,
     rootCoroutineScope: CoroutineScope,
@@ -81,6 +82,7 @@ internal fun RootNavContent(
                                     loginCheckUseCase = koin.get(),
                                     argument = current,
                                     graphqlClient = koin.get(),
+                                    navController=navController,
                                 )
                             }
                             LaunchedEffect(viewModel, current) {
@@ -91,7 +93,6 @@ internal fun RootNavContent(
                             }
                             RootHomeMonthlyScreen(
                                 modifier = Modifier,
-                                scaffoldListener = rootScreenScaffoldListener,
                                 uiState = viewModel.uiStateFlow.collectAsState().value,
                                 windowInsets = windowInsets,
                             )
@@ -108,7 +109,6 @@ internal fun RootNavContent(
                                         modifier = Modifier.fillMaxSize(),
                                         contentPadding = windowInsets,
                                         uiState = rootHomeTabPeriodAllContentUiStateProvider(current),
-                                        scaffoldListener = rootScreenScaffoldListener,
                                     )
                                 }
                             }
@@ -123,6 +123,7 @@ internal fun RootNavContent(
                                         ),
                                         loginCheckUseCase = koin.get(),
                                         graphqlClient = koin.get(),
+                                        navController=navController,
                                     )
                                 }
                                 LaunchedEffect(categoryViewModel.eventHandler) {
@@ -134,7 +135,6 @@ internal fun RootNavContent(
                                 RootHomeTabPeriodCategoryScreen(
                                     modifier = Modifier.fillMaxSize(),
                                     uiState = categoryViewModel.uiStateFlow.collectAsState().value,
-                                    scaffoldListener = rootScreenScaffoldListener,
                                     windowInsets = windowInsets,
                                 )
                             }
@@ -148,6 +148,7 @@ internal fun RootNavContent(
                                 scopedObjectFeature = it,
                                 loginCheckUseCase = koin.get(),
                                 graphqlClient = koin.get(),
+                                navController=navController,
                             )
                         }
                         LaunchedEffect(monthlyCategoryViewModel.eventHandler) {
@@ -160,7 +161,6 @@ internal fun RootNavContent(
                         RootHomeMonthlyCategoryScreen(
                             modifier = Modifier.fillMaxSize(),
                             uiState = monthlyCategoryViewModel.uiStateFlow.collectAsState().value,
-                            scaffoldListener = rootScreenScaffoldListener,
                             windowInsets = windowInsets,
                         )
                     }
@@ -175,7 +175,6 @@ internal fun RootNavContent(
                         RootUsageHostScreen(
                             modifier = Modifier.fillMaxSize(),
                             uiState = rootUiState,
-                            listener = rootScreenScaffoldListener,
                             windowInsets = windowInsets,
                         ) {
                             content()
@@ -216,7 +215,6 @@ internal fun RootNavContent(
                 when (current) {
                     is ScreenStructure.Root.Add.Root -> {
                         HomeAddTabScreen(
-                            rootScreenScaffoldListener = rootScreenScaffoldListener,
                             uiState = homeAddTabScreenUiStateProvider(),
                             windowInsets = windowInsets,
                         )
@@ -225,7 +223,6 @@ internal fun RootNavContent(
                     is ScreenStructure.Root.Add.Import -> {
                         MailImportScreen(
                             uiState = importMailLinkScreenUiStateProvider(current),
-                            rootScreenScaffoldListener = rootScreenScaffoldListener,
                             windowInsets = windowInsets,
                         )
                     }
@@ -233,7 +230,6 @@ internal fun RootNavContent(
                     is ScreenStructure.Root.Add.Imported -> {
                         ImportedMailListScreen(
                             uiState = importMailScreenUiStateProvider(current),
-                            rootScreenScaffoldListener = rootScreenScaffoldListener,
                             windowInsets = windowInsets,
                         )
                     }
@@ -246,8 +242,8 @@ internal fun RootNavContent(
                 SettingNavContent(
                     state = current,
                     globalEventSender = globalEventSender,
+                    navController = navController,
                     globalEvent = globalEvent,
-                    rootScreenScaffoldListener = rootScreenScaffoldListener,
                     viewModelEventHandlers = viewModelEventHandlers,
                     settingUiStateProvider = settingUiStateProvider,
                     windowInsets = windowInsets,

@@ -23,10 +23,12 @@ import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.home.monthly.RootHomeMonthlyScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
+import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
@@ -42,6 +44,7 @@ public class RootHomeMonthlyScreenViewModel(
     argument: RootHomeScreenStructure.Monthly,
     loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
     graphqlClient: GraphqlClient,
+    navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(
         ViewModelState(
@@ -81,6 +84,7 @@ public class RootHomeMonthlyScreenViewModel(
             RootHomeMonthlyScreenUiState(
                 loadingState = RootHomeMonthlyScreenUiState.LoadingState.Loading,
                 rootHomeTabUiState = tabViewModel.uiStateFlow.value,
+                scaffoldListener = RootScreenScaffoldListenerDefaultImpl(navController),
                 event = object : RootHomeMonthlyScreenUiState.Event {
                     override suspend fun onViewInitialized() {
                         viewModelScope.launch {

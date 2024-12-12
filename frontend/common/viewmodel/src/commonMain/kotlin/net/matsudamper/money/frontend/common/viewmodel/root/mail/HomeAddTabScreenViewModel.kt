@@ -6,14 +6,17 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeAddTabScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
 public class HomeAddTabScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
+    navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val _viewModelStateFlow = MutableStateFlow(ViewModelState())
     private val viewModelStateFlow: StateFlow<ViewModelState> = _viewModelStateFlow.asStateFlow()
@@ -24,6 +27,7 @@ public class HomeAddTabScreenViewModel(
     public val uiStateFlow: StateFlow<HomeAddTabScreenUiState> =
         MutableStateFlow(
             HomeAddTabScreenUiState(
+                rootScreenScaffoldListener = RootScreenScaffoldListenerDefaultImpl(navController),
                 event = object : HomeAddTabScreenUiState.Event {
                     override fun onClickImportButton() {
                         viewModelScope.launch {

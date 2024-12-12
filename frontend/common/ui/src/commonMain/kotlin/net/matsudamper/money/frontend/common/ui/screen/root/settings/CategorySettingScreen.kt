@@ -59,6 +59,7 @@ public data class SettingCategoryScreenUiState(
     val categoryName: String,
     val showCategoryNameChangeDialog: FullScreenInputDialog?,
     val showSubCategoryNameChangeDialog: FullScreenInputDialog?,
+    val rootScreenScaffoldListener: RootScreenScaffoldListener,
 ) {
     public data class FullScreenInputDialog(
         val initText: String,
@@ -110,7 +111,6 @@ public data class SettingCategoryScreenUiState(
 public fun SettingCategoryScreen(
     modifier: Modifier = Modifier,
     uiState: SettingCategoryScreenUiState,
-    rootScreenScaffoldListener: RootScreenScaffoldListener,
     windowInsets: PaddingValues,
 ) {
     LaunchedEffect(Unit) {
@@ -158,7 +158,7 @@ public fun SettingCategoryScreen(
     RootScreenScaffold(
         modifier = modifier.fillMaxSize(),
         currentScreen = RootScreenTab.Settings,
-        listener = rootScreenScaffoldListener,
+        listener = uiState.rootScreenScaffoldListener,
         topBar = {
             KakeBoTopAppBar(
                 title = {
@@ -168,7 +168,7 @@ public fun SettingCategoryScreen(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
-                            rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                            uiState.rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
                         },
                         text = "家計簿",
                     )
