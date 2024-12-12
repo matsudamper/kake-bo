@@ -26,6 +26,7 @@ import net.matsudamper.money.backend.mail.parser.services.PayPalUsageService
 import net.matsudamper.money.backend.mail.parser.services.PostCoffeeSubscriptionUsageServices
 import net.matsudamper.money.backend.mail.parser.services.PostCoffeeUsageServices
 import net.matsudamper.money.backend.mail.parser.services.PovoUsageServices
+import net.matsudamper.money.backend.mail.parser.services.RakutenCardUsageService
 import net.matsudamper.money.backend.mail.parser.services.RakutenOfflineUsageService
 import net.matsudamper.money.backend.mail.parser.services.RakutenOnlineUsageService
 import net.matsudamper.money.backend.mail.parser.services.RakutenUsageServices
@@ -82,6 +83,7 @@ public object MailParser {
             PovoUsageServices,
             NijisanjiOfficialStoreUsageServices,
             RentioUsageServices,
+            RakutenCardUsageService,
         )
             .mapNotNull {
                 runCatching {

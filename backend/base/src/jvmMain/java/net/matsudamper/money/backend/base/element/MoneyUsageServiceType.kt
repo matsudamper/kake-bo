@@ -132,4 +132,8 @@ public enum class MoneyUsageServiceType(
         id = 33,
         displayName = "Rentio",
     ),
+    RakutenCard(
+        id = 34,
+        displayName = "楽天カード",
+    ),
 }
