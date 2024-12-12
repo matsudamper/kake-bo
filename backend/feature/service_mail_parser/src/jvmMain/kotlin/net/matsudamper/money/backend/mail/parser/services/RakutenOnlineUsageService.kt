@@ -18,12 +18,12 @@ internal object RakutenOnlineUsageService : MoneyUsageServices {
         plain: String,
         date: LocalDateTime,
     ): List<MoneyUsage> {
-        val canHandle =
-            sequence {
-                yield(canHandledWithFrom(from))
-                yield(canHandledWithSubject(subject))
-                yield(canHandledWithHtml(html))
-            }
+        val forwardedInfo = ParseUtil.parseForwarded(plain)
+        val canHandle = sequence {
+            yield(canHandledWithFrom(forwardedInfo?.from ?: from))
+            yield(canHandledWithSubject(forwardedInfo?.subject ?: subject))
+            yield(canHandledWithHtml(html))
+        }
         if (canHandle.any { it }.not()) return listOf()
 
         val title =
