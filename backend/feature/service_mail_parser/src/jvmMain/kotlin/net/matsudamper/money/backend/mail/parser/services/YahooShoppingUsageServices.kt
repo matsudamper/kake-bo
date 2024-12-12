@@ -1,6 +1,11 @@
 package net.matsudamper.money.backend.mail.parser.services
 
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatterBuilder
+import java.time.format.SignStyle
+import java.time.temporal.ChronoField
+import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.base.element.MoneyUsageServiceType
 import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
@@ -17,14 +22,85 @@ internal object YahooShoppingUsageServices : MoneyUsageServices {
         date: LocalDateTime,
     ): List<MoneyUsage> {
         val forwardOriginal = ParseUtil.parseForwarded(plain)
-
-        val canHandle =
-            sequence {
-                yield(canHandledWithFrom(forwardOriginal?.from ?: from))
-                yield(canHandledWithSubject(forwardOriginal?.subject ?: subject))
-            }
+        val subject = forwardOriginal?.subject ?: subject
+        val canHandle = sequence {
+            yield(canHandledWithFrom(forwardOriginal?.from ?: from))
+        }
         if (canHandle.any { it.not() }) return listOf()
+        return if (subject.contains("お申し込みのご確認")) {
+            parseFurusato(
+                plain = plain,
+                originalDate = forwardOriginal?.date ?: date,
+            )
+        } else if (subject.contains("ご注文の確認")) {
+            parseNormalShopping(
+                plain = plain,
+                date = forwardOriginal?.date ?: date,
+            )
+        } else {
+            listOf()
+        }
+    }
 
+    private fun parseFurusato(plain: String, originalDate: LocalDateTime): List<MoneyUsage> {
+        val lines = ParseUtil.splitByNewLine(plain)
+        val regex = """^(（\d+?）)(.+)$""".toRegex()
+        val priceRegex = """^(.+?)円 × (.+?) ＝ (.+?)円$""".toRegex()
+        val productLines = lines.withIndex().mapNotNull { (index, line) ->
+            index to (regex.find(line) ?: return@mapNotNull null)
+        }
+        val date = run {
+            val dateLine = lines.firstOrNull { it.startsWith("注文日時：") } ?: return@run originalDate
+
+            runCatching {
+                DateTimeFormatterBuilder()
+                    .appendLiteral("注文日時：")
+                    .appendValue(ChronoField.YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
+                    .appendLiteral('年')
+                    .appendValue(ChronoField.MONTH_OF_YEAR, 2)
+                    .appendLiteral('月')
+                    .appendValue(ChronoField.DAY_OF_MONTH, 2)
+                    .appendLiteral('日')
+                    .appendLiteral(' ')
+                    .appendValue(ChronoField.HOUR_OF_DAY, 2)
+                    .appendLiteral('時')
+                    .appendValue(ChronoField.MINUTE_OF_HOUR, 2)
+                    .appendLiteral('分')
+                    .appendValue(ChronoField.SECOND_OF_MINUTE, 2)
+                    .appendLiteral('秒')
+                    .toFormatter()
+                    .parse(dateLine)
+            }.onFailure {
+                TraceLogger.impl().noticeInfo(it)
+            }.map {
+                LocalDateTime.from(it)
+            }.getOrNull() ?: originalDate
+        }
+
+        return buildList {
+            for ((index, productLine) in productLines) {
+                val priceLine = lines.getOrNull(index + 3) ?: continue
+                val total = priceRegex.find(priceLine)?.groupValues?.getOrNull(3)
+                    ?.let { ParseUtil.getInt(it) }
+
+                val title = productLine.groupValues.getOrNull(2)
+                add(
+                    MoneyUsage(
+                        title = title.orEmpty(),
+                        price = total ?: 0,
+                        description = priceLine,
+                        service = MoneyUsageServiceType.YahooShopping,
+                        dateTime = date,
+                    ),
+                )
+            }
+        }
+    }
+
+    private fun parseNormalShopping(
+        plain: String,
+        date: LocalDateTime,
+    ): List<MoneyUsage> {
         val lines = ParseUtil.splitByNewLine(plain)
 
         val results = mutableListOf<MoneyUsage>()
@@ -97,9 +173,5 @@ internal object YahooShoppingUsageServices : MoneyUsageServices {
 
     private fun canHandledWithFrom(from: String): Boolean {
         return from == "shopping-order-master@mail.yahoo.co.jp"
-    }
-
-    private fun canHandledWithSubject(subject: String): Boolean {
-        return subject.contains("ご注文の確認")
     }
 }
