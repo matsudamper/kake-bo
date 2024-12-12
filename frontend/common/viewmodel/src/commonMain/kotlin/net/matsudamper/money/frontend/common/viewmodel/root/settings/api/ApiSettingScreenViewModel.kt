@@ -16,6 +16,8 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ApiSettingScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.PlatformType
+import net.matsudamper.money.frontend.common.viewmodel.PlatformTypeProvider
 import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -68,6 +70,14 @@ public class ApiSettingScreenViewModel(
                     },
                 ),
             )
+        }
+    }
+
+    private val rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
+        override fun onClickSettings() {
+            if (PlatformTypeProvider.type == PlatformType.JS) {
+                super.onClickSettings()
+            }
         }
     }
 
@@ -124,7 +134,7 @@ public class ApiSettingScreenViewModel(
             loadingState = ApiSettingScreenUiState.LoadingState.Loading,
             addDialog = null,
             addTokenResult = null,
-            rootScreenScaffoldListener = RootScreenScaffoldListenerDefaultImpl(navController),
+            rootScreenScaffoldListener = rootScreenScaffoldListener,
         ),
     ).also { uiStateFlow ->
         viewModelScope.launch {
@@ -153,7 +163,7 @@ public class ApiSettingScreenViewModel(
                     },
                     event = uiStateFlow.value.event,
                     addDialog = viewModelState.addDialogUiState,
-                    rootScreenScaffoldListener = RootScreenScaffoldListenerDefaultImpl(navController),
+                    rootScreenScaffoldListener = rootScreenScaffoldListener,
                     addTokenResult = viewModelState.addTokenResult?.let {
                         val token = it.userMutation.registerApiToken.apiToken ?: return@let null
                         ApiSettingScreenUiState.AddTokenResult(

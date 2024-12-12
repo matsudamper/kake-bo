@@ -16,6 +16,8 @@ import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImportedMailFilterCategoryScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.PlatformType
+import net.matsudamper.money.frontend.common.viewmodel.PlatformTypeProvider
 import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -76,7 +78,13 @@ public class ImportedMailFilterCategoryViewModel(
                 categorySelectDialogUiState = null,
                 snackbarEventState = snackbarEventState,
                 confirmDialog = null,
-                rootScreenScaffoldListener = RootScreenScaffoldListenerDefaultImpl(navController),
+                rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
+                    override fun onClickSettings() {
+                        if (PlatformTypeProvider.type == PlatformType.JS) {
+                            super.onClickSettings()
+                        }
+                    }
+                },
                 event = object : ImportedMailFilterCategoryScreenUiState.Event {
                     override fun onViewInitialized() {
                         viewModelScope.launch {

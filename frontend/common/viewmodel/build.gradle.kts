@@ -28,6 +28,14 @@ kotlin {
                 implementation(libs.koinCore)
             }
         }
+        val androidMain by getting {
+            dependencies {
+            }
+        }
+        val jsMain by getting {
+            dependencies {
+            }
+        }
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))

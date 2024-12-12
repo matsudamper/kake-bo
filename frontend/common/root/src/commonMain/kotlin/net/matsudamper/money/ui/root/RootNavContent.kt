@@ -14,7 +14,6 @@ import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolde
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlyCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllContentUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllScreen
@@ -82,7 +81,7 @@ internal fun RootNavContent(
                                     loginCheckUseCase = koin.get(),
                                     argument = current,
                                     graphqlClient = koin.get(),
-                                    navController=navController,
+                                    navController = navController,
                                 )
                             }
                             LaunchedEffect(viewModel, current) {
@@ -123,7 +122,7 @@ internal fun RootNavContent(
                                         ),
                                         loginCheckUseCase = koin.get(),
                                         graphqlClient = koin.get(),
-                                        navController=navController,
+                                        navController = navController,
                                     )
                                 }
                                 LaunchedEffect(categoryViewModel.eventHandler) {
@@ -148,7 +147,7 @@ internal fun RootNavContent(
                                 scopedObjectFeature = it,
                                 loginCheckUseCase = koin.get(),
                                 graphqlClient = koin.get(),
-                                navController=navController,
+                                navController = navController,
                             )
                         }
                         LaunchedEffect(monthlyCategoryViewModel.eventHandler) {

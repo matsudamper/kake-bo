@@ -13,6 +13,8 @@ import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoryScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.PlatformType
+import net.matsudamper.money.frontend.common.viewmodel.PlatformTypeProvider
 import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -121,7 +123,13 @@ public class SettingCategoryViewModel(
                 showCategoryNameChangeDialog = null,
                 showSubCategoryNameChangeDialog = null,
                 categoryName = "",
-                rootScreenScaffoldListener = RootScreenScaffoldListenerDefaultImpl(navController),
+                rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
+                    override fun onClickSettings() {
+                        if (PlatformTypeProvider.type == PlatformType.JS) {
+                            super.onClickSettings()
+                        }
+                    }
+                },
             ),
         ).also { uiStateFlow ->
             viewModelScope.launch {

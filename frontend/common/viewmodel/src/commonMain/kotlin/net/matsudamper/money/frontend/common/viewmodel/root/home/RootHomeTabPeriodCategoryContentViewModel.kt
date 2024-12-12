@@ -26,6 +26,8 @@ import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeri
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
+import net.matsudamper.money.frontend.common.viewmodel.PlatformType
+import net.matsudamper.money.frontend.common.viewmodel.PlatformTypeProvider
 import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
 import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
@@ -130,7 +132,13 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                 loadingState = RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading,
                 rootHomeTabPeriodUiState = periodViewModel.uiStateFlow.value,
                 rootHomeTabUiState = tabViewModel.uiStateFlow.value,
-                rootScaffoldListener = RootScreenScaffoldListenerDefaultImpl(navController),
+                rootScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
+                    override fun onClickHome() {
+                        if (PlatformTypeProvider.type == PlatformType.JS) {
+                            super.onClickHome()
+                        }
+                    }
+                },
                 event = object : RootHomeTabPeriodCategoryContentUiState.Event {
                     override suspend fun onViewInitialized() {
                         fetchCategory(

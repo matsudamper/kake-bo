@@ -6,10 +6,9 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 
-
-internal class RootScreenScaffoldListenerDefaultImpl(
+internal open class RootScreenScaffoldListenerDefaultImpl(
     private val navController: ScreenNavController,
-): RootScreenScaffoldListener {
+) : RootScreenScaffoldListener {
     override val kakeboScaffoldListener: KakeboScaffoldListener = object : KakeboScaffoldListener {
         override fun onClickTitle() {
             navController.navigateToHome()

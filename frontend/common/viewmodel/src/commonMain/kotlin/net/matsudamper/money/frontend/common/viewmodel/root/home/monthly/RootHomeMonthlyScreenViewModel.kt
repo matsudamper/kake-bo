@@ -28,6 +28,8 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.home.monthly.RootHomeMonthlyScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
+import net.matsudamper.money.frontend.common.viewmodel.PlatformType
+import net.matsudamper.money.frontend.common.viewmodel.PlatformTypeProvider
 import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -84,7 +86,13 @@ public class RootHomeMonthlyScreenViewModel(
             RootHomeMonthlyScreenUiState(
                 loadingState = RootHomeMonthlyScreenUiState.LoadingState.Loading,
                 rootHomeTabUiState = tabViewModel.uiStateFlow.value,
-                scaffoldListener = RootScreenScaffoldListenerDefaultImpl(navController),
+                scaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
+                    override fun onClickHome() {
+                        if (PlatformTypeProvider.type == PlatformType.JS) {
+                            super.onClickHome()
+                        }
+                    }
+                },
                 event = object : RootHomeMonthlyScreenUiState.Event {
                     override suspend fun onViewInitialized() {
                         viewModelScope.launch {

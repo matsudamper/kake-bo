@@ -17,6 +17,8 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportMailScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
+import net.matsudamper.money.frontend.common.viewmodel.PlatformType
+import net.matsudamper.money.frontend.common.viewmodel.PlatformTypeProvider
 import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -44,8 +46,14 @@ public class MailImportViewModel(
                 mails = immutableListOf(),
                 showLoadMore = false,
                 mailDeleteDialog = null,
-                rootScreenScaffoldListener = RootScreenScaffoldListenerDefaultImpl(navController),
-                event =                object : ImportMailScreenUiState.Event {
+                rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
+                    override fun onClickAdd() {
+                        if (PlatformTypeProvider.type == PlatformType.JS) {
+                            super.onClickAdd()
+                        }
+                    }
+                },
+                event = object : ImportMailScreenUiState.Event {
                     override fun htmlDismissRequest() {
                         viewModelStateFlow.update {
                             it.copy(html = null)
