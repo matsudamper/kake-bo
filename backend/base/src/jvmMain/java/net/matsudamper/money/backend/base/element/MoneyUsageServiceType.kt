@@ -120,4 +120,8 @@ public enum class MoneyUsageServiceType(
         id = 30,
         displayName = "Booth",
     ),
+    Povo(
+        id = 31,
+        displayName = "povo",
+    ),
 }
