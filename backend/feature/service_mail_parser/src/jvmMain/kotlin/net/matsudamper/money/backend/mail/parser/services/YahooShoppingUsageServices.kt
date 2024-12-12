@@ -31,7 +31,7 @@ internal object YahooShoppingUsageServices : MoneyUsageServices {
                 plain = plain,
                 originalDate = forwardOriginal?.date ?: date,
             )
-        } else if (subject.contains("ご注文の確認")) {
+        } else if (subject.contains("ご注文の確認") || subject.contains("Yahoo!ショッピングでのご利用内容をご確認ください")) {
             parseNormalShopping(
                 plain = plain,
                 date = forwardOriginal?.date ?: date,
