@@ -184,14 +184,11 @@ public fun Content(
                 }
 
                 override fun onClickList() {
-                    Logger.d("LOG", "onclickList")
                     rootUsageHostViewModel.requestNavigate()
                 }
 
                 override fun onClickSettings() {
-                    settingViewModel.requestNavigate(
-                        currentScreen = navController.currentBackstackEntry.structure,
-                    )
+                    settingViewModel.requestNavigate()
                 }
 
                 override fun onClickAdd() {

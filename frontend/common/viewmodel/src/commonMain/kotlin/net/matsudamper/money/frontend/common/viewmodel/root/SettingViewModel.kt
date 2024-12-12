@@ -95,16 +95,11 @@ public class SettingViewModel(
         }
     }
 
-    public fun requestNavigate(currentScreen: IScreenStructure) {
+    public fun requestNavigate() {
         viewModelScope.launch {
             backgroundEventSender.send {
                 it.navigate(
-                    if (currentScreen is ScreenStructure.Root.Settings) {
-                        ScreenStructure.Root.Settings.Root
-                    } else {
-                        viewModelState.value.latestStructure
-                            ?: ScreenStructure.Root.Settings.Root
-                    },
+                    ScreenStructure.Root.Settings.Root,
                 )
             }
         }
