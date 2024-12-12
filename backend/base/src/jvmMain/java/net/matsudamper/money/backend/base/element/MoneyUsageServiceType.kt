@@ -127,5 +127,5 @@ public enum class MoneyUsageServiceType(
     NijisanjiOfficialStore(
         id = 32,
         displayName = "にじさんじオフィシャルストア",
-    )
+    ),
 }

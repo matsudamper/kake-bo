@@ -39,7 +39,7 @@ internal object NijisanjiOfficialStoreUsageServices : MoneyUsageServices {
                     description = "合計",
                     service = MoneyUsageServiceType.NijisanjiOfficialStore,
                     dateTime = orderDate,
-                )
+                ),
             )
 
             val shippingStartText = "送料 "
