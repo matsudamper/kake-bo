@@ -2,9 +2,11 @@ package net.matsudamper.money.frontend.common.viewmodel.root.mail
 
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -36,20 +38,18 @@ public class ImportedMailListViewModel(
     public val eventHandler: EventHandler<MailLinkViewModelEvent> = viewModelEventSender.asHandler()
 
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
-
+    private val composeOperation = Channel<(ImportedMailListScreenUiState.Operation) -> Unit>(Channel.BUFFERED)
     public val rootUiStateFlow: StateFlow<ImportedMailListScreenUiState> =
         MutableStateFlow(
             ImportedMailListScreenUiState(
-                filters =
-                ImportedMailListScreenUiState.Filters(
-                    link =
-                    ImportedMailListScreenUiState.Filters.Link(
+                operation = composeOperation.receiveAsFlow(),
+                filters = ImportedMailListScreenUiState.Filters(
+                    link = ImportedMailListScreenUiState.Filters.Link(
                         status = LinkStatus.Undefined,
                         updateState = { updateLinkStatus(it) },
                     ),
                 ),
-                event =
-                object : ImportedMailListScreenUiState.Event {
+                event = object : ImportedMailListScreenUiState.Event {
                     override fun onViewInitialized() {
                         if (viewModelStateFlow.value.mailState.mails.isEmpty()) {
                             fetch()
@@ -65,6 +65,10 @@ public class ImportedMailListViewModel(
                     override fun onClickAdd() {
                         if (PlatformTypeProvider.type == PlatformType.JS) {
                             super.onClickAdd()
+                        } else {
+                            composeOperation.trySend {
+                                it.scrollToTop()
+                            }
                         }
                     }
                 },

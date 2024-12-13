@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.mail
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
@@ -34,11 +36,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,79 +52,12 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import net.matsudamper.money.frontend.common.base.ImmutableList
+import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
-
-public data class ImportedMailListScreenUiState(
-    val event: Event,
-    val filters: Filters,
-    val loadingState: LoadingState,
-    val rootScreenScaffoldListener: RootScreenScaffoldListener,
-) {
-    public data class Filters(
-        val link: Link,
-    ) {
-        public data class Link(
-            val status: LinkStatus,
-            val updateState: (LinkStatus) -> Unit,
-        )
-
-        public enum class LinkStatus {
-            Undefined,
-            Linked,
-            NotLinked,
-        }
-    }
-
-    @Immutable
-    public sealed interface LoadingState {
-        public data class Loaded(
-            val listItems: ImmutableList<ListItem>,
-            val showLastLoading: Boolean,
-        ) : LoadingState
-
-        public data object Loading : LoadingState
-    }
-
-    public data class ListItem(
-        val mail: ImportedMail,
-        val usages: ImmutableList<UsageItem>,
-        val event: ListItemEvent,
-    )
-
-    public data class UsageItem(
-        val title: String,
-        val service: String,
-        val description: String,
-        val amount: String,
-        val dateTime: String,
-        val category: String,
-    )
-
-    public data class ImportedMail(
-        val mailFrom: String,
-        val mailSubject: String,
-    )
-
-    @Immutable
-    public interface ListItemEvent {
-        public fun onClickMailDetail()
-
-        public fun onClick()
-    }
-
-    @Immutable
-    public interface Event {
-        public fun onViewInitialized()
-
-        public fun moreLoading()
-    }
-}
 
 @Composable
 public fun ImportedMailListScreen(
@@ -157,6 +92,21 @@ public fun ImportedMailListScreen(
             )
         },
     ) {
+        val lazyListState = rememberLazyListState()
+        val coroutineScope = rememberCoroutineScope()
+        LaunchedEffect(uiState.operation, coroutineScope) {
+            uiState.operation.collect {
+                it(
+                    object : ImportedMailListScreenUiState.Operation {
+                        override fun scrollToTop() {
+                            coroutineScope.launch {
+                                lazyListState.animateScrollToItem(0)
+                            }
+                        }
+                    },
+                )
+            }
+        }
         when (val loadingState = uiState.loadingState) {
             is ImportedMailListScreenUiState.LoadingState.Loaded -> {
                 MainContent(
@@ -164,6 +114,7 @@ public fun ImportedMailListScreen(
                     uiState = loadingState,
                     filterUiState = uiState.filters,
                     moreLoading = uiState.event::moreLoading,
+                    lazyListState = lazyListState,
                 )
             }
 
@@ -184,6 +135,7 @@ public fun ImportedMailListScreen(
 private fun MainContent(
     modifier: Modifier,
     filterUiState: ImportedMailListScreenUiState.Filters,
+    lazyListState: LazyListState = rememberLazyListState(),
     uiState: ImportedMailListScreenUiState.LoadingState.Loaded,
     moreLoading: () -> Unit,
 ) {
@@ -203,7 +155,6 @@ private fun MainContent(
             Modifier.fillMaxWidth()
                 .weight(1f),
         ) {
-            val lazyListState = rememberLazyListState()
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 state = lazyListState,
