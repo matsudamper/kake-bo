@@ -36,7 +36,7 @@ public fun NavHost(
         }
         val backStackStructures = navController.backstackEntries.map { it.structure }
         scopedObjectStoreOwner.keys()
-            .map { it as IScreenStructure }
+            .mapNotNull { it as? IScreenStructure }
             .filterNot { it in backStackStructures }
             .forEach { structure ->
                 scopedObjectStoreOwner.removeScopedObjectStore(structure)
