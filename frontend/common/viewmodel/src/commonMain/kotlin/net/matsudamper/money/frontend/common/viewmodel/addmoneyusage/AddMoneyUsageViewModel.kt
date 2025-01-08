@@ -94,20 +94,20 @@ public class AddMoneyUsageViewModel(
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         textInputDialog =
-                        AddMoneyUsageScreenUiState.FullScreenTextInputDialog(
-                            title = "説明",
-                            default = viewModelState.usageDescription,
-                            onComplete = { text ->
-                                viewModelStateFlow.update { viewModelState ->
-                                    viewModelState.copy(
-                                        usageDescription = text,
-                                    )
-                                }
-                                dismissTextInputDialog()
-                            },
-                            canceled = { dismissTextInputDialog() },
-                            isMultiline = true,
-                        ),
+                            AddMoneyUsageScreenUiState.FullScreenTextInputDialog(
+                                title = "説明",
+                                default = viewModelState.usageDescription,
+                                onComplete = { text ->
+                                    viewModelStateFlow.update { viewModelState ->
+                                        viewModelState.copy(
+                                            usageDescription = text,
+                                        )
+                                    }
+                                    dismissTextInputDialog()
+                                },
+                                canceled = { dismissTextInputDialog() },
+                                isMultiline = true,
+                            ),
                     )
                 }
             }
@@ -134,20 +134,20 @@ public class AddMoneyUsageViewModel(
                         viewModelState.copy(
                             usageAmount = amount,
                             numberInputDialog =
-                            viewModelState.numberInputDialog?.copy(
-                                value = amount,
-                            ),
+                                viewModelState.numberInputDialog?.copy(
+                                    value = amount,
+                                ),
                         )
                     }
                 }
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         numberInputDialog =
-                        AddMoneyUsageScreenUiState.NumberInputDialog(
-                            value = viewModelState.usageAmount,
-                            dismissRequest = dismissRequest,
-                            onChangeValue = onChangeValue,
-                        ),
+                            AddMoneyUsageScreenUiState.NumberInputDialog(
+                                value = viewModelState.usageAmount,
+                                dismissRequest = dismissRequest,
+                                onChangeValue = onChangeValue,
+                            ),
                     )
                 }
             }
@@ -156,20 +156,20 @@ public class AddMoneyUsageViewModel(
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         textInputDialog =
-                        AddMoneyUsageScreenUiState.FullScreenTextInputDialog(
-                            title = "タイトル",
-                            default = viewModelState.usageTitle,
-                            onComplete = { text ->
-                                viewModelStateFlow.update { viewModelState ->
-                                    viewModelState.copy(
-                                        usageTitle = text,
-                                    )
-                                }
-                                dismissTextInputDialog()
-                            },
-                            canceled = { dismissTextInputDialog() },
-                            isMultiline = false,
-                        ),
+                            AddMoneyUsageScreenUiState.FullScreenTextInputDialog(
+                                title = "タイトル",
+                                default = viewModelState.usageTitle,
+                                onComplete = { text ->
+                                    viewModelStateFlow.update { viewModelState ->
+                                        viewModelState.copy(
+                                            usageTitle = text,
+                                        )
+                                    }
+                                    dismissTextInputDialog()
+                                },
+                                canceled = { dismissTextInputDialog() },
+                                isMultiline = false,
+                            ),
                     )
                 }
             }
@@ -204,10 +204,10 @@ public class AddMoneyUsageViewModel(
                     title = viewModelStateFlow.value.usageTitle,
                     description = viewModelStateFlow.value.usageDescription,
                     datetime =
-                    LocalDateTime(
-                        date = date,
-                        time = viewModelStateFlow.value.usageTime,
-                    ),
+                        LocalDateTime(
+                            date = date,
+                            time = viewModelStateFlow.value.usageTime,
+                        ),
                     amount = viewModelStateFlow.value.usageAmount.value,
                     subCategoryId = viewModelStateFlow.value.usageCategorySet?.subCategoryId,
                     importedMailId = viewModelStateFlow.value.importedMailId,
@@ -244,42 +244,41 @@ public class AddMoneyUsageViewModel(
             return
         }
 
-        usageFromMailIdJob =
-            viewModelScope.launch {
-                graphqlApi.get(importedMailId)
-                    .onSuccess { result ->
-                        val importedMailIndex = current.importedMailIndex
+        usageFromMailIdJob = viewModelScope.launch {
+            graphqlApi.get(importedMailId)
+                .onSuccess { result ->
+                    val importedMailIndex = current.importedMailIndex
 
-                        val suggestUsage = result.data?.user?.importedMailAttributes?.mail?.suggestUsages
-                            ?.getOrNull(importedMailIndex ?: 0)
-                        val forwardedInfo = result.data?.user?.importedMailAttributes?.mail?.forwardedInfo
-                        if (suggestUsage == null) {
-                            val subject = result.data?.user?.importedMailAttributes?.mail?.subject.orEmpty()
-                            val date = result.data?.user?.importedMailAttributes?.mail?.dateTime
-                            viewModelStateFlow.update {
-                                it.copy(
-                                    importedMailId = importedMailId,
-                                    usageTitle = forwardedInfo?.subject ?: subject,
-                                    usageDate = forwardedInfo?.dateTime?.date
-                                        ?: date?.date
-                                        ?: Clock.System.todayIn(TimeZone.currentSystemDefault()),
-                                )
-                            }
-                            return@launch
-                        }
-
+                    val suggestUsage = result.data?.user?.importedMailAttributes?.mail?.suggestUsages
+                        ?.getOrNull(importedMailIndex ?: 0)
+                    val forwardedInfo = result.data?.user?.importedMailAttributes?.mail?.forwardedInfo
+                    if (suggestUsage == null) {
+                        val subject = result.data?.user?.importedMailAttributes?.mail?.subject.orEmpty()
+                        val date = result.data?.user?.importedMailAttributes?.mail?.dateTime
                         viewModelStateFlow.update {
                             it.copy(
                                 importedMailId = importedMailId,
-                                usageAmount =
+                                usageTitle = forwardedInfo?.subject ?: subject,
+                                usageDate = forwardedInfo?.dateTime?.date
+                                    ?: date?.date
+                                    ?: Clock.System.todayIn(TimeZone.currentSystemDefault()),
+                            )
+                        }
+                        return@launch
+                    }
+
+                    viewModelStateFlow.update {
+                        it.copy(
+                            importedMailId = importedMailId,
+                            usageAmount =
                                 NumberInputValue.default(
                                     value = suggestUsage.amount ?: 0,
                                 ),
-                                usageDate = suggestUsage.dateTime?.date ?: it.usageDate,
-                                usageTime = suggestUsage.dateTime?.time ?: it.usageTime,
-                                usageTitle = suggestUsage.title,
-                                usageDescription = suggestUsage.description,
-                                usageCategorySet =
+                            usageDate = suggestUsage.dateTime?.date ?: it.usageDate,
+                            usageTime = suggestUsage.dateTime?.time ?: it.usageTime,
+                            usageTitle = suggestUsage.title,
+                            usageDescription = suggestUsage.description,
+                            usageCategorySet =
                                 run category@{
                                     CategorySelectDialogViewModel.SelectedResult(
                                         categoryId = suggestUsage.subCategory?.category?.id ?: return@category null,
@@ -288,13 +287,13 @@ public class AddMoneyUsageViewModel(
                                         subCategoryName = suggestUsage.subCategory?.name ?: return@category null,
                                     )
                                 },
-                            )
-                        }
+                        )
                     }
-                    .onFailure {
-                        // TODO
-                    }
-            }
+                }
+                .onFailure {
+                    // TODO
+                }
+        }
     }
 
     public val uiStateFlow: StateFlow<AddMoneyUsageScreenUiState> =
@@ -316,12 +315,10 @@ public class AddMoneyUsageViewModel(
                 viewModelStateFlow.collect { viewModelState ->
                     uiStateFlow.update { uiState ->
                         uiState.copy(
-                            calendarDialog =
-                            AddMoneyUsageScreenUiState.CalendarDialog(
+                            calendarDialog = AddMoneyUsageScreenUiState.CalendarDialog(
                                 selectedDate = viewModelState.usageDate,
                             ).takeIf { viewModelState.showCalendarDialog },
-                            date =
-                            run {
+                            date = run {
                                 val dayOfWeek = Formatter.dayOfWeekToJapanese(viewModelState.usageDate.dayOfWeek)
                                 "${viewModelState.usageDate.year}-${viewModelState.usageDate.monthNumber}-${viewModelState.usageDate.dayOfMonth} ($dayOfWeek)"
                             },
@@ -330,8 +327,7 @@ public class AddMoneyUsageViewModel(
                             fullScreenTextInputDialog = viewModelState.textInputDialog,
                             numberInputDialog = viewModelState.numberInputDialog,
                             amount = viewModelState.usageAmount.value.toDouble().toString(),
-                            category =
-                            run category@{
+                            category = run category@{
                                 val default = "未選択"
                                 val categorySet = viewModelState.usageCategorySet
                                 val category = categorySet?.categoryName ?: return@category default
