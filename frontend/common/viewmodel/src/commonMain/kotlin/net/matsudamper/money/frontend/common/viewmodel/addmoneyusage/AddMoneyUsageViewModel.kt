@@ -62,17 +62,6 @@ public class AddMoneyUsageViewModel(
     private val uiEvent = object : AddMoneyUsageScreenUiState.Event {
         override fun onClickAdd() {
             addMoneyUsage()
-            when (PlatformTypeProvider.type) {
-                PlatformType.ANDROID -> {
-                    viewModelScope.launch {
-                        eventSender.send {
-                            it.back()
-                        }
-                    }
-                }
-
-                PlatformType.JS -> Unit
-            }
         }
 
         override fun dismissCalendar() {
@@ -226,12 +215,9 @@ public class AddMoneyUsageViewModel(
             }
 
             viewModelStateFlow.update {
-                ViewModelState()
-            }
-            viewModelScope.launch {
-                eventSender.send {
-                    it.navigate(ScreenStructure.AddMoneyUsage())
-                }
+                ViewModelState(
+                    usageDate = it.usageDate,
+                )
             }
         }
     }
