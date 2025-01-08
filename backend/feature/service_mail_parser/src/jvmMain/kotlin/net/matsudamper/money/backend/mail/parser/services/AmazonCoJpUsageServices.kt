@@ -18,75 +18,70 @@ internal object AmazonCoJpUsageServices : MoneyUsageServices {
         plain: String,
         date: LocalDateTime,
     ): List<MoneyUsage> {
-        val canHandle =
-            sequence {
-                yield(canHandledWithFrom(from))
-                yield(canHandledWithSubject(subject))
-                yield(canHandledWithPlain(plain))
-            }
+        val canHandle = sequence {
+            yield(canHandledWithFrom(from))
+            yield(canHandledWithSubject(subject))
+            yield(canHandledWithPlain(plain))
+        }
         if (canHandle.any { it }.not()) return listOf()
 
         val isGiftCard = plain.contains("ギフトカードの送信先")
 
-        val price =
-            sequence {
-                yield(
-                    run price@{
-                        val total =
-                            plain
-                                .split("\r\n")
-                                .flatMap { it.split("\n") }
-                                .firstOrNull { it.contains("注文合計：") }
-                                ?: return@price null
+        val price = sequence {
+            yield(
+                run price@{
+                    val total = plain
+                        .split("\r\n")
+                        .flatMap { it.split("\n") }
+                        .firstOrNull { it.contains("注文合計：") }
+                        ?: return@price null
 
-                        "注文合計：".let { targetText ->
-                            total.substring(total.indexOf(targetText) + targetText.length)
-                        }
-                            .toList()
-                            .mapNotNull { it.toString().toIntOrNull() }
-                            .joinToString("")
-                            .toIntOrNull()
-                    },
-                )
-                yield(
-                    run price@{
-                        val startIndex = plain.indexOf("注文合計:").takeIf { it >= 0 } ?: return@price null
+                    "注文合計：".let { targetText ->
+                        total.substring(total.indexOf(targetText) + targetText.length)
+                    }
+                        .toList()
+                        .mapNotNull { it.toString().toIntOrNull() }
+                        .joinToString("")
+                        .toIntOrNull()
+                },
+            )
+            yield(
+                run price@{
+                    val startIndex = plain.indexOf("注文合計:").takeIf { it >= 0 } ?: return@price null
 
-                        "￥(.+?)$".toRegex(RegexOption.MULTILINE)
-                            .find(startIndex = startIndex, input = plain)
-                            ?.groupValues?.getOrNull(1)
-                            ?.mapNotNull { it.toString().toIntOrNull() }
-                            ?.joinToString("")
-                            ?.toIntOrNull()
-                    },
-                )
-            }.filterNotNull().firstOrNull()
+                    "￥(.+?)$".toRegex(RegexOption.MULTILINE)
+                        .find(startIndex = startIndex, input = plain)
+                        ?.groupValues?.getOrNull(1)
+                        ?.mapNotNull { it.toString().toIntOrNull() }
+                        ?.joinToString("")
+                        ?.toIntOrNull()
+                },
+            )
+        }.filterNotNull().firstOrNull()
 
-        val url =
-            sequence {
-                val document = Jsoup.parse(html)
+        val url = sequence {
+            val document = Jsoup.parse(html)
 
-                yield(
-                    document.getElementsByTag("a")
-                        .firstOrNull { it.text().contains("注文の詳細を表示する") }
-                        ?.attr("href"),
-                )
-                yield(
-                    document
-                        .getElementsByClass("buttonComponentLink").attr("href")
-                        .takeIf { it.isNotBlank() },
-                )
-            }.filterNotNull().firstOrNull()
+            yield(
+                document.getElementsByTag("a")
+                    .firstOrNull { it.text().contains("注文の詳細を表示する") }
+                    ?.attr("href"),
+            )
+            yield(
+                document
+                    .getElementsByClass("buttonComponentLink").attr("href")
+                    .takeIf { it.isNotBlank() },
+            )
+        }.filterNotNull().firstOrNull()
 
-        val mailDateTime =
-            run {
-                val result = """注文日： (\d{4})/(\d{2})/(\d{2})""".toRegex().find(plain) ?: return@run null
-                val year = result.groupValues.getOrNull(1)?.toIntOrNull() ?: return@run null
-                val month = result.groupValues.getOrNull(2)?.toIntOrNull() ?: return@run null
-                val day = result.groupValues.getOrNull(3)?.toIntOrNull() ?: return@run null
+        val mailDateTime = run {
+            val result = """注文日： (\d{4})/(\d{2})/(\d{2})""".toRegex().find(plain) ?: return@run null
+            val year = result.groupValues.getOrNull(1)?.toIntOrNull() ?: return@run null
+            val month = result.groupValues.getOrNull(2)?.toIntOrNull() ?: return@run null
+            val day = result.groupValues.getOrNull(3)?.toIntOrNull() ?: return@run null
 
-                LocalDate.of(year, month, day)
-            }
+            LocalDate.of(year, month, day)
+        }
 
         return listOf(
             MoneyUsage(
@@ -94,8 +89,7 @@ internal object AmazonCoJpUsageServices : MoneyUsageServices {
                 price = price,
                 description = url.orEmpty(),
                 service = MoneyUsageServiceType.Amazon,
-                dateTime =
-                run {
+                dateTime = run {
                     if (mailDateTime != null) {
                         LocalDateTime.of(mailDateTime, LocalTime.MIN)
                     } else {
