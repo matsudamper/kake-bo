@@ -209,10 +209,10 @@ public class AddMoneyUsageViewModel(
                 title = viewModelStateFlow.value.usageTitle,
                 description = viewModelStateFlow.value.usageDescription,
                 datetime =
-                    LocalDateTime(
-                        date = date,
-                        time = viewModelStateFlow.value.usageTime,
-                    ),
+                LocalDateTime(
+                    date = date,
+                    time = viewModelStateFlow.value.usageTime,
+                ),
                 amount = viewModelStateFlow.value.usageAmount.value,
                 subCategoryId = viewModelStateFlow.value.usageCategorySet?.subCategoryId,
                 importedMailId = viewModelStateFlow.value.importedMailId,
