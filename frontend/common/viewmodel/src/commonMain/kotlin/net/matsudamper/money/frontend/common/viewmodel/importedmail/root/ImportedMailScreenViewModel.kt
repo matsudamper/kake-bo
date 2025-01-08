@@ -31,52 +31,50 @@ public class ImportedMailScreenViewModel(
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
     private val apolloResponseCollector = api.get(id = importedMailId)
-    private val event =
-        object : MailScreenUiState.Event {
-            override fun onClickRetry() {
-                fetch()
-            }
+    private val event = object : MailScreenUiState.Event {
+        override fun onClickRetry() {
+            fetch()
+        }
 
-            override fun onClickArrowBackButton() {
-                viewModelScope.launch {
-                    viewModelEventSender.send {
-                        it.navigateToBack()
-                    }
-                }
-            }
-
-            override fun onClickTitle() {
-                viewModelScope.launch {
-                    viewModelEventSender.send {
-                        it.navigateToHome()
-                    }
-                }
-            }
-
-            override fun onClickDelete() {
-                viewModelScope.launch {
-                    viewModelStateFlow.update { viewModelState ->
-                        viewModelState.copy(
-                            confirmDialog =
-                                MailScreenUiState.AlertDialog(
-                                    onDismissRequest = { dismissConfirmDialog() },
-                                    onClickNegative = { dismissConfirmDialog() },
-                                    onClickPositive = {
-                                        viewModelScope.launch {
-                                            val isSuccess = api.delete(id = importedMailId)
-                                            if (isSuccess) {
-                                                dismissConfirmDialog()
-                                                viewModelEventSender.send { it.navigateToBack() }
-                                            }
-                                        }
-                                    },
-                                    title = "削除しますか？",
-                                ),
-                        )
-                    }
+        override fun onClickArrowBackButton() {
+            viewModelScope.launch {
+                viewModelEventSender.send {
+                    it.navigateToBack()
                 }
             }
         }
+
+        override fun onClickTitle() {
+            viewModelScope.launch {
+                viewModelEventSender.send {
+                    it.navigateToHome()
+                }
+            }
+        }
+
+        override fun onClickDelete() {
+            viewModelScope.launch {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        confirmDialog = MailScreenUiState.AlertDialog(
+                            onDismissRequest = { dismissConfirmDialog() },
+                            onClickNegative = { dismissConfirmDialog() },
+                            onClickPositive = {
+                                viewModelScope.launch {
+                                    val isSuccess = api.delete(id = importedMailId)
+                                    if (isSuccess) {
+                                        dismissConfirmDialog()
+                                        viewModelEventSender.send { it.navigateToBack() }
+                                    }
+                                }
+                            },
+                            title = "削除しますか？",
+                        ),
+                    )
+                }
+            }
+        }
+    }
 
     public val uiStateFlow: StateFlow<MailScreenUiState> = MutableStateFlow(
         MailScreenUiState(
