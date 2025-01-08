@@ -45,16 +45,20 @@ internal object ParseUtil {
                 }
 
         return MailMetadata(
-            from =
-            forwardedMetadata["From"]?.trim()?.let from@{ fromRawString ->
+            from = forwardedMetadata["From"]?.trim()?.let from@{ fromRawString ->
                 val result =
                     "<(.+?)>".toRegex().findAll(fromRawString).lastOrNull()
                         ?: return@from null
 
                 result.groupValues[1]
             },
-            date =
-            forwardedMetadata["Date"]?.trim()?.let { dateRawString ->
+            fromPersonal = forwardedMetadata["From"]?.trim()?.let from@{ fromRawString ->
+                val result = "^(.+)<".toRegex().findAll(fromRawString).lastOrNull()
+                        ?: return@from null
+
+                result.groupValues[1]
+            },
+            date = forwardedMetadata["Date"]?.trim()?.let { dateRawString ->
                 val result =
                     runCatching {
                         forwardedMailDateJapaneseFormatter.parse(dateRawString)
@@ -76,18 +80,19 @@ internal object ParseUtil {
             },
             subject = forwardedMetadata["Subject"]?.trim(),
             to =
-            forwardedMetadata["To"]?.trim()?.let to@{ toRawString ->
-                val result =
-                    "<(.+?)>".toRegex().findAll(toRawString).lastOrNull()
-                        ?: return@to null
+                forwardedMetadata["To"]?.trim()?.let to@{ toRawString ->
+                    val result =
+                        "<(.+?)>".toRegex().findAll(toRawString).lastOrNull()
+                            ?: return@to null
 
-                result.groupValues[1]
-            },
+                    result.groupValues[1]
+                },
         )
     }
 
     data class MailMetadata(
         val from: String?,
+        val fromPersonal: String?,
         val date: LocalDateTime?,
         val subject: String?,
         val to: String?,

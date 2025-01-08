@@ -9,6 +9,7 @@ public data class MailResult(
     val content: List<Content>,
     val sender: String?,
     val from: List<String>,
+    val personal: List<String>,
     val forwardedFor: List<String>,
     val forwardedTo: List<String>,
     val sendDate: Instant,

@@ -59,6 +59,9 @@ public object MailParser {
             from = message.from
                 .map { it as InternetAddress }
                 .mapNotNull { it.address },
+            personal = message.from
+                .map { it as InternetAddress }
+                .mapNotNull { it.personal },
             forwardedFor = message.getHeader("X-Forwarded-For")
                 .orEmpty()
                 .flatMap { it.split(" ") },
