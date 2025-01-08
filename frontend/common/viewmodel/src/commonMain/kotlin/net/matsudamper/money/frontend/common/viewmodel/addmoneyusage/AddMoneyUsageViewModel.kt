@@ -34,154 +34,147 @@ public class AddMoneyUsageViewModel(
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
-    private val categorySelectDialogViewModel =
-        object {
-            private val event: CategorySelectDialogViewModel.Event =
-                object : CategorySelectDialogViewModel.Event {
-                    override fun selected(result: CategorySelectDialogViewModel.SelectedResult) {
-                        viewModelStateFlow.update {
-                            it.copy(
-                                usageCategorySet = result,
-                            )
-                        }
-                        viewModel.dismissDialog()
+    private val categorySelectDialogViewModel = object {
+        private val event: CategorySelectDialogViewModel.Event =
+            object : CategorySelectDialogViewModel.Event {
+                override fun selected(result: CategorySelectDialogViewModel.SelectedResult) {
+                    viewModelStateFlow.update {
+                        it.copy(
+                            usageCategorySet = result,
+                        )
                     }
+                    viewModel.dismissDialog()
                 }
-            val viewModel = CategorySelectDialogViewModel(
-                scopedObjectFeature = scopedObjectFeature,
-                event = event,
-                apolloClient = graphqlClient.apolloClient,
-            )
-        }.viewModel
-
-    private val viewModelStateFlow =
-        MutableStateFlow(
-            ViewModelState(),
+            }
+        val viewModel = CategorySelectDialogViewModel(
+            scopedObjectFeature = scopedObjectFeature,
+            event = event,
+            apolloClient = graphqlClient.apolloClient,
         )
+    }.viewModel
 
-    private val uiEvent =
-        object : AddMoneyUsageScreenUiState.Event {
-            override fun onClickAdd() {
-                addMoneyUsage()
-            }
+    private val viewModelStateFlow = MutableStateFlow(
+        ViewModelState(),
+    )
 
-            override fun dismissCalendar() {
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        showCalendarDialog = false,
-                    )
-                }
-            }
+    private val uiEvent = object : AddMoneyUsageScreenUiState.Event {
+        override fun onClickAdd() {
+            addMoneyUsage()
+        }
 
-            override fun selectedCalendar(date: LocalDate) {
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        usageDate = date,
-                        showCalendarDialog = false,
-                    )
-                }
-            }
-
-            override fun onClickDateChange() {
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        showCalendarDialog = true,
-                    )
-                }
-            }
-
-            override fun onClickDescriptionChange() {
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        textInputDialog =
-                            AddMoneyUsageScreenUiState.FullScreenTextInputDialog(
-                                title = "説明",
-                                default = viewModelState.usageDescription,
-                                onComplete = { text ->
-                                    viewModelStateFlow.update { viewModelState ->
-                                        viewModelState.copy(
-                                            usageDescription = text,
-                                        )
-                                    }
-                                    dismissTextInputDialog()
-                                },
-                                canceled = { dismissTextInputDialog() },
-                                isMultiline = true,
-                            ),
-                    )
-                }
-            }
-
-            override fun onClickCategoryChange() {
-                categorySelectDialogViewModel.showDialog(
-                    categoryId = viewModelStateFlow.value.usageCategorySet?.categoryId,
-                    categoryName = viewModelStateFlow.value.usageCategorySet?.categoryName,
-                    subCategoryId = viewModelStateFlow.value.usageCategorySet?.subCategoryId,
-                    subCategoryName = viewModelStateFlow.value.usageCategorySet?.subCategoryName,
+        override fun dismissCalendar() {
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    showCalendarDialog = false,
                 )
             }
+        }
 
-            override fun onClickAmountChange() {
-                val dismissRequest = {
-                    viewModelStateFlow.update { viewModelState ->
-                        viewModelState.copy(
-                            numberInputDialog = null,
-                        )
-                    }
-                }
-                val onChangeValue: (NumberInputValue) -> Unit = { amount ->
-                    viewModelStateFlow.update { viewModelState ->
-                        viewModelState.copy(
-                            usageAmount = amount,
-                            numberInputDialog =
-                                viewModelState.numberInputDialog?.copy(
-                                    value = amount,
-                                ),
-                        )
-                    }
-                }
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        numberInputDialog =
-                            AddMoneyUsageScreenUiState.NumberInputDialog(
-                                value = viewModelState.usageAmount,
-                                dismissRequest = dismissRequest,
-                                onChangeValue = onChangeValue,
-                            ),
-                    )
-                }
-            }
-
-            override fun onClickTitleChange() {
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        textInputDialog =
-                            AddMoneyUsageScreenUiState.FullScreenTextInputDialog(
-                                title = "タイトル",
-                                default = viewModelState.usageTitle,
-                                onComplete = { text ->
-                                    viewModelStateFlow.update { viewModelState ->
-                                        viewModelState.copy(
-                                            usageTitle = text,
-                                        )
-                                    }
-                                    dismissTextInputDialog()
-                                },
-                                canceled = { dismissTextInputDialog() },
-                                isMultiline = false,
-                            ),
-                    )
-                }
-            }
-
-            private fun dismissTextInputDialog() {
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        textInputDialog = null,
-                    )
-                }
+        override fun selectedCalendar(date: LocalDate) {
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    usageDate = date,
+                    showCalendarDialog = false,
+                )
             }
         }
+
+        override fun onClickDateChange() {
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    showCalendarDialog = true,
+                )
+            }
+        }
+
+        override fun onClickDescriptionChange() {
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    textInputDialog = AddMoneyUsageScreenUiState.FullScreenTextInputDialog(
+                        title = "説明",
+                        default = viewModelState.usageDescription,
+                        onComplete = { text ->
+                            viewModelStateFlow.update { viewModelState ->
+                                viewModelState.copy(
+                                    usageDescription = text,
+                                )
+                            }
+                            dismissTextInputDialog()
+                        },
+                        canceled = { dismissTextInputDialog() },
+                        isMultiline = true,
+                    ),
+                )
+            }
+        }
+
+        override fun onClickCategoryChange() {
+            categorySelectDialogViewModel.showDialog(
+                categoryId = viewModelStateFlow.value.usageCategorySet?.categoryId,
+                categoryName = viewModelStateFlow.value.usageCategorySet?.categoryName,
+                subCategoryId = viewModelStateFlow.value.usageCategorySet?.subCategoryId,
+                subCategoryName = viewModelStateFlow.value.usageCategorySet?.subCategoryName,
+            )
+        }
+
+        override fun onClickAmountChange() {
+            val dismissRequest = {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        numberInputDialog = null,
+                    )
+                }
+            }
+            val onChangeValue: (NumberInputValue) -> Unit = { amount ->
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        usageAmount = amount,
+                        numberInputDialog = viewModelState.numberInputDialog?.copy(
+                            value = amount,
+                        ),
+                    )
+                }
+            }
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    numberInputDialog = AddMoneyUsageScreenUiState.NumberInputDialog(
+                        value = viewModelState.usageAmount,
+                        dismissRequest = dismissRequest,
+                        onChangeValue = onChangeValue,
+                    ),
+                )
+            }
+        }
+
+        override fun onClickTitleChange() {
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    textInputDialog = AddMoneyUsageScreenUiState.FullScreenTextInputDialog(
+                        title = "タイトル",
+                        default = viewModelState.usageTitle,
+                        onComplete = { text ->
+                            viewModelStateFlow.update { viewModelState ->
+                                viewModelState.copy(
+                                    usageTitle = text,
+                                )
+                            }
+                            dismissTextInputDialog()
+                        },
+                        canceled = { dismissTextInputDialog() },
+                        isMultiline = false,
+                    ),
+                )
+            }
+        }
+
+        private fun dismissTextInputDialog() {
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    textInputDialog = null,
+                )
+            }
+        }
+    }
 
     init {
         viewModelScope.launch {
@@ -199,19 +192,18 @@ public class AddMoneyUsageViewModel(
         val date = viewModelStateFlow.value.usageDate
 
         viewModelScope.launch {
-            val result =
-                graphqlApi.addMoneyUsage(
-                    title = viewModelStateFlow.value.usageTitle,
-                    description = viewModelStateFlow.value.usageDescription,
-                    datetime =
-                        LocalDateTime(
-                            date = date,
-                            time = viewModelStateFlow.value.usageTime,
-                        ),
-                    amount = viewModelStateFlow.value.usageAmount.value,
-                    subCategoryId = viewModelStateFlow.value.usageCategorySet?.subCategoryId,
-                    importedMailId = viewModelStateFlow.value.importedMailId,
-                )
+            val result = graphqlApi.addMoneyUsage(
+                title = viewModelStateFlow.value.usageTitle,
+                description = viewModelStateFlow.value.usageDescription,
+                datetime =
+                    LocalDateTime(
+                        date = date,
+                        time = viewModelStateFlow.value.usageTime,
+                    ),
+                amount = viewModelStateFlow.value.usageAmount.value,
+                subCategoryId = viewModelStateFlow.value.usageCategorySet?.subCategoryId,
+                importedMailId = viewModelStateFlow.value.importedMailId,
+            )
 
             // TODO Toast
             if (result?.data?.userMutation?.addUsage == null) {
@@ -278,15 +270,14 @@ public class AddMoneyUsageViewModel(
                             usageTime = suggestUsage.dateTime?.time ?: it.usageTime,
                             usageTitle = suggestUsage.title,
                             usageDescription = suggestUsage.description,
-                            usageCategorySet =
-                                run category@{
-                                    CategorySelectDialogViewModel.SelectedResult(
-                                        categoryId = suggestUsage.subCategory?.category?.id ?: return@category null,
-                                        categoryName = suggestUsage.subCategory?.category?.name ?: return@category null,
-                                        subCategoryId = suggestUsage.subCategory?.id ?: return@category null,
-                                        subCategoryName = suggestUsage.subCategory?.name ?: return@category null,
-                                    )
-                                },
+                            usageCategorySet = run category@{
+                                CategorySelectDialogViewModel.SelectedResult(
+                                    categoryId = suggestUsage.subCategory?.category?.id ?: return@category null,
+                                    categoryName = suggestUsage.subCategory?.category?.name ?: return@category null,
+                                    subCategoryId = suggestUsage.subCategory?.id ?: return@category null,
+                                    subCategoryName = suggestUsage.subCategory?.name ?: return@category null,
+                                )
+                            },
                         )
                     }
                 }
