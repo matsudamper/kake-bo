@@ -20,6 +20,8 @@ import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.PlatformType
+import net.matsudamper.money.frontend.common.viewmodel.PlatformTypeProvider
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -60,6 +62,16 @@ public class AddMoneyUsageViewModel(
     private val uiEvent = object : AddMoneyUsageScreenUiState.Event {
         override fun onClickAdd() {
             addMoneyUsage()
+            when(PlatformTypeProvider.type) {
+                PlatformType.ANDROID -> {
+                    viewModelScope.launch {
+                        eventSender.send {
+                            it.back()
+                        }
+                    }
+                }
+                PlatformType.JS -> Unit
+            }
         }
 
         override fun dismissCalendar() {
@@ -334,6 +346,7 @@ public class AddMoneyUsageViewModel(
 
     public interface Event {
         public fun navigate(structure: ScreenStructure)
+        public fun back()
     }
 
     private data class ViewModelState(

@@ -246,6 +246,10 @@ internal data class ViewModelEventHandlers(
                     override fun navigate(structure: ScreenStructure) {
                         navController.navigate(structure)
                     }
+
+                    override fun back() {
+                        navController.back()
+                    }
                 },
             )
         }
