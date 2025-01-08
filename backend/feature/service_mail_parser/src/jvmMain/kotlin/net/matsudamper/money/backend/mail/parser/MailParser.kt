@@ -2,6 +2,7 @@ package net.matsudamper.money.backend.mail.parser
 
 import java.time.LocalDateTime
 import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
+import net.matsudamper.money.backend.mail.parser.services.AmazonCoJpMonthlyUsageServices
 import net.matsudamper.money.backend.mail.parser.services.AmazonCoJpUsageServices
 import net.matsudamper.money.backend.mail.parser.services.AuEasyPaymentUsageServices
 import net.matsudamper.money.backend.mail.parser.services.AuPayUsageService
@@ -49,6 +50,7 @@ public object MailParser {
     ): List<MoneyUsage> {
         return sequenceOf(
             AmazonCoJpUsageServices,
+            AmazonCoJpMonthlyUsageServices,
             YodobashiUsageService,
             MovieTicketUsageService,
             SteamUsageService,
