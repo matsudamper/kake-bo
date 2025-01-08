@@ -74,6 +74,10 @@ public class ImportedMailScreenViewModel(
                 }
             }
         }
+
+        override fun onResume() {
+            fetch()
+        }
     }
 
     public val uiStateFlow: StateFlow<MailScreenUiState> = MutableStateFlow(
@@ -236,7 +240,6 @@ public class ImportedMailScreenViewModel(
     }
 
     init {
-        fetch()
         viewModelScope.launch {
             apolloResponseCollector.getFlow().collectLatest { response ->
                 viewModelStateFlow.update { viewModelState ->

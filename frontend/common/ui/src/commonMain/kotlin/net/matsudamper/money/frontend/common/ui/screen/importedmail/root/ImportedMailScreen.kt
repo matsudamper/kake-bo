@@ -34,6 +34,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -155,6 +156,7 @@ public data class MailScreenUiState(
         public fun onClickTitle()
 
         public fun onClickDelete()
+        public fun onResume()
     }
 }
 
@@ -179,6 +181,9 @@ public fun ImportedMailScreen(
             onClickCopy = { uiState.urlMenuDialog.event.onClickCopy() },
             onDismissRequest = { uiState.urlMenuDialog.event.onDismissRequest() },
         )
+    }
+    LaunchedEffect(Unit) {
+        uiState.event.onResume()
     }
     Scaffold(
         modifier = modifier,
