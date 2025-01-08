@@ -136,4 +136,8 @@ public enum class MoneyUsageServiceType(
         id = 34,
         displayName = "楽天カード",
     ),
+    YMobile(
+        id = 35,
+        displayName = "Y!mobile",
+    ),
 }

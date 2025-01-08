@@ -54,7 +54,7 @@ internal object ParseUtil {
             },
             fromPersonal = forwardedMetadata["From"]?.trim()?.let from@{ fromRawString ->
                 val result = "^(.+)<".toRegex().findAll(fromRawString).lastOrNull()
-                        ?: return@from null
+                    ?: return@from null
 
                 result.groupValues[1]
             },
@@ -80,13 +80,13 @@ internal object ParseUtil {
             },
             subject = forwardedMetadata["Subject"]?.trim(),
             to =
-                forwardedMetadata["To"]?.trim()?.let to@{ toRawString ->
-                    val result =
-                        "<(.+?)>".toRegex().findAll(toRawString).lastOrNull()
-                            ?: return@to null
+            forwardedMetadata["To"]?.trim()?.let to@{ toRawString ->
+                val result =
+                    "<(.+?)>".toRegex().findAll(toRawString).lastOrNull()
+                        ?: return@to null
 
-                    result.groupValues[1]
-                },
+                result.groupValues[1]
+            },
         )
     }
 
