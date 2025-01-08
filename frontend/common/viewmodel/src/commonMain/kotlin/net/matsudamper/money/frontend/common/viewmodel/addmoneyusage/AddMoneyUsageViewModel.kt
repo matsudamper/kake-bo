@@ -62,7 +62,7 @@ public class AddMoneyUsageViewModel(
     private val uiEvent = object : AddMoneyUsageScreenUiState.Event {
         override fun onClickAdd() {
             addMoneyUsage()
-            when(PlatformTypeProvider.type) {
+            when (PlatformTypeProvider.type) {
                 PlatformType.ANDROID -> {
                     viewModelScope.launch {
                         eventSender.send {
@@ -70,6 +70,7 @@ public class AddMoneyUsageViewModel(
                         }
                     }
                 }
+
                 PlatformType.JS -> Unit
             }
         }
@@ -274,10 +275,9 @@ public class AddMoneyUsageViewModel(
                     viewModelStateFlow.update {
                         it.copy(
                             importedMailId = importedMailId,
-                            usageAmount =
-                                NumberInputValue.default(
-                                    value = suggestUsage.amount ?: 0,
-                                ),
+                            usageAmount = NumberInputValue.default(
+                                value = suggestUsage.amount ?: 0,
+                            ),
                             usageDate = suggestUsage.dateTime?.date ?: it.usageDate,
                             usageTime = suggestUsage.dateTime?.time ?: it.usageTime,
                             usageTitle = suggestUsage.title,
