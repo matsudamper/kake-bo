@@ -7,7 +7,7 @@ kotlin {
     jvm {
         withJava()
     }
-    jvmToolchain(17)
+    jvmToolchain(21)
     sourceSets {
         val jvmMain by getting {
             dependencies {
