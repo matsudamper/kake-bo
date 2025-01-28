@@ -228,7 +228,11 @@ public class AddMoneyUsageViewModel(
         val importedMailId = current.importedMailId
         if (importedMailId == null) {
             viewModelStateFlow.update {
-                ViewModelState()
+                ViewModelState().copy(
+                    usageTitle = current.title ?: it.usageTitle,
+                    usageDate = current.date?.date ?: it.usageDate,
+                    usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: it.usageAmount,
+                )
             }
             return
         }

@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import lib.compose.JsCompose
 import lib.js.NormalizeInputKeyCapture
 import net.matsudamper.money.MoneyCompositionLocalProvider
+import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.rememberMainScreenNavController
 import net.matsudamper.money.frontend.common.di.DefaultModule
 import net.matsudamper.money.frontend.common.ui.CustomTheme
@@ -39,7 +40,7 @@ fun main(
             ) {
                 NormalizeInputKeyCapture {
                     CustomTheme {
-                        val navController = rememberMainScreenNavController()
+                        val navController = rememberMainScreenNavController(RootHomeScreenStructure.Home)
                         Content(
                             modifier = Modifier.fillMaxSize(),
                             globalEventSender = globalEventSender,

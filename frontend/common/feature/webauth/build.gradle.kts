@@ -12,7 +12,7 @@ kotlin {
     }
     androidTarget()
     sourceSets {
-        jvmToolchain(17)
+        jvmToolchain(21)
         val commonMain by getting {
             dependencies {
                 implementation(projects.shared)
