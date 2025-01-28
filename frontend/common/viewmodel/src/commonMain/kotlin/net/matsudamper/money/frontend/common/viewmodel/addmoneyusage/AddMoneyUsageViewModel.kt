@@ -14,7 +14,6 @@ import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import net.matsudamper.money.element.ImportedMailId
-import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
@@ -232,7 +231,7 @@ public class AddMoneyUsageViewModel(
                 ViewModelState().copy(
                     usageTitle = current.title ?: it.usageTitle,
                     usageDate = current.date?.date ?: it.usageDate,
-                    usageAmount =  current.price?.let { NumberInputValue.default(it.toInt()) } ?: it.usageAmount,
+                    usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: it.usageAmount,
                 )
             }
             return

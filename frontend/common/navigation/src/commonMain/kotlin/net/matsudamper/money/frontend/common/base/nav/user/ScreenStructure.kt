@@ -261,7 +261,6 @@ public sealed interface ScreenStructure : IScreenStructure {
                     if (title != null) {
                         append(KEY_TITLE, title)
                     }
-                    
                 },
             )
         }
