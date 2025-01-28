@@ -8,7 +8,7 @@ kotlin {
         withJava()
     }
     sourceSets {
-        jvmToolchain(17)
+        jvmToolchain(21)
         val jvmMain by getting {
             dependencies {
                 implementation(projects.shared)
@@ -33,7 +33,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(libs.kotestRunnerJunit5)
-                implementation("io.mockk:mockk:1.13.13")
+                implementation("io.mockk:mockk:1.13.16")
             }
         }
     }

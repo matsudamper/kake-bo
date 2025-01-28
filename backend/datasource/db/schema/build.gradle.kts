@@ -14,9 +14,9 @@ plugins {
 
 buildscript {
     dependencies {
-        classpath("org.jooq:jooq-codegen:3.19.15")
+        classpath("org.jooq:jooq-codegen:3.19.18")
         classpath("org.mariadb.jdbc:mariadb-java-client:3.5.1")
-        classpath("org.jooq:jooq-meta:3.19.15")
+        classpath("org.jooq:jooq-meta:3.19.18")
     }
 }
 
@@ -24,14 +24,14 @@ kotlin {
     jvm {
         withJava()
     }
-    jvmToolchain(17)
+    jvmToolchain(21)
     sourceSets {
         val jvmMain by getting {
             dependencies {
                 implementation(kotlin("stdlib"))
                 implementation(kotlin("reflect"))
 
-                val jooqVersion = "3.19.15"
+                val jooqVersion = "3.19.18"
                 implementation("org.jooq:jooq:$jooqVersion")
             }
         }

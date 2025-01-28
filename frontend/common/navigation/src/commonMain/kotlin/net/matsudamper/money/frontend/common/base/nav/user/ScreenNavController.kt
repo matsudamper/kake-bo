@@ -32,7 +32,7 @@ public interface ScreenNavController {
 }
 
 @Composable
-public expect fun rememberMainScreenNavController(): ScreenNavController
+public expect fun rememberMainScreenNavController(initial: IScreenStructure): ScreenNavController
 
 public interface DirectionTitle {
     public val title: String

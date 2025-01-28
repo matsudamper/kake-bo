@@ -5,11 +5,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 
 @Composable
-public actual fun rememberMainScreenNavController(): ScreenNavController {
+public actual fun rememberMainScreenNavController(initial: IScreenStructure): ScreenNavController {
     val holder = rememberSaveableStateHolder()
     return remember(holder) {
         ScreenNavControllerImpl(
-            initial = RootHomeScreenStructure.Home,
+            initial = initial,
         )
     }
 }
