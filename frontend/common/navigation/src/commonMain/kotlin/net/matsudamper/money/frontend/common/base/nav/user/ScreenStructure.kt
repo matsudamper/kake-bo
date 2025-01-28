@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
+import kotlinx.datetime.LocalDateTime
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
@@ -241,6 +242,9 @@ public sealed interface ScreenStructure : IScreenStructure {
     public data class AddMoneyUsage(
         val importedMailId: ImportedMailId? = null,
         val importedMailIndex: Int? = null,
+        val title: String? = null,
+        val price: Float? = null,
+        val date: LocalDateTime? = null,
     ) : ScreenStructure {
         override val direction: Screens = Screens.AddMoneyUsage
         override val groupId: Any? = null
@@ -249,11 +253,15 @@ public sealed interface ScreenStructure : IScreenStructure {
             return direction.placeholderUrl.plus(
                 buildParameter {
                     if (importedMailId != null) {
-                        append(IMPORTED_MAIL_ID, importedMailId.id.toString())
+                        append(KEY_IMPORTED_MAIL_ID, importedMailId.id.toString())
                     }
                     if (importedMailIndex != null) {
-                        append(IMPORTED_MAIL_INDEX, importedMailIndex.toString())
+                        append(KEY_IMPORTED_MAIL_INDEX, importedMailIndex.toString())
                     }
+                    if (title != null) {
+                        append(KEY_TITLE, title)
+                    }
+                    
                 },
             )
         }
@@ -263,15 +271,21 @@ public sealed interface ScreenStructure : IScreenStructure {
         }
 
         public companion object {
-            private const val IMPORTED_MAIL_ID = "imported_mail_id"
-            private const val IMPORTED_MAIL_INDEX = "imported_mail_index"
+            private const val KEY_IMPORTED_MAIL_ID = "imported_mail_id"
+            private const val KEY_IMPORTED_MAIL_INDEX = "imported_mail_index"
+            private const val KEY_TITLE = "title"
+            private const val KEY_PRICE = "price"
+            private const val KEY_DATE = "date"
 
             public fun fromQueryParams(queryParams: Map<String, List<String>>): AddMoneyUsage {
                 return AddMoneyUsage(
                     importedMailId =
-                    queryParams[IMPORTED_MAIL_ID]?.firstOrNull()?.toIntOrNull()
+                    queryParams[KEY_IMPORTED_MAIL_ID]?.firstOrNull()?.toIntOrNull()
                         ?.let { ImportedMailId(it) },
-                    importedMailIndex = queryParams[IMPORTED_MAIL_INDEX]?.firstOrNull()?.toIntOrNull(),
+                    importedMailIndex = queryParams[KEY_IMPORTED_MAIL_INDEX]?.firstOrNull()?.toIntOrNull(),
+                    title = queryParams[KEY_TITLE]?.firstOrNull(),
+                    price = queryParams[KEY_PRICE]?.firstOrNull()?.toFloatOrNull(),
+                    date = queryParams[KEY_DATE]?.firstOrNull()?.let { LocalDateTime.parse(it) },
                 )
             }
         }

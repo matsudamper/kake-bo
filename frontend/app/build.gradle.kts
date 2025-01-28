@@ -42,6 +42,7 @@ kotlin {
 
                 implementation(libs.androidActivityActivityCompose)
                 implementation(libs.androidAppCompatAppCompat)
+                implementation(libs.kotlin.datetime)
             }
         }
         val jsMain by getting {
@@ -87,6 +88,7 @@ android {
     defaultConfig {
         minSdk = 34
         targetSdk = 35
+        manifestPlaceholders["SERVER_HOST"] = localProperties["net.matsudamper.money.android.serverHost"] as String
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
