@@ -14,10 +14,10 @@ import net.matsudamper.money.element.MoneyUsageId
 private val parser = UrlPlaceHolderParser(Screens.entries)
 
 @Composable
-public actual fun rememberMainScreenNavController(): ScreenNavController {
+public actual fun rememberMainScreenNavController(initial: IScreenStructure): ScreenNavController {
     return remember {
         ScreenNavControllerImpl(
-            initial = RootHomeScreenStructure.Home,
+            initial = initial,
             currentScreenStructureProvider = {
                 parser.parse(pathname = window.location.pathname)
                     .toScreenStructure(parseQueryParams(window.location.search))
