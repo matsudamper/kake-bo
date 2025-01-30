@@ -39,7 +39,7 @@ android {
     namespace = "net.matsudamper.money.frontend.graphql"
     defaultConfig {
         buildConfigField("String", "SERVER_PROTOCOL", "\"${localProperties["net.matsudamper.money.android.serverProtocol"]}\"")
-        buildConfigField("String", "SERVER_HOST", "\"${System.getenv("SERVER_HOST")  ?: localProperties["net.matsudamper.money.android.serverHost"]}\"")
+        buildConfigField("String", "SERVER_HOST", "\"${System.getenv("SERVER_HOST") ?: localProperties["net.matsudamper.money.android.serverHost"]}\"")
     }
     buildFeatures {
         buildConfig = true
