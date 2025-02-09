@@ -32,6 +32,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostS
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListScreenUiState
+import net.matsudamper.money.frontend.common.viewmodel.LocalGlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodCategoryContentViewModel
@@ -67,6 +68,7 @@ internal fun RootNavContent(
     )
     val koin = LocalKoin.current
     val usageHost = rememberSaveableStateHolder(SavedStateHolderKey.UsageHost)
+    val loginCheckUseCase = LocalGlobalEventHandlerLoginCheckUseCaseDelegate.current
     when (current) {
         is RootHomeScreenStructure -> {
             tabHolder.SaveableStateProvider(current::class.toString()) {
@@ -78,7 +80,7 @@ internal fun RootNavContent(
                             val viewModel = provideViewModel {
                                 RootHomeMonthlyScreenViewModel(
                                     scopedObjectFeature = it,
-                                    loginCheckUseCase = koin.get(),
+                                    loginCheckUseCase = loginCheckUseCase,
                                     argument = current,
                                     graphqlClient = koin.get(),
                                     navController = navController,
@@ -120,7 +122,7 @@ internal fun RootNavContent(
                                         api = RootHomeTabScreenApi(
                                             graphqlClient = koin.get(),
                                         ),
-                                        loginCheckUseCase = koin.get(),
+                                        loginCheckUseCase = loginCheckUseCase,
                                         graphqlClient = koin.get(),
                                         navController = navController,
                                     )
@@ -145,7 +147,7 @@ internal fun RootNavContent(
                             RootHomeMonthlyCategoryScreenViewModel(
                                 argument = current,
                                 scopedObjectFeature = it,
-                                loginCheckUseCase = koin.get(),
+                                loginCheckUseCase = loginCheckUseCase,
                                 graphqlClient = koin.get(),
                                 navController = navController,
                             )

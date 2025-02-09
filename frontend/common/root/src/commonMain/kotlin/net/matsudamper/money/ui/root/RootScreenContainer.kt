@@ -15,7 +15,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeAddTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
-import net.matsudamper.money.ui.root.viewmodel.ViewModelProviders
+import net.matsudamper.money.ui.root.viewmodel.LocalViewModelProviders
 
 @Composable
 internal fun RootScreenContainer(
@@ -67,7 +67,7 @@ internal fun RootScreenContainer(
             },
             usageCalendarUiStateProvider = { yearMonth ->
                 val coroutineScope = rememberCoroutineScope()
-                val viewModel = koin.get<ViewModelProviders>()
+                val viewModel = LocalViewModelProviders.current
                     .moneyUsagesCalendarViewModel(
                         coroutineScope = coroutineScope,
                         rootUsageHostViewModel = rootUsageHostViewModel,
@@ -83,7 +83,7 @@ internal fun RootScreenContainer(
             },
             usageListUiStateProvider = {
                 val coroutineScope = rememberCoroutineScope()
-                val viewModel = koin.get<ViewModelProviders>()
+                val viewModel = LocalViewModelProviders.current
                     .moneyUsagesListViewModel(
                         coroutineScope = coroutineScope,
                         rootUsageHostViewModel = rootUsageHostViewModel,
@@ -96,7 +96,7 @@ internal fun RootScreenContainer(
                 viewModel.uiStateFlow.collectAsState().value
             },
             importMailLinkScreenUiStateProvider = {
-                val mailImportViewModel = koin.get<ViewModelProviders>()
+                val mailImportViewModel = LocalViewModelProviders.current
                     .mailImportViewModel()
                 LaunchedEffect(mailImportViewModel.eventHandler) {
                     viewModelEventHandlers.handleMailImport(mailImportViewModel.eventHandler)
@@ -105,7 +105,7 @@ internal fun RootScreenContainer(
                 mailImportViewModel.rootUiStateFlow.collectAsState().value
             },
             importMailScreenUiStateProvider = { screenStructure ->
-                val importedMailListViewModel = koin.get<ViewModelProviders>()
+                val importedMailListViewModel = LocalViewModelProviders.current
                     .importedMailListViewModel()
                 LaunchedEffect(screenStructure) {
                     importedMailListViewModel.updateQuery(screenStructure)
@@ -119,7 +119,7 @@ internal fun RootScreenContainer(
                 settingViewModel.uiState.collectAsState().value
             },
             rootHomeTabPeriodAllContentUiStateProvider = { current ->
-                val allContentViewModel = koin.get<ViewModelProviders>()
+                val allContentViewModel = LocalViewModelProviders.current
                     .rootHomeTabPeriodAllContentViewModel()
                 LaunchedEffect(allContentViewModel, current) {
                     allContentViewModel.updateStructure(current)

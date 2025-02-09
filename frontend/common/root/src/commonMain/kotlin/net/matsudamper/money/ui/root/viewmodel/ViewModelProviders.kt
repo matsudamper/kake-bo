@@ -1,12 +1,15 @@
 package net.matsudamper.money.ui.root.viewmodel
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.compositionLocalOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.viewmodel.LocalGlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.root.RootViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodAllContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenApi
@@ -19,6 +22,10 @@ import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
 import org.koin.core.Koin
 
+internal val LocalViewModelProviders: ProvidableCompositionLocal<ViewModelProviders> = compositionLocalOf {
+    error("No Provided")
+}
+
 internal class ViewModelProviders(
     private val koin: Koin,
     private val navController: ScreenNavController,
@@ -26,9 +33,10 @@ internal class ViewModelProviders(
 ) {
     @Composable
     fun rootViewModel(): RootViewModel {
+        val loginCheckUseCase = LocalGlobalEventHandlerLoginCheckUseCaseDelegate.current
         return LocalScopedObjectStore.current.putOrGet(Unit) { feature ->
             RootViewModel(
-                loginCheckUseCase = koin.get(),
+                loginCheckUseCase = loginCheckUseCase,
                 scopedObjectFeature = feature,
                 navController = navController,
             )
@@ -66,6 +74,7 @@ internal class ViewModelProviders(
 
     @Composable
     fun mailImportViewModel(): MailImportViewModel {
+        val loginCheckUseCase = LocalGlobalEventHandlerLoginCheckUseCaseDelegate.current
         return LocalScopedObjectStore.current.putOrGet(Unit) { feature ->
             MailImportViewModel(
                 scopedObjectFeature = feature,
@@ -73,7 +82,7 @@ internal class ViewModelProviders(
                 graphqlApi = MailImportScreenGraphqlApi(
                     graphqlClient = koin.get(),
                 ),
-                loginCheckUseCase = koin.get(),
+                loginCheckUseCase = loginCheckUseCase,
                 navController = navController,
             )
         }
@@ -95,13 +104,14 @@ internal class ViewModelProviders(
 
     @Composable
     fun rootHomeTabPeriodAllContentViewModel(): RootHomeTabPeriodAllContentViewModel {
+        val loginCheckUseCase = LocalGlobalEventHandlerLoginCheckUseCaseDelegate.current
         return createViewModelProvider {
             RootHomeTabPeriodAllContentViewModel(
                 scopedObjectFeature = it,
                 api = RootHomeTabScreenApi(
                     graphqlClient = koin.get(),
                 ),
-                loginCheckUseCase = koin.get(),
+                loginCheckUseCase = loginCheckUseCase,
                 graphqlClient = koin.get(),
                 navController = navController,
             )

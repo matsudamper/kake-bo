@@ -12,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +36,7 @@ import net.matsudamper.money.frontend.common.ui.base.MySnackBarHost
 import net.matsudamper.money.frontend.common.ui.screen.status.NotFoundScreen
 import net.matsudamper.money.frontend.common.usecase.LoginCheckUseCaseImpl
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
+import net.matsudamper.money.frontend.common.viewmodel.LocalGlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
@@ -46,9 +46,9 @@ import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalen
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.ui.root.platform.PlatformTools
+import net.matsudamper.money.ui.root.viewmodel.LocalViewModelProviders
 import net.matsudamper.money.ui.root.viewmodel.ViewModelProviders
 import net.matsudamper.money.ui.root.viewmodel.provideViewModel
-import org.koin.dsl.module
 
 private enum class ScopeKey {
     ROOT,
@@ -102,222 +102,208 @@ public fun Content(
             }
         }
 
-        remember(Unit) {
-            val modules = listOf(
-                module {
-                    factory<GlobalEventHandlerLoginCheckUseCaseDelegate> {
-                        GlobalEventHandlerLoginCheckUseCaseDelegate(
-                            useCase = LoginCheckUseCaseImpl(
-                                graphqlQuery = GraphqlUserLoginQuery(
-                                    graphqlClient = get(),
-                                ),
-                                eventListener = LoginCheckUseCaseEventListenerImpl(
-                                    navController = navController,
-                                    globalEventSender = globalEventSender,
-                                    coroutineScope = rootCoroutineScope,
-                                ),
-                            ),
-                        )
-                    }
-                    factory<ViewModelProviders> {
-                        ViewModelProviders(
-                            koin = this.getKoin(),
+        CompositionLocalProvider(
+            LocalGlobalEventHandlerLoginCheckUseCaseDelegate provides remember {
+                GlobalEventHandlerLoginCheckUseCaseDelegate(
+                    useCase = LoginCheckUseCaseImpl(
+                        graphqlQuery = GraphqlUserLoginQuery(
+                            graphqlClient = koin.get(),
+                        ),
+                        eventListener = LoginCheckUseCaseEventListenerImpl(
                             navController = navController,
-                            rootCoroutineScope = rootCoroutineScope,
+                            globalEventSender = globalEventSender,
+                            coroutineScope = rootCoroutineScope,
+                        ),
+                    ),
+                )
+            },
+            LocalViewModelProviders provides remember {
+                ViewModelProviders(
+                    koin = koin,
+                    navController = navController,
+                    rootCoroutineScope = rootCoroutineScope,
+                )
+            },
+        ) {
+            val rootViewModel = LocalViewModelProviders.current.rootViewModel()
+
+            val rootUsageHostViewModel = provideViewModel {
+                RootUsageHostViewModel(
+                    scopedObjectFeature = it,
+                    navController = navController,
+                    calendarPagingModel = RootUsageCalendarPagingModel(
+                        coroutineScope = rootCoroutineScope,
+                        graphqlClient = koin.get(),
+                    ),
+                )
+            }
+            val mailScreenViewModel = provideViewModel {
+                HomeAddTabScreenViewModel(
+                    scopedObjectFeature = it,
+                    navController = navController,
+                )
+            }
+            val settingViewModel = provideViewModel {
+                SettingViewModel(
+                    scopedObjectFeature = it,
+                    globalEventSender = globalEventSender,
+                    ioDispatchers = Dispatchers.IO,
+                    navController = navController,
+                )
+            }
+            val kakeboScaffoldListener: KakeboScaffoldListener = remember {
+                object : KakeboScaffoldListener {
+                    override fun onClickTitle() {
+                        navController.navigateToHome()
+                    }
+                }
+            }
+
+            LaunchedEffect(globalEventSender, globalEvent) {
+                globalEventSender.asHandler().collect(
+                    globalEvent,
+                )
+            }
+
+            val viewModelEventHandlers = remember(
+                navController,
+                globalEventSender,
+                platformToolsProvider,
+            ) {
+                ViewModelEventHandlers(
+                    navController = navController,
+                    globalEventSender = globalEventSender,
+                    platformToolsProvider = platformToolsProvider,
+                )
+            }
+            LaunchedEffect(mailScreenViewModel) {
+                viewModelEventHandlers.handleHomeAddTabScreen(
+                    mailScreenViewModel.navigateEventHandler,
+                )
+            }
+            LaunchedEffect(
+                viewModelEventHandlers,
+                rootUsageHostViewModel.rootNavigationEventHandler,
+            ) {
+                viewModelEventHandlers.handleRootUsageHost(
+                    handler = rootUsageHostViewModel.rootNavigationEventHandler,
+                )
+            }
+            LaunchedEffect(navController.currentBackstackEntry) {
+                rootViewModel.navigateChanged()
+            }
+            Scaffold(
+                modifier = modifier
+                    .fillMaxSize()
+                    .onSizeChanged {
+                        composeSizeProvider().value = it
+                    },
+                snackbarHost = {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        MySnackBarHost(
+                            modifier = Modifier.align(Alignment.CenterEnd),
+                            hostState = hostState,
                         )
                     }
                 },
-            )
-            koin.loadModules(modules)
-            object : RememberObserver {
-                override fun onAbandoned() {}
-                override fun onRemembered() {
-                }
-
-                override fun onForgotten() {
-                    koin.unloadModules(modules)
-                }
-            }
-        }
-
-        val rootViewModel = koin.get<ViewModelProviders>().rootViewModel()
-
-        val rootUsageHostViewModel = provideViewModel {
-            RootUsageHostViewModel(
-                scopedObjectFeature = it,
-                navController = navController,
-                calendarPagingModel = RootUsageCalendarPagingModel(
-                    coroutineScope = rootCoroutineScope,
-                    graphqlClient = koin.get(),
-                ),
-            )
-        }
-        val mailScreenViewModel = provideViewModel {
-            HomeAddTabScreenViewModel(
-                scopedObjectFeature = it,
-                navController = navController,
-            )
-        }
-        val settingViewModel = provideViewModel {
-            SettingViewModel(
-                scopedObjectFeature = it,
-                globalEventSender = globalEventSender,
-                ioDispatchers = Dispatchers.IO,
-                navController = navController,
-            )
-        }
-        val kakeboScaffoldListener: KakeboScaffoldListener = remember {
-            object : KakeboScaffoldListener {
-                override fun onClickTitle() {
-                    navController.navigateToHome()
-                }
-            }
-        }
-
-        LaunchedEffect(globalEventSender, globalEvent) {
-            globalEventSender.asHandler().collect(
-                globalEvent,
-            )
-        }
-
-        val viewModelEventHandlers = remember(
-            navController,
-            globalEventSender,
-            platformToolsProvider,
-        ) {
-            ViewModelEventHandlers(
-                navController = navController,
-                globalEventSender = globalEventSender,
-                platformToolsProvider = platformToolsProvider,
-            )
-        }
-        LaunchedEffect(mailScreenViewModel) {
-            viewModelEventHandlers.handleHomeAddTabScreen(
-                mailScreenViewModel.navigateEventHandler,
-            )
-        }
-        LaunchedEffect(
-            viewModelEventHandlers,
-            rootUsageHostViewModel.rootNavigationEventHandler,
-        ) {
-            viewModelEventHandlers.handleRootUsageHost(
-                handler = rootUsageHostViewModel.rootNavigationEventHandler,
-            )
-        }
-        LaunchedEffect(navController.currentBackstackEntry) {
-            rootViewModel.navigateChanged()
-        }
-        Scaffold(
-            modifier = modifier
-                .fillMaxSize()
-                .onSizeChanged {
-                    composeSizeProvider().value = it
-                },
-            snackbarHost = {
+            ) { paddingValues ->
                 Box(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxSize(),
                 ) {
-                    MySnackBarHost(
-                        modifier = Modifier.align(Alignment.CenterEnd),
-                        hostState = hostState,
-                    )
-                }
-            },
-        ) { paddingValues ->
-            Box(
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                NavHost(
-                    navController = navController,
-                ) {
-                    LaunchedEffect(it.structure) {
-                        Logger.d("LOG", "structure: ${it.structure}")
-                    }
-                    when (val current = it.structure) {
-                        is ScreenStructure -> {
-                            when (current) {
-                                is ScreenStructure.Root -> {
-                                    RootScreenContainer(
-                                        current = current,
-                                        navController = navController,
-                                        settingViewModel = settingViewModel,
-                                        mailScreenViewModel = mailScreenViewModel,
-                                        rootUsageHostViewModel = rootUsageHostViewModel,
-                                        viewModelEventHandlers = viewModelEventHandlers,
-                                        rootCoroutineScope = rootCoroutineScope,
-                                        globalEventSender = globalEventSender,
-                                        globalEvent = globalEvent,
-                                        windowInsets = paddingValues,
-                                    )
-                                }
+                    NavHost(
+                        navController = navController,
+                    ) {
+                        LaunchedEffect(it.structure) {
+                            Logger.d("LOG", "structure: ${it.structure}")
+                        }
+                        when (val current = it.structure) {
+                            is ScreenStructure -> {
+                                when (current) {
+                                    is ScreenStructure.Root -> {
+                                        RootScreenContainer(
+                                            current = current,
+                                            navController = navController,
+                                            settingViewModel = settingViewModel,
+                                            mailScreenViewModel = mailScreenViewModel,
+                                            rootUsageHostViewModel = rootUsageHostViewModel,
+                                            viewModelEventHandlers = viewModelEventHandlers,
+                                            rootCoroutineScope = rootCoroutineScope,
+                                            globalEventSender = globalEventSender,
+                                            globalEvent = globalEvent,
+                                            windowInsets = paddingValues,
+                                        )
+                                    }
 
-                                ScreenStructure.Login -> {
-                                    LoginScreenContainer(
-                                        navController = navController,
-                                        globalEventSender = globalEventSender,
-                                        windowInsets = paddingValues,
-                                    )
-                                }
+                                    ScreenStructure.Login -> {
+                                        LoginScreenContainer(
+                                            navController = navController,
+                                            globalEventSender = globalEventSender,
+                                            windowInsets = paddingValues,
+                                        )
+                                    }
 
-                                ScreenStructure.Admin -> {
-                                    AdminContainer(
-                                        windowInsets = paddingValues,
-                                    )
-                                }
+                                    ScreenStructure.Admin -> {
+                                        AdminContainer(
+                                            windowInsets = paddingValues,
+                                        )
+                                    }
 
-                                ScreenStructure.NotFound -> {
-                                    NotFoundScreen(
-                                        paddingValues = paddingValues,
-                                    )
-                                }
+                                    ScreenStructure.NotFound -> {
+                                        NotFoundScreen(
+                                            paddingValues = paddingValues,
+                                        )
+                                    }
 
-                                is ScreenStructure.AddMoneyUsage -> {
-                                    AddMoneyUsageScreenContainer(
-                                        rootCoroutineScope = rootCoroutineScope,
-                                        current = current,
-                                        viewModelEventHandlers = viewModelEventHandlers,
-                                        windowInsets = paddingValues,
-                                    )
-                                }
+                                    is ScreenStructure.AddMoneyUsage -> {
+                                        AddMoneyUsageScreenContainer(
+                                            rootCoroutineScope = rootCoroutineScope,
+                                            current = current,
+                                            viewModelEventHandlers = viewModelEventHandlers,
+                                            windowInsets = paddingValues,
+                                        )
+                                    }
 
-                                is ScreenStructure.ImportedMail -> {
-                                    ImportedMailScreenContainer(
-                                        current = current,
-                                        viewModelEventHandlers = viewModelEventHandlers,
-                                        windowInsets = paddingValues,
-                                    )
-                                }
+                                    is ScreenStructure.ImportedMail -> {
+                                        ImportedMailScreenContainer(
+                                            current = current,
+                                            viewModelEventHandlers = viewModelEventHandlers,
+                                            windowInsets = paddingValues,
+                                        )
+                                    }
 
-                                is ScreenStructure.ImportedMailHTML -> {
-                                    ImportedMailHtmlContainer(
-                                        current = current,
-                                        viewModelEventHandlers = viewModelEventHandlers,
-                                        kakeboScaffoldListener = kakeboScaffoldListener,
-                                        windowInsets = paddingValues,
-                                    )
-                                }
+                                    is ScreenStructure.ImportedMailHTML -> {
+                                        ImportedMailHtmlContainer(
+                                            current = current,
+                                            viewModelEventHandlers = viewModelEventHandlers,
+                                            kakeboScaffoldListener = kakeboScaffoldListener,
+                                            windowInsets = paddingValues,
+                                        )
+                                    }
 
-                                is ScreenStructure.ImportedMailPlain -> {
-                                    ImportedMailPlainScreenContainer(
-                                        screen = current,
-                                        viewModelEventHandlers = viewModelEventHandlers,
-                                        kakeboScaffoldListener = kakeboScaffoldListener,
-                                        windowInsets = paddingValues,
-                                    )
-                                }
+                                    is ScreenStructure.ImportedMailPlain -> {
+                                        ImportedMailPlainScreenContainer(
+                                            screen = current,
+                                            viewModelEventHandlers = viewModelEventHandlers,
+                                            kakeboScaffoldListener = kakeboScaffoldListener,
+                                            windowInsets = paddingValues,
+                                        )
+                                    }
 
-                                is ScreenStructure.MoneyUsage -> {
-                                    MoneyUsageContainer(
-                                        screen = current,
-                                        viewModelEventHandlers = viewModelEventHandlers,
-                                        kakeboScaffoldListener = kakeboScaffoldListener,
-                                        windowInsets = paddingValues,
-                                    )
+                                    is ScreenStructure.MoneyUsage -> {
+                                        MoneyUsageContainer(
+                                            screen = current,
+                                            viewModelEventHandlers = viewModelEventHandlers,
+                                            kakeboScaffoldListener = kakeboScaffoldListener,
+                                            windowInsets = paddingValues,
+                                        )
+                                    }
                                 }
                             }
-                        }
 
-                        else -> throw NotImplementedError("$current is not implemented")
+                            else -> throw NotImplementedError("$current is not implemented")
+                        }
                     }
                 }
             }
