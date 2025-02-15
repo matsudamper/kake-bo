@@ -26,7 +26,7 @@ protobuf = { id = "com.google.protobuf", version.require = "0.9.4" }
 [libraries]
 kotlinRefrect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.require = "1.9.0" }
-kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.require = "0.6.1" }
+kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.require = "0.6.2" }
 kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.require = "1.7.3" }
 
 # Plugin
