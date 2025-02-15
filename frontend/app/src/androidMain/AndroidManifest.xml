@@ -6,6 +6,7 @@
     <application
             android:icon="@mipmap/ic_app_icon"
             android:label="@string/app_name"
+            android:enableOnBackInvokedCallback="true"
             android:theme="@style/Theme.ImageViewer"
             android:name=".Application">
 
@@ -14,15 +15,15 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            
+
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
                 <data
-                 android:scheme="https"
-                  android:host="${SERVER_HOST}"
-                  android:pathPrefix="/add/money-usage"
+                        android:scheme="https"
+                        android:host="${SERVER_HOST}"
+                        android:pathPrefix="/add/money-usage"
                 />
             </intent-filter>
         </activity>
