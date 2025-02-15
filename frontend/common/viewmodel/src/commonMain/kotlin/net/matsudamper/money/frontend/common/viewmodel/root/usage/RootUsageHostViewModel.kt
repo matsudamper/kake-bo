@@ -127,12 +127,10 @@ public class RootUsageHostViewModel(
                                 type = when (viewModelState.screenStructure) {
                                     is ScreenStructure.Root.Usage.Calendar -> RootUsageHostScreenUiState.Type.Calendar
                                     is ScreenStructure.Root.Usage.List -> RootUsageHostScreenUiState.Type.List
-                                    null -> RootUsageHostScreenUiState.Type.Calendar
                                 },
                                 header = when (viewModelState.screenStructure) {
                                     is ScreenStructure.Root.Usage.Calendar -> viewModelState.calendarHeader
                                     is ScreenStructure.Root.Usage.List -> RootUsageHostScreenUiState.Header.None
-                                    null -> viewModelState.calendarHeader
                                 } ?: RootUsageHostScreenUiState.Header.None,
                                 textInputUiState = viewModelState.textInputUiState,
                                 searchText = viewModelState.searchText,
