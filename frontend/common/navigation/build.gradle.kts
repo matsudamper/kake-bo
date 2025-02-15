@@ -31,7 +31,7 @@ kotlin {
                 implementation(compose.runtime)
                 implementation(compose.ui)
 
-                implementation("io.ktor:ktor-client-logging-js:2.3.13")
+                implementation("io.ktor:ktor-client-logging-js:3.1.0")
                 implementation(libs.ktorClientCore)
                 implementation(libs.ktorClientJs)
             }
