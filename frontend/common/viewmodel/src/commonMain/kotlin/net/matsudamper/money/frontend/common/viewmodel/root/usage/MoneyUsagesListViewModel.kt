@@ -101,8 +101,7 @@ public class MoneyUsagesListViewModel(
                                     if (lastMonth == null || lastMonth?.month != result.date.month) {
                                         add(
                                             RootUsageListScreenUiState.Item.Title(
-                                                title =
-                                                buildString {
+                                                title = buildString {
                                                     append("${result.date.year}年")
                                                     append("${result.date.monthNumber}月")
                                                 },
@@ -115,15 +114,13 @@ public class MoneyUsagesListViewModel(
                                             title = result.title,
                                             amount = "${Formatter.formatMoney(result.amount)}円",
                                             date = Formatter.formatDateTime(result.date),
-                                            category =
-                                            run category@{
+                                            category = run category@{
                                                 val subCategory =
                                                     result.moneyUsageSubCategory ?: return@category null
 
                                                 "${subCategory.category.name} / ${subCategory.name}"
                                             },
-                                            event =
-                                            object : RootUsageListScreenUiState.ItemEvent {
+                                            event = object : RootUsageListScreenUiState.ItemEvent {
                                                 override fun onClick() {
                                                     viewModelScope.launch {
                                                         viewModelEventSender.send {
@@ -148,12 +145,10 @@ public class MoneyUsagesListViewModel(
 
                         uiStateFlow.update { uiState ->
                             uiState.copy(
-                                loadingState =
-                                RootUsageListScreenUiState.LoadingState.Loaded(
+                                loadingState = RootUsageListScreenUiState.LoadingState.Loaded(
                                     loadToEnd = hasMore.not(),
                                     items = items,
-                                    event =
-                                    object : RootUsageListScreenUiState.LoadedEvent {
+                                    event = object : RootUsageListScreenUiState.LoadedEvent {
                                         override fun loadMore() {
                                             viewModelScope.launch {
                                                 pagingModel.fetch()
