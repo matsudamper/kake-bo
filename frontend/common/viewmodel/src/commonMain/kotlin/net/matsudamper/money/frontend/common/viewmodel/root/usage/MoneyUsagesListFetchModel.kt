@@ -84,6 +84,11 @@ public class MoneyUsagesListFetchModel(
         }
     }
 
+    public suspend fun refresh() {
+        paging.clear()
+        fetch()
+    }
+
     private data class State(
         val searchText: String? = null,
     )

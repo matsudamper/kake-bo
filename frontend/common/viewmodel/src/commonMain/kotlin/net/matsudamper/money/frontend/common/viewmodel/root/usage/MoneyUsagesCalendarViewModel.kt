@@ -117,6 +117,12 @@ public class MoneyUsagesCalendarViewModel(
                             }
                         }
                     }
+
+                    override fun refresh() {
+                        viewModelScope.launch {
+                            rootUsageHostViewModel.calendarPagingModel.refresh()
+                        }
+                    }
                 },
             ),
         ).also { uiStateFlow ->

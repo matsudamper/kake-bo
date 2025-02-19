@@ -69,6 +69,12 @@ public class MoneyUsagesListViewModel(
                             }
                         }
                     }
+
+                    override fun refresh() {
+                        viewModelScope.launch {
+                            pagingModel.refresh()
+                        }
+                    }
                 },
             ),
         ).also { uiStateFlow ->

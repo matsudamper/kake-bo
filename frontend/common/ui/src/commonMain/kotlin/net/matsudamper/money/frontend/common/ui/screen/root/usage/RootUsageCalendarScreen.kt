@@ -19,15 +19,19 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +42,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList
 
 public data class RootUsageCalendarScreenUiState(
@@ -93,9 +99,11 @@ public data class RootUsageCalendarScreenUiState(
     @Immutable
     public interface Event {
         public suspend fun onViewInitialized()
+        public fun refresh()
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun RootUsageCalendarScreen(
     modifier: Modifier = Modifier,
@@ -105,28 +113,45 @@ public fun RootUsageCalendarScreen(
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
     }
-    BoxWithConstraints(modifier) {
-        val height = maxHeight
-        when (uiState.loadingState) {
-            is RootUsageCalendarScreenUiState.LoadingState.Loaded -> {
-                var buttonSize: IntSize by remember { mutableStateOf(IntSize.Zero) }
-                val lazyGridState = rememberLazyGridState()
-                LoadedContent(
-                    modifier = Modifier.fillMaxSize(),
-                    uiState = uiState.loadingState,
-                    state = lazyGridState,
-                    contentPadding =
-                    PaddingValues(
-                        top = 12.dp,
-                        bottom = with(density) { buttonSize.height.toDp() },
-                    ),
-                )
+    val state = rememberPullToRefreshState()
+    val coroutineScope = rememberCoroutineScope()
+    var isRefreshing by remember { mutableStateOf(false) }
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        modifier = modifier,
+        state = state,
+        onRefresh = {
+            coroutineScope.launch {
+                isRefreshing = true
+                uiState.event.refresh()
+                delay(1000)
+                isRefreshing = false
             }
+        },
+    ) {
+        BoxWithConstraints(modifier) {
+            when (uiState.loadingState) {
+                is RootUsageCalendarScreenUiState.LoadingState.Loaded -> {
+                    var buttonSize: IntSize by remember { mutableStateOf(IntSize.Zero) }
+                    val lazyGridState = rememberLazyGridState()
+                    LoadedContent(
+                        modifier = Modifier.fillMaxSize(),
+                        uiState = uiState.loadingState,
+                        state = lazyGridState,
+                        contentPadding =
+                            PaddingValues(
+                                top = 12.dp,
+                                bottom = with(density) { buttonSize.height.toDp() },
+                            ),
+                    )
+                }
 
-            is RootUsageCalendarScreenUiState.LoadingState.Loading -> {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center),
-                )
+                is RootUsageCalendarScreenUiState.LoadingState.Loading -> {
+                    LaunchedEffect(Unit) { isRefreshing = false }
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center),
+                    )
+                }
             }
         }
     }

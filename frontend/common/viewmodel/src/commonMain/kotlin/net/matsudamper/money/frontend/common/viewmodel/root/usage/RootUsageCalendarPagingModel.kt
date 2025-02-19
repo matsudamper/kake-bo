@@ -160,6 +160,11 @@ public class RootUsageCalendarPagingModel(
         return modelStateFlow.value.selectedMonth != null
     }
 
+    public fun refresh() {
+        pagingFlow.value.clear()
+        fetch()
+    }
+
     private data class ModelState(
         val selectedMonth: LocalDate? = null,
         val searchText: String? = null,
