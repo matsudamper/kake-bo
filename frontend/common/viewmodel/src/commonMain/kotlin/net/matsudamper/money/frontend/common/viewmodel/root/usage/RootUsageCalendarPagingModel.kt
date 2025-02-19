@@ -31,13 +31,12 @@ public class RootUsageCalendarPagingModel(
 ) {
     private val modelStateFlow = MutableStateFlow(ModelState())
 
-    private val pagingFlow =
-        MutableStateFlow(
-            ApolloPagingResponseCollector.create<UsageCalendarScreenPagingQuery.Data>(
-                graphqlClient = graphqlClient,
-                coroutineScope = coroutineScope,
-            ),
-        )
+    private val pagingFlow = MutableStateFlow(
+        ApolloPagingResponseCollector.create<UsageCalendarScreenPagingQuery.Data>(
+            graphqlClient = graphqlClient,
+            coroutineScope = coroutineScope,
+        ),
+    )
 
     @OptIn(ExperimentalCoroutinesApi::class)
     internal fun getFlow(): Flow<List<ApolloResponseState<ApolloResponse<UsageCalendarScreenPagingQuery.Data>>>> {
@@ -95,34 +94,32 @@ public class RootUsageCalendarPagingModel(
             }
             println("cursor: $cursor")
             UsageCalendarScreenPagingQuery(
-                query =
-                MoneyUsagesQuery(
+                query = MoneyUsagesQuery(
                     cursor = Optional.present(cursor),
-                    filter =
-                    Optional.present(
+                    filter = Optional.present(
                         MoneyUsagesQueryFilter(
                             sinceDateTime =
-                            Optional.present(
-                                LocalDateTime(
-                                    LocalDate(
-                                        year = selectedMonth.year,
-                                        month = selectedMonth.month,
-                                        dayOfMonth = 1,
+                                Optional.present(
+                                    LocalDateTime(
+                                        LocalDate(
+                                            year = selectedMonth.year,
+                                            month = selectedMonth.month,
+                                            dayOfMonth = 1,
+                                        ),
+                                        LocalTime(0, 0),
                                     ),
-                                    LocalTime(0, 0),
                                 ),
-                            ),
                             untilDateTime =
-                            Optional.present(
-                                LocalDateTime(
-                                    LocalDate(
-                                        year = selectedMonth.year,
-                                        monthNumber = selectedMonth.monthNumber,
-                                        dayOfMonth = 1,
-                                    ).plus(1, DateTimeUnit.MONTH),
-                                    LocalTime(0, 0),
+                                Optional.present(
+                                    LocalDateTime(
+                                        LocalDate(
+                                            year = selectedMonth.year,
+                                            monthNumber = selectedMonth.monthNumber,
+                                            dayOfMonth = 1,
+                                        ).plus(1, DateTimeUnit.MONTH),
+                                        LocalTime(0, 0),
+                                    ),
                                 ),
-                            ),
                             text = Optional.present(searchText),
                         ),
                     ),
@@ -140,11 +137,10 @@ public class RootUsageCalendarPagingModel(
                 selectedMonth = month,
             )
         }
-        pagingFlow.value =
-            ApolloPagingResponseCollector.create(
-                graphqlClient = graphqlClient,
-                coroutineScope = coroutineScope,
-            )
+        pagingFlow.value = ApolloPagingResponseCollector.create(
+            graphqlClient = graphqlClient,
+            coroutineScope = coroutineScope,
+        )
     }
 
     public fun changeSearchText(text: String?) {
@@ -154,11 +150,10 @@ public class RootUsageCalendarPagingModel(
                 searchText = text,
             )
         }
-        pagingFlow.value =
-            ApolloPagingResponseCollector.create(
-                graphqlClient = graphqlClient,
-                coroutineScope = coroutineScope,
-            )
+        pagingFlow.value = ApolloPagingResponseCollector.create(
+            graphqlClient = graphqlClient,
+            coroutineScope = coroutineScope,
+        )
     }
 
     public fun hasSelectedMonth(): Boolean {
