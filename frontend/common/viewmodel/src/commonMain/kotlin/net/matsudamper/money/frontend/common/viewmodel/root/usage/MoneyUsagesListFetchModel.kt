@@ -30,22 +30,8 @@ public class MoneyUsagesListFetchModel(
         coroutineScope = coroutineScope,
     )
 
-    private val pagingFlow = MutableStateFlow(
-        ApolloPagingResponseCollector.create<UsageListScreenPagingQuery.Data>(
-            graphqlClient = graphqlClient,
-            coroutineScope = coroutineScope,
-        ),
-    )
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    internal suspend fun getFlow(): Flow<List<ApolloResponseState<ApolloResponse<UsageListScreenPagingQuery.Data>>>> {
-        return flow {
-            emitAll(
-                pagingFlow.mapLatest { collectors ->
-                    collectors.getFlow()
-                }.flattenMerge(),
-            )
-        }
+    internal fun getFlow(): Flow<List<ApolloResponseState<ApolloResponse<UsageListScreenPagingQuery.Data>>>> {
+        return paging.getFlow()
     }
 
     internal suspend fun fetch() {
