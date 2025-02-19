@@ -76,6 +76,7 @@ public class MoneyUsagesListFetchModel(
 
     public fun changeText(searchText: String?) {
         if (state.value.searchText == searchText) return
+        paging.clear()
         state.update {
             it.copy(
                 searchText = searchText,
