@@ -22,9 +22,8 @@ internal class GraphQlContext(
 
         val adminSessionString = cookieManager.getAdminSessionId() ?: throw GraphqlMoneyException.SessionNotVerify()
 
-        val adminSession =
-            diContainer.createAdminUserSessionRepository().verifySession(adminSessionString)
-                ?: throw GraphqlMoneyException.SessionNotVerify()
+        val adminSession = diContainer.createAdminUserSessionRepository().verifySession(adminSessionString)
+            ?: throw GraphqlMoneyException.SessionNotVerify()
         this.adminSession = adminSession
 
         cookieManager.setAdminSession(
@@ -38,10 +37,9 @@ internal class GraphQlContext(
     fun verifyUserSessionAndGetSessionInfo(): SessionInfo {
         val userId = userSessionManager.verifyUserSession()
         val sessionId = UserSessionId(cookieManager.getUserSessionId()!!)
-        val currentSessionInfo =
-            diContainer.createUserSessionRepository()
-                .getSessionInfo(sessionId)
-                ?: throw GraphqlMoneyException.SessionNotVerify()
+        val currentSessionInfo = diContainer.createUserSessionRepository()
+            .getSessionInfo(sessionId)
+            ?: throw GraphqlMoneyException.SessionNotVerify()
 
         return SessionInfo(
             userId = userId,

@@ -17,43 +17,36 @@ internal object YoutubeSuperChatUsageServices : MoneyUsageServices {
         date: LocalDateTime,
     ): List<MoneyUsage> {
         val forwardedOriginInfo = ParseUtil.parseForwarded(plain)
-        val canHandle =
-            sequence {
-                yield(canHandledWithFrom(forwardedOriginInfo?.from ?: from))
-                yield(canHandledWithSubject(forwardedOriginInfo?.subject ?: subject))
-            }
+        val canHandle = sequence {
+            yield(canHandledWithFrom(forwardedOriginInfo?.from ?: from))
+            yield(canHandledWithSubject(forwardedOriginInfo?.subject ?: subject))
+        }
         if (canHandle.all { it }.not()) return listOf()
 
         val plainLines = ParseUtil.splitByNewLine(plain)
 
-        val description =
-            run {
-                val index =
-                    plainLines.indexOfFirst { it == "Membership details" }
-                        .takeIf { it >= 0 }!!
-                val endIndex = index + plainLines.drop(index + 1).indexOfFirst { it.isBlank() }
-                plainLines.subList(index, endIndex).joinToString("\n")
-            }
+        val description = run {
+            val index = plainLines.indexOfFirst { it == "Membership details" }
+                .takeIf { it >= 0 }!!
+            val endIndex = index + plainLines.drop(index + 1).indexOfFirst { it.isBlank() }
+            plainLines.subList(index, endIndex).joinToString("\n")
+        }
 
-        val title: String =
-            run {
-                val itemPrefix = "Item: "
-                val index =
-                    plainLines.indexOfFirst { it.startsWith(itemPrefix) }
-                        .takeIf { it >= 0 } ?: return@run forwardedOriginInfo?.subject ?: subject
+        val title: String = run {
+            val itemPrefix = "Item: "
+            val index = plainLines.indexOfFirst { it.startsWith(itemPrefix) }
+                .takeIf { it >= 0 } ?: return@run forwardedOriginInfo?.subject ?: subject
 
-                plainLines[index].drop(itemPrefix.length)
-            }
+            plainLines[index].drop(itemPrefix.length)
+        }
 
-        val price =
-            run {
-                val itemPrefix = "Price: "
-                val index =
-                    plainLines.indexOfFirst { it.startsWith(itemPrefix) }
-                        .takeIf { it >= 0 } ?: return@run 0
+        val price = run {
+            val itemPrefix = "Price: "
+            val index = plainLines.indexOfFirst { it.startsWith(itemPrefix) }
+                .takeIf { it >= 0 } ?: return@run 0
 
-                ParseUtil.getInt(plainLines[index])
-            }
+            ParseUtil.getInt(plainLines[index])
+        }
 
         return listOf(
             MoneyUsage(

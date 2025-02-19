@@ -38,8 +38,7 @@ public fun NormalizeInputKeyCapture(content: @Composable () -> Unit) {
 
     val focusRequester = remember { FocusRequester() }
     Box(
-        modifier =
-        Modifier
+        modifier = Modifier
             .focusTarget()
             .focusRequester(focusRequester)
             .clickable(

@@ -26,15 +26,13 @@ internal fun UrlClickableText(
     onLongClickUrl: (String) -> Unit,
 ) {
     val color = MaterialTheme.colorScheme.primary
-    val annotatedText =
-        remember(text) {
-            AnnotatedString(text)
-                .applyHtml(color)
-        }
+    val annotatedText = remember(text) {
+        AnnotatedString(text)
+            .applyHtml(color)
+    }
     var layoutResult: TextLayoutResult? by remember { mutableStateOf(null) }
     Text(
-        modifier =
-        Modifier.pointerInput(onClickUrl, onLongClickUrl) {
+        modifier = Modifier.pointerInput(onClickUrl, onLongClickUrl) {
             detectTapGestures(
                 onLongPress = { offset ->
                     val index = layoutResult?.getOffsetForPosition(offset) ?: return@detectTapGestures
@@ -51,8 +49,7 @@ internal fun UrlClickableText(
             )
         },
         text = annotatedText,
-        style =
-        LocalTextStyle.current.merge(
+        style = LocalTextStyle.current.merge(
             SpanStyle(
                 color = LocalContentColor.current,
             ),

@@ -17,37 +17,32 @@ internal object UberEatsUsageService : MoneyUsageServices {
         plain: String,
         date: LocalDateTime,
     ): List<MoneyUsage> {
-        val canHandle =
-            sequence {
-                yield(canHandledWithFrom(from))
-                yield(canHandledWithSubject(subject))
-                yield(canHandledWithHtml(html))
-            }
+        val canHandle = sequence {
+            yield(canHandledWithFrom(from))
+            yield(canHandledWithSubject(subject))
+            yield(canHandledWithHtml(html))
+        }
         if (canHandle.any { it }.not()) return listOf()
 
         val htmlDocument = Jsoup.parse(html)
-        val price =
-            run price@{
-                val regex = "^合計.*?￥(.+?\\d)$".toRegex(RegexOption.MULTILINE)
-                val result =
-                    htmlDocument.allElements.asSequence()
-                        .mapNotNull { regex.find(it.text()) }
-                        .firstOrNull()
-                        ?.groupValues?.getOrNull(1) ?: return@price null
-                ParseUtil.getInt(result)
-            }
+        val price = run price@{
+            val regex = "^合計.*?￥(.+?\\d)$".toRegex(RegexOption.MULTILINE)
+            val result = htmlDocument.allElements.asSequence()
+                .mapNotNull { regex.find(it.text()) }
+                .firstOrNull()
+                ?.groupValues?.getOrNull(1) ?: return@price null
+            ParseUtil.getInt(result)
+        }
 
-        val title =
-            run price@{
-                val regex = "^(.+?)の領収書をお受け取りください。$".toRegex(RegexOption.MULTILINE)
-                val value =
-                    htmlDocument.allElements.asSequence()
-                        .mapNotNull { regex.find(it.text()) }
-                        .firstOrNull()
-                        ?.groupValues?.getOrNull(1)
-                        ?: return@price ""
-                value
-            }
+        val title = run price@{
+            val regex = "^(.+?)の領収書をお受け取りください。$".toRegex(RegexOption.MULTILINE)
+            val value = htmlDocument.allElements.asSequence()
+                .mapNotNull { regex.find(it.text()) }
+                .firstOrNull()
+                ?.groupValues?.getOrNull(1)
+                ?: return@price ""
+            value
+        }
 
         return listOf(
             MoneyUsage(

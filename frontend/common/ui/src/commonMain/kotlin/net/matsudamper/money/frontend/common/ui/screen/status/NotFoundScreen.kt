@@ -15,8 +15,7 @@ import androidx.compose.ui.Modifier
 @Composable
 public fun NotFoundScreen(paddingValues: PaddingValues) {
     Scaffold(
-        modifier =
-        Modifier
+        modifier = Modifier
             .fillMaxSize()
             .padding(paddingValues),
     ) { paddingValues1 ->

@@ -79,8 +79,7 @@ public fun SettingRootScreen(
             KakeBoTopAppBar(
                 title = {
                     Text(
-                        modifier =
-                        Modifier.clickable(
+                        modifier = Modifier.clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
@@ -119,8 +118,7 @@ private fun MainContent(
         val settingPaddingModifier = Modifier.padding(horizontal = 24.dp)
         Spacer(modifier = Modifier.height(32.dp))
         Box(
-            modifier =
-            Modifier
+            modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth(),
         ) {

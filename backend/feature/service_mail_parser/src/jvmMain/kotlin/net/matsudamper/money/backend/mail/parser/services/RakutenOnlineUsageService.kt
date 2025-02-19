@@ -28,10 +28,9 @@ internal object RakutenOnlineUsageService : MoneyUsageServices {
         val title = sequence {
             yield(
                 run title@{
-                    val result =
-                        "この度は提携サイト「(.+?)」にて楽天ペイ".toRegex(RegexOption.MULTILINE)
-                            .find(html)
-                            ?.groupValues?.getOrNull(1) ?: return@title null
+                    val result = "この度は提携サイト「(.+?)」にて楽天ペイ".toRegex(RegexOption.MULTILINE)
+                        .find(html)
+                        ?.groupValues?.getOrNull(1) ?: return@title null
 
                     ParseUtil.removeHtmlTag(result)
                 },
@@ -73,9 +72,8 @@ internal object RakutenOnlineUsageService : MoneyUsageServices {
 
         val dateTimeResult = run date@{
             val index = html.indexOf("ご注文日：").takeIf { it >= 0 } ?: return@date date
-            val result =
-                """(\d+)-(\d+)-(\d+) (\d+):(\d+):(\d+)""".toRegex(RegexOption.MULTILINE)
-                    .find(html.drop(index))?.groupValues ?: return@date date
+            val result = """(\d+)-(\d+)-(\d+) (\d+):(\d+):(\d+)""".toRegex(RegexOption.MULTILINE)
+                .find(html.drop(index))?.groupValues ?: return@date date
             val year = result.getOrNull(1)?.toIntOrNull() ?: return@date date
             val month = result.getOrNull(2)?.toIntOrNull() ?: return@date date
             val day = result.getOrNull(3)?.toIntOrNull() ?: return@date date

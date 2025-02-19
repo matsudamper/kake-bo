@@ -53,11 +53,10 @@ public class RootHomeMonthlyScreenViewModel(
             argument = argument,
         ),
     )
-    private val monthlyListState: ApolloPagingResponseCollector<MonthlyScreenListQuery.Data> =
-        ApolloPagingResponseCollector.create(
-            graphqlClient = graphqlClient,
-            coroutineScope = viewModelScope,
-        )
+    private val monthlyListState: ApolloPagingResponseCollector<MonthlyScreenListQuery.Data> = ApolloPagingResponseCollector.create(
+        graphqlClient = graphqlClient,
+        coroutineScope = viewModelScope,
+    )
 
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
@@ -81,90 +80,84 @@ public class RootHomeMonthlyScreenViewModel(
             viewModelScope.launch { fetch() }
         }
     }
-    public val uiStateFlow: StateFlow<RootHomeMonthlyScreenUiState> =
-        MutableStateFlow(
-            RootHomeMonthlyScreenUiState(
-                loadingState = RootHomeMonthlyScreenUiState.LoadingState.Loading,
-                rootHomeTabUiState = tabViewModel.uiStateFlow.value,
-                scaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
-                    override fun onClickHome() {
-                        if (PlatformTypeProvider.type == PlatformType.JS) {
-                            super.onClickHome()
-                        }
+    public val uiStateFlow: StateFlow<RootHomeMonthlyScreenUiState> = MutableStateFlow(
+        RootHomeMonthlyScreenUiState(
+            loadingState = RootHomeMonthlyScreenUiState.LoadingState.Loading,
+            rootHomeTabUiState = tabViewModel.uiStateFlow.value,
+            scaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
+                override fun onClickHome() {
+                    if (PlatformTypeProvider.type == PlatformType.JS) {
+                        super.onClickHome()
                     }
-                },
-                event = object : RootHomeMonthlyScreenUiState.Event {
-                    override suspend fun onViewInitialized() {
-                        viewModelScope.launch {
-                            viewModelStateFlow.map { viewModelState ->
-                                viewModelState.argument
-                            }.stateIn(this).collectLatest {
-                                val sinceDateTime = createSinceLocalDateTime()
-                                val untilDateTime =
-                                    run {
-                                        LocalDateTime(
-                                            date = sinceDateTime.date.plus(1, DateTimeUnit.MONTH),
-                                            time = sinceDateTime.time,
-                                        )
-                                    }
-                                graphqlClient.apolloClient.query(
-                                    MonthlyScreenQuery(
-                                        sinceDateTime = sinceDateTime,
-                                        untilDateTime = untilDateTime,
-                                    ),
-                                ).fetchPolicy(FetchPolicy.CacheFirst).toFlow().collectLatest { response ->
-                                    viewModelStateFlow.value =
-                                        viewModelStateFlow.value.copy(
-                                            moneyUsageAnalytics = response.data?.user?.moneyUsageAnalytics,
-                                        )
-                                }
-                            }
-                        }
-                        viewModelScope.launch {
-                            monthlyListState.getFlow().collectLatest { responses ->
-                                viewModelStateFlow.value =
-                                    viewModelStateFlow.value.copy(
-                                        monthlyListResponses = responses,
-                                    )
-                            }
-                        }
-                    }
-                },
-            ),
-        ).also { uiStateFlow ->
-            viewModelScope.launch {
-                tabViewModel.uiStateFlow.collectLatest { rootHomeTabUiState ->
-                    uiStateFlow.value =
-                        uiStateFlow.value.copy(
-                            rootHomeTabUiState = rootHomeTabUiState,
-                        )
                 }
-            }
-            viewModelScope.launch {
-                viewModelStateFlow.collectLatest { viewModelState ->
-                    uiStateFlow.value = uiStateFlow.value.copy(
-                        loadingState = when (viewModelState.monthlyListResponses.firstOrNull()) {
-                            null,
-                            is ApolloResponseState.Loading,
-                            -> RootHomeMonthlyScreenUiState.LoadingState.Loading
-
-                            is ApolloResponseState.Failure -> RootHomeMonthlyScreenUiState.LoadingState.Error
-
-                            is ApolloResponseState.Success -> {
-                                createLoadedUiState(
-                                    viewModelState = viewModelState,
+            },
+            event = object : RootHomeMonthlyScreenUiState.Event {
+                override suspend fun onViewInitialized() {
+                    viewModelScope.launch {
+                        viewModelStateFlow.map { viewModelState ->
+                            viewModelState.argument
+                        }.stateIn(this).collectLatest {
+                            val sinceDateTime = createSinceLocalDateTime()
+                            val untilDateTime = run {
+                                LocalDateTime(
+                                    date = sinceDateTime.date.plus(1, DateTimeUnit.MONTH),
+                                    time = sinceDateTime.time,
                                 )
                             }
-                        },
-                    )
+                            graphqlClient.apolloClient.query(
+                                MonthlyScreenQuery(
+                                    sinceDateTime = sinceDateTime,
+                                    untilDateTime = untilDateTime,
+                                ),
+                            ).fetchPolicy(FetchPolicy.CacheFirst).toFlow().collectLatest { response ->
+                                viewModelStateFlow.value = viewModelStateFlow.value.copy(
+                                    moneyUsageAnalytics = response.data?.user?.moneyUsageAnalytics,
+                                )
+                            }
+                        }
+                    }
+                    viewModelScope.launch {
+                        monthlyListState.getFlow().collectLatest { responses ->
+                            viewModelStateFlow.value = viewModelStateFlow.value.copy(
+                                monthlyListResponses = responses,
+                            )
+                        }
+                    }
                 }
+            },
+        ),
+    ).also { uiStateFlow ->
+        viewModelScope.launch {
+            tabViewModel.uiStateFlow.collectLatest { rootHomeTabUiState ->
+                uiStateFlow.value = uiStateFlow.value.copy(
+                    rootHomeTabUiState = rootHomeTabUiState,
+                )
             }
-        }.asStateFlow()
+        }
+        viewModelScope.launch {
+            viewModelStateFlow.collectLatest { viewModelState ->
+                uiStateFlow.value = uiStateFlow.value.copy(
+                    loadingState = when (viewModelState.monthlyListResponses.firstOrNull()) {
+                        null,
+                        is ApolloResponseState.Loading,
+                        -> RootHomeMonthlyScreenUiState.LoadingState.Loading
+
+                        is ApolloResponseState.Failure -> RootHomeMonthlyScreenUiState.LoadingState.Error
+
+                        is ApolloResponseState.Success -> {
+                            createLoadedUiState(
+                                viewModelState = viewModelState,
+                            )
+                        }
+                    },
+                )
+            }
+        }
+    }.asStateFlow()
 
     private fun createLoadedUiState(viewModelState: ViewModelState): RootHomeMonthlyScreenUiState.LoadingState.Loaded {
         return RootHomeMonthlyScreenUiState.LoadingState.Loaded(
-            items =
-            viewModelState.monthlyListResponses.flatMap {
+            items = viewModelState.monthlyListResponses.flatMap {
                 it.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.nodes.orEmpty()
             }.map { node ->
                 RootHomeMonthlyScreenUiState.Item(
@@ -172,19 +165,16 @@ public class RootHomeMonthlyScreenViewModel(
                     amount = "${Formatter.formatMoney(node.amount)}円",
                     date = Formatter.formatDateTime(node.date),
                     category = node.moneyUsageSubCategory?.name.orEmpty(),
-                    event =
-                    ItemEventImpl(
+                    event = ItemEventImpl(
                         coroutineScope = viewModelScope,
                         eventSender = eventSender,
                         id = node.id,
                     ),
                 )
             },
-            hasMoreItem =
-            viewModelState.monthlyListResponses
+            hasMoreItem = viewModelState.monthlyListResponses
                 .lastOrNull()?.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.hasMore != false,
-            totalAmount =
-            run amount@{
+            totalAmount = run amount@{
                 val totalAmount = viewModelState.moneyUsageAnalytics?.totalAmount ?: return@amount ""
                 "${Formatter.formatMoney(totalAmount)}円"
             },
@@ -221,39 +211,37 @@ public class RootHomeMonthlyScreenViewModel(
 
     private fun fetch() {
         monthlyListState.add {
-            val cursor: String? =
-                when (val lastState = it.lastOrNull()?.getFlow()?.value) {
-                    is ApolloResponseState.Loading -> return@add null
-                    is ApolloResponseState.Failure -> {
+            val cursor: String? = when (val lastState = it.lastOrNull()?.getFlow()?.value) {
+                is ApolloResponseState.Loading -> return@add null
+                is ApolloResponseState.Failure -> {
+                    viewModelScope.launch {
+                        monthlyListState.lastRetry()
+                    }
+                    return@add null
+                }
+
+                null -> null
+
+                is ApolloResponseState.Success -> {
+                    val result = lastState.value.data?.user?.moneyUsages
+                    if (result == null) {
                         viewModelScope.launch {
                             monthlyListState.lastRetry()
                         }
                         return@add null
                     }
+                    if (result.hasMore.not()) return@add null
 
-                    null -> null
-
-                    is ApolloResponseState.Success -> {
-                        val result = lastState.value.data?.user?.moneyUsages
-                        if (result == null) {
-                            viewModelScope.launch {
-                                monthlyListState.lastRetry()
-                            }
-                            return@add null
-                        }
-                        if (result.hasMore.not()) return@add null
-
-                        result.cursor
-                    }
+                    result.cursor
                 }
+            }
             val sinceDateTime = createSinceLocalDateTime()
-            val untilDateTime =
-                run {
-                    LocalDateTime(
-                        date = sinceDateTime.date.plus(1, DateTimeUnit.MONTH),
-                        time = sinceDateTime.time,
-                    )
-                }
+            val untilDateTime = run {
+                LocalDateTime(
+                    date = sinceDateTime.date.plus(1, DateTimeUnit.MONTH),
+                    time = sinceDateTime.time,
+                )
+            }
             MonthlyScreenListQuery(
                 cursor = Optional.present(cursor),
                 size = 50,
@@ -268,8 +256,7 @@ public class RootHomeMonthlyScreenViewModel(
             ?: Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
 
         return LocalDateTime(
-            date =
-            LocalDate(
+            date = LocalDate(
                 year = tmp.year,
                 monthNumber = tmp.monthNumber,
                 dayOfMonth = 1,

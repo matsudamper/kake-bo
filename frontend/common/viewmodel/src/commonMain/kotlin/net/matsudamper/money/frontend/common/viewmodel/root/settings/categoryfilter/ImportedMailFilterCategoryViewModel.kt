@@ -38,129 +38,121 @@ public class ImportedMailFilterCategoryViewModel(
     navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
-    private val apiResponseCollector =
-        ApolloResponseCollector.create(
-            apolloClient = graphqlClient.apolloClient,
-            query = ImportedMailCategoryFilterScreenQuery(id = id),
-        )
+    private val apiResponseCollector = ApolloResponseCollector.create(
+        apolloClient = graphqlClient.apolloClient,
+        query = ImportedMailCategoryFilterScreenQuery(id = id),
+    )
 
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
-    private val categoryViewModel =
-        object {
-            private val event: CategorySelectDialogViewModel.Event =
-                object : CategorySelectDialogViewModel.Event {
-                    override fun selected(result: CategorySelectDialogViewModel.SelectedResult) {
-                        viewModelScope.launch {
-                            api.updateFilter(
-                                id = id,
-                                subCategoryId = result.subCategoryId,
-                            )
-                            viewModel.dismissDialog()
-                        }
-                    }
+    private val categoryViewModel = object {
+        private val event: CategorySelectDialogViewModel.Event = object : CategorySelectDialogViewModel.Event {
+            override fun selected(result: CategorySelectDialogViewModel.SelectedResult) {
+                viewModelScope.launch {
+                    api.updateFilter(
+                        id = id,
+                        subCategoryId = result.subCategoryId,
+                    )
+                    viewModel.dismissDialog()
                 }
-            val viewModel =
-                CategorySelectDialogViewModel(
-                    scopedObjectFeature = scopedObjectFeature,
-                    event = event,
-                    apolloClient = graphqlClient.apolloClient,
-                )
-        }.viewModel
+            }
+        }
+        val viewModel = CategorySelectDialogViewModel(
+            scopedObjectFeature = scopedObjectFeature,
+            event = event,
+            apolloClient = graphqlClient.apolloClient,
+        )
+    }.viewModel
 
     private val snackbarEventState = SnackbarEventState()
-    public val uiStateFlow: StateFlow<ImportedMailFilterCategoryScreenUiState> =
-        MutableStateFlow(
-            ImportedMailFilterCategoryScreenUiState(
-                textInput = null,
-                loadingState = ImportedMailFilterCategoryScreenUiState.LoadingState.Loading,
-                categorySelectDialogUiState = null,
-                snackbarEventState = snackbarEventState,
-                confirmDialog = null,
-                rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
-                    override fun onClickSettings() {
-                        if (PlatformTypeProvider.type == PlatformType.JS) {
-                            super.onClickSettings()
-                        }
+    public val uiStateFlow: StateFlow<ImportedMailFilterCategoryScreenUiState> = MutableStateFlow(
+        ImportedMailFilterCategoryScreenUiState(
+            textInput = null,
+            loadingState = ImportedMailFilterCategoryScreenUiState.LoadingState.Loading,
+            categorySelectDialogUiState = null,
+            snackbarEventState = snackbarEventState,
+            confirmDialog = null,
+            rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
+                override fun onClickSettings() {
+                    if (PlatformTypeProvider.type == PlatformType.JS) {
+                        super.onClickSettings()
                     }
-                },
-                event = object : ImportedMailFilterCategoryScreenUiState.Event {
-                    override fun onViewInitialized() {
-                        viewModelScope.launch {
-                            apiResponseCollector.fetch()
-                        }
+                }
+            },
+            event = object : ImportedMailFilterCategoryScreenUiState.Event {
+                override fun onViewInitialized() {
+                    viewModelScope.launch {
+                        apiResponseCollector.fetch()
                     }
+                }
 
-                    override fun onClickMenuDelete() {
-                        viewModelStateFlow.update { viewModelState ->
-                            viewModelState.copy(
-                                confirmDialog =
-                                ImportedMailFilterCategoryScreenUiState.ConfirmDialog(
-                                    title = "このフィルタを削除しますか",
-                                    description = null,
-                                    onConfirm = {
-                                        viewModelScope.launch {
-                                            val isSuccess = api.deleteFilter(id = id)
-                                            dismissConfirmDialog()
-                                            if (isSuccess) {
-                                                eventSender.send {
-                                                    it.navigate(ScreenStructure.Root.Settings.MailCategoryFilters)
-                                                }
-                                            } else {
-                                                snackbarEventState.show(
-                                                    SnackbarEventState.Event(
-                                                        message = "削除に失敗しました",
-                                                    ),
-                                                )
+                override fun onClickMenuDelete() {
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(
+                            confirmDialog = ImportedMailFilterCategoryScreenUiState.ConfirmDialog(
+                                title = "このフィルタを削除しますか",
+                                description = null,
+                                onConfirm = {
+                                    viewModelScope.launch {
+                                        val isSuccess = api.deleteFilter(id = id)
+                                        dismissConfirmDialog()
+                                        if (isSuccess) {
+                                            eventSender.send {
+                                                it.navigate(ScreenStructure.Root.Settings.MailCategoryFilters)
                                             }
+                                        } else {
+                                            snackbarEventState.show(
+                                                SnackbarEventState.Event(
+                                                    message = "削除に失敗しました",
+                                                ),
+                                            )
                                         }
-                                    },
-                                    onDismiss = { dismissConfirmDialog() },
-                                ),
-                            )
-                        }
-                    }
-
-                    override fun onClickBack() {
-                        viewModelScope.launch {
-                            eventSender.send {
-                                it.navigate(ScreenStructure.Root.Settings.MailCategoryFilters)
-                            }
-                        }
-                    }
-                },
-            ),
-        ).also { uiStateFlow ->
-            viewModelScope.launch {
-                viewModelStateFlow.collectLatest { viewModelState ->
-                    uiStateFlow.update { uiState ->
-                        val loadingState =
-                            run loadingState@{
-                                when (val response = viewModelState.apolloResponseState) {
-                                    is ApolloResponseState.Failure -> ImportedMailFilterCategoryScreenUiState.LoadingState.Error
-                                    is ApolloResponseState.Loading -> ImportedMailFilterCategoryScreenUiState.LoadingState.Loading
-                                    is ApolloResponseState.Success -> {
-                                        val filter =
-                                            response.value.data?.user?.importedMailCategoryFilter
-                                                ?: return@loadingState ImportedMailFilterCategoryScreenUiState.LoadingState.Error
-
-                                        createLoadedUiState(
-                                            filter = filter,
-                                        )
                                     }
-                                }
-                            }
-                        uiState.copy(
-                            loadingState = loadingState,
-                            textInput = viewModelState.textInput,
-                            categorySelectDialogUiState = viewModelState.categoryDialogUiState,
-                            confirmDialog = viewModelState.confirmDialog,
+                                },
+                                onDismiss = { dismissConfirmDialog() },
+                            ),
                         )
                     }
                 }
+
+                override fun onClickBack() {
+                    viewModelScope.launch {
+                        eventSender.send {
+                            it.navigate(ScreenStructure.Root.Settings.MailCategoryFilters)
+                        }
+                    }
+                }
+            },
+        ),
+    ).also { uiStateFlow ->
+        viewModelScope.launch {
+            viewModelStateFlow.collectLatest { viewModelState ->
+                uiStateFlow.update { uiState ->
+                    val loadingState = run loadingState@{
+                        when (val response = viewModelState.apolloResponseState) {
+                            is ApolloResponseState.Failure -> ImportedMailFilterCategoryScreenUiState.LoadingState.Error
+                            is ApolloResponseState.Loading -> ImportedMailFilterCategoryScreenUiState.LoadingState.Loading
+                            is ApolloResponseState.Success -> {
+                                val filter = response.value.data?.user?.importedMailCategoryFilter
+                                    ?: return@loadingState ImportedMailFilterCategoryScreenUiState.LoadingState.Error
+
+                                createLoadedUiState(
+                                    filter = filter,
+                                )
+                            }
+                        }
+                    }
+                    uiState.copy(
+                        loadingState = loadingState,
+                        textInput = viewModelState.textInput,
+                        categorySelectDialogUiState = viewModelState.categoryDialogUiState,
+                        confirmDialog = viewModelState.confirmDialog,
+                    )
+                }
             }
-        }.asStateFlow()
+        }
+    }.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -186,8 +178,7 @@ public class ImportedMailFilterCategoryViewModel(
     private fun createLoadedUiState(filter: ImportedMailCategoryFilterScreenQuery.ImportedMailCategoryFilter): ImportedMailFilterCategoryScreenUiState.LoadingState.Loaded {
         return ImportedMailFilterCategoryScreenUiState.LoadingState.Loaded(
             title = filter.importedMailCategoryFilterScreenItem.title,
-            category =
-            run category@{
+            category = run category@{
                 val subCategory = filter.importedMailCategoryFilterScreenItem.subCategory ?: return@category null
                 val category = subCategory.category
 
@@ -196,14 +187,12 @@ public class ImportedMailFilterCategoryViewModel(
                     subCategory = subCategory.name,
                 )
             },
-            conditions =
-            filter.importedMailCategoryFilterScreenItem.conditions.orEmpty()
+            conditions = filter.importedMailCategoryFilterScreenItem.conditions.orEmpty()
                 .map { it.importedMailCategoryConditionScreenItem }
                 .map { condition ->
                     ImportedMailFilterCategoryScreenUiState.Condition(
                         text = condition.text,
-                        source =
-                        when (condition.dataSourceType) {
+                        source = when (condition.dataSourceType) {
                             ImportedMailCategoryFilterDataSourceType.MailHtml -> ImportedMailFilterCategoryScreenUiState.DataSource.MailHtml
                             ImportedMailCategoryFilterDataSourceType.MailPlain -> ImportedMailFilterCategoryScreenUiState.DataSource.MailPlain
                             ImportedMailCategoryFilterDataSourceType.MailFrom -> ImportedMailFilterCategoryScreenUiState.DataSource.MailFrom
@@ -212,21 +201,18 @@ public class ImportedMailFilterCategoryViewModel(
                             ImportedMailCategoryFilterDataSourceType.Title -> ImportedMailFilterCategoryScreenUiState.DataSource.Title
                             ImportedMailCategoryFilterDataSourceType.UNKNOWN__ -> ImportedMailFilterCategoryScreenUiState.DataSource.Unknown
                         },
-                        conditionType =
-                        when (condition.conditionType) {
+                        conditionType = when (condition.conditionType) {
                             ImportedMailCategoryFilterConditionType.Equal -> ImportedMailFilterCategoryScreenUiState.ConditionType.Equal
                             ImportedMailCategoryFilterConditionType.Include -> ImportedMailFilterCategoryScreenUiState.ConditionType.Include
                             ImportedMailCategoryFilterConditionType.NotEqual -> ImportedMailFilterCategoryScreenUiState.ConditionType.NotEqual
                             ImportedMailCategoryFilterConditionType.NotInclude -> ImportedMailFilterCategoryScreenUiState.ConditionType.NotInclude
                             ImportedMailCategoryFilterConditionType.UNKNOWN__ -> ImportedMailFilterCategoryScreenUiState.ConditionType.Unknown
                         },
-                        event =
-                        object : ImportedMailFilterCategoryScreenUiState.ConditionEvent {
+                        event = object : ImportedMailFilterCategoryScreenUiState.ConditionEvent {
                             override fun onClickTextChange() {
                                 viewModelStateFlow.update { viewModelState ->
                                     viewModelState.copy(
-                                        textInput =
-                                        ImportedMailFilterCategoryScreenUiState.TextInput(
+                                        textInput = ImportedMailFilterCategoryScreenUiState.TextInput(
                                             title = "条件のテキストを編集",
                                             onCompleted = { text ->
                                                 viewModelScope.launch {
@@ -278,8 +264,7 @@ public class ImportedMailFilterCategoryViewModel(
                             override fun onClickDeleteMenu() {
                                 viewModelStateFlow.update { viewModelState ->
                                     viewModelState.copy(
-                                        confirmDialog =
-                                        ImportedMailFilterCategoryScreenUiState.ConfirmDialog(
+                                        confirmDialog = ImportedMailFilterCategoryScreenUiState.ConfirmDialog(
                                             title = "この条件を削除しますか？",
                                             description = null,
                                             onDismiss = {
@@ -314,14 +299,12 @@ public class ImportedMailFilterCategoryViewModel(
                         },
                     )
                 }.toImmutableList(),
-            operator =
-            when (filter.importedMailCategoryFilterScreenItem.operator) {
+            operator = when (filter.importedMailCategoryFilterScreenItem.operator) {
                 ImportedMailFilterCategoryConditionOperator.AND -> ImportedMailFilterCategoryScreenUiState.Operator.AND
                 ImportedMailFilterCategoryConditionOperator.OR -> ImportedMailFilterCategoryScreenUiState.Operator.OR
                 ImportedMailFilterCategoryConditionOperator.UNKNOWN__ -> ImportedMailFilterCategoryScreenUiState.Operator.UNKNOWN
             },
-            event =
-            object : ImportedMailFilterCategoryScreenUiState.LoadedEvent {
+            event = object : ImportedMailFilterCategoryScreenUiState.LoadedEvent {
                 override fun onClickAddCondition() {
                     viewModelScope.launch {
                         api.addCondition(id = id)
@@ -336,8 +319,7 @@ public class ImportedMailFilterCategoryViewModel(
                 override fun onClickNameChange() {
                     viewModelStateFlow.update { viewModelState ->
                         viewModelState.copy(
-                            textInput =
-                            ImportedMailFilterCategoryScreenUiState.TextInput(
+                            textInput = ImportedMailFilterCategoryScreenUiState.TextInput(
                                 title = "タイトルを変更",
                                 onCompleted = {
                                     viewModelScope.launch {
@@ -378,10 +360,9 @@ public class ImportedMailFilterCategoryViewModel(
                 }
 
                 override fun onClickCategoryChange() {
-                    val subCategory =
-                        viewModelStateFlow.value.apolloResponseState.getSuccessOrNull()
-                            ?.value?.data?.user?.importedMailCategoryFilter?.importedMailCategoryFilterScreenItem
-                            ?.subCategory
+                    val subCategory = viewModelStateFlow.value.apolloResponseState.getSuccessOrNull()
+                        ?.value?.data?.user?.importedMailCategoryFilter?.importedMailCategoryFilterScreenItem
+                        ?.subCategory
                     val category = subCategory?.category
                     categoryViewModel.showDialog(
                         categoryId = category?.id,

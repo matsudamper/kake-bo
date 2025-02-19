@@ -12,9 +12,8 @@ public class UrlPlaceHolderParserTest : DescribeSpec(
             run {
                 val testUrl = url2.placeholderUrl.replace("{id}", value.toString())
                 it("${testUrl}で${url2}とid=${value}が取得できる") {
-                    val result =
-                        UrlPlaceHolderParser(listOf(url1, url2))
-                            .parse(testUrl)
+                    val result = UrlPlaceHolderParser(listOf(url1, url2))
+                        .parse(testUrl)
 
                     result.screen.shouldBe(url2)
                     result.pathParams.shouldBe(mapOf("id" to value.toString()))
@@ -23,9 +22,8 @@ public class UrlPlaceHolderParserTest : DescribeSpec(
             run {
                 val testUrl = url1.placeholderUrl.replace("{id}", value.toString())
                 it("${testUrl}で${url1}とid=${value}が取得できる") {
-                    val result =
-                        UrlPlaceHolderParser(listOf(url1, url2))
-                            .parse(testUrl)
+                    val result = UrlPlaceHolderParser(listOf(url1, url2))
+                        .parse(testUrl)
                     result.screen.shouldBe(url1)
                     result.pathParams.shouldBe(mapOf("id" to value.toString()))
                 }

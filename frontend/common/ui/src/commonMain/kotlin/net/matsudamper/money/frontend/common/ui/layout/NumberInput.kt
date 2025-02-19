@@ -58,8 +58,7 @@ public fun NumberInput(
             modifier = Modifier.fillMaxWidth(),
         ) {
             IconButton(
-                modifier =
-                Modifier.align(Alignment.End)
+                modifier = Modifier.align(Alignment.End)
                     .padding(
                         top = 4.dp,
                         end = 4.dp,
@@ -72,8 +71,7 @@ public fun NumberInput(
                 )
             }
             Column(
-                modifier =
-                Modifier
+                modifier = Modifier
                     .padding(horizontal = 12.dp)
                     .padding(bottom = 12.dp),
             ) {
@@ -85,10 +83,9 @@ public fun NumberInput(
                         style = MaterialTheme.typography.displayMedium,
                     )
                 }
-                val padColumnHeightModifier =
-                    Modifier
-                        .background(Color.Red)
-                        .aspectRatio(6f / 1)
+                val padColumnHeightModifier = Modifier
+                    .background(Color.Red)
+                    .aspectRatio(6f / 1)
                 Row(
                     modifier = padColumnHeightModifier,
                 ) {
@@ -259,8 +256,7 @@ private fun calc(value: NumberInputValue): NumberInputValue {
         return value
     }
     return NumberInputValue(
-        value =
-        when (value.operator) {
+        value = when (value.operator) {
             NumberInputValue.Operator.Add -> value.value + value.right
             NumberInputValue.Operator.Minus -> value.value - value.right
             NumberInputValue.Operator.Multiply -> value.value * value.right
@@ -368,8 +364,7 @@ private fun NumberPad(
     onClick: () -> Unit,
 ) {
     Box(
-        modifier =
-        modifier
+        modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.secondaryContainer)
             .border(1.dp, MaterialTheme.colorScheme.secondary)

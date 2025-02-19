@@ -16,8 +16,7 @@ public fun CustomTheme(
     content: @Composable () -> Unit,
 ) {
     MaterialTheme(
-        colorScheme =
-        MaterialTheme.colorScheme.copy(
+        colorScheme = MaterialTheme.colorScheme.copy(
             primary = Color(0xff8BC34A),
             // Color(0xff444654),
             onPrimary = Color.White,
@@ -54,50 +53,35 @@ public fun CustomTheme(
 @Composable
 private fun getTypography(): Typography {
     return Typography(
-        displayLarge =
-        MaterialTheme.typography.displayLarge
+        displayLarge = MaterialTheme.typography.displayLarge
             .applyCustomFontFamily(),
-        displayMedium =
-        MaterialTheme.typography.displayMedium
+        displayMedium = MaterialTheme.typography.displayMedium
             .applyCustomFontFamily(),
-        displaySmall =
-        MaterialTheme.typography.displaySmall
+        displaySmall = MaterialTheme.typography.displaySmall
             .applyCustomFontFamily(),
-        headlineLarge =
-        MaterialTheme.typography.headlineLarge
+        headlineLarge = MaterialTheme.typography.headlineLarge
             .applyCustomFontFamily(),
-        headlineMedium =
-        MaterialTheme.typography.headlineMedium
+        headlineMedium = MaterialTheme.typography.headlineMedium
             .applyCustomFontFamily(),
-        headlineSmall =
-        MaterialTheme.typography.headlineSmall
+        headlineSmall = MaterialTheme.typography.headlineSmall
             .applyCustomFontFamily(),
-        titleLarge =
-        MaterialTheme.typography.titleLarge
+        titleLarge = MaterialTheme.typography.titleLarge
             .applyCustomFontFamily(),
-        titleMedium =
-        MaterialTheme.typography.titleMedium
+        titleMedium = MaterialTheme.typography.titleMedium
             .applyCustomFontFamily(),
-        titleSmall =
-        MaterialTheme.typography.titleSmall
+        titleSmall = MaterialTheme.typography.titleSmall
             .applyCustomFontFamily(),
-        bodyLarge =
-        MaterialTheme.typography.bodyLarge
+        bodyLarge = MaterialTheme.typography.bodyLarge
             .applyCustomFontFamily(),
-        bodyMedium =
-        MaterialTheme.typography.bodyMedium
+        bodyMedium = MaterialTheme.typography.bodyMedium
             .applyCustomFontFamily(),
-        bodySmall =
-        MaterialTheme.typography.bodySmall
+        bodySmall = MaterialTheme.typography.bodySmall
             .applyCustomFontFamily(),
-        labelLarge =
-        MaterialTheme.typography.labelLarge
+        labelLarge = MaterialTheme.typography.labelLarge
             .applyCustomFontFamily(),
-        labelMedium =
-        MaterialTheme.typography.labelMedium
+        labelMedium = MaterialTheme.typography.labelMedium
             .applyCustomFontFamily(),
-        labelSmall =
-        MaterialTheme.typography.labelSmall
+        labelSmall = MaterialTheme.typography.labelSmall
             .applyCustomFontFamily(),
     )
 }

@@ -23,15 +23,14 @@ class DbUserSessionRepository : UserSessionRepository {
     }
 
     override fun createSession(userId: UserId): UserSessionRepository.CreateSessionResult {
-        val result =
-            DbConnectionImpl.use {
-                DSL.using(it)
-                    .insertInto(userSessions)
-                    .set(userSessions.USER_ID, userId.value)
-                    .set(userSessions.SESSION_ID, UUID.randomUUID().toString().replace("-", ""))
-                    .returningResult(userSessions.SESSION_ID, userSessions.LATEST_ACCESSED_AT)
-                    .fetchOne()
-            }
+        val result = DbConnectionImpl.use {
+            DSL.using(it)
+                .insertInto(userSessions)
+                .set(userSessions.USER_ID, userId.value)
+                .set(userSessions.SESSION_ID, UUID.randomUUID().toString().replace("-", ""))
+                .returningResult(userSessions.SESSION_ID, userSessions.LATEST_ACCESSED_AT)
+                .fetchOne()
+        }
 
         return UserSessionRepository.CreateSessionResult(
             sessionId = UserSessionId(result!!.value1()!!),
@@ -45,12 +44,11 @@ class DbUserSessionRepository : UserSessionRepository {
     ): UserSessionRepository.VerifySessionResult {
         // UserIdを取得し、全ての古いSessionを削除する
         DbConnectionImpl.use {
-            val userId =
-                DSL.using(it)
-                    .select(userSessions.USER_ID)
-                    .from(userSessions)
-                    .where(userSessions.SESSION_ID.eq(sessionId.id))
-                    .execute()
+            val userId = DSL.using(it)
+                .select(userSessions.USER_ID)
+                .from(userSessions)
+                .where(userSessions.SESSION_ID.eq(sessionId.id))
+                .execute()
 
             DSL.using(it)
                 .deleteFrom(userSessions)
@@ -63,24 +61,23 @@ class DbUserSessionRepository : UserSessionRepository {
         }
 
         // Sessionを更新する
-        val result =
-            DbConnectionImpl.use {
-                DSL.using(it).transactionResult { config ->
-                    DSL.using(config)
-                        .select(userSessions.SESSION_ID)
-                        .from(userSessions)
-                        .where(userSessions.SESSION_ID.eq(sessionId.id))
-                        .forUpdate()
-                        .execute()
+        val result = DbConnectionImpl.use {
+            DSL.using(it).transactionResult { config ->
+                DSL.using(config)
+                    .select(userSessions.SESSION_ID)
+                    .from(userSessions)
+                    .where(userSessions.SESSION_ID.eq(sessionId.id))
+                    .forUpdate()
+                    .execute()
 
-                    DSL.using(config)
-                        .update(userSessions)
-                        .set(userSessions.LATEST_ACCESSED_AT, LocalDateTime.now(ZoneOffset.UTC))
-                        .where(userSessions.SESSION_ID.eq(sessionId.id))
-                        .returningResult(userSessions.USER_ID, userSessions.SESSION_ID, userSessions.LATEST_ACCESSED_AT)
-                        .fetchOne()
-                }
+                DSL.using(config)
+                    .update(userSessions)
+                    .set(userSessions.LATEST_ACCESSED_AT, LocalDateTime.now(ZoneOffset.UTC))
+                    .where(userSessions.SESSION_ID.eq(sessionId.id))
+                    .returningResult(userSessions.USER_ID, userSessions.SESSION_ID, userSessions.LATEST_ACCESSED_AT)
+                    .fetchOne()
             }
+        }
 
         val userId = result?.value1() ?: return UserSessionRepository.VerifySessionResult.Failure
 
@@ -92,17 +89,16 @@ class DbUserSessionRepository : UserSessionRepository {
     }
 
     override fun getSessionInfo(sessionId: UserSessionId): UserSessionRepository.SessionInfo? {
-        val result =
-            DbConnectionImpl.use {
-                DSL.using(it)
-                    .select(
-                        userSessions.LATEST_ACCESSED_AT,
-                        userSessions.NAME,
-                    )
-                    .from(userSessions)
-                    .where(userSessions.SESSION_ID.eq(sessionId.id))
-                    .fetchOne()
-            } ?: return null
+        val result = DbConnectionImpl.use {
+            DSL.using(it)
+                .select(
+                    userSessions.LATEST_ACCESSED_AT,
+                    userSessions.NAME,
+                )
+                .from(userSessions)
+                .where(userSessions.SESSION_ID.eq(sessionId.id))
+                .fetchOne()
+        } ?: return null
 
         return UserSessionRepository.SessionInfo(
             latestAccess = result.get<LocalDateTime>(userSessions.LATEST_ACCESSED_AT),
@@ -152,16 +148,15 @@ class DbUserSessionRepository : UserSessionRepository {
         sessionId: UserSessionId,
         name: String,
     ): UserSessionRepository.SessionInfo? {
-        val result =
-            DbConnectionImpl.use {
-                DSL.using(it)
-                    .update(userSessions)
-                    .set(userSessions.NAME, name)
-                    .where(userSessions.SESSION_ID.eq(sessionId.id))
-                    .limit(1)
-                    .returningResult(userSessions.LATEST_ACCESSED_AT)
-                    .fetchOne()
-            } ?: return null
+        val result = DbConnectionImpl.use {
+            DSL.using(it)
+                .update(userSessions)
+                .set(userSessions.NAME, name)
+                .where(userSessions.SESSION_ID.eq(sessionId.id))
+                .limit(1)
+                .returningResult(userSessions.LATEST_ACCESSED_AT)
+                .fetchOne()
+        } ?: return null
 
         return UserSessionRepository.SessionInfo(
             latestAccess = result.get<LocalDateTime>(userSessions.LATEST_ACCESSED_AT),

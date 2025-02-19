@@ -28,117 +28,114 @@ public class RootUsageHostViewModel(
 
     private val rootNavigationEventSender = EventSender<RootNavigationEvent>()
     public val rootNavigationEventHandler: EventHandler<RootNavigationEvent> = rootNavigationEventSender.asHandler()
-    private val event =
-        object : RootUsageHostScreenUiState.Event {
-            override suspend fun onViewInitialized() {
-            }
+    private val event = object : RootUsageHostScreenUiState.Event {
+        override suspend fun onViewInitialized() {
+        }
 
-            override fun onClickAdd() {
-                viewModelScope.launch {
-                    rootNavigationEventSender.send {
-                        it.navigate(ScreenStructure.AddMoneyUsage())
-                    }
-                }
-            }
-
-            override fun onClickCalendar() {
-                viewModelScope.launch {
-                    rootNavigationEventSender.send {
-                        it.navigate(ScreenStructure.Root.Usage.Calendar())
-                    }
-                }
-            }
-
-            override fun onClickList() {
-                viewModelScope.launch {
-                    rootNavigationEventSender.send {
-                        it.navigate(ScreenStructure.Root.Usage.List)
-                    }
-                }
-            }
-
-            override fun onClickSearchBox() {
-                mutableViewModelStateFlow.update {
-                    it.copy(
-                        textInputUiState =
-                        RootUsageHostScreenUiState.TextInputUiState(
-                            title = "検索",
-                            default = mutableViewModelStateFlow.value.searchText,
-                            inputType = TextFieldType.Text,
-                            textComplete = { text ->
-                                updateSearchText(text)
-                                closeTextInput()
-                            },
-                            canceled = {
-                                closeTextInput()
-                            },
-                            isMultiline = false,
-                            name = "",
-                        ),
-                    )
-                }
-            }
-
-            override fun onClickSearchBoxClear() {
-                updateSearchText("")
-            }
-
-            private fun closeTextInput() {
-                mutableViewModelStateFlow.update {
-                    it.copy(
-                        textInputUiState = null,
-                    )
-                }
-            }
-
-            private fun updateSearchText(text: String) {
-                mutableViewModelStateFlow.update {
-                    it.copy(
-                        searchText = text,
-                    )
+        override fun onClickAdd() {
+            viewModelScope.launch {
+                rootNavigationEventSender.send {
+                    it.navigate(ScreenStructure.AddMoneyUsage())
                 }
             }
         }
 
-    public val uiStateFlow: StateFlow<RootUsageHostScreenUiState> =
-        MutableStateFlow(
-            RootUsageHostScreenUiState(
-                type = RootUsageHostScreenUiState.Type.Calendar,
-                header = RootUsageHostScreenUiState.Header.None,
-                textInputUiState = null,
-                searchText = "",
-                event = event,
-                scaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
-                    override fun onClickList() {
-                        if (PlatformTypeProvider.type == PlatformType.JS) {
-                            super.onClickList()
-                        }
-                    }
-                },
-            ),
-        ).also { uiStateFlow ->
+        override fun onClickCalendar() {
             viewModelScope.launch {
-                mutableViewModelStateFlow
-                    .collectLatest { viewModelState ->
-                        viewModelState.screenStructure ?: return@collectLatest
-
-                        uiStateFlow.update {
-                            it.copy(
-                                type = when (viewModelState.screenStructure) {
-                                    is ScreenStructure.Root.Usage.Calendar -> RootUsageHostScreenUiState.Type.Calendar
-                                    is ScreenStructure.Root.Usage.List -> RootUsageHostScreenUiState.Type.List
-                                },
-                                header = when (viewModelState.screenStructure) {
-                                    is ScreenStructure.Root.Usage.Calendar -> viewModelState.calendarHeader
-                                    is ScreenStructure.Root.Usage.List -> RootUsageHostScreenUiState.Header.None
-                                } ?: RootUsageHostScreenUiState.Header.None,
-                                textInputUiState = viewModelState.textInputUiState,
-                                searchText = viewModelState.searchText,
-                            )
-                        }
-                    }
+                rootNavigationEventSender.send {
+                    it.navigate(ScreenStructure.Root.Usage.Calendar())
+                }
             }
-        }.asStateFlow()
+        }
+
+        override fun onClickList() {
+            viewModelScope.launch {
+                rootNavigationEventSender.send {
+                    it.navigate(ScreenStructure.Root.Usage.List)
+                }
+            }
+        }
+
+        override fun onClickSearchBox() {
+            mutableViewModelStateFlow.update {
+                it.copy(
+                    textInputUiState = RootUsageHostScreenUiState.TextInputUiState(
+                        title = "検索",
+                        default = mutableViewModelStateFlow.value.searchText,
+                        inputType = TextFieldType.Text,
+                        textComplete = { text ->
+                            updateSearchText(text)
+                            closeTextInput()
+                        },
+                        canceled = {
+                            closeTextInput()
+                        },
+                        isMultiline = false,
+                        name = "",
+                    ),
+                )
+            }
+        }
+
+        override fun onClickSearchBoxClear() {
+            updateSearchText("")
+        }
+
+        private fun closeTextInput() {
+            mutableViewModelStateFlow.update {
+                it.copy(
+                    textInputUiState = null,
+                )
+            }
+        }
+
+        private fun updateSearchText(text: String) {
+            mutableViewModelStateFlow.update {
+                it.copy(
+                    searchText = text,
+                )
+            }
+        }
+    }
+
+    public val uiStateFlow: StateFlow<RootUsageHostScreenUiState> = MutableStateFlow(
+        RootUsageHostScreenUiState(
+            type = RootUsageHostScreenUiState.Type.Calendar,
+            header = RootUsageHostScreenUiState.Header.None,
+            textInputUiState = null,
+            searchText = "",
+            event = event,
+            scaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
+                override fun onClickList() {
+                    if (PlatformTypeProvider.type == PlatformType.JS) {
+                        super.onClickList()
+                    }
+                }
+            },
+        ),
+    ).also { uiStateFlow ->
+        viewModelScope.launch {
+            mutableViewModelStateFlow
+                .collectLatest { viewModelState ->
+                    viewModelState.screenStructure ?: return@collectLatest
+
+                    uiStateFlow.update {
+                        it.copy(
+                            type = when (viewModelState.screenStructure) {
+                                is ScreenStructure.Root.Usage.Calendar -> RootUsageHostScreenUiState.Type.Calendar
+                                is ScreenStructure.Root.Usage.List -> RootUsageHostScreenUiState.Type.List
+                            },
+                            header = when (viewModelState.screenStructure) {
+                                is ScreenStructure.Root.Usage.Calendar -> viewModelState.calendarHeader
+                                is ScreenStructure.Root.Usage.List -> RootUsageHostScreenUiState.Header.None
+                            } ?: RootUsageHostScreenUiState.Header.None,
+                            textInputUiState = viewModelState.textInputUiState,
+                            searchText = viewModelState.searchText,
+                        )
+                    }
+                }
+        }
+    }.asStateFlow()
 
     public fun updateHeader(calendarHeader: RootUsageHostScreenUiState.Header.Calendar?) {
         mutableViewModelStateFlow.update {

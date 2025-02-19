@@ -43,16 +43,15 @@ class MoneyUsageAnalyticsResolverImpl : MoneyUsageAnalyticsResolver {
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
-            val results =
-                context.diContainer.createMoneyUsageAnalyticsRepository()
-                    .getTotalAmountByCategories(
-                        userId = userId,
-                        sinceDateTimeAt = env.localContext.query.sinceDateTime,
-                        untilDateTimeAt = env.localContext.query.untilDateTime,
-                    )
-                    .onFailure {
-                        it.printStackTrace()
-                    }.getOrNull() ?: return@supplyAsync DataFetcherResultBuilder.buildNullValue()
+            val results = context.diContainer.createMoneyUsageAnalyticsRepository()
+                .getTotalAmountByCategories(
+                    userId = userId,
+                    sinceDateTimeAt = env.localContext.query.sinceDateTime,
+                    untilDateTimeAt = env.localContext.query.untilDateTime,
+                )
+                .onFailure {
+                    it.printStackTrace()
+                }.getOrNull() ?: return@supplyAsync DataFetcherResultBuilder.buildNullValue()
 
             DataFetcherResultBuilder.nullable(
                 value = results.map {

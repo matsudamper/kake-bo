@@ -38,132 +38,127 @@ public class MoneyUsagesListViewModel(
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
-    public val uiStateFlow: StateFlow<RootUsageListScreenUiState> =
-        MutableStateFlow(
-            RootUsageListScreenUiState(
-                loadingState = RootUsageListScreenUiState.LoadingState.Loading,
-                hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
-                event = object : RootUsageListScreenUiState.Event {
-                    override suspend fun onViewInitialized() {
-                        viewModelScope.launch {
-                            launch {
-                                pagingModel.fetch()
-                            }
-                            launch {
-                                rootUsageHostViewModel.viewModelStateFlow
-                                    .buffer(Channel.RENDEZVOUS)
-                                    .collectLatest {
-                                        delay(100)
-                                        pagingModel.changeText(it.searchText)
-                                        pagingModel.fetch()
-                                    }
-                            }
-                            launch {
-                                pagingModel.getFlow().collectLatest { responseStates ->
-                                    viewModelStateFlow.update {
-                                        it.copy(
-                                            results = responseStates,
-                                        )
-                                    }
+    public val uiStateFlow: StateFlow<RootUsageListScreenUiState> = MutableStateFlow(
+        RootUsageListScreenUiState(
+            loadingState = RootUsageListScreenUiState.LoadingState.Loading,
+            hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
+            event = object : RootUsageListScreenUiState.Event {
+                override suspend fun onViewInitialized() {
+                    viewModelScope.launch {
+                        launch {
+                            pagingModel.fetch()
+                        }
+                        launch {
+                            rootUsageHostViewModel.viewModelStateFlow
+                                .buffer(Channel.RENDEZVOUS)
+                                .collectLatest {
+                                    delay(100)
+                                    pagingModel.changeText(it.searchText)
+                                    pagingModel.fetch()
                                 }
-                            }
                         }
-                    }
-
-                    override fun refresh() {
-                        viewModelScope.launch {
-                            pagingModel.refresh()
-                        }
-                    }
-                },
-            ),
-        ).also { uiStateFlow ->
-            viewModelScope.launch {
-                rootUsageHostViewModel.uiStateFlow
-                    .collectLatest { hostUiState ->
-                        uiStateFlow.update { uiState ->
-                            uiState.copy(
-                                hostScreenUiState = hostUiState,
-                            )
-                        }
-                    }
-            }
-            viewModelScope.launch {
-                viewModelStateFlow
-                    .collectLatest { viewModelState ->
-                        val nodes =
-                            viewModelState.results.mapNotNull { state ->
-                                state.getSuccessOrNull()?.value
-                            }.flatMap {
-                                it.data?.user?.moneyUsages?.nodes.orEmpty()
-                            }
-                        val items =
-                            buildList {
-                                var lastMonth: LocalDateTime? = null
-                                nodes.forEach { result ->
-                                    if (lastMonth == null || lastMonth?.month != result.date.month) {
-                                        add(
-                                            RootUsageListScreenUiState.Item.Title(
-                                                title = buildString {
-                                                    append("${result.date.year}年")
-                                                    append("${result.date.monthNumber}月")
-                                                },
-                                            ),
-                                        )
-                                        lastMonth = result.date
-                                    }
-                                    add(
-                                        RootUsageListScreenUiState.Item.Usage(
-                                            title = result.title,
-                                            amount = "${Formatter.formatMoney(result.amount)}円",
-                                            date = Formatter.formatDateTime(result.date),
-                                            category = run category@{
-                                                val subCategory =
-                                                    result.moneyUsageSubCategory ?: return@category null
-
-                                                "${subCategory.category.name} / ${subCategory.name}"
-                                            },
-                                            event = object : RootUsageListScreenUiState.ItemEvent {
-                                                override fun onClick() {
-                                                    viewModelScope.launch {
-                                                        viewModelEventSender.send {
-                                                            it.navigate(
-                                                                ScreenStructure.MoneyUsage(
-                                                                    id = result.id,
-                                                                ),
-                                                            )
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                        ),
+                        launch {
+                            pagingModel.getFlow().collectLatest { responseStates ->
+                                viewModelStateFlow.update {
+                                    it.copy(
+                                        results = responseStates,
                                     )
                                 }
-                            }.toImmutableList()
+                            }
+                        }
+                    }
+                }
 
-                        val hasMore =
-                            viewModelState.results.lastOrNull()
-                                ?.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.hasMore
-                                ?: true
+                override fun refresh() {
+                    viewModelScope.launch {
+                        pagingModel.refresh()
+                    }
+                }
+            },
+        ),
+    ).also { uiStateFlow ->
+        viewModelScope.launch {
+            rootUsageHostViewModel.uiStateFlow
+                .collectLatest { hostUiState ->
+                    uiStateFlow.update { uiState ->
+                        uiState.copy(
+                            hostScreenUiState = hostUiState,
+                        )
+                    }
+                }
+        }
+        viewModelScope.launch {
+            viewModelStateFlow
+                .collectLatest { viewModelState ->
+                    val nodes = viewModelState.results.mapNotNull { state ->
+                        state.getSuccessOrNull()?.value
+                    }.flatMap {
+                        it.data?.user?.moneyUsages?.nodes.orEmpty()
+                    }
+                    val items = buildList {
+                        var lastMonth: LocalDateTime? = null
+                        nodes.forEach { result ->
+                            if (lastMonth == null || lastMonth?.month != result.date.month) {
+                                add(
+                                    RootUsageListScreenUiState.Item.Title(
+                                        title = buildString {
+                                            append("${result.date.year}年")
+                                            append("${result.date.monthNumber}月")
+                                        },
+                                    ),
+                                )
+                                lastMonth = result.date
+                            }
+                            add(
+                                RootUsageListScreenUiState.Item.Usage(
+                                    title = result.title,
+                                    amount = "${Formatter.formatMoney(result.amount)}円",
+                                    date = Formatter.formatDateTime(result.date),
+                                    category = run category@{
+                                        val subCategory = result.moneyUsageSubCategory ?: return@category null
 
-                        uiStateFlow.update { uiState ->
-                            uiState.copy(
-                                loadingState = RootUsageListScreenUiState.LoadingState.Loaded(
-                                    loadToEnd = hasMore.not(),
-                                    items = items,
-                                    event = object : RootUsageListScreenUiState.LoadedEvent {
-                                        override fun loadMore() {
+                                        "${subCategory.category.name} / ${subCategory.name}"
+                                    },
+                                    event = object : RootUsageListScreenUiState.ItemEvent {
+                                        override fun onClick() {
                                             viewModelScope.launch {
-                                                pagingModel.fetch()
+                                                viewModelEventSender.send {
+                                                    it.navigate(
+                                                        ScreenStructure.MoneyUsage(
+                                                            id = result.id,
+                                                        ),
+                                                    )
+                                                }
                                             }
                                         }
                                     },
                                 ),
                             )
                         }
+                    }.toImmutableList()
+
+                    val hasMore = viewModelState.results.lastOrNull()
+                        ?.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.hasMore
+                        ?: true
+
+                    uiStateFlow.update { uiState ->
+                        uiState.copy(
+                            loadingState = RootUsageListScreenUiState.LoadingState.Loaded(
+                                loadToEnd = hasMore.not(),
+                                items = items,
+                                event = object : RootUsageListScreenUiState.LoadedEvent {
+                                    override fun loadMore() {
+                                        viewModelScope.launch {
+                                            pagingModel.fetch()
+                                        }
+                                    }
+                                },
+                            ),
+                        )
                     }
-            }
-        }.asStateFlow()
+                }
+        }
+    }.asStateFlow()
 
     public interface Event {
         public fun navigate(screenStructure: ScreenStructure)

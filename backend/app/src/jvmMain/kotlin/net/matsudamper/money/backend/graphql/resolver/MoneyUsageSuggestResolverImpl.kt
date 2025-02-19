@@ -26,23 +26,20 @@ class MoneyUsageSuggestResolverImpl : MoneyUsageSuggestResolver {
         val userId = context.verifyUserSessionAndGetUserId()
         val localContext = env.requireLocalContext<MoneyUsageSuggestLocalContext>()
 
-        val importedMailFuture =
-            context.dataLoaders.importedMailDataLoader.get(env).load(
-                ImportedMailDataLoaderDefine.Key(
-                    userId = userId,
-                    importedMailId = localContext.importedMailId,
-                ),
-            )
+        val importedMailFuture = context.dataLoaders.importedMailDataLoader.get(env).load(
+            ImportedMailDataLoaderDefine.Key(
+                userId = userId,
+                importedMailId = localContext.importedMailId,
+            ),
+        )
 
-        val filtersFuture =
-            context.dataLoaders.importedMailCategoryFiltersDataLoader.get(env)
-                .load(userId)
-                .primeChildDataLoader(env)
+        val filtersFuture = context.dataLoaders.importedMailCategoryFiltersDataLoader.get(env)
+            .load(userId)
+            .primeChildDataLoader(env)
 
-        val conditionsFuture =
-            context.dataLoaders.importedMailCategoryFilterConditionsDataLoader.get(env)
-                .load(userId)
-                .primeChildDataLoader(env)
+        val conditionsFuture = context.dataLoaders.importedMailCategoryFilterConditionsDataLoader.get(env)
+            .load(userId)
+            .primeChildDataLoader(env)
 
         return CompletableFuture.allOf(
             importedMailFuture,
@@ -53,49 +50,45 @@ class MoneyUsageSuggestResolverImpl : MoneyUsageSuggestResolver {
             val filters = filtersFuture.get().sortedBy { it.orderNumber }
             val conditionsMap = conditionsFuture.get().groupBy { it.filterId }
 
-            val result =
-                filters
-                    .firstOrNull { filter ->
-                        val conditions =
-                            conditionsMap[filter.importedMailCategoryFilterId].orEmpty()
-                                .takeIf { it.isNotEmpty() } ?: return@thenApplyAsync null
+            val result = filters
+                .firstOrNull { filter ->
+                    val conditions = conditionsMap[filter.importedMailCategoryFilterId].orEmpty()
+                        .takeIf { it.isNotEmpty() } ?: return@thenApplyAsync null
 
-                        val results =
-                            conditions.asSequence().map { condition ->
-                                val targetText =
-                                    when (condition.dataSourceType) {
-                                        ImportedMailCategoryFilterDatasourceType.MailTitle -> importedMail.subject
-                                        ImportedMailCategoryFilterDatasourceType.MailFrom -> importedMail.from
-                                        ImportedMailCategoryFilterDatasourceType.MailHTML -> importedMail.html
-                                        ImportedMailCategoryFilterDatasourceType.MailPlain -> importedMail.plain
-                                        ImportedMailCategoryFilterDatasourceType.Title -> moneyUsageSuggest.title
-                                        ImportedMailCategoryFilterDatasourceType.ServiceName -> moneyUsageSuggest.serviceName
-                                    }.orEmpty()
+                    val results = conditions.asSequence().map { condition ->
+                        val targetText = when (condition.dataSourceType) {
+                            ImportedMailCategoryFilterDatasourceType.MailTitle -> importedMail.subject
+                            ImportedMailCategoryFilterDatasourceType.MailFrom -> importedMail.from
+                            ImportedMailCategoryFilterDatasourceType.MailHTML -> importedMail.html
+                            ImportedMailCategoryFilterDatasourceType.MailPlain -> importedMail.plain
+                            ImportedMailCategoryFilterDatasourceType.Title -> moneyUsageSuggest.title
+                            ImportedMailCategoryFilterDatasourceType.ServiceName -> moneyUsageSuggest.serviceName
+                        }.orEmpty()
 
-                                when (condition.conditionType) {
-                                    ImportedMailCategoryFilterConditionType.Include -> {
-                                        targetText.contains(condition.text)
-                                    }
-
-                                    ImportedMailCategoryFilterConditionType.NotInclude -> {
-                                        targetText.contains(condition.text).not()
-                                    }
-
-                                    ImportedMailCategoryFilterConditionType.Equal -> {
-                                        targetText == condition.text
-                                    }
-
-                                    ImportedMailCategoryFilterConditionType.NotEqual -> {
-                                        targetText != condition.text
-                                    }
-                                }
+                        when (condition.conditionType) {
+                            ImportedMailCategoryFilterConditionType.Include -> {
+                                targetText.contains(condition.text)
                             }
 
-                        when (filter.operator) {
-                            ImportedMailFilterCategoryConditionOperator.AND -> results.all { it }
-                            ImportedMailFilterCategoryConditionOperator.OR -> results.any { it }
+                            ImportedMailCategoryFilterConditionType.NotInclude -> {
+                                targetText.contains(condition.text).not()
+                            }
+
+                            ImportedMailCategoryFilterConditionType.Equal -> {
+                                targetText == condition.text
+                            }
+
+                            ImportedMailCategoryFilterConditionType.NotEqual -> {
+                                targetText != condition.text
+                            }
                         }
                     }
+
+                    when (filter.operator) {
+                        ImportedMailFilterCategoryConditionOperator.AND -> results.all { it }
+                        ImportedMailFilterCategoryConditionOperator.OR -> results.any { it }
+                    }
+                }
 
             val subCategoryId = result?.moneyUsageSubCategoryId
             if (subCategoryId == null) {

@@ -41,18 +41,17 @@ class DbMoneyUsageSubCategoryRepository : MoneyUsageSubCategoryRepository {
 
         return runCatching {
             DbConnectionImpl.use { connection ->
-                val record =
-                    DSL.using(connection)
-                        .insertInto(subCategories)
-                        .set(
-                            JMoneyUsageCategoriesRecord(
-                                userId = userId.value,
-                                name = name,
-                                moneyUsageCategoryId = categoryId.value,
-                            ),
-                        )
-                        .returning()
-                        .fetchOne()!!
+                val record = DSL.using(connection)
+                    .insertInto(subCategories)
+                    .set(
+                        JMoneyUsageCategoriesRecord(
+                            userId = userId.value,
+                            name = name,
+                            moneyUsageCategoryId = categoryId.value,
+                        ),
+                    )
+                    .returning()
+                    .fetchOne()!!
 
                 MoneyUsageSubCategoryRepository.SubCategoryResult(
                     userId = UserId(record.userId!!),
@@ -73,51 +72,47 @@ class DbMoneyUsageSubCategoryRepository : MoneyUsageSubCategoryRepository {
         categoryId: MoneyUsageCategoryId,
     ): MoneyUsageSubCategoryRepository.GetSubCategoryResult {
         return runCatching {
-            val isOwner =
-                DbConnectionImpl.use { connection ->
-                    DSL.using(connection)
-                        .select()
-                        .from(categories)
-                        .where(
-                            DSL.value(true)
-                                .and(categories.USER_ID.eq(userId.value))
-                                .and(categories.MONEY_USAGE_CATEGORY_ID.eq(categoryId.value)),
-                        )
-                        .fetchOne() != null
-                }
+            val isOwner = DbConnectionImpl.use { connection ->
+                DSL.using(connection)
+                    .select()
+                    .from(categories)
+                    .where(
+                        DSL.value(true)
+                            .and(categories.USER_ID.eq(userId.value))
+                            .and(categories.MONEY_USAGE_CATEGORY_ID.eq(categoryId.value)),
+                    )
+                    .fetchOne() != null
+            }
 
             if (isOwner.not()) {
                 return MoneyUsageSubCategoryRepository.GetSubCategoryResult.Failed(IllegalArgumentException("categoryId=$categoryId is Not owner."))
             }
 
             DbConnectionImpl.use { connection ->
-                val records =
-                    DSL.using(connection)
-                        .select(
-                            subCategories.USER_ID,
-                            subCategories.MONEY_USAGE_SUB_CATEGORY_ID,
-                            subCategories.MONEY_USAGE_CATEGORY_ID,
-                            subCategories.NAME,
-                        )
-                        .from(subCategories)
-                        .join(categories).using(categories.MONEY_USAGE_CATEGORY_ID)
-                        .where(
-                            DSL.value(true)
-                                .and(categories.USER_ID.eq(userId.value))
-                                .and(subCategories.USER_ID.eq(userId.value))
-                                .and(categories.MONEY_USAGE_CATEGORY_ID.eq(categoryId.value)),
-                        )
-                        .fetch()
+                val records = DSL.using(connection)
+                    .select(
+                        subCategories.USER_ID,
+                        subCategories.MONEY_USAGE_SUB_CATEGORY_ID,
+                        subCategories.MONEY_USAGE_CATEGORY_ID,
+                        subCategories.NAME,
+                    )
+                    .from(subCategories)
+                    .join(categories).using(categories.MONEY_USAGE_CATEGORY_ID)
+                    .where(
+                        DSL.value(true)
+                            .and(categories.USER_ID.eq(userId.value))
+                            .and(subCategories.USER_ID.eq(userId.value))
+                            .and(categories.MONEY_USAGE_CATEGORY_ID.eq(categoryId.value)),
+                    )
+                    .fetch()
 
                 records.map { record ->
                     MoneyUsageSubCategoryRepository.SubCategoryResult(
                         userId = UserId(record.get(subCategories.USER_ID)!!),
-                        moneyUsageCategoryId =
-                        MoneyUsageCategoryId(
+                        moneyUsageCategoryId = MoneyUsageCategoryId(
                             record.get(subCategories.MONEY_USAGE_CATEGORY_ID)!!,
                         ),
-                        moneyUsageSubCategoryId =
-                        MoneyUsageSubCategoryId(
+                        moneyUsageSubCategoryId = MoneyUsageSubCategoryId(
                             record.get(subCategories.MONEY_USAGE_SUB_CATEGORY_ID)!!,
                         ),
                         name = record.get(subCategories.NAME)!!,
@@ -136,17 +131,16 @@ class DbMoneyUsageSubCategoryRepository : MoneyUsageSubCategoryRepository {
     ): MoneyUsageSubCategoryRepository.GetSubCategoryResult {
         return runCatching {
             DbConnectionImpl.use { connection ->
-                val records =
-                    DSL.using(connection)
-                        .selectFrom(subCategories)
-                        .where(
-                            subCategories.USER_ID.eq(userId.value)
-                                .and(
-                                    subCategories.MONEY_USAGE_SUB_CATEGORY_ID
-                                        .`in`(moneyUsageSubCategoryIds.map { it.id }),
-                                ),
-                        )
-                        .fetch()
+                val records = DSL.using(connection)
+                    .selectFrom(subCategories)
+                    .where(
+                        subCategories.USER_ID.eq(userId.value)
+                            .and(
+                                subCategories.MONEY_USAGE_SUB_CATEGORY_ID
+                                    .`in`(moneyUsageSubCategoryIds.map { it.id }),
+                            ),
+                    )
+                    .fetch()
 
                 records.map { record ->
                     MoneyUsageSubCategoryRepository.SubCategoryResult(

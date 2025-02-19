@@ -94,8 +94,7 @@ public fun ImportedMailHtmlScreen(
                         },
                         title = {
                             Text(
-                                modifier =
-                                Modifier.clickable(
+                                modifier = Modifier.clickable(
                                     interactionSource = remember { MutableInteractionSource() },
                                     indication = null,
                                 ) {
@@ -109,8 +108,7 @@ public fun ImportedMailHtmlScreen(
                 },
             ) {
                 Box(
-                    modifier =
-                    Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize()
                         .padding(it),
                     contentAlignment = Alignment.Center,
                 ) {

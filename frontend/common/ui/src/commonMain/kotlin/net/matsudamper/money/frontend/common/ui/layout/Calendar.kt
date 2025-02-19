@@ -65,20 +65,18 @@ public fun Calendar(
         }
     }
 
-    val calendarItems =
-        remember(currentMonthDateList) {
-            val offset =
-                when (currentMonthDateList.first().dayOfWeek) {
-                    DayOfWeek.SUNDAY -> 0
-                    DayOfWeek.MONDAY -> 1
-                    DayOfWeek.TUESDAY -> 2
-                    DayOfWeek.WEDNESDAY -> 3
-                    DayOfWeek.THURSDAY -> 4
-                    DayOfWeek.FRIDAY -> 5
-                    DayOfWeek.SATURDAY -> 6
-                }
-            (0 until offset).map { null } + currentMonthDateList
+    val calendarItems = remember(currentMonthDateList) {
+        val offset = when (currentMonthDateList.first().dayOfWeek) {
+            DayOfWeek.SUNDAY -> 0
+            DayOfWeek.MONDAY -> 1
+            DayOfWeek.TUESDAY -> 2
+            DayOfWeek.WEDNESDAY -> 3
+            DayOfWeek.THURSDAY -> 4
+            DayOfWeek.FRIDAY -> 5
+            DayOfWeek.SATURDAY -> 6
         }
+        (0 until offset).map { null } + currentMonthDateList
+    }
     Column(modifier = modifier) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -95,8 +93,7 @@ public fun Calendar(
                 )
             }
             Text(
-                modifier =
-                Modifier
+                modifier = Modifier
                     .padding(12.dp),
                 textAlign = TextAlign.Center,
                 text = "${currentMonthDateList.first().year}年${currentMonthDateList.first().monthNumber}月",
@@ -118,13 +115,11 @@ public fun Calendar(
         ) {
             items(7) {
                 Text(
-                    modifier =
-                    Modifier
+                    modifier = Modifier
                         .padding(vertical = 8.dp)
                         .fillMaxWidth(),
                     textAlign = TextAlign.Center,
-                    text =
-                    when (it) {
+                    text = when (it) {
                         0 -> "日"
                         1 -> "月"
                         2 -> "火"
@@ -139,8 +134,7 @@ public fun Calendar(
             }
             items(calendarItems) { date ->
                 Box(
-                    modifier =
-                    Modifier
+                    modifier = Modifier
                         .border(1.dp, color = MaterialTheme.colorScheme.inversePrimary)
                         .background(
                             if (latestSelectedDate == date) {
@@ -152,8 +146,7 @@ public fun Calendar(
                 ) {
                     if (date != null) {
                         Text(
-                            modifier =
-                            Modifier
+                            modifier = Modifier
                                 .clickable {
                                     changeSelectedDate(date)
                                 }
@@ -161,8 +154,7 @@ public fun Calendar(
                                 .padding(8.dp),
                             textAlign = TextAlign.Center,
                             text = date.dayOfMonth.toString(),
-                            color =
-                            when (today == date) {
+                            color = when (today == date) {
                                 true -> MaterialTheme.colorScheme.primary
                                 false -> MaterialTheme.colorScheme.onSurface
                             },

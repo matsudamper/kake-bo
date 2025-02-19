@@ -19,23 +19,21 @@ class ImportedMailCategoryFilterConditionDataLoaderDefine(
             CompletableFuture.supplyAsync {
                 val repository = repositoryFactory.createMailFilterRepository()
 
-                val results =
-                    keys.groupBy { it.userId }
-                        .mapNotNull { (userId, keys) ->
-                            val results =
-                                repository.getConditions(
-                                    userId = userId,
-                                    filterIds = keys.map { it.conditionId },
-                                ).map {
-                                    it.associateBy { it.conditionId }
-                                }.onFailure {
-                                    it.printStackTrace()
-                                }.getOrNull() ?: return@mapNotNull null
+                val results = keys.groupBy { it.userId }
+                    .mapNotNull { (userId, keys) ->
+                        val results = repository.getConditions(
+                            userId = userId,
+                            filterIds = keys.map { it.conditionId },
+                        ).map {
+                            it.associateBy { it.conditionId }
+                        }.onFailure {
+                            it.printStackTrace()
+                        }.getOrNull() ?: return@mapNotNull null
 
-                            keys.associateWith { key ->
-                                results[key.conditionId]
-                            }
-                        }.flatten()
+                        keys.associateWith { key ->
+                            results[key.conditionId]
+                        }
+                    }.flatten()
 
                 keys.associateWith { key ->
                     results[key] ?: return@associateWith null

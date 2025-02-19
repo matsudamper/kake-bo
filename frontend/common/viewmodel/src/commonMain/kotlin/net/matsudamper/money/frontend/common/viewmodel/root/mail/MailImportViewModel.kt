@@ -38,81 +38,78 @@ public class MailImportViewModel(
 
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
-    public val rootUiStateFlow: StateFlow<ImportMailScreenUiState> =
-        MutableStateFlow(
-            ImportMailScreenUiState(
-                isLoading = true,
-                htmlDialog = null,
-                mails = immutableListOf(),
-                showLoadMore = false,
-                mailDeleteDialog = null,
-                rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
-                    override fun onClickAdd() {
-                        if (PlatformTypeProvider.type == PlatformType.JS) {
-                            super.onClickAdd()
-                        }
-                    }
-                },
-                event = object : ImportMailScreenUiState.Event {
-                    override fun htmlDismissRequest() {
-                        viewModelStateFlow.update {
-                            it.copy(html = null)
-                        }
-                    }
-
-                    override fun onViewInitialized() {
-                        viewModelScope.launch {
-                            val result = loginCheckUseCase.check()
-                            if (result.not()) return@launch
-                            fetch()
-                        }
-                    }
-
-                    override fun onClickImport() {
-                        import()
-                    }
-
-                    override fun onClickLoadMore() {
-                        fetch()
-                    }
-                },
-            ),
-        ).also {
-            viewModelScope.launch {
-                viewModelStateFlow.collect { viewModelState ->
-                    it.update {
-                        it.copy(
-                            isLoading = viewModelState.isLoading,
-                            showLoadMore = viewModelState.finishLoadingToEnd == false,
-                            mails =
-                            viewModelState.usrMails.map { mail ->
-                                ImportMailScreenUiState.Mail(
-                                    subject = mail.subject.replace("\n", ""),
-                                    isSelected = mail.id in viewModelState.checked,
-                                    sender = mail.sender,
-                                    from = mail.from.joinToString(","),
-                                    event = createMailItemEvent(mail = mail),
-                                )
-                            }.toImmutableList(),
-                            htmlDialog = viewModelState.html,
-                            mailDeleteDialog =
-                            run {
-                                val dialogState = viewModelState.mailDeleteDialogState
-                                if (dialogState == null) {
-                                    null
-                                } else {
-                                    ImportMailScreenUiState.MailDeleteDialog(
-                                        errorText = dialogState.errorText,
-                                        event = createMailDeleteDialogEvent(dialogState.mail),
-                                        isLoading = dialogState.isLoading,
-                                    )
-                                }
-                            },
-                        )
+    public val rootUiStateFlow: StateFlow<ImportMailScreenUiState> = MutableStateFlow(
+        ImportMailScreenUiState(
+            isLoading = true,
+            htmlDialog = null,
+            mails = immutableListOf(),
+            showLoadMore = false,
+            mailDeleteDialog = null,
+            rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
+                override fun onClickAdd() {
+                    if (PlatformTypeProvider.type == PlatformType.JS) {
+                        super.onClickAdd()
                     }
                 }
+            },
+            event = object : ImportMailScreenUiState.Event {
+                override fun htmlDismissRequest() {
+                    viewModelStateFlow.update {
+                        it.copy(html = null)
+                    }
+                }
+
+                override fun onViewInitialized() {
+                    viewModelScope.launch {
+                        val result = loginCheckUseCase.check()
+                        if (result.not()) return@launch
+                        fetch()
+                    }
+                }
+
+                override fun onClickImport() {
+                    import()
+                }
+
+                override fun onClickLoadMore() {
+                    fetch()
+                }
+            },
+        ),
+    ).also {
+        viewModelScope.launch {
+            viewModelStateFlow.collect { viewModelState ->
+                it.update {
+                    it.copy(
+                        isLoading = viewModelState.isLoading,
+                        showLoadMore = viewModelState.finishLoadingToEnd == false,
+                        mails = viewModelState.usrMails.map { mail ->
+                            ImportMailScreenUiState.Mail(
+                                subject = mail.subject.replace("\n", ""),
+                                isSelected = mail.id in viewModelState.checked,
+                                sender = mail.sender,
+                                from = mail.from.joinToString(","),
+                                event = createMailItemEvent(mail = mail),
+                            )
+                        }.toImmutableList(),
+                        htmlDialog = viewModelState.html,
+                        mailDeleteDialog = run {
+                            val dialogState = viewModelState.mailDeleteDialogState
+                            if (dialogState == null) {
+                                null
+                            } else {
+                                ImportMailScreenUiState.MailDeleteDialog(
+                                    errorText = dialogState.errorText,
+                                    event = createMailDeleteDialogEvent(dialogState.mail),
+                                    isLoading = dialogState.isLoading,
+                                )
+                            }
+                        },
+                    )
+                }
             }
-        }.asStateFlow()
+        }
+    }.asStateFlow()
 
     private fun createMailDeleteDialogEvent(mailDeleteDialog: GetMailQuery.UsrMail): ImportMailScreenUiState.MailDeleteDialog.Event {
         return object : ImportMailScreenUiState.MailDeleteDialog.Event {
@@ -120,8 +117,7 @@ public class MailImportViewModel(
                 viewModelScope.launch {
                     viewModelStateFlow.update {
                         it.copy(
-                            mailDeleteDialogState =
-                            it.mailDeleteDialogState?.copy(
+                            mailDeleteDialogState = it.mailDeleteDialogState?.copy(
                                 isLoading = true,
                             ),
                         )
@@ -134,27 +130,24 @@ public class MailImportViewModel(
                             viewModelState.copy(
                                 mailDeleteDialogState = null,
                                 isLoading = false,
-                                usrMails =
-                                viewModelState.usrMails.filterNot { mail ->
+                                usrMails = viewModelState.usrMails.filterNot { mail ->
                                     mail.id == mailDeleteDialog.id
                                 },
                             )
                         }
                     } else {
-                        val errorText =
-                            when (result?.data?.userMutation?.deleteMail?.error) {
-                                DeleteMailResultError.InternalServerError,
-                                DeleteMailResultError.UNKNOWN__,
-                                null,
-                                -> "サーバーエラーが発生しました"
+                        val errorText = when (result?.data?.userMutation?.deleteMail?.error) {
+                            DeleteMailResultError.InternalServerError,
+                            DeleteMailResultError.UNKNOWN__,
+                            null,
+                            -> "サーバーエラーが発生しました"
 
-                                DeleteMailResultError.MailConfigNotFound -> "メール設定がされていません"
-                                DeleteMailResultError.MailServerNotConnected -> "メールサーバーに接続できませんでした"
-                            }
+                            DeleteMailResultError.MailConfigNotFound -> "メール設定がされていません"
+                            DeleteMailResultError.MailServerNotConnected -> "メールサーバーに接続できませんでした"
+                        }
                         viewModelStateFlow.update {
                             it.copy(
-                                mailDeleteDialogState =
-                                it.mailDeleteDialogState?.copy(
+                                mailDeleteDialogState = it.mailDeleteDialogState?.copy(
                                     errorText = errorText,
                                     isLoading = false,
                                 ),
@@ -184,8 +177,7 @@ public class MailImportViewModel(
                 viewModelStateFlow.update { viewModelState ->
                     val isChecked = mail.id in viewModelState.checked
                     viewModelState.copy(
-                        checked =
-                        run {
+                        checked = run {
                             if (isChecked) {
                                 viewModelState.checked - mail.id
                             } else {
@@ -205,8 +197,7 @@ public class MailImportViewModel(
             override fun onClickDelete() {
                 viewModelStateFlow.update {
                     it.copy(
-                        mailDeleteDialogState =
-                        ViewModelState.MailDelete(
+                        mailDeleteDialogState = ViewModelState.MailDelete(
                             mail = mail,
                             errorText = null,
                             isLoading = false,
@@ -231,20 +222,19 @@ public class MailImportViewModel(
                 )
             }
 
-            val mails =
-                try {
-                    runCatching {
-                        withContext(ioDispatcher) {
-                            graphqlApi.getMail(viewModelStateFlow.value.cursor)
-                        }
-                    }.getOrNull() ?: return@launch
-                } finally {
-                    viewModelStateFlow.update { viewModelState ->
-                        viewModelState.copy(
-                            isLoading = false,
-                        )
+            val mails = try {
+                runCatching {
+                    withContext(ioDispatcher) {
+                        graphqlApi.getMail(viewModelStateFlow.value.cursor)
                     }
+                }.getOrNull() ?: return@launch
+            } finally {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        isLoading = false,
+                    )
                 }
+            }
 
             val mail = mails.data?.user?.userMailAttributes?.mails ?: return@launch
 
@@ -262,14 +252,12 @@ public class MailImportViewModel(
 
     private fun import() {
         viewModelScope.launch {
-            val result =
-                runCatching {
-                    graphqlApi.mailImport(viewModelStateFlow.value.checked)
-                }.getOrNull()
-            val onError =
-                suspend {
-                    viewModelEventSender.send { it.globalToast("Importに失敗しました") }
-                }
+            val result = runCatching {
+                graphqlApi.mailImport(viewModelStateFlow.value.checked)
+            }.getOrNull()
+            val onError = suspend {
+                viewModelEventSender.send { it.globalToast("Importに失敗しました") }
+            }
 
             if (result == null) {
                 onError()

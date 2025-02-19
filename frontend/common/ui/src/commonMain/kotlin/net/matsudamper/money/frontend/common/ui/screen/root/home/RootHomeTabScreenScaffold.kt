@@ -72,8 +72,7 @@ public fun RootHomeTabScreenScaffold(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            modifier =
-                            Modifier.clickable(
+                            modifier = Modifier.clickable(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
                             ) {
@@ -110,8 +109,7 @@ private fun Menu(
     var expanded by remember { mutableStateOf(false) }
     Box(modifier = modifier) {
         DropDownMenuButton(
-            modifier =
-            Modifier
+            modifier = Modifier
                 .semantics(true) {
                     contentDescription = "表示タイプ変更"
                 }

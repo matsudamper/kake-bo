@@ -67,12 +67,11 @@ public sealed interface ScreenStructure : IScreenStructure {
                 override val direction: Screens = Screens.ImportedMailList
 
                 override fun createUrl(): String {
-                    val urlParam =
-                        buildParameter {
-                            if (isLinked != null) {
-                                append(KEY_IS_LINKED, isLinked.toString())
-                            }
+                    val urlParam = buildParameter {
+                        if (isLinked != null) {
+                            append(KEY_IS_LINKED, isLinked.toString())
                         }
+                    }
 
                     return direction.placeholderUrl.plus(urlParam)
                 }
@@ -90,8 +89,7 @@ public sealed interface ScreenStructure : IScreenStructure {
                         queryParams: Map<String, List<String>>,
                     ): Imported {
                         return Imported(
-                            isLinked =
-                            queryParams[KEY_IS_LINKED]
+                            isLinked = queryParams[KEY_IS_LINKED]
                                 ?.firstOrNull()
                                 ?.toBooleanStrictOrNull(),
                         )
@@ -142,12 +140,10 @@ public sealed interface ScreenStructure : IScreenStructure {
 
                 public companion object {
                     public fun fromQueryParams(queryParams: Map<String, kotlin.collections.List<String>>): Calendar {
-                        val year =
-                            queryParams["year"]?.firstOrNull()?.toIntOrNull()
-                                ?: return Calendar()
-                        val month =
-                            queryParams["month"]?.firstOrNull()?.toIntOrNull()
-                                ?: return Calendar()
+                        val year = queryParams["year"]?.firstOrNull()?.toIntOrNull()
+                            ?: return Calendar()
+                        val month = queryParams["month"]?.firstOrNull()?.toIntOrNull()
+                            ?: return Calendar()
                         return Calendar(
                             YearMonth(
                                 year = year,
@@ -278,8 +274,7 @@ public sealed interface ScreenStructure : IScreenStructure {
 
             public fun fromQueryParams(queryParams: Map<String, List<String>>): AddMoneyUsage {
                 return AddMoneyUsage(
-                    importedMailId =
-                    queryParams[KEY_IMPORTED_MAIL_ID]?.firstOrNull()?.toIntOrNull()
+                    importedMailId = queryParams[KEY_IMPORTED_MAIL_ID]?.firstOrNull()?.toIntOrNull()
                         ?.let { ImportedMailId(it) },
                     importedMailIndex = queryParams[KEY_IMPORTED_MAIL_INDEX]?.firstOrNull()?.toIntOrNull(),
                     title = queryParams[KEY_TITLE]?.firstOrNull(),

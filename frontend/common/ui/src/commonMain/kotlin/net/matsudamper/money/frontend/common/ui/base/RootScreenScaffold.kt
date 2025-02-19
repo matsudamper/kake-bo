@@ -219,8 +219,7 @@ internal fun RootScreenScaffold(
                         )
                     }
                     VerticalDivider(
-                        modifier =
-                        Modifier
+                        modifier = Modifier
                             .width(1.dp)
                             .fillMaxHeight(),
                         color = CustomColors.MenuDividerColor,

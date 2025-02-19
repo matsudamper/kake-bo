@@ -7,10 +7,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-public val LocalHtmlFullScreenTextInputContext: ProvidableCompositionLocal<HtmlFullScreenTextInputContext> =
-    staticCompositionLocalOf {
-        HtmlFullScreenTextInputContext()
-    }
+public val LocalHtmlFullScreenTextInputContext: ProvidableCompositionLocal<HtmlFullScreenTextInputContext> = staticCompositionLocalOf {
+    HtmlFullScreenTextInputContext()
+}
 
 public class HtmlFullScreenTextInputContext {
     private val mutableStateFlow: MutableStateFlow<Map<String, TextState>> = MutableStateFlow(mapOf())

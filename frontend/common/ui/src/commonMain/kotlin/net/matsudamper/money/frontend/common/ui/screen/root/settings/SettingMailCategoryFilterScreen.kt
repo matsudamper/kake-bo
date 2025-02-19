@@ -120,8 +120,7 @@ public fun SettingMailCategoryFiltersScreen(
                 },
                 title = {
                     Text(
-                        modifier =
-                        Modifier.clickable(
+                        modifier = Modifier.clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
@@ -144,8 +143,7 @@ public fun SettingMailCategoryFiltersScreen(
             when (val loadingState = uiState.loadingState) {
                 is SettingMailCategoryFilterScreenUiState.LoadingState.Loading -> {
                     Box(
-                        modifier =
-                        Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize()
                             .padding(paddingValues),
                     ) {
                         CircularProgressIndicator(
@@ -164,8 +162,7 @@ public fun SettingMailCategoryFiltersScreen(
 
                 SettingMailCategoryFilterScreenUiState.LoadingState.Error -> {
                     LoadingErrorContent(
-                        modifier =
-                        Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize()
                             .padding(paddingValues),
                         onClickRetry = uiState.event::onClickRetry,
                     )
@@ -185,16 +182,14 @@ private fun LoadedContent(
     val lazyListState = rememberLazyListState()
     BoxWithConstraints(modifier = modifier) {
         Column(
-            modifier =
-            Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize()
                 .padding(
                     top = contentPadding.calculateTopPadding(),
                 ),
         ) {
             Spacer(modifier = Modifier.height(8.dp))
             Row(
-                modifier =
-                Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
                     .padding(
                         start = contentPadding.calculateStartPadding(layoutDirection),
                         end = contentPadding.calculateEndPadding(layoutDirection),
@@ -207,13 +202,11 @@ private fun LoadedContent(
                 }
             }
             LazyColumn(
-                modifier =
-                Modifier
+                modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
                 state = lazyListState,
-                contentPadding =
-                PaddingValues(
+                contentPadding = PaddingValues(
                     start = contentPadding.calculateStartPadding(layoutDirection),
                     end = contentPadding.calculateEndPadding(layoutDirection),
                     bottom = contentPadding.calculateBottomPadding(),

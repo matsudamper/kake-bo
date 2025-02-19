@@ -8,10 +8,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-public val LocalHtmlRenderContext: ProvidableCompositionLocal<HtmlRenderContext> =
-    staticCompositionLocalOf {
-        HtmlRenderContext()
-    }
+public val LocalHtmlRenderContext: ProvidableCompositionLocal<HtmlRenderContext> = staticCompositionLocalOf {
+    HtmlRenderContext()
+}
 
 @Stable
 public class HtmlRenderContext {

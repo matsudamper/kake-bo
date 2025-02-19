@@ -22,8 +22,7 @@ internal fun SettingListMenuItemButton(
     text: @Composable () -> Unit,
 ) {
     Box(
-        modifier =
-        modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
             .clip(MaterialTheme.shapes.medium)
             .clickable { onClick() }
             .padding(horizontal = 8.dp)

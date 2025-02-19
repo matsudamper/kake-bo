@@ -26,72 +26,69 @@ public class LoginScreenViewModel(
     private val globalEventSender: EventSender<GlobalEvent>,
     private val webAuthModel: WebAuthModel,
 ) : CommonViewModel(scopedObjectFeature) {
-    private val viewModelStateFlow: MutableStateFlow<ViewModelState> =
-        MutableStateFlow(
-            ViewModelState(),
-        )
-    public val uiStateFlow: StateFlow<LoginScreenUiState> =
-        MutableStateFlow(
-            LoginScreenUiState(
-                userName = TextFieldValue(),
-                password = TextFieldValue(),
-                listener =
-                object : LoginScreenUiState.Listener {
-                    override fun onPasswordChanged(text: String) {
-                        viewModelStateFlow.update {
-                            it.copy(password = TextFieldValue(text))
-                        }
-                    }
-
-                    override fun onUserIdChanged(text: String) {
-                        viewModelStateFlow.update {
-                            it.copy(userName = TextFieldValue(text))
-                        }
-                    }
-
-                    override fun onClickLogin() {
-                        viewModelScope.launch {
-                            val result = runCatching {
-                                graphqlQuery.login(
-                                    userName = viewModelStateFlow.value.userName.text,
-                                    password = viewModelStateFlow.value.password.text,
-                                )
-                            }.getOrNull()
-                            postLogin(isSuccess = result?.data?.userMutation?.userLogin?.isSuccess == true)
-                        }
-                    }
-
-                    override fun onClickNavigateAdmin() {
-                        navController.navigate(ScreenStructure.Admin)
-                    }
-
-                    override fun onClickSecurityKeyLogin() {
-                        login(
-                            userName = viewModelStateFlow.value.userName.text,
-                            type = WebAuthModel.WebAuthModelType.CROSS_PLATFORM,
-                        )
-                    }
-
-                    override fun onClickDeviceKeyLogin() {
-                        login(
-                            userName = viewModelStateFlow.value.userName.text,
-                            type = WebAuthModel.WebAuthModelType.PLATFORM,
-                        )
-                    }
-                },
-            ),
-        ).also { uiStateFlow ->
-            viewModelScope.launch {
-                viewModelStateFlow.collect { viewModelState ->
-                    uiStateFlow.update { uiState ->
-                        uiState.copy(
-                            userName = viewModelState.userName,
-                            password = viewModelState.password,
-                        )
+    private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
+        ViewModelState(),
+    )
+    public val uiStateFlow: StateFlow<LoginScreenUiState> = MutableStateFlow(
+        LoginScreenUiState(
+            userName = TextFieldValue(),
+            password = TextFieldValue(),
+            listener = object : LoginScreenUiState.Listener {
+                override fun onPasswordChanged(text: String) {
+                    viewModelStateFlow.update {
+                        it.copy(password = TextFieldValue(text))
                     }
                 }
+
+                override fun onUserIdChanged(text: String) {
+                    viewModelStateFlow.update {
+                        it.copy(userName = TextFieldValue(text))
+                    }
+                }
+
+                override fun onClickLogin() {
+                    viewModelScope.launch {
+                        val result = runCatching {
+                            graphqlQuery.login(
+                                userName = viewModelStateFlow.value.userName.text,
+                                password = viewModelStateFlow.value.password.text,
+                            )
+                        }.getOrNull()
+                        postLogin(isSuccess = result?.data?.userMutation?.userLogin?.isSuccess == true)
+                    }
+                }
+
+                override fun onClickNavigateAdmin() {
+                    navController.navigate(ScreenStructure.Admin)
+                }
+
+                override fun onClickSecurityKeyLogin() {
+                    login(
+                        userName = viewModelStateFlow.value.userName.text,
+                        type = WebAuthModel.WebAuthModelType.CROSS_PLATFORM,
+                    )
+                }
+
+                override fun onClickDeviceKeyLogin() {
+                    login(
+                        userName = viewModelStateFlow.value.userName.text,
+                        type = WebAuthModel.WebAuthModelType.PLATFORM,
+                    )
+                }
+            },
+        ),
+    ).also { uiStateFlow ->
+        viewModelScope.launch {
+            viewModelStateFlow.collect { viewModelState ->
+                uiStateFlow.update { uiState ->
+                    uiState.copy(
+                        userName = viewModelState.userName,
+                        password = viewModelState.password,
+                    )
+                }
             }
-        }.asStateFlow()
+        }
+    }.asStateFlow()
 
     private suspend fun postLogin(isSuccess: Boolean) {
         if (isSuccess) {
@@ -120,9 +117,8 @@ public class LoginScreenViewModel(
         type: WebAuthModel.WebAuthModelType,
     ) {
         viewModelScope.launch {
-            val fidoInfo =
-                screenApi.fidoLoginInfo()
-                    .data?.fidoLoginInfo
+            val fidoInfo = screenApi.fidoLoginInfo()
+                .data?.fidoLoginInfo
 
             if (fidoInfo == null) {
                 globalEventSender.send {

@@ -20,10 +20,9 @@ class AddUserUseCase(
         if (password.length !in 20..256) {
             errors.add(Result.Errors.PasswordLength)
         } else {
-            val denyChars =
-                password.toCharArray()
-                    .filterNot { it in nonSymbolList }
-                    .filterNot { it in passwordAllowSymbolList }
+            val denyChars = password.toCharArray()
+                .filterNot { it in nonSymbolList }
+                .filterNot { it in passwordAllowSymbolList }
             if (denyChars.isNotEmpty()) {
                 errors.add(Result.Errors.PasswordValidation(denyChars))
             }
@@ -39,15 +38,14 @@ class AddUserUseCase(
             saltByteLength = 32,
             algorithm = IPasswordManager.Algorithm.PBKDF2WithHmacSHA512,
         )
-        val addUserResult =
-            adminRepository.addUser(
-                userName = userName,
-                hashedPassword = passwordResult.hashedPassword,
-                algorithmName = passwordResult.algorithm,
-                salt = passwordResult.salt,
-                iterationCount = passwordResult.iterationCount,
-                keyLength = passwordResult.keyLength,
-            )
+        val addUserResult = adminRepository.addUser(
+            userName = userName,
+            hashedPassword = passwordResult.hashedPassword,
+            algorithmName = passwordResult.algorithm,
+            salt = passwordResult.salt,
+            iterationCount = passwordResult.iterationCount,
+            keyLength = passwordResult.keyLength,
+        )
         return when (addUserResult) {
             is AdminRepository.AddUserResult.Failed -> {
                 when (val error = addUserResult.error) {
@@ -87,31 +85,29 @@ class AddUserUseCase(
     }
 
     companion object {
-        private val nonSymbolList =
-            ('A'..'Z')
-                .plus('a'..'z')
-                .plus('0'..'9')
+        private val nonSymbolList = ('A'..'Z')
+            .plus('a'..'z')
+            .plus('0'..'9')
 
-        private val passwordAllowSymbolList =
-            setOf(
-                '!',
-                '@',
-                '#',
-                '$',
-                '%',
-                '^',
-                '&',
-                '*',
-                '(',
-                ')',
-                '_',
-                '+',
-                '-',
-                '?',
-                '<',
-                '>',
-                ',',
-                '.',
-            )
+        private val passwordAllowSymbolList = setOf(
+            '!',
+            '@',
+            '#',
+            '$',
+            '%',
+            '^',
+            '&',
+            '*',
+            '(',
+            ')',
+            '_',
+            '+',
+            '-',
+            '?',
+            '<',
+            '>',
+            ',',
+            '.',
+        )
     }
 }

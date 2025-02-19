@@ -24,23 +24,22 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
 
         override fun createUrl(): String {
             val since = since
-            val urlParam =
-                buildParameter {
-                    if (since != null) {
-                        append(
-                            SINCE_KEY,
-                            buildString {
-                                append(since.year)
-                                append("-")
-                                append(since.monthNumber.toString().padStart(2, '0'))
-                            },
-                        )
-                        append(
-                            PERIOD_KEY,
-                            period.toString(),
-                        )
-                    }
+            val urlParam = buildParameter {
+                if (since != null) {
+                    append(
+                        SINCE_KEY,
+                        buildString {
+                            append(since.year)
+                            append("-")
+                            append(since.monthNumber.toString().padStart(2, '0'))
+                        },
+                    )
+                    append(
+                        PERIOD_KEY,
+                        period.toString(),
+                    )
                 }
+            }
             return direction.placeholderUrl.plus(urlParam)
         }
 
@@ -58,8 +57,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
                 queryParams: Map<String, List<String>>,
             ): PeriodAnalytics {
                 return PeriodAnalytics(
-                    since =
-                    queryParams[SINCE_KEY]?.firstOrNull()
+                    since = queryParams[SINCE_KEY]?.firstOrNull()
                         ?.let { LocalDate.parse("$it-01") },
                     period = queryParams[PERIOD_KEY]?.firstOrNull()?.toIntOrNull() ?: 3,
                 )
@@ -75,19 +73,18 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
         override val direction: Screens = Screens.HomePeriodCategory
 
         override fun createUrl(): String {
-            val urlParam =
-                buildParameter {
-                    if (since != null) {
-                        append(
-                            SINCE_KEY,
-                            buildString {
-                                append(since.year)
-                                append("-")
-                                append(since.monthNumber.toString().padStart(2, '0'))
-                            },
-                        )
-                    }
+            val urlParam = buildParameter {
+                if (since != null) {
+                    append(
+                        SINCE_KEY,
+                        buildString {
+                            append(since.year)
+                            append("-")
+                            append(since.monthNumber.toString().padStart(2, '0'))
+                        },
+                    )
                 }
+            }
             return direction.placeholderUrl
                 .replace("{id}", categoryId.value.toString())
                 .plus(urlParam)
@@ -106,8 +103,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
             ): PeriodCategory {
                 return PeriodCategory(
                     categoryId = MoneyUsageCategoryId(pathParams["id"]!!.toInt()),
-                    since =
-                    queryParams[SINCE_KEY]?.firstOrNull()
+                    since = queryParams[SINCE_KEY]?.firstOrNull()
                         ?.let { LocalDate.parse("$it-01") },
                 )
             }
@@ -120,19 +116,18 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
         override val direction: Screens = Screens.HomeMonthly
 
         override fun createUrl(): String {
-            val urlParam =
-                buildParameter {
-                    if (date != null) {
-                        append(
-                            MONTH_KEY,
-                            buildString {
-                                append(date.year)
-                                append("-")
-                                append(date.monthNumber.toString().padStart(2, '0'))
-                            },
-                        )
-                    }
+            val urlParam = buildParameter {
+                if (date != null) {
+                    append(
+                        MONTH_KEY,
+                        buildString {
+                            append(date.year)
+                            append("-")
+                            append(date.monthNumber.toString().padStart(2, '0'))
+                        },
+                    )
                 }
+            }
             return direction.placeholderUrl
                 .plus(urlParam)
         }
@@ -146,8 +141,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
                 queryParams: Map<String, List<String>>,
             ): Monthly {
                 return Monthly(
-                    date =
-                    queryParams[MONTH_KEY]?.firstOrNull()
+                    date = queryParams[MONTH_KEY]?.firstOrNull()
                         ?.let { LocalDate.parse("$it-01") },
                 )
             }
@@ -180,17 +174,15 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
                 pathParams: Map<String, String>,
                 queryParams: Map<String, List<String>>,
             ): MonthlyCategory? {
-                val category =
-                    pathParams[CATEGORY_KEY]
-                        ?.toIntOrNull()
-                        ?: return null
+                val category = pathParams[CATEGORY_KEY]
+                    ?.toIntOrNull()
+                    ?: return null
                 val year: Int
                 val month: Int
                 run {
-                    val list =
-                        pathParams[MONTH_KEY]
-                            ?.split("-")
-                            ?: return null
+                    val list = pathParams[MONTH_KEY]
+                        ?.split("-")
+                        ?: return null
 
                     year = list.getOrNull(0)?.toIntOrNull() ?: return null
                     month = list.getOrNull(1)?.toIntOrNull() ?: return null

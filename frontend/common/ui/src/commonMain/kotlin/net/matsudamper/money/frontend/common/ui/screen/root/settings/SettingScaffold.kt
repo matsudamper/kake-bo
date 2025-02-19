@@ -28,19 +28,16 @@ public fun SettingScaffold(
     val settingHorizontalPadding = 24.dp
 
     Column(
-        modifier =
-        modifier
+        modifier = modifier
             .fillMaxWidth(),
     ) {
         Row(
-            modifier =
-            Modifier
+            modifier = Modifier
                 .padding(horizontal = settingHorizontalPadding),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
-                modifier =
-                Modifier
+                modifier = Modifier
                     .weight(1f)
                     .padding(
                         horizontal = 18.dp,
@@ -68,18 +65,17 @@ public fun SettingScaffold(
                 val max = 700.dp
                 val width = maxWidth
 
-                val paddingValues =
-                    remember(max, width) {
-                        if (max > width) {
-                            PaddingValues(
-                                horizontal = settingHorizontalPadding + 24.dp,
-                            )
-                        } else {
-                            PaddingValues(
-                                horizontal = (width - max) / 2 + (settingHorizontalPadding + 24.dp),
-                            )
-                        }
+                val paddingValues = remember(max, width) {
+                    if (max > width) {
+                        PaddingValues(
+                            horizontal = settingHorizontalPadding + 24.dp,
+                        )
+                    } else {
+                        PaddingValues(
+                            horizontal = (width - max) / 2 + (settingHorizontalPadding + 24.dp),
+                        )
                     }
+                }
                 content(paddingValues)
             }
         }

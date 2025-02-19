@@ -24,34 +24,32 @@ class AdminRepositoryImpl : AdminRepository {
             DbConnectionImpl.use {
                 DSL.using(it)
                     .transaction { config ->
-                        val userResult =
-                            config.dsl()
-                                .insertInto(users, users.USER_NAME)
-                                .values(userName)
-                                .returningResult(users)
-                                .fetchOne()!!
-                                .value1()!!
+                        val userResult = config.dsl()
+                            .insertInto(users, users.USER_NAME)
+                            .values(userName)
+                            .returningResult(users)
+                            .fetchOne()!!
+                            .value1()!!
 
-                        val passwordExtendData =
-                            config.dsl()
-                                .insertInto(
-                                    userPasswordExtendData,
-                                    userPasswordExtendData.USER_ID,
-                                    userPasswordExtendData.ALGORITHM,
-                                    userPasswordExtendData.SALT,
-                                    userPasswordExtendData.ITERATION_COUNT,
-                                    userPasswordExtendData.KEY_LENGTH,
-                                )
-                                .values(
-                                    userResult.userId!!,
-                                    algorithmName,
-                                    salt,
-                                    iterationCount,
-                                    keyLength,
-                                )
-                                .returningResult(userPasswordExtendData)
-                                .fetchOne()!!
-                                .value1()!!
+                        val passwordExtendData = config.dsl()
+                            .insertInto(
+                                userPasswordExtendData,
+                                userPasswordExtendData.USER_ID,
+                                userPasswordExtendData.ALGORITHM,
+                                userPasswordExtendData.SALT,
+                                userPasswordExtendData.ITERATION_COUNT,
+                                userPasswordExtendData.KEY_LENGTH,
+                            )
+                            .values(
+                                userResult.userId!!,
+                                algorithmName,
+                                salt,
+                                iterationCount,
+                                keyLength,
+                            )
+                            .returningResult(userPasswordExtendData)
+                            .fetchOne()!!
+                            .value1()!!
 
                         config.dsl()
                             .insertInto(

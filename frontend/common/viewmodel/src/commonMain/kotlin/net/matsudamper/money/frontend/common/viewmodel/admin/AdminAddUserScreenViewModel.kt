@@ -18,34 +18,32 @@ public class AdminAddUserScreenViewModel(
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
-    public val uiStateFlow: StateFlow<AdminAddUserUiState> =
-        MutableStateFlow(
-            AdminAddUserUiState(
-                onChangeUserName = {
-                    viewModelStateFlow.update { viewModelState ->
-                        viewModelState.copy(userName = it)
-                    }
-                },
-                onChangePassword = {
-                    viewModelStateFlow.update { viewModelState ->
-                        viewModelState.copy(password = it)
-                    }
-                },
-                onClickAddButton = {
-                    viewModelScope.launch {
-                        val result =
-                            graphqlClient.addUser(
-                                userName = viewModelStateFlow.value.userName,
-                                password = viewModelStateFlow.value.password,
-                            )
-                        println("data: ${result.data}")
-                        println("errors: ${result.data?.adminMutation?.addUser?.errorType.orEmpty().joinToString(",")}")
-                        println(result.errors?.joinToString { it.message })
-                    }
-                },
-            ),
-        ).also { uiStateFlow ->
-        }.asStateFlow()
+    public val uiStateFlow: StateFlow<AdminAddUserUiState> = MutableStateFlow(
+        AdminAddUserUiState(
+            onChangeUserName = {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(userName = it)
+                }
+            },
+            onChangePassword = {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(password = it)
+                }
+            },
+            onClickAddButton = {
+                viewModelScope.launch {
+                    val result = graphqlClient.addUser(
+                        userName = viewModelStateFlow.value.userName,
+                        password = viewModelStateFlow.value.password,
+                    )
+                    println("data: ${result.data}")
+                    println("errors: ${result.data?.adminMutation?.addUser?.errorType.orEmpty().joinToString(",")}")
+                    println(result.errors?.joinToString { it.message })
+                }
+            },
+        ),
+    ).also { uiStateFlow ->
+    }.asStateFlow()
 
     private data class ViewModelState(
         val userName: String = "",

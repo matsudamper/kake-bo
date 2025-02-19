@@ -11,10 +11,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-public val LocalHtmlTextInputContext: ProvidableCompositionLocal<HtmlTextInputContext> =
-    staticCompositionLocalOf {
-        HtmlTextInputContext()
-    }
+public val LocalHtmlTextInputContext: ProvidableCompositionLocal<HtmlTextInputContext> = staticCompositionLocalOf {
+    HtmlTextInputContext()
+}
 
 public class HtmlTextInputContext {
     private val mutableStateFlow: MutableStateFlow<Map<Any, TextState>> = MutableStateFlow(mapOf())
@@ -95,8 +94,7 @@ public class HtmlTextInputContext {
             map + (
                 id to
                     map.getOrElse(id) { TextState() }.copy(
-                        type =
-                        when (type) {
+                        type = when (type) {
                             KeyboardType.Text -> "text"
                             KeyboardType.Password -> "password"
                             KeyboardType.Number -> "number"

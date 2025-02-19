@@ -127,8 +127,7 @@ public fun AddMoneyUsageScreen(
                 contentAlignment = Alignment.Center,
             ) {
                 Button(
-                    modifier =
-                    Modifier
+                    modifier = Modifier
                         .padding(12.dp)
                         .widthIn(max = 700.dp)
                         .fillMaxWidth(),
@@ -142,8 +141,7 @@ public fun AddMoneyUsageScreen(
         contentWindowInsets = windowInsets.asWindowInsets(),
     ) { paddingValues ->
         Box(
-            modifier =
-            Modifier
+            modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()),
             contentAlignment = Alignment.TopCenter,
@@ -253,8 +251,7 @@ private fun NumberInputDialog(
     dismissRequest: () -> Unit,
 ) {
     Box(
-        modifier =
-        Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize()
             .background(Color.Black.copy(alpha = 0.8f))
             .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
                 dismissRequest()
@@ -262,8 +259,7 @@ private fun NumberInputDialog(
         contentAlignment = Alignment.Center,
     ) {
         NumberInput(
-            modifier =
-            Modifier.widthIn(max = 500.dp)
+            modifier = Modifier.widthIn(max = 500.dp)
                 .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
                     // Number Inputのタッチ無効範囲を触ってもダイアログを閉じないようにする
                 },

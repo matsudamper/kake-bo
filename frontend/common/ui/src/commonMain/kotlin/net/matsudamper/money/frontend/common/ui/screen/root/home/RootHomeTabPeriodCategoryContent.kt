@@ -95,8 +95,7 @@ private fun LoadedContent(
         Spacer(modifier = Modifier.height(12.dp))
         Card {
             BarGraph(
-                modifier =
-                Modifier
+                modifier = Modifier
                     .padding(16.dp)
                     .fillMaxWidth()
                     .height(500.dp),

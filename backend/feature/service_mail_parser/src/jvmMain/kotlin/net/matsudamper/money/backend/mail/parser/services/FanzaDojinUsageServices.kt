@@ -27,45 +27,38 @@ internal object FanzaDojinUsageServices : MoneyUsageServices {
         plain: String,
         date: LocalDateTime,
     ): List<MoneyUsage> {
-        val canHandle =
-            sequence {
-                yield(canHandledWithPlain(plain))
-            }
+        val canHandle = sequence {
+            yield(canHandledWithPlain(plain))
+        }
         if (canHandle.any { it }.not()) return listOf()
 
-        val price =
-            run price@{
-                val result =
-                    "購入額.+?：.+?(.+?)円".toRegex().find(plain)
-                        ?.groupValues?.getOrNull(1)!!
+        val price = run price@{
+            val result = "購入額.+?：.+?(.+?)円".toRegex().find(plain)
+                ?.groupValues?.getOrNull(1)!!
 
-                ParseUtil.getInt(result)
-            }
+            ParseUtil.getInt(result)
+        }
 
-        val description =
-            run description@{
-                val lines = ParseUtil.splitByNewLine(plain)
+        val description = run description@{
+            val lines = ParseUtil.splitByNewLine(plain)
 
-                val startLineIndex =
-                    lines.indexOfFirst { it.startsWith("購入日") }
-                        .takeIf { it >= 0 } ?: return@description ""
+            val startLineIndex = lines.indexOfFirst { it.startsWith("購入日") }
+                .takeIf { it >= 0 } ?: return@description ""
 
-                val startBuyTextIndex =
-                    (
-                        lines.drop(startLineIndex + 1)
-                            .indexOfFirst { it == "購入商品" }
-                            .takeIf { it >= 0 } ?: return@description ""
-                        )
-                        .plus(startLineIndex + 1)
+            val startBuyTextIndex = (
+                lines.drop(startLineIndex + 1)
+                    .indexOfFirst { it == "購入商品" }
+                    .takeIf { it >= 0 } ?: return@description ""
+                )
+                .plus(startLineIndex + 1)
 
-                val endLineIndex =
-                    lines.drop(startBuyTextIndex + 1)
-                        .indexOfFirst { it.isBlank() }
-                        .plus(startBuyTextIndex + 1)
+            val endLineIndex = lines.drop(startBuyTextIndex + 1)
+                .indexOfFirst { it.isBlank() }
+                .plus(startBuyTextIndex + 1)
 
-                lines.subList(startLineIndex, endLineIndex)
-                    .joinToString("\n")
-            }
+            lines.subList(startLineIndex, endLineIndex)
+                .joinToString("\n")
+        }
 
         return listOf(
             MoneyUsage(

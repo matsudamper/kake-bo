@@ -20,17 +20,16 @@ class Auth4JModel(
     challenge: String,
 ) {
     private val decoder = Base64.getDecoder()
-    private val serverProperty =
-        ServerProperty(
-            setOf(
-                Origin("https://${ServerEnv.domain!!}"),
-                // https://passkeys-auth.com/docs/implementation/flutter/android/#origin
-                Origin("android:apk-key-hash:${ServerEnv.apkKeyHash}"),
-            ),
-            ServerEnv.domain!!,
-            { challenge.toByteArray() },
-            null,
-        )
+    private val serverProperty = ServerProperty(
+        setOf(
+            Origin("https://${ServerEnv.domain!!}"),
+            // https://passkeys-auth.com/docs/implementation/flutter/android/#origin
+            Origin("android:apk-key-hash:${ServerEnv.apkKeyHash}"),
+        ),
+        ServerEnv.domain!!,
+        { challenge.toByteArray() },
+        null,
+    )
 
     fun register(
         base64AttestationObject: ByteArray,
@@ -39,42 +38,39 @@ class Auth4JModel(
     ): Base64FidoAuthenticator {
         val webAuthnManager = WebAuthnManager.createNonStrictWebAuthnManager()
 
-        val validatedData =
-            webAuthnManager.validate(
-                RegistrationRequest(
-                    decoder.decode(base64AttestationObject),
-                    decoder.decode(base64ClientDataJSON),
-                    clientExtensionsJSON,
-                ),
-                RegistrationParameters(
-                    serverProperty,
-                    listOf(
-                        PublicKeyCredentialParameters(
-                            PublicKeyCredentialType.PUBLIC_KEY,
-                            COSEAlgorithmIdentifier.ES256,
-                        ),
-                        PublicKeyCredentialParameters(
-                            PublicKeyCredentialType.PUBLIC_KEY,
-                            COSEAlgorithmIdentifier.RS256,
-                        ),
-                        PublicKeyCredentialParameters(
-                            PublicKeyCredentialType.PUBLIC_KEY,
-                            COSEAlgorithmIdentifier.EdDSA,
-                        ),
+        val validatedData = webAuthnManager.validate(
+            RegistrationRequest(
+                decoder.decode(base64AttestationObject),
+                decoder.decode(base64ClientDataJSON),
+                clientExtensionsJSON,
+            ),
+            RegistrationParameters(
+                serverProperty,
+                listOf(
+                    PublicKeyCredentialParameters(
+                        PublicKeyCredentialType.PUBLIC_KEY,
+                        COSEAlgorithmIdentifier.ES256,
                     ),
-                    true,
-                    false,
+                    PublicKeyCredentialParameters(
+                        PublicKeyCredentialType.PUBLIC_KEY,
+                        COSEAlgorithmIdentifier.RS256,
+                    ),
+                    PublicKeyCredentialParameters(
+                        PublicKeyCredentialType.PUBLIC_KEY,
+                        COSEAlgorithmIdentifier.EdDSA,
+                    ),
                 ),
-            )
-        val attestationObject =
-            validatedData.attestationObject
-                ?: throw IllegalStateException("attestationObject is null. validatedData=$validatedData")
-        val authenticator =
-            AuthenticatorImpl(
-                attestationObject.authenticatorData.attestedCredentialData!!,
-                attestationObject.attestationStatement,
-                attestationObject.authenticatorData.signCount,
-            )
+                true,
+                false,
+            ),
+        )
+        val attestationObject = validatedData.attestationObject
+            ?: throw IllegalStateException("attestationObject is null. validatedData=$validatedData")
+        val authenticator = AuthenticatorImpl(
+            attestationObject.authenticatorData.attestedCredentialData!!,
+            attestationObject.attestationStatement,
+            attestationObject.authenticatorData.signCount,
+        )
 
         return AuthenticatorConverter.convertToBase64(authenticator)
     }
@@ -90,8 +86,7 @@ class Auth4JModel(
     ) {
         return verify(
             authenticator = authenticator.authenticator,
-            request =
-            AuthenticationRequest(
+            request = AuthenticationRequest(
                 credentialId,
                 decoder.decode(base64UserHandle),
                 decoder.decode(base64AuthenticatorData),

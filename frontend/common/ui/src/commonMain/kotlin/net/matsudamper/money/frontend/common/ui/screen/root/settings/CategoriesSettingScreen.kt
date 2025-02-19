@@ -106,8 +106,7 @@ public fun SettingCategoriesScreen(
             KakeBoTopAppBar(
                 title = {
                     Text(
-                        modifier =
-                        Modifier.clickable(
+                        modifier = Modifier.clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
@@ -148,13 +147,11 @@ public fun MainContent(
                     val lazyListState = rememberLazyListState()
                     var listHeightPx by remember { mutableIntStateOf(0) }
                     LazyColumn(
-                        modifier =
-                        Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize()
                             .onSizeChanged {
                                 listHeightPx = it.height
                             },
-                        contentPadding =
-                        PaddingValues(
+                        contentPadding = PaddingValues(
                             start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
                             end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
                         ),
@@ -177,8 +174,7 @@ public fun MainContent(
                         }
                         items(state.item) { item ->
                             SettingListMenuItemButton(
-                                modifier =
-                                Modifier
+                                modifier = Modifier
                                     .fillMaxWidth(),
                                 onClick = { item.event.onClick() },
                             ) {
@@ -197,8 +193,7 @@ public fun MainContent(
 
             is SettingCategoriesScreenUiState.LoadingState.Loading -> {
                 Box(
-                    modifier =
-                    Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize()
                         .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {

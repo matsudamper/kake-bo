@@ -24,14 +24,13 @@ public class SettingCategoriesViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
-    private val viewModelStateFlow: MutableStateFlow<ViewModelState> =
-        MutableStateFlow(
-            ViewModelState(
-                responseList = listOf(),
-                isFirstLoading = true,
-                showCategoryNameInput = false,
-            ),
-        )
+    private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
+        ViewModelState(
+            responseList = listOf(),
+            isFirstLoading = true,
+            showCategoryNameInput = false,
+        ),
+    )
 
     private val viewModelEventSender = EventSender<SettingCategoriesViewModelEvent>()
     public val viewModelEventHandler: EventHandler<SettingCategoriesViewModelEvent> = viewModelEventSender.asHandler()
@@ -39,109 +38,103 @@ public class SettingCategoriesViewModel(
     private val globalEventSender = EventSender<GlobalEvent>()
     public val globalEventHandler: EventHandler<GlobalEvent> = globalEventSender.asHandler()
 
-    public val uiState: StateFlow<SettingCategoriesScreenUiState> =
-        MutableStateFlow(
-            SettingCategoriesScreenUiState(
-                event =
-                object : SettingCategoriesScreenUiState.Event {
-                    override suspend fun onResume() {
-                    }
+    public val uiState: StateFlow<SettingCategoriesScreenUiState> = MutableStateFlow(
+        SettingCategoriesScreenUiState(
+            event = object : SettingCategoriesScreenUiState.Event {
+                override suspend fun onResume() {
+                }
 
-                    override fun dismissCategoryInput() {
-                        viewModelScope.launch {
-                            viewModelStateFlow.update {
-                                it.copy(
-                                    showCategoryNameInput = false,
-                                )
-                            }
+                override fun dismissCategoryInput() {
+                    viewModelScope.launch {
+                        viewModelStateFlow.update {
+                            it.copy(
+                                showCategoryNameInput = false,
+                            )
                         }
-                    }
-
-                    override fun onClickAddCategoryButton() {
-                        viewModelScope.launch {
-                            viewModelStateFlow.update {
-                                it.copy(
-                                    showCategoryNameInput = true,
-                                )
-                            }
-                        }
-                    }
-
-                    override fun categoryInputCompleted(text: String) {
-                        viewModelScope.launch {
-                            val result = api.addCategory(text)?.data?.userMutation?.addCategory?.category
-                            if (result == null) {
-                                globalEventSender.send {
-                                    it.showNativeNotification("追加に失敗しました")
-                                }
-                                return@launch
-                            }
-
-                            globalEventSender.send {
-                                it.showSnackBar("${result.name}を追加しました")
-                            }
-                            viewModelStateFlow.update {
-                                it.copy(
-                                    showCategoryNameInput = false,
-                                )
-                            }
-
-                            initialFetch()
-                        }
-                    }
-                },
-                loadingState = SettingCategoriesScreenUiState.LoadingState.Loading,
-                showCategoryNameInput = false,
-                rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
-                    override fun onClickSettings() {
-                        if (PlatformTypeProvider.type == PlatformType.JS) {
-                            super.onClickSettings()
-                        }
-                    }
-                },
-            ),
-        ).also { uiStateFlow ->
-            viewModelScope.launch {
-                viewModelStateFlow.collect { viewModelState ->
-                    uiStateFlow.update { uiState ->
-                        val loadingState =
-                            if (viewModelState.isFirstLoading) {
-                                SettingCategoriesScreenUiState.LoadingState.Loading
-                            } else {
-                                val items =
-                                    viewModelState.responseList.mapNotNull {
-                                        it.user?.moneyUsageCategories?.nodes
-                                    }.flatten()
-                                SettingCategoriesScreenUiState.LoadingState.Loaded(
-                                    item =
-                                    items.map { item ->
-                                        SettingCategoriesScreenUiState.CategoryItem(
-                                            name = item.name,
-                                            event =
-                                            object : SettingCategoriesScreenUiState.CategoryItem.Event {
-                                                override fun onClick() {
-                                                    viewModelScope.launch {
-                                                        viewModelEventSender.send {
-                                                            it.navigateToCategoryDetail(
-                                                                id = item.id,
-                                                            )
-                                                        }
-                                                    }
-                                                }
-                                            },
-                                        )
-                                    }.toImmutableList(),
-                                )
-                            }
-
-                        uiState.copy(
-                            loadingState = loadingState,
-                            showCategoryNameInput = viewModelState.showCategoryNameInput,
-                        )
                     }
                 }
+
+                override fun onClickAddCategoryButton() {
+                    viewModelScope.launch {
+                        viewModelStateFlow.update {
+                            it.copy(
+                                showCategoryNameInput = true,
+                            )
+                        }
+                    }
+                }
+
+                override fun categoryInputCompleted(text: String) {
+                    viewModelScope.launch {
+                        val result = api.addCategory(text)?.data?.userMutation?.addCategory?.category
+                        if (result == null) {
+                            globalEventSender.send {
+                                it.showNativeNotification("追加に失敗しました")
+                            }
+                            return@launch
+                        }
+
+                        globalEventSender.send {
+                            it.showSnackBar("${result.name}を追加しました")
+                        }
+                        viewModelStateFlow.update {
+                            it.copy(
+                                showCategoryNameInput = false,
+                            )
+                        }
+
+                        initialFetch()
+                    }
+                }
+            },
+            loadingState = SettingCategoriesScreenUiState.LoadingState.Loading,
+            showCategoryNameInput = false,
+            rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
+                override fun onClickSettings() {
+                    if (PlatformTypeProvider.type == PlatformType.JS) {
+                        super.onClickSettings()
+                    }
+                }
+            },
+        ),
+    ).also { uiStateFlow ->
+        viewModelScope.launch {
+            viewModelStateFlow.collect { viewModelState ->
+                uiStateFlow.update { uiState ->
+                    val loadingState = if (viewModelState.isFirstLoading) {
+                        SettingCategoriesScreenUiState.LoadingState.Loading
+                    } else {
+                        val items = viewModelState.responseList.mapNotNull {
+                            it.user?.moneyUsageCategories?.nodes
+                        }.flatten()
+                        SettingCategoriesScreenUiState.LoadingState.Loaded(
+                            item = items.map { item ->
+                                SettingCategoriesScreenUiState.CategoryItem(
+                                    name = item.name,
+                                    event = object : SettingCategoriesScreenUiState.CategoryItem.Event {
+                                        override fun onClick() {
+                                            viewModelScope.launch {
+                                                viewModelEventSender.send {
+                                                    it.navigateToCategoryDetail(
+                                                        id = item.id,
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    },
+                                )
+                            }.toImmutableList(),
+                        )
+                    }
+
+                    uiState.copy(
+                        loadingState = loadingState,
+                        showCategoryNameInput = viewModelState.showCategoryNameInput,
+                    )
+                }
             }
-        }.asStateFlow()
+        }
+    }.asStateFlow()
 
     init {
         initialFetch()

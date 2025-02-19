@@ -26,51 +26,48 @@ public class HomeAddTabScreenViewModel(
     private val navigateEventSender = EventSender<NavigateEvent>()
     public val navigateEventHandler: EventHandler<NavigateEvent> = navigateEventSender.asHandler()
 
-    public val uiStateFlow: StateFlow<HomeAddTabScreenUiState> =
-        MutableStateFlow(
-            HomeAddTabScreenUiState(
-                rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
-                    override fun onClickHome() {
-                        if (PlatformTypeProvider.type == PlatformType.JS) {
-                            super.onClickHome()
+    public val uiStateFlow: StateFlow<HomeAddTabScreenUiState> = MutableStateFlow(
+        HomeAddTabScreenUiState(
+            rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
+                override fun onClickHome() {
+                    if (PlatformTypeProvider.type == PlatformType.JS) {
+                        super.onClickHome()
+                    }
+                }
+            },
+            event = object : HomeAddTabScreenUiState.Event {
+                override fun onClickImportButton() {
+                    viewModelScope.launch {
+                        navigateEventSender.send {
+                            it.navigate(
+                                viewModelStateFlow.value.lastImportMailStructure
+                                    ?: ScreenStructure.Root.Add.Import,
+                            )
                         }
                     }
-                },
-                event = object : HomeAddTabScreenUiState.Event {
-                    override fun onClickImportButton() {
-                        viewModelScope.launch {
-                            navigateEventSender.send {
-                                it.navigate(
-                                    viewModelStateFlow.value.lastImportMailStructure
-                                        ?: ScreenStructure.Root.Add.Import,
-                                )
-                            }
-                        }
-                    }
+                }
 
-                    override fun onClickImportedButton() {
-                        viewModelScope.launch {
-                            navigateEventSender.send {
-                                it.navigate(
-                                    viewModelStateFlow.value.lastImportedMailStructure
-                                        ?: ScreenStructure.Root.Add.Imported(isLinked = false),
-                                )
-                            }
+                override fun onClickImportedButton() {
+                    viewModelScope.launch {
+                        navigateEventSender.send {
+                            it.navigate(
+                                viewModelStateFlow.value.lastImportedMailStructure
+                                    ?: ScreenStructure.Root.Add.Imported(isLinked = false),
+                            )
                         }
                     }
-                },
-            ),
-        )
+                }
+            },
+        ),
+    )
 
     public fun updateScreenStructure(structure: ScreenStructure.Root.Add) {
         _viewModelStateFlow.update { viewModelState ->
             viewModelState.copy(
                 screenStructure = structure,
-                lastImportedMailStructure =
-                (structure as? ScreenStructure.Root.Add.Imported)
+                lastImportedMailStructure = (structure as? ScreenStructure.Root.Add.Imported)
                     ?: viewModelState.lastImportedMailStructure,
-                lastImportMailStructure =
-                (structure as? ScreenStructure.Root.Add.Import)
+                lastImportMailStructure = (structure as? ScreenStructure.Root.Add.Import)
                     ?: viewModelState.lastImportMailStructure,
             )
         }

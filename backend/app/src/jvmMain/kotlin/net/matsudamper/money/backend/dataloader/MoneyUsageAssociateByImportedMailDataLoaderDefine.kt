@@ -19,25 +19,23 @@ class MoneyUsageAssociateByImportedMailDataLoaderDefine(
             CompletableFuture.supplyAsync {
                 val repository = repositoryFactory.createDbMailRepository()
 
-                val results =
-                    keys.groupBy { it.userId }
-                        .mapNotNull { (userId, key) ->
-                            val result =
-                                repository
-                                    .getMails(
-                                        userId = userId,
-                                        moneyUsageIdList = key.map { it.moneyUsageId },
-                                    ).onFailure {
-                                        it.printStackTrace()
-                                    }.getOrNull() ?: return@supplyAsync null
+                val results = keys.groupBy { it.userId }
+                    .mapNotNull { (userId, key) ->
+                        val result = repository
+                            .getMails(
+                                userId = userId,
+                                moneyUsageIdList = key.map { it.moneyUsageId },
+                            ).onFailure {
+                                it.printStackTrace()
+                            }.getOrNull() ?: return@supplyAsync null
 
-                            result.map { (usageId, mailId) ->
-                                Key(
-                                    userId = userId,
-                                    moneyUsageId = usageId,
-                                ) to mailId
-                            }.toMap()
-                        }.flatten()
+                        result.map { (usageId, mailId) ->
+                            Key(
+                                userId = userId,
+                                moneyUsageId = usageId,
+                            ) to mailId
+                        }.toMap()
+                    }.flatten()
 
                 keys.associateWith { key ->
                     val result = results[key] ?: return@associateWith null

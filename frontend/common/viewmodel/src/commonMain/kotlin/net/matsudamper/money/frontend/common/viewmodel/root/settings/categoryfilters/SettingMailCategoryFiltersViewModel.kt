@@ -32,147 +32,142 @@ public class SettingMailCategoryFiltersViewModel(
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
-    private val loadedEvent =
-        object : SettingMailCategoryFilterScreenUiState.LoadedEvent {
-            override fun onClickAdd() {
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        textInputDialog = createFilterNameDialogUiState(),
-                    )
-                }
-            }
-
-            private fun createFilterNameDialogUiState(): SettingMailCategoryFilterScreenUiState.TextInput {
-                return SettingMailCategoryFilterScreenUiState.TextInput(
-                    title = "メールカテゴリフィルタの追加",
-                    onCompleted = { text ->
-                        viewModelScope.launch {
-                            runCatching {
-                                api.addFilter(text)
-                            }.onSuccess {
-                                pagingModel.clear()
-                                pagingModel.fetch()
-                            }.onFailure {
-                                it.printStackTrace()
-                            }
-                        }
-                        dismissTextInputDialog()
-                    },
-                    dismiss = {
-                        dismissTextInputDialog()
-                    },
+    private val loadedEvent = object : SettingMailCategoryFilterScreenUiState.LoadedEvent {
+        override fun onClickAdd() {
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    textInputDialog = createFilterNameDialogUiState(),
                 )
             }
+        }
 
-            private fun dismissTextInputDialog() {
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        textInputDialog = null,
+        private fun createFilterNameDialogUiState(): SettingMailCategoryFilterScreenUiState.TextInput {
+            return SettingMailCategoryFilterScreenUiState.TextInput(
+                title = "メールカテゴリフィルタの追加",
+                onCompleted = { text ->
+                    viewModelScope.launch {
+                        runCatching {
+                            api.addFilter(text)
+                        }.onSuccess {
+                            pagingModel.clear()
+                            pagingModel.fetch()
+                        }.onFailure {
+                            it.printStackTrace()
+                        }
+                    }
+                    dismissTextInputDialog()
+                },
+                dismiss = {
+                    dismissTextInputDialog()
+                },
+            )
+        }
+
+        private fun dismissTextInputDialog() {
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    textInputDialog = null,
+                )
+            }
+        }
+    }
+
+    public val uiStateFlow: StateFlow<SettingMailCategoryFilterScreenUiState> = MutableStateFlow(
+        SettingMailCategoryFilterScreenUiState(
+            loadingState = SettingMailCategoryFilterScreenUiState.LoadingState.Loading,
+            textInput = null,
+            rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
+                override fun onClickSettings() {
+                    if (PlatformTypeProvider.type == PlatformType.JS) {
+                        super.onClickSettings()
+                    }
+                }
+            },
+            event = object : SettingMailCategoryFilterScreenUiState.Event {
+                override fun onClickRetry() {
+                    viewModelScope.launch {
+                        pagingModel.fetch()
+                    }
+                }
+
+                override fun onViewInitialized() {
+                    viewModelScope.launch {
+                        pagingModel.fetch()
+                    }
+                }
+
+                override fun onClickBack() {
+                    viewModelScope.launch {
+                        eventSender.send {
+                            it.navigate(ScreenStructure.Root.Settings.Root)
+                        }
+                    }
+                }
+            },
+        ),
+    ).also { uiStateFlow ->
+        viewModelScope.launch {
+            viewModelStateFlow.collectLatest { viewModelState ->
+                uiStateFlow.update { uiState ->
+                    val loadingState = when (val last = viewModelState.apolloResponseStates.lastOrNull()) {
+                        null,
+                        is ApolloResponseState.Loading,
+                        -> {
+                            SettingMailCategoryFilterScreenUiState.LoadingState.Loading
+                        }
+
+                        is ApolloResponseState.Failure -> {
+                            SettingMailCategoryFilterScreenUiState.LoadingState.Error
+                        }
+
+                        is ApolloResponseState.Success -> {
+                            val lastIsError = last.value.data?.user?.importedMailCategoryFilters == null
+                            if (lastIsError && viewModelState.apolloResponseStates.size <= 1) {
+                                SettingMailCategoryFilterScreenUiState.LoadingState.Error
+                            } else {
+                                SettingMailCategoryFilterScreenUiState.LoadingState.Loaded(
+                                    filters = viewModelState.apolloResponseStates.mapNotNull { items ->
+                                        when (items) {
+                                            is ApolloResponseState.Failure -> null
+                                            is ApolloResponseState.Loading -> null
+                                            is ApolloResponseState.Success -> items.value
+                                        }
+                                    }.map { apolloResponse ->
+                                        apolloResponse.data?.user?.importedMailCategoryFilters?.nodes.orEmpty()
+                                            .map { item ->
+                                                SettingMailCategoryFilterScreenUiState.Item(
+                                                    title = item.title,
+                                                    event = object : SettingMailCategoryFilterScreenUiState.ItemEvent {
+                                                        override fun onClick() {
+                                                            viewModelScope.launch {
+                                                                eventSender.send {
+                                                                    it.navigate(
+                                                                        ScreenStructure.Root.Settings.MailCategoryFilter(
+                                                                            id = item.id,
+                                                                        ),
+                                                                    )
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                )
+                                            }
+                                    }.flatten().toImmutableList(),
+                                    isError = lastIsError,
+                                    event = loadedEvent,
+                                )
+                            }
+                        }
+                    }
+
+                    uiState.copy(
+                        loadingState = loadingState,
+                        textInput = viewModelState.textInputDialog,
                     )
                 }
             }
         }
-
-    public val uiStateFlow: StateFlow<SettingMailCategoryFilterScreenUiState> =
-        MutableStateFlow(
-            SettingMailCategoryFilterScreenUiState(
-                loadingState = SettingMailCategoryFilterScreenUiState.LoadingState.Loading,
-                textInput = null,
-                rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
-                    override fun onClickSettings() {
-                        if (PlatformTypeProvider.type == PlatformType.JS) {
-                            super.onClickSettings()
-                        }
-                    }
-                },
-                event = object : SettingMailCategoryFilterScreenUiState.Event {
-                    override fun onClickRetry() {
-                        viewModelScope.launch {
-                            pagingModel.fetch()
-                        }
-                    }
-
-                    override fun onViewInitialized() {
-                        viewModelScope.launch {
-                            pagingModel.fetch()
-                        }
-                    }
-
-                    override fun onClickBack() {
-                        viewModelScope.launch {
-                            eventSender.send {
-                                it.navigate(ScreenStructure.Root.Settings.Root)
-                            }
-                        }
-                    }
-                },
-            ),
-        ).also { uiStateFlow ->
-            viewModelScope.launch {
-                viewModelStateFlow.collectLatest { viewModelState ->
-                    uiStateFlow.update { uiState ->
-                        val loadingState =
-                            when (val last = viewModelState.apolloResponseStates.lastOrNull()) {
-                                null,
-                                is ApolloResponseState.Loading,
-                                -> {
-                                    SettingMailCategoryFilterScreenUiState.LoadingState.Loading
-                                }
-
-                                is ApolloResponseState.Failure -> {
-                                    SettingMailCategoryFilterScreenUiState.LoadingState.Error
-                                }
-
-                                is ApolloResponseState.Success -> {
-                                    val lastIsError = last.value.data?.user?.importedMailCategoryFilters == null
-                                    if (lastIsError && viewModelState.apolloResponseStates.size <= 1) {
-                                        SettingMailCategoryFilterScreenUiState.LoadingState.Error
-                                    } else {
-                                        SettingMailCategoryFilterScreenUiState.LoadingState.Loaded(
-                                            filters =
-                                            viewModelState.apolloResponseStates.mapNotNull { items ->
-                                                when (items) {
-                                                    is ApolloResponseState.Failure -> null
-                                                    is ApolloResponseState.Loading -> null
-                                                    is ApolloResponseState.Success -> items.value
-                                                }
-                                            }.map { apolloResponse ->
-                                                apolloResponse.data?.user?.importedMailCategoryFilters?.nodes.orEmpty()
-                                                    .map { item ->
-                                                        SettingMailCategoryFilterScreenUiState.Item(
-                                                            title = item.title,
-                                                            event =
-                                                            object : SettingMailCategoryFilterScreenUiState.ItemEvent {
-                                                                override fun onClick() {
-                                                                    viewModelScope.launch {
-                                                                        eventSender.send {
-                                                                            it.navigate(
-                                                                                ScreenStructure.Root.Settings.MailCategoryFilter(
-                                                                                    id = item.id,
-                                                                                ),
-                                                                            )
-                                                                        }
-                                                                    }
-                                                                }
-                                                            },
-                                                        )
-                                                    }
-                                            }.flatten().toImmutableList(),
-                                            isError = lastIsError,
-                                            event = loadedEvent,
-                                        )
-                                    }
-                                }
-                            }
-
-                        uiState.copy(
-                            loadingState = loadingState,
-                            textInput = viewModelState.textInputDialog,
-                        )
-                    }
-                }
-            }
-        }.asStateFlow()
+    }.asStateFlow()
 
     init {
         viewModelScope.launch {

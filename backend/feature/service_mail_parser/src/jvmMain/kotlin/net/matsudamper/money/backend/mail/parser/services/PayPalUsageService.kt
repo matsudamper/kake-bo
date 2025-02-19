@@ -31,48 +31,42 @@ internal object PayPalUsageService : MoneyUsageServices {
         val lines = ParseUtil.splitByNewLine(plain)
         val document = Jsoup.parse(html)
         val priceRawText: String?
-        val price =
-            run price@{
-                val texts =
-                    document.select("strong").toList()
-                        .asSequence()
-                        .filter { it.text() == "合計" }
-                        .mapNotNull { it.getParentElement("tr") }
-                        .flatMap { it.select("span") }
-                        .map { it.text() }
+        val price = run price@{
+            val texts = document.select("strong").toList()
+                .asSequence()
+                .filter { it.text() == "合計" }
+                .mapNotNull { it.getParentElement("tr") }
+                .flatMap { it.select("span") }
+                .map { it.text() }
 
-                priceRawText =
-                    texts
-                        .filterNot { it.contains("合計") }
-                        .joinToString(", ")
-                        .takeIf { it.isNotBlank() }
+            priceRawText = texts
+                .filterNot { it.contains("合計") }
+                .joinToString(", ")
+                .takeIf { it.isNotBlank() }
 
-                texts.mapNotNull { text ->
-                    text.mapNotNull { it.toString().toIntOrNull() }
-                        .joinToString("")
-                        .toIntOrNull()
-                }.firstOrNull()
-            }
+            texts.mapNotNull { text ->
+                text.mapNotNull { it.toString().toIntOrNull() }
+                    .joinToString("")
+                    .toIntOrNull()
+            }.firstOrNull()
+        }
 
-        val title =
-            run title@{
-                val title = document.select("title").text()
-                "^(.+?)様への支払いの領収書".toRegex().find(title)?.groupValues?.getOrNull(1)
-                    ?: return@title null
-            }
+        val title = run title@{
+            val title = document.select("title").text()
+            "^(.+?)様への支払いの領収書".toRegex().find(title)?.groupValues?.getOrNull(1)
+                ?: return@title null
+        }
 
         val price2: Int?
         run {
-            val result =
-                "(?<=>)(.+?)への(.+?)のお支払いが実行されました<".toRegex()
-                    .find(html)
-                    ?.groupValues
+            val result = "(?<=>)(.+?)への(.+?)のお支払いが実行されました<".toRegex()
+                .find(html)
+                ?.groupValues
 
-            price2 =
-                result?.getOrNull(2)
-                    ?.mapNotNull { it.toString().toIntOrNull() }
-                    ?.joinToString("")
-                    ?.toIntOrNull()
+            price2 = result?.getOrNull(2)
+                ?.mapNotNull { it.toString().toIntOrNull() }
+                ?.joinToString("")
+                ?.toIntOrNull()
         }
 
         val parsedDate = run date@{
@@ -106,8 +100,7 @@ internal object PayPalUsageService : MoneyUsageServices {
             MoneyUsage(
                 title = title ?: displayName,
                 price = price ?: price2,
-                description =
-                buildString {
+                description = buildString {
                     if (priceRawText != null) {
                         appendLine(priceRawText)
                     }

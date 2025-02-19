@@ -30,8 +30,7 @@ public fun MySnackBarHost(
         val actionLabel = snackbarData.visuals.actionLabel
         Snackbar(
             modifier = Modifier.padding(12.dp),
-            action =
-            if (actionLabel != null) {
+            action = if (actionLabel != null) {
                 {
                     TextButton(
                         colors = ButtonDefaults.textButtonColors(contentColor = actionColor),
@@ -47,8 +46,7 @@ public fun MySnackBarHost(
             } else {
                 null
             },
-            dismissAction =
-            if (snackbarData.visuals.withDismissAction) {
+            dismissAction = if (snackbarData.visuals.withDismissAction) {
                 {
                     IconButton(
                         onClick = { snackbarData.dismiss() },

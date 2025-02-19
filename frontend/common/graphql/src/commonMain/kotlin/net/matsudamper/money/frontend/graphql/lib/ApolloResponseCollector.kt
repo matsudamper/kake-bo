@@ -21,10 +21,9 @@ public class ApolloResponseCollector<D : Query.Data>(
     private val query: Query<D>,
     private val fetchPolicy: FetchPolicy,
 ) {
-    private val mutableStateFlow: MutableStateFlow<ApolloResponseState<ApolloResponse<D>>> =
-        MutableStateFlow(
-            ApolloResponseState.loading(),
-        )
+    private val mutableStateFlow: MutableStateFlow<ApolloResponseState<ApolloResponse<D>>> = MutableStateFlow(
+        ApolloResponseState.loading(),
+    )
 
     fun getFlow(): StateFlow<ApolloResponseState<ApolloResponse<D>>> = mutableStateFlow.asStateFlow()
 

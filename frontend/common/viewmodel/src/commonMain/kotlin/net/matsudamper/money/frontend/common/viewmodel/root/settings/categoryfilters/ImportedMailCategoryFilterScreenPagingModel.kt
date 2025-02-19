@@ -20,11 +20,10 @@ public class ImportedMailCategoryFilterScreenPagingModel(
     scopedObjectFeature: ScopedObjectFeature,
     graphqlClient: GraphqlClient,
 ) : CommonViewModel(scopedObjectFeature) {
-    private val pagingState =
-        ApolloPagingResponseCollector<ImportedMailCategoryFiltersScreenPagingQuery.Data>(
-            graphqlClient = graphqlClient,
-            coroutineScope = viewModelScope,
-        )
+    private val pagingState = ApolloPagingResponseCollector<ImportedMailCategoryFiltersScreenPagingQuery.Data>(
+        graphqlClient = graphqlClient,
+        coroutineScope = viewModelScope,
+    )
 
     internal suspend fun getFlow(): Flow<List<ApolloResponseState<ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data>>>> {
         return flow {
@@ -77,8 +76,7 @@ public class ImportedMailCategoryFilterScreenPagingModel(
                 }
 
                 ImportedMailCategoryFiltersScreenPagingQuery(
-                    query =
-                    ImportedMailCategoryFiltersQuery(
+                    query = ImportedMailCategoryFiltersQuery(
                         cursor = Optional.present(cursor),
                         isAsc = true,
                     ),

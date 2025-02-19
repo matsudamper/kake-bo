@@ -138,11 +138,10 @@ public fun RootUsageCalendarScreen(
                         modifier = Modifier.fillMaxSize(),
                         uiState = uiState.loadingState,
                         state = lazyGridState,
-                        contentPadding =
-                            PaddingValues(
-                                top = 12.dp,
-                                bottom = with(density) { buttonSize.height.toDp() },
-                            ),
+                        contentPadding = PaddingValues(
+                            top = 12.dp,
+                            bottom = with(density) { buttonSize.height.toDp() },
+                        ),
                     )
                 }
 
@@ -182,8 +181,7 @@ private fun LoadedContent(
                 is RootUsageCalendarScreenUiState.CalendarCell.Empty -> Unit
                 is RootUsageCalendarScreenUiState.CalendarCell.DayOfWeek -> {
                     Text(
-                        modifier =
-                        Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize()
                             .padding(2.dp),
                         text = cell.text,
                         textAlign = TextAlign.Center,
@@ -201,13 +199,11 @@ private fun CalendarCell(
     uiState: RootUsageCalendarScreenUiState.CalendarCell.Day,
 ) {
     Column(
-        modifier =
-        modifier
+        modifier = modifier
             .padding(vertical = 2.dp),
     ) {
         Text(
-            modifier =
-            Modifier
+            modifier = Modifier
                 .padding(2.dp)
                 .clip(MaterialTheme.shapes.small)
                 .background(
@@ -218,8 +214,7 @@ private fun CalendarCell(
                     },
                 )
                 .padding(2.dp),
-            color =
-            if (uiState.isToday) {
+            color = if (uiState.isToday) {
                 MaterialTheme.colorScheme.onSecondaryContainer
             } else {
                 Color.Unspecified
@@ -237,15 +232,13 @@ private fun CalendarCell(
             Spacer(Modifier.height(2.dp))
             Card(
                 modifier = Modifier.padding(horizontal = 2.dp),
-                colors =
-                CardDefaults.cardColors(
+                colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 ),
                 shape = MaterialTheme.shapes.extraSmall,
             ) {
                 Text(
-                    modifier =
-                    Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                         .clickable { item.event.onClick() }
                         .padding(2.dp),
                     maxLines = 3,

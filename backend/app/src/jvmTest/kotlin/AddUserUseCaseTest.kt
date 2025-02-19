@@ -41,20 +41,19 @@ class AddUserUseCaseTest : DescribeSpec(
                     val password = "Vovo@nHsP&YlL!XQWwgo8QL6fafpHVx!u#jtUEwKNKus1kxmx*f0*f1Z6B&bs#5Or\$MN56#xY3!ejzlJxizTUGxXpsgmN%JvG4V*HHzJx\$WrZTEA%Tr^2sx@YF1X*yN4"
                     when (val result = useCase.addUser("test", password)) {
                         is AddUserUseCase.Result.Failure -> {
-                            val errorText =
-                                result.errors.joinToString {
-                                    when (it) {
-                                        AddUserUseCase.Result.Errors.InternalServerError,
-                                        AddUserUseCase.Result.Errors.PasswordLength,
-                                        AddUserUseCase.Result.Errors.UserNameLength,
-                                        AddUserUseCase.Result.Errors.UserNameValidation,
-                                        -> it::class.java.name
+                            val errorText = result.errors.joinToString {
+                                when (it) {
+                                    AddUserUseCase.Result.Errors.InternalServerError,
+                                    AddUserUseCase.Result.Errors.PasswordLength,
+                                    AddUserUseCase.Result.Errors.UserNameLength,
+                                    AddUserUseCase.Result.Errors.UserNameValidation,
+                                    -> it::class.java.name
 
-                                        is AddUserUseCase.Result.Errors.PasswordValidation -> {
-                                            "error char: ${it.errorChar.joinToString(",")}"
-                                        }
+                                    is AddUserUseCase.Result.Errors.PasswordValidation -> {
+                                        "error char: ${it.errorChar.joinToString(",")}"
                                     }
                                 }
+                            }
                             throw IllegalStateException(errorText)
                         }
 

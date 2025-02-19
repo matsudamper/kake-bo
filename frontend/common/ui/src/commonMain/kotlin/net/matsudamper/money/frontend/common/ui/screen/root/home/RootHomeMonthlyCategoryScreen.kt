@@ -135,8 +135,7 @@ private fun LoadedContent(
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState,
-            contentPadding =
-            PaddingValues(
+            contentPadding = PaddingValues(
                 bottom = 8.dp,
                 top = 8.dp,
                 start = 8.dp,
@@ -167,8 +166,7 @@ private fun LoadedContent(
                                     maxLines = 3,
                                 )
                                 Text(
-                                    modifier =
-                                    Modifier
+                                    modifier = Modifier
                                         .align(Alignment.Bottom)
                                         .height(IntrinsicSize.Max)
                                         .requiredWidthIn(min = 80.dp),
@@ -177,8 +175,7 @@ private fun LoadedContent(
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    modifier =
-                                    Modifier
+                                    modifier = Modifier
                                         .align(Alignment.Bottom)
                                         .height(IntrinsicSize.Max)
                                         .requiredWidthIn(min = 60.dp),
@@ -197,8 +194,7 @@ private fun LoadedContent(
                         loadingState.event.loadMore()
                     }
                     Box(
-                        modifier =
-                        Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                             .padding(vertical = 16.dp),
                     ) {
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))

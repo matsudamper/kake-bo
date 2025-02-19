@@ -18,11 +18,10 @@ internal object MountbellUsageServices : MoneyUsageServices {
     ): List<MoneyUsage> {
         val forwardOriginal = ParseUtil.parseForwarded(plain)
 
-        val canHandle =
-            sequence {
-                yield(canHandledWithFrom(forwardOriginal?.from ?: from))
-                yield(canHandledWithSubject(forwardOriginal?.subject ?: subject))
-            }
+        val canHandle = sequence {
+            yield(canHandledWithFrom(forwardOriginal?.from ?: from))
+            yield(canHandledWithSubject(forwardOriginal?.subject ?: subject))
+        }
         if (canHandle.any { it.not() }) return listOf()
 
         val lines = ParseUtil.splitByNewLine(plain)
@@ -46,19 +45,16 @@ internal object MountbellUsageServices : MoneyUsageServices {
 
             for (productSections in productsSections) {
                 println(productSections)
-                val nameLine =
-                    productSections
-                        .firstOrNull { it.startsWith("商品名") }
-                        ?.dropWhile { it != '：' }?.drop(1)?.trim() ?: break
-                val priceLine =
-                    productSections
-                        .firstOrNull { it.startsWith("単価(税込)") }
-                        ?.dropWhile { it != '：' }?.drop(1)
-                        ?.takeWhile { it != '円' }?.trim() ?: break
-                val countLine =
-                    productSections
-                        .firstOrNull { it.startsWith("数量") }
-                        ?.dropWhile { it != '：' }?.drop(1)?.trim() ?: break
+                val nameLine = productSections
+                    .firstOrNull { it.startsWith("商品名") }
+                    ?.dropWhile { it != '：' }?.drop(1)?.trim() ?: break
+                val priceLine = productSections
+                    .firstOrNull { it.startsWith("単価(税込)") }
+                    ?.dropWhile { it != '：' }?.drop(1)
+                    ?.takeWhile { it != '円' }?.trim() ?: break
+                val countLine = productSections
+                    .firstOrNull { it.startsWith("数量") }
+                    ?.dropWhile { it != '：' }?.drop(1)?.trim() ?: break
 
                 results.add(
                     MoneyUsage(

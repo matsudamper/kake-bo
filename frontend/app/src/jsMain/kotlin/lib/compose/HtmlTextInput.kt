@@ -36,18 +36,17 @@ internal fun HtmlTextInput(
 
     val coroutineScope = rememberCoroutineScope()
     DisposableEffect(id, textState.sizeCallback) {
-        val resizeObserver =
-            ResizeObserver { resizeEntries, _ ->
-                for (resizeEntry in resizeEntries) {
-                    val rect = resizeEntry.contentRect
-                    textState.sizeCallback(
-                        Size(
-                            (rect.width / widthDensity).toFloat(),
-                            (rect.height / heightDensity).toFloat(),
-                        ),
-                    )
-                }
+        val resizeObserver = ResizeObserver { resizeEntries, _ ->
+            for (resizeEntry in resizeEntries) {
+                val rect = resizeEntry.contentRect
+                textState.sizeCallback(
+                    Size(
+                        (rect.width / widthDensity).toFloat(),
+                        (rect.height / heightDensity).toFloat(),
+                    ),
+                )
             }
+        }
 
         coroutineScope.launch {
             while (isActive) {

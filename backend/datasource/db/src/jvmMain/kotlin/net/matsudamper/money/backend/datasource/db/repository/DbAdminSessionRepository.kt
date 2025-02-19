@@ -54,42 +54,40 @@ class DbAdminSessionRepository(
                 .fetchAny()
         } ?: return null
 
-        val sessionId =
-            dbConnection.use {
-                // update Expire
-                DSL.using(it)
-                    .update(adminSession)
-                    .set(
-                        adminSession.EXPIRE_DATETIME,
-                        DSL.localDateTime(
-                            LocalDateTimeExt.nowUtc()
-                                .plusMinutes(10),
-                        ),
-                    )
-                    .where(
-                        adminSession.SESSION_ID.eq(adminSessionId),
-                    )
-                    .returningResult(adminSession)
-                    .fetchOne()!!
-                    .value1()!!
-            }
+        val sessionId = dbConnection.use {
+            // update Expire
+            DSL.using(it)
+                .update(adminSession)
+                .set(
+                    adminSession.EXPIRE_DATETIME,
+                    DSL.localDateTime(
+                        LocalDateTimeExt.nowUtc()
+                            .plusMinutes(10),
+                    ),
+                )
+                .where(
+                    adminSession.SESSION_ID.eq(adminSessionId),
+                )
+                .returningResult(adminSession)
+                .fetchOne()!!
+                .value1()!!
+        }
         return sessionId.toResponse()
     }
 
     override fun createSession(): AdminSession {
-        val sessionId =
-            dbConnection.use {
-                DSL.using(it)
-                    .insertInto(adminSession)
-                    .set(
-                        adminSession.EXPIRE_DATETIME,
-                        DSL.localDateTime(LocalDateTimeExt.nowUtc().plusMinutes(10)),
-                    )
-                    .set(adminSession.SESSION_ID, UUID.randomUUID().toString())
-                    .returningResult(adminSession)
-                    .fetchOne()!!
-                    .value1()!!
-            }
+        val sessionId = dbConnection.use {
+            DSL.using(it)
+                .insertInto(adminSession)
+                .set(
+                    adminSession.EXPIRE_DATETIME,
+                    DSL.localDateTime(LocalDateTimeExt.nowUtc().plusMinutes(10)),
+                )
+                .set(adminSession.SESSION_ID, UUID.randomUUID().toString())
+                .returningResult(adminSession)
+                .fetchOne()!!
+                .value1()!!
+        }
 
         return sessionId.toResponse()
     }

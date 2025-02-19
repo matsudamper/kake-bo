@@ -55,8 +55,7 @@ public fun HtmlTextInput(
     }
 
     Box(
-        modifier =
-        modifier
+        modifier = modifier
             .size(with(localDensity) { size.toDpSize() })
             .layout { measurable, constraints ->
                 val placeable = measurable.measure(constraints)

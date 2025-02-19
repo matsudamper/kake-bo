@@ -159,18 +159,15 @@ public fun RootUsageHostScreen(
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    modifier =
-                    Modifier
+                    modifier = Modifier
                         .padding(horizontal = 12.dp),
                 ) {
                     Box(
-                        modifier =
-                        Modifier
+                        modifier = Modifier
                             .weight(1f),
                     ) {
                         SearchBox(
-                            modifier =
-                            Modifier
+                            modifier = Modifier
                                 .widthIn(max = 600.dp),
                             text = uiState.searchText,
                             onClick = { uiState.event.onClickSearchBox() },
@@ -181,8 +178,7 @@ public fun RootUsageHostScreen(
                     FloatingActionButton(
                         modifier = Modifier,
                         onClick = { uiState.event.onClickAdd() },
-                        elevation =
-                        FloatingActionButtonDefaults.elevation(
+                        elevation = FloatingActionButtonDefaults.elevation(
                             0.dp,
                             0.dp,
                             0.dp,
@@ -216,14 +212,12 @@ private fun SearchBox(
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
     ) {
         Row(
-            modifier =
-            Modifier
+            modifier = Modifier
                 .clickable { onClick() },
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Row(
-                modifier =
-                Modifier
+                modifier = Modifier
                     .weight(1f)
                     .padding(
                         horizontal = 12.dp,
@@ -243,8 +237,7 @@ private fun SearchBox(
             }
             if (text.isNotEmpty()) {
                 Box(
-                    modifier =
-                    Modifier
+                    modifier = Modifier
                         .clip(CircleShape)
                         .clickable { onClickClear() }
                         .padding(8.dp),
@@ -270,8 +263,7 @@ private fun TitleBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            modifier =
-            Modifier.clickable(
+            modifier = Modifier.clickable(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
             ) {
@@ -286,16 +278,14 @@ private fun TitleBar(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Box(
-                        modifier =
-                        Modifier.clip(CircleShape)
+                        modifier = Modifier.clip(CircleShape)
                             .clickable { header.event.onClickPrevMonth() }
                             .padding(8.dp),
                     ) {
                         Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "前の月")
                     }
                     Box(
-                        modifier =
-                        Modifier
+                        modifier = Modifier
                             .clip(CircleShape)
                             .clickable { header.event.onClickNextMonth() }
                             .padding(8.dp),
@@ -323,8 +313,7 @@ private fun Menu(
     var expanded by remember { mutableStateOf(false) }
     Box(modifier = Modifier.padding(end = 8.dp)) {
         DropDownMenuButton(
-            modifier =
-            Modifier
+            modifier = Modifier
                 .semantics(true) {
                     contentDescription = "表示タイプ変更"
                 }

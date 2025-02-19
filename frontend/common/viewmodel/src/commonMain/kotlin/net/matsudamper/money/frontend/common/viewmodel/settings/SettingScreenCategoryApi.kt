@@ -51,8 +51,7 @@ public class SettingScreenCategoryApi(
             apolloClient
                 .mutation(
                     AddCategoryMutation(
-                        category =
-                        AddCategoryInput(
+                        category = AddCategoryInput(
                             name = name,
                         ),
                     ),
@@ -69,8 +68,7 @@ public class SettingScreenCategoryApi(
             apolloClient
                 .mutation(
                     AddSubCategoryMutation(
-                        category =
-                        AddSubCategoryInput(
+                        category = AddSubCategoryInput(
                             categoryId = categoryId,
                             name = name,
                         ),
@@ -86,8 +84,7 @@ public class SettingScreenCategoryApi(
                 .query(
                     CategorySettingScreenSubCategoriesPagingQuery(
                         categoryId = id,
-                        query =
-                        MoneyUsageSubCategoryQuery(
+                        query = MoneyUsageSubCategoryQuery(
                             cursor = Optional.present(null),
                             size = 100,
                         ),
@@ -109,8 +106,7 @@ public class SettingScreenCategoryApi(
                 .mutation(
                     UpdateCategoryMutation(
                         id = id,
-                        query =
-                        UpdateCategoryQuery(
+                        query = UpdateCategoryQuery(
                             name = Optional.present(name),
                         ),
                     ),
@@ -142,8 +138,7 @@ public class SettingScreenCategoryApi(
                 .mutation(
                     UpdateSubCategoryMutation(
                         id = id,
-                        query =
-                        UpdateSubCategoryQuery(
+                        query = UpdateSubCategoryQuery(
                             name = Optional.present(name),
                         ),
                     ),

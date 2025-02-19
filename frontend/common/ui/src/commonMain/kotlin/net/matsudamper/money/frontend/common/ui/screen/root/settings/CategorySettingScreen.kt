@@ -163,8 +163,7 @@ public fun SettingCategoryScreen(
             KakeBoTopAppBar(
                 title = {
                     Text(
-                        modifier =
-                        Modifier.clickable(
+                        modifier = Modifier.clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
@@ -211,8 +210,7 @@ public fun MainContent(
 
             is SettingCategoryScreenUiState.LoadingState.Loading -> {
                 Box(
-                    modifier =
-                    Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize()
                         .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
@@ -263,8 +261,7 @@ private fun LoadedContent(
                 items = loadedState.item,
             ) { item ->
                 SubCategoryItem(
-                    modifier =
-                    Modifier
+                    modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 4.dp),
                     item = item,
@@ -290,8 +287,7 @@ private fun SubCategoryItem(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                modifier =
-                Modifier
+                modifier = Modifier
                     .padding(
                         horizontal = 24.dp,
                         vertical = 24.dp,
@@ -319,8 +315,7 @@ private fun SubCategoryItem(
                     properties = PopupProperties(focusable = true),
                 ) {
                     Card(
-                        elevation =
-                        CardDefaults.cardElevation(
+                        elevation = CardDefaults.cardElevation(
                             defaultElevation = 8.dp,
                         ),
                     ) {
@@ -328,16 +323,14 @@ private fun SubCategoryItem(
                             modifier = Modifier.width(IntrinsicSize.Min),
                         ) {
                             Text(
-                                modifier =
-                                Modifier
+                                modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { item.event.onClickChangeName() }
                                     .padding(12.dp),
                                 text = "名前変更",
                             )
                             Text(
-                                modifier =
-                                Modifier
+                                modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable { item.event.onClickDelete() }
                                     .padding(12.dp),

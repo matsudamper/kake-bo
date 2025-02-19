@@ -87,8 +87,7 @@ public fun MailImportScreen(
             KakeBoTopAppBar(
                 title = {
                     Text(
-                        modifier =
-                        Modifier.clickable(
+                        modifier = Modifier.clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
@@ -118,10 +117,9 @@ public fun MailImportScreen(
 @Composable
 private fun MailContent(uiState: ImportMailScreenUiState) {
     val density = LocalDensity.current
-    val firstLoadingFinished =
-        remember(uiState.isLoading, uiState.mails) {
-            uiState.mails.isNotEmpty() || uiState.isLoading.not()
-        }
+    val firstLoadingFinished = remember(uiState.isLoading, uiState.mails) {
+        uiState.mails.isNotEmpty() || uiState.isLoading.not()
+    }
     var containerHeight by remember { mutableIntStateOf(0) }
     val lazyListState = rememberLazyListState()
     Scaffold(
@@ -137,13 +135,11 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                         contentAlignment = Alignment.Center,
                     ) {
                         Button(
-                            modifier =
-                            Modifier.padding(12.dp)
+                            modifier = Modifier.padding(12.dp)
                                 .widthIn(max = 500.dp)
                                 .fillMaxWidth(),
                             onClick = { uiState.event.onClickImport() },
-                            elevation =
-                            ButtonDefaults.buttonElevation(
+                            elevation = ButtonDefaults.buttonElevation(
                                 defaultElevation = 4.dp,
                                 pressedElevation = 8.dp,
                             ),
@@ -162,8 +158,7 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
     ) { paddingValues ->
         if (firstLoadingFinished.not()) {
             Box(
-                modifier =
-                Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize()
                     .padding(paddingValues),
                 contentAlignment = Alignment.Center,
             ) {
@@ -174,15 +169,13 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                 modifier = Modifier.fillMaxSize(),
             ) {
                 LaunchedEffect(maxHeight) {
-                    containerHeight =
-                        with(density) {
-                            maxHeight.roundToPx()
-                        }
+                    containerHeight = with(density) {
+                        maxHeight.roundToPx()
+                    }
                 }
                 Row(modifier = Modifier.fillMaxSize()) {
                     LazyColumn(
-                        modifier =
-                        Modifier
+                        modifier = Modifier
                             .fillMaxHeight()
                             .weight(1f),
                         state = lazyListState,
@@ -190,8 +183,7 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                     ) {
                         items(uiState.mails) { item ->
                             MailContent(
-                                modifier =
-                                Modifier
+                                modifier = Modifier
                                     .padding(vertical = 12.dp),
                                 uiState = item,
                             )
@@ -199,8 +191,7 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
                         if (uiState.isLoading) {
                             item {
                                 Box(
-                                    modifier =
-                                    Modifier
+                                    modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(12.dp),
                                 ) {
@@ -232,8 +223,7 @@ private fun MailContent(uiState: ImportMailScreenUiState) {
 @Composable
 private fun MailDeleteConfirmDialog(uiState: ImportMailScreenUiState.MailDeleteDialog) {
     Box(
-        modifier =
-        Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize()
             .background(Color.Black.copy(alpha = 0.8f))
             .clickable(indication = null, interactionSource = remember { MutableInteractionSource() }) {
                 uiState.event.onDismiss()
@@ -242,8 +232,7 @@ private fun MailDeleteConfirmDialog(uiState: ImportMailScreenUiState.MailDeleteD
     ) {
         Card {
             Column(
-                modifier =
-                Modifier
+                modifier = Modifier
                     .padding(24.dp)
                     .width(IntrinsicSize.Max)
                     .widthIn(max = 500.dp),
@@ -263,8 +252,7 @@ private fun MailDeleteConfirmDialog(uiState: ImportMailScreenUiState.MailDeleteD
                     Spacer(Modifier.height(24.dp))
                 }
                 Row(
-                    modifier =
-                    Modifier.align(Alignment.End)
+                    modifier = Modifier.align(Alignment.End)
                         .height(intrinsicSize = IntrinsicSize.Min),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -305,11 +293,9 @@ private fun MailContent(
     Card(
         modifier = modifier,
         onClick = { uiState.event.onClick() },
-        colors =
-        if (uiState.isSelected) {
+        colors = if (uiState.isSelected) {
             CardDefaults.cardColors(
-                containerColor =
-                MaterialTheme.colorScheme.primary
+                containerColor = MaterialTheme.colorScheme.primary
                     .copy(alpha = 0.1f),
             )
         } else {
@@ -317,8 +303,7 @@ private fun MailContent(
         },
     ) {
         Row(
-            modifier =
-            Modifier.padding(12.dp)
+            modifier = Modifier.padding(12.dp)
                 .height(IntrinsicSize.Min),
         ) {
             Column(modifier = Modifier.weight(1f)) {

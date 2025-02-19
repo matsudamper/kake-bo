@@ -43,30 +43,26 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
         val userId = context.verifyUserSessionAndGetUserId()
         return CompletableFuture.supplyAsync {
             val cursor = query.cursor?.let { ImportedMailAttributesMailsQueryCursor.fromString(it) }
-            val mailResult =
-                context.diContainer.createDbMailRepository()
-                    .getMails(
-                        userId = userId,
-                        size = query.size,
-                        isLinked = query.filter.isLinked,
-                        sortedKey =
-                        when (query.sortedBy) {
-                            QlImportedMailSortKey.CREATED_DATETIME -> ImportedMailRepository.MailSortedKey.CREATE_DATETIME
-                            QlImportedMailSortKey.DATETIME -> ImportedMailRepository.MailSortedKey.DATETIME
-                        },
-                        pagingInfo = cursor?.pagingInfo,
-                        isAsc = query.isAsc,
-                    )
+            val mailResult = context.diContainer.createDbMailRepository()
+                .getMails(
+                    userId = userId,
+                    size = query.size,
+                    isLinked = query.filter.isLinked,
+                    sortedKey = when (query.sortedBy) {
+                        QlImportedMailSortKey.CREATED_DATETIME -> ImportedMailRepository.MailSortedKey.CREATE_DATETIME
+                        QlImportedMailSortKey.DATETIME -> ImportedMailRepository.MailSortedKey.DATETIME
+                    },
+                    pagingInfo = cursor?.pagingInfo,
+                    isAsc = query.isAsc,
+                )
 
             QlImportedMailConnection(
-                cursor =
-                mailResult.pagingInfo?.let { pagingInfo ->
+                cursor = mailResult.pagingInfo?.let { pagingInfo ->
                     ImportedMailAttributesMailsQueryCursor(
                         pagingInfo,
                     ).toCursorString()
                 },
-                nodes =
-                mailResult.mails.map {
+                nodes = mailResult.mails.map {
                     QlImportedMail(
                         id = it,
                     )

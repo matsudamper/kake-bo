@@ -24,13 +24,12 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
     ): CompletionStage<DataFetcherResult<String>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        val future =
-            getImportedMailCategoryFilterFuture(
-                context = context,
-                userId = userId,
-                importedMailCategoryFilter = importedMailCategoryFilter,
-                env = env,
-            )
+        val future = getImportedMailCategoryFilterFuture(
+            context = context,
+            userId = userId,
+            importedMailCategoryFilter = importedMailCategoryFilter,
+            env = env,
+        )
 
         return CompletableFuture.allOf(future).thenApplyAsync {
             future.get()!!.title
@@ -43,13 +42,12 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
     ): CompletionStage<DataFetcherResult<QlMoneyUsageSubCategory?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        val future =
-            getImportedMailCategoryFilterFuture(
-                context = context,
-                userId = userId,
-                importedMailCategoryFilter = importedMailCategoryFilter,
-                env = env,
-            )
+        val future = getImportedMailCategoryFilterFuture(
+            context = context,
+            userId = userId,
+            importedMailCategoryFilter = importedMailCategoryFilter,
+            env = env,
+        )
 
         return CompletableFuture.allOf(future).thenApplyAsync {
             future.get()!!.moneyUsageSubCategoryId?.let {
@@ -66,13 +64,12 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
     ): CompletionStage<DataFetcherResult<Int>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        val future =
-            getImportedMailCategoryFilterFuture(
-                context = context,
-                userId = userId,
-                importedMailCategoryFilter = importedMailCategoryFilter,
-                env = env,
-            )
+        val future = getImportedMailCategoryFilterFuture(
+            context = context,
+            userId = userId,
+            importedMailCategoryFilter = importedMailCategoryFilter,
+            env = env,
+        )
 
         return CompletableFuture.allOf(future).thenApplyAsync {
             future.get()!!.orderNumber
@@ -85,13 +82,12 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
     ): CompletionStage<DataFetcherResult<QlImportedMailFilterCategoryConditionOperator>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        val future =
-            getImportedMailCategoryFilterFuture(
-                context = context,
-                userId = userId,
-                importedMailCategoryFilter = importedMailCategoryFilter,
-                env = env,
-            )
+        val future = getImportedMailCategoryFilterFuture(
+            context = context,
+            userId = userId,
+            importedMailCategoryFilter = importedMailCategoryFilter,
+            env = env,
+        )
 
         return CompletableFuture.allOf(future).thenApplyAsync {
             when (future.get()!!.operator) {
@@ -111,14 +107,13 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
         val dataLoader = context.dataLoaders.importedMailCategoryFilterConditionDataLoader.get(env)
 
         return CompletableFuture.allOf().thenApplyAsync {
-            val result =
-                context.diContainer.createMailFilterRepository()
-                    .getConditions(
-                        userId = userId,
-                        filterId = importedMailCategoryFilter.id,
-                    ).onFailure {
-                        it.printStackTrace()
-                    }.getOrNull() ?: return@thenApplyAsync null
+            val result = context.diContainer.createMailFilterRepository()
+                .getConditions(
+                    userId = userId,
+                    filterId = importedMailCategoryFilter.id,
+                ).onFailure {
+                    it.printStackTrace()
+                }.getOrNull() ?: return@thenApplyAsync null
 
             result.conditions.map { condition ->
                 dataLoader.prime(

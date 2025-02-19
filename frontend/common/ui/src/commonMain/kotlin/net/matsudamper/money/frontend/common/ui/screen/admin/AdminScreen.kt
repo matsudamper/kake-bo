@@ -48,8 +48,7 @@ private fun RootSettingItem(
     onClick: () -> Unit,
 ) {
     Column(
-        modifier =
-        modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
             .clickable {
                 onClick()
             }

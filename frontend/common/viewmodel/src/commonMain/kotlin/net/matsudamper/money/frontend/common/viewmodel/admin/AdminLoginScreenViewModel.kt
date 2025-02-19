@@ -19,22 +19,21 @@ public class AdminLoginScreenViewModel(
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
-    public val uiStateFlow: StateFlow<AdminLoginScreenUiState> =
-        MutableStateFlow(
-            AdminLoginScreenUiState(
-                onChangePassword = {
-                    viewModelStateFlow.update { state -> state.copy(password = it) }
-                },
-                onClickLogin = {
-                    login(viewModelStateFlow.value.password.text)
-                },
-            ),
-        ).also { uiStateFlow ->
-            viewModelScope.launch {
-                viewModelStateFlow.collect {
-                }
+    public val uiStateFlow: StateFlow<AdminLoginScreenUiState> = MutableStateFlow(
+        AdminLoginScreenUiState(
+            onChangePassword = {
+                viewModelStateFlow.update { state -> state.copy(password = it) }
+            },
+            onClickLogin = {
+                login(viewModelStateFlow.value.password.text)
+            },
+        ),
+    ).also { uiStateFlow ->
+        viewModelScope.launch {
+            viewModelStateFlow.collect {
             }
-        }.asStateFlow()
+        }
+    }.asStateFlow()
 
     private fun login(password: String) {
         // TODO: validate  "!@#$%^&*()_+-?<>,."

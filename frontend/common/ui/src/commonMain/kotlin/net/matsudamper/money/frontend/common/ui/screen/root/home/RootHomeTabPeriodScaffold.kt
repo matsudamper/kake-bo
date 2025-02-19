@@ -137,8 +137,7 @@ public fun RootHomeTabPeriodScaffold(
                 is RootHomeTabPeriodUiState.LoadingState.Loaded -> {
                     val scrollState = rememberScrollState()
                     Column(
-                        modifier =
-                        Modifier
+                        modifier = Modifier
                             .verticalScroll(scrollState)
                             .padding(horizontal = 24.dp),
                     ) {
@@ -178,8 +177,7 @@ private fun BetweenLoaded(
         modifier = modifier,
     ) {
         Box(
-            modifier =
-            Modifier
+            modifier = Modifier
                 .padding(bottom = 4.dp),
         ) {
             var expanded by remember { mutableStateOf(false) }

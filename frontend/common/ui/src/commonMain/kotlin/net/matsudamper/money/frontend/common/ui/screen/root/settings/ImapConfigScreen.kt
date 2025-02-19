@@ -119,8 +119,7 @@ public fun ImapConfigScreen(
             KakeBoTopAppBar(
                 title = {
                     Text(
-                        modifier =
-                        Modifier.clickable(
+                        modifier = Modifier.clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
@@ -168,8 +167,7 @@ private fun MainContent(
         },
     ) { paddingValues ->
         SettingElementContent(
-            modifier =
-            Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .padding(paddingValues)
                 .padding(vertical = 24.dp),
             uiState = uiState.imapConfig,

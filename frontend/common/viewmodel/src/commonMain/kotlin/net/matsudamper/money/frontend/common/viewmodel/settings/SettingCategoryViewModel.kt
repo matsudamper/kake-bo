@@ -28,13 +28,12 @@ public class SettingCategoryViewModel(
     private val api: SettingScreenCategoryApi,
     navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
-    private val viewModelStateFlow: MutableStateFlow<ViewModelState> =
-        MutableStateFlow(
-            ViewModelState(
-                responseList = listOf(),
-                isFirstLoading = true,
-            ),
-        )
+    private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
+        ViewModelState(
+            responseList = listOf(),
+            isFirstLoading = true,
+        ),
+    )
 
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
@@ -42,166 +41,157 @@ public class SettingCategoryViewModel(
     private val globalEventSender = EventSender<GlobalEvent>()
     public val globalEventHandler: EventHandler<GlobalEvent> = globalEventSender.asHandler()
 
-    public val uiState: StateFlow<SettingCategoryScreenUiState> =
-        MutableStateFlow(
-            SettingCategoryScreenUiState(
-                event =
-                object : SettingCategoryScreenUiState.Event {
-                    override suspend fun onResume() {
-                    }
+    public val uiState: StateFlow<SettingCategoryScreenUiState> = MutableStateFlow(
+        SettingCategoryScreenUiState(
+            event = object : SettingCategoryScreenUiState.Event {
+                override suspend fun onResume() {
+                }
 
-                    override fun dismissCategoryInput() {
-                        viewModelScope.launch {
-                            viewModelStateFlow.update {
-                                it.copy(
-                                    showAddSubCategoryNameInput = false,
-                                )
-                            }
+                override fun dismissCategoryInput() {
+                    viewModelScope.launch {
+                        viewModelStateFlow.update {
+                            it.copy(
+                                showAddSubCategoryNameInput = false,
+                            )
                         }
                     }
+                }
 
-                    override fun onClickAddSubCategoryButton() {
-                        viewModelScope.launch {
-                            viewModelStateFlow.update {
-                                it.copy(
-                                    showAddSubCategoryNameInput = true,
-                                )
-                            }
+                override fun onClickAddSubCategoryButton() {
+                    viewModelScope.launch {
+                        viewModelStateFlow.update {
+                            it.copy(
+                                showAddSubCategoryNameInput = true,
+                            )
                         }
                     }
+                }
 
-                    override fun subCategoryNameInputCompleted(text: String) {
-                        viewModelScope.launch {
-                            val result =
-                                api.addSubCategory(
-                                    categoryId = categoryId,
-                                    name = text,
-                                )?.data?.userMutation?.addSubCategory?.subCategory
+                override fun subCategoryNameInputCompleted(text: String) {
+                    viewModelScope.launch {
+                        val result = api.addSubCategory(
+                            categoryId = categoryId,
+                            name = text,
+                        )?.data?.userMutation?.addSubCategory?.subCategory
 
-                            if (result == null) {
-                                launch {
-                                    globalEventSender.send {
-                                        it.showNativeNotification("追加に失敗しました")
-                                    }
-                                }
-                                return@launch
-                            } else {
-                                launch {
-                                    globalEventSender.send {
-                                        it.showSnackBar("${result.name}を追加しました")
-                                    }
+                        if (result == null) {
+                            launch {
+                                globalEventSender.send {
+                                    it.showNativeNotification("追加に失敗しました")
                                 }
                             }
-
-                            viewModelStateFlow.update {
-                                it.copy(
-                                    showAddSubCategoryNameInput = false,
-                                )
-                            }
-
-                            initialFetchSubCategories()
-                        }
-                    }
-
-                    override fun onClickChangeCategoryName() {
-                        val categoryInfo = viewModelStateFlow.value.categoryInfo ?: return
-                        viewModelScope.launch {
-                            viewModelStateFlow.update {
-                                it.copy(
-                                    showCategoryNameChangeInput =
-                                    SettingCategoryScreenUiState.FullScreenInputDialog(
-                                        initText = categoryInfo.name,
-                                        event = categoryNameChangeUiEvent,
-                                    ),
-                                )
+                            return@launch
+                        } else {
+                            launch {
+                                globalEventSender.send {
+                                    it.showSnackBar("${result.name}を追加しました")
+                                }
                             }
                         }
+
+                        viewModelStateFlow.update {
+                            it.copy(
+                                showAddSubCategoryNameInput = false,
+                            )
+                        }
+
+                        initialFetchSubCategories()
                     }
-                },
-                loadingState = SettingCategoryScreenUiState.LoadingState.Loading,
-                showCategoryNameInput = false,
-                showCategoryNameChangeDialog = null,
-                showSubCategoryNameChangeDialog = null,
-                categoryName = "",
-                rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
-                    override fun onClickSettings() {
-                        if (PlatformTypeProvider.type == PlatformType.JS) {
-                            super.onClickSettings()
+                }
+
+                override fun onClickChangeCategoryName() {
+                    val categoryInfo = viewModelStateFlow.value.categoryInfo ?: return
+                    viewModelScope.launch {
+                        viewModelStateFlow.update {
+                            it.copy(
+                                showCategoryNameChangeInput = SettingCategoryScreenUiState.FullScreenInputDialog(
+                                    initText = categoryInfo.name,
+                                    event = categoryNameChangeUiEvent,
+                                ),
+                            )
                         }
                     }
-                },
-            ),
-        ).also { uiStateFlow ->
-            viewModelScope.launch {
-                viewModelStateFlow.collect { viewModelState ->
-                    uiStateFlow.update { uiState ->
-                        val loadingState =
-                            if (viewModelState.isFirstLoading) {
-                                SettingCategoryScreenUiState.LoadingState.Loading
-                            } else {
-                                val items =
-                                    viewModelState.responseList.map {
-                                        it.nodes
-                                    }.flatten()
-                                        .filterNot { it.id in viewModelState.deletedSubCategoryIds }
-                                SettingCategoryScreenUiState.LoadingState.Loaded(
-                                    item =
-                                    items.map { item ->
-                                        createItemUiState(item)
-                                    }.toImmutableList(),
-                                )
-                            }
-
-                        uiState.copy(
-                            loadingState = loadingState,
-                            showCategoryNameInput = viewModelState.showAddSubCategoryNameInput,
-                            showCategoryNameChangeDialog = viewModelState.showCategoryNameChangeInput,
-                            showSubCategoryNameChangeDialog = viewModelState.showSubCategoryNameChangeInput,
-                            categoryName = viewModelState.categoryInfo?.name.orEmpty(),
+                }
+            },
+            loadingState = SettingCategoryScreenUiState.LoadingState.Loading,
+            showCategoryNameInput = false,
+            showCategoryNameChangeDialog = null,
+            showSubCategoryNameChangeDialog = null,
+            categoryName = "",
+            rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
+                override fun onClickSettings() {
+                    if (PlatformTypeProvider.type == PlatformType.JS) {
+                        super.onClickSettings()
+                    }
+                }
+            },
+        ),
+    ).also { uiStateFlow ->
+        viewModelScope.launch {
+            viewModelStateFlow.collect { viewModelState ->
+                uiStateFlow.update { uiState ->
+                    val loadingState = if (viewModelState.isFirstLoading) {
+                        SettingCategoryScreenUiState.LoadingState.Loading
+                    } else {
+                        val items = viewModelState.responseList.map {
+                            it.nodes
+                        }.flatten()
+                            .filterNot { it.id in viewModelState.deletedSubCategoryIds }
+                        SettingCategoryScreenUiState.LoadingState.Loaded(
+                            item = items.map { item ->
+                                createItemUiState(item)
+                            }.toImmutableList(),
                         )
                     }
-                }
-            }
-        }.asStateFlow()
 
-    private val categoryNameChangeUiEvent =
-        object : SettingCategoryScreenUiState.FullScreenInputDialog.Event {
-            override fun onDismiss() {
-                dismiss()
-            }
-
-            override fun onTextInputCompleted(text: String) {
-                viewModelScope.launch {
-                    val result =
-                        api.updateCategory(
-                            id = categoryId,
-                            name = text,
-                        )?.data?.userMutation?.updateCategory
-                    if (result == null) {
-                        launch {
-                            globalEventSender.send {
-                                it.showNativeNotification("カテゴリ名の変更に失敗しました")
-                            }
-                        }
-                    } else {
-                        launch {
-                            globalEventSender.send {
-                                it.showSnackBar("カテゴリ名を変更しました")
-                            }
-                        }
-                    }
-                    dismiss()
-                }
-            }
-
-            private fun dismiss() {
-                viewModelStateFlow.update {
-                    it.copy(
-                        showCategoryNameChangeInput = null,
+                    uiState.copy(
+                        loadingState = loadingState,
+                        showCategoryNameInput = viewModelState.showAddSubCategoryNameInput,
+                        showCategoryNameChangeDialog = viewModelState.showCategoryNameChangeInput,
+                        showSubCategoryNameChangeDialog = viewModelState.showSubCategoryNameChangeInput,
+                        categoryName = viewModelState.categoryInfo?.name.orEmpty(),
                     )
                 }
             }
         }
+    }.asStateFlow()
+
+    private val categoryNameChangeUiEvent = object : SettingCategoryScreenUiState.FullScreenInputDialog.Event {
+        override fun onDismiss() {
+            dismiss()
+        }
+
+        override fun onTextInputCompleted(text: String) {
+            viewModelScope.launch {
+                val result = api.updateCategory(
+                    id = categoryId,
+                    name = text,
+                )?.data?.userMutation?.updateCategory
+                if (result == null) {
+                    launch {
+                        globalEventSender.send {
+                            it.showNativeNotification("カテゴリ名の変更に失敗しました")
+                        }
+                    }
+                } else {
+                    launch {
+                        globalEventSender.send {
+                            it.showSnackBar("カテゴリ名を変更しました")
+                        }
+                    }
+                }
+                dismiss()
+            }
+        }
+
+        private fun dismiss() {
+            viewModelStateFlow.update {
+                it.copy(
+                    showCategoryNameChangeInput = null,
+                )
+            }
+        }
+    }
 
     init {
         initialFetchSubCategories()
@@ -211,16 +201,14 @@ public class SettingCategoryViewModel(
     private fun createItemUiState(item: CategorySettingScreenSubCategoriesPagingQuery.Node): SettingCategoryScreenUiState.SubCategoryItem {
         return SettingCategoryScreenUiState.SubCategoryItem(
             name = item.name,
-            event =
-            object : SettingCategoryScreenUiState.SubCategoryItem.Event {
+            event = object : SettingCategoryScreenUiState.SubCategoryItem.Event {
                 override fun onClick() {
                 }
 
                 override fun onClickChangeName() {
                     viewModelStateFlow.update { viewModelState ->
                         viewModelState.copy(
-                            showSubCategoryNameChangeInput =
-                            SettingCategoryScreenUiState.FullScreenInputDialog(
+                            showSubCategoryNameChangeInput = SettingCategoryScreenUiState.FullScreenInputDialog(
                                 initText = item.name,
                                 event = createEvent(),
                             ),
@@ -230,10 +218,9 @@ public class SettingCategoryViewModel(
 
                 override fun onClickDelete() {
                     viewModelScope.launch {
-                        val isSuccess =
-                            api.deleteSubCategory(
-                                id = item.id,
-                            )
+                        val isSuccess = api.deleteSubCategory(
+                            id = item.id,
+                        )
 
                         if (isSuccess.not()) {
                             launch {
@@ -249,8 +236,7 @@ public class SettingCategoryViewModel(
                             }
                             viewModelStateFlow.update { viewModelState ->
                                 viewModelState.copy(
-                                    deletedSubCategoryIds =
-                                    viewModelState.deletedSubCategoryIds
+                                    deletedSubCategoryIds = viewModelState.deletedSubCategoryIds
                                         .plus(item.id),
                                 )
                             }
@@ -266,11 +252,10 @@ public class SettingCategoryViewModel(
 
                         override fun onTextInputCompleted(text: String) {
                             viewModelScope.launch {
-                                val result =
-                                    api.updateSubCategory(
-                                        id = item.id,
-                                        name = text,
-                                    )?.data?.userMutation?.updateSubCategory
+                                val result = api.updateSubCategory(
+                                    id = item.id,
+                                    name = text,
+                                )?.data?.userMutation?.updateSubCategory
                                 if (result == null) {
                                     launch {
                                         globalEventSender.send {

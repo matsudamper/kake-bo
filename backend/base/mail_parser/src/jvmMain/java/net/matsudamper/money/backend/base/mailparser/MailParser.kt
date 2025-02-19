@@ -17,34 +17,33 @@ public object MailParser {
     }
 
     public fun messageToResponse(message: MimeMessage): MailResult {
-        val contents =
-            when (val content = message.dataHandler.content) {
-                is String,
-                is Multipart,
-                -> {
-                    when (content) {
-                        is String -> {
-                            MultipartParser.parse(message)
-                        }
+        val contents = when (val content = message.dataHandler.content) {
+            is String,
+            is Multipart,
+            -> {
+                when (content) {
+                    is String -> {
+                        MultipartParser.parse(message)
+                    }
 
-                        is MimeMultipart -> {
-                            MultipartParser.parseMultipart(content)
-                        }
+                    is MimeMultipart -> {
+                        MultipartParser.parseMultipart(content)
+                    }
 
-                        else -> throw IllegalStateException("")
-                    }.map {
-                        when (it) {
-                            is MultipartParser.ParseResult.Content.Html -> MailResult.Content.Html(it.html)
-                            is MultipartParser.ParseResult.Content.Text -> MailResult.Content.Text(it.text)
-                            is MultipartParser.ParseResult.Content.Other -> MailResult.Content.Other(it.contentType)
-                        }
+                    else -> throw IllegalStateException("")
+                }.map {
+                    when (it) {
+                        is MultipartParser.ParseResult.Content.Html -> MailResult.Content.Html(it.html)
+                        is MultipartParser.ParseResult.Content.Text -> MailResult.Content.Text(it.text)
+                        is MultipartParser.ParseResult.Content.Other -> MailResult.Content.Other(it.contentType)
                     }
                 }
-
-                else -> {
-                    listOf(MailResult.Content.Other(message.contentType.orEmpty()))
-                }
             }
+
+            else -> {
+                listOf(MailResult.Content.Other(message.contentType.orEmpty()))
+            }
+        }
 
         return MailResult(
             subject = message.subject,

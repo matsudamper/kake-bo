@@ -10,10 +10,9 @@ import androidx.compose.ui.text.buildAnnotatedString
 @OptIn(ExperimentalTextApi::class, ExperimentalTextApi::class)
 @Suppress("RegExpRedundantEscape")
 internal fun AnnotatedString.applyHtml(color: Color): AnnotatedString {
-    val matches =
-        Regex("""(https?:\/\/\S+)\b""")
-            .findAll(this)
-            .toList()
+    val matches = Regex("""(https?:\/\/\S+)\b""")
+        .findAll(this)
+        .toList()
 
     return buildAnnotatedString {
         append(this@applyHtml)

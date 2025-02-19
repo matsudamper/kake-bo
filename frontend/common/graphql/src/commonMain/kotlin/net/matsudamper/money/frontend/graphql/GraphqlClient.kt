@@ -39,119 +39,118 @@ class GraphqlClientImpl(
     interceptors: List<ApolloInterceptor>,
 ) : GraphqlClient {
     private val cacheFactory = MemoryCacheFactory(maxSizeBytes = 10 * 1024 * 1024)
-    override val apolloClient: ApolloClient =
-        ApolloClient.Builder()
-            .serverUrl("$serverProtocol://$serverHost/query")
-            .httpEngine(DefaultHttpEngine(timeoutMillis = 5000))
-            .interceptors(interceptors)
-            .normalizedCache(cacheFactory)
-            .addCustomScalarAdapter(
-                ApolloLong.type,
-                CustomLongAdapter(
-                    serialize = { it },
-                    deserialize = { it },
-                ),
-            )
-            .addCustomScalarAdapter(
-                ApolloMailId.type,
-                CustomStringAdapter(
-                    serialize = {
-                        it.id
-                    },
-                    deserialize = {
-                        MailId(it)
-                    },
-                ),
-            )
-            .addCustomScalarAdapter(
-                ApolloMailId.type,
-                CustomStringAdapter(
-                    serialize = {
-                        it.id
-                    },
-                    deserialize = {
-                        MailId(it)
-                    },
-                ),
-            )
-            .addCustomScalarAdapter(
-                ApolloFidoId.type,
-                CustomIntAdapter(
-                    serialize = {
-                        it.value
-                    },
-                    deserialize = {
-                        FidoId(it)
-                    },
-                ),
-            )
-            .addCustomScalarAdapter(
-                ApolloImportedMailId.type,
-                CustomIntAdapter(
-                    serialize = {
-                        it.id
-                    },
-                    deserialize = { value ->
-                        ImportedMailId(value)
-                    },
-                ),
-            )
-            .addCustomScalarAdapter(
-                ApolloImportedMailCategoryFilterConditionId.type,
-                CustomIntAdapter(
-                    serialize = {
-                        it.id
-                    },
-                    deserialize = { value ->
-                        ImportedMailCategoryFilterConditionId(value)
-                    },
-                ),
-            )
-            .addCustomScalarAdapter(
-                ApolloImportedMailCategoryFilterId.type,
-                CustomIntAdapter(
-                    serialize = {
-                        it.id
-                    },
-                    deserialize = { value ->
-                        ImportedMailCategoryFilterId(value)
-                    },
-                ),
-            )
-            .addCustomScalarAdapter(
-                ApolloMoneyUsageId.type,
-                CustomIntAdapter(
-                    serialize = {
-                        it.id
-                    },
-                    deserialize = { value ->
-                        MoneyUsageId(value)
-                    },
-                ),
-            )
-            .addCustomScalarAdapter(
-                ApolloMoneyUsageSubCategoryId.type,
-                CustomIntAdapter(
-                    serialize = {
-                        it.id
-                    },
-                    deserialize = { value ->
-                        MoneyUsageSubCategoryId(value)
-                    },
-                ),
-            )
-            .addCustomScalarAdapter(
-                ApolloMoneyUsageCategoryId.type,
-                CustomIntAdapter(
-                    serialize = {
-                        it.value
-                    },
-                    deserialize = { value ->
-                        MoneyUsageCategoryId(value)
-                    },
-                ),
-            )
-            .build()
+    override val apolloClient: ApolloClient = ApolloClient.Builder()
+        .serverUrl("$serverProtocol://$serverHost/query")
+        .httpEngine(DefaultHttpEngine(timeoutMillis = 5000))
+        .interceptors(interceptors)
+        .normalizedCache(cacheFactory)
+        .addCustomScalarAdapter(
+            ApolloLong.type,
+            CustomLongAdapter(
+                serialize = { it },
+                deserialize = { it },
+            ),
+        )
+        .addCustomScalarAdapter(
+            ApolloMailId.type,
+            CustomStringAdapter(
+                serialize = {
+                    it.id
+                },
+                deserialize = {
+                    MailId(it)
+                },
+            ),
+        )
+        .addCustomScalarAdapter(
+            ApolloMailId.type,
+            CustomStringAdapter(
+                serialize = {
+                    it.id
+                },
+                deserialize = {
+                    MailId(it)
+                },
+            ),
+        )
+        .addCustomScalarAdapter(
+            ApolloFidoId.type,
+            CustomIntAdapter(
+                serialize = {
+                    it.value
+                },
+                deserialize = {
+                    FidoId(it)
+                },
+            ),
+        )
+        .addCustomScalarAdapter(
+            ApolloImportedMailId.type,
+            CustomIntAdapter(
+                serialize = {
+                    it.id
+                },
+                deserialize = { value ->
+                    ImportedMailId(value)
+                },
+            ),
+        )
+        .addCustomScalarAdapter(
+            ApolloImportedMailCategoryFilterConditionId.type,
+            CustomIntAdapter(
+                serialize = {
+                    it.id
+                },
+                deserialize = { value ->
+                    ImportedMailCategoryFilterConditionId(value)
+                },
+            ),
+        )
+        .addCustomScalarAdapter(
+            ApolloImportedMailCategoryFilterId.type,
+            CustomIntAdapter(
+                serialize = {
+                    it.id
+                },
+                deserialize = { value ->
+                    ImportedMailCategoryFilterId(value)
+                },
+            ),
+        )
+        .addCustomScalarAdapter(
+            ApolloMoneyUsageId.type,
+            CustomIntAdapter(
+                serialize = {
+                    it.id
+                },
+                deserialize = { value ->
+                    MoneyUsageId(value)
+                },
+            ),
+        )
+        .addCustomScalarAdapter(
+            ApolloMoneyUsageSubCategoryId.type,
+            CustomIntAdapter(
+                serialize = {
+                    it.id
+                },
+                deserialize = { value ->
+                    MoneyUsageSubCategoryId(value)
+                },
+            ),
+        )
+        .addCustomScalarAdapter(
+            ApolloMoneyUsageCategoryId.type,
+            CustomIntAdapter(
+                serialize = {
+                    it.value
+                },
+                deserialize = { value ->
+                    MoneyUsageCategoryId(value)
+                },
+            ),
+        )
+        .build()
 }
 
 private class CustomStringAdapter<T>(

@@ -45,8 +45,7 @@ internal fun GraphTitleChips(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Box(
-                            modifier =
-                            Modifier
+                            modifier = Modifier
                                 .size(16.dp)
                                 .clip(RoundedCornerShape(4.dp))
                                 .background(item.color),

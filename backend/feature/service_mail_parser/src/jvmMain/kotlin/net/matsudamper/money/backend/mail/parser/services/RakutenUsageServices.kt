@@ -22,84 +22,76 @@ internal object RakutenUsageServices : MoneyUsageServices {
     ): List<MoneyUsage> {
         val forwardedInfo = ParseUtil.parseForwarded(plain)
 
-        val canHandle =
-            sequence {
-                yield(canHandle(from = from, subject = subject))
+        val canHandle = sequence {
+            yield(canHandle(from = from, subject = subject))
 
-                yield(
-                    run forwarded@{
-                        if (forwardedInfo != null) {
-                            val forwardedSubject = forwardedInfo.subject ?: return@forwarded false
-                            val forwardedFrom = forwardedInfo.from ?: return@forwarded false
-                            canHandle(from = forwardedFrom, subject = forwardedSubject)
-                        } else {
-                            false
-                        }
-                    },
-                )
-            }
+            yield(
+                run forwarded@{
+                    if (forwardedInfo != null) {
+                        val forwardedSubject = forwardedInfo.subject ?: return@forwarded false
+                        val forwardedFrom = forwardedInfo.from ?: return@forwarded false
+                        canHandle(from = forwardedFrom, subject = forwardedSubject)
+                    } else {
+                        false
+                    }
+                },
+            )
+        }
         if (canHandle.any { it }.not()) return emptyList()
 
         val lines = ParseUtil.splitByNewLine(plain)
 
-        val storeName =
-            sequence {
-                val singleLine = plain.replace("\r\n", "").replace("\n", "")
-                yield(
-                    run {
-                        val result =
-                            "この度は楽天市場内のショップ「(.+?)」をご利用いただきまして、誠にありがとうございます。".toRegex()
-                                .find(singleLine)
-                        result?.groupValues?.get(1)
-                    },
-                )
-                yield(
-                    run {
-                        val result =
-                            "この度は楽天市場内のショップ「\\*(.+?)\\*」をご利用いただきまして、誠にありがとうございます。".toRegex()
-                                .find(singleLine)
-                        result?.groupValues?.get(1)
-                    },
-                )
-            }.filterNotNull().first()
+        val storeName = sequence {
+            val singleLine = plain.replace("\r\n", "").replace("\n", "")
+            yield(
+                run {
+                    val result = "この度は楽天市場内のショップ「(.+?)」をご利用いただきまして、誠にありがとうございます。".toRegex()
+                        .find(singleLine)
+                    result?.groupValues?.get(1)
+                },
+            )
+            yield(
+                run {
+                    val result = "この度は楽天市場内のショップ「\\*(.+?)\\*」をご利用いただきまして、誠にありがとうございます。".toRegex()
+                        .find(singleLine)
+                    result?.groupValues?.get(1)
+                },
+            )
+        }.filterNotNull().first()
 
-        val totalPrice =
-            run totalPrice@{
-                val priceIndex =
-                    lines.indexOfFirst { it.startsWith("支払い金額") || it.startsWith("*支払い金額*") }
-                        .takeIf { it >= 0 }!!
-                ParseUtil.getInt(lines[priceIndex])!!
+        val totalPrice = run totalPrice@{
+            val priceIndex = lines.indexOfFirst { it.startsWith("支払い金額") || it.startsWith("*支払い金額*") }
+                .takeIf { it >= 0 }!!
+            ParseUtil.getInt(lines[priceIndex])!!
+        }
+
+        val orderDate = run orderDate@{
+            var prefix: String? = null
+            var index: Int? = null
+            for (checkPrefix in listOf("[日時]", "注文日時 ")) {
+                index = lines.indexOfFirst { it.startsWith(checkPrefix) }
+                    .takeIf { it >= 0 } ?: continue
+                prefix = checkPrefix
             }
+            prefix!!
+            index!!
 
-        val orderDate =
-            run orderDate@{
-                var prefix: String? = null
-                var index: Int? = null
-                for (checkPrefix in listOf("[日時]", "注文日時 ")) {
-                    index = lines.indexOfFirst { it.startsWith(checkPrefix) }
-                        .takeIf { it >= 0 } ?: continue
-                    prefix = checkPrefix
-                }
-                prefix!!
-                index!!
+            val temporal = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+                .parse(lines[index].drop(prefix.length).trim().replace(" ", "T"))
 
-                val temporal =
-                    DateTimeFormatter.ISO_LOCAL_DATE_TIME
-                        .parse(lines[index].drop(prefix.length).trim().replace(" ", "T"))
-
-                LocalDateTime.of(
-                    LocalDate.of(
-                        temporal.get(ChronoField.YEAR),
-                        temporal.get(ChronoField.MONTH_OF_YEAR),
-                        temporal.get(ChronoField.DAY_OF_MONTH),
-                    ),
-                    LocalTime.of(
-                        temporal.get(ChronoField.HOUR_OF_DAY),
-                        temporal.get(ChronoField.MINUTE_OF_HOUR),
-                        temporal.get(ChronoField.SECOND_OF_MINUTE),
-                    ),
-                )
-            }
+            LocalDateTime.of(
+                LocalDate.of(
+                    temporal.get(ChronoField.YEAR),
+                    temporal.get(ChronoField.MONTH_OF_YEAR),
+                    temporal.get(ChronoField.DAY_OF_MONTH),
+                ),
+                LocalTime.of(
+                    temporal.get(ChronoField.HOUR_OF_DAY),
+                    temporal.get(ChronoField.MINUTE_OF_HOUR),
+                    temporal.get(ChronoField.SECOND_OF_MINUTE),
+                ),
+            )
+        }
 
         return buildList {
             run total@{

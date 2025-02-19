@@ -258,8 +258,7 @@ public fun MoneyUsageScreen(
                 },
                 title = {
                     Text(
-                        modifier =
-                        Modifier.clickable(
+                        modifier = Modifier.clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
@@ -325,8 +324,7 @@ private fun LoadedContent(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        modifier =
-                        Modifier.padding(12.dp)
+                        modifier = Modifier.padding(12.dp)
                             .weight(1f),
                         text = "使用用途",
                         style = MaterialTheme.typography.titleLarge,
@@ -350,13 +348,11 @@ private fun LoadedContent(
                 HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
 
                 Card(
-                    modifier =
-                    Modifier
+                    modifier = Modifier
                         .padding(12.dp),
                 ) {
                     MoneyUsage(
-                        modifier =
-                        Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                             .padding(12.dp),
                         uiState = uiState.moneyUsage,
                     )
@@ -373,14 +369,12 @@ private fun LoadedContent(
             if (uiState.linkedMails.isNotEmpty()) {
                 items(uiState.linkedMails) { mail ->
                     Card(
-                        modifier =
-                        Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                             .padding(8.dp),
                         onClick = { mail.event.onClick() },
                     ) {
                         MailContent(
-                            modifier =
-                            Modifier.fillMaxWidth()
+                            modifier = Modifier.fillMaxWidth()
                                 .padding(12.dp),
                             uiState = mail,
                         )
@@ -410,8 +404,7 @@ private fun UsageMenuPopup(
         properties = PopupProperties(focusable = true),
     ) {
         Card(
-            elevation =
-            CardDefaults.cardElevation(
+            elevation = CardDefaults.cardElevation(
                 defaultElevation = 8.dp,
             ),
         ) {
@@ -419,8 +412,7 @@ private fun UsageMenuPopup(
                 modifier = Modifier.width(IntrinsicSize.Max),
             ) {
                 Text(
-                    modifier =
-                    Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                         .clickable {
                             onClickDelete()
                         }
@@ -581,8 +573,7 @@ private fun MoneyUsageSection(
             }
 
             OutlinedButton(
-                modifier =
-                Modifier.align(
+                modifier = Modifier.align(
                     if (multiline) {
                         Alignment.Bottom
                     } else {

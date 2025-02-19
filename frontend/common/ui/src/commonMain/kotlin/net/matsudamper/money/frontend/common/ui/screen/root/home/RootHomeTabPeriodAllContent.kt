@@ -134,14 +134,12 @@ private fun SmallContent(
         }
         Spacer(modifier = Modifier.height(12.dp))
         Card(
-            modifier =
-            modifier
+            modifier = modifier
                 .width(intrinsicSize = IntrinsicSize.Min),
         ) {
             MonthlyTotal(
                 loadingState = loadingState,
-                modifier =
-                Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
                     .padding(16.dp),
             )
         }

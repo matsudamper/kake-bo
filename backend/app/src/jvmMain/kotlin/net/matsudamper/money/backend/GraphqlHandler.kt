@@ -29,36 +29,32 @@ class GraphqlHandler(
         val request = jacksonObjectMapper().readValue<GraphQlRequest>(requestText)
 
         val dataLoaderRegistryBuilder = DataLoaderRegistry.Builder()
-        val userSessionManager =
-            UserSessionManagerImpl(
-                cookieManager = cookieManager,
-                userSessionRepository = diContainer.createUserSessionRepository(),
+        val userSessionManager = UserSessionManagerImpl(
+            cookieManager = cookieManager,
+            userSessionRepository = diContainer.createUserSessionRepository(),
+        )
+        val dataLoaders = DataLoaders(
+            diContainer = diContainer,
+            dataLoaderRegistryBuilder = dataLoaderRegistryBuilder,
+            userSessionManager = userSessionManager,
+        )
+        val graphqlContext = GraphQlContext(
+            cookieManager = cookieManager,
+            dataLoaders = dataLoaders,
+            userSessionManager = userSessionManager,
+            diContainer = diContainer,
+        )
+        val executionInputBuilder = ExecutionInput.newExecutionInput()
+            .dataLoaderRegistry(
+                dataLoaderRegistryBuilder.build(),
             )
-        val dataLoaders =
-            DataLoaders(
-                diContainer = diContainer,
-                dataLoaderRegistryBuilder = dataLoaderRegistryBuilder,
-                userSessionManager = userSessionManager,
+            .graphQLContext(
+                mapOf(
+                    GraphQlContext::class.java.name to graphqlContext,
+                ),
             )
-        val graphqlContext =
-            GraphQlContext(
-                cookieManager = cookieManager,
-                dataLoaders = dataLoaders,
-                userSessionManager = userSessionManager,
-                diContainer = diContainer,
-            )
-        val executionInputBuilder =
-            ExecutionInput.newExecutionInput()
-                .dataLoaderRegistry(
-                    dataLoaderRegistryBuilder.build(),
-                )
-                .graphQLContext(
-                    mapOf(
-                        GraphQlContext::class.java.name to graphqlContext,
-                    ),
-                )
-                .query(request.query)
-                .variables(request.variables)
+            .query(request.query)
+            .variables(request.variables)
 
         val result = MoneyGraphQlSchema.graphql
             .execute(executionInputBuilder)

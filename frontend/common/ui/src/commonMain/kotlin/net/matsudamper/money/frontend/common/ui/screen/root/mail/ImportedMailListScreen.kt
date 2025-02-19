@@ -80,13 +80,12 @@ public fun ImportedMailListScreen(
             KakeBoTopAppBar(
                 title = {
                     Text(
-                        modifier =
-                            Modifier.clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                            ) {
-                                uiState.rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
-                            },
+                        modifier = Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) {
+                            uiState.rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                        },
                         text = "家計簿",
                     )
                 },
@@ -188,12 +187,11 @@ private fun MainContent(
                 ) {
                     items(uiState.listItems) { mail ->
                         SuggestUsageItem(
-                            modifier =
-                                Modifier.fillMaxWidth()
-                                    .padding(
-                                        horizontal = 12.dp,
-                                        vertical = 6.dp,
-                                    ),
+                            modifier = Modifier.fillMaxWidth()
+                                .padding(
+                                    horizontal = 12.dp,
+                                    vertical = 6.dp,
+                                ),
                             listItem = mail,
                         )
                     }
@@ -207,9 +205,8 @@ private fun MainContent(
                                 }
                             }
                             Box(
-                                modifier =
-                                    Modifier.fillMaxWidth()
-                                        .padding(vertical = 24.dp),
+                                modifier = Modifier.fillMaxWidth()
+                                    .padding(vertical = 24.dp),
                                 contentAlignment = Alignment.Center,
                             ) {
                                 LaunchedEffect(Unit) {
@@ -233,26 +230,24 @@ private fun Filter(
     contentPadding: PaddingValues,
 ) {
     Row(
-        modifier =
-            modifier
-                .horizontalScroll(rememberScrollState())
-                .padding(
-                    top = contentPadding.calculateTopPadding(),
-                    bottom = contentPadding.calculateBottomPadding(),
-                ),
+        modifier = modifier
+            .horizontalScroll(rememberScrollState())
+            .padding(
+                top = contentPadding.calculateTopPadding(),
+                bottom = contentPadding.calculateBottomPadding(),
+            ),
     ) {
         Spacer(Modifier.width(contentPadding.calculateStartPadding(LayoutDirection.Ltr)))
 
         Box {
             var visiblePopup by remember { mutableStateOf(false) }
             FilterChip(
-                selected =
-                    when (uiState.link.status) {
-                        ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> false
-                        ImportedMailListScreenUiState.Filters.LinkStatus.Linked,
-                        ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked,
-                            -> true
-                    },
+                selected = when (uiState.link.status) {
+                    ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> false
+                    ImportedMailListScreenUiState.Filters.LinkStatus.Linked,
+                    ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked,
+                    -> true
+                },
                 onClick = {
                     when (uiState.link.status) {
                         ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> {
@@ -261,20 +256,19 @@ private fun Filter(
 
                         ImportedMailListScreenUiState.Filters.LinkStatus.Linked,
                         ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked,
-                            -> {
+                        -> {
                             uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.Undefined)
                         }
                     }
                 },
                 label = {
                     Text(
-                        text =
-                            "連携状態:" +
-                                    when (uiState.link.status) {
-                                        ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> "全て"
-                                        ImportedMailListScreenUiState.Filters.LinkStatus.Linked -> "連携済み"
-                                        ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked -> "未連携"
-                                    },
+                        text = "連携状態:" +
+                            when (uiState.link.status) {
+                                ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> "全て"
+                                ImportedMailListScreenUiState.Filters.LinkStatus.Linked -> "連携済み"
+                                ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked -> "未連携"
+                            },
                         style = MaterialTheme.typography.labelMedium,
                     )
                 },
@@ -288,32 +282,29 @@ private fun Filter(
                     properties = PopupProperties(focusable = true),
                 ) {
                     Card(
-                        elevation =
-                            CardDefaults.cardElevation(
-                                defaultElevation = 8.dp,
-                            ),
+                        elevation = CardDefaults.cardElevation(
+                            defaultElevation = 8.dp,
+                        ),
                     ) {
                         Column(
                             modifier = Modifier.width(IntrinsicSize.Max),
                         ) {
                             Text(
-                                modifier =
-                                    Modifier.fillMaxWidth()
-                                        .clickable {
-                                            visiblePopup = false
-                                            uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.Linked)
-                                        }
-                                        .padding(12.dp),
+                                modifier = Modifier.fillMaxWidth()
+                                    .clickable {
+                                        visiblePopup = false
+                                        uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.Linked)
+                                    }
+                                    .padding(12.dp),
                                 text = "連携済み",
                             )
                             Text(
-                                modifier =
-                                    Modifier.fillMaxWidth()
-                                        .clickable {
-                                            visiblePopup = false
-                                            uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked)
-                                        }
-                                        .padding(12.dp),
+                                modifier = Modifier.fillMaxWidth()
+                                    .clickable {
+                                        visiblePopup = false
+                                        uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked)
+                                    }
+                                    .padding(12.dp),
                                 text = "未連携",
                             )
                         }
@@ -336,9 +327,8 @@ private fun SuggestUsageItem(
         onClick = { listItem.event.onClick() },
     ) {
         Column(
-            modifier =
-                Modifier.fillMaxWidth()
-                    .padding(12.dp),
+            modifier = Modifier.fillMaxWidth()
+                .padding(12.dp),
         ) {
             CardSection(
                 modifier = Modifier.fillMaxWidth(),
@@ -587,9 +577,8 @@ private fun MailItem(
                     Column(modifier = Modifier.fillMaxHeight()) {
                         Spacer(Modifier.weight(1f))
                         Text(
-                            modifier =
-                                Modifier
-                                    .fillMaxHeight(),
+                            modifier = Modifier
+                                .fillMaxHeight(),
                             text = "タイトル",
                             fontFamily = rememberCustomFontFamily(),
                         )

@@ -27,8 +27,7 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
             apolloClient
                 .mutation(
                     ImportedMailCategoryFilterScreenAddConditionMutation(
-                        input =
-                        AddImportedMailCategoryFilterConditionInput(
+                        input = AddImportedMailCategoryFilterConditionInput(
                             id = id,
                         ),
                     ),
@@ -51,8 +50,7 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
                             id = id,
                             title = Optional.present(title),
                             subCategoryId = Optional.present(subCategoryId),
-                            operator =
-                            Optional.present(
+                            operator = Optional.present(
                                 when (operator) {
                                     ImportedMailFilterCategoryScreenUiState.Operator.AND -> ImportedMailFilterCategoryConditionOperator.AND
                                     ImportedMailFilterCategoryScreenUiState.Operator.OR -> ImportedMailFilterCategoryConditionOperator.OR
@@ -75,12 +73,10 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
         return runCatching {
             apolloClient.mutation(
                 ImportedMailCategoryFilterScreenUpdateConditionMutation(
-                    input =
-                    UpdateImportedMailCategoryFilterConditionInput(
+                    input = UpdateImportedMailCategoryFilterConditionInput(
                         id = id,
                         text = Optional.present(text),
-                        conditionType =
-                        when (type) {
+                        conditionType = when (type) {
                             ImportedMailFilterCategoryScreenUiState.ConditionType.Include -> ImportedMailCategoryFilterConditionType.Include
                             ImportedMailFilterCategoryScreenUiState.ConditionType.NotInclude -> ImportedMailCategoryFilterConditionType.NotInclude
                             ImportedMailFilterCategoryScreenUiState.ConditionType.Equal -> ImportedMailCategoryFilterConditionType.Equal
@@ -89,8 +85,7 @@ public class ImportedMailFilterCategoryScreenGraphqlApi(
                             null,
                             -> null
                         }.let { Optional.present(it) },
-                        dataSourceType =
-                        when (dataSource) {
+                        dataSourceType = when (dataSource) {
                             ImportedMailFilterCategoryScreenUiState.DataSource.MailFrom -> ImportedMailCategoryFilterDataSourceType.MailFrom
                             ImportedMailFilterCategoryScreenUiState.DataSource.MailTitle -> ImportedMailCategoryFilterDataSourceType.MailTitle
                             ImportedMailFilterCategoryScreenUiState.DataSource.MailHtml -> ImportedMailCategoryFilterDataSourceType.MailHtml

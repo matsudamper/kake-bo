@@ -16,18 +16,16 @@ public class AdminRootScreenViewModel(
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
-    public val uiStateFlow: StateFlow<AdminRootScreenUiState> =
-        MutableStateFlow(
-            AdminRootScreenUiState(
-                listener =
-                object : AdminRootScreenUiState.Listener {
-                    override fun onClickAddUser() {
-                        controller.navigateToAddUser()
-                    }
-                },
-            ),
-        ).also { uiStateFlow ->
-        }.asStateFlow()
+    public val uiStateFlow: StateFlow<AdminRootScreenUiState> = MutableStateFlow(
+        AdminRootScreenUiState(
+            listener = object : AdminRootScreenUiState.Listener {
+                override fun onClickAddUser() {
+                    controller.navigateToAddUser()
+                }
+            },
+        ),
+    ).also { uiStateFlow ->
+    }.asStateFlow()
 
     private data class ViewModelState(
         val any: Any? = null,

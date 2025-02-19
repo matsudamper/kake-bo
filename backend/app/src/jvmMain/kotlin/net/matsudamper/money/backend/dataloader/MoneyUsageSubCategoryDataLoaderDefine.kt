@@ -20,31 +20,29 @@ class MoneyUsageSubCategoryDataLoaderDefine(
             CompletableFuture.supplyAsync {
                 val repository = repositoryFactory.createMoneyUsageSubCategoryRepository()
 
-                val results =
-                    keys.groupBy { it.userId }
-                        .mapNotNull { (userId, key) ->
-                            val result =
-                                repository
-                                    .getSubCategory(
-                                        userId = userId,
-                                        moneyUsageSubCategoryIds = key.map { it.subCategoryId },
-                                    )
+                val results = keys.groupBy { it.userId }
+                    .mapNotNull { (userId, key) ->
+                        val result = repository
+                            .getSubCategory(
+                                userId = userId,
+                                moneyUsageSubCategoryIds = key.map { it.subCategoryId },
+                            )
 
-                            when (result) {
-                                is MoneyUsageSubCategoryRepository.GetSubCategoryResult.Failed -> {
-                                    result.e.printStackTrace()
-                                    null
-                                }
-                                is MoneyUsageSubCategoryRepository.GetSubCategoryResult.Success -> {
-                                    result.results.associateBy {
-                                        Key(
-                                            userId = userId,
-                                            subCategoryId = it.moneyUsageSubCategoryId,
-                                        )
-                                    }
+                        when (result) {
+                            is MoneyUsageSubCategoryRepository.GetSubCategoryResult.Failed -> {
+                                result.e.printStackTrace()
+                                null
+                            }
+                            is MoneyUsageSubCategoryRepository.GetSubCategoryResult.Success -> {
+                                result.results.associateBy {
+                                    Key(
+                                        userId = userId,
+                                        subCategoryId = it.moneyUsageSubCategoryId,
+                                    )
                                 }
                             }
-                        }.flatten()
+                        }
+                    }.flatten()
 
                 keys.associateWith { key ->
                     val result = results[key] ?: return@associateWith null

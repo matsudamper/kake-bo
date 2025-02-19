@@ -41,8 +41,7 @@ public class RootHomeTabPeriodScreenViewModel(
             viewModelStateFlow.update {
                 val period = viewModelStateFlow.value.displayPeriod
                 it.copy(
-                    displayPeriod =
-                    period.copy(
+                    displayPeriod = period.copy(
                         sinceDate = period.sinceDate.addMonth(1),
                     ),
                 )
@@ -54,8 +53,7 @@ public class RootHomeTabPeriodScreenViewModel(
             viewModelStateFlow.update {
                 val period = viewModelStateFlow.value.displayPeriod
                 it.copy(
-                    displayPeriod =
-                    period.copy(
+                    displayPeriod = period.copy(
                         sinceDate = period.sinceDate.addMonth(-1),
                     ),
                 )
@@ -128,10 +126,8 @@ public class RootHomeTabPeriodScreenViewModel(
         if (since != null) {
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
-                    displayPeriod =
-                    viewModelState.displayPeriod.copy(
-                        sinceDate =
-                        ViewModelState.YearMonth(
+                    displayPeriod = viewModelState.displayPeriod.copy(
+                        sinceDate = ViewModelState.YearMonth(
                             year = since.year,
                             month = since.monthNumber,
                         ),
@@ -214,8 +210,7 @@ public class RootHomeTabPeriodScreenViewModel(
                             }
                             viewModelStateFlow.update { viewModelState ->
                                 viewModelState.copy(
-                                    contentType =
-                                    ViewModelState.ContentType.Category(
+                                    contentType = ViewModelState.ContentType.Category(
                                         categoryId = category.id,
                                         name = category.name,
                                     ),
@@ -252,25 +247,22 @@ public class RootHomeTabPeriodScreenViewModel(
         val categoryId: MoneyUsageCategoryId?,
         val contentType: ContentType = ContentType.Loading,
         val categories: List<RootHomeTabScreenQuery.Node> = listOf(),
-        val displayPeriod: Period =
-            run {
-                val currentDate =
-                    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-                        .date
-                Period(
-                    sinceDate = YearMonth(currentDate.year, currentDate.monthNumber).addMonth(-5),
-                    monthCount = 6,
-                )
-            },
+        val displayPeriod: Period = run {
+            val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                .date
+            Period(
+                sinceDate = YearMonth(currentDate.year, currentDate.monthNumber).addMonth(-5),
+                monthCount = 6,
+            )
+        },
     ) {
         data class YearMonth(
             val year: Int,
             val month: Int,
         ) {
             fun addMonth(count: Int): YearMonth {
-                val nextDate =
-                    LocalDate(year, month, 1)
-                        .plus(count, DateTimeUnit.MONTH)
+                val nextDate = LocalDate(year, month, 1)
+                    .plus(count, DateTimeUnit.MONTH)
 
                 return YearMonth(
                     year = nextDate.year,

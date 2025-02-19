@@ -21,71 +21,61 @@ internal object NintendoProductBuyUsageServices : MoneyUsageServices {
         date: LocalDateTime,
     ): List<MoneyUsage> {
         val forwardedInfo = ParseUtil.parseForwarded(plain)
-        val canHandle =
-            sequence {
-                yield(canHandledWithFrom(forwardedInfo?.from ?: from))
-                yield(canHandledWithSubject(forwardedInfo?.subject ?: subject))
-            }
+        val canHandle = sequence {
+            yield(canHandledWithFrom(forwardedInfo?.from ?: from))
+            yield(canHandledWithSubject(forwardedInfo?.subject ?: subject))
+        }
         if (canHandle.all { it }.not()) return listOf()
 
         val plainLines = ParseUtil.splitByNewLine(plain)
 
-        val price =
-            run {
-                val priceText =
-                    getNextLine(plainLines) {
-                        it == "お支払い合計金額:"
-                    } ?: return@run null
-                "^(.+?)円".toRegex().find(priceText)
-                    ?.groupValues
-                    ?.getOrNull(1)
-                    ?.toIntOrNull()
-            }
-        val parsedDate =
-            run {
-                val dateLine =
-                    getNextLine(plainLines) {
-                        it == "○ご購入日時:"
-                    } ?: return@run null
-                val dateText =
-                    "^.+? (.+?)$".toRegex()
-                        .find(dateLine)
-                        ?.groupValues
-                        ?.getOrNull(1)
+        val price = run {
+            val priceText = getNextLine(plainLines) {
+                it == "お支払い合計金額:"
+            } ?: return@run null
+            "^(.+?)円".toRegex().find(priceText)
+                ?.groupValues
+                ?.getOrNull(1)
+                ?.toIntOrNull()
+        }
+        val parsedDate = run {
+            val dateLine = getNextLine(plainLines) {
+                it == "○ご購入日時:"
+            } ?: return@run null
+            val dateText = "^.+? (.+?)$".toRegex()
+                .find(dateLine)
+                ?.groupValues
+                ?.getOrNull(1)
 
-                val tmp =
-                    runCatching {
-                        DateTimeFormatterBuilder()
-                            .appendValue(ChronoField.YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
-                            .appendLiteral('/')
-                            .appendValue(ChronoField.MONTH_OF_YEAR, 2)
-                            .appendLiteral('/')
-                            .appendValue(ChronoField.DAY_OF_MONTH, 2)
-                            .appendLiteral(' ')
-                            .append(DateTimeFormatter.ISO_LOCAL_TIME)
-                            .toFormatter()
-                            .parse(dateText)
-                    }.onFailure {
-                        it.printStackTrace()
-                    }.getOrNull() ?: return@run null
+            val tmp = runCatching {
+                DateTimeFormatterBuilder()
+                    .appendValue(ChronoField.YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
+                    .appendLiteral('/')
+                    .appendValue(ChronoField.MONTH_OF_YEAR, 2)
+                    .appendLiteral('/')
+                    .appendValue(ChronoField.DAY_OF_MONTH, 2)
+                    .appendLiteral(' ')
+                    .append(DateTimeFormatter.ISO_LOCAL_TIME)
+                    .toFormatter()
+                    .parse(dateText)
+            }.onFailure {
+                it.printStackTrace()
+            }.getOrNull() ?: return@run null
 
-                LocalDateTime.from(tmp)
-            }
-        val device =
-            getNextLine(plainLines) {
-                it == "○デバイスタイプ:"
-            }
-        val name =
-            getNextLine(plainLines) {
-                it == "○ご購入商品:"
-            } ?: return emptyList()
+            LocalDateTime.from(tmp)
+        }
+        val device = getNextLine(plainLines) {
+            it == "○デバイスタイプ:"
+        }
+        val name = getNextLine(plainLines) {
+            it == "○ご購入商品:"
+        } ?: return emptyList()
 
         return listOf(
             MoneyUsage(
                 title = name,
                 price = price,
-                description =
-                buildString {
+                description = buildString {
                     appendLine(displayName)
                     if (device != null) {
                         appendLine("デバイスタイプ: $device")
@@ -101,9 +91,8 @@ internal object NintendoProductBuyUsageServices : MoneyUsageServices {
         lines: List<String>,
         block: (String) -> Boolean,
     ): String? {
-        val index =
-            lines.indexOfFirst { block(it) }
-                .takeIf { it >= 0 } ?: return null
+        val index = lines.indexOfFirst { block(it) }
+            .takeIf { it >= 0 } ?: return null
 
         return lines.getOrNull(index + 1)
     }

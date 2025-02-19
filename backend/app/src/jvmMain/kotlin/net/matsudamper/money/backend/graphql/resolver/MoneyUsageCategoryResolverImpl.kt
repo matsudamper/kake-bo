@@ -22,14 +22,13 @@ class MoneyUsageCategoryResolverImpl : MoneyUsageCategoryResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
 
-        val categoryLoader =
-            context.dataLoaders.moneyUsageCategoryDataLoaderDefine.get(env)
-                .load(
-                    MoneyUsageCategoryDataLoaderDefine.Key(
-                        userId = userId,
-                        categoryId = moneyUsageCategory.id,
-                    ),
-                )
+        val categoryLoader = context.dataLoaders.moneyUsageCategoryDataLoaderDefine.get(env)
+            .load(
+                MoneyUsageCategoryDataLoaderDefine.Key(
+                    userId = userId,
+                    categoryId = moneyUsageCategory.id,
+                ),
+            )
 
         return CompletableFuture.allOf(categoryLoader).thenApplyAsync {
             categoryLoader.get()!!.name
@@ -48,12 +47,11 @@ class MoneyUsageCategoryResolverImpl : MoneyUsageCategoryResolver {
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
-            val result =
-                context.diContainer.createMoneyUsageSubCategoryRepository()
-                    .getSubCategory(
-                        userId = userId,
-                        categoryId = moneyUsageCategory.id,
-                    )
+            val result = context.diContainer.createMoneyUsageSubCategoryRepository()
+                .getSubCategory(
+                    userId = userId,
+                    categoryId = moneyUsageCategory.id,
+                )
             when (result) {
                 is MoneyUsageSubCategoryRepository.GetSubCategoryResult.Failed -> {
                     result.e.printStackTrace()
@@ -62,8 +60,7 @@ class MoneyUsageCategoryResolverImpl : MoneyUsageCategoryResolver {
 
                 is MoneyUsageSubCategoryRepository.GetSubCategoryResult.Success -> {
                     QlSubCategoriesConnection(
-                        nodes =
-                        result.results.map {
+                        nodes = result.results.map {
                             QlMoneyUsageSubCategory(
                                 id = it.moneyUsageSubCategoryId,
                             )

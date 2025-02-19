@@ -28,35 +28,32 @@ internal object YodobashiUsageService : MoneyUsageServices {
 
         val lines = ParseUtil.splitByNewLine(plain)
 
-        val totalPrice =
-            run price@{
-                "【ご注文金額】今回のお買い物合計金額(.+?)$".toRegex(RegexOption.MULTILINE).find(plain)
-                    ?.groupValues
-                    ?.getOrNull(1)
-                    .orEmpty()
-                    .mapNotNull { it.toString().toIntOrNull() }
-                    .joinToString("")
-                    .toIntOrNull()
-            }
+        val totalPrice = run price@{
+            "【ご注文金額】今回のお買い物合計金額(.+?)$".toRegex(RegexOption.MULTILINE).find(plain)
+                ?.groupValues
+                ?.getOrNull(1)
+                .orEmpty()
+                .mapNotNull { it.toString().toIntOrNull() }
+                .joinToString("")
+                .toIntOrNull()
+        }
 
-        val parsedDate =
-            run date@{
-                val result = """・ご注文日.+?(\d+)年(\d+)月(\d+)日"""".toRegex().find(plain)?.groupValues ?: return@date null
-                val year = result.getOrNull(1)?.toIntOrNull() ?: return@date null
-                val month = result.getOrNull(2)?.toIntOrNull() ?: return@date null
-                val day = result.getOrNull(3)?.toIntOrNull() ?: return@date null
-                LocalDateTime.of(
-                    LocalDate.of(year, month, day),
-                    LocalTime.MIN,
-                )
-            }
+        val parsedDate = run date@{
+            val result = """・ご注文日.+?(\d+)年(\d+)月(\d+)日"""".toRegex().find(plain)?.groupValues ?: return@date null
+            val year = result.getOrNull(1)?.toIntOrNull() ?: return@date null
+            val month = result.getOrNull(2)?.toIntOrNull() ?: return@date null
+            val day = result.getOrNull(3)?.toIntOrNull() ?: return@date null
+            LocalDateTime.of(
+                LocalDate.of(year, month, day),
+                LocalTime.MIN,
+            )
+        }
 
-        val orderItemsLines =
-            run {
-                val firstIndex = lines.indexOfFirst { it.contains("【ご注文商品】") }.takeIf { it >= 0 }!!
-                val endIndex = lines.indexOfFirst { it.contains("ご注文・出荷状況については下記をご確認ください。") }.takeIf { it >= 0 }!!
-                lines.subList(firstIndex, endIndex)
-            }
+        val orderItemsLines = run {
+            val firstIndex = lines.indexOfFirst { it.contains("【ご注文商品】") }.takeIf { it >= 0 }!!
+            val endIndex = lines.indexOfFirst { it.contains("ご注文・出荷状況については下記をご確認ください。") }.takeIf { it >= 0 }!!
+            lines.subList(firstIndex, endIndex)
+        }
 
         return buildList prices@{
             run total@{
@@ -76,11 +73,10 @@ internal object YodobashiUsageService : MoneyUsageServices {
             var beforeTitle: String? = null
             orderItemsLines.forEachIndexed { index, line ->
                 val titleResult = titleRegex.find(line)?.groupValues?.getOrNull(1)
-                val priceResult =
-                    priceRegex.find(line)?.groupValues?.getOrNull(1)
-                        ?.mapNotNull { it.toString().toIntOrNull() }
-                        ?.joinToString("")
-                        ?.toIntOrNull()
+                val priceResult = priceRegex.find(line)?.groupValues?.getOrNull(1)
+                    ?.mapNotNull { it.toString().toIntOrNull() }
+                    ?.joinToString("")
+                    ?.toIntOrNull()
 
                 if (titleResult != null) {
                     val capturedBeforeTitle = beforeTitle
@@ -96,15 +92,14 @@ internal object YodobashiUsageService : MoneyUsageServices {
                         )
                     }
 
-                    beforeTitle =
-                        titleResult
-                            .plus(
-                                orderItemsLines.drop(index + 1)
-                                    .takeWhile { it.isNotBlank() }
-                                    // remove "　　"
-                                    .joinToString("") { it.drop(2) },
-                            )
-                            .dropLast(1) // remove "」"
+                    beforeTitle = titleResult
+                        .plus(
+                            orderItemsLines.drop(index + 1)
+                                .takeWhile { it.isNotBlank() }
+                                // remove "　　"
+                                .joinToString("") { it.drop(2) },
+                        )
+                        .dropLast(1) // remove "」"
                 } else if (priceResult != null) {
                     add(
                         MoneyUsage(

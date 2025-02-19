@@ -61,9 +61,8 @@ class UserResolverImpl : UserResolver {
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
-            val result =
-                context.diContainer.createMoneyUsageCategoryRepository()
-                    .getCategory(userId = userId)
+            val result = context.diContainer.createMoneyUsageCategoryRepository()
+                .getCategory(userId = userId)
 
             return@supplyAsync when (result) {
                 is MoneyUsageCategoryRepository.GetCategoryResult.Failed -> {
@@ -120,39 +119,34 @@ class UserResolverImpl : UserResolver {
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
-            val results =
-                context.diContainer.createMoneyUsageRepository()
-                    .getMoneyUsageByQuery(
-                        userId = userId,
-                        size = query.size,
-                        isAsc = query.isAsc,
-                        cursor =
-                        query.cursor?.let { MoneyUsagesCursor.fromString(it) }?.let {
-                            MoneyUsageRepository.GetMoneyUsageByQueryResult.Cursor(
-                                lastId = it.lastId,
-                                date = it.lastDate,
-                            )
-                        },
-                        sinceDateTime = query.filter?.sinceDateTime,
-                        untilDateTime = query.filter?.untilDateTime,
-                        categoryIds = query.filter?.category.orEmpty(),
-                        subCategoryIds = query.filter?.subCategory.orEmpty(),
-                        text = query.filter?.text?.takeIf { it.isNotBlank() },
-                    )
-            val result =
-                when (results) {
-                    is MoneyUsageRepository.GetMoneyUsageByQueryResult.Failed -> throw results.error
-                    is MoneyUsageRepository.GetMoneyUsageByQueryResult.Success -> results
-                }
+            val results = context.diContainer.createMoneyUsageRepository()
+                .getMoneyUsageByQuery(
+                    userId = userId,
+                    size = query.size,
+                    isAsc = query.isAsc,
+                    cursor = query.cursor?.let { MoneyUsagesCursor.fromString(it) }?.let {
+                        MoneyUsageRepository.GetMoneyUsageByQueryResult.Cursor(
+                            lastId = it.lastId,
+                            date = it.lastDate,
+                        )
+                    },
+                    sinceDateTime = query.filter?.sinceDateTime,
+                    untilDateTime = query.filter?.untilDateTime,
+                    categoryIds = query.filter?.category.orEmpty(),
+                    subCategoryIds = query.filter?.subCategory.orEmpty(),
+                    text = query.filter?.text?.takeIf { it.isNotBlank() },
+                )
+            val result = when (results) {
+                is MoneyUsageRepository.GetMoneyUsageByQueryResult.Failed -> throw results.error
+                is MoneyUsageRepository.GetMoneyUsageByQueryResult.Success -> results
+            }
             QlMoneyUsagesConnection(
-                nodes =
-                result.ids.map { id ->
+                nodes = result.ids.map { id ->
                     QlMoneyUsage(
                         id = id,
                     )
                 },
-                cursor =
-                result.cursor?.let { cursor ->
+                cursor = result.cursor?.let { cursor ->
                     MoneyUsagesCursor(
                         lastId = cursor.lastId,
                         lastDate = cursor.date,
@@ -174,17 +168,15 @@ class UserResolverImpl : UserResolver {
 
         return CompletableFuture.allOf().thenApplyAsync {
             val filterRepository = context.diContainer.createMailFilterRepository()
-            val result =
-                filterRepository.getFilters(
-                    isAsc = query.isAsc,
-                    userId = userId,
-                    cursor =
-                    query.cursor?.let {
-                        ImportedMailCategoryFiltersCursor.fromString(it)
-                    },
-                ).onFailure {
-                    it.printStackTrace()
-                }.getOrNull() ?: return@thenApplyAsync null
+            val result = filterRepository.getFilters(
+                isAsc = query.isAsc,
+                userId = userId,
+                cursor = query.cursor?.let {
+                    ImportedMailCategoryFiltersCursor.fromString(it)
+                },
+            ).onFailure {
+                it.printStackTrace()
+            }.getOrNull() ?: return@thenApplyAsync null
 
             result.items.forEach { item ->
                 dataLoader.prime(
@@ -197,14 +189,12 @@ class UserResolverImpl : UserResolver {
             }
 
             QlImportedMailCategoryFiltersConnection(
-                nodes =
-                result.items.map {
+                nodes = result.items.map {
                     QlImportedMailCategoryFilter(
                         id = it.importedMailCategoryFilterId,
                     )
                 },
-                cursor =
-                result.cursor?.let { cursor ->
+                cursor = result.cursor?.let { cursor ->
                     ImportedMailCategoryFiltersCursor(cursor).toCursorString()
                 },
                 isLast = result.items.isEmpty(),
@@ -234,14 +224,13 @@ class UserResolverImpl : UserResolver {
     ): CompletionStage<DataFetcherResult<QlMoneyUsage?>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        val moneyUsageFuture =
-            context.dataLoaders.moneyUsageDataLoader.get(env)
-                .load(
-                    MoneyUsageDataLoaderDefine.Key(
-                        userId = userId,
-                        moneyUsageId = id,
-                    ),
-                )
+        val moneyUsageFuture = context.dataLoaders.moneyUsageDataLoader.get(env)
+            .load(
+                MoneyUsageDataLoaderDefine.Key(
+                    userId = userId,
+                    moneyUsageId = id,
+                ),
+            )
         return CompletableFuture.allOf(moneyUsageFuture).thenApplyAsync {
             QlMoneyUsage(
                 id = id,
@@ -276,16 +265,15 @@ class UserResolverImpl : UserResolver {
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
-            val results =
-                context.diContainer.createMoneyUsageAnalyticsRepository()
-                    .getTotalAmountByCategories(
-                        userId = userId,
-                        sinceDateTimeAt = query.sinceDateTime,
-                        untilDateTimeAt = query.untilDateTime,
-                    )
-                    .onFailure {
-                        it.printStackTrace()
-                    }.getOrNull() ?: return@supplyAsync DataFetcherResultBuilder.buildNullValue()
+            val results = context.diContainer.createMoneyUsageAnalyticsRepository()
+                .getTotalAmountByCategories(
+                    userId = userId,
+                    sinceDateTimeAt = query.sinceDateTime,
+                    untilDateTimeAt = query.untilDateTime,
+                )
+                .onFailure {
+                    it.printStackTrace()
+                }.getOrNull() ?: return@supplyAsync DataFetcherResultBuilder.buildNullValue()
 
             val result = results.firstOrNull { it.categoryId == id }
 

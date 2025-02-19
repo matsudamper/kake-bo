@@ -28,74 +28,68 @@ public class ImportedMailHtmlViewModel(
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
-    private val apolloResponseCollector =
-        ApolloResponseCollector.create(
-            apolloClient = graphqlClient.apolloClient,
-            query =
-            ImportedMailHtmlScreenQuery(
-                id = id,
-            ),
-        )
+    private val apolloResponseCollector = ApolloResponseCollector.create(
+        apolloClient = graphqlClient.apolloClient,
+        query = ImportedMailHtmlScreenQuery(
+            id = id,
+        ),
+    )
 
-    public val uiStateFlow: StateFlow<ImportedMailHtmlScreenUiState> =
-        MutableStateFlow(
-            ImportedMailHtmlScreenUiState(
-                loadingState = ImportedMailHtmlScreenUiState.LoadingState.Loading,
-                event =
-                object : ImportedMailHtmlScreenUiState.Event {
-                    override fun onViewInitialized() {
-                        fetch()
-                    }
+    public val uiStateFlow: StateFlow<ImportedMailHtmlScreenUiState> = MutableStateFlow(
+        ImportedMailHtmlScreenUiState(
+            loadingState = ImportedMailHtmlScreenUiState.LoadingState.Loading,
+            event = object : ImportedMailHtmlScreenUiState.Event {
+                override fun onViewInitialized() {
+                    fetch()
+                }
 
-                    override fun onClickClose() {
-                        viewModelScope.launch {
-                            viewModelEventSender.send {
-                                it.backRequest()
-                            }
+                override fun onClickClose() {
+                    viewModelScope.launch {
+                        viewModelEventSender.send {
+                            it.backRequest()
                         }
-                    }
-
-                    override fun onClickRetry() {
-                        fetch()
-                    }
-                },
-            ),
-        ).also { uiStateFlow ->
-            viewModelScope.launch {
-                viewModelStateFlow.collectLatest { viewModelState ->
-                    val loadingState =
-                        when (val resultWrapper = viewModelState.apolloResponseState) {
-                            is ApolloResponseState.Failure -> {
-                                ImportedMailHtmlScreenUiState.LoadingState.Error
-                            }
-
-                            is ApolloResponseState.Success -> {
-                                val mail = resultWrapper.value.data?.user?.importedMailAttributes?.mail
-
-                                if (mail == null) {
-                                    ImportedMailHtmlScreenUiState.LoadingState.Error
-                                } else {
-                                    ImportedMailHtmlScreenUiState.LoadingState.Loaded(
-                                        html =
-                                        sequence {
-                                            yield(mail.html)
-                                        }.filterNotNull().firstOrNull().orEmpty(),
-                                    )
-                                }
-                            }
-
-                            is ApolloResponseState.Loading -> {
-                                ImportedMailHtmlScreenUiState.LoadingState.Loading
-                            }
-                        }
-                    uiStateFlow.update {
-                        it.copy(
-                            loadingState = loadingState,
-                        )
                     }
                 }
+
+                override fun onClickRetry() {
+                    fetch()
+                }
+            },
+        ),
+    ).also { uiStateFlow ->
+        viewModelScope.launch {
+            viewModelStateFlow.collectLatest { viewModelState ->
+                val loadingState = when (val resultWrapper = viewModelState.apolloResponseState) {
+                    is ApolloResponseState.Failure -> {
+                        ImportedMailHtmlScreenUiState.LoadingState.Error
+                    }
+
+                    is ApolloResponseState.Success -> {
+                        val mail = resultWrapper.value.data?.user?.importedMailAttributes?.mail
+
+                        if (mail == null) {
+                            ImportedMailHtmlScreenUiState.LoadingState.Error
+                        } else {
+                            ImportedMailHtmlScreenUiState.LoadingState.Loaded(
+                                html = sequence {
+                                    yield(mail.html)
+                                }.filterNotNull().firstOrNull().orEmpty(),
+                            )
+                        }
+                    }
+
+                    is ApolloResponseState.Loading -> {
+                        ImportedMailHtmlScreenUiState.LoadingState.Loading
+                    }
+                }
+                uiStateFlow.update {
+                    it.copy(
+                        loadingState = loadingState,
+                    )
+                }
             }
-        }.asStateFlow()
+        }
+    }.asStateFlow()
 
     private fun fetch() {
         viewModelScope.launch {

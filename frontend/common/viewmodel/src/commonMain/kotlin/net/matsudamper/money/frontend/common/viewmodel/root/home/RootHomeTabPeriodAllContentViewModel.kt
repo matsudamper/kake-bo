@@ -267,23 +267,18 @@ public class RootHomeTabPeriodAllContentViewModel(
         categories: List<RootHomeTabScreenAnalyticsByDateQuery.Category>,
     ): RootHomeTabPeriodAllContentUiState.LoadingState.Loaded? {
         return RootHomeTabPeriodAllContentUiState.LoadingState.Loaded(
-            barGraph =
-            BarGraphUiState(
-                items =
-                responses.map { (yearMonth, response) ->
+            barGraph = BarGraphUiState(
+                items = responses.map { (yearMonth, response) ->
                     BarGraphUiState.PeriodData(
                         year = yearMonth.year,
                         month = yearMonth.month,
-                        items =
-                        run item@{
-                            val byCategory =
-                                response.data?.user?.moneyUsageAnalytics?.byCategories
-                                    ?: return null
+                        items = run item@{
+                            val byCategory = response.data?.user?.moneyUsageAnalytics?.byCategories
+                                ?: return null
 
                             byCategory.map {
-                                val amount =
-                                    it.totalAmount
-                                        ?: return null
+                                val amount = it.totalAmount
+                                    ?: return null
                                 BarGraphUiState.Item(
                                     color = reservedColorModel.getColor(it.category.id.value.toString()),
                                     title = it.category.name,
@@ -291,11 +286,9 @@ public class RootHomeTabPeriodAllContentViewModel(
                                 )
                             }.toImmutableList()
                         },
-                        total =
-                        response.data?.user?.moneyUsageAnalytics?.totalAmount
+                        total = response.data?.user?.moneyUsageAnalytics?.totalAmount
                             ?: return null,
-                        event =
-                        object : BarGraphUiState.PeriodDataEvent {
+                        event = object : BarGraphUiState.PeriodDataEvent {
                             override fun onClick() {
                                 viewModelScope.launch {
                                     eventSender.send {
@@ -311,8 +304,7 @@ public class RootHomeTabPeriodAllContentViewModel(
                     )
                 }.toImmutableList(),
             ),
-            totalBarColorTextMapping =
-            categories.map { category ->
+            totalBarColorTextMapping = categories.map { category ->
                 GraphTitleChipUiState(
                     color = reservedColorModel.getColor(category.id.value.toString()),
                     title = category.name,
@@ -325,11 +317,9 @@ public class RootHomeTabPeriodAllContentViewModel(
                     },
                 )
             }.toImmutableList(),
-            monthTotalItems =
-            responses.map { (yearMonth, response) ->
+            monthTotalItems = responses.map { (yearMonth, response) ->
                 RootHomeTabPeriodUiState.MonthTotalItem(
-                    amount =
-                    Formatter.formatMoney(
+                    amount = Formatter.formatMoney(
                         response.data?.user?.moneyUsageAnalytics?.totalAmount
                             ?: return null,
                     ) + "円",
@@ -361,8 +351,7 @@ public class RootHomeTabPeriodAllContentViewModel(
         if (since != null) {
             viewModelStateFlow.update {
                 it.copy(
-                    displayPeriod =
-                    it.displayPeriod.copy(
+                    displayPeriod = it.displayPeriod.copy(
                         sinceDate = ViewModelState.YearMonth(since.year, since.monthNumber),
                         monthCount = current.period,
                     ),
@@ -381,25 +370,22 @@ public class RootHomeTabPeriodAllContentViewModel(
 
     private data class ViewModelState(
         val allResponseMap: Map<YearMonth, ApolloResponse<RootHomeTabScreenAnalyticsByDateQuery.Data>?> = mapOf(),
-        val displayPeriod: Period =
-            run {
-                val currentDate =
-                    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-                        .date
-                Period(
-                    sinceDate = YearMonth(currentDate.year, currentDate.monthNumber).addMonth(-5),
-                    monthCount = 6,
-                )
-            },
+        val displayPeriod: Period = run {
+            val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                .date
+            Period(
+                sinceDate = YearMonth(currentDate.year, currentDate.monthNumber).addMonth(-5),
+                monthCount = 6,
+            )
+        },
     ) {
         data class YearMonth(
             val year: Int,
             val month: Int,
         ) {
             fun addMonth(count: Int): YearMonth {
-                val nextDate =
-                    LocalDate(year, month, 1)
-                        .plus(count, DateTimeUnit.MONTH)
+                val nextDate = LocalDate(year, month, 1)
+                    .plus(count, DateTimeUnit.MONTH)
 
                 return YearMonth(
                     year = nextDate.year,

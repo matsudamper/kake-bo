@@ -16,29 +16,26 @@ public class WebAuthModelJsImpl : WebAuthModel {
         domain: String,
         base64ExcludeCredentialIdList: List<String>,
     ): WebAuthModel.WebAuthCreateResult? {
-        val options =
-            createOption(
-                userId = id,
-                name = name,
-                type = type,
-                challenge = challenge,
-                domain = domain,
-                excludeCredentials =
-                base64ExcludeCredentialIdList.map {
-                    CredentialsContainerCreatePublicKeyOptions.ExcludeCredential(
-                        id = it.decodeBase64Bytes(),
-                        type = "public-key",
-                    )
-                },
-            )
-        val result =
-            runCatching {
-                navigator.credentials.create(
-                    options,
-                ).await()
-            }.onFailure {
-                it.printStackTrace()
-            }.getOrNull() ?: return null
+        val options = createOption(
+            userId = id,
+            name = name,
+            type = type,
+            challenge = challenge,
+            domain = domain,
+            excludeCredentials = base64ExcludeCredentialIdList.map {
+                CredentialsContainerCreatePublicKeyOptions.ExcludeCredential(
+                    id = it.decodeBase64Bytes(),
+                    type = "public-key",
+                )
+            },
+        )
+        val result = runCatching {
+            navigator.credentials.create(
+                options,
+            ).await()
+        }.onFailure {
+            it.printStackTrace()
+        }.getOrNull() ?: return null
 
         val attestationObjectBase64 = result.response.attestationObject.toBase64()
         val clientDataJSONBase64 = result.response.clientDataJSON.toBase64()
@@ -108,8 +105,7 @@ public class WebAuthModelJsImpl : WebAuthModel {
                     CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -8),
                 ),
                 excludeCredentials = excludeCredentials.toTypedArray(),
-                authenticatorSelection =
-                CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection(
+                authenticatorSelection = CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection(
                     authenticatorAttachment = when (type) {
                         WebAuthModel.WebAuthModelType.PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_PLATFORM
                         WebAuthModel.WebAuthModelType.CROSS_PLATFORM -> CredentialsContainerCreatePublicKeyOptions.AuthenticatorSelection.AUTH_TYPE_CROSS_PLATFORM

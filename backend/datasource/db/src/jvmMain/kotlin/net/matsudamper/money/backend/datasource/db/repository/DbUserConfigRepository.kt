@@ -72,13 +72,12 @@ class DbUserConfigRepository : UserConfigRepository {
             }
         }.fold(
             onSuccess = { record1 ->
-                val imapConfig =
-                    record1?.value1() ?: return ImapConfig(
-                        host = null,
-                        port = null,
-                        userName = null,
-                        password = null,
-                    )
+                val imapConfig = record1?.value1() ?: return ImapConfig(
+                    host = null,
+                    port = null,
+                    userName = null,
+                    password = null,
+                )
 
                 ImapConfig(
                     host = imapConfig.host,

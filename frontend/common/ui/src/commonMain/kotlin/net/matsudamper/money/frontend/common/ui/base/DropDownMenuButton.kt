@@ -19,8 +19,7 @@ internal fun DropDownMenuButton(
     OutlinedButton(
         modifier = modifier,
         shape = RoundedCornerShape(8.dp),
-        contentPadding =
-        PaddingValues(
+        contentPadding = PaddingValues(
             start = 24.dp,
             end = 18.dp,
             top = 8.dp,

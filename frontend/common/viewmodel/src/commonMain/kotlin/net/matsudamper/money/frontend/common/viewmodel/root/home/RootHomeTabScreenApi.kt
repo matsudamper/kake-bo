@@ -35,15 +35,12 @@ public class RootHomeTabScreenApi(
             graphqlClient.apolloClient.query(
                 RootHomeTabScreenAnalyticsByCategoryQuery(
                     id = id,
-                    query =
-                    MoneyUsageAnalyticsQuery(
-                        sinceDateTime =
-                        LocalDateTime(
+                    query = MoneyUsageAnalyticsQuery(
+                        sinceDateTime = LocalDateTime(
                             LocalDate(startYear, startMonth, 1),
                             LocalTime(0, 0, 0),
                         ),
-                        untilDateTime =
-                        LocalDateTime(
+                        untilDateTime = LocalDateTime(
                             LocalDate(endYear, endMonth, 1),
                             LocalTime(0, 0, 0),
                         ),

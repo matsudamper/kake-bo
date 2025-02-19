@@ -84,11 +84,10 @@ object MoneyGraphQlSchema {
     }
 
     private val schema by lazy {
-        val schemaFiles =
-            run {
-                getSchemaFiles().takeIf { it.isNotEmpty() }
-                    ?: getDebugSchemaFiles()
-            }
+        val schemaFiles = run {
+            getSchemaFiles().takeIf { it.isNotEmpty() }
+                ?: getDebugSchemaFiles()
+        }
         println("==========schema==========")
         schemaFiles.forEach {
             println(it)

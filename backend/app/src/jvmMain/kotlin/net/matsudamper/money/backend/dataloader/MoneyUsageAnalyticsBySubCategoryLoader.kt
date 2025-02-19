@@ -24,38 +24,37 @@ internal class MoneyUsageAnalyticsBySubCategoryLoader(
                     val repository = repositoryFactory.createMoneyUsageAnalyticsRepository()
                     val userId = userSessionManager.verifyUserSession()
 
-                    val results =
-                        keys.groupBy {
-                            GroupKey(
-                                sinceDateTimeAt = it.sinceDateTimeAt,
-                                untilDateTimeAt = it.untilDateTimeAt,
-                            )
-                        }.map { (key, value) ->
-                            val ids = value.map { it.id }
+                    val results = keys.groupBy {
+                        GroupKey(
+                            sinceDateTimeAt = it.sinceDateTimeAt,
+                            untilDateTimeAt = it.untilDateTimeAt,
+                        )
+                    }.map { (key, value) ->
+                        val ids = value.map { it.id }
 
-                            async {
-                                key to
-                                    repository.getTotalAmountBySubCategories(
-                                        userId = userId,
-                                        sinceDateTimeAt = key.sinceDateTimeAt,
-                                        untilDateTimeAt = key.untilDateTimeAt,
-                                        categoryIds = ids,
-                                    )
+                        async {
+                            key to
+                                repository.getTotalAmountBySubCategories(
+                                    userId = userId,
+                                    sinceDateTimeAt = key.sinceDateTimeAt,
+                                    untilDateTimeAt = key.untilDateTimeAt,
+                                    categoryIds = ids,
+                                )
+                        }
+                    }.map {
+                        val (key, kotlinResult) = it.await()
+                        kotlinResult
+                            .onFailure { e ->
+                                e.printStackTrace()
                             }
-                        }.map {
-                            val (key, kotlinResult) = it.await()
-                            kotlinResult
-                                .onFailure { e ->
-                                    e.printStackTrace()
-                                }
-                                .getOrNull().orEmpty().map { result ->
-                                    Key(
-                                        id = result.categoryId,
-                                        sinceDateTimeAt = key.sinceDateTimeAt,
-                                        untilDateTimeAt = key.untilDateTimeAt,
-                                    ) to result
-                                }
-                        }.flatten()
+                            .getOrNull().orEmpty().map { result ->
+                                Key(
+                                    id = result.categoryId,
+                                    sinceDateTimeAt = key.sinceDateTimeAt,
+                                    untilDateTimeAt = key.untilDateTimeAt,
+                                ) to result
+                            }
+                    }.flatten()
                     results.toMap()
                 }
             }

@@ -219,8 +219,7 @@ public fun ImportedMailFilterCategoryScreen(
     uiState.confirmDialog?.also { confirmDialog ->
         AlertDialog(
             title = { Text(confirmDialog.title) },
-            description =
-            confirmDialog.description?.let {
+            description = confirmDialog.description?.let {
                 {
                     Text(confirmDialog.description)
                 }
@@ -232,18 +231,16 @@ public fun ImportedMailFilterCategoryScreen(
     }
     LaunchedEffect(uiState.snackbarEventState) {
         uiState.snackbarEventState.collect { event ->
-            val result =
-                snackbarHostState.showSnackbar(
-                    message = event.message,
-                    duration =
-                    event.duration ?: if (event.withDismissAction) {
-                        SnackbarDuration.Indefinite
-                    } else {
-                        SnackbarDuration.Short
-                    },
-                    withDismissAction = event.withDismissAction,
-                    actionLabel = event.actionLabel,
-                )
+            val result = snackbarHostState.showSnackbar(
+                message = event.message,
+                duration = event.duration ?: if (event.withDismissAction) {
+                    SnackbarDuration.Indefinite
+                } else {
+                    SnackbarDuration.Short
+                },
+                withDismissAction = event.withDismissAction,
+                actionLabel = event.actionLabel,
+            )
             when (result) {
                 SnackbarResult.Dismissed -> SnackbarEventState.Result.Dismiss
                 SnackbarResult.ActionPerformed -> SnackbarEventState.Result.Action
@@ -271,8 +268,7 @@ public fun ImportedMailFilterCategoryScreen(
                 },
                 title = {
                     Text(
-                        modifier =
-                        Modifier.clickable(
+                        modifier = Modifier.clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
@@ -307,8 +303,7 @@ public fun ImportedMailFilterCategoryScreen(
             when (val state = uiState.loadingState) {
                 is ImportedMailFilterCategoryScreenUiState.LoadingState.Error -> {
                     LoadingErrorContent(
-                        modifier =
-                        Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize()
                             .padding(paddingValues),
                         onClickRetry = { uiState.event.onViewInitialized() },
                     )
@@ -316,8 +311,7 @@ public fun ImportedMailFilterCategoryScreen(
 
                 is ImportedMailFilterCategoryScreenUiState.LoadingState.Loading -> {
                     Box(
-                        modifier =
-                        Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize()
                             .padding(paddingValues),
                     ) {
                         CircularProgressIndicator(
@@ -369,8 +363,7 @@ private fun Menu(
             properties = PopupProperties(focusable = true),
             content = {
                 DropdownMenuItem(
-                    colors =
-                    MenuDefaults.itemColors(
+                    colors = MenuDefaults.itemColors(
                         textColor = MaterialTheme.colorScheme.error,
                     ),
                     text = { Text("削除") },
@@ -429,8 +422,7 @@ private fun LoadedContent(
                     ) {
                         Text(
                             modifier = Modifier.padding(8.dp),
-                            text =
-                            buildString {
+                            text = buildString {
                                 if (uiState.category != null) {
                                     append("${uiState.category.category} / ${uiState.category.subCategory}")
                                 } else {
@@ -479,8 +471,7 @@ private fun LoadedContent(
                                         ImportedMailFilterCategoryScreenUiState.Operator.OR,
                                     ).forEach { operator ->
                                         Box(
-                                            modifier =
-                                            Modifier.fillMaxWidth()
+                                            modifier = Modifier.fillMaxWidth()
                                                 .clickable {
                                                     visibleDropDown = false
                                                     uiState.event.onSelectedOperator(operator)
@@ -509,8 +500,7 @@ private fun LoadedContent(
             if (uiState.conditions.isEmpty()) {
                 item {
                     Box(
-                        modifier =
-                        Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                             .height(200.dp),
                     ) {
                         Text(
@@ -522,8 +512,7 @@ private fun LoadedContent(
             } else {
                 items(uiState.conditions) { item ->
                     ConditionCard(
-                        modifier =
-                        Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                             .padding(vertical = 8.dp),
                         item = item,
                     )
@@ -572,8 +561,7 @@ private fun ConditionCard(
                                         ImportedMailFilterCategoryScreenUiState.DataSource.ServiceName,
                                     ).forEach { source ->
                                         Box(
-                                            modifier =
-                                            Modifier
+                                            modifier = Modifier
                                                 .fillMaxWidth()
                                                 .clickable {
                                                     visibleDropDown = false
@@ -616,8 +604,7 @@ private fun ConditionCard(
                                         ImportedMailFilterCategoryScreenUiState.ConditionType.NotEqual,
                                     ).forEach { type ->
                                         Box(
-                                            modifier =
-                                            Modifier
+                                            modifier = Modifier
                                                 .fillMaxWidth()
                                                 .clickable {
                                                     visibleDropDown = false
@@ -639,8 +626,7 @@ private fun ConditionCard(
                 }
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(
-                    modifier =
-                    Modifier
+                    modifier = Modifier
                         .clip(MaterialTheme.shapes.medium)
                         .clickable { item.event.onClickTextChange() }
                         .padding(8.dp),
@@ -678,8 +664,7 @@ private fun ConditionCard(
                         properties = PopupProperties(focusable = true),
                     ) {
                         DropdownMenuItem(
-                            colors =
-                            MenuDefaults.itemColors(
+                            colors = MenuDefaults.itemColors(
                                 textColor = MaterialTheme.colorScheme.error,
                             ),
                             text = { Text("削除") },
@@ -709,8 +694,7 @@ private fun DropDownButton(
         modifier = modifier,
     ) {
         OutlinedButton(
-            contentPadding =
-            PaddingValues(
+            contentPadding = PaddingValues(
                 start = 24.dp,
                 end = 20.dp,
                 top = 4.dp,

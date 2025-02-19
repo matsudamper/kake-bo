@@ -41,16 +41,14 @@ internal fun RootHomePeriodSection(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
-                modifier =
-                Modifier.clip(CircleShape)
+                modifier = Modifier.clip(CircleShape)
                     .clickable { onClickPreviousMonth() }
                     .padding(8.dp),
             ) {
                 Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = "前の月")
             }
             Box(
-                modifier =
-                Modifier.clip(CircleShape)
+                modifier = Modifier.clip(CircleShape)
                     .clickable { onClickNextMonth() }
                     .padding(8.dp),
             ) {

@@ -18,8 +18,7 @@ class ApolloPagingResponseCollector<D : Query.Data>(
     private val coroutineScope: CoroutineScope,
     private val fetchPolicy: FetchPolicy = FetchPolicy.NetworkOnly,
 ) {
-    private val collectorFlow: MutableStateFlow<List<ApolloResponseCollector<D>>> =
-        MutableStateFlow(listOf())
+    private val collectorFlow: MutableStateFlow<List<ApolloResponseCollector<D>>> = MutableStateFlow(listOf())
 
     private val mutableStateFlow: MutableStateFlow<List<ApolloResponseState<ApolloResponse<D>>>> = MutableStateFlow(listOf())
 
@@ -54,13 +53,12 @@ class ApolloPagingResponseCollector<D : Query.Data>(
         collectorFlow.update { collectors ->
             val query = queryBlock(collectors) ?: return
 
-            val tmp =
-                ApolloResponseCollector
-                    .create(
-                        apolloClient = graphqlClient.apolloClient,
-                        query = query,
-                        fetchPolicy = fetchPolicy,
-                    )
+            val tmp = ApolloResponseCollector
+                .create(
+                    apolloClient = graphqlClient.apolloClient,
+                    query = query,
+                    fetchPolicy = fetchPolicy,
+                )
             collector = tmp
             collectors + tmp
         }

@@ -165,8 +165,7 @@ public class ImportedMailScreenViewModel(
                         "${splitAmount}円"
                     },
                     category = run category@{
-                        val subCategory =
-                            suggestUsage.subCategory ?: return@category null
+                        val subCategory = suggestUsage.subCategory ?: return@category null
                         val category = subCategory.category
 
                         "${category.name} / ${subCategory.name}"
@@ -271,41 +270,40 @@ public class ImportedMailScreenViewModel(
         private val text: String,
     ) : MailScreenUiState.ClickableEvent, EqualsImpl(text) {
         override fun onClickUrl(url: String) {
-            val dialog =
-                MailScreenUiState.UrlMenuDialog(
-                    url = url,
-                    event = object : MailScreenUiState.UrlMenuDialogEvent {
-                        override fun onClickOpen() {
-                            viewModelScope.launch {
-                                viewModelEventSender.send {
-                                    it.openWeb(text)
-                                }
-                            }
-                            dismiss()
-                        }
-
-                        override fun onClickCopy() {
-                            viewModelScope.launch {
-                                viewModelEventSender.send {
-                                    it.copyToClipboard(text)
-                                }
-                            }
-                            dismiss()
-                        }
-
-                        override fun onDismissRequest() {
-                            dismiss()
-                        }
-
-                        private fun dismiss() {
-                            viewModelStateFlow.update {
-                                it.copy(
-                                    urlMenuDialog = null,
-                                )
+            val dialog = MailScreenUiState.UrlMenuDialog(
+                url = url,
+                event = object : MailScreenUiState.UrlMenuDialogEvent {
+                    override fun onClickOpen() {
+                        viewModelScope.launch {
+                            viewModelEventSender.send {
+                                it.openWeb(text)
                             }
                         }
-                    },
-                )
+                        dismiss()
+                    }
+
+                    override fun onClickCopy() {
+                        viewModelScope.launch {
+                            viewModelEventSender.send {
+                                it.copyToClipboard(text)
+                            }
+                        }
+                        dismiss()
+                    }
+
+                    override fun onDismissRequest() {
+                        dismiss()
+                    }
+
+                    private fun dismiss() {
+                        viewModelStateFlow.update {
+                            it.copy(
+                                urlMenuDialog = null,
+                            )
+                        }
+                    }
+                },
+            )
             viewModelStateFlow.update {
                 it.copy(
                     urlMenuDialog = dialog,

@@ -98,28 +98,26 @@ public class RootUsageCalendarPagingModel(
                     cursor = Optional.present(cursor),
                     filter = Optional.present(
                         MoneyUsagesQueryFilter(
-                            sinceDateTime =
-                                Optional.present(
-                                    LocalDateTime(
-                                        LocalDate(
-                                            year = selectedMonth.year,
-                                            month = selectedMonth.month,
-                                            dayOfMonth = 1,
-                                        ),
-                                        LocalTime(0, 0),
+                            sinceDateTime = Optional.present(
+                                LocalDateTime(
+                                    LocalDate(
+                                        year = selectedMonth.year,
+                                        month = selectedMonth.month,
+                                        dayOfMonth = 1,
                                     ),
+                                    LocalTime(0, 0),
                                 ),
-                            untilDateTime =
-                                Optional.present(
-                                    LocalDateTime(
-                                        LocalDate(
-                                            year = selectedMonth.year,
-                                            monthNumber = selectedMonth.monthNumber,
-                                            dayOfMonth = 1,
-                                        ).plus(1, DateTimeUnit.MONTH),
-                                        LocalTime(0, 0),
-                                    ),
+                            ),
+                            untilDateTime = Optional.present(
+                                LocalDateTime(
+                                    LocalDate(
+                                        year = selectedMonth.year,
+                                        monthNumber = selectedMonth.monthNumber,
+                                        dayOfMonth = 1,
+                                    ).plus(1, DateTimeUnit.MONTH),
+                                    LocalTime(0, 0),
                                 ),
+                            ),
                             text = Optional.present(searchText),
                         ),
                     ),

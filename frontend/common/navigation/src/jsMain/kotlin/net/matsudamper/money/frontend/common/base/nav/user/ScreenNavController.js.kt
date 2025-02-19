@@ -71,8 +71,7 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
         Screens.SettingsCategory -> ScreenStructure.Root.Settings.Categories
         Screens.SettingsCategoryId ->
             ScreenStructure.Root.Settings.Category(
-                id =
-                this.pathParams["id"]?.toIntOrNull()?.let { MoneyUsageCategoryId(it) }
+                id = this.pathParams["id"]?.toIntOrNull()?.let { MoneyUsageCategoryId(it) }
                     ?: return ScreenStructure.NotFound,
             )
 
@@ -101,8 +100,7 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
 
         Screens.ImportedMail -> {
             ScreenStructure.ImportedMail(
-                id =
-                run id@{
+                id = run id@{
                     val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
                     ImportedMailId(id)
                 },
@@ -111,8 +109,7 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
 
         Screens.ImportedMailPlain -> {
             ScreenStructure.ImportedMailPlain(
-                id =
-                run id@{
+                id = run id@{
                     val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
                     ImportedMailId(id)
                 },
@@ -121,8 +118,7 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
 
         Screens.ImportedMailHTML -> {
             ScreenStructure.ImportedMailHTML(
-                id =
-                run id@{
+                id = run id@{
                     val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
                     ImportedMailId(id)
                 },
@@ -136,8 +132,7 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
         Screens.MailCategoryFilters -> ScreenStructure.Root.Settings.MailCategoryFilters
         Screens.MailCategoryFilter ->
             ScreenStructure.Root.Settings.MailCategoryFilter(
-                id =
-                run id@{
+                id = run id@{
                     val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
                     ImportedMailCategoryFilterId(id)
                 },
@@ -145,8 +140,7 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
 
         Screens.MoneyUsage -> {
             ScreenStructure.MoneyUsage(
-                id =
-                run id@{
+                id = run id@{
                     val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
                     MoneyUsageId(id)
                 },

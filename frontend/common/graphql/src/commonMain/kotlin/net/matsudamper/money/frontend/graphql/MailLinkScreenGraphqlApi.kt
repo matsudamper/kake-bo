@@ -20,11 +20,9 @@ class MailLinkScreenGraphqlApi(
             graphqlClient.apolloClient
                 .query(
                     ImportedMailListScreenMailPagingQuery(
-                        query =
-                        ImportedMailQuery(
+                        query = ImportedMailQuery(
                             cursor = Optional.present(cursor),
-                            filter =
-                            ImportedMailQueryFilter(
+                            filter = ImportedMailQueryFilter(
                                 isLinked = Optional.present(isLinked),
                             ),
                             sortedBy = ImportedMailSortKey.DATETIME,

@@ -147,8 +147,7 @@ private fun LoadedContent(
             item {
                 Text(
                     text = "TODO ここに円グラフ",
-                    modifier =
-                    Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                         .padding(16.dp),
                 )
             }
@@ -176,8 +175,7 @@ private fun LoadedContent(
                                     maxLines = 3,
                                 )
                                 Text(
-                                    modifier =
-                                    Modifier
+                                    modifier = Modifier
                                         .align(Alignment.Bottom)
                                         .height(IntrinsicSize.Max)
                                         .requiredWidthIn(min = 80.dp),
@@ -186,8 +184,7 @@ private fun LoadedContent(
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    modifier =
-                                    Modifier
+                                    modifier = Modifier
                                         .align(Alignment.Bottom)
                                         .height(IntrinsicSize.Max)
                                         .requiredWidthIn(min = 60.dp),
@@ -206,8 +203,7 @@ private fun LoadedContent(
                         loadingState.event.loadMore()
                     }
                     Box(
-                        modifier =
-                        Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                             .padding(vertical = 16.dp),
                     ) {
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))

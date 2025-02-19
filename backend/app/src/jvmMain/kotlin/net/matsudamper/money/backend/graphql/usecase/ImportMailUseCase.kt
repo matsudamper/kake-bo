@@ -24,28 +24,26 @@ class ImportMailUseCase(
                 val port = imapConfig.port ?: return@runBlocking Result.ImapConfigNotFound
                 val userName = imapConfig.userName ?: return@runBlocking Result.ImapConfigNotFound
                 val password = imapConfig.password ?: return@runBlocking Result.ImapConfigNotFound
-                val mailRepository =
-                    repositoryFactory.createMailRepository(
-                        host = host,
-                        port = port,
-                        userName = userName,
-                        password = password,
-                    )
+                val mailRepository = repositoryFactory.createMailRepository(
+                    host = host,
+                    port = port,
+                    userName = userName,
+                    password = password,
+                )
 
                 val dbMailRepository = repositoryFactory.createDbMailRepository()
                 mailRepository.getMails(mailIds).map { mail ->
                     val html = mail.content.filterIsInstance<MailResult.Content.Html>()
                     val text = mail.content.filterIsInstance<MailResult.Content.Text>()
 
-                    val result =
-                        dbMailRepository.addMail(
-                            userId = userId,
-                            subject = mail.subject,
-                            plainText = text.firstOrNull()?.text,
-                            html = html.firstOrNull()?.html,
-                            dateTime = LocalDateTime.ofInstant(mail.sendDate, ZoneOffset.UTC),
-                            from = mail.from.firstOrNull().orEmpty(),
-                        )
+                    val result = dbMailRepository.addMail(
+                        userId = userId,
+                        subject = mail.subject,
+                        plainText = text.firstOrNull()?.text,
+                        html = html.firstOrNull()?.html,
+                        dateTime = LocalDateTime.ofInstant(mail.sendDate, ZoneOffset.UTC),
+                        from = mail.from.firstOrNull().orEmpty(),
+                    )
 
                     when (result) {
                         is ImportedMailRepository.AddUserResult.Failed -> {
@@ -62,12 +60,11 @@ class ImportMailUseCase(
                 }
             }.fold(
                 onSuccess = {
-                    val allDeleteSuccess =
-                        runBlocking {
-                            it.toList().all {
-                                runCatching { it.await() }.getOrNull() != null
-                            }
+                    val allDeleteSuccess = runBlocking {
+                        it.toList().all {
+                            runCatching { it.await() }.getOrNull() != null
                         }
+                    }
                     if (allDeleteSuccess) {
                         Result.Success
                     } else {

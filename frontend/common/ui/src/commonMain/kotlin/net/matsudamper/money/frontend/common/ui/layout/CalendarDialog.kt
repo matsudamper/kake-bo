@@ -37,8 +37,7 @@ internal fun CalendarDialog(
     initialCalendar: LocalDate,
 ) {
     Box(
-        modifier =
-        modifier.zIndex(Float.MAX_VALUE)
+        modifier = modifier.zIndex(Float.MAX_VALUE)
             .fillMaxSize()
             .background(Color.Black.copy(alpha = 0.8f))
             .clickable(
@@ -51,8 +50,7 @@ internal fun CalendarDialog(
     ) {
         val density = LocalDensity.current
         Card(
-            modifier =
-            Modifier
+            modifier = Modifier
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
@@ -61,15 +59,13 @@ internal fun CalendarDialog(
                 },
         ) {
             Column(
-                modifier =
-                Modifier
+                modifier = Modifier
                     .padding(24.dp),
             ) {
                 var height by remember { mutableStateOf(0) }
                 var selectedDate by remember { mutableStateOf(initialCalendar) }
                 Calendar(
-                    modifier =
-                    Modifier
+                    modifier = Modifier
                         .widthIn(max = 500.dp)
                         .heightIn(min = with(density) { height.toDp() })
                         .onSizeChanged {
@@ -82,8 +78,7 @@ internal fun CalendarDialog(
                 )
                 Spacer(Modifier.height(24.dp))
                 Row(
-                    modifier =
-                    Modifier
+                    modifier = Modifier
                         .align(Alignment.End),
                 ) {
                     TextButton(

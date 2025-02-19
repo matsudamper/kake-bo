@@ -23,11 +23,10 @@ class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionR
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         context.verifyUserSessionAndGetUserId()
 
-        val future =
-            getFuture(
-                env = env,
-                importedMailCategoryCondition = importedMailCategoryCondition,
-            )
+        val future = getFuture(
+            env = env,
+            importedMailCategoryCondition = importedMailCategoryCondition,
+        )
 
         return CompletableFuture.allOf(future).thenApplyAsync {
             future.get()!!.text
@@ -41,11 +40,10 @@ class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionR
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         context.verifyUserSessionAndGetUserId()
 
-        val future =
-            getFuture(
-                env = env,
-                importedMailCategoryCondition = importedMailCategoryCondition,
-            )
+        val future = getFuture(
+            env = env,
+            importedMailCategoryCondition = importedMailCategoryCondition,
+        )
 
         return CompletableFuture.allOf(future).thenApplyAsync {
             when (future.get().dataSourceType) {
@@ -66,11 +64,10 @@ class ImportedMailCategoryConditionResolverImpl : ImportedMailCategoryConditionR
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         context.verifyUserSessionAndGetUserId()
 
-        val future =
-            getFuture(
-                env = env,
-                importedMailCategoryCondition = importedMailCategoryCondition,
-            )
+        val future = getFuture(
+            env = env,
+            importedMailCategoryCondition = importedMailCategoryCondition,
+        )
 
         return CompletableFuture.allOf(future).thenApplyAsync {
             when (future.get()!!.conditionType) {

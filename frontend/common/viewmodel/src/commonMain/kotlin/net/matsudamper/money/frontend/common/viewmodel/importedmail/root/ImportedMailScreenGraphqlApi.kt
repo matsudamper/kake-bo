@@ -27,8 +27,7 @@ public class ImportedMailScreenGraphqlApi(
     public fun get(id: ImportedMailId): ApolloResponseCollector<ImportedMailScreenQuery.Data> {
         return ApolloResponseCollector.create(
             apolloClient = graphqlClient.apolloClient,
-            query =
-            ImportedMailScreenQuery(
+            query = ImportedMailScreenQuery(
                 id = id,
             ),
         )

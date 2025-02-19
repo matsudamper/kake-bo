@@ -15,41 +15,35 @@ internal object MacdonaldsMobileOrderUsageService : MoneyUsageServices {
         plain: String,
         date: LocalDateTime,
     ): List<MoneyUsage> {
-        val canHandle =
-            sequence {
-                yield(canHandledWithFrom(from))
-                yield(canHandledWithPlain(plain))
-            }
+        val canHandle = sequence {
+            yield(canHandledWithFrom(from))
+            yield(canHandledWithPlain(plain))
+        }
         if (canHandle.any { it }.not()) return listOf()
 
-        val lines =
-            plain.split("\r\n")
-                .flatMap { it.split("\n") }
+        val lines = plain.split("\r\n")
+            .flatMap { it.split("\n") }
 
-        val description =
-            run {
-                val first = lines.indexOf("数量 品目 価格").takeIf { it >= 0 } ?: return@run null
-                val end =
-                    lines.indexOf("上記金額を正に領収いたしました。")
-                        .takeIf { it >= 0 }
-                        ?.minus(1) ?: return@run null
+        val description = run {
+            val first = lines.indexOf("数量 品目 価格").takeIf { it >= 0 } ?: return@run null
+            val end = lines.indexOf("上記金額を正に領収いたしました。")
+                .takeIf { it >= 0 }
+                ?.minus(1) ?: return@run null
 
-                lines.subList(first, end)
-                    .joinToString("\n")
-            }
+            lines.subList(first, end)
+                .joinToString("\n")
+        }
 
-        val price =
-            run price@{
-                val result =
-                    "^ご請求金額(.+?)$".toRegex(RegexOption.MULTILINE)
-                        .find(plain)
-                        ?.groupValues?.getOrNull(1)
-                        ?: return@price null
+        val price = run price@{
+            val result = "^ご請求金額(.+?)$".toRegex(RegexOption.MULTILINE)
+                .find(plain)
+                ?.groupValues?.getOrNull(1)
+                ?: return@price null
 
-                result.mapNotNull { it.toString().toIntOrNull() }
-                    .joinToString("")
-                    .toIntOrNull()
-            }
+            result.mapNotNull { it.toString().toIntOrNull() }
+                .joinToString("")
+                .toIntOrNull()
+        }
 
         return listOf(
             MoneyUsage(

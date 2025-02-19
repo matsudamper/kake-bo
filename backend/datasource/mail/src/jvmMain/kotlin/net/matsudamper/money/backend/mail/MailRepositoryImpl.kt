@@ -21,10 +21,9 @@ class MailRepositoryImpl(
     override fun getMailCount(): Int {
         val session = getSession()
 
-        val store =
-            session.getStore("imap").also {
-                it.connect()
-            }
+        val store = session.getStore("imap").also {
+            it.connect()
+        }
         return store.use { imap4 ->
             imap4.getFolder("INBOX").messageCount
         }
@@ -36,10 +35,9 @@ class MailRepositoryImpl(
     ): List<MailResult> {
         val session = getSession()
 
-        val store =
-            session.getStore("imap").also {
-                it.connect()
-            }
+        val store = session.getStore("imap").also {
+            it.connect()
+        }
         return store.use { imap4 ->
             imap4.getFolder("INBOX").let { folder ->
                 folder.open(Folder.READ_ONLY)
@@ -57,42 +55,37 @@ class MailRepositoryImpl(
         }
     }
 
-    override fun getMails(mailIds: List<MailId>): Sequence<MailResult> =
-        sequence {
-            val session = getSession()
+    override fun getMails(mailIds: List<MailId>): Sequence<MailResult> = sequence {
+        val session = getSession()
 
-            val store =
-                session.getStore("imap").also {
-                    it.connect()
-                }
-            store.use { imap4 ->
-                imap4.getFolder("INBOX").let { folder ->
-                    folder.open(Folder.READ_ONLY)
-                    folder.use {
-                        for (item in getMailSequence(folder = it, mailIds)) {
-                            yield(MailParser.messageToResponse(message = item))
-                        }
+        val store = session.getStore("imap").also {
+            it.connect()
+        }
+        store.use { imap4 ->
+            imap4.getFolder("INBOX").let { folder ->
+                folder.open(Folder.READ_ONLY)
+                folder.use {
+                    for (item in getMailSequence(folder = it, mailIds)) {
+                        yield(MailParser.messageToResponse(message = item))
                     }
                 }
             }
         }
+    }
 
     override fun deleteMessage(deleteMessageIDs: List<MailId>) {
         val session = getSession()
 
-        val store =
-            session.getStore("imap").also {
-                it.connect()
-            }
+        val store = session.getStore("imap").also {
+            it.connect()
+        }
         store.use { imap4 ->
-            val inbox =
-                imap4.getFolder("INBOX").also { folder ->
-                    folder.open(Folder.READ_WRITE)
-                }
-            val trashFolder =
-                imap4.getFolder("Trash").also { folder ->
-                    folder.open(Folder.READ_WRITE)
-                }
+            val inbox = imap4.getFolder("INBOX").also { folder ->
+                folder.open(Folder.READ_WRITE)
+            }
+            val trashFolder = imap4.getFolder("Trash").also { folder ->
+                folder.open(Folder.READ_WRITE)
+            }
             for (mail in getMailSequence(folder = inbox, mailIds = deleteMessageIDs)) {
                 trashFolder.appendMessages(arrayOf(mail))
                 mail.setFlag(Flags.Flag.DELETED, true)

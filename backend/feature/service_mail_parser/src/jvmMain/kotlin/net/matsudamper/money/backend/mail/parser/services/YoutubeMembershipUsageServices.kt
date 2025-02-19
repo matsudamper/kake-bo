@@ -17,11 +17,10 @@ internal object YoutubeMembershipUsageServices : MoneyUsageServices {
         date: LocalDateTime,
     ): List<MoneyUsage> {
         val forwardedInfo = ParseUtil.parseForwarded(plain)
-        val canHandle =
-            sequence {
-                yield(canHandledWithFrom(forwardedInfo?.from ?: from))
-                yield(canHandledWithSubject(forwardedInfo?.subject ?: subject))
-            }
+        val canHandle = sequence {
+            yield(canHandledWithFrom(forwardedInfo?.from ?: from))
+            yield(canHandledWithSubject(forwardedInfo?.subject ?: subject))
+        }
         if (canHandle.all { it }.not()) return listOf()
 
         val plainLines = ParseUtil.splitByNewLine(plain)
@@ -29,9 +28,8 @@ internal object YoutubeMembershipUsageServices : MoneyUsageServices {
         var price: Int
         var priceDescription: String?
         run {
-            val index =
-                plainLines.indexOfFirst { it == "*Total*" }
-                    .takeIf { it >= 0 }
+            val index = plainLines.indexOfFirst { it == "*Total*" }
+                .takeIf { it >= 0 }
             if (index == null) {
                 price = 0
                 priceDescription = null
@@ -51,27 +49,23 @@ internal object YoutubeMembershipUsageServices : MoneyUsageServices {
                 ?.getOrNull(1)
                 ?.toIntOrNull()
                 ?: 0
-            priceDescription =
-                plainLines.subList(index + 1, index + 3)
-                    .joinToString("\n")
-                    .takeIf { it.isNotBlank() }
+            priceDescription = plainLines.subList(index + 1, index + 3)
+                .joinToString("\n")
+                .takeIf { it.isNotBlank() }
         }
 
-        val channel =
-            getNextLine(plainLines) {
-                it == "You've successfully made a Super Chat purchase from YouTube on the channel:"
-            }
-        val title =
-            getNextLine(plainLines) {
-                it == "YouTube Super Chat"
-            }
+        val channel = getNextLine(plainLines) {
+            it == "You've successfully made a Super Chat purchase from YouTube on the channel:"
+        }
+        val title = getNextLine(plainLines) {
+            it == "YouTube Super Chat"
+        }
 
         return listOf(
             MoneyUsage(
                 title = "YouTube Super Chat: ${channel.orEmpty()}",
                 price = price,
-                description =
-                buildString {
+                description = buildString {
                     if (title != null) {
                         appendLine(title)
                     }
@@ -89,9 +83,8 @@ internal object YoutubeMembershipUsageServices : MoneyUsageServices {
         lines: List<String>,
         block: (String) -> Boolean,
     ): String? {
-        val index =
-            lines.indexOfFirst { block(it) }
-                .takeIf { it >= 0 } ?: return null
+        val index = lines.indexOfFirst { block(it) }
+            .takeIf { it >= 0 } ?: return null
 
         return lines.getOrNull(index + 1)
     }

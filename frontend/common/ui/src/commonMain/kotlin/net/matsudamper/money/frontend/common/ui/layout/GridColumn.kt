@@ -32,77 +32,68 @@ internal fun GridColumn(
         val maxRowCount = columnScope.rowScopes.size
         val maxHeightAssociateByRowIndex = mutableMapOf<Int, Int>()
 
-        val columns =
-            run columns@{
-                var currentWidth = 0
-                (0 until maxColumnCount).map { columnIndex ->
-                    columnScope.rowScopes.mapIndexed { rowIndex, rowScope ->
-                        maxHeightAssociateByRowIndex[rowIndex] = 0
-                        val rowContent = rowScope.rowContents.getOrNull(columnIndex)
-                        val rowGroup =
-                            subcompose("${columnIndex}_$rowIndex") {
-                                Column {
-                                    Row {
-                                        rowContent?.invoke()
-                                        if (maxColumnCount != columnIndex + 1) {
-                                            Spacer(Modifier.width(horizontalPadding))
-                                        }
-                                    }
-                                    if (maxRowCount != rowIndex + 1) {
-                                        Spacer(Modifier.height(verticalPadding))
-                                    }
+        val columns = run columns@{
+            var currentWidth = 0
+            (0 until maxColumnCount).map { columnIndex ->
+                columnScope.rowScopes.mapIndexed { rowIndex, rowScope ->
+                    maxHeightAssociateByRowIndex[rowIndex] = 0
+                    val rowContent = rowScope.rowContents.getOrNull(columnIndex)
+                    val rowGroup = subcompose("${columnIndex}_$rowIndex") {
+                        Column {
+                            Row {
+                                rowContent?.invoke()
+                                if (maxColumnCount != columnIndex + 1) {
+                                    Spacer(Modifier.width(horizontalPadding))
                                 }
                             }
-
-                        val rowMeasurables =
-                            rowGroup.map { item ->
-                                item.measure(
-                                    Constraints(
-                                        minWidth = 0,
-                                        minHeight = 0,
-                                        maxWidth = (constraints.maxWidth - currentWidth),
-                                        maxHeight = constraints.maxHeight,
-                                    ),
-                                )
+                            if (maxRowCount != rowIndex + 1) {
+                                Spacer(Modifier.height(verticalPadding))
                             }
-
-                        maxHeightAssociateByRowIndex[rowIndex] =
-                            maxHeightAssociateByRowIndex[rowIndex]!!
-                                .plus(rowMeasurables.maxOfOrNull { it.height } ?: 0)
-                        rowMeasurables
-                    }.also { column ->
-                        currentWidth += column.flatten().maxOfOrNull { it.width } ?: 0
-                    }
-                }
-            }
-
-        val yMap =
-            (0..maxHeightAssociateByRowIndex.keys.sumOf { it }).map {
-                (0 until it).sumOf { index -> maxHeightAssociateByRowIndex[index] ?: 0 }
-            }
-        val xMap =
-            run {
-                val columnWidth =
-                    columns.map { column ->
-                        column.maxOfOrNull { rowGroup ->
-                            rowGroup.maxOfOrNull { it.width } ?: 0
-                        } ?: 0
+                        }
                     }
 
-                (0..columnWidth.size).map {
-                    (0 until it).sumOf { index -> columnWidth[index] }
+                    val rowMeasurables = rowGroup.map { item ->
+                        item.measure(
+                            Constraints(
+                                minWidth = 0,
+                                minHeight = 0,
+                                maxWidth = (constraints.maxWidth - currentWidth),
+                                maxHeight = constraints.maxHeight,
+                            ),
+                        )
+                    }
+
+                    maxHeightAssociateByRowIndex[rowIndex] = maxHeightAssociateByRowIndex[rowIndex]!!
+                        .plus(rowMeasurables.maxOfOrNull { it.height } ?: 0)
+                    rowMeasurables
+                }.also { column ->
+                    currentWidth += column.flatten().maxOfOrNull { it.width } ?: 0
                 }
             }
+        }
+
+        val yMap = (0..maxHeightAssociateByRowIndex.keys.sumOf { it }).map {
+            (0 until it).sumOf { index -> maxHeightAssociateByRowIndex[index] ?: 0 }
+        }
+        val xMap = run {
+            val columnWidth = columns.map { column ->
+                column.maxOfOrNull { rowGroup ->
+                    rowGroup.maxOfOrNull { it.width } ?: 0
+                } ?: 0
+            }
+
+            (0..columnWidth.size).map {
+                (0 until it).sumOf { index -> columnWidth[index] }
+            }
+        }
 
         layout(
-            width =
-            columns.sumOf { column ->
+            width = columns.sumOf { column ->
                 column.maxOfOrNull { rowGroup ->
                     rowGroup.maxOfOrNull { it.width } ?: 0
                 } ?: 0
             }.coerceAtLeast(constraints.minWidth),
-            height =
-            run {
+            height = run {
                 columns.maxOfOrNull { column ->
                     column.sumOf { rowGroup ->
                         rowGroup.maxOfOrNull { it.height } ?: 0

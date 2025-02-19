@@ -19,46 +19,41 @@ internal object BookWalkerUsageServices : MoneyUsageServices {
         val forwardedInfo = ParseUtil.parseForwarded(plain)
         val orderDate = forwardedInfo?.date ?: date
 
-        val canHandle =
-            sequence {
-                yield(canHandle(from = from, subject = subject))
+        val canHandle = sequence {
+            yield(canHandle(from = from, subject = subject))
 
-                yield(
-                    run forwarded@{
-                        if (forwardedInfo != null) {
-                            val forwardedSubject = forwardedInfo.subject ?: return@forwarded false
-                            val forwardedFrom = forwardedInfo.from ?: return@forwarded false
-                            canHandle(from = forwardedFrom, subject = forwardedSubject)
-                        } else {
-                            false
-                        }
-                    },
-                )
-            }
+            yield(
+                run forwarded@{
+                    if (forwardedInfo != null) {
+                        val forwardedSubject = forwardedInfo.subject ?: return@forwarded false
+                        val forwardedFrom = forwardedInfo.from ?: return@forwarded false
+                        canHandle(from = forwardedFrom, subject = forwardedSubject)
+                    } else {
+                        false
+                    }
+                },
+            )
+        }
         if (canHandle.any { it }.not()) return emptyList()
 
         val lines = ParseUtil.splitByNewLine(plain)
 
-        val orderList =
-            run {
-                val startIndex =
-                    lines.indexOfFirst { it == "【ご注文内容】" }
-                        .takeIf { it >= 0 }!!
-                        .plus(2)
-                val endIndex =
-                    lines.drop(startIndex)
-                        .indexOfFirst { it.startsWith("━━━━━━━━━━━━━━━━━") }
-                        .takeIf { it >= 0 }!!
-                        .plus(startIndex)
+        val orderList = run {
+            val startIndex = lines.indexOfFirst { it == "【ご注文内容】" }
+                .takeIf { it >= 0 }!!
+                .plus(2)
+            val endIndex = lines.drop(startIndex)
+                .indexOfFirst { it.startsWith("━━━━━━━━━━━━━━━━━") }
+                .takeIf { it >= 0 }!!
+                .plus(startIndex)
 
-                lines.subList(startIndex, endIndex)
-            }
+            lines.subList(startIndex, endIndex)
+        }
 
         return buildList {
             run total@{
-                val totalAmountIndex =
-                    lines.indexOfFirst { it.startsWith("■お支払合計") }
-                        .takeIf { it >= 0 }!!
+                val totalAmountIndex = lines.indexOfFirst { it.startsWith("■お支払合計") }
+                    .takeIf { it >= 0 }!!
                 val totalAmountLine = lines[totalAmountIndex]
                 val amount = ParseUtil.getInt(totalAmountLine)!!
 

@@ -38,125 +38,115 @@ public class LoginSettingViewModel(
     private val webAuthModel: WebAuthModel,
     navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
-    private val viewModelStateFlow: MutableStateFlow<ViewModelState> =
-        MutableStateFlow(
-            ViewModelState(
-                apolloScreenResponse = null,
-                textInputDialogState = null,
-            ),
-        )
+    private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
+        ViewModelState(
+            apolloScreenResponse = null,
+            textInputDialogState = null,
+        ),
+    )
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
-    public val uiStateFlow: StateFlow<LoginSettingScreenUiState> =
-        MutableStateFlow(
-            LoginSettingScreenUiState(
-                textInputDialogState = null,
-                loadingState = LoginSettingScreenUiState.LoadingState.Loading,
-                rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
-                    override fun onClickSettings() {
-                        if (PlatformTypeProvider.type == PlatformType.JS) {
-                            super.onClickSettings()
-                        }
-                    }
-                },
-                event = object : LoginSettingScreenUiState.Event {
-                    override fun onClickBack() {
-                        viewModelScope.launch {
-                            eventSender.send { it.navigate(ScreenStructure.Root.Settings.Root) }
-                        }
-                    }
-
-                    override fun onClickPlatform() {
-                        createFido(WebAuthModel.WebAuthModelType.PLATFORM)
-                    }
-
-                    override fun onClickCrossPlatform() {
-                        createFido(WebAuthModel.WebAuthModelType.CROSS_PLATFORM)
-                    }
-
-                    override fun onClickLogout() {
-                        viewModelScope.launch {
-                            val result = api.logout()
-                            if (result) {
-                                eventSender.send { it.navigate(ScreenStructure.Login) }
-                            } else {
-                                eventSender.send { it.showToast("ログアウトに失敗しました") }
-                            }
-                        }
-                    }
-                },
-            ),
-        ).also { uiStateFlow ->
-            viewModelScope.launch {
-                viewModelStateFlow.collectLatest { viewModelState ->
-                    val loadedState =
-                        run loaded@{
-                            val currentSession =
-                                viewModelState.apolloScreenResponse
-                                    ?.data?.user?.settings?.sessionAttributes?.currentSession
-                                    ?: return@loaded null
-
-                            LoginSettingScreenUiState.LoadingState.Loaded(
-                                fidoList =
-                                run fidoList@{
-                                    val fidoList = viewModelState.apolloScreenResponse
-                                        ?.data?.user?.settings?.registeredFidoList
-                                    if (fidoList == null) {
-                                        immutableListOf()
-                                    } else {
-                                        fidoList.map { fido ->
-                                            LoginSettingScreenUiState.Fido(
-                                                name = fido.name,
-                                                event = FidoEventImpl(fido),
-                                            )
-                                        }.toImmutableList()
-                                    }
-                                },
-                                sessionList =
-                                run sessionList@{
-                                    val sessionList =
-                                        viewModelState.apolloScreenResponse
-                                            ?.data?.user?.settings?.sessionAttributes?.sessions
-                                    if (sessionList == null) {
-                                        return@sessionList immutableListOf()
-                                    } else {
-                                        sessionList
-                                            .filterNot { it.name == currentSession.name }
-                                            .map { session ->
-                                                LoginSettingScreenUiState.Session(
-                                                    name = session.name,
-                                                    lastAccess =
-                                                    Formatter.formatDateTime(
-                                                        session.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
-                                                    ),
-                                                    event = SessionEventImpl(name = session.name),
-                                                )
-                                            }.toImmutableList()
-                                    }
-                                },
-                                currentSession =
-                                run currentSession@{
-                                    LoginSettingScreenUiState.Session(
-                                        name = currentSession.name,
-                                        lastAccess =
-                                        Formatter.formatDateTime(
-                                            currentSession.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
-                                        ),
-                                        event = SessionEventImpl(name = currentSession.name),
-                                    )
-                                },
-                            )
-                        }
-                    uiStateFlow.update { uiState ->
-                        uiState.copy(
-                            loadingState = loadedState ?: LoginSettingScreenUiState.LoadingState.Loading,
-                            textInputDialogState = viewModelState.textInputDialogState,
-                        )
+    public val uiStateFlow: StateFlow<LoginSettingScreenUiState> = MutableStateFlow(
+        LoginSettingScreenUiState(
+            textInputDialogState = null,
+            loadingState = LoginSettingScreenUiState.LoadingState.Loading,
+            rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
+                override fun onClickSettings() {
+                    if (PlatformTypeProvider.type == PlatformType.JS) {
+                        super.onClickSettings()
                     }
                 }
+            },
+            event = object : LoginSettingScreenUiState.Event {
+                override fun onClickBack() {
+                    viewModelScope.launch {
+                        eventSender.send { it.navigate(ScreenStructure.Root.Settings.Root) }
+                    }
+                }
+
+                override fun onClickPlatform() {
+                    createFido(WebAuthModel.WebAuthModelType.PLATFORM)
+                }
+
+                override fun onClickCrossPlatform() {
+                    createFido(WebAuthModel.WebAuthModelType.CROSS_PLATFORM)
+                }
+
+                override fun onClickLogout() {
+                    viewModelScope.launch {
+                        val result = api.logout()
+                        if (result) {
+                            eventSender.send { it.navigate(ScreenStructure.Login) }
+                        } else {
+                            eventSender.send { it.showToast("ログアウトに失敗しました") }
+                        }
+                    }
+                }
+            },
+        ),
+    ).also { uiStateFlow ->
+        viewModelScope.launch {
+            viewModelStateFlow.collectLatest { viewModelState ->
+                val loadedState = run loaded@{
+                    val currentSession = viewModelState.apolloScreenResponse
+                        ?.data?.user?.settings?.sessionAttributes?.currentSession
+                        ?: return@loaded null
+
+                    LoginSettingScreenUiState.LoadingState.Loaded(
+                        fidoList = run fidoList@{
+                            val fidoList = viewModelState.apolloScreenResponse
+                                ?.data?.user?.settings?.registeredFidoList
+                            if (fidoList == null) {
+                                immutableListOf()
+                            } else {
+                                fidoList.map { fido ->
+                                    LoginSettingScreenUiState.Fido(
+                                        name = fido.name,
+                                        event = FidoEventImpl(fido),
+                                    )
+                                }.toImmutableList()
+                            }
+                        },
+                        sessionList = run sessionList@{
+                            val sessionList = viewModelState.apolloScreenResponse
+                                ?.data?.user?.settings?.sessionAttributes?.sessions
+                            if (sessionList == null) {
+                                return@sessionList immutableListOf()
+                            } else {
+                                sessionList
+                                    .filterNot { it.name == currentSession.name }
+                                    .map { session ->
+                                        LoginSettingScreenUiState.Session(
+                                            name = session.name,
+                                            lastAccess = Formatter.formatDateTime(
+                                                session.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
+                                            ),
+                                            event = SessionEventImpl(name = session.name),
+                                        )
+                                    }.toImmutableList()
+                            }
+                        },
+                        currentSession = run currentSession@{
+                            LoginSettingScreenUiState.Session(
+                                name = currentSession.name,
+                                lastAccess = Formatter.formatDateTime(
+                                    currentSession.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
+                                ),
+                                event = SessionEventImpl(name = currentSession.name),
+                            )
+                        },
+                    )
+                }
+                uiStateFlow.update { uiState ->
+                    uiState.copy(
+                        loadingState = loadedState ?: LoginSettingScreenUiState.LoadingState.Loading,
+                        textInputDialogState = viewModelState.textInputDialogState,
+                    )
+                }
             }
-        }.asStateFlow()
+        }
+    }.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -172,9 +162,8 @@ public class LoginSettingViewModel(
 
     private fun createFido(type: WebAuthModel.WebAuthModelType) {
         viewModelScope.launch {
-            val fidoInfo =
-                fidoApi.getFidoInfo()
-                    .getOrNull()?.data?.user?.settings?.fidoAddInfo
+            val fidoInfo = fidoApi.getFidoInfo()
+                .getOrNull()?.data?.user?.settings?.fidoAddInfo
             if (fidoInfo == null) {
                 showAddFidoFailToast()
                 return@launch
@@ -186,8 +175,7 @@ public class LoginSettingViewModel(
                 type = type,
                 challenge = fidoInfo.challenge,
                 domain = fidoInfo.domain,
-                base64ExcludeCredentialIdList =
-                viewModelStateFlow.value.apolloScreenResponse?.data?.user?.settings?.registeredFidoList.orEmpty().map {
+                base64ExcludeCredentialIdList = viewModelStateFlow.value.apolloScreenResponse?.data?.user?.settings?.registeredFidoList.orEmpty().map {
                     it.base64CredentialId
                 },
             )
@@ -202,15 +190,14 @@ public class LoginSettingViewModel(
                         eventSender.send { it.showToast("入力してください") }
                         return@onConfirm
                     }
-                    val result =
-                        withContext(Dispatchers.Default) {
-                            api.addFido(
-                                displayName = name,
-                                base64AttestationObject = createResult.attestationObjectBase64,
-                                base64ClientDataJson = createResult.clientDataJSONBase64,
-                                challenge = fidoInfo.challenge,
-                            )
-                        }
+                    val result = withContext(Dispatchers.Default) {
+                        api.addFido(
+                            displayName = name,
+                            base64AttestationObject = createResult.attestationObjectBase64,
+                            base64ClientDataJson = createResult.clientDataJSONBase64,
+                            challenge = fidoInfo.challenge,
+                        )
+                    }
 
                     val registerFidoResult = result?.data?.userMutation?.registerFido
                     if (registerFidoResult?.fidoInfo == null) {
@@ -235,8 +222,7 @@ public class LoginSettingViewModel(
             }
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
-                    textInputDialogState =
-                    LoginSettingScreenUiState.TextInputDialogState(
+                    textInputDialogState = LoginSettingScreenUiState.TextInputDialogState(
                         title = "キーの名前を入力してください",
                         text = "",
                         onConfirm = onConfirm,
@@ -279,19 +265,18 @@ public class LoginSettingViewModel(
         }
 
         override fun onClickNameChange() {
-            val dialogState =
-                LoginSettingScreenUiState.TextInputDialogState(
-                    title = "名前を入力してください",
-                    text = name,
-                    onConfirm = {
-                        changeName(it)
-                        closeTextInputDialog()
-                    },
-                    onCancel = {
-                        closeTextInputDialog()
-                    },
-                    type = TextFieldType.Text,
-                )
+            val dialogState = LoginSettingScreenUiState.TextInputDialogState(
+                title = "名前を入力してください",
+                text = name,
+                onConfirm = {
+                    changeName(it)
+                    closeTextInputDialog()
+                },
+                onCancel = {
+                    closeTextInputDialog()
+                },
+                type = TextFieldType.Text,
+            )
             viewModelStateFlow.update {
                 it.copy(
                     textInputDialogState = dialogState,

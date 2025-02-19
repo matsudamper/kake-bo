@@ -23,8 +23,7 @@ public class MoneyUsageScreenViewModelApi(
             graphqlClient.apolloClient
                 .mutation(
                     MoneyUsageScreenUpdateUsageMutation(
-                        query =
-                        UpdateUsageQuery(
+                        query = UpdateUsageQuery(
                             id = id,
                             title = Optional.present(title),
                             description = Optional.present(description),

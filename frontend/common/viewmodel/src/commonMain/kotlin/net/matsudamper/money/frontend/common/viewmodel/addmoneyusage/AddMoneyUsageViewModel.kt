@@ -35,17 +35,16 @@ public class AddMoneyUsageViewModel(
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
     private val categorySelectDialogViewModel = object {
-        private val event: CategorySelectDialogViewModel.Event =
-            object : CategorySelectDialogViewModel.Event {
-                override fun selected(result: CategorySelectDialogViewModel.SelectedResult) {
-                    viewModelStateFlow.update {
-                        it.copy(
-                            usageCategorySet = result,
-                        )
-                    }
-                    viewModel.dismissDialog()
+        private val event: CategorySelectDialogViewModel.Event = object : CategorySelectDialogViewModel.Event {
+            override fun selected(result: CategorySelectDialogViewModel.SelectedResult) {
+                viewModelStateFlow.update {
+                    it.copy(
+                        usageCategorySet = result,
+                    )
                 }
+                viewModel.dismissDialog()
             }
+        }
         val viewModel = CategorySelectDialogViewModel(
             scopedObjectFeature = scopedObjectFeature,
             event = event,
@@ -195,8 +194,7 @@ public class AddMoneyUsageViewModel(
             val result = graphqlApi.addMoneyUsage(
                 title = viewModelStateFlow.value.usageTitle,
                 description = viewModelStateFlow.value.usageDescription,
-                datetime =
-                LocalDateTime(
+                datetime = LocalDateTime(
                     date = date,
                     time = viewModelStateFlow.value.usageTime,
                 ),
@@ -287,50 +285,49 @@ public class AddMoneyUsageViewModel(
         }
     }
 
-    public val uiStateFlow: StateFlow<AddMoneyUsageScreenUiState> =
-        MutableStateFlow(
-            AddMoneyUsageScreenUiState(
-                calendarDialog = null,
-                date = "",
-                title = "",
-                description = "",
-                amount = "",
-                fullScreenTextInputDialog = null,
-                categorySelectDialog = null,
-                numberInputDialog = null,
-                category = "",
-                event = uiEvent,
-            ),
-        ).also { uiStateFlow ->
-            viewModelScope.launch {
-                viewModelStateFlow.collect { viewModelState ->
-                    uiStateFlow.update { uiState ->
-                        uiState.copy(
-                            calendarDialog = AddMoneyUsageScreenUiState.CalendarDialog(
-                                selectedDate = viewModelState.usageDate,
-                            ).takeIf { viewModelState.showCalendarDialog },
-                            date = run {
-                                val dayOfWeek = Formatter.dayOfWeekToJapanese(viewModelState.usageDate.dayOfWeek)
-                                "${viewModelState.usageDate.year}-${viewModelState.usageDate.monthNumber}-${viewModelState.usageDate.dayOfMonth} ($dayOfWeek)"
-                            },
-                            title = viewModelState.usageTitle,
-                            description = viewModelState.usageDescription,
-                            fullScreenTextInputDialog = viewModelState.textInputDialog,
-                            numberInputDialog = viewModelState.numberInputDialog,
-                            amount = viewModelState.usageAmount.value.toDouble().toString(),
-                            category = run category@{
-                                val default = "未選択"
-                                val categorySet = viewModelState.usageCategorySet
-                                val category = categorySet?.categoryName ?: return@category default
-                                val subCategory = categorySet.subCategoryName
-                                "$category / $subCategory"
-                            },
-                            categorySelectDialog = viewModelState.categorySelectDialog,
-                        )
-                    }
+    public val uiStateFlow: StateFlow<AddMoneyUsageScreenUiState> = MutableStateFlow(
+        AddMoneyUsageScreenUiState(
+            calendarDialog = null,
+            date = "",
+            title = "",
+            description = "",
+            amount = "",
+            fullScreenTextInputDialog = null,
+            categorySelectDialog = null,
+            numberInputDialog = null,
+            category = "",
+            event = uiEvent,
+        ),
+    ).also { uiStateFlow ->
+        viewModelScope.launch {
+            viewModelStateFlow.collect { viewModelState ->
+                uiStateFlow.update { uiState ->
+                    uiState.copy(
+                        calendarDialog = AddMoneyUsageScreenUiState.CalendarDialog(
+                            selectedDate = viewModelState.usageDate,
+                        ).takeIf { viewModelState.showCalendarDialog },
+                        date = run {
+                            val dayOfWeek = Formatter.dayOfWeekToJapanese(viewModelState.usageDate.dayOfWeek)
+                            "${viewModelState.usageDate.year}-${viewModelState.usageDate.monthNumber}-${viewModelState.usageDate.dayOfMonth} ($dayOfWeek)"
+                        },
+                        title = viewModelState.usageTitle,
+                        description = viewModelState.usageDescription,
+                        fullScreenTextInputDialog = viewModelState.textInputDialog,
+                        numberInputDialog = viewModelState.numberInputDialog,
+                        amount = viewModelState.usageAmount.value.toDouble().toString(),
+                        category = run category@{
+                            val default = "未選択"
+                            val categorySet = viewModelState.usageCategorySet
+                            val category = categorySet?.categoryName ?: return@category default
+                            val subCategory = categorySet.subCategoryName
+                            "$category / $subCategory"
+                        },
+                        categorySelectDialog = viewModelState.categorySelectDialog,
+                    )
                 }
             }
-        }.asStateFlow()
+        }
+    }.asStateFlow()
 
     public interface Event {
         public fun navigate(structure: ScreenStructure)

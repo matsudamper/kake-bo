@@ -48,22 +48,20 @@ public class RootHomeTabScreenViewModel(
         }
     }
 
-    public val uiStateFlow: StateFlow<RootHomeTabScreenScaffoldUiState> =
-        MutableStateFlow(
-            createUiState(viewModelStateFlow.value),
-        ).also { uiStateFlow ->
-            viewModelScope.launch {
-                viewModelStateFlow.collectLatest { viewModelState ->
-                    uiStateFlow.value = createUiState(viewModelState)
-                }
+    public val uiStateFlow: StateFlow<RootHomeTabScreenScaffoldUiState> = MutableStateFlow(
+        createUiState(viewModelStateFlow.value),
+    ).also { uiStateFlow ->
+        viewModelScope.launch {
+            viewModelStateFlow.collectLatest { viewModelState ->
+                uiStateFlow.value = createUiState(viewModelState)
             }
-        }.asStateFlow()
+        }
+    }.asStateFlow()
 
     public fun updateScreenStructure(current: RootHomeScreenStructure) {
         viewModelStateFlow.update { viewModelState ->
             viewModelState.copy(
-                contentTYpe =
-                when (current) {
+                contentTYpe = when (current) {
                     is RootHomeScreenStructure.Monthly -> RootHomeTabScreenScaffoldUiState.ContentType.Monthly
                     is RootHomeScreenStructure.MonthlyCategory -> RootHomeTabScreenScaffoldUiState.ContentType.Monthly
                     is RootHomeScreenStructure.Period -> RootHomeTabScreenScaffoldUiState.ContentType.Period

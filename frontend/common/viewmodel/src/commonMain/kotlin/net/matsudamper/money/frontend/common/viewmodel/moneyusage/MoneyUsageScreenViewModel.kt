@@ -39,22 +39,21 @@ public class MoneyUsageScreenViewModel(
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
     private val categorySelectDialogViewModel = object {
-        private val event: CategorySelectDialogViewModel.Event =
-            object : CategorySelectDialogViewModel.Event {
-                override fun selected(result: CategorySelectDialogViewModel.SelectedResult) {
-                    viewModelScope.launch {
-                        val isSuccess = api.updateUsage(
-                            id = moneyUsageId,
-                            subCategoryId = result.subCategoryId,
-                        )
-                        if (isSuccess) {
-                            viewModel.dismissDialog()
-                        } else {
-                            // TODO
-                        }
+        private val event: CategorySelectDialogViewModel.Event = object : CategorySelectDialogViewModel.Event {
+            override fun selected(result: CategorySelectDialogViewModel.SelectedResult) {
+                viewModelScope.launch {
+                    val isSuccess = api.updateUsage(
+                        id = moneyUsageId,
+                        subCategoryId = result.subCategoryId,
+                    )
+                    if (isSuccess) {
+                        viewModel.dismissDialog()
+                    } else {
+                        // TODO
                     }
                 }
             }
+        }
         val viewModel = CategorySelectDialogViewModel(
             scopedObjectFeature = scopedObjectFeature,
             event = event,
@@ -172,10 +171,9 @@ public class MoneyUsageScreenViewModel(
                             description = null,
                             onConfirm = {
                                 viewModelScope.launch {
-                                    val isSuccess =
-                                        api.deleteUsage(
-                                            id = moneyUsageId,
-                                        )
+                                    val isSuccess = api.deleteUsage(
+                                        id = moneyUsageId,
+                                    )
                                     if (isSuccess) {
                                         dismissConfirmDialog()
                                         eventSender.send {
@@ -204,11 +202,10 @@ public class MoneyUsageScreenViewModel(
                             title = "タイトル",
                             onComplete = { text ->
                                 viewModelScope.launch {
-                                    val isSuccess =
-                                        api.updateUsage(
-                                            id = moneyUsageId,
-                                            title = text,
-                                        )
+                                    val isSuccess = api.updateUsage(
+                                        id = moneyUsageId,
+                                        title = text,
+                                    )
                                     if (isSuccess) {
                                         dismissTextInputDialog()
                                     } else {

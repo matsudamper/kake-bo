@@ -146,8 +146,7 @@ public fun LoginSettingScreen(
                 },
                 title = {
                     Text(
-                        modifier =
-                        Modifier.clickable(
+                        modifier = Modifier.clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
@@ -177,8 +176,7 @@ public fun LoginSettingScreen(
 
                 is LoginSettingScreenUiState.LoadingState.Loading -> {
                     Box(
-                        modifier =
-                        Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize()
                             .padding(paddingValues),
                         contentAlignment = Alignment.Center,
                     ) {
@@ -204,18 +202,15 @@ private fun LoadedContent(
         val lazyListState = rememberLazyListState()
         var listHeightPx by remember { mutableIntStateOf(0) }
         LazyColumn(
-            modifier =
-            Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize()
                 .onSizeChanged {
                     listHeightPx = it.height
                 },
-            contentPadding =
-            PaddingValues(
+            contentPadding = PaddingValues(
                 start = paddingValues.calculateStartPadding(layoutDirection),
                 end = paddingValues.calculateEndPadding(layoutDirection),
                 top = paddingValues.calculateTopPadding(),
-                bottom =
-                paddingValues.calculateBottomPadding()
+                bottom = paddingValues.calculateBottomPadding()
                     .plus(24.dp),
             ),
             state = lazyListState,
@@ -227,8 +222,7 @@ private fun LoadedContent(
                     },
                 ) {
                     FidoSection(
-                        modifier =
-                        Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth()
                             .height(280.dp),
                         fidoList = uiState.fidoList,
                         onClickPlatform = { event.onClickPlatform() },
@@ -238,8 +232,7 @@ private fun LoadedContent(
             }
             item {
                 SettingSmallSection(
-                    modifier =
-                    Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                         .height(480.dp),
                     title = {
                         Text("セッション一覧")
@@ -260,8 +253,7 @@ private fun LoadedContent(
                 ) {
                     SettingListMenuItemButton(
                         modifier = Modifier.fillMaxWidth(),
-                        titleStyle =
-                        MaterialTheme.typography.bodyMedium.merge(
+                        titleStyle = MaterialTheme.typography.bodyMedium.merge(
                             TextStyle(
                                 color = MaterialTheme.colorScheme.error,
                             ),
@@ -285,13 +277,12 @@ private fun FidoSection(
 ) {
     Column(modifier = modifier) {
         Row(modifier = Modifier.fillMaxWidth()) {
-            val buttonPadding =
-                PaddingValues(
-                    top = 8.dp,
-                    bottom = 8.dp,
-                    start = 18.dp,
-                    end = 24.dp,
-                )
+            val buttonPadding = PaddingValues(
+                top = 8.dp,
+                bottom = 8.dp,
+                start = 18.dp,
+                end = 24.dp,
+            )
             Spacer(modifier = Modifier.weight(1f))
             OutlinedButton(
                 contentPadding = buttonPadding,
@@ -312,14 +303,12 @@ private fun FidoSection(
             }
         }
         LazyColumn(
-            modifier =
-            Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .weight(1f),
         ) {
             items(fidoList) { fido ->
                 Surface(
-                    modifier =
-                    Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                         .padding(top = 8.dp),
                     shape = MaterialTheme.shapes.medium,
                     color = MaterialTheme.colorScheme.primaryContainer,
@@ -330,8 +319,7 @@ private fun FidoSection(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            modifier =
-                            Modifier.weight(1f)
+                            modifier = Modifier.weight(1f)
                                 .padding(
                                     vertical = 8.dp,
                                     horizontal = 12.dp,
@@ -360,15 +348,13 @@ private fun SessionSection(
     val titleVerticalPadding = 8.dp
     LazyColumn(
         modifier = modifier,
-        contentPadding =
-        PaddingValues(
+        contentPadding = PaddingValues(
             horizontal = 8.dp,
         ),
     ) {
         item {
             Text(
-                modifier =
-                Modifier.padding(
+                modifier = Modifier.padding(
                     horizontal = itemHorizontalPadding,
                     vertical = titleVerticalPadding,
                 ),
@@ -391,8 +377,7 @@ private fun SessionSection(
         item { Spacer(modifier = Modifier.height(8.dp)) }
         item {
             Text(
-                modifier =
-                Modifier.padding(
+                modifier = Modifier.padding(
                     horizontal = itemHorizontalPadding,
                     vertical = titleVerticalPadding,
                 ),
@@ -407,8 +392,7 @@ private fun SessionSection(
         items(sessionList) { session ->
             SessionItem(
                 session = session,
-                modifier =
-                Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
                     .padding(horizontal = itemHorizontalPadding),
                 onClickDelete = { session.event.onClickDelete() },
                 onClickNameChange = null,
@@ -425,8 +409,7 @@ private fun SessionItem(
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        modifier =
-        modifier
+        modifier = modifier
             .padding(
                 top = 8.dp,
             ),
@@ -442,8 +425,7 @@ private fun SessionItem(
                 MaterialTheme.typography.bodySmall,
             ) {
                 Column(
-                    modifier =
-                    Modifier.weight(1f)
+                    modifier = Modifier.weight(1f)
                         .padding(
                             horizontal = 12.dp,
                             vertical = 8.dp,
@@ -466,8 +448,7 @@ private fun SessionItem(
                     ) {
                         Card(
                             modifier = Modifier.width(IntrinsicSize.Max),
-                            elevation =
-                            CardDefaults.cardElevation(
+                            elevation = CardDefaults.cardElevation(
                                 defaultElevation = 8.dp,
                             ),
                         ) {
@@ -476,8 +457,7 @@ private fun SessionItem(
                                     modifier = Modifier.fillMaxWidth(),
                                 ) {
                                     Text(
-                                        modifier =
-                                        Modifier.fillMaxWidth()
+                                        modifier = Modifier.fillMaxWidth()
                                             .clickable {
                                                 visibleMenu = false
                                                 onClickNameChange()
@@ -492,8 +472,7 @@ private fun SessionItem(
                                     modifier = Modifier.fillMaxWidth(),
                                 ) {
                                     Text(
-                                        modifier =
-                                        Modifier.fillMaxWidth()
+                                        modifier = Modifier.fillMaxWidth()
                                             .clickable {
                                                 visibleMenu = false
                                                 onClickDelete()
@@ -523,8 +502,7 @@ private fun SettingSmallSection(
             MaterialTheme.typography.titleMedium,
         ) {
             Box(
-                modifier =
-                Modifier
+                modifier = Modifier
                     .padding(
                         top = 16.dp,
                         bottom = 8.dp,

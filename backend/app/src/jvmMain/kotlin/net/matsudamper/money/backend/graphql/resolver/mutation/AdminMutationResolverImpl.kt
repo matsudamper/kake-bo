@@ -26,14 +26,13 @@ class AdminMutationResolverImpl : AdminMutationResolver {
         context.verifyAdminSession()
 
         return CompletableFuture.supplyAsync {
-            val result =
-                AddUserUseCase(
-                    context.diContainer.createAdminRepository(),
-                    passwordManager = PasswordManager(),
-                ).addUser(
-                    userName = name,
-                    password = password,
-                )
+            val result = AddUserUseCase(
+                context.diContainer.createAdminRepository(),
+                passwordManager = PasswordManager(),
+            ).addUser(
+                userName = name,
+                password = password,
+            )
             when (result) {
                 is AddUserUseCase.Result.Failure -> {
                     QlAdminAddUserResult(

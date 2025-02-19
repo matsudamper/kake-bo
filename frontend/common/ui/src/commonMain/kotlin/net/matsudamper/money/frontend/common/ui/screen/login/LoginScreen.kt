@@ -53,19 +53,17 @@ public fun LoginScreen(
             modifier = Modifier.fillMaxSize(),
         ) {
             Box(
-                modifier =
-                Modifier
+                modifier = Modifier
                     .align(Alignment.Center)
                     .widthIn(max = 400.dp)
                     .fillMaxWidth(),
             ) {
-                val textFieldTextStyle =
-                    MaterialTheme.typography.bodyMedium
-                        .merge(
-                            TextStyle(
-                                fontFamily = rememberCustomFontFamily(),
-                            ),
-                        )
+                val textFieldTextStyle = MaterialTheme.typography.bodyMedium
+                    .merge(
+                        TextStyle(
+                            fontFamily = rememberCustomFontFamily(),
+                        ),
+                    )
                 var userIdInput by remember { mutableStateOf(true) }
                 if (userIdInput) {
                     UserIdInput(
@@ -90,8 +88,7 @@ public fun LoginScreen(
             }
 
             Row(
-                modifier =
-                Modifier.align(Alignment.BottomEnd)
+                modifier = Modifier.align(Alignment.BottomEnd)
                     .padding(12.dp),
             ) {
                 OutlinedButton(

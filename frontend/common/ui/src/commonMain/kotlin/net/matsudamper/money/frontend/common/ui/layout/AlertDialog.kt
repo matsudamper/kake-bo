@@ -40,8 +40,7 @@ internal fun AlertDialog(
     onDismissRequest: () -> Unit,
 ) {
     Box(
-        modifier =
-        Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize()
             .clickable(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() },
@@ -51,8 +50,7 @@ internal fun AlertDialog(
         contentAlignment = Alignment.Center,
     ) {
         Card(
-            modifier =
-            Modifier
+            modifier = Modifier
                 .clickable(
                     indication = null,
                     interactionSource = remember { MutableInteractionSource() },
@@ -62,8 +60,7 @@ internal fun AlertDialog(
                 .padding(24.dp),
         ) {
             Column(
-                modifier =
-                Modifier
+                modifier = Modifier
                     .padding(horizontal = 12.dp)
                     .padding(bottom = 12.dp, top = 24.dp)
                     .width(IntrinsicSize.Max),
