@@ -156,10 +156,6 @@ private fun LoadedContent(
             item {
                 LaunchedEffect(Unit) {
                     uiState.event.loadMore()
-                    while (isActive) {
-                        delay(500)
-                        uiState.event.loadMore()
-                    }
                 }
                 Box(
                     modifier =
