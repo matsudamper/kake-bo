@@ -147,18 +147,16 @@ private fun MainContent(
     Column(modifier = modifier) {
         Filter(
             modifier = Modifier.fillMaxWidth(),
-            contentPadding =
-                PaddingValues(
-                    top = 12.dp,
-                    start = 12.dp,
-                    end = 12.dp,
-                ),
+            contentPadding = PaddingValues(
+                top = 12.dp,
+                start = 12.dp,
+                end = 12.dp,
+            ),
             uiState = filterUiState,
         )
         BoxWithConstraints(
-            modifier =
-                Modifier.fillMaxWidth()
-                    .weight(1f),
+            modifier = Modifier.fillMaxWidth()
+                .weight(1f),
         ) {
             val refreshState = rememberPullToRefreshState()
             val coroutineScope = rememberCoroutineScope()
