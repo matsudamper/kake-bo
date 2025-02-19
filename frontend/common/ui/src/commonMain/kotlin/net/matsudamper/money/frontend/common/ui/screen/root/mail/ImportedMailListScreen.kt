@@ -39,7 +39,6 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -126,7 +125,10 @@ public fun ImportedMailListScreen(
             }
 
             is ImportedMailListScreenUiState.LoadingState.Loading -> {
-                LaunchedEffect(Unit) { isRefreshing = false }
+                LaunchedEffect(Unit) {
+                    delay(500)
+                    isRefreshing = false
+                }
                 Box(
                     modifier = modifier,
                 ) {
@@ -211,6 +213,7 @@ private fun MainContent(
                                 contentAlignment = Alignment.Center,
                             ) {
                                 LaunchedEffect(Unit) {
+                                    delay(500)
                                     requestRefresh(false)
                                 }
                                 CircularProgressIndicator()
