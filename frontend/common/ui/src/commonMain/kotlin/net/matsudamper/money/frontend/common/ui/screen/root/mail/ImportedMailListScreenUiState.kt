@@ -71,7 +71,7 @@ public data class ImportedMailListScreenUiState(
     @Immutable
     public interface Event {
         public fun onViewInitialized()
-
         public fun moreLoading()
+        public fun refresh()
     }
 }

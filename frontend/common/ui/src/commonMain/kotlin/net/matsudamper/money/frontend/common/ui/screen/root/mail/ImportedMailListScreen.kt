@@ -29,11 +29,14 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -78,12 +81,12 @@ public fun ImportedMailListScreen(
                 title = {
                     Text(
                         modifier =
-                        Modifier.clickable(
-                            interactionSource = remember { MutableInteractionSource() },
-                            indication = null,
-                        ) {
-                            uiState.rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
-                        },
+                            Modifier.clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null,
+                            ) {
+                                uiState.rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                            },
                         text = "家計簿",
                     )
                 },
@@ -114,6 +117,7 @@ public fun ImportedMailListScreen(
                     filterUiState = uiState.filters,
                     moreLoading = uiState.event::moreLoading,
                     lazyListState = lazyListState,
+                    refresh = uiState.event::refresh,
                 )
             }
 
@@ -130,6 +134,7 @@ public fun ImportedMailListScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainContent(
     modifier: Modifier,
@@ -137,54 +142,72 @@ private fun MainContent(
     lazyListState: LazyListState = rememberLazyListState(),
     uiState: ImportedMailListScreenUiState.LoadingState.Loaded,
     moreLoading: () -> Unit,
+    refresh: () -> Unit,
 ) {
     Column(modifier = modifier) {
         Filter(
             modifier = Modifier.fillMaxWidth(),
             contentPadding =
-            PaddingValues(
-                top = 12.dp,
-                start = 12.dp,
-                end = 12.dp,
-            ),
+                PaddingValues(
+                    top = 12.dp,
+                    start = 12.dp,
+                    end = 12.dp,
+                ),
             uiState = filterUiState,
         )
         BoxWithConstraints(
             modifier =
-            Modifier.fillMaxWidth()
-                .weight(1f),
+                Modifier.fillMaxWidth()
+                    .weight(1f),
         ) {
-            LazyColumn(
+            val refreshState = rememberPullToRefreshState()
+            val coroutineScope = rememberCoroutineScope()
+            var isRefreshing by remember { mutableStateOf(false) }
+            PullToRefreshBox(
                 modifier = Modifier.fillMaxSize(),
-                state = lazyListState,
+                state = refreshState,
+                isRefreshing = isRefreshing,
+                onRefresh = {
+                    coroutineScope.launch {
+                        isRefreshing = true
+                        refresh()
+                        delay(1000)
+                        isRefreshing = false
+                    }
+                },
             ) {
-                items(uiState.listItems) { mail ->
-                    SuggestUsageItem(
-                        modifier =
-                        Modifier.fillMaxWidth()
-                            .padding(
-                                horizontal = 12.dp,
-                                vertical = 6.dp,
-                            ),
-                        listItem = mail,
-                    )
-                }
-                if (uiState.showLastLoading) {
-                    item {
-                        LaunchedEffect(Unit) {
-                            moreLoading()
-                            while (isActive) {
-                                delay(500)
-                                moreLoading()
-                            }
-                        }
-                        Box(
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    state = lazyListState,
+                ) {
+                    items(uiState.listItems) { mail ->
+                        SuggestUsageItem(
                             modifier =
-                            Modifier.fillMaxWidth()
-                                .padding(vertical = 24.dp),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            CircularProgressIndicator()
+                                Modifier.fillMaxWidth()
+                                    .padding(
+                                        horizontal = 12.dp,
+                                        vertical = 6.dp,
+                                    ),
+                            listItem = mail,
+                        )
+                    }
+                    if (uiState.showLastLoading) {
+                        item {
+                            LaunchedEffect(Unit) {
+                                moreLoading()
+                                while (isActive) {
+                                    delay(500)
+                                    moreLoading()
+                                }
+                            }
+                            Box(
+                                modifier =
+                                    Modifier.fillMaxWidth()
+                                        .padding(vertical = 24.dp),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                CircularProgressIndicator()
+                            }
                         }
                     }
                 }
@@ -201,12 +224,12 @@ private fun Filter(
 ) {
     Row(
         modifier =
-        modifier
-            .horizontalScroll(rememberScrollState())
-            .padding(
-                top = contentPadding.calculateTopPadding(),
-                bottom = contentPadding.calculateBottomPadding(),
-            ),
+            modifier
+                .horizontalScroll(rememberScrollState())
+                .padding(
+                    top = contentPadding.calculateTopPadding(),
+                    bottom = contentPadding.calculateBottomPadding(),
+                ),
     ) {
         Spacer(Modifier.width(contentPadding.calculateStartPadding(LayoutDirection.Ltr)))
 
@@ -214,12 +237,12 @@ private fun Filter(
             var visiblePopup by remember { mutableStateOf(false) }
             FilterChip(
                 selected =
-                when (uiState.link.status) {
-                    ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> false
-                    ImportedMailListScreenUiState.Filters.LinkStatus.Linked,
-                    ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked,
-                    -> true
-                },
+                    when (uiState.link.status) {
+                        ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> false
+                        ImportedMailListScreenUiState.Filters.LinkStatus.Linked,
+                        ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked,
+                            -> true
+                    },
                 onClick = {
                     when (uiState.link.status) {
                         ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> {
@@ -228,7 +251,7 @@ private fun Filter(
 
                         ImportedMailListScreenUiState.Filters.LinkStatus.Linked,
                         ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked,
-                        -> {
+                            -> {
                             uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.Undefined)
                         }
                     }
@@ -236,12 +259,12 @@ private fun Filter(
                 label = {
                     Text(
                         text =
-                        "連携状態:" +
-                            when (uiState.link.status) {
-                                ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> "全て"
-                                ImportedMailListScreenUiState.Filters.LinkStatus.Linked -> "連携済み"
-                                ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked -> "未連携"
-                            },
+                            "連携状態:" +
+                                    when (uiState.link.status) {
+                                        ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> "全て"
+                                        ImportedMailListScreenUiState.Filters.LinkStatus.Linked -> "連携済み"
+                                        ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked -> "未連携"
+                                    },
                         style = MaterialTheme.typography.labelMedium,
                     )
                 },
@@ -256,31 +279,31 @@ private fun Filter(
                 ) {
                     Card(
                         elevation =
-                        CardDefaults.cardElevation(
-                            defaultElevation = 8.dp,
-                        ),
+                            CardDefaults.cardElevation(
+                                defaultElevation = 8.dp,
+                            ),
                     ) {
                         Column(
                             modifier = Modifier.width(IntrinsicSize.Max),
                         ) {
                             Text(
                                 modifier =
-                                Modifier.fillMaxWidth()
-                                    .clickable {
-                                        visiblePopup = false
-                                        uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.Linked)
-                                    }
-                                    .padding(12.dp),
+                                    Modifier.fillMaxWidth()
+                                        .clickable {
+                                            visiblePopup = false
+                                            uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.Linked)
+                                        }
+                                        .padding(12.dp),
                                 text = "連携済み",
                             )
                             Text(
                                 modifier =
-                                Modifier.fillMaxWidth()
-                                    .clickable {
-                                        visiblePopup = false
-                                        uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked)
-                                    }
-                                    .padding(12.dp),
+                                    Modifier.fillMaxWidth()
+                                        .clickable {
+                                            visiblePopup = false
+                                            uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked)
+                                        }
+                                        .padding(12.dp),
                                 text = "未連携",
                             )
                         }
@@ -304,8 +327,8 @@ private fun SuggestUsageItem(
     ) {
         Column(
             modifier =
-            Modifier.fillMaxWidth()
-                .padding(12.dp),
+                Modifier.fillMaxWidth()
+                    .padding(12.dp),
         ) {
             CardSection(
                 modifier = Modifier.fillMaxWidth(),
@@ -555,8 +578,8 @@ private fun MailItem(
                         Spacer(Modifier.weight(1f))
                         Text(
                             modifier =
-                            Modifier
-                                .fillMaxHeight(),
+                                Modifier
+                                    .fillMaxHeight(),
                             text = "タイトル",
                             fontFamily = rememberCustomFontFamily(),
                         )

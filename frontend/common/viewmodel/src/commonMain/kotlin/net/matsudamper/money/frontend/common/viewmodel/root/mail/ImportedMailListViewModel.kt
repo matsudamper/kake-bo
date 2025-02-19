@@ -59,6 +59,19 @@ public class ImportedMailListViewModel(
                     override fun moreLoading() {
                         fetch()
                     }
+
+                    override fun refresh() {
+                        viewModelStateFlow.update {
+                            it.copy(
+                                mailState = it.mailState.copy(
+                                    cursor = null,
+                                    finishLoadingToEnd = false,
+                                    mails = listOf(),
+                                ),
+                            )
+                        }
+                        fetch()
+                    }
                 },
                 loadingState = ImportedMailListScreenUiState.LoadingState.Loading,
                 rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
@@ -78,35 +91,28 @@ public class ImportedMailListViewModel(
                 viewModelStateFlow.collect { viewModelState ->
                     uiStateFlow.update { uiState ->
                         uiState.copy(
-                            loadingState =
-                            ImportedMailListScreenUiState.LoadingState.Loaded(
+                            loadingState = ImportedMailListScreenUiState.LoadingState.Loaded(
                                 showLastLoading = viewModelState.mailState.finishLoadingToEnd.not(),
-                                listItems =
-                                viewModelState.mailState.mails.map { mail ->
+                                listItems = viewModelState.mailState.mails.map { mail ->
                                     ImportedMailListScreenUiState.ListItem(
-                                        mail =
-                                        ImportedMailListScreenUiState.ImportedMail(
+                                        mail = ImportedMailListScreenUiState.ImportedMail(
                                             mailFrom = mail.from,
                                             mailSubject = mail.subject,
                                         ),
-                                        usages =
-                                        mail.suggestUsages.map { usage ->
+                                        usages = mail.suggestUsages.map { usage ->
                                             ImportedMailListScreenUiState.UsageItem(
                                                 title = usage.title,
                                                 description = usage.description,
                                                 service = usage.serviceName.orEmpty(),
-                                                amount =
-                                                run price@{
+                                                amount = run price@{
                                                     val amount = usage.amount ?: return@price ""
                                                     "${Formatter.formatMoney(amount)}円"
                                                 },
-                                                dateTime =
-                                                run date@{
+                                                dateTime = run date@{
                                                     val dateTime = usage.dateTime ?: return@date ""
                                                     Formatter.formatDateTime(dateTime)
                                                 },
-                                                category =
-                                                run category@{
+                                                category = run category@{
                                                     val subCategory = usage.subCategory ?: return@category ""
                                                     val category = subCategory.category
 
@@ -118,17 +124,16 @@ public class ImportedMailListViewModel(
                                     )
                                 }.toImmutableList(),
                             ),
-                            filters =
-                            uiState.filters.copy(
+                            filters = uiState.filters.copy(
                                 link =
-                                uiState.filters.link.copy(
-                                    status =
-                                    when (viewModelState.mailState.query.isLinked) {
-                                        null -> LinkStatus.Undefined
-                                        true -> LinkStatus.Linked
-                                        false -> LinkStatus.NotLinked
-                                    },
-                                ),
+                                    uiState.filters.link.copy(
+                                        status =
+                                            when (viewModelState.mailState.query.isLinked) {
+                                                null -> LinkStatus.Undefined
+                                                true -> LinkStatus.Linked
+                                                false -> LinkStatus.NotLinked
+                                            },
+                                    ),
                             ),
                         )
                     }
@@ -147,9 +152,9 @@ public class ImportedMailListViewModel(
         viewModelStateFlow.update {
             it.copy(
                 mailState =
-                ViewModelState.MailState(
-                    query = newQuery,
-                ),
+                    ViewModelState.MailState(
+                        query = newQuery,
+                    ),
             )
         }
         fetch()
@@ -177,9 +182,9 @@ public class ImportedMailListViewModel(
         viewModelStateFlow.update {
             it.copy(
                 mailState =
-                ViewModelState.MailState(
-                    query = newQuery,
-                ),
+                    ViewModelState.MailState(
+                        query = newQuery,
+                    ),
             )
         }
         fetch()
@@ -245,11 +250,11 @@ public class ImportedMailListViewModel(
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     mailState =
-                    viewModelState.mailState.copy(
-                        mails = viewModelState.mailState.mails + mailConnection.nodes,
-                        cursor = mailConnection.cursor,
-                        finishLoadingToEnd = mailConnection.cursor == null,
-                    ),
+                        viewModelState.mailState.copy(
+                            mails = viewModelState.mailState.mails + mailConnection.nodes,
+                            cursor = mailConnection.cursor,
+                            finishLoadingToEnd = mailConnection.cursor == null,
+                        ),
                     isLoading = false,
                 )
             }
