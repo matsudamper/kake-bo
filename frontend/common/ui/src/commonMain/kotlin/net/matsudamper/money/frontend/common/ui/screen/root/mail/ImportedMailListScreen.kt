@@ -39,6 +39,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -109,19 +110,23 @@ public fun ImportedMailListScreen(
                 )
             }
         }
+        var isRefreshing by remember { mutableStateOf(false) }
         when (val loadingState = uiState.loadingState) {
             is ImportedMailListScreenUiState.LoadingState.Loaded -> {
                 MainContent(
+                    isRefreshing = isRefreshing,
                     modifier = modifier,
                     uiState = loadingState,
                     filterUiState = uiState.filters,
                     moreLoading = uiState.event::moreLoading,
                     lazyListState = lazyListState,
                     refresh = uiState.event::refresh,
+                    requestRefresh = { isRefreshing = it },
                 )
             }
 
             is ImportedMailListScreenUiState.LoadingState.Loading -> {
+                LaunchedEffect(Unit) { isRefreshing = false }
                 Box(
                     modifier = modifier,
                 ) {
@@ -137,12 +142,14 @@ public fun ImportedMailListScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainContent(
-    modifier: Modifier,
+    isRefreshing: Boolean,
     filterUiState: ImportedMailListScreenUiState.Filters,
     lazyListState: LazyListState = rememberLazyListState(),
     uiState: ImportedMailListScreenUiState.LoadingState.Loaded,
     moreLoading: () -> Unit,
+    requestRefresh: (Boolean) -> Unit,
     refresh: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
         Filter(
@@ -160,17 +167,16 @@ private fun MainContent(
         ) {
             val refreshState = rememberPullToRefreshState()
             val coroutineScope = rememberCoroutineScope()
-            var isRefreshing by remember { mutableStateOf(false) }
             PullToRefreshBox(
                 modifier = Modifier.fillMaxSize(),
                 state = refreshState,
                 isRefreshing = isRefreshing,
                 onRefresh = {
                     coroutineScope.launch {
-                        isRefreshing = true
+                        requestRefresh(true)
                         refresh()
                         delay(1000)
-                        isRefreshing = false
+                        requestRefresh(false)
                     }
                 },
             ) {
@@ -204,6 +210,9 @@ private fun MainContent(
                                         .padding(vertical = 24.dp),
                                 contentAlignment = Alignment.Center,
                             ) {
+                                LaunchedEffect(Unit) {
+                                    requestRefresh(false)
+                                }
                                 CircularProgressIndicator()
                             }
                         }
