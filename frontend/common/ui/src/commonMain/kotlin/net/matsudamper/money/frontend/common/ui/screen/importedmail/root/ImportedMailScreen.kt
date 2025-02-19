@@ -221,8 +221,7 @@ public fun ImportedMailScreen(
                 },
                 title = {
                     Box(
-                        modifier =
-                        Modifier
+                        modifier = Modifier
                             .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
                                 uiState.event.onClickTitle()
                             },
@@ -240,8 +239,7 @@ public fun ImportedMailScreen(
         when (uiState.loadingState) {
             is MailScreenUiState.LoadingState.Loading -> {
                 Box(
-                    modifier =
-                    Modifier.padding(paddingValues)
+                    modifier = Modifier.padding(paddingValues)
                         .fillMaxSize(),
                 ) {
                     CircularProgressIndicator(
@@ -282,8 +280,7 @@ private fun MainContent(
         LazyColumn(
             state = lazyListState,
             contentPadding = PaddingValues(),
-            modifier =
-            Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .padding(horizontal = 24.dp)
                 .widthIn(max = 700.dp),
         ) {
@@ -422,15 +419,13 @@ private fun LinkedMoneyUsageCard(
     uiState: MailScreenUiState.LinkedUsage,
 ) {
     Card(
-        modifier =
-        modifier
+        modifier = modifier
             .clickable {
                 uiState.event.onClick()
             },
     ) {
         GridColumn(
-            modifier =
-            Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .padding(12.dp),
             horizontalPadding = 8.dp,
             verticalPadding = 4.dp,
@@ -481,8 +476,7 @@ private fun MoneyUsageSuggestCard(
         modifier = modifier,
     ) {
         Column(
-            modifier =
-            Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .padding(12.dp),
         ) {
             GridColumn(
@@ -556,8 +550,7 @@ private fun MailCard(
         modifier = modifier,
     ) {
         Column(
-            modifier =
-            Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .padding(12.dp),
         ) {
             GridColumn(
