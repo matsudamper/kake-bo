@@ -119,8 +119,7 @@ private fun LoadedContent(
     LazyColumn(
         modifier = modifier,
         state = lazyListState,
-        contentPadding =
-        PaddingValues(
+        contentPadding = PaddingValues(
             start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
             end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
         ),
@@ -142,8 +141,7 @@ private fun LoadedContent(
 
                 is RootUsageListScreenUiState.Item.Usage -> {
                     ListItemUsage(
-                        modifier =
-                        Modifier
+                        modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 6.dp)
                             .padding(start = 12.dp),
@@ -158,8 +156,7 @@ private fun LoadedContent(
                     uiState.event.loadMore()
                 }
                 Box(
-                    modifier =
-                    Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                         .padding(vertical = 12.dp),
                 ) {
                     CircularProgressIndicator(
@@ -201,8 +198,8 @@ private fun ListItemUsage(
     ) {
         GridColumn(
             modifier =
-            Modifier.fillMaxWidth()
-                .padding(12.dp),
+                Modifier.fillMaxWidth()
+                    .padding(12.dp),
             horizontalPadding = 8.dp,
             verticalPadding = 4.dp,
         ) {
