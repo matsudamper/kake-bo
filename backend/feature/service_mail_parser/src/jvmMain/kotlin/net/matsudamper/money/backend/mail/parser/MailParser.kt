@@ -10,6 +10,7 @@ import net.matsudamper.money.backend.mail.parser.services.BicCameraUsageServices
 import net.matsudamper.money.backend.mail.parser.services.BookWalkerUsageServices
 import net.matsudamper.money.backend.mail.parser.services.BoothUsageService
 import net.matsudamper.money.backend.mail.parser.services.DmmUsageServices
+import net.matsudamper.money.backend.mail.parser.services.EPlusUsageServices
 import net.matsudamper.money.backend.mail.parser.services.ESekiReserveUsegeService
 import net.matsudamper.money.backend.mail.parser.services.EkiNetUsageServices
 import net.matsudamper.money.backend.mail.parser.services.FanzaDojinUsageServices
@@ -88,6 +89,7 @@ public object MailParser {
             RentioUsageServices,
             RakutenCardUsageService,
             YMobileUsageServices,
+            EPlusUsageServices,
         )
             .mapNotNull {
                 runCatching {

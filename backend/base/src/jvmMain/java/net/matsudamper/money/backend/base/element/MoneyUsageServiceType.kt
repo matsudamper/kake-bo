@@ -140,4 +140,8 @@ public enum class MoneyUsageServiceType(
         id = 35,
         displayName = "Y!mobile",
     ),
+    EPlus(
+        id = 36,
+        displayName = "e+",
+    ),
 }
