@@ -37,7 +37,8 @@ public fun NavHost(
             }
     }
     CompositionLocalProvider(
-        LocalScopedObjectStore provides scopedObjectStoreOwner.createOrGetScopedObjectStore(navController.currentBackstackEntry.structure),
+        LocalScopedObjectStore provides scopedObjectStoreOwner
+            .createOrGetScopedObjectStore(navController.currentBackstackEntry.structure),
     ) {
         content(navController.currentBackstackEntry)
     }
