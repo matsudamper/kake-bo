@@ -5,6 +5,8 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 
 public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
     override val stackGroupId: Any get() = RootHomeScreenStructure::class
+    override val sameScreenId: String get() = this::class.qualifiedName!!
+
     public sealed interface Period : RootHomeScreenStructure {
         public val since: LocalDate?
         public val period: Int
@@ -41,10 +43,6 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
                 }
             }
             return direction.placeholderUrl.plus(urlParam)
-        }
-
-        override fun equalScreen(other: IScreenStructure): Boolean {
-            return other is PeriodAnalytics
         }
 
         public companion object {
@@ -88,10 +86,6 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
             return direction.placeholderUrl
                 .replace("{id}", categoryId.value.toString())
                 .plus(urlParam)
-        }
-
-        override fun equalScreen(other: IScreenStructure): Boolean {
-            return other is PeriodAnalytics
         }
 
         public companion object {
@@ -159,10 +153,6 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
             return direction.placeholderUrl
                 .replace("{$MONTH_KEY}", "$year-$month")
                 .replace("{$CATEGORY_KEY}", categoryId.value.toString())
-        }
-
-        override fun equalScreen(other: IScreenStructure): Boolean {
-            return other is MonthlyCategory
         }
 
         public companion object {

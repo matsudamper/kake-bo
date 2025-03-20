@@ -12,9 +12,9 @@ public interface IScreenStructure {
     public val stackGroupId: Any?
 
     /***
-     * 同じ画面かを判定する。例えば、クエリパラメータが変わるだけでは違う画面と言えない。
+     * 同じ画面かを判定する為に使用する。例えば、クエリパラメータが変わるだけでは違う画面と言えない。
      */
-    public fun equalScreen(other: IScreenStructure): Boolean = equals(other)
+    public val sameScreenId: String
 
     public fun createUrl(): String {
         return direction.placeholderUrl

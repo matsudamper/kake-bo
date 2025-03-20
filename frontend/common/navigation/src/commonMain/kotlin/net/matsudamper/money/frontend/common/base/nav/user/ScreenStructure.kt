@@ -12,28 +12,34 @@ public sealed interface ScreenStructure : IScreenStructure {
             override val stackGroupId: Any get() = Settings::class
             public data object Root : Settings {
                 override val direction: Screens = Screens.Settings
+                override val sameScreenId: String = this::class.qualifiedName!!
             }
 
             public data object Api : Settings {
                 override val direction: Screens = Screens.Api
+                override val sameScreenId: String = this::class.qualifiedName!!
             }
 
             public data object Login : Settings {
                 override val direction: Screens = Screens.SettingsLogin
+                override val sameScreenId: String = this::class.qualifiedName!!
             }
 
             public data object Imap : Settings {
                 override val direction: Screens = Screens.SettingsImap
+                override val sameScreenId: String = this::class.qualifiedName!!
             }
 
             public data object Categories : Settings {
                 override val direction: Screens = Screens.SettingsCategory
+                override val sameScreenId: String = this::class.qualifiedName!!
             }
 
             public data class Category(
                 public val id: MoneyUsageCategoryId,
             ) : Settings {
                 override val direction: Screens = Screens.SettingsCategoryId
+                override val sameScreenId: String = this::class.qualifiedName!!
 
                 override fun createUrl(): String {
                     return direction.placeholderUrl.replace("{id}", id.value.toString())
@@ -42,12 +48,14 @@ public sealed interface ScreenStructure : IScreenStructure {
 
             public data object MailCategoryFilters : Settings {
                 override val direction: Screens = Screens.MailCategoryFilters
+                override val sameScreenId: String = this::class.qualifiedName!!
             }
 
             public data class MailCategoryFilter(
                 val id: ImportedMailCategoryFilterId,
             ) : Settings {
                 override val direction: Screens = Screens.MailCategoryFilter
+                override val sameScreenId: String = this::class.qualifiedName!!
 
                 override fun createUrl(): String {
                     return direction.placeholderUrl.replace("{id}", id.id.toString())
@@ -59,6 +67,7 @@ public sealed interface ScreenStructure : IScreenStructure {
             override val stackGroupId: Any get() = Add::class
             public data object Root : Add {
                 override val direction: Screens = Screens.Add
+                override val sameScreenId: String = this::class.qualifiedName!!
             }
 
             public data class Imported(
@@ -76,9 +85,7 @@ public sealed interface ScreenStructure : IScreenStructure {
                     return direction.placeholderUrl.plus(urlParam)
                 }
 
-                override fun equalScreen(other: IScreenStructure): Boolean {
-                    return other is Imported
-                }
+                override val sameScreenId: String = this::class.qualifiedName!!
 
                 public companion object {
                     private const val KEY_IS_LINKED = "is_linked"
@@ -99,6 +106,7 @@ public sealed interface ScreenStructure : IScreenStructure {
 
             public data object Import : Add {
                 override val direction: Screens = Screens.MailImport
+                override val sameScreenId: String = this::class.qualifiedName!!
             }
         }
 
@@ -106,20 +114,14 @@ public sealed interface ScreenStructure : IScreenStructure {
             override val stackGroupId: Any get() = Usage::class
             public data object List : Usage {
                 override val direction: Screens = Screens.UsageList
-
-                override fun equalScreen(other: IScreenStructure): Boolean {
-                    return other is List
-                }
+                override val sameScreenId: String = this::class.qualifiedName!!
             }
 
             public data class Calendar(
                 val yearMonth: YearMonth? = null,
             ) : Usage {
                 override val direction: Screens = Screens.UsageCalendar
-
-                override fun equalScreen(other: IScreenStructure): Boolean {
-                    return other is Calendar
-                }
+                override val sameScreenId: String = this::class.qualifiedName!!
 
                 override fun createUrl(): String {
                     return if (yearMonth == null) {
@@ -159,16 +161,19 @@ public sealed interface ScreenStructure : IScreenStructure {
     public data object NotFound : ScreenStructure {
         override val direction: Screens = Screens.NotFound
         override val stackGroupId: Any? = null
+        override val sameScreenId: String = this::class.qualifiedName!!
     }
 
     public data object Login : ScreenStructure {
         override val direction: Screens = Screens.Login
         override val stackGroupId: Any? = null
+        override val sameScreenId: String = this::class.qualifiedName!!
     }
 
     public data object Admin : ScreenStructure {
         override val direction: Screens = Screens.Admin
         override val stackGroupId: Any? = null
+        override val sameScreenId: String = this::class.qualifiedName!!
     }
 
     public data class ImportedMail(
@@ -176,14 +181,11 @@ public sealed interface ScreenStructure : IScreenStructure {
     ) : ScreenStructure {
         override val direction: Screens = Screens.ImportedMail
         override val stackGroupId: Any? = null
+        override val sameScreenId: String = "${this::class.qualifiedName!!}($id)"
 
         override fun createUrl(): String {
             return direction.placeholderUrl
                 .replace("{id}", id.id.toString())
-        }
-
-        override fun equalScreen(other: IScreenStructure): Boolean {
-            return this == other
         }
     }
 
@@ -192,14 +194,11 @@ public sealed interface ScreenStructure : IScreenStructure {
     ) : ScreenStructure {
         override val direction: Screens = Screens.MoneyUsage
         override val stackGroupId: Any? = null
+        override val sameScreenId: String = "${this::class.qualifiedName!!}($id)"
 
         override fun createUrl(): String {
             return direction.placeholderUrl
                 .replace("{id}", id.id.toString())
-        }
-
-        override fun equalScreen(other: IScreenStructure): Boolean {
-            return this == other
         }
     }
 
@@ -208,14 +207,11 @@ public sealed interface ScreenStructure : IScreenStructure {
     ) : ScreenStructure {
         override val direction: Screens = Screens.ImportedMailHTML
         override val stackGroupId: Any? = null
+        override val sameScreenId: String = "${this::class.qualifiedName!!}($id)"
 
         override fun createUrl(): String {
             return direction.placeholderUrl
                 .replace("{id}", id.id.toString())
-        }
-
-        override fun equalScreen(other: IScreenStructure): Boolean {
-            return this == other
         }
     }
 
@@ -224,14 +220,11 @@ public sealed interface ScreenStructure : IScreenStructure {
     ) : ScreenStructure {
         override val direction: Screens = Screens.ImportedMailPlain
         override val stackGroupId: Any? = null
+        override val sameScreenId: String = "${this::class.qualifiedName!!}($id)"
 
         override fun createUrl(): String {
             return direction.placeholderUrl
                 .replace("{id}", id.id.toString())
-        }
-
-        override fun equalScreen(other: IScreenStructure): Boolean {
-            return this == other
         }
     }
 
@@ -244,6 +237,7 @@ public sealed interface ScreenStructure : IScreenStructure {
     ) : ScreenStructure {
         override val direction: Screens = Screens.AddMoneyUsage
         override val stackGroupId: Any? = null
+        override val sameScreenId: String = this::class.qualifiedName!!
 
         override fun createUrl(): String {
             return direction.placeholderUrl.plus(
@@ -259,10 +253,6 @@ public sealed interface ScreenStructure : IScreenStructure {
                     }
                 },
             )
-        }
-
-        override fun equalScreen(other: IScreenStructure): Boolean {
-            return other is AddMoneyUsage
         }
 
         public companion object {

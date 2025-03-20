@@ -6,7 +6,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
@@ -38,7 +37,7 @@ public fun NavHost(
     }
     CompositionLocalProvider(
         LocalScopedObjectStore provides scopedObjectStoreOwner
-            .createOrGetScopedObjectStore(navController.currentBackstackEntry.structure),
+            .createOrGetScopedObjectStore(navController.currentBackstackEntry.structure.sameScreenId),
     ) {
         content(navController.currentBackstackEntry)
     }

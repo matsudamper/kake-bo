@@ -77,7 +77,7 @@ internal class ScreenNavControllerImpl(
         }
 
         val url = navigation.createUrl()
-        if (backstackEntries.last().structure.equalScreen(navigation)) {
+        if (backstackEntries.last().structure.sameScreenId == navigation.sameScreenId) {
             window.history.replaceState(
                 data = null,
                 title = navigation.direction.title,
