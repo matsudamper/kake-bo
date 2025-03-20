@@ -17,16 +17,10 @@ public fun NavHost(
     navController: ScreenNavController,
     content: @Composable (ScreenNavController.NavStackEntry) -> Unit,
 ) {
-    val holder = rememberSaveableStateHolder()
     val scopedObjectStoreOwner = rememberScopedObjectStoreOwner("NavHost")
     run {
         var beforeEntries: List<ScreenNavController.NavStackEntry> by remember { mutableStateOf(listOf()) }
         LaunchedEffect(navController.backstackEntries) {
-            beforeEntries
-                .filterNot { navController.backstackEntries.contains(it) }
-                .forEach { entry ->
-                    holder.removeState(entry.structure.toString())
-                }
             beforeEntries = navController.backstackEntries
         }
     }
@@ -45,10 +39,7 @@ public fun NavHost(
     CompositionLocalProvider(
         LocalScopedObjectStore provides scopedObjectStoreOwner.createOrGetScopedObjectStore(navController.currentBackstackEntry.structure),
     ) {
-        val entry = navController.currentBackstackEntry
-        holder.SaveableStateProvider(entry.structure.toString()) {
-            content(navController.currentBackstackEntry)
-        }
+        content(navController.currentBackstackEntry)
     }
 }
 

@@ -71,8 +71,8 @@ internal fun RootNavContent(
     val loginCheckUseCase = LocalGlobalEventHandlerLoginCheckUseCaseDelegate.current
     when (current) {
         is RootHomeScreenStructure -> {
-            tabHolder.SaveableStateProvider(current::class.toString()) {
-                val holder = rememberSaveableStateHolder(current::class.toString())
+            tabHolder.SaveableStateProvider(RootHomeScreenStructure::class.toString()) {
+                val holder = rememberSaveableStateHolder(RootHomeScreenStructure::class.toString())
 
                 when (current) {
                     is RootHomeScreenStructure.Monthly -> {
