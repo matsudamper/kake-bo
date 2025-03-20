@@ -144,4 +144,8 @@ public enum class MoneyUsageServiceType(
         id = 36,
         displayName = "e+",
     ),
+    FFXIV(
+        id = 37,
+        displayName = "FF XIV",
+    ),
 }

@@ -34,6 +34,7 @@ import net.matsudamper.money.backend.mail.parser.services.RakutenOnlineUsageServ
 import net.matsudamper.money.backend.mail.parser.services.RakutenUsageServices
 import net.matsudamper.money.backend.mail.parser.services.RentioUsageServices
 import net.matsudamper.money.backend.mail.parser.services.ShunsuguUsageService
+import net.matsudamper.money.backend.mail.parser.services.SquareEnixMogStationUsageServices
 import net.matsudamper.money.backend.mail.parser.services.SteamUsageService
 import net.matsudamper.money.backend.mail.parser.services.UberEatsUsageService
 import net.matsudamper.money.backend.mail.parser.services.YMobileUsageServices
@@ -90,6 +91,7 @@ public object MailParser {
             RakutenCardUsageService,
             YMobileUsageServices,
             EPlusUsageServices,
+            SquareEnixMogStationUsageServices,
         )
             .mapNotNull {
                 runCatching {
