@@ -31,7 +31,7 @@ kotlin {
                 implementation(kotlin("stdlib"))
                 implementation(kotlin("reflect"))
 
-                val jooqVersion = "3.19.19"
+                val jooqVersion = "3.20.2"
                 implementation("org.jooq:jooq:$jooqVersion")
             }
         }
