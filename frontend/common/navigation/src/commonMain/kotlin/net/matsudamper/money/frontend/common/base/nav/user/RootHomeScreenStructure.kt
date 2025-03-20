@@ -5,7 +5,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 
 public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
     override val stackGroupId: Any get() = RootHomeScreenStructure::class
-    override val sameScreenId: String get() = this::class.qualifiedName!!
+    override val sameScreenId: String get() = this::class.simpleName!!
 
     public sealed interface Period : RootHomeScreenStructure {
         public val since: LocalDate?
