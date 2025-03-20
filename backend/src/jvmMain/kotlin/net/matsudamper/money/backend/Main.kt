@@ -14,6 +14,7 @@ import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import io.ktor.server.engine.embeddedServer
+import io.ktor.server.http.content.static
 import io.ktor.server.http.content.staticFiles
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.calllogging.CallLogging
@@ -22,6 +23,7 @@ import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.forwardedheaders.ForwardedHeaders
 import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
+import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.request.path
 import io.ktor.server.request.receiveStream
 import io.ktor.server.response.respondFile
@@ -88,6 +90,11 @@ fun Application.myApplicationModule() {
                     },
                 )
             }
+        }
+    }
+    install(StatusPages) {
+        status(HttpStatusCode.NotFound) { call, _ ->
+            call.respondFile(File(ServerEnv.htmlPath))
         }
     }
 
@@ -181,9 +188,6 @@ fun Application.myApplicationModule() {
                     }
                 }
             }
-        }
-        get("{...}") {
-            call.respondFile(File(ServerEnv.htmlPath))
         }
     }
 }
