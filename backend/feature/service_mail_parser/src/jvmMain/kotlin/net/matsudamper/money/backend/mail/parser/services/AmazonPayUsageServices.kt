@@ -45,7 +45,7 @@ internal object AmazonPayUsageServices : MoneyUsageServices {
                 description = "",
                 service = MoneyUsageServiceType.AmazonPay,
                 dateTime = date,
-            )
+            ),
         )
     }
 

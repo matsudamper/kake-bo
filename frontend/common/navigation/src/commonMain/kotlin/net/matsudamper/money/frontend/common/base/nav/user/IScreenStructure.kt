@@ -1,7 +1,5 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
-import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
-
 public interface IScreenStructure {
     public val direction: Direction
 

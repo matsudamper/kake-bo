@@ -32,13 +32,13 @@ internal object AmazonCoJpUsageServices : MoneyUsageServices {
                     plain = plain,
                     html = html,
                     date = date,
-                )
+                ),
             )
             addAll(
                 parseB(
                     plain = plain,
                     date = date,
-                )
+                ),
             )
             if (isEmpty()) {
                 add(

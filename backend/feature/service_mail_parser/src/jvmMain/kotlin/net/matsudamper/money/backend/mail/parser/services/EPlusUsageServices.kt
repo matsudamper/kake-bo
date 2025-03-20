@@ -6,7 +6,6 @@ import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
 import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 
-
 internal object EPlusUsageServices : MoneyUsageServices {
     override val displayName: String = MoneyUsageServiceType.EPlus.displayName
 
