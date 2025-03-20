@@ -11,7 +11,9 @@ kotlin {
         @Suppress("OPT_IN_USAGE")
         binaries {
             executable {
-                mainClass.set("net.matsudamper.money.backend.Main")
+                mainClass = "net.matsudamper.money.backend.Main"
+                applicationName = "backend"
+                executableDir = "bin"
             }
         }
     }
