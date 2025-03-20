@@ -153,7 +153,6 @@ fun Application.myApplicationModule() {
         staticFiles(
             remotePath = "/",
             dir = File(ServerEnv.frontPath),
-            index = ServerEnv.htmlPath,
         ) {
             cacheControl { file ->
                 when {
