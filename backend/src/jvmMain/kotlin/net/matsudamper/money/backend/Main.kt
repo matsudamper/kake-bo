@@ -150,56 +150,37 @@ fun Application.myApplicationModule() {
                 getAssetLinkJson()
             }
         }
-        File(ServerEnv.frontPath).allFiles()
-            .filterNot { "index.html" == it.name }
-            .forEach {
-                val accessPath = it.path.replace("\\", "/")
-                    .removePrefix(ServerEnv.frontPath.replace("\\", "/"))
-                println("static file: $accessPath -> ${it.path}")
-                staticFiles(
-                    remotePath = accessPath,
-                    dir = File(it.path),
-                ) {
-                    when {
-                        accessPath.endsWith(".ttf") -> {
-                            cacheControl {
-                                listOf(
-                                    CacheControl.MaxAge(maxAgeSeconds = 30.days.inWholeSeconds.toInt()),
-                                )
-                            }
-                        }
+        staticFiles(
+            remotePath = "/",
+            dir = File(ServerEnv.frontPath),
+            index = ServerEnv.htmlPath,
+        ) {
+            cacheControl { file ->
+                when {
+                    file.extension == "ttf" -> {
+                        listOf(
+                            CacheControl.MaxAge(maxAgeSeconds = 30.days.inWholeSeconds.toInt()),
+                        )
+                    }
 
-                        accessPath == "/favicon.ico" -> {
-                            cacheControl {
-                                listOf(
-                                    CacheControl.MaxAge(maxAgeSeconds = 1.hours.inWholeSeconds.toInt()),
-                                )
-                            }
-                        }
+                    file.toString() == "/favicon.ico" -> {
+                        listOf(
+                            CacheControl.MaxAge(maxAgeSeconds = 1.hours.inWholeSeconds.toInt()),
+                        )
+                    }
 
-                        accessPath == "/skiko.wasm" -> {
-                            cacheControl {
-                                listOf(
-                                    CacheControl.MaxAge(maxAgeSeconds = 1.hours.inWholeSeconds.toInt()),
-                                )
-                            }
-                        }
+                    file.toString() == "/skiko.wasm" -> {
+                        listOf(
+                            CacheControl.MaxAge(maxAgeSeconds = 1.hours.inWholeSeconds.toInt()),
+                        )
+                    }
 
-                        else -> {
-                            cacheControl {
-                                listOf(
-                                    CacheControl.NoCache(null),
-                                )
-                            }
-                        }
+                    else -> {
+                        listOf(
+                            CacheControl.NoCache(null),
+                        )
                     }
                 }
-            }
-        accept(ContentType.Text.Html) {
-            get("{...}") {
-                call.respondFile(
-                    file = File(ServerEnv.htmlPath),
-                )
             }
         }
     }
