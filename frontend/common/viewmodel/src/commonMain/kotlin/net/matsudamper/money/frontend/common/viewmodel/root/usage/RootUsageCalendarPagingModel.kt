@@ -44,10 +44,7 @@ public class RootUsageCalendarPagingModel(
             emitAll(
                 pagingFlow.mapLatest { collectors ->
                     collectors.getFlow()
-                }.flattenMerge()
-                    .onEach {
-                        println("CalendarPaging: ${it.size}")
-                    },
+                }.flattenMerge(),
             )
         }
     }
