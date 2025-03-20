@@ -9,7 +9,7 @@ import net.matsudamper.money.element.MoneyUsageId
 public sealed interface ScreenStructure : IScreenStructure {
     public sealed interface Root : ScreenStructure {
         public sealed interface Settings : Root {
-            override val groupId: Any get() = Settings::class
+            override val stackGroupId: Any get() = Settings::class
             public data object Root : Settings {
                 override val direction: Screens = Screens.Settings
             }
@@ -56,7 +56,7 @@ public sealed interface ScreenStructure : IScreenStructure {
         }
 
         public sealed interface Add : Root {
-            override val groupId: Any get() = Add::class
+            override val stackGroupId: Any get() = Add::class
             public data object Root : Add {
                 override val direction: Screens = Screens.Add
             }
@@ -103,7 +103,7 @@ public sealed interface ScreenStructure : IScreenStructure {
         }
 
         public sealed interface Usage : Root {
-            override val groupId: Any get() = Usage::class
+            override val stackGroupId: Any get() = Usage::class
             public data object List : Usage {
                 override val direction: Screens = Screens.UsageList
 
@@ -158,24 +158,24 @@ public sealed interface ScreenStructure : IScreenStructure {
 
     public data object NotFound : ScreenStructure {
         override val direction: Screens = Screens.NotFound
-        override val groupId: Any? = null
+        override val stackGroupId: Any? = null
     }
 
     public data object Login : ScreenStructure {
         override val direction: Screens = Screens.Login
-        override val groupId: Any? = null
+        override val stackGroupId: Any? = null
     }
 
     public data object Admin : ScreenStructure {
         override val direction: Screens = Screens.Admin
-        override val groupId: Any? = null
+        override val stackGroupId: Any? = null
     }
 
     public data class ImportedMail(
         public val id: ImportedMailId,
     ) : ScreenStructure {
         override val direction: Screens = Screens.ImportedMail
-        override val groupId: Any? = null
+        override val stackGroupId: Any? = null
 
         override fun createUrl(): String {
             return direction.placeholderUrl
@@ -191,7 +191,7 @@ public sealed interface ScreenStructure : IScreenStructure {
         public val id: MoneyUsageId,
     ) : ScreenStructure {
         override val direction: Screens = Screens.MoneyUsage
-        override val groupId: Any? = null
+        override val stackGroupId: Any? = null
 
         override fun createUrl(): String {
             return direction.placeholderUrl
@@ -207,7 +207,7 @@ public sealed interface ScreenStructure : IScreenStructure {
         public val id: ImportedMailId,
     ) : ScreenStructure {
         override val direction: Screens = Screens.ImportedMailHTML
-        override val groupId: Any? = null
+        override val stackGroupId: Any? = null
 
         override fun createUrl(): String {
             return direction.placeholderUrl
@@ -223,7 +223,7 @@ public sealed interface ScreenStructure : IScreenStructure {
         public val id: ImportedMailId,
     ) : ScreenStructure {
         override val direction: Screens = Screens.ImportedMailPlain
-        override val groupId: Any? = null
+        override val stackGroupId: Any? = null
 
         override fun createUrl(): String {
             return direction.placeholderUrl
@@ -243,7 +243,7 @@ public sealed interface ScreenStructure : IScreenStructure {
         val date: LocalDateTime? = null,
     ) : ScreenStructure {
         override val direction: Screens = Screens.AddMoneyUsage
-        override val groupId: Any? = null
+        override val stackGroupId: Any? = null
 
         override fun createUrl(): String {
             return direction.placeholderUrl.plus(

@@ -1,8 +1,15 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
+import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
+
 public interface IScreenStructure {
     public val direction: Direction
-    public val groupId: Any?
+
+    /**
+     * Stackのグループを管理する
+     * タブを切り替えて戻った時も、そのグループ内で戻る処理を管理するために使う
+     */
+    public val stackGroupId: Any?
 
     /***
      * 同じ画面かを判定する。例えば、クエリパラメータが変わるだけでは違う画面と言えない。

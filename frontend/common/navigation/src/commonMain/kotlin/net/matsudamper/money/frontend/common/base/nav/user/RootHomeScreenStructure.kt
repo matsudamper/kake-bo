@@ -4,7 +4,7 @@ import kotlinx.datetime.LocalDate
 import net.matsudamper.money.element.MoneyUsageCategoryId
 
 public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
-    override val groupId: Any get() = RootHomeScreenStructure::class
+    override val stackGroupId: Any get() = RootHomeScreenStructure::class
     public sealed interface Period : RootHomeScreenStructure {
         public val since: LocalDate?
         public val period: Int

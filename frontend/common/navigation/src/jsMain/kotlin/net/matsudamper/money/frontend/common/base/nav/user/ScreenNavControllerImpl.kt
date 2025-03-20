@@ -49,14 +49,14 @@ internal class ScreenNavControllerImpl(
 
     override fun navigate(navigation: IScreenStructure, savedState: Boolean, isRoot: Boolean) {
         println("${backstackEntries.map { it.structure.direction.title }} -> ${navigation.direction.title}")
-        if (navigation.groupId != null && navigation.groupId != currentBackstackEntry.structure.groupId) {
-            val targetGroupTailIndex = backstackEntries.indexOfLast { it.structure.groupId == navigation.groupId }
+        if (navigation.stackGroupId != null && navigation.stackGroupId != currentBackstackEntry.structure.stackGroupId) {
+            val targetGroupTailIndex = backstackEntries.indexOfLast { it.structure.stackGroupId == navigation.stackGroupId }
                 .takeIf { it >= 0 }
                 ?.plus(1)
 
             if (targetGroupTailIndex != null) {
                 val targetGroupStartIndex = backstackEntries.take(targetGroupTailIndex)
-                    .indexOfLast { it.structure.groupId != navigation.groupId }
+                    .indexOfLast { it.structure.stackGroupId != navigation.stackGroupId }
                     .plus(1)
 
                 val list = backstackEntries.toMutableList()

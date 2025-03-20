@@ -11,7 +11,7 @@ public class ScreenNavControllerImplTest : DescribeSpec(
                     override val placeholderUrl: String = ""
                     override val title: String = text
                 }
-                override val groupId: Any = groupId
+                override val stackGroupId: Any = groupId
 
                 override fun toString(): String {
                     return direction.title
