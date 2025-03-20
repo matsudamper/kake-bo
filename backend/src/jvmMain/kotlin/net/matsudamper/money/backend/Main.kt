@@ -155,6 +155,7 @@ fun Application.myApplicationModule() {
             .forEach {
                 val accessPath = it.path.replace("\\", "/")
                     .removePrefix(ServerEnv.frontPath.replace("\\", "/"))
+                println("static file: $accessPath -> ${it.path}")
                 staticFiles(
                     remotePath = accessPath,
                     dir = File(it.path),
