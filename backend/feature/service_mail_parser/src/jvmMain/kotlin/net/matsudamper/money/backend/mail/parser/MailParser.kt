@@ -4,6 +4,7 @@ import java.time.LocalDateTime
 import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 import net.matsudamper.money.backend.mail.parser.services.AmazonCoJpMonthlyUsageServices
 import net.matsudamper.money.backend.mail.parser.services.AmazonCoJpUsageServices
+import net.matsudamper.money.backend.mail.parser.services.AmazonPayUsageServices
 import net.matsudamper.money.backend.mail.parser.services.AuEasyPaymentUsageServices
 import net.matsudamper.money.backend.mail.parser.services.AuPayUsageService
 import net.matsudamper.money.backend.mail.parser.services.BicCameraUsageServices
@@ -54,6 +55,7 @@ public object MailParser {
         return sequenceOf(
             AmazonCoJpUsageServices,
             AmazonCoJpMonthlyUsageServices,
+            AmazonPayUsageServices,
             YodobashiUsageService,
             MovieTicketUsageService,
             SteamUsageService,

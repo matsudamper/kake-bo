@@ -148,4 +148,8 @@ public enum class MoneyUsageServiceType(
         id = 37,
         displayName = "FF XIV",
     ),
+    AmazonPay(
+        id = 38,
+        displayName = "Amazon Pay",
+    ),
 }
