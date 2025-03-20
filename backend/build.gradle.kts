@@ -1,23 +1,26 @@
 plugins {
-    id("application")
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
 }
 
 base.archivesName.set("money")
 group = "net.matsudamper.money.backend"
-dependencies {
-    implementation(project(":backend:di"))
-}
 
 kotlin {
     jvm {
-        withJava()
+        @Suppress("OPT_IN_USAGE")
+        binaries {
+            executable {
+                mainClass.set("net.matsudamper.money.backend.Main")
+            }
+        }
     }
     sourceSets {
         jvmToolchain(21)
         val jvmMain by getting {
             dependencies {
+                implementation(project(":backend:di"))
+
                 implementation(projects.shared)
                 implementation(projects.backend.base)
                 implementation(projects.backend.graphql)
@@ -51,10 +54,6 @@ kotlin {
             }
         }
     }
-}
-
-application {
-    mainClass.set("net.matsudamper.money.backend.Main")
 }
 
 tasks.withType<Test>().configureEach {
