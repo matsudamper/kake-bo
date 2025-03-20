@@ -182,6 +182,9 @@ fun Application.myApplicationModule() {
                 }
             }
         }
+        get("{...}") {
+            call.respondFile(File(ServerEnv.htmlPath))
+        }
     }
 }
 
