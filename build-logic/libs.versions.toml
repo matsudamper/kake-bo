@@ -101,7 +101,7 @@ androidxDatastoreDatastore = { module = "androidx.datastore:datastore", version.
 
 # Other
 jedis = { module = "redis.clients:jedis", version.require = "5.2.0" }
-jsoup = { module = "org.jsoup:jsoup", version.require = "1.18.3" }
+jsoup = { module = "org.jsoup:jsoup", version.require = "1.19.1" }
 
 # Play
 androidxCredentialsPlayServicesAuth = { module = "androidx.credentials:credentials-play-services-auth", version.require = "1.5.0" }
