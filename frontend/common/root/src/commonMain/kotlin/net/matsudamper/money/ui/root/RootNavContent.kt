@@ -197,7 +197,7 @@ internal fun RootNavContent(
                     }
 
                     is ScreenStructure.Root.Usage.List -> {
-                        usageHost.SaveableStateProvider(current::class.toString()) {
+                        usageHost.SaveableStateProvider(ScreenStructure.Root.Usage.List::class.toString()) {
                             val uiState = usageListUiStateProvider()
                             rootScreen(uiState.hostScreenUiState) {
                                 RootUsageListScreen(
