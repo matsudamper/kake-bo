@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.Logger
+import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolder
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.NavHost
 import net.matsudamper.money.frontend.common.base.nav.rememberScopedObjectStoreOwner
@@ -176,6 +177,7 @@ public fun Content(
                     platformToolsProvider = platformToolsProvider,
                 )
             }
+            val rootHolder = rememberSaveableStateHolder("RootHolder")
             LaunchedEffect(mailScreenViewModel) {
                 viewModelEventHandlers.handleHomeAddTabScreen(
                     mailScreenViewModel.navigateEventHandler,
@@ -222,18 +224,20 @@ public fun Content(
                             is ScreenStructure -> {
                                 when (current) {
                                     is ScreenStructure.Root -> {
-                                        RootScreenContainer(
-                                            current = current,
-                                            navController = navController,
-                                            settingViewModel = settingViewModel,
-                                            mailScreenViewModel = mailScreenViewModel,
-                                            rootUsageHostViewModel = rootUsageHostViewModel,
-                                            viewModelEventHandlers = viewModelEventHandlers,
-                                            rootCoroutineScope = rootCoroutineScope,
-                                            globalEventSender = globalEventSender,
-                                            globalEvent = globalEvent,
-                                            windowInsets = paddingValues,
-                                        )
+                                        rootHolder.SaveableStateProvider(Unit) {
+                                            RootScreenContainer(
+                                                current = current,
+                                                navController = navController,
+                                                settingViewModel = settingViewModel,
+                                                mailScreenViewModel = mailScreenViewModel,
+                                                rootUsageHostViewModel = rootUsageHostViewModel,
+                                                viewModelEventHandlers = viewModelEventHandlers,
+                                                rootCoroutineScope = rootCoroutineScope,
+                                                globalEventSender = globalEventSender,
+                                                globalEvent = globalEvent,
+                                                windowInsets = paddingValues,
+                                            )
+                                        }
                                     }
 
                                     ScreenStructure.Login -> {
