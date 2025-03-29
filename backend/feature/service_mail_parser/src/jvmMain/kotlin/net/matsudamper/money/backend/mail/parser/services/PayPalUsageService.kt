@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.mail.parser.services
 
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatterBuilder
 import java.time.format.SignStyle
@@ -77,27 +78,29 @@ internal object PayPalUsageService : MoneyUsageServices {
                 ?.trim()
 
             if (dateLine != null) {
-                val tmp = runCatching { dateFormat.parse(dateLine) }
+                val tmp = runCatching { dateTimeFormat1.parse(dateLine) }
                     .onFailure { it.printStackTrace() }
                     .getOrNull()
                     ?: return@date null
                 LocalDateTime.from(tmp)
             } else {
-                val errors = mutableListOf<Throwable>()
-                val tmp = document.select(".ppsans").asSequence()
+                val targetTextList = document.select(".ppsans")
                     .filter { it.select("strong").any { strong -> strong.text() == "取引日" } }
                     .mapNotNull { it.select("span").getOrNull(1)?.text()?.trim() }
-                    .mapNotNull {
-                        runCatching { dateFormat.parse(it) }
-                            .onFailure { e ->
-                                errors.add(e)
-                            }
-                            .getOrNull()
+                    .asSequence()
+
+                val results = sequence {
+                    for (it in targetTextList) {
+                        yield(runCatching { dateTimeFormat1.parse(it, LocalDateTime::from) })
+                        yield(runCatching { dateFormat.parse(it, LocalDate::from).atTime(0, 0) })
                     }
+                }
+
+                val result = results.mapNotNull { it.getOrNull() }
                     .firstOrNull()
 
-                if (tmp == null) {
-                    for (error in errors) {
+                if (result == null) {
+                    for (error in results.mapNotNull { it.exceptionOrNull() }) {
                         TraceLogger.impl().noticeThrowable(
                             e = error,
                             params = mapOf(),
@@ -105,7 +108,7 @@ internal object PayPalUsageService : MoneyUsageServices {
                         )
                     }
                 }
-                LocalDateTime.from(tmp)
+                result
             }
         }
 
@@ -146,7 +149,7 @@ internal object PayPalUsageService : MoneyUsageServices {
     }
 
     // 2023年11月10日 3:45:19 JST
-    private val dateFormat = DateTimeFormatterBuilder()
+    private val dateTimeFormat1 = DateTimeFormatterBuilder()
         .appendValue(ChronoField.YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
         .appendLiteral('年')
         .appendValue(ChronoField.MONTH_OF_YEAR, 1, 2, SignStyle.NOT_NEGATIVE)
@@ -162,5 +165,14 @@ internal object PayPalUsageService : MoneyUsageServices {
         .appendValue(ChronoField.SECOND_OF_MINUTE, 1, 2, SignStyle.NOT_NEGATIVE)
         .optionalEnd()
         .appendLiteral(" JST")
+        .toFormatter()
+
+    // 2023/11/10
+    private val dateFormat = DateTimeFormatterBuilder()
+        .appendValue(ChronoField.YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
+        .appendLiteral('/')
+        .appendValue(ChronoField.MONTH_OF_YEAR, 1, 2, SignStyle.NOT_NEGATIVE)
+        .appendLiteral('/')
+        .appendValue(ChronoField.DAY_OF_MONTH, 1, 2, SignStyle.NOT_NEGATIVE)
         .toFormatter()
 }
