@@ -27,20 +27,21 @@ internal object AmazonPayUsageServices : MoneyUsageServices {
 
         val title = run {
             val shopPrefix = "販売事業者お問い合わせ先 "
-            lines.first { it.startsWith(shopPrefix) }
-                .drop(shopPrefix.length)
+            lines.firstOrNull { it.startsWith(shopPrefix) }
+                ?.drop(shopPrefix.length)
+                ?.trim()
         }
 
         val price = run {
             val prefix = "ご請求金額 "
-            lines.first { it.startsWith(prefix) }
-                .drop(prefix.length)
-                .let { ParseUtil.getInt(it) }
+            lines.firstOrNull { it.startsWith(prefix) }
+                ?.drop(prefix.length)
+                ?.let { ParseUtil.getInt(it) }
         }
 
         return listOf(
             MoneyUsage(
-                title = title,
+                title = title.orEmpty(),
                 price = price,
                 description = "",
                 service = MoneyUsageServiceType.AmazonPay,
