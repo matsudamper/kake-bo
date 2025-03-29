@@ -5,6 +5,7 @@ import net.matsudamper.money.backend.base.element.MoneyUsageServiceType
 import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
 import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
+import org.jsoup.Jsoup
 
 internal object NijisanjiOfficialStoreUsageServices : MoneyUsageServices {
     override val displayName: String = MoneyUsageServiceType.NijisanjiOfficialStore.displayName
@@ -24,10 +25,12 @@ internal object NijisanjiOfficialStoreUsageServices : MoneyUsageServices {
         }
         if (canHandle.any { it }.not()) return listOf()
 
-        val lines = ParseUtil.splitByNewLine(plain)
+        val lines = ParseUtil.splitByNewLine(Jsoup.parse(html).body().wholeText())
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
 
         return buildList {
-            val allTotalStartText = "ご注文金額総合計 "
+            val allTotalStartText = "ご注文金額総合計 ¥"
             val allTotalLine = lines.firstOrNull { it.startsWith(allTotalStartText) }
                 ?.drop(allTotalStartText.length)
                 ?.let { ParseUtil.getInt(it) }
@@ -42,7 +45,7 @@ internal object NijisanjiOfficialStoreUsageServices : MoneyUsageServices {
                 ),
             )
 
-            val shippingStartText = "送料 "
+            val shippingStartText = "送料 ¥"
             val shippingLine = lines.firstOrNull { it.startsWith(shippingStartText) }
                 ?.drop(shippingStartText.length)
                 ?.let { ParseUtil.getInt(it) }
