@@ -4,6 +4,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatterBuilder
 import java.time.format.SignStyle
 import java.time.temporal.ChronoField
+import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.base.element.MoneyUsageServiceType
 import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
@@ -82,16 +83,28 @@ internal object PayPalUsageService : MoneyUsageServices {
                     ?: return@date null
                 LocalDateTime.from(tmp)
             } else {
+                val errors = mutableListOf<Throwable>()
                 val tmp = document.select(".ppsans").asSequence()
                     .filter { it.select("strong").any { strong -> strong.text() == "取引日" } }
                     .mapNotNull { it.select("span").getOrNull(1)?.text()?.trim() }
                     .mapNotNull {
                         runCatching { dateFormat.parse(it) }
-                            .onFailure { it.printStackTrace() }
+                            .onFailure { e ->
+                                errors.add(e)
+                            }
                             .getOrNull()
                     }
                     .firstOrNull()
-                    ?: return@date null
+
+                if (tmp == null) {
+                    for (error in errors) {
+                        TraceLogger.impl().noticeThrowable(
+                            e = error,
+                            params = mapOf(),
+                            isError = true,
+                        )
+                    }
+                }
                 LocalDateTime.from(tmp)
             }
         }
