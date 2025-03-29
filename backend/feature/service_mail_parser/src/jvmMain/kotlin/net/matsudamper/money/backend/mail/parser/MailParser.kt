@@ -10,6 +10,7 @@ import net.matsudamper.money.backend.mail.parser.services.AuPayUsageService
 import net.matsudamper.money.backend.mail.parser.services.BicCameraUsageServices
 import net.matsudamper.money.backend.mail.parser.services.BookWalkerUsageServices
 import net.matsudamper.money.backend.mail.parser.services.BoothUsageService
+import net.matsudamper.money.backend.mail.parser.services.DLSiteUsageServices
 import net.matsudamper.money.backend.mail.parser.services.DmmUsageServices
 import net.matsudamper.money.backend.mail.parser.services.EPlusUsageServices
 import net.matsudamper.money.backend.mail.parser.services.ESekiReserveUsegeService
@@ -69,6 +70,7 @@ public object MailParser {
             UberEatsUsageService,
             FanzaDojinUsageServices,
             DmmUsageServices,
+            DLSiteUsageServices,
             ShunsuguUsageService,
             RakutenUsageServices,
             PostCoffeeSubscriptionUsageServices,

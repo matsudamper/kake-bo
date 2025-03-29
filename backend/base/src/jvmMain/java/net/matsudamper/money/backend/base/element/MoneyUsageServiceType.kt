@@ -152,4 +152,8 @@ public enum class MoneyUsageServiceType(
         id = 38,
         displayName = "Amazon Pay",
     ),
+    DLSite(
+        id = 39,
+        displayName = "DLsite",
+    ),
 }
