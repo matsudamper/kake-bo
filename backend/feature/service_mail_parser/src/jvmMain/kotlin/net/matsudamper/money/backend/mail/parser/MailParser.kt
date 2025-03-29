@@ -15,6 +15,7 @@ import net.matsudamper.money.backend.mail.parser.services.DmmUsageServices
 import net.matsudamper.money.backend.mail.parser.services.EPlusUsageServices
 import net.matsudamper.money.backend.mail.parser.services.ESekiReserveUsegeService
 import net.matsudamper.money.backend.mail.parser.services.EkiNetUsageServices
+import net.matsudamper.money.backend.mail.parser.services.FFXIVUsageServices
 import net.matsudamper.money.backend.mail.parser.services.FanzaDojinUsageServices
 import net.matsudamper.money.backend.mail.parser.services.GooglePlayUsageService
 import net.matsudamper.money.backend.mail.parser.services.JapanTsushinUsageServices
@@ -96,6 +97,7 @@ public object MailParser {
             YMobileUsageServices,
             EPlusUsageServices,
             SquareEnixMogStationUsageServices,
+            FFXIVUsageServices,
         )
             .mapNotNull {
                 runCatching {
