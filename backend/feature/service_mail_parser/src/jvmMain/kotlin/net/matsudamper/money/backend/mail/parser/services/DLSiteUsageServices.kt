@@ -27,14 +27,14 @@ internal object DLSiteUsageServices : MoneyUsageServices {
         val lines = ParseUtil.splitByNewLine(plain)
 
         val buyDateString = "購入日時："
-        val buyDayItems = lines.fold(mutableListOf(mutableListOf<String>())) { result, text ->
+        val buyDayItems = lines.fold(mutableListOf<MutableList<String>>()) { result, text ->
             if (text.startsWith(buyDateString)) {
                 result.add(mutableListOf())
             }
+            if (result.isEmpty()) return@fold result
             result.last().add(text)
             result
-        }.drop(1)
-
+        }
         val totalResults = mutableListOf<MoneyUsage>()
         val productResults = mutableListOf<MoneyUsage>()
         for (buyDayItem in buyDayItems) {
