@@ -146,10 +146,15 @@ public fun RootUsageHostScreen(
                     )
                 },
                 title = {
-                    TitleBar(
-                        header = uiState.header,
-                        onClickTitle = uiState.event::onClickCalendar,
-                    )
+                    when (uiState.type) {
+                        RootUsageHostScreenUiState.Type.Calendar -> Unit
+                        RootUsageHostScreenUiState.Type.List -> {
+                            TitleBar(
+                                header = uiState.header,
+                                onClickTitle = uiState.event::onClickCalendar,
+                            )
+                        }
+                    }
                 },
                 windowInsets = windowInsets,
             )
