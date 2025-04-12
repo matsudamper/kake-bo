@@ -13,6 +13,9 @@ public class LoginCheckUseCaseImpl(
     private val graphqlQuery: GraphqlUserLoginQuery,
     private val eventListener: EventListener,
 ) : LoginCheckUseCase {
+    /**
+     * @return ログアウトさせた方が良い場合はfalseが返る
+     */
     override suspend fun check(): Boolean {
         return runCatching {
             withContext(Dispatchers.IO) {
@@ -24,7 +27,10 @@ public class LoginCheckUseCaseImpl(
             if (isLoggedIn.not()) {
                 eventListener.logout()
             }
-        }.fold(onSuccess = { isLoggedIn -> isLoggedIn }, onFailure = { false })
+        }.fold(
+            onSuccess = { isLoggedIn -> isLoggedIn },
+            onFailure = { true },
+        )
     }
 
     public interface EventListener {
