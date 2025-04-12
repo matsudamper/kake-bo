@@ -34,7 +34,33 @@ internal object DLSiteUsageServices : MoneyUsageServices {
             if (result.isEmpty()) return@fold result
             result.last().add(text)
             result
+        }.map { buyDayItems ->
+            // 後ろを切る
+            val endIndex = buyDayItems.indexOfFirst { it.startsWith("小計") }
+                .takeIf { it >= 0 }
+                ?: return@map buyDayItems
+
+            buyDayItems.subList(0, endIndex)
+        }.map { buyDayItems ->
+            // 改行が入っているところを修正する
+            var cnt = 1
+
+            buildList {
+                for (item in buyDayItems) {
+                    if (item.startsWith("$cnt")) {
+                        add(item)
+                        cnt++
+                    } else {
+                        if (cnt == 1) {
+                            add(item)
+                            continue
+                        }
+                        add(removeLast().plus(" $item"))
+                    }
+                }
+            }
         }
+
         val totalResults = mutableListOf<MoneyUsage>()
         val productResults = mutableListOf<MoneyUsage>()
         for (buyDayItem in buyDayItems) {
