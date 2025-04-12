@@ -9,6 +9,7 @@ jackson = "2.18.3"
 compose = "1.8.0-beta02"
 protoBuf = "4.30.2"
 lifecycle = "2.8.7"
+jooq = "3.20.2"
 
 [plugins]
 apollo = { id = "com.apollographql.apollo3", version.ref = "apollo" }
@@ -31,6 +32,12 @@ kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializat
 
 # Plugin
 androidGradlePlugin = { module = "com.android.application:com.android.application.gradle.plugin", version.ref = "agp" }
+
+# Jooq
+jooq = { module = "org.jooq:jooq", version.ref = "jooq" }
+jooqKotlin = { module = "org.jooq:jooq-kotlin", version.ref = "jooq" }
+jooqCodegen = { module = "org.jooq:jooq-codegen", version.ref = "jooq" }
+jooqMeta = { module = "org.jooq:jooq-meta", version.ref = "jooq" }
 
 # ProtoBuf
 protobufProtobufJavalite = { module = "com.google.protobuf:protobuf-javalite", version.ref = "protoBuf" }

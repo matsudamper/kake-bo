@@ -20,9 +20,8 @@ kotlin {
                 implementation(kotlin("reflect"))
                 implementation(libs.kotlin.serialization.json)
 
-                val jooqVersion = "3.20.3"
-                implementation("org.jooq:jooq:$jooqVersion")
-                implementation("org.jooq:jooq-kotlin:$jooqVersion")
+                implementation(libs.jooq)
+                implementation(libs.jooqKotlin)
 
                 implementation("org.mariadb.jdbc:mariadb-java-client:3.5.3")
                 implementation("com.zaxxer:HikariCP:6.3.0")
