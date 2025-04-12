@@ -170,20 +170,22 @@ internal object AmazonCoJpUsageServices : MoneyUsageServices {
                 ?.let { ParseUtil.getInt(it) }
         }
         return buildList<MoneyUsage> {
-            add(
-                MoneyUsage(
-                    title = "Amazon購入",
-                    price = total,
-                    description = products.joinToString("\n\n") {
-                        buildString {
-                            appendLine(it.title)
-                            appendLine(it.description)
-                        }.trim()
-                    },
-                    service = MoneyUsageServiceType.Amazon,
-                    dateTime = date,
-                ),
-            )
+            if (products.isNotEmpty()) {
+                add(
+                    MoneyUsage(
+                        title = "Amazon購入",
+                        price = total,
+                        description = products.joinToString("\n\n") {
+                            buildString {
+                                appendLine(it.title)
+                                appendLine(it.description)
+                            }.trim()
+                        },
+                        service = MoneyUsageServiceType.Amazon,
+                        dateTime = date,
+                    ),
+                )
+            }
             addAll(products)
         }
     }
