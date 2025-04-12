@@ -52,7 +52,7 @@ internal object DLSiteUsageServices : MoneyUsageServices {
                 ) {
                     if (productLine.startsWith("${index + 1} ").not()) break
 
-                    val matchResult = """^\d+ .+? (.+?) ¥(\d+?)$""".toRegex().find(productLine)
+                    val matchResult = """^\d+ .+? (.+?) ¥(.+?)$""".toRegex().find(productLine)
                     if (matchResult == null) continue
 
                     val title = matchResult.groups[1]?.value
