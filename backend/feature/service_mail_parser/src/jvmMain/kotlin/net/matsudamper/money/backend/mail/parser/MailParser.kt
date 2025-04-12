@@ -20,6 +20,7 @@ import net.matsudamper.money.backend.mail.parser.services.FanzaDojinUsageService
 import net.matsudamper.money.backend.mail.parser.services.GooglePlayUsageService
 import net.matsudamper.money.backend.mail.parser.services.JapanTsushinUsageServices
 import net.matsudamper.money.backend.mail.parser.services.MacdonaldsMobileOrderUsageService
+import net.matsudamper.money.backend.mail.parser.services.MicrosoftUsageServices
 import net.matsudamper.money.backend.mail.parser.services.MitsuiSumitomoCardUsageServices
 import net.matsudamper.money.backend.mail.parser.services.MountbellUsageServices
 import net.matsudamper.money.backend.mail.parser.services.MovieTicketUsageService
@@ -71,6 +72,7 @@ public object MailParser {
             UberEatsUsageService,
             FanzaDojinUsageServices,
             DmmUsageServices,
+            MicrosoftUsageServices,
             DLSiteUsageServices,
             ShunsuguUsageService,
             RakutenUsageServices,

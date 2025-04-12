@@ -156,4 +156,8 @@ public enum class MoneyUsageServiceType(
         id = 39,
         displayName = "DLsite",
     ),
+    Microsoft(
+        id = 40,
+        displayName = "Microsoft",
+    ),
 }
