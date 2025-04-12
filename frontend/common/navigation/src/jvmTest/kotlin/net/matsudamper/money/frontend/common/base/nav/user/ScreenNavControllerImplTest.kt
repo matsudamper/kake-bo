@@ -12,6 +12,7 @@ public class ScreenNavControllerImplTest : DescribeSpec(
                     override val title: String = text
                 }
                 override val stackGroupId: Any = groupId
+                override val sameScreenId: String = "$groupId"
 
                 override fun toString(): String {
                     return direction.title
