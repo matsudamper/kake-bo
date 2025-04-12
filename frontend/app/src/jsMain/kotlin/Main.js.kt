@@ -10,7 +10,7 @@ import net.matsudamper.money.MoneyCompositionLocalProvider
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.rememberMainScreenNavController
 import net.matsudamper.money.frontend.common.di.DefaultModule
-import net.matsudamper.money.frontend.common.ui.CustomTheme
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.ui.root.Content
@@ -39,7 +39,7 @@ fun main(
                 koin = koin,
             ) {
                 NormalizeInputKeyCapture {
-                    CustomTheme {
+                    AppRoot {
                         val navController = rememberMainScreenNavController(RootHomeScreenStructure.Home)
                         Content(
                             modifier = Modifier.fillMaxSize(),

@@ -15,7 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -27,13 +26,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.CustomColors
+import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
@@ -48,6 +45,7 @@ public interface RootScreenScaffoldListener {
     public fun onClickSettings()
 
     public fun onClickAdd()
+
     public companion object {
         internal val previewImpl = object : RootScreenScaffoldListener {
             override fun onClickAdd() {}
@@ -81,12 +79,6 @@ internal fun RootScreenScaffold(
     BoxWithConstraints(
         modifier = modifier,
     ) {
-        val maxWidth by rememberUpdatedState(maxWidth)
-        val isLargeScreen by remember {
-            derivedStateOf {
-                maxWidth > 800.dp
-            }
-        }
         KakeboScaffold(
             modifier = Modifier.fillMaxWidth(),
             topBar = topBar,
@@ -97,7 +89,7 @@ internal fun RootScreenScaffold(
                 )
             },
             bottomBar = {
-                if (isLargeScreen.not()) {
+                if (LocalIsLargeScreen.current.not()) {
                     NavigationBar(
                         windowInsets = windowInsets.asWindowInsets()
                             .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal),
@@ -161,7 +153,7 @@ internal fun RootScreenScaffold(
             Row(
                 modifier = Modifier.padding(it),
             ) {
-                if (isLargeScreen) {
+                if (LocalIsLargeScreen.current) {
                     NavigationRail(
                         modifier = Modifier.padding(top = 8.dp),
                     ) {

@@ -40,6 +40,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
@@ -146,14 +147,15 @@ public fun RootUsageHostScreen(
                     )
                 },
                 title = {
-                    when (uiState.type) {
-                        RootUsageHostScreenUiState.Type.Calendar -> Unit
-                        RootUsageHostScreenUiState.Type.List -> {
-                            TitleBar(
-                                header = uiState.header,
-                                onClickTitle = uiState.event::onClickCalendar,
-                            )
-                        }
+                    val hasControl = when (uiState.type) {
+                        RootUsageHostScreenUiState.Type.Calendar -> false
+                        RootUsageHostScreenUiState.Type.List -> true
+                    }
+                    if (hasControl && LocalIsLargeScreen.current.not()) {
+                        TitleBar(
+                            header = uiState.header,
+                            onClickTitle = uiState.event::onClickCalendar,
+                        )
                     }
                 },
                 windowInsets = windowInsets,

@@ -24,7 +24,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructu
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.rememberMainScreenNavController
-import net.matsudamper.money.frontend.common.ui.CustomTheme
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.platform.PlatFormToolsImpl
@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
             MoneyCompositionLocalProvider(
                 koin = remember { GlobalContext.get() },
             ) {
-                CustomTheme {
+                AppRoot {
                     val navController = rememberMainScreenNavController(initialStructure)
                     LaunchedEffect(navController) {
                         this@MainActivity.navControllerFlow.value = navController

@@ -1,17 +1,23 @@
 package net.matsudamper.money.frontend.common.ui
 
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.dp
 
 @Composable
-public fun CustomTheme(
+public fun AppRoot(
     fontFamilyResolver: FontFamily.Resolver = LocalFontFamilyResolver.current,
     content: @Composable () -> Unit,
 ) {
@@ -37,15 +43,25 @@ public fun CustomTheme(
         ),
         typography = getTypography(),
     ) {
-        CompositionLocalProvider(
-            LocalFontFamilyResolver provides fontFamilyResolver,
-            LocalTextStyle provides LocalTextStyle.current.merge(
-                TextStyle(
-                    fontFamily = rememberCustomFontFamily(),
-                ),
-            ).merge(MaterialTheme.typography.bodyMedium),
-        ) {
-            content()
+        BoxWithConstraints {
+            val maxWidth by rememberUpdatedState(maxWidth)
+            val isLargeScreen by remember {
+                derivedStateOf {
+                    maxWidth > 800.dp
+                }
+            }
+
+            CompositionLocalProvider(
+                LocalFontFamilyResolver provides fontFamilyResolver,
+                LocalTextStyle provides LocalTextStyle.current.merge(
+                    TextStyle(
+                        fontFamily = rememberCustomFontFamily(),
+                    ),
+                ).merge(MaterialTheme.typography.bodyMedium),
+                LocalIsLargeScreen provides isLargeScreen,
+            ) {
+                content()
+            }
         }
     }
 }
