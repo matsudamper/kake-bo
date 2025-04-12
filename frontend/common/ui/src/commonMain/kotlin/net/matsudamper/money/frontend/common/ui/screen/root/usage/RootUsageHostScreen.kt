@@ -147,16 +147,10 @@ public fun RootUsageHostScreen(
                     )
                 },
                 title = {
-                    val hasControl = when (uiState.type) {
-                        RootUsageHostScreenUiState.Type.Calendar -> false
-                        RootUsageHostScreenUiState.Type.List -> true
-                    }
-                    if (hasControl && LocalIsLargeScreen.current.not()) {
-                        TitleBar(
-                            header = uiState.header,
-                            onClickTitle = uiState.event::onClickCalendar,
-                        )
-                    }
+                    TitleBar(
+                        header = uiState.header,
+                        onClickTitle = uiState.event::onClickCalendar,
+                    )
                 },
                 windowInsets = windowInsets,
             )
@@ -269,15 +263,22 @@ private fun TitleBar(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            modifier = Modifier.clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-            ) {
-                onClickTitle()
-            },
-            text = "家計簿",
-        )
+        val hasControl = when (header) {
+            is RootUsageHostScreenUiState.Header.Calendar -> false
+            is RootUsageHostScreenUiState.Header.List -> true
+            is RootUsageHostScreenUiState.Header.None -> false
+        }
+        if (hasControl && LocalIsLargeScreen.current.not()) {
+            Text(
+                modifier = Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                ) {
+                    onClickTitle()
+                },
+                text = "家計簿",
+            )
+        }
         Spacer(modifier = Modifier.widthIn(12.dp))
         when (header) {
             is RootUsageHostScreenUiState.Header.Calendar -> {
