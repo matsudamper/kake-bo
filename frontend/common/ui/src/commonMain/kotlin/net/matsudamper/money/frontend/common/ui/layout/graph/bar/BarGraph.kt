@@ -19,7 +19,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,7 +59,7 @@ internal fun BarGraph(
     modifier: Modifier = Modifier,
     contentColor: Color = MaterialTheme.colorScheme.secondary,
 ) {
-    var maxValue by remember { mutableLongStateOf(0) }
+    var maxValue by rememberSaveable { mutableLongStateOf(0) }
     LaunchedEffect(uiState) {
         uiState.items.map { item ->
             val value = item.items.sumOf { it.value }
