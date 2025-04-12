@@ -177,7 +177,6 @@ public fun Content(
                     platformToolsProvider = platformToolsProvider,
                 )
             }
-            val rootHolder = rememberSaveableStateHolder("RootHolder")
             LaunchedEffect(mailScreenViewModel) {
                 viewModelEventHandlers.handleHomeAddTabScreen(
                     mailScreenViewModel.navigateEventHandler,
@@ -217,6 +216,7 @@ public fun Content(
                     NavHost(
                         navController = navController,
                     ) {
+                        val rootHolder = rememberSaveableStateHolder("RootHolder")
                         LaunchedEffect(it.structure) {
                             Logger.d("LOG", "structure: ${it.structure}")
                         }
