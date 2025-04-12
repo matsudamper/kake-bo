@@ -71,7 +71,8 @@ internal object DLSiteUsageServices : MoneyUsageServices {
 
             val firstIndex = buyDayItem.indexOfFirst { it.startsWith("1 ") }.takeIf { it >= 0 } ?: continue
             val usages = buildList {
-                for ((index, productLine) in buyDayItem.subList(
+                for (
+                (index, productLine) in buyDayItem.subList(
                     fromIndex = firstIndex,
                     toIndex = buyDayItem.lastIndex + 1,
                 ).withIndex()
