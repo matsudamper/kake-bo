@@ -23,8 +23,8 @@ kotlin {
                 implementation(libs.jooq)
                 implementation(libs.jooqKotlin)
 
-                implementation("org.mariadb.jdbc:mariadb-java-client:3.5.3")
-                implementation("com.zaxxer:HikariCP:6.3.0")
+                implementation(libs.mariadbClient)
+                implementation(libs.hikariCP)
             }
         }
         val jvmTest by getting {
