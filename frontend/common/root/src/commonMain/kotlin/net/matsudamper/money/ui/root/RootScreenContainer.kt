@@ -30,8 +30,6 @@ internal fun RootScreenContainer(
     globalEvent: GlobalEvent,
     windowInsets: PaddingValues,
 ) {
-    val holder = rememberSaveableStateHolder()
-    val koin = LocalKoin.current
     LaunchedEffect(current, settingViewModel) {
         when (current) {
             is RootHomeScreenStructure -> {
@@ -53,82 +51,80 @@ internal fun RootScreenContainer(
     LaunchedEffect(viewModelEventHandlers, settingViewModel.backgroundEventHandler) {
         viewModelEventHandlers.handleSetting(settingViewModel.backgroundEventHandler)
     }
-    holder.SaveableStateProvider(ScreenStructure.Root::class.toString()) {
-        RootNavContent(
-            windowInsets = windowInsets,
-            navController = navController,
-            current = current,
-            viewModelEventHandlers = viewModelEventHandlers,
-            rootCoroutineScope = rootCoroutineScope,
-            globalEventSender = globalEventSender,
-            globalEvent = globalEvent,
-            homeAddTabScreenUiStateProvider = {
-                mailScreenViewModel.uiStateFlow.collectAsState().value
-            },
-            usageCalendarUiStateProvider = { yearMonth ->
-                val coroutineScope = rememberCoroutineScope()
-                val viewModel = LocalViewModelProviders.current
-                    .moneyUsagesCalendarViewModel(
-                        coroutineScope = coroutineScope,
-                        rootUsageHostViewModel = rootUsageHostViewModel,
-                        yearMonth = yearMonth,
-                    )
+    RootNavContent(
+        windowInsets = windowInsets,
+        navController = navController,
+        current = current,
+        viewModelEventHandlers = viewModelEventHandlers,
+        rootCoroutineScope = rootCoroutineScope,
+        globalEventSender = globalEventSender,
+        globalEvent = globalEvent,
+        homeAddTabScreenUiStateProvider = {
+            mailScreenViewModel.uiStateFlow.collectAsState().value
+        },
+        usageCalendarUiStateProvider = { yearMonth ->
+            val coroutineScope = rememberCoroutineScope()
+            val viewModel = LocalViewModelProviders.current
+                .moneyUsagesCalendarViewModel(
+                    coroutineScope = coroutineScope,
+                    rootUsageHostViewModel = rootUsageHostViewModel,
+                    yearMonth = yearMonth,
+                )
 
-                LaunchedEffect(viewModel.viewModelEventHandler) {
-                    viewModelEventHandlers.handleMoneyUsagesCalendar(
-                        handler = viewModel.viewModelEventHandler,
-                    )
-                }
-                viewModel.uiStateFlow.collectAsState().value
-            },
-            usageListUiStateProvider = {
-                val coroutineScope = rememberCoroutineScope()
-                val viewModel = LocalViewModelProviders.current
-                    .moneyUsagesListViewModel(
-                        coroutineScope = coroutineScope,
-                        rootUsageHostViewModel = rootUsageHostViewModel,
-                    )
-                LaunchedEffect(viewModel.viewModelEventHandler) {
-                    viewModelEventHandlers.handleMoneyUsagesList(
-                        handler = viewModel.viewModelEventHandler,
-                    )
-                }
-                viewModel.uiStateFlow.collectAsState().value
-            },
-            importMailLinkScreenUiStateProvider = {
-                val mailImportViewModel = LocalViewModelProviders.current
-                    .mailImportViewModel()
-                LaunchedEffect(mailImportViewModel.eventHandler) {
-                    viewModelEventHandlers.handleMailImport(mailImportViewModel.eventHandler)
-                }
+            LaunchedEffect(viewModel.viewModelEventHandler) {
+                viewModelEventHandlers.handleMoneyUsagesCalendar(
+                    handler = viewModel.viewModelEventHandler,
+                )
+            }
+            viewModel.uiStateFlow.collectAsState().value
+        },
+        usageListUiStateProvider = {
+            val coroutineScope = rememberCoroutineScope()
+            val viewModel = LocalViewModelProviders.current
+                .moneyUsagesListViewModel(
+                    coroutineScope = coroutineScope,
+                    rootUsageHostViewModel = rootUsageHostViewModel,
+                )
+            LaunchedEffect(viewModel.viewModelEventHandler) {
+                viewModelEventHandlers.handleMoneyUsagesList(
+                    handler = viewModel.viewModelEventHandler,
+                )
+            }
+            viewModel.uiStateFlow.collectAsState().value
+        },
+        importMailLinkScreenUiStateProvider = {
+            val mailImportViewModel = LocalViewModelProviders.current
+                .mailImportViewModel()
+            LaunchedEffect(mailImportViewModel.eventHandler) {
+                viewModelEventHandlers.handleMailImport(mailImportViewModel.eventHandler)
+            }
 
-                mailImportViewModel.rootUiStateFlow.collectAsState().value
-            },
-            importMailScreenUiStateProvider = { screenStructure ->
-                val importedMailListViewModel = LocalViewModelProviders.current
-                    .importedMailListViewModel()
-                LaunchedEffect(screenStructure) {
-                    importedMailListViewModel.updateQuery(screenStructure)
-                }
-                LaunchedEffect(importedMailListViewModel.eventHandler) {
-                    viewModelEventHandlers.handleMailLink(importedMailListViewModel.eventHandler)
-                }
-                importedMailListViewModel.rootUiStateFlow.collectAsState().value
-            },
-            settingUiStateProvider = {
-                settingViewModel.uiState.collectAsState().value
-            },
-            rootHomeTabPeriodAllContentUiStateProvider = { current ->
-                val allContentViewModel = LocalViewModelProviders.current
-                    .rootHomeTabPeriodAllContentViewModel()
-                LaunchedEffect(allContentViewModel, current) {
-                    allContentViewModel.updateStructure(current)
-                }
-                LaunchedEffect(allContentViewModel.eventHandler) {
-                    viewModelEventHandlers.handleRootHomeTabPeriodAllContent(allContentViewModel.eventHandler)
-                }
-                allContentViewModel.uiStateFlow.collectAsState().value
-            },
-        )
-    }
+            mailImportViewModel.rootUiStateFlow.collectAsState().value
+        },
+        importMailScreenUiStateProvider = { screenStructure ->
+            val importedMailListViewModel = LocalViewModelProviders.current
+                .importedMailListViewModel()
+            LaunchedEffect(screenStructure) {
+                importedMailListViewModel.updateQuery(screenStructure)
+            }
+            LaunchedEffect(importedMailListViewModel.eventHandler) {
+                viewModelEventHandlers.handleMailLink(importedMailListViewModel.eventHandler)
+            }
+            importedMailListViewModel.rootUiStateFlow.collectAsState().value
+        },
+        settingUiStateProvider = {
+            settingViewModel.uiState.collectAsState().value
+        },
+        rootHomeTabPeriodAllContentUiStateProvider = { current ->
+            val allContentViewModel = LocalViewModelProviders.current
+                .rootHomeTabPeriodAllContentViewModel()
+            LaunchedEffect(allContentViewModel, current) {
+                allContentViewModel.updateStructure(current)
+            }
+            LaunchedEffect(allContentViewModel.eventHandler) {
+                viewModelEventHandlers.handleRootHomeTabPeriodAllContent(allContentViewModel.eventHandler)
+            }
+            allContentViewModel.uiStateFlow.collectAsState().value
+        },
+    )
 }
