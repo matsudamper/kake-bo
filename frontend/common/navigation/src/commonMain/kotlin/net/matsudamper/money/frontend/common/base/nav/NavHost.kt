@@ -7,6 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolder
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
@@ -17,10 +18,20 @@ public fun NavHost(
     content: @Composable (ScreenNavController.NavStackEntry) -> Unit,
 ) {
     val scopedObjectStoreOwner = rememberScopedObjectStoreOwner("NavHost")
+    val holder = rememberSaveableStateHolder("NavHostSaveableStateHolder")
     run {
         var beforeEntries: List<ScreenNavController.NavStackEntry> by remember { mutableStateOf(listOf()) }
         LaunchedEffect(navController.backstackEntries) {
+
+            val removedEntries = beforeEntries.filterNot { it in navController.backstackEntries }
+                .filterNot { it.isHome }
+                .filterNot { it.savedState }
+            for (entry in removedEntries) {
+                holder.removeState(entry.structure)
+            }
+
             beforeEntries = navController.backstackEntries
+
         }
     }
     LaunchedEffect(navController.backstackEntries) {
@@ -39,7 +50,9 @@ public fun NavHost(
         LocalScopedObjectStore provides scopedObjectStoreOwner
             .createOrGetScopedObjectStore(navController.currentBackstackEntry.structure.sameScreenId),
     ) {
-        content(navController.currentBackstackEntry)
+        holder.SaveableStateProvider(navController.currentBackstackEntry.structure) {
+            content(navController.currentBackstackEntry)
+        }
     }
 }
 

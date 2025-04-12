@@ -14,6 +14,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(projects.shared)
+                implementation(projects.frontend.common.base)
 
                 implementation(compose.runtime)
                 implementation(compose.ui)
