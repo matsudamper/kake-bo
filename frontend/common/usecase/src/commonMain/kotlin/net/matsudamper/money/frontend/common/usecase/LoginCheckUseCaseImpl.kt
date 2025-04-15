@@ -17,20 +17,11 @@ public class LoginCheckUseCaseImpl(
      * @return ログアウトさせた方が良い場合はfalseが返る
      */
     override suspend fun check(): Boolean {
-        return runCatching {
-            withContext(Dispatchers.IO) {
-                graphqlQuery.isLoggedIn()
-            }
-        }.onFailure { e ->
-            eventListener.error("${e.message}")
-        }.onSuccess { isLoggedIn ->
-            if (isLoggedIn.not()) {
-                eventListener.logout()
-            }
-        }.fold(
-            onSuccess = { isLoggedIn -> isLoggedIn },
-            onFailure = { true },
-        )
+        val forceLogout = withContext(Dispatchers.IO) {
+            graphqlQuery.isLoggedIn()
+        }.not()
+        if (forceLogout) eventListener.logout()
+        return forceLogout.not()
     }
 
     public interface EventListener {

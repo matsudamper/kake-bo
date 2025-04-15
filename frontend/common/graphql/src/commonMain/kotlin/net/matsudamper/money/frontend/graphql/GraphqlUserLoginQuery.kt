@@ -30,6 +30,9 @@ class GraphqlUserLoginQuery(
             .execute()
     }
 
+    /**
+     * @return ログアウトさせた方が良い場合はfalseが返る
+     */
     suspend fun isLoggedIn(): Boolean {
         return runCatching {
             graphqlClient.apolloClient
@@ -40,7 +43,7 @@ class GraphqlUserLoginQuery(
                 ?.isLoggedIn
         }.fold(
             onSuccess = { it == true },
-            onFailure = { false },
+            onFailure = { true },
         )
     }
 }
