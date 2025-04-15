@@ -11,6 +11,7 @@ import androidx.compose.runtime.snapshotFlow
 import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolder
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
+import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 
 @Composable
@@ -52,7 +53,7 @@ public fun NavHost(
         LocalScopedObjectStore provides scopedObjectStoreOwner
             .createOrGetScopedObjectStore(navController.currentBackstackEntry.structure.sameScreenId),
     ) {
-        holder.SaveableStateProvider(navController.currentBackstackEntry.structure) {
+        holder.SaveableStateProvider(navController.currentBackstackEntry.structure.sameScreenId) {
             content(navController.currentBackstackEntry)
         }
     }
