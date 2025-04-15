@@ -15,7 +15,6 @@ import net.matsudamper.money.frontend.graphql.lib.ApolloPagingResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersQuery
 
-// TODO 後でViewModelではなくする
 public class ImportedMailCategoryFilterScreenPagingModel(
     scopedObjectFeature: ScopedObjectFeature,
     graphqlClient: GraphqlClient,
