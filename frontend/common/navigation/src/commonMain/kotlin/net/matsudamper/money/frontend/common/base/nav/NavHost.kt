@@ -11,7 +11,6 @@ import androidx.compose.runtime.snapshotFlow
 import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolder
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
-import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 
 @Composable
