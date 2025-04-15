@@ -16,10 +16,10 @@ import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.PlatformType
 import net.matsudamper.money.frontend.common.viewmodel.PlatformTypeProvider
 import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
+import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFiltersScreenPagingQuery
-import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class SettingMailCategoryFiltersViewModel(
     private val pagingModel: ImportedMailCategoryFilterScreenPagingModel,
@@ -50,7 +50,7 @@ public class SettingMailCategoryFiltersViewModel(
                             api.addFilter(text)
                         }.onSuccess {
                             pagingModel.clear()
-                            pagingModel.fetch()
+                            listFetch()
                         }.onFailure {
                             it.printStackTrace()
                         }
@@ -86,13 +86,13 @@ public class SettingMailCategoryFiltersViewModel(
             event = object : SettingMailCategoryFilterScreenUiState.Event {
                 override fun onClickRetry() {
                     viewModelScope.launch {
-                        pagingModel.fetch()
+                        listFetch()
                     }
                 }
 
                 override fun onViewInitialized() {
                     viewModelScope.launch {
-                        pagingModel.fetch()
+                        listFetch()
                     }
                 }
 
@@ -109,57 +109,23 @@ public class SettingMailCategoryFiltersViewModel(
         viewModelScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
                 uiStateFlow.update { uiState ->
-                    val loadingState = when (val last = viewModelState.apolloResponseStates.lastOrNull()) {
-                        null,
-                        is ApolloResponseState.Loading,
-                        -> {
-                            SettingMailCategoryFilterScreenUiState.LoadingState.Loading
-                        }
-
-                        is ApolloResponseState.Failure -> {
-                            SettingMailCategoryFilterScreenUiState.LoadingState.Error
-                        }
-
-                        is ApolloResponseState.Success -> {
-                            val lastIsError = last.value.data?.user?.importedMailCategoryFilters == null
-                            if (lastIsError && viewModelState.apolloResponseStates.size <= 1) {
-                                SettingMailCategoryFilterScreenUiState.LoadingState.Error
-                            } else {
-                                SettingMailCategoryFilterScreenUiState.LoadingState.Loaded(
-                                    filters = viewModelState.apolloResponseStates.mapNotNull { items ->
-                                        when (items) {
-                                            is ApolloResponseState.Failure -> null
-                                            is ApolloResponseState.Loading -> null
-                                            is ApolloResponseState.Success -> items.value
-                                        }
-                                    }.map { apolloResponse ->
-                                        apolloResponse.data?.user?.importedMailCategoryFilters?.nodes.orEmpty()
-                                            .map { item ->
-                                                SettingMailCategoryFilterScreenUiState.Item(
-                                                    title = item.title,
-                                                    event = object : SettingMailCategoryFilterScreenUiState.ItemEvent {
-                                                        override fun onClick() {
-                                                            viewModelScope.launch {
-                                                                eventSender.send {
-                                                                    it.navigate(
-                                                                        ScreenStructure.Root.Settings.MailCategoryFilter(
-                                                                            id = item.id,
-                                                                        ),
-                                                                    )
-                                                                }
-                                                            }
-                                                        }
-                                                    },
-                                                )
-                                            }
-                                    }.flatten().toImmutableList(),
-                                    isError = lastIsError,
-                                    event = loadedEvent,
+                    val loadingState = if (viewModelState.apolloResponseStates == null && viewModelState.isLoading) {
+                        SettingMailCategoryFilterScreenUiState.LoadingState.Loading
+                    } else {
+                        SettingMailCategoryFilterScreenUiState.LoadingState.Loaded(
+                            filters = viewModelState.apolloResponseStates?.data?.user?.importedMailCategoryFilters?.nodes.orEmpty().map { item ->
+                                SettingMailCategoryFilterScreenUiState.Item(
+                                    title = item.title,
+                                    event = ItemEventListener(item),
                                 )
-                            }
-                        }
+                            }.toImmutableList(),
+                            isError = viewModelState.lastLoadingState?.fold(
+                                onSuccess = { it.data?.user?.importedMailCategoryFilters != null },
+                                onFailure = { true },
+                            ) == true,
+                            event = loadedEvent,
+                        )
                     }
-
                     uiState.copy(
                         loadingState = loadingState,
                         textInput = viewModelState.textInputDialog,
@@ -181,12 +147,41 @@ public class SettingMailCategoryFiltersViewModel(
         }
     }
 
+    private fun listFetch() {
+        viewModelScope.launch {
+            val result = pagingModel.fetch()
+            viewModelStateFlow.update {
+                it.copy(
+                    lastLoadingState = result,
+                )
+            }
+        }
+    }
+
     public interface Event {
         public fun navigate(structure: ScreenStructure)
     }
 
+    private inner class ItemEventListener(
+        private val item: ImportedMailCategoryFiltersScreenPagingQuery.Node,
+    ) : SettingMailCategoryFilterScreenUiState.ItemEvent, EqualsImpl(item) {
+        override fun onClick() {
+            viewModelScope.launch {
+                eventSender.send {
+                    it.navigate(
+                        ScreenStructure.Root.Settings.MailCategoryFilter(
+                            id = item.id,
+                        ),
+                    )
+                }
+            }
+        }
+    }
+
     private data class ViewModelState(
-        val apolloResponseStates: List<ApolloResponseState<ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data>>> = listOf(),
+        val apolloResponseStates: ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data>? = null,
+        val lastLoadingState: Result<ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data>>? = null,
         val textInputDialog: SettingMailCategoryFilterScreenUiState.TextInput? = null,
+        val isLoading: Boolean = true,
     )
 }

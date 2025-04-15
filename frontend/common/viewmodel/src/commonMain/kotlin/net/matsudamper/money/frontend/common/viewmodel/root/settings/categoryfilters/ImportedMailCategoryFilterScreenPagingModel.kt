@@ -1,86 +1,62 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters
 
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo3.cache.normalized.FetchPolicy
+import com.apollographql.apollo3.cache.normalized.api.CacheKey
+import com.apollographql.apollo3.cache.normalized.apolloStore
+import com.apollographql.apollo3.cache.normalized.fetchPolicy
+import com.apollographql.apollo3.cache.normalized.watch
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFiltersScreenPagingQuery
-import net.matsudamper.money.frontend.graphql.lib.ApolloPagingResponseCollector
-import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersQuery
+import net.matsudamper.money.frontend.graphql.updateOperation
 
 public class ImportedMailCategoryFilterScreenPagingModel(
     scopedObjectFeature: ScopedObjectFeature,
-    graphqlClient: GraphqlClient,
+    private val graphqlClient: GraphqlClient,
 ) : CommonViewModel(scopedObjectFeature) {
-    private val pagingState = ApolloPagingResponseCollector<ImportedMailCategoryFiltersScreenPagingQuery.Data>(
-        graphqlClient = graphqlClient,
-        coroutineScope = viewModelScope,
-    )
 
-    internal suspend fun getFlow(): Flow<List<ApolloResponseState<ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data>>>> {
-        return flow {
-            emitAll(
-                combine(pagingState.getFlow()) {
-                    it.toList().flatten()
-                },
-            )
-        }
+    internal fun getFlow(): Flow<ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data>> {
+        return graphqlClient.apolloClient.query(firstQuery)
+            .fetchPolicy(FetchPolicy.CacheOnly)
+            .watch()
     }
 
     internal fun clear() {
-        pagingState.clear()
+        graphqlClient.apolloClient.apolloStore.remove(CacheKey(firstQuery.name()))
     }
 
-    internal fun fetch() {
-        pagingState.add(
-            queryBlock = {
-                val cursor: String?
-                when (val last = it.lastOrNull()?.getFlow()?.value) {
-                    is ApolloResponseState.Loading -> {
-                        return@add null
-                    }
+    private val firstQuery = ImportedMailCategoryFiltersScreenPagingQuery(
+        query = ImportedMailCategoryFiltersQuery(
+            cursor = Optional.present(null),
+            isAsc = true,
+        ),
+    )
 
-                    is ApolloResponseState.Failure -> {
-                        viewModelScope.launch {
-                            pagingState.lastRetry()
-                        }
-                        return@add null
-                    }
+    internal suspend fun fetch(): Result<ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data>> {
+        return graphqlClient.apolloClient.updateOperation(firstQuery) { before ->
+            if (before == null) return@updateOperation fetch(cursor = null)
+            if (before.user?.importedMailCategoryFilters?.isLast == true) before
 
-                    is ApolloResponseState.Success -> {
-                        val response = last.value.data?.user?.importedMailCategoryFilters
-                        if (response == null) {
-                            viewModelScope.launch {
-                                pagingState.lastRetry()
-                            }
-                            return@add null
-                        }
-                        if (response.isLast) {
-                            return@add null
-                        }
+            val cursor = before.user?.importedMailCategoryFilters?.cursor
 
-                        cursor = response.cursor
-                    }
+            val result = fetch(cursor)
+            result
+        }
+    }
 
-                    null -> {
-                        cursor = null
-                    }
-                }
-
-                ImportedMailCategoryFiltersScreenPagingQuery(
-                    query = ImportedMailCategoryFiltersQuery(
-                        cursor = Optional.present(cursor),
-                        isAsc = true,
-                    ),
-                )
-            },
-        )
+    private suspend fun fetch(cursor: String?): ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data> {
+        return graphqlClient.apolloClient.query(
+            ImportedMailCategoryFiltersScreenPagingQuery(
+                query = ImportedMailCategoryFiltersQuery(
+                    cursor = Optional.present(cursor),
+                    isAsc = true,
+                ),
+            ),
+        ).execute()
     }
 }
