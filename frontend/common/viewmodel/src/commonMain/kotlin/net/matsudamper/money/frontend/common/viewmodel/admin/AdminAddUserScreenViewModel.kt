@@ -13,7 +13,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 
 public class AdminAddUserScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
-    private val graphqlClient: GraphqlAdminQuery,
+    private val adminQuery: GraphqlAdminQuery,
     private val controller: AdminScreenController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
@@ -32,7 +32,7 @@ public class AdminAddUserScreenViewModel(
             },
             onClickAddButton = {
                 viewModelScope.launch {
-                    val result = graphqlClient.addUser(
+                    val result = adminQuery.addUser(
                         userName = viewModelStateFlow.value.userName,
                         password = viewModelStateFlow.value.password,
                     )

@@ -14,7 +14,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 
 public class AdminLoginScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
-    private val graphqlClient: GraphqlAdminQuery,
+    private val adminQuery: GraphqlAdminQuery,
     private val controller: AdminScreenController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
@@ -38,7 +38,7 @@ public class AdminLoginScreenViewModel(
     private fun login(password: String) {
         // TODO: validate  "!@#$%^&*()_+-?<>,."
         viewModelScope.launch {
-            val result = graphqlClient.adminLogin(password)
+            val result = adminQuery.adminLogin(password)
 
             val isSuccess = result.data?.adminMutation?.adminLogin?.isSuccess ?: false
             if (isSuccess) {

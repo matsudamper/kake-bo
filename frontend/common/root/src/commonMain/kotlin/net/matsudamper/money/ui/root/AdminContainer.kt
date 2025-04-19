@@ -8,6 +8,7 @@ import net.matsudamper.money.frontend.common.ui.screen.admin.AdminRootScreen
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminAddUserScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminLoginScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.admin.AdminRootScreenViewModel
+import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 import net.matsudamper.money.ui.root.viewmodel.provideViewModel
 
 @Composable
@@ -21,7 +22,7 @@ internal fun AdminContainer(
         AdminRootScreenViewModel(
             scopedObjectFeature = it,
             controller = controller,
-            graphqlClient = koin.get(),
+            adminQuery = GraphqlAdminQuery(koin.get()),
         )
     }
     AdminRootScreen(
@@ -31,7 +32,7 @@ internal fun AdminContainer(
                 AdminLoginScreenViewModel(
                     scopedObjectFeature = it,
                     controller = controller,
-                    graphqlClient = koin.get(),
+                    adminQuery = GraphqlAdminQuery(koin.get()),
                 )
             }
             loginViewModel.uiStateFlow.collectAsState().value
@@ -44,7 +45,7 @@ internal fun AdminContainer(
                 AdminAddUserScreenViewModel(
                     scopedObjectFeature = it,
                     controller = controller,
-                    graphqlClient = koin.get(),
+                    adminQuery = GraphqlAdminQuery(koin.get()),
                 )
             }
             adminAddUserScreenViewModel.uiStateFlow.collectAsState().value

@@ -11,7 +11,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlAdminQuery
 
 public class AdminRootScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
-    private val graphqlClient: GraphqlAdminQuery,
+    private val adminQuery: GraphqlAdminQuery,
     private val controller: AdminScreenController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
