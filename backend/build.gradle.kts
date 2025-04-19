@@ -33,6 +33,7 @@ kotlin {
                 implementation(libs.kotlin.serialization.json)
                 implementation(libs.kotlin.coroutines.core)
                 implementation(libs.logback.classic)
+                implementation(libs.logstashLogbackEncoder)
 
                 implementation(libs.ktorServerCore)
                 implementation(libs.ktorServerEngine)

@@ -97,6 +97,7 @@ koinCore = { module = "io.insert-koin:koin-core", version.require = "4.0.4" }
 # Log
 log4j-api = { module = "org.slf4j:slf4j-api", version.require = "2.0.17" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.5.18" }
+logstashLogbackEncoder = { module = "net.logstash.logback:logstash-logback-encoder", version.require = "8.1" }
 
 # Graphql
 graphqlJava-extendedScalars = { module = "com.graphql-java:graphql-java-extended-scalars", version.require = "2023-01-24T02-11-56-babda5f" }
