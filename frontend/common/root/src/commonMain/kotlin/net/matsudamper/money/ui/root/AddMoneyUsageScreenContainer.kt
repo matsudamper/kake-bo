@@ -7,6 +7,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
+import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreen
 import net.matsudamper.money.frontend.common.viewmodel.addmoneyusage.AddMoneyUsageScreenApi
@@ -21,7 +22,7 @@ internal fun AddMoneyUsageScreenContainer(
     windowInsets: PaddingValues,
 ) {
     val koin = LocalKoin.current
-    val viewModel = provideViewModel { viewModelFeature ->
+    val viewModel = LocalScopedObjectStore.current.putOrGet(Unit) { viewModelFeature ->
         AddMoneyUsageViewModel(
             scopedObjectFeature = viewModelFeature,
             graphqlApi = AddMoneyUsageScreenApi(

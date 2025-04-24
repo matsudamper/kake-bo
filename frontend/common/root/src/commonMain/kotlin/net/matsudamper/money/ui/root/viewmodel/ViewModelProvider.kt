@@ -17,6 +17,7 @@ internal expect fun <T : Any> createViewModelProvider(
     kClass: KClass<T>,
 ): ViewModelProvider<T>
 
+@Deprecated("use LocalScopedObjectStore.current.putOrGet(Unit)")
 internal inline fun <reified T : Any> createViewModelProvider(
     noinline factory: (ScopedObjectFeature) -> T,
 ): ViewModelProvider<T> {
@@ -27,6 +28,7 @@ internal inline fun <reified T : Any> createViewModelProvider(
 }
 
 @Composable
+@Deprecated("use LocalScopedObjectStore.current.putOrGet(Unit)")
 internal inline fun <reified T : Any> provideViewModel(
     noinline factory: (ScopedObjectFeature) -> T,
 ): T {
