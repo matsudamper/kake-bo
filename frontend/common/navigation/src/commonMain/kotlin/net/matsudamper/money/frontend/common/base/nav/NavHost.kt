@@ -28,7 +28,7 @@ public fun NavHost(
                         .filterNot { it.isHome }
                         .filterNot { it.savedState }
                     for (entry in removedEntries) {
-                        holder.removeState(entry.structure.sameScreenId)
+                        holder.removeState(entry.scopeKey)
                     }
 
                     beforeEntries = navController.backstackEntries
@@ -37,25 +37,27 @@ public fun NavHost(
     }
     LaunchedEffect(navController.backstackEntries) {
         for (entry in navController.backstackEntries) {
-            scopedObjectStoreOwner.createOrGetScopedObjectStore(entry.structure.sameScreenId)
+            scopedObjectStoreOwner.createOrGetScopedObjectStore(entry.scopeKey)
         }
-        val aliveSameScreenIdList = navController.backstackEntries.map { it.structure.sameScreenId }
+        val aliveScopeKey = navController.backstackEntries.map { it.scopeKey }
         scopedObjectStoreOwner.keys()
             .mapNotNull { it as? String }
-            .filterNot { it in aliveSameScreenIdList }
-            .forEach { sameScreenId ->
-                scopedObjectStoreOwner.removeScopedObjectStore(sameScreenId)
+            .filterNot { it in aliveScopeKey }
+            .forEach { scopeKey ->
+                scopedObjectStoreOwner.removeScopedObjectStore(scopeKey)
             }
     }
     CompositionLocalProvider(
         LocalScopedObjectStore provides scopedObjectStoreOwner
-            .createOrGetScopedObjectStore(navController.currentBackstackEntry.structure.sameScreenId),
+            .createOrGetScopedObjectStore(navController.currentBackstackEntry.scopeKey),
     ) {
-        holder.SaveableStateProvider(navController.currentBackstackEntry.structure.sameScreenId) {
+        holder.SaveableStateProvider(navController.currentBackstackEntry.scopeKey) {
             content(navController.currentBackstackEntry)
         }
     }
 }
+
+private val ScreenNavController.NavStackEntry.scopeKey: Any get() = structure.sameScreenId
 
 public interface ScopedObjectStoreOwner {
     public fun createOrGetScopedObjectStore(key: Any): ScopedObjectStore
