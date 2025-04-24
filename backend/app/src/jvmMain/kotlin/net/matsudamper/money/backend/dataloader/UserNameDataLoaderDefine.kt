@@ -15,7 +15,9 @@ class UserNameDataLoaderDefine(
         return DataLoaderFactory.newMappedDataLoader { keys, _ ->
             CompletableFuture.supplyAsync {
                 val results = userRepository.getUserName(keys.toList())
-                keys.associateWith { results[it] }
+                keys.associateWith {
+                    results[it] ?: throw IllegalStateException("not result key: $key")
+                }
             }
         }
     }

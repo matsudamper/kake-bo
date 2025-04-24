@@ -33,7 +33,7 @@ class ImportedMailDataLoaderDefine(
                     }.flatten()
 
                 keys.associateWith { key ->
-                    result[key]
+                    result[key] ?: throw IllegalStateException("not result key: $key")
                 }
             }
         }

@@ -44,7 +44,7 @@ class MoneyUsageCategoryDataLoaderDefine(
                     }.flatten()
 
                 keys.associateWith { key ->
-                    val result = results[key] ?: return@associateWith null
+                    val result = results[key] ?: throw IllegalStateException("not result key: $key")
                     Result(
                         userId = key.userId,
                         name = result.name,

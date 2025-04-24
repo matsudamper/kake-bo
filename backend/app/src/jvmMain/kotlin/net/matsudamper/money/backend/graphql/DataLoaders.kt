@@ -67,7 +67,7 @@ internal class DataLoaders(
         UserNameDataLoaderDefine(diContainer.createUserNameRepository())
     }
 
-    private fun <K, V> register(initializer: () -> DataLoaderDefine<K, V>): DataLoaderRegister<K, V> {
+    private fun <K : Any, V : Any> register(initializer: () -> DataLoaderDefine<K, V>): DataLoaderRegister<K, V> {
         val provider = initializer()
 
         dataLoaderRegistryBuilder.register(
@@ -77,7 +77,7 @@ internal class DataLoaders(
         return DataLoaderRegister(provider.key)
     }
 
-    class DataLoaderProvider<K, V>(
+    class DataLoaderProvider<K : Any, V : Any>(
         private val dataLoaderName: String,
     ) {
         fun get(env: DataFetchingEnvironment): DataLoader<K, V> {
@@ -85,7 +85,7 @@ internal class DataLoaders(
         }
     }
 
-    private class DataLoaderRegister<K, V>(
+    private class DataLoaderRegister<K : Any, V : Any>(
         private val key: String,
     ) : ReadOnlyProperty<Any, DataLoaderProvider<K, V>> {
         override fun getValue(

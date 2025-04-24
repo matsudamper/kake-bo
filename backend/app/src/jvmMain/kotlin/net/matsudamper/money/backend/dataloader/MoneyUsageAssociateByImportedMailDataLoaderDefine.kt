@@ -27,7 +27,7 @@ class MoneyUsageAssociateByImportedMailDataLoaderDefine(
                                 moneyUsageIdList = key.map { it.moneyUsageId },
                             ).onFailure {
                                 it.printStackTrace()
-                            }.getOrNull() ?: return@supplyAsync null
+                            }.getOrNull() ?: return@supplyAsync mapOf()
 
                         result.map { (usageId, mailId) ->
                             Key(
@@ -38,7 +38,7 @@ class MoneyUsageAssociateByImportedMailDataLoaderDefine(
                     }.flatten()
 
                 keys.associateWith { key ->
-                    val result = results[key] ?: return@associateWith null
+                    val result = results[key] ?: throw IllegalStateException("not result key: $key")
                     Result(
                         userId = key.userId,
                         mailIdList = result,

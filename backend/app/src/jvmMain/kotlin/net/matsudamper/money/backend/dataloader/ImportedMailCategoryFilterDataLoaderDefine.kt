@@ -36,7 +36,7 @@ class ImportedMailCategoryFilterDataLoaderDefine(
                     }.flatten()
 
                 keys.associateWith { key ->
-                    results[key] ?: return@associateWith null
+                    results[key] ?: throw IllegalStateException("not result key: $key")
                 }
             }
         }
