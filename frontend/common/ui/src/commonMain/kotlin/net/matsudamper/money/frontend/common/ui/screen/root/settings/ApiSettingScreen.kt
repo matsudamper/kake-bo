@@ -292,16 +292,18 @@ private fun Content(
                     modifier = Modifier.fillMaxWidth()
                         .padding(8.dp),
                 ) {
-                    Column(
+                    Row(
                         modifier = Modifier.padding(8.dp),
                     ) {
-                        Row {
-                            Text("トークン名: ")
-                            Text(text = token.name)
-                        }
-                        Row {
-                            Text(text = "有効期限: ")
-                            Text(text = token.expiresAt)
+                        Column {
+                            Row {
+                                Text("トークン名: ")
+                                Text(text = token.name)
+                            }
+                            Row {
+                                Text(text = "有効期限: ")
+                                Text(text = token.expiresAt)
+                            }
                         }
                         Spacer(modifier = Modifier.weight(1f))
                         IconButton(onClick = { token.event.onClickDelete() }) {
