@@ -11,6 +11,7 @@ type ApiTokenAttributes {
 }
 
 type ApiToken {
+    id: ApiTokenId!
     name: String!
     expiresAt: OffsetDateTime
 }

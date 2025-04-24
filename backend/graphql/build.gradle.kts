@@ -72,6 +72,7 @@ val graphqlCodegen = tasks.named<io.github.kobylynskyi.graphql.codegen.gradle.Gr
         "UserId" to "net.matsudamper.money.element.UserId",
         "MailId" to "net.matsudamper.money.element.MailId",
         "FidoId" to "net.matsudamper.money.element.FidoId",
+        "ApiTokenId" to "net.matsudamper.money.element.ApiTokenId",
         "MoneyUsageCategoryId" to "net.matsudamper.money.element.MoneyUsageCategoryId",
         "MoneyUsageSubCategoryId" to "net.matsudamper.money.element.MoneyUsageSubCategoryId",
         "ImportedMailId" to "net.matsudamper.money.element.ImportedMailId",

@@ -39,6 +39,7 @@ import net.matsudamper.money.backend.graphql.resolver.mutation.UserMutationResol
 import net.matsudamper.money.backend.graphql.resolver.setting.ApiTokenAttributesResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.user.UserResolverImpl
 import net.matsudamper.money.backend.graphql.schema.GraphqlSchemaModule
+import net.matsudamper.money.element.ApiTokenId
 import net.matsudamper.money.element.FidoId
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
@@ -139,6 +140,11 @@ object MoneyGraphQlSchema {
                 createIntScalarType(
                     name = "FidoId",
                     deserialize = { FidoId(it) },
+                    serialize = { it.value },
+                ),
+                createStringScalarType(
+                    name = "ApiTokenId",
+                    deserialize = { ApiTokenId(it) },
                     serialize = { it.value },
                 ),
                 GraphQLScalarType.newScalar(ExtendedScalars.DateTime)

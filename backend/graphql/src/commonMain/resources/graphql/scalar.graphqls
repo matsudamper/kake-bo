@@ -10,3 +10,4 @@ scalar LocalDateTime
 scalar OffsetDateTime
 scalar Long
 scalar FidoId
+scalar ApiTokenId

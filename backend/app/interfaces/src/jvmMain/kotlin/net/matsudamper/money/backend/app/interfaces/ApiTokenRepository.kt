@@ -14,6 +14,7 @@ interface ApiTokenRepository {
     fun getApiTokens(id: UserId): List<ApiToken>
 
     data class ApiToken(
+        val id: ApiTokenId,
         val name: String,
         val expiredAt: Instant?,
     )

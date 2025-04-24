@@ -7,6 +7,7 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
+import net.matsudamper.money.element.ApiTokenId
 import net.matsudamper.money.graphql.model.ApiTokenAttributesResolver
 import net.matsudamper.money.graphql.model.QlApiToken
 import net.matsudamper.money.graphql.model.QlApiTokenAttributes
@@ -24,6 +25,7 @@ class ApiTokenAttributesResolverImpl : ApiTokenAttributesResolver {
 
             apiTokens.map {
                 QlApiToken(
+                    id = it.id,
                     name = it.name,
                     expiresAt = it.expiredAt?.atOffset(ZoneOffset.UTC),
                 )

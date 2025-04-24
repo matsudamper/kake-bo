@@ -6,6 +6,7 @@ import kotlin.jvm.optionals.getOrNull
 import net.matsudamper.money.backend.app.interfaces.ApiTokenRepository
 import net.matsudamper.money.backend.datasource.db.DbConnection
 import net.matsudamper.money.db.schema.tables.JApiTokens
+import net.matsudamper.money.element.ApiTokenId
 import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 import org.jooq.kotlin.and
@@ -58,6 +59,7 @@ class ApiTokenRepositoryImpl(
         return dbConnection.use { con ->
             DSL.using(con)
                 .select(
+                    apiTokens.API_TOKEN_ID,
                     apiTokens.DISPLAY_NAME,
                     apiTokens.EXPIRE_DATETIME,
                 )
@@ -66,6 +68,7 @@ class ApiTokenRepositoryImpl(
                 .fetch()
                 .map {
                     ApiTokenRepository.ApiToken(
+                        id = ApiTokenId(it.get(apiTokens.API_TOKEN_ID)!!.toString()),
                         name = it.get(apiTokens.DISPLAY_NAME)!!,
                         expiredAt = it.get(apiTokens.EXPIRE_DATETIME)?.toInstant(ZoneOffset.UTC),
                     )
