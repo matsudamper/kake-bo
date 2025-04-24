@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import com.apollographql.apollo3.gradle.internal.ApolloDownloadSchemaTask
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -46,4 +47,10 @@ apollo {
 
 tasks.withType<KotlinCompile> {
     dependsOn("generateApolloSources")
+}
+
+tasks.register("downloadSchema", ApolloDownloadSchemaTask::class.java) {
+    endpoint.set("http://localhost/query")
+    outputFile.set(file("src/commonMain/graphql/schema.graphqls"))
+    schema.set("money")
 }

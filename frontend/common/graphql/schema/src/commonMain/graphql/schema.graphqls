@@ -1,532 +1,1004 @@
-# This file was generated. Do not edit manually.
-
-schema {
-    query: Query
-    mutation: Mutation
+input AddCategoryInput {
+  name: String!
 }
-
-directive @lazy on FIELD_DEFINITION
-
-"Indicates an Input Object is a OneOf Input Object."
-directive @oneOf on INPUT_OBJECT
 
 type AddCategoryResult {
-    category: MoneyUsageCategory
+  category: MoneyUsageCategory
 }
 
-type AddSubCategoryResult {
-    error: AddSubCategoryError
-    subCategory: MoneyUsageSubCategory
+input AddImportedMailCategoryFilterConditionInput {
+  id: ImportedMailCategoryFilterId!
+
+  text: String
+
+  dataSourceType: ImportedMailCategoryFilterDataSourceType
+
+  conditionType: ImportedMailCategoryFilterConditionType
 }
 
-type AdminAddUserResult {
-    errorType: [AdminAddUserErrorType!]!
-}
-
-type AdminLoginResult {
-    isSuccess: Boolean!
-}
-
-type AdminMutation {
-    addUser(name: String!, password: String!): AdminAddUserResult!
-    adminLogin(password: String!): AdminLoginResult!
-}
-
-type ApiToken {
-    expiresAt: OffsetDateTime
-    name: String!
-}
-
-type ApiTokenAttributes {
-    apiTokens: [ApiToken!]!
-}
-
-type ChangeSessionNameResult {
-    isSuccess: Boolean!
-    session: Session
-}
-
-type DeleteFidoResult {
-    isSuccess: Boolean!
-}
-
-type DeleteMailResult {
-    error: DeleteMailResultError
-    isSuccess: Boolean!
-}
-
-type DeleteSessionResult {
-    isSuccess: Boolean!
-}
-
-type FidoAddInfo {
-    challenge: String!
-    domain: String!
-    id: String!
-    name: String!
-}
-
-type FidoLoginInfo {
-    challenge: String!
-    domain: String!
-}
-
-type ImportMailResult {
-    isSuccess: Boolean!
-}
-
-type ImportedMail {
-    dateTime: LocalDateTime!
-    forwardedInfo: ImportedMailForwardedInfo
-    from: String!
-    hasHtml: Boolean!
-    hasPlain: Boolean!
-    html: String
-    id: ImportedMailId!
-    plain: String
-    subject: String!
-    suggestUsages: [MoneyUsageSuggest!]!
-    usages: [MoneyUsage!]!
-}
-
-type ImportedMailAttributes {
-    count(query: ImportedMailQueryFilter!): Int
-    mail(id: ImportedMailId!): ImportedMail
-    mails(query: ImportedMailQuery!): ImportedMailConnection!
-}
-
-type ImportedMailCategoryCondition {
-    conditionType: ImportedMailCategoryFilterConditionType!
-    dataSourceType: ImportedMailCategoryFilterDataSourceType!
-    id: ImportedMailCategoryFilterConditionId!
-    text: String!
-}
-
-type ImportedMailCategoryFilter {
-    conditions: [ImportedMailCategoryCondition!]
-    id: ImportedMailCategoryFilterId!
-    operator: ImportedMailFilterCategoryConditionOperator!
-    orderNumber: Int!
-    subCategory: MoneyUsageSubCategory
-    title: String!
-}
-
-type ImportedMailCategoryFiltersConnection {
-    cursor: String
-    isLast: Boolean!
-    nodes: [ImportedMailCategoryFilter!]!
-}
-
-type ImportedMailConnection {
-    cursor: String
-    nodes: [ImportedMail!]!
-}
-
-type ImportedMailForwardedInfo {
-    dateTime: LocalDateTime!
-    from: String!
-    subject: String!
-}
-
-type MoneyUsage {
-    amount: Int!
-    date: LocalDateTime!
-    description: String!
-    id: MoneyUsageId!
-    linkedMail: [ImportedMail!]
-    moneyUsageSubCategory: MoneyUsageSubCategory
-    title: String!
-}
-
-type MoneyUsageAnalytics {
-    byCategories: [MoneyUsageAnalyticsByCategory!]
-    totalAmount: Long
-}
-
-type MoneyUsageAnalyticsByCategory {
-    bySubCategories: [MoneyUsageAnalyticsBySubCategory!]
-    category: MoneyUsageCategory!
-    totalAmount: Long
-}
-
-type MoneyUsageAnalyticsBySubCategory {
-    subCategory: MoneyUsageSubCategory!
-    totalAmount: Long
-}
-
-type MoneyUsageCategoriesConnection {
-    cursor: String
-    nodes: [MoneyUsageCategory!]!
-}
-
-type MoneyUsageCategory {
-    id: MoneyUsageCategoryId!
-    name: String!
-    subCategories(query: MoneyUsageSubCategoryQuery!): SubCategoriesConnection
-}
-
-type MoneyUsageSubCategory {
-    category: MoneyUsageCategory!
-    id: MoneyUsageSubCategoryId!
-    name: String!
-}
-
-type MoneyUsageSuggest {
-    amount: Int
-    dateTime: LocalDateTime
-    description: String!
-    serviceName: String
-    subCategory: MoneyUsageSubCategory
-    title: String!
-}
-
-type MoneyUsagesConnection {
-    cursor: String
-    hasMore: Boolean!
-    nodes: [MoneyUsage!]!
-}
-
-type Mutation {
-    adminMutation: AdminMutation!
-    userMutation: UserMutation!
-}
-
-type Query {
-    fidoLoginInfo: FidoLoginInfo!
-    isLoggedIn: Boolean!
-    user: User
-}
-
-type RegisterApiTokenResult {
-    apiToken: String
-    isSuccess: Boolean!
-}
-
-type RegisteredFidoInfo {
-    base64CredentialId: String!
-    id: FidoId!
-    name: String!
-}
-
-type RegisteredFidoResult {
-    fidoInfo: RegisteredFidoInfo
-}
-
-type Session {
-    lastAccess: OffsetDateTime!
-    name: String!
-}
-
-type SessionAttributes {
-    currentSession: Session!
-    sessions: [Session!]!
-}
-
-type SettingsMutation {
-    updateImapConfig(config: UpdateUserImapConfigInput!): UserImapConfig
-}
-
-type SubCategoriesConnection {
-    cursor: String
-    nodes: [MoneyUsageSubCategory!]!
-}
-
-type User {
-    importedMailAttributes: ImportedMailAttributes!
-    importedMailCategoryFilter(id: ImportedMailCategoryFilterId!): ImportedMailCategoryFilter
-    importedMailCategoryFilters(query: ImportedMailCategoryFiltersQuery!): ImportedMailCategoryFiltersConnection
-    moneyUsage(id: MoneyUsageId!): MoneyUsage
-    moneyUsageAnalytics(query: MoneyUsageAnalyticsQuery!): MoneyUsageAnalytics!
-    moneyUsageAnalyticsByCategory(id: MoneyUsageCategoryId!, query: MoneyUsageAnalyticsQuery!): MoneyUsageAnalyticsByCategory
-    moneyUsageCategories(input: MoneyUsageCategoriesInput!): MoneyUsageCategoriesConnection
-    moneyUsageCategory(id: MoneyUsageCategoryId!): MoneyUsageCategory
-    moneyUsageSubCategory(input: MoneyUsageSubCategoryInput!): MoneyUsageSubCategory
-    moneyUsages(query: MoneyUsagesQuery!): MoneyUsagesConnection
-    settings: UserSettings!
-    userMailAttributes: UserMailAttributes!
-}
-
-type UserImapConfig {
-    hasPassword: Boolean
-    host: String
-    port: Int
-    userName: String
-}
-
-type UserLoginResult {
-    isSuccess: Boolean!
-}
-
-type UserMail {
-    from: [String!]!
-    html: String
-    id: MailId!
-    plain: String
-    sender: String
-    subject: String!
-    time: OffsetDateTime!
-}
-
-type UserMailAttributes {
-    mailCount: Int
-    mails(mailQuery: MailQuery!): UserMailConnection!
-}
-
-type UserMailConnection {
-    cursor: String
-    error: UserMailError
-    usrMails: [UserMail!]!
-}
-
-type UserMutation {
-    addCategory(input: AddCategoryInput!): AddCategoryResult!
-    addImportedMailCategoryFilter(input: AddImportedMailCategoryFilterInput!): ImportedMailCategoryFilter
-    addImportedMailCategoryFilterCondition(input: AddImportedMailCategoryFilterConditionInput!): ImportedMailCategoryFilter
-    addSubCategory(input: AddSubCategoryInput!): AddSubCategoryResult!
-    addUsage(usage: AddUsageQuery!): MoneyUsage!
-    changeSessionName(name: String!): ChangeSessionNameResult!
-    deleteFido(id: FidoId!): DeleteFidoResult!
-    deleteImportedMail(id: ImportedMailId!): Boolean!
-    deleteImportedMailCategoryFilter(id: ImportedMailCategoryFilterId!): Boolean!
-    deleteImportedMailCategoryFilterCondition(id: ImportedMailCategoryFilterConditionId!): Boolean!
-    deleteMail(mailIds: [MailId!]!): DeleteMailResult!
-    deleteSession(name: String!): DeleteSessionResult!
-    deleteSubCategory(id: MoneyUsageSubCategoryId!): Boolean!
-    deleteUsage(id: MoneyUsageId!): Boolean!
-    importMail(mailIds: [MailId!]!): ImportMailResult!
-    logout: Boolean!
-    registerApiToken(name: String!): RegisterApiTokenResult!
-    registerFido(input: RegisterFidoInput!): RegisteredFidoResult!
-    settingsMutation: SettingsMutation
-    updateCategory(id: MoneyUsageCategoryId!, query: UpdateCategoryQuery!): MoneyUsageCategory!
-    updateImportedMailCategoryFilter(input: UpdateImportedMailCategoryFilterInput!): ImportedMailCategoryFilter
-    updateImportedMailCategoryFilterCondition(input: UpdateImportedMailCategoryFilterConditionInput!): ImportedMailCategoryCondition
-    updateSubCategory(id: MoneyUsageSubCategoryId!, query: UpdateSubCategoryQuery!): MoneyUsageSubCategory!
-    updateUsage(query: UpdateUsageQuery!): MoneyUsage!
-    userFidoLogin(userFidoLoginInput: UserFidoLoginInput!): UserLoginResult!
-    userLogin(name: String!, password: String!): UserLoginResult!
-}
-
-type UserSettings {
-    apiTokenAttributes: ApiTokenAttributes!
-    fidoAddInfo: FidoAddInfo!
-    imapConfig: UserImapConfig
-    registeredFidoList: [RegisteredFidoInfo!]!
-    sessionAttributes: SessionAttributes!
+input AddImportedMailCategoryFilterInput {
+  title: String!
 }
 
 enum AddSubCategoryError {
-    CATEGORY_NOT_FOUND
+  CATEGORY_NOT_FOUND
+}
+
+input AddSubCategoryInput {
+  name: String!
+
+  categoryId: MoneyUsageCategoryId!
+}
+
+type AddSubCategoryResult {
+  subCategory: MoneyUsageSubCategory
+
+  error: AddSubCategoryError
+}
+
+input AddUsageQuery {
+  title: String!
+
+  description: String!
+
+  subCategoryId: MoneyUsageSubCategoryId
+
+  amount: Int!
+
+  date: LocalDateTime!
+
+  importedMailId: ImportedMailId
 }
 
 enum AdminAddUserErrorType {
-    PasswordInvalidChar
-    PasswordLength
-    Unknown
-    UserNameAlreadyExists
-    UserNameInvalidChar
-    UserNameLength
+  Unknown
+
+  UserNameAlreadyExists
+
+  UserNameLength
+
+  UserNameInvalidChar
+
+  PasswordLength
+
+  PasswordInvalidChar
+}
+
+type AdminAddUserResult {
+  errorType: [AdminAddUserErrorType!]!
+}
+
+type AdminLoginResult {
+  isSuccess: Boolean!
+}
+
+type AdminMutation {
+  adminLogin(password: String!): AdminLoginResult!
+
+  addUser(name: String!, password: String!): AdminAddUserResult!
+}
+
+type ApiToken {
+  id: ApiTokenId!
+
+  name: String!
+
+  expiresAt: OffsetDateTime
+}
+
+type ApiTokenAttributes {
+  apiTokens: [ApiToken!]!
+}
+
+scalar ApiTokenId
+
+type ChangeSessionNameResult {
+  isSuccess: Boolean!
+
+  session: Session
+}
+
+type DeleteFidoResult {
+  isSuccess: Boolean!
+}
+
+type DeleteMailResult {
+  error: DeleteMailResultError
+
+  isSuccess: Boolean!
 }
 
 enum DeleteMailResultError {
-    InternalServerError
-    MailConfigNotFound
-    MailServerNotConnected
+  InternalServerError
+
+  MailConfigNotFound
+
+  MailServerNotConnected
 }
 
-enum ImportedMailCategoryFilterConditionType {
-    Equal
-    Include
-    NotEqual
-    NotInclude
+type DeleteSessionResult {
+  isSuccess: Boolean!
 }
 
-enum ImportedMailCategoryFilterDataSourceType {
-    MailFrom
-    MailHtml
-    MailPlain
-    MailTitle
-    ServiceName
-    Title
-}
+type FidoAddInfo {
+  id: String!
 
-enum ImportedMailFilterCategoryConditionOperator {
-    AND
-    OR
-}
+  name: String!
 
-enum ImportedMailSortKey {
-    CREATED_DATETIME
-    DATETIME
-}
+  challenge: String!
 
-enum UserMailError {
-    InternalServerError
-    MailConfigNotFound
-    MailServerNotConnected
+  domain: String!
 }
 
 scalar FidoId
 
+type FidoLoginInfo {
+  challenge: String!
+
+  domain: String!
+}
+
+type ImportMailResult {
+  isSuccess: Boolean!
+}
+
+type ImportedMail {
+  id: ImportedMailId!
+
+  subject: String!
+
+  from: String!
+
+  plain: String
+
+  hasPlain: Boolean!
+
+  html: String
+
+  hasHtml: Boolean!
+
+  dateTime: LocalDateTime!
+
+  forwardedInfo: ImportedMailForwardedInfo
+
+  suggestUsages: [MoneyUsageSuggest!]!
+
+  usages: [MoneyUsage!]!
+}
+
+type ImportedMailAttributes {
+  count(query: ImportedMailQueryFilter!): Int
+
+  mails(query: ImportedMailQuery!): ImportedMailConnection!
+
+  mail(id: ImportedMailId!): ImportedMail
+}
+
+type ImportedMailCategoryCondition {
+  id: ImportedMailCategoryFilterConditionId!
+
+  text: String!
+
+  dataSourceType: ImportedMailCategoryFilterDataSourceType!
+
+  conditionType: ImportedMailCategoryFilterConditionType!
+}
+
+type ImportedMailCategoryFilter {
+  id: ImportedMailCategoryFilterId!
+
+  title: String!
+
+  subCategory: MoneyUsageSubCategory
+
+  orderNumber: Int!
+
+  operator: ImportedMailFilterCategoryConditionOperator!
+
+  conditions: [ImportedMailCategoryCondition!]
+}
+
 scalar ImportedMailCategoryFilterConditionId
+
+enum ImportedMailCategoryFilterConditionType {
+  Include
+
+  NotInclude
+
+  Equal
+
+  NotEqual
+}
+
+enum ImportedMailCategoryFilterDataSourceType {
+  MailTitle
+
+  MailFrom
+
+  MailHtml
+
+  MailPlain
+
+  Title
+
+  ServiceName
+}
 
 scalar ImportedMailCategoryFilterId
 
+type ImportedMailCategoryFiltersConnection {
+  nodes: [ImportedMailCategoryFilter!]!
+
+  cursor: String
+
+  isLast: Boolean!
+}
+
+input ImportedMailCategoryFiltersQuery {
+  isAsc: Boolean!
+
+  cursor: String
+}
+
+type ImportedMailConnection {
+  cursor: String
+
+  nodes: [ImportedMail!]!
+}
+
+enum ImportedMailFilterCategoryConditionOperator {
+  OR
+
+  AND
+}
+
+type ImportedMailForwardedInfo {
+  from: String!
+
+  subject: String!
+
+  dateTime: LocalDateTime!
+}
+
 scalar ImportedMailId
+
+input ImportedMailQuery {
+  size: Int!
+
+  cursor: String
+
+  sortedBy: ImportedMailSortKey!
+
+  isAsc: Boolean!
+
+  filter: ImportedMailQueryFilter!
+}
+
+input ImportedMailQueryFilter {
+  isLinked: Boolean
+}
+
+enum ImportedMailSortKey {
+  CREATED_DATETIME
+
+  DATETIME
+}
 
 scalar LocalDateTime
 
-"A 64-bit signed integer"
+"""
+A 64-bit signed integer
+"""
 scalar Long
 
 scalar MailId
+
+input MailQuery {
+  size: Int!
+
+  cursor: String
+}
+
+type MoneyUsage {
+  id: MoneyUsageId!
+
+  title: String!
+
+  description: String!
+
+  date: LocalDateTime!
+
+  amount: Int!
+
+  linkedMail: [ImportedMail!]
+
+  moneyUsageSubCategory: MoneyUsageSubCategory
+}
+
+type MoneyUsageAnalytics {
+  totalAmount: Long
+
+  byCategories: [MoneyUsageAnalyticsByCategory!]
+}
+
+type MoneyUsageAnalyticsByCategory {
+  category: MoneyUsageCategory!
+
+  bySubCategories: [MoneyUsageAnalyticsBySubCategory!]
+
+  totalAmount: Long
+}
+
+type MoneyUsageAnalyticsBySubCategory {
+  subCategory: MoneyUsageSubCategory!
+
+  totalAmount: Long
+}
+
+input MoneyUsageAnalyticsQuery {
+  sinceDateTime: LocalDateTime!
+
+  untilDateTime: LocalDateTime!
+}
+
+type MoneyUsageCategoriesConnection {
+  nodes: [MoneyUsageCategory!]!
+
+  cursor: String
+}
+
+input MoneyUsageCategoriesInput {
+  size: Int!
+
+  cursor: String
+}
+
+type MoneyUsageCategory {
+  id: MoneyUsageCategoryId!
+
+  name: String!
+
+  subCategories(query: MoneyUsageSubCategoryQuery!): SubCategoriesConnection
+}
 
 scalar MoneyUsageCategoryId
 
 scalar MoneyUsageId
 
+type MoneyUsageSubCategory {
+  id: MoneyUsageSubCategoryId!
+
+  name: String!
+
+  category: MoneyUsageCategory!
+}
+
 scalar MoneyUsageSubCategoryId
 
-"A slightly refined version of RFC-3339 compliant DateTime Scalar"
-scalar OffsetDateTime
-
-input AddCategoryInput {
-    name: String!
-}
-
-input AddImportedMailCategoryFilterConditionInput {
-    conditionType: ImportedMailCategoryFilterConditionType
-    dataSourceType: ImportedMailCategoryFilterDataSourceType
-    id: ImportedMailCategoryFilterId!
-    text: String
-}
-
-input AddImportedMailCategoryFilterInput {
-    title: String!
-}
-
-input AddSubCategoryInput {
-    categoryId: MoneyUsageCategoryId!
-    name: String!
-}
-
-input AddUsageQuery {
-    amount: Int!
-    date: LocalDateTime!
-    description: String!
-    importedMailId: ImportedMailId
-    subCategoryId: MoneyUsageSubCategoryId
-    title: String!
-}
-
-input ImportedMailCategoryFiltersQuery {
-    cursor: String
-    isAsc: Boolean!
-}
-
-input ImportedMailQuery {
-    cursor: String
-    filter: ImportedMailQueryFilter!
-    isAsc: Boolean!
-    size: Int!
-    sortedBy: ImportedMailSortKey!
-}
-
-input ImportedMailQueryFilter {
-    isLinked: Boolean
-}
-
-input MailQuery {
-    cursor: String
-    size: Int!
-}
-
-input MoneyUsageAnalyticsQuery {
-    sinceDateTime: LocalDateTime!
-    untilDateTime: LocalDateTime!
-}
-
-input MoneyUsageCategoriesInput {
-    cursor: String
-    size: Int!
-}
-
 input MoneyUsageSubCategoryInput {
-    id: MoneyUsageSubCategoryId!
+  id: MoneyUsageSubCategoryId!
 }
 
 input MoneyUsageSubCategoryQuery {
-    cursor: String
-    size: Int!
+  size: Int!
+
+  cursor: String
+}
+
+type MoneyUsageSuggest {
+  title: String!
+
+  description: String!
+
+  dateTime: LocalDateTime
+
+  amount: Int
+
+  subCategory: MoneyUsageSubCategory
+
+  serviceName: String
+}
+
+type MoneyUsagesConnection {
+  nodes: [MoneyUsage!]!
+
+  cursor: String
+
+  hasMore: Boolean!
 }
 
 input MoneyUsagesQuery {
-    cursor: String
-    filter: MoneyUsagesQueryFilter
-    isAsc: Boolean!
-    size: Int!
+  size: Int!
+
+  cursor: String
+
+  isAsc: Boolean!
+
+  filter: MoneyUsagesQueryFilter
 }
 
 input MoneyUsagesQueryFilter {
-    category: [MoneyUsageCategoryId!]
-    sinceDateTime: LocalDateTime
-    subCategory: [MoneyUsageSubCategoryId!]
-    text: String
-    untilDateTime: LocalDateTime
+  category: [MoneyUsageCategoryId!]
+
+  subCategory: [MoneyUsageSubCategoryId!]
+
+  text: String
+
+  sinceDateTime: LocalDateTime
+
+  untilDateTime: LocalDateTime
+}
+
+type Mutation {
+  adminMutation: AdminMutation!
+
+  userMutation: UserMutation!
+}
+
+"""
+A slightly refined version of RFC-3339 compliant DateTime Scalar
+"""
+scalar OffsetDateTime
+
+type Query {
+  isLoggedIn: Boolean!
+
+  user: User
+
+  fidoLoginInfo: FidoLoginInfo!
+}
+
+type RegisterApiTokenResult {
+  isSuccess: Boolean!
+
+  apiToken: String
 }
 
 input RegisterFidoInput {
-    base64AttestationObject: String!
-    base64ClientDataJson: String!
-    challenge: String!
-    displayName: String!
+  displayName: String!
+
+  challenge: String!
+
+  base64AttestationObject: String!
+
+  base64ClientDataJson: String!
+}
+
+type RegisteredFidoInfo {
+  id: FidoId!
+
+  name: String!
+
+  base64CredentialId: String!
+}
+
+type RegisteredFidoResult {
+  fidoInfo: RegisteredFidoInfo
+}
+
+type Session {
+  name: String!
+
+  lastAccess: OffsetDateTime!
+}
+
+type SessionAttributes {
+  currentSession: Session!
+
+  sessions: [Session!]!
+}
+
+type SettingsMutation {
+  updateImapConfig(config: UpdateUserImapConfigInput!): UserImapConfig
+}
+
+type SubCategoriesConnection {
+  nodes: [MoneyUsageSubCategory!]!
+
+  cursor: String
 }
 
 input UpdateCategoryQuery {
-    name: String
+  name: String
 }
 
 input UpdateImportedMailCategoryFilterConditionInput {
-    conditionType: ImportedMailCategoryFilterConditionType
-    dataSourceType: ImportedMailCategoryFilterDataSourceType
-    id: ImportedMailCategoryFilterConditionId!
-    text: String
+  id: ImportedMailCategoryFilterConditionId!
+
+  text: String
+
+  dataSourceType: ImportedMailCategoryFilterDataSourceType
+
+  conditionType: ImportedMailCategoryFilterConditionType
 }
 
 input UpdateImportedMailCategoryFilterInput {
-    id: ImportedMailCategoryFilterId!
-    operator: ImportedMailFilterCategoryConditionOperator
-    orderNumber: Int
-    subCategoryId: MoneyUsageSubCategoryId
-    title: String
+  id: ImportedMailCategoryFilterId!
+
+  title: String
+
+  subCategoryId: MoneyUsageSubCategoryId
+
+  orderNumber: Int
+
+  operator: ImportedMailFilterCategoryConditionOperator
 }
 
 input UpdateSubCategoryQuery {
-    name: String
+  name: String
 }
 
 input UpdateUsageQuery {
-    amount: Int
-    date: LocalDateTime
-    description: String
-    id: MoneyUsageId!
-    subCategoryId: MoneyUsageSubCategoryId
-    title: String
+  id: MoneyUsageId!
+
+  title: String
+
+  date: LocalDateTime
+
+  amount: Int
+
+  description: String
+
+  subCategoryId: MoneyUsageSubCategoryId
 }
 
 input UpdateUserImapConfigInput {
-    host: String
-    password: String
-    port: Int
-    userName: String
+  host: String
+
+  port: Int
+
+  userName: String
+
+  password: String
+}
+
+type User {
+  settings: UserSettings!
+
+  userMailAttributes: UserMailAttributes!
+
+  importedMailAttributes: ImportedMailAttributes!
+
+  moneyUsage(id: MoneyUsageId!): MoneyUsage
+
+  moneyUsageAnalytics(query: MoneyUsageAnalyticsQuery!): MoneyUsageAnalytics!
+
+  moneyUsageAnalyticsByCategory(id: MoneyUsageCategoryId!, query: MoneyUsageAnalyticsQuery!): MoneyUsageAnalyticsByCategory
+
+  moneyUsageCategories(input: MoneyUsageCategoriesInput!): MoneyUsageCategoriesConnection
+
+  moneyUsageCategory(id: MoneyUsageCategoryId!): MoneyUsageCategory
+
+  moneyUsageSubCategory(input: MoneyUsageSubCategoryInput!): MoneyUsageSubCategory
+
+  moneyUsages(query: MoneyUsagesQuery!): MoneyUsagesConnection
+
+  importedMailCategoryFilters(query: ImportedMailCategoryFiltersQuery!): ImportedMailCategoryFiltersConnection
+
+  importedMailCategoryFilter(id: ImportedMailCategoryFilterId!): ImportedMailCategoryFilter
 }
 
 input UserFidoLoginInput {
-    base64AuthenticatorData: String!
-    base64ClientDataJson: String!
-    base64Signature: String!
-    base64UserHandle: String!
-    challenge: String!
-    credentialId: String!
-    userName: String!
+  credentialId: String!
+
+  userName: String!
+
+  challenge: String!
+
+  base64AuthenticatorData: String!
+
+  base64Signature: String!
+
+  base64ClientDataJson: String!
+
+  base64UserHandle: String!
+}
+
+type UserImapConfig {
+  host: String
+
+  port: Int
+
+  userName: String
+
+  hasPassword: Boolean
+}
+
+type UserLoginResult {
+  isSuccess: Boolean!
+}
+
+type UserMail {
+  id: MailId!
+
+  subject: String!
+
+  from: [String!]!
+
+  sender: String
+
+  plain: String
+
+  html: String
+
+  time: OffsetDateTime!
+}
+
+type UserMailAttributes {
+  mailCount: Int
+
+  mails(mailQuery: MailQuery!): UserMailConnection!
+}
+
+type UserMailConnection {
+  error: UserMailError
+
+  usrMails: [UserMail!]!
+
+  cursor: String
+}
+
+enum UserMailError {
+  InternalServerError
+
+  MailConfigNotFound
+
+  MailServerNotConnected
+}
+
+type UserMutation {
+  userLogin(name: String!, password: String!): UserLoginResult!
+
+  userFidoLogin(userFidoLoginInput: UserFidoLoginInput!): UserLoginResult!
+
+  settingsMutation: SettingsMutation
+
+  logout: Boolean!
+
+  importMail(mailIds: [MailId!]!): ImportMailResult!
+
+  deleteImportedMail(id: ImportedMailId!): Boolean!
+
+  deleteMail(mailIds: [MailId!]!): DeleteMailResult!
+
+  addUsage(usage: AddUsageQuery!): MoneyUsage!
+
+  updateUsage(query: UpdateUsageQuery!): MoneyUsage!
+
+  deleteUsage(id: MoneyUsageId!): Boolean!
+
+  addCategory(input: AddCategoryInput!): AddCategoryResult!
+
+  updateCategory(id: MoneyUsageCategoryId!, query: UpdateCategoryQuery!): MoneyUsageCategory!
+
+  addSubCategory(input: AddSubCategoryInput!): AddSubCategoryResult!
+
+  updateSubCategory(id: MoneyUsageSubCategoryId!, query: UpdateSubCategoryQuery!): MoneyUsageSubCategory!
+
+  deleteSubCategory(id: MoneyUsageSubCategoryId!): Boolean!
+
+  addImportedMailCategoryFilter(input: AddImportedMailCategoryFilterInput!): ImportedMailCategoryFilter
+
+  updateImportedMailCategoryFilter(input: UpdateImportedMailCategoryFilterInput!): ImportedMailCategoryFilter
+
+  deleteImportedMailCategoryFilter(id: ImportedMailCategoryFilterId!): Boolean!
+
+  addImportedMailCategoryFilterCondition(input: AddImportedMailCategoryFilterConditionInput!): ImportedMailCategoryFilter
+
+  updateImportedMailCategoryFilterCondition(input: UpdateImportedMailCategoryFilterConditionInput!): ImportedMailCategoryCondition
+
+  deleteImportedMailCategoryFilterCondition(id: ImportedMailCategoryFilterConditionId!): Boolean!
+
+  registerFido(input: RegisterFidoInput!): RegisteredFidoResult!
+
+  deleteFido(id: FidoId!): DeleteFidoResult!
+
+  deleteSession(name: String!): DeleteSessionResult!
+
+  changeSessionName(name: String!): ChangeSessionNameResult!
+
+  registerApiToken(name: String!): RegisterApiTokenResult!
+}
+
+type UserSettings {
+  imapConfig: UserImapConfig
+
+  fidoAddInfo: FidoAddInfo!
+
+  registeredFidoList: [RegisteredFidoInfo!]!
+
+  sessionAttributes: SessionAttributes!
+
+  apiTokenAttributes: ApiTokenAttributes!
+}
+
+type __Directive {
+  """
+  The __Directive type represents a Directive that a server supports.
+  """
+  name: String!
+
+  description: String
+
+  isRepeatable: Boolean!
+
+  locations: [__DirectiveLocation!]!
+
+  args(includeDeprecated: Boolean = false): [__InputValue!]!
+}
+
+"""
+An enum describing valid locations where a directive can be placed
+"""
+enum __DirectiveLocation {
+  """
+  Indicates the directive is valid on queries.
+  """
+  QUERY
+
+  """
+  Indicates the directive is valid on mutations.
+  """
+  MUTATION
+
+  """
+  Indicates the directive is valid on subscriptions.
+  """
+  SUBSCRIPTION
+
+  """
+  Indicates the directive is valid on fields.
+  """
+  FIELD
+
+  """
+  Indicates the directive is valid on fragment definitions.
+  """
+  FRAGMENT_DEFINITION
+
+  """
+  Indicates the directive is valid on fragment spreads.
+  """
+  FRAGMENT_SPREAD
+
+  """
+  Indicates the directive is valid on inline fragments.
+  """
+  INLINE_FRAGMENT
+
+  """
+  Indicates the directive is valid on variable definitions.
+  """
+  VARIABLE_DEFINITION
+
+  """
+  Indicates the directive is valid on a schema SDL definition.
+  """
+  SCHEMA
+
+  """
+  Indicates the directive is valid on a scalar SDL definition.
+  """
+  SCALAR
+
+  """
+  Indicates the directive is valid on an object SDL definition.
+  """
+  OBJECT
+
+  """
+  Indicates the directive is valid on a field SDL definition.
+  """
+  FIELD_DEFINITION
+
+  """
+  Indicates the directive is valid on a field argument SDL definition.
+  """
+  ARGUMENT_DEFINITION
+
+  """
+  Indicates the directive is valid on an interface SDL definition.
+  """
+  INTERFACE
+
+  """
+  Indicates the directive is valid on an union SDL definition.
+  """
+  UNION
+
+  """
+  Indicates the directive is valid on an enum SDL definition.
+  """
+  ENUM
+
+  """
+  Indicates the directive is valid on an enum value SDL definition.
+  """
+  ENUM_VALUE
+
+  """
+  Indicates the directive is valid on an input object SDL definition.
+  """
+  INPUT_OBJECT
+
+  """
+  Indicates the directive is valid on an input object field SDL definition.
+  """
+  INPUT_FIELD_DEFINITION
+}
+
+type __EnumValue {
+  name: String!
+
+  description: String
+
+  isDeprecated: Boolean!
+
+  deprecationReason: String
+}
+
+type __Field {
+  name: String!
+
+  description: String
+
+  args(includeDeprecated: Boolean = false): [__InputValue!]!
+
+  type: __Type!
+
+  isDeprecated: Boolean!
+
+  deprecationReason: String
+}
+
+type __InputValue {
+  name: String!
+
+  description: String
+
+  type: __Type!
+
+  defaultValue: String
+
+  isDeprecated: Boolean
+
+  deprecationReason: String
+}
+
+"""
+A GraphQL Introspection defines the capabilities of a GraphQL server. It exposes all available types and directives on the server, the entry points for query, mutation, and subscription operations.
+"""
+type __Schema {
+  description: String
+
+  """
+  A list of all types supported by this server.
+  """
+  types: [__Type!]!
+
+  """
+  The type that query operations will be rooted at.
+  """
+  queryType: __Type!
+
+  """
+  If this server supports mutation, the type that mutation operations will be rooted at.
+  """
+  mutationType: __Type
+
+  """
+  'A list of all directives supported by this server.
+  """
+  directives: [__Directive!]!
+
+  """
+  'If this server support subscription, the type that subscription operations will be rooted at.
+  """
+  subscriptionType: __Type
+}
+
+type __Type {
+  kind: __TypeKind!
+
+  name: String
+
+  description: String
+
+  fields(includeDeprecated: Boolean = false): [__Field!]
+
+  interfaces: [__Type!]
+
+  possibleTypes: [__Type!]
+
+  enumValues(includeDeprecated: Boolean = false): [__EnumValue!]
+
+  inputFields(includeDeprecated: Boolean = false): [__InputValue!]
+
+  ofType: __Type
+
+  """
+  This field is considered experimental because it has not yet been ratified in the graphql specification
+  """
+  isOneOf: Boolean
+
+  specifiedByURL: String
+
+  specifiedByUrl: String @deprecated(reason: "This legacy name has been replaced by `specifiedByURL`")
+}
+
+"""
+An enum describing what kind of type a given __Type is
+"""
+enum __TypeKind {
+  """
+  Indicates this type is a scalar. 'specifiedByURL' is a valid field
+  """
+  SCALAR
+
+  """
+  Indicates this type is an object. `fields` and `interfaces` are valid fields.
+  """
+  OBJECT
+
+  """
+  Indicates this type is an interface. `fields` and `possibleTypes` are valid fields.
+  """
+  INTERFACE
+
+  """
+  Indicates this type is a union. `possibleTypes` is a valid field.
+  """
+  UNION
+
+  """
+  Indicates this type is an enum. `enumValues` is a valid field.
+  """
+  ENUM
+
+  """
+  Indicates this type is an input object. `inputFields` is a valid field.
+  """
+  INPUT_OBJECT
+
+  """
+  Indicates this type is a list. `ofType` is a valid field.
+  """
+  LIST
+
+  """
+  Indicates this type is a non-null. `ofType` is a valid field.
+  """
+  NON_NULL
+}
+
+"""
+Directs the executor to include this field or fragment only when the `if` argument is true
+"""
+directive @include ("Included when true." if: Boolean!) on FIELD|FRAGMENT_SPREAD|INLINE_FRAGMENT
+
+"""
+Directs the executor to skip this field or fragment when the `if` argument is true.
+"""
+directive @skip ("Skipped when true." if: Boolean!) on FIELD|FRAGMENT_SPREAD|INLINE_FRAGMENT
+
+directive @lazy on FIELD_DEFINITION
+
+"""
+Marks the field, argument, input field or enum value as deprecated
+"""
+directive @deprecated ("The reason for the deprecation" reason: String = "No longer supported") on FIELD_DEFINITION|ARGUMENT_DEFINITION|ENUM_VALUE|INPUT_FIELD_DEFINITION
+
+"""
+Exposes a URL that specifies the behaviour of this scalar.
+"""
+directive @specifiedBy ("The URL that specifies the behaviour of this scalar." url: String!) on SCALAR
+
+"""
+Indicates an Input Object is a OneOf Input Object.
+"""
+directive @oneOf on INPUT_OBJECT
+
+schema {
+  query: Query
+  mutation: Mutation
 }
