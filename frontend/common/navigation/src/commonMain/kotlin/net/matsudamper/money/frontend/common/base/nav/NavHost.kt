@@ -10,7 +10,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolder
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
-import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 
 @Composable
@@ -29,7 +28,7 @@ public fun NavHost(
                         .filterNot { it.isHome }
                         .filterNot { it.savedState }
                     for (entry in removedEntries) {
-                        holder.removeState(entry.structure)
+                        holder.removeState(entry.structure.sameScreenId)
                     }
 
                     beforeEntries = navController.backstackEntries
@@ -38,14 +37,14 @@ public fun NavHost(
     }
     LaunchedEffect(navController.backstackEntries) {
         for (entry in navController.backstackEntries) {
-            scopedObjectStoreOwner.createOrGetScopedObjectStore(entry.structure)
+            scopedObjectStoreOwner.createOrGetScopedObjectStore(entry.structure.sameScreenId)
         }
-        val backStackStructures = navController.backstackEntries.map { it.structure }
+        val aliveSameScreenIdList = navController.backstackEntries.map { it.structure.sameScreenId }
         scopedObjectStoreOwner.keys()
-            .mapNotNull { it as? IScreenStructure }
-            .filterNot { it in backStackStructures }
-            .forEach { structure ->
-                scopedObjectStoreOwner.removeScopedObjectStore(structure)
+            .mapNotNull { it as? String }
+            .filterNot { it in aliveSameScreenIdList }
+            .forEach { sameScreenId ->
+                scopedObjectStoreOwner.removeScopedObjectStore(sameScreenId)
             }
     }
     CompositionLocalProvider(
