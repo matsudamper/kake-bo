@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -38,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -248,7 +251,13 @@ private fun Content(
     paddingValues: PaddingValues,
     uiState: ApiSettingScreenUiState.LoadingState.Loaded,
 ) {
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier.padding(
+            top = paddingValues.calculateTopPadding(),
+            start = paddingValues.calculateStartPadding(LocalLayoutDirection.current),
+            end = paddingValues.calculateEndPadding(LocalLayoutDirection.current),
+        ),
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth()
                 .padding(vertical = 16.dp),
@@ -265,11 +274,16 @@ private fun Content(
         }
         LazyColumn(
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = paddingValues,
+            contentPadding = PaddingValues(
+                start = paddingValues.calculateStartPadding(LocalLayoutDirection.current),
+                end = paddingValues.calculateEndPadding(LocalLayoutDirection.current),
+                bottom = paddingValues.calculateBottomPadding(),
+            ),
         ) {
             items(uiState.tokens) { token ->
                 Card(
-                    modifier = Modifier.padding(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                        .padding(8.dp),
                 ) {
                     Column(
                         modifier = Modifier.padding(8.dp),
