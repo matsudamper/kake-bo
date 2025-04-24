@@ -51,6 +51,7 @@ public data class RootHomeTabPeriodAllContentUiState(
 
     public interface Event {
         public suspend fun onViewInitialized()
+        public fun refresh()
     }
 }
 
@@ -66,7 +67,7 @@ public fun RootHomeTabPeriodAllScreen(
         homeUiState = uiState.rootHomeTabUiState,
         scaffoldListener = uiState.scaffoldListener,
         windowInsets = contentPadding,
-        onRefresh = {},
+        onRefresh = { uiState.event.refresh() },
     ) {
         when (val loadingState = uiState.loadingState) {
             is RootHomeTabPeriodAllContentUiState.LoadingState.Loaded -> {

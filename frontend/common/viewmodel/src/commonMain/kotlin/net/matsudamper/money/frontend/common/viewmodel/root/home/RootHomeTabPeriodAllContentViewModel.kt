@@ -140,6 +140,13 @@ public class RootHomeTabPeriodAllContentViewModel(
                         forceReFetch = true,
                     )
                 }
+
+                override fun refresh() {
+                    fetchAll(
+                        period = viewModelStateFlow.value.displayPeriod,
+                        forceReFetch = true,
+                    )
+                }
             },
         ),
     ).also { uiStateFlow ->
