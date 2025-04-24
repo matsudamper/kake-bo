@@ -29,8 +29,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -118,7 +116,6 @@ public fun RootHomeTabPeriodScaffold(
         menu = menu,
         windowInsets = windowInsets,
     ) {
-
         var isRefreshing by rememberSaveable { mutableStateOf(false) }
         val refreshState = rememberPullToRefreshState()
         val coroutineScope = rememberCoroutineScope()

@@ -301,7 +301,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                     is ImportMailUseCase.Result.Success -> true
                     is ImportMailUseCase.Result.Failure,
                     is ImportMailUseCase.Result.ImapConfigNotFound,
-                        -> false
+                    -> false
                 },
             )
         }.toDataFetcher()

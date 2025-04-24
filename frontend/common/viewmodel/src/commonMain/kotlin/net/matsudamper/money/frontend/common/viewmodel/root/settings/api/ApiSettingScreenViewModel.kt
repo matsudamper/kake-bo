@@ -171,7 +171,7 @@ public class ApiSettingScreenViewModel(
                                                     }
                                                 }
                                             }
-                                        }
+                                        },
                                     )
                                 },
                                 event = loadedEvent,

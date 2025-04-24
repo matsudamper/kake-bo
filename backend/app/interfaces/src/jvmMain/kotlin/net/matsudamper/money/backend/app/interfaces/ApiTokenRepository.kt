@@ -17,7 +17,7 @@ interface ApiTokenRepository {
     /**
      * @return 削除が成功したか
      */
-    fun deleteToken(userId: UserId, apiTokenId: ApiTokenId) : Boolean
+    fun deleteToken(userId: UserId, apiTokenId: ApiTokenId): Boolean
 
     data class ApiToken(
         val id: ApiTokenId,
