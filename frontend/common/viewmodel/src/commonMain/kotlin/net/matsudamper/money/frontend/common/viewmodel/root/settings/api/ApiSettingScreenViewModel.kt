@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -48,7 +48,7 @@ public class ApiSettingScreenViewModel(
                                 result
                                     .onSuccess {
                                         dismiss()
-                                        api.get().first()
+                                        api.updateCache()
                                     }
                                     .onFailure {
                                         eventSender.send {
@@ -93,7 +93,7 @@ public class ApiSettingScreenViewModel(
                                         loadingState = ViewModelState.LoadingState.Error,
                                     )
                                 }
-                                .collect {
+                                .collectLatest {
                                     val tokens = it.data?.user?.settings?.apiTokenAttributes?.apiTokens
                                     if (tokens == null) {
                                         viewModelStateFlow.update { viewModelState ->
@@ -101,7 +101,7 @@ public class ApiSettingScreenViewModel(
                                                 loadingState = ViewModelState.LoadingState.Error,
                                             )
                                         }
-                                        return@collect
+                                        return@collectLatest
                                     }
                                     viewModelStateFlow.update { viewModelState ->
                                         viewModelState.copy(
@@ -119,7 +119,7 @@ public class ApiSettingScreenViewModel(
                         viewModelStateFlow.value = viewModelStateFlow.value.copy(
                             loadingState = ViewModelState.LoadingState.Loading,
                         )
-                        api.get().first()
+                        api.updateCache()
                     }
                 }
 
@@ -155,6 +155,23 @@ public class ApiSettingScreenViewModel(
                                                 .toLocalDateTime(TimeZone.currentSystemDefault())
                                                 .toString()
                                         },
+                                        event = object : ApiSettingScreenUiState.Token.Event {
+                                            override fun onClickDelete() {
+                                                viewModelScope.launch {
+                                                    val result = api.deleteToken(token.id)
+                                                    if (result) {
+                                                        eventSender.send {
+                                                            it.showToast("トークンを削除しました")
+                                                        }
+                                                        api.updateCache()
+                                                    } else {
+                                                        eventSender.send {
+                                                            it.showToast("トークンの削除に失敗しました")
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     )
                                 },
                                 event = loadedEvent,

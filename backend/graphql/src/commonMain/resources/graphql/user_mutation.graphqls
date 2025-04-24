@@ -33,6 +33,11 @@ type UserMutation {
     changeSessionName(name: String!): ChangeSessionNameResult!
 
     registerApiToken(name: String!): RegisterApiTokenResult!
+    deleteApiToken(id: ApiTokenId!): DeleteApiTokenResult!
+}
+
+type DeleteApiTokenResult {
+    isSuccess: Boolean!
 }
 
 type RegisterApiTokenResult {

@@ -29,6 +29,7 @@ import net.matsudamper.money.backend.lib.ChallengeModel
 import net.matsudamper.money.backend.logic.ApiTokenEncryptManager
 import net.matsudamper.money.backend.logic.IPasswordManager
 import net.matsudamper.money.backend.logic.PasswordManager
+import net.matsudamper.money.element.ApiTokenId
 import net.matsudamper.money.element.FidoId
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
@@ -46,6 +47,7 @@ import net.matsudamper.money.graphql.model.QlAddSubCategoryInput
 import net.matsudamper.money.graphql.model.QlAddSubCategoryResult
 import net.matsudamper.money.graphql.model.QlAddUsageQuery
 import net.matsudamper.money.graphql.model.QlChangeSessionNameResult
+import net.matsudamper.money.graphql.model.QlDeleteApiTokenResult
 import net.matsudamper.money.graphql.model.QlDeleteFidoResult
 import net.matsudamper.money.graphql.model.QlDeleteMailResult
 import net.matsudamper.money.graphql.model.QlDeleteMailResultError
@@ -299,7 +301,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                     is ImportMailUseCase.Result.Success -> true
                     is ImportMailUseCase.Result.Failure,
                     is ImportMailUseCase.Result.ImapConfigNotFound,
-                    -> false
+                        -> false
                 },
             )
         }.toDataFetcher()
@@ -819,6 +821,18 @@ class UserMutationResolverImpl : UserMutationResolver {
             QlRegisterApiTokenResult(
                 isSuccess = true,
                 apiToken = createTokenResult.token,
+            )
+        }.toDataFetcher()
+    }
+
+    override fun deleteApiToken(userMutation: QlUserMutation, id: ApiTokenId, env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlDeleteApiTokenResult>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+        val repository = context.diContainer.createApiTokenRepository()
+        return CompletableFuture.supplyAsync {
+            val isSuccess = repository.deleteToken(userId = userId, apiTokenId = id)
+            QlDeleteApiTokenResult(
+                isSuccess = isSuccess,
             )
         }.toDataFetcher()
     }

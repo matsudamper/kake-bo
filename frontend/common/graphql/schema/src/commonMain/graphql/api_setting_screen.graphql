@@ -3,6 +3,7 @@ query ApiSettingScreen {
         settings {
             apiTokenAttributes {
                 apiTokens {
+                    id
                     name
                     expiresAt
                 }
@@ -16,6 +17,14 @@ mutation ApiSettingScreenRegisterApiToken($name: String!) {
         registerApiToken(name: $name) {
             isSuccess
             apiToken
+        }
+    }
+}
+
+mutation ApiSettingScreenDeleteApiToken($id: ApiTokenId!) {
+    userMutation {
+        deleteApiToken(id: $id) {
+            isSuccess
         }
     }
 }

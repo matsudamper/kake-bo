@@ -98,6 +98,10 @@ type ChangeSessionNameResult {
   session: Session
 }
 
+type DeleteApiTokenResult {
+  isSuccess: Boolean!
+}
+
 type DeleteFidoResult {
   isSuccess: Boolean!
 }
@@ -698,6 +702,8 @@ type UserMutation {
   changeSessionName(name: String!): ChangeSessionNameResult!
 
   registerApiToken(name: String!): RegisterApiTokenResult!
+
+  deleteApiToken(id: ApiTokenId!): DeleteApiTokenResult!
 }
 
 type UserSettings {

@@ -75,4 +75,18 @@ class ApiTokenRepositoryImpl(
                 }
         }
     }
+
+    override fun deleteToken(userId: UserId, apiTokenId: ApiTokenId): Boolean {
+        return dbConnection.use { con ->
+            DSL.using(con)
+                .deleteFrom(apiTokens)
+                .where(
+                    DSL.value(true)
+                        .and(apiTokens.API_TOKEN_ID.eq(apiTokenId.value.toIntOrNull()))
+                        .and(apiTokens.USER_ID.eq(userId.value)),
+                )
+                .limit(1)
+                .execute() == 1
+        }
+    }
 }
