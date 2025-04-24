@@ -14,19 +14,26 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
@@ -85,6 +92,7 @@ public data class RootHomeTabPeriodUiState(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun RootHomeTabPeriodScaffold(
     uiState: RootHomeTabPeriodUiState,
@@ -93,9 +101,9 @@ public fun RootHomeTabPeriodScaffold(
     modifier: Modifier = Modifier,
     menu: @Composable () -> Unit = {},
     windowInsets: PaddingValues,
+    onRefresh: () -> Unit,
     content: @Composable () -> Unit,
 ) {
-    val density = LocalDensity.current
     LaunchedEffect(uiState.event) {
         uiState.event.onViewInitialized()
     }
@@ -110,13 +118,22 @@ public fun RootHomeTabPeriodScaffold(
         menu = menu,
         windowInsets = windowInsets,
     ) {
-        var containerHeight by remember { mutableStateOf(0.dp) }
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .onSizeChanged {
-                    containerHeight = with(density) { it.height.toDp() }
-                },
+
+        var isRefreshing by rememberSaveable { mutableStateOf(false) }
+        val refreshState = rememberPullToRefreshState()
+        val coroutineScope = rememberCoroutineScope()
+        PullToRefreshBox(
+            modifier = Modifier.fillMaxSize(),
+            state = refreshState,
+            isRefreshing = isRefreshing,
+            onRefresh = {
+                isRefreshing = true
+                onRefresh()
+                coroutineScope.launch {
+                    delay(100)
+                    isRefreshing = false
+                }
+            },
         ) {
             when (uiState.loadingState) {
                 RootHomeTabPeriodUiState.LoadingState.Loading -> {

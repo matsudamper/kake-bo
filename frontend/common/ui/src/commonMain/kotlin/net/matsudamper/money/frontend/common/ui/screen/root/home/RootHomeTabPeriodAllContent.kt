@@ -66,6 +66,7 @@ public fun RootHomeTabPeriodAllScreen(
         homeUiState = uiState.rootHomeTabUiState,
         scaffoldListener = uiState.scaffoldListener,
         windowInsets = contentPadding,
+        onRefresh = {},
     ) {
         when (val loadingState = uiState.loadingState) {
             is RootHomeTabPeriodAllContentUiState.LoadingState.Loaded -> {

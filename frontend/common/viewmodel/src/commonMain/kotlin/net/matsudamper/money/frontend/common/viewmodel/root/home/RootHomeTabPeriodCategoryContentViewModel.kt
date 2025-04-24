@@ -141,6 +141,14 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                         categoryId = initialCategoryId,
                     )
                 }
+
+                override fun refresh() {
+                    fetchCategory(
+                        period = viewModelStateFlow.value.displayPeriod,
+                        categoryId = initialCategoryId,
+                        forceReFetch = true,
+                    )
+                }
             },
         ),
     ).also { uiStateFlow ->

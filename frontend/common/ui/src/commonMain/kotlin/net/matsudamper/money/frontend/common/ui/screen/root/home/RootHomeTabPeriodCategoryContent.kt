@@ -12,13 +12,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.pullToRefresh
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolder
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraph
@@ -45,40 +58,59 @@ public data class RootHomeTabPeriodCategoryContentUiState(
 
     public interface Event {
         public suspend fun onViewInitialized()
+        public fun refresh()
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun RootHomeTabPeriodCategoryScreen(
     modifier: Modifier = Modifier,
     uiState: RootHomeTabPeriodCategoryContentUiState,
     windowInsets: PaddingValues,
 ) {
+    val savedState = rememberSaveableStateHolder(id = "RootHomeTabPeriodCategoryScreen")
     RootHomeTabPeriodScaffold(
         uiState = uiState.rootHomeTabPeriodUiState,
         homeUiState = uiState.rootHomeTabUiState,
         scaffoldListener = uiState.rootScaffoldListener,
         modifier = Modifier.fillMaxSize(),
+        onRefresh = {
+            uiState.event.refresh()
+        },
         content = {
-            when (val loadingState = uiState.loadingState) {
-                is RootHomeTabPeriodCategoryContentUiState.LoadingState.Loaded -> {
-                    LoadedContent(
-                        modifier = Modifier.fillMaxSize(),
-                        loadingState = loadingState,
-                    )
-                }
-
-                RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading -> {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            var isRefreshing by rememberSaveable { mutableStateOf(false) }
+            val refreshState = rememberPullToRefreshState()
+            PullToRefreshBox(
+                modifier = Modifier.fillMaxSize(),
+                state = refreshState,
+                isRefreshing = isRefreshing,
+                onRefresh = {
+                    uiState.event.refresh()
+                },
+            ) {
+                when (val loadingState = uiState.loadingState) {
+                    is RootHomeTabPeriodCategoryContentUiState.LoadingState.Loaded -> {
+                        savedState.SaveableStateProvider(Unit) {
+                            LoadedContent(
+                                modifier = Modifier.fillMaxSize(),
+                                loadingState = loadingState,
+                            )
+                        }
                     }
-                }
 
-                RootHomeTabPeriodCategoryContentUiState.LoadingState.Error -> {
-                    LoadingErrorContent(
-                        modifier = modifier,
-                        onClickRetry = { /* TODO */ },
-                    )
+                    RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading -> {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                        }
+                    }
+
+                    RootHomeTabPeriodCategoryContentUiState.LoadingState.Error -> {
+                        LoadingErrorContent(
+                            modifier = modifier,
+                            onClickRetry = { /* TODO */ },
+                        )
+                    }
                 }
             }
         },
