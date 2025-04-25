@@ -32,7 +32,6 @@ import net.matsudamper.money.frontend.common.base.ImmutableList
  */
 public data class PieChartUiState(
     val items: ImmutableList<Item>,
-    val title: String = "",
 ) {
     /**
      * Data class representing a single item in the pie chart
@@ -63,39 +62,40 @@ public data class PieChartUiState(
 @Composable
 public fun PieChart(
     uiState: PieChartUiState,
+    title: String? = null,
     modifier: Modifier = Modifier,
     showLegend: Boolean = true,
 ) {
     val totalValue = uiState.items.sumOf { it.value }.toFloat()
-    
+
     Column(modifier = modifier) {
-        if (uiState.title.isNotEmpty()) {
+        if (title != null) {
             Text(
-                text = uiState.title,
+                text = title,
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center,
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
-        
+
         Canvas(
             modifier = Modifier
                 .size(200.dp)
-                .align(Alignment.CenterHorizontally)
+                .align(Alignment.CenterHorizontally),
         ) {
             val canvasSize = size.minDimension
             val radius = canvasSize / 2
             val center = Offset(size.width / 2, size.height / 2)
-            
+
             var startAngle = 0f
-            
+
             // Draw pie slices
             uiState.items.forEach { item ->
                 if (item.value <= 0) return@forEach
-                
+
                 val sweepAngle = (item.value / totalValue) * 360f
-                
+
                 // Draw filled slice
                 drawArc(
                     color = item.color,
@@ -105,7 +105,7 @@ public fun PieChart(
                     topLeft = Offset(center.x - radius, center.y - radius),
                     size = Size(radius * 2, radius * 2),
                 )
-                
+
                 // Draw outline
                 drawArc(
                     color = Color.White,
@@ -116,14 +116,14 @@ public fun PieChart(
                     size = Size(radius * 2, radius * 2),
                     style = Stroke(width = 2f),
                 )
-                
+
                 startAngle += sweepAngle
             }
         }
-        
+
         if (showLegend) {
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // Legend
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -131,9 +131,9 @@ public fun PieChart(
             ) {
                 uiState.items.forEach { item ->
                     if (item.value <= 0) return@forEach
-                    
+
                     val percentage = (item.value.toFloat() / totalValue * 100).toInt()
-                    
+
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -150,7 +150,7 @@ public fun PieChart(
                         Box(
                             modifier = Modifier
                                 .size(16.dp)
-                                .background(item.color)
+                                .background(item.color),
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(

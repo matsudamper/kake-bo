@@ -166,10 +166,10 @@ private fun LoadedContent(
                                         title = categoryItem.title,
                                         value = categoryItem.value,
                                     )
-                                }
+                                },
                             ),
-                            title = "カテゴリ別支出",
                         ),
+                        title = "カテゴリ別支出",
                         modifier = Modifier.fillMaxWidth()
                             .padding(16.dp),
                     )
