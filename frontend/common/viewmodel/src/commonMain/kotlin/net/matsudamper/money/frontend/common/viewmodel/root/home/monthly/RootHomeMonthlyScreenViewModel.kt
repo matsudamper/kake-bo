@@ -21,10 +21,12 @@ import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 import net.matsudamper.money.frontend.common.ui.screen.root.home.monthly.RootHomeMonthlyScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
@@ -181,6 +183,15 @@ public class RootHomeMonthlyScreenViewModel(
             )
         } ?: emptyList()
 
+        val pieChartItems = viewModelState.moneyUsageAnalytics?.byCategories?.mapIndexed { index, byCategory ->
+            val colorIndex = index % categoryColors.size
+            PieChartItem(
+                title = byCategory.category.name,
+                color = categoryColors[colorIndex],
+                value = byCategory.totalAmount ?: 0,
+            )
+        }.orEmpty()
+
         return RootHomeMonthlyScreenUiState.LoadingState.Loaded(
             items = viewModelState.monthlyListResponses.flatMap {
                 it.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.nodes.orEmpty()
@@ -198,6 +209,7 @@ public class RootHomeMonthlyScreenViewModel(
                 )
             },
             categoryItems = categoryItems,
+            pieChartItems = pieChartItems.toImmutableList(),
             hasMoreItem = viewModelState.monthlyListResponses
                 .lastOrNull()?.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.hasMore != false,
             totalAmount = run amount@{

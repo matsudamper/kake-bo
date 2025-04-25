@@ -51,6 +51,7 @@ public data class RootHomeMonthlyScreenUiState(
             val totalAmount: String,
             val items: List<Item>,
             val categoryItems: List<CategoryItem>,
+            val pieChartItems: ImmutableList<PieChartItem>,
             val hasMoreItem: Boolean,
             val event: LoadedEvent,
         ) : LoadingState
@@ -156,17 +157,9 @@ private fun LoadedContent(
                 )
             }
             item {
-                if (loadingState.categoryItems.isNotEmpty()) {
+                if (loadingState.pieChartItems.isNotEmpty()) {
                     PieChart(
-                        items = ImmutableList(
-                            loadingState.categoryItems.map { categoryItem ->
-                                PieChartItem(
-                                    color = categoryItem.color,
-                                    title = categoryItem.title,
-                                    value = categoryItem.value,
-                                )
-                            }
-                        ),
+                        items = loadingState.pieChartItems,
                         title = "カテゴリ別支出",
                         modifier = Modifier.fillMaxWidth()
                             .padding(16.dp),
