@@ -249,30 +249,33 @@ public class RootHomeMonthlyScreenViewModel(
     }
 
     private suspend fun fetch() {
-        graphqlClient.apolloClient.updateOperation(getFirstQuery()) { before ->
-            if (before == null) return@updateOperation fetch(cursor = null)
-            if (before.user?.moneyUsages?.hasMore == false) return@updateOperation null
+        println("fetch")
+        graphqlClient.apolloClient.updateOperation(getFirstQuery()) update@{ before ->
+            if (before == null) return@update success(fetch(cursor = null))
+            if (before.user?.moneyUsages?.hasMore == false) return@update noHasMore()
 
             val cursor = before.user?.moneyUsages?.cursor
 
             val result = fetch(cursor)
-            val newMoneyUsage = result.data?.user?.moneyUsages ?: return@updateOperation null
-            result.newBuilder()
-                .data(
-                    data = before.copy(
-                        user = before.user?.let user@{ user ->
-                            val usages = user.moneyUsages ?: return@user null
-                            user.copy(
-                                moneyUsages = MonthlyScreenListQuery.MoneyUsages(
-                                    cursor = newMoneyUsage.cursor,
-                                    hasMore = newMoneyUsage.hasMore,
-                                    nodes = usages.nodes + newMoneyUsage.nodes,
-                                ),
-                            )
-                        },
-                    ),
-                )
-                .build()
+            val newMoneyUsage = result.data?.user?.moneyUsages ?: return@update error()
+            success(
+                result.newBuilder()
+                    .data(
+                        data = before.copy(
+                            user = before.user?.let user@{ user ->
+                                val usages = user.moneyUsages ?: return@user null
+                                user.copy(
+                                    moneyUsages = MonthlyScreenListQuery.MoneyUsages(
+                                        cursor = newMoneyUsage.cursor,
+                                        hasMore = newMoneyUsage.hasMore,
+                                        nodes = usages.nodes + newMoneyUsage.nodes,
+                                    ),
+                                )
+                            },
+                        ),
+                    )
+                    .build(),
+            )
         }
     }
 

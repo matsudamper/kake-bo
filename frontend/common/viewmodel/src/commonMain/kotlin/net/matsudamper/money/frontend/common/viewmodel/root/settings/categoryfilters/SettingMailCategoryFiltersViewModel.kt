@@ -20,6 +20,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFiltersScreenPagingQuery
+import net.matsudamper.money.frontend.graphql.UpdateOperationResponseResult
 
 public class SettingMailCategoryFiltersViewModel(
     private val pagingModel: ImportedMailCategoryFilterScreenPagingModel,
@@ -119,10 +120,14 @@ public class SettingMailCategoryFiltersViewModel(
                                     event = ItemEventListener(item),
                                 )
                             }.toImmutableList(),
-                            isError = viewModelState.lastLoadingState?.fold(
-                                onSuccess = { it.data?.user?.importedMailCategoryFilters != null },
-                                onFailure = { true },
-                            ) == true,
+                            isError = when (val it = viewModelState.lastLoadingState) {
+                                is UpdateOperationResponseResult.Error -> true
+                                is UpdateOperationResponseResult.NoHasMore -> false
+                                null -> false
+                                is UpdateOperationResponseResult.Success -> {
+                                    it.result.data?.user?.importedMailCategoryFilters != null
+                                }
+                            },
                             event = loadedEvent,
                         )
                     }
@@ -180,7 +185,7 @@ public class SettingMailCategoryFiltersViewModel(
 
     private data class ViewModelState(
         val apolloResponseStates: ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data>? = null,
-        val lastLoadingState: Result<ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data>>? = null,
+        val lastLoadingState: UpdateOperationResponseResult<ImportedMailCategoryFiltersScreenPagingQuery.Data>? = null,
         val textInputDialog: SettingMailCategoryFilterScreenUiState.TextInput? = null,
         val isLoading: Boolean = true,
     )

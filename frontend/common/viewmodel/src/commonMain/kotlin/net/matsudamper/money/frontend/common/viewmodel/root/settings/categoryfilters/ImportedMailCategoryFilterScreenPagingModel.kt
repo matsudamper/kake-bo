@@ -12,6 +12,7 @@ import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFiltersScreenPagingQuery
+import net.matsudamper.money.frontend.graphql.UpdateOperationResponseResult
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersQuery
 import net.matsudamper.money.frontend.graphql.updateOperation
 
@@ -37,15 +38,14 @@ public class ImportedMailCategoryFilterScreenPagingModel(
         ),
     )
 
-    internal suspend fun fetch(): Result<ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data>> {
-        return graphqlClient.apolloClient.updateOperation(firstQuery) { before ->
-            if (before == null) return@updateOperation fetch(cursor = null)
-            if (before.user?.importedMailCategoryFilters?.isLast == true) before
+    internal suspend fun fetch(): UpdateOperationResponseResult<ImportedMailCategoryFiltersScreenPagingQuery.Data> {
+        return graphqlClient.apolloClient.updateOperation(firstQuery) update@    { before ->
+            if (before == null) return@update success(fetch(cursor = null))
+            if (before.user?.importedMailCategoryFilters?.isLast == true) return@update noHasMore()
 
-            val cursor = before.user?.importedMailCategoryFilters?.cursor
+            val cursor = before.user?.importedMailCategoryFilters?.cursor?: return@update error()
 
-            val result = fetch(cursor)
-            result
+            success(fetch(cursor))
         }
     }
 

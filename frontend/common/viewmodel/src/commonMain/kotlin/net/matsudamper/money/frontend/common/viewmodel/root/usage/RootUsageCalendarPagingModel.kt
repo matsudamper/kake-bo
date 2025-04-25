@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.viewmodel.root.usage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -39,7 +40,7 @@ public class RootUsageCalendarPagingModel(
 ) {
     private val modelStateFlow = MutableStateFlow(ModelState())
 
-    private val firstQuery = modelStateFlow.map {
+    private val firstQueryFlow = modelStateFlow.map {
         createQuery(
             selectedMonth = it.selectedMonth ?: return@map null,
             searchText = it.searchText.orEmpty(),
@@ -49,7 +50,7 @@ public class RootUsageCalendarPagingModel(
 
     init {
         coroutineScope.launch {
-            firstQuery.filterNotNull().collectLatest {
+            firstQueryFlow.filterNotNull().collectLatest {
                 fetchData(isForceRefresh = true)
             }
         }
@@ -78,11 +79,11 @@ public class RootUsageCalendarPagingModel(
     }
 
     public fun refresh() {
-        fetchData(isForceRefresh = true)
+//        fetchData(isForceRefresh = true)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    internal fun getFlow(): Flow<ApolloResponse<UsageCalendarScreenPagingQuery.Data>> {
+    internal suspend fun getFlow(): Flow<ApolloResponse<UsageCalendarScreenPagingQuery.Data>> {
         return modelStateFlow.mapNotNull { it.selectedMonth }
             .map {
                 graphqlClient.apolloClient.query(getCacheQuery(it))
@@ -90,6 +91,7 @@ public class RootUsageCalendarPagingModel(
                     .watch()
             }
             .flattenMerge()
+            .stateIn(CoroutineScope(currentCoroutineContext()))
     }
 
     internal fun fetch() {
@@ -98,37 +100,41 @@ public class RootUsageCalendarPagingModel(
 
     private fun fetchData(isForceRefresh: Boolean = false) {
         coroutineScope.launch {
-            val query = firstQuery.first() ?: return@launch
+            val firstQuery = firstQueryFlow.first() ?: return@launch
             val month = modelStateFlow.map { it.selectedMonth }.first() ?: return@launch
-            graphqlClient.apolloClient.updateOperation(getCacheQuery(selectedMonth = month)) { before ->
-                if (before == null || isForceRefresh) return@updateOperation executeQuery(query)
-                if (before.user?.moneyUsages?.hasMore == false) return@updateOperation null
+            graphqlClient.apolloClient.updateOperation(
+                cacheQueryKey = getCacheQuery(selectedMonth = month),
+            ) update@{ before ->
+                if (before == null || isForceRefresh) return@update success(executeQuery(firstQuery))
+                if (before.user?.moneyUsages?.hasMore == false) return@update noHasMore()
 
-                val cursor = before.user?.moneyUsages?.cursor ?: return@updateOperation null
+                val cursor = before.user?.moneyUsages?.cursor ?: return@update error()
                 val result = executeQuery(
-                    query.copy(
-                        query = query.query.copy(
+                    firstQuery.copy(
+                        query = firstQuery.query.copy(
                             cursor = Optional.present(cursor),
                         ),
                     ),
                 )
-                val newMoneyUsage = result.data?.user?.moneyUsages ?: return@updateOperation null
-                result.newBuilder()
-                    .data(
-                        before.copy(
-                            user = before.user?.let { user ->
-                                val usages = user.moneyUsages ?: return@let null
-                                user.copy(
-                                    moneyUsages = UsageCalendarScreenPagingQuery.MoneyUsages(
-                                        cursor = newMoneyUsage.cursor,
-                                        hasMore = newMoneyUsage.hasMore,
-                                        nodes = usages.nodes + newMoneyUsage.nodes,
-                                    ),
-                                )
-                            },
-                        ),
-                    )
-                    .build()
+                val newMoneyUsage = result.data?.user?.moneyUsages ?: return@update error()
+                success(
+                    result.newBuilder()
+                        .data(
+                            before.copy(
+                                user = before.user?.let { user ->
+                                    val usages = user.moneyUsages ?: return@let null
+                                    user.copy(
+                                        moneyUsages = UsageCalendarScreenPagingQuery.MoneyUsages(
+                                            cursor = newMoneyUsage.cursor,
+                                            hasMore = newMoneyUsage.hasMore,
+                                            nodes = usages.nodes + newMoneyUsage.nodes,
+                                        ),
+                                    )
+                                },
+                            ),
+                        )
+                        .build()
+                )
             }
         }
     }

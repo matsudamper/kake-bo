@@ -6,28 +6,56 @@ import com.apollographql.apollo3.api.Operation
 import com.apollographql.apollo3.cache.normalized.apolloStore
 import com.apollographql.apollo3.exception.CacheMissException
 
-suspend fun <D : Operation.Data> ApolloClient.updateOperation(
-    query: Operation<D>,
-    block: suspend (D?) -> ApolloResponse<D>?,
-): Result<ApolloResponse<D>> {
-    return runCatching {
-        while (true) {
-            val before = readOperationOrNull(query)
-            val newResponse = block(before) ?: break
-            val new = newResponse.data ?: return@runCatching newResponse
+sealed interface UpdateOperationResponseResult<D : Operation.Data> {
+    data class Success<D : Operation.Data>(val result: ApolloResponse<D>) : UpdateOperationResponseResult<D>
+    data class Error<D : Operation.Data>(val e: Throwable?) : UpdateOperationResponseResult<D>
+    class NoHasMore<D : Operation.Data> : UpdateOperationResponseResult<D>
 
-            if (readOperationOrNull(query) == before) {
-                apolloStore.writeOperation(
-                    operation = query,
-                    operationData = new,
-                    customScalarAdapters = customScalarAdapters,
-                    publish = true,
-                )
-                return@runCatching newResponse
-            }
-        }
-        throw IllegalStateException()
+    fun isSuccess(): Boolean = this is Success<D>
+    fun getOrNull(): D? = (this as? Success<D>)?.result?.data
+}
+
+class UpdateOperationResponseScope<D : Operation.Data> {
+    fun success(result: ApolloResponse<D>): UpdateOperationResponseResult.Success<D> {
+        return UpdateOperationResponseResult.Success(result)
     }
+
+    fun error(): UpdateOperationResponseResult.Error<D> {
+        return UpdateOperationResponseResult.Error(null)
+    }
+
+    fun noHasMore(): UpdateOperationResponseResult.NoHasMore<D> {
+        return UpdateOperationResponseResult.NoHasMore()
+    }
+}
+
+suspend fun <D : Operation.Data> ApolloClient.updateOperation(
+    cacheQueryKey: Operation<D>,
+    block: suspend UpdateOperationResponseScope<D>.(D?) -> UpdateOperationResponseResult<D>,
+): UpdateOperationResponseResult<D> {
+    val before = readOperationOrNull(cacheQueryKey)
+    return runCatching {
+        block(UpdateOperationResponseScope(), before)
+    }.fold(
+        onFailure = {
+            UpdateOperationResponseResult.Error(it)
+        },
+        onSuccess = {
+            when (it) {
+                is UpdateOperationResponseResult.NoHasMore<D> -> Unit
+                is UpdateOperationResponseResult.Error<D> -> Unit
+                is UpdateOperationResponseResult.Success<D> -> {
+                    apolloStore.writeOperation(
+                        operation = cacheQueryKey,
+                        operationData = it.result.data!!,
+                        customScalarAdapters = customScalarAdapters,
+                        publish = true,
+                    )
+                }
+            }
+            it
+        },
+    )
 }
 
 private fun <D : Operation.Data> ApolloClient.readOperationOrNull(query: Operation<D>): D? {

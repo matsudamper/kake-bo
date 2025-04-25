@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -79,10 +80,11 @@ public class MoneyUsagesCalendarViewModel(
                     }
                     CoroutineScope(currentCoroutineContext()).launch {
                         launch {
-                            rootUsageHostViewModel.calendarPagingModel.getFlow()
-                                .collectLatest {
-                                    rootUsageHostViewModel.calendarPagingModel.fetch()
-                                }
+                                rootUsageHostViewModel.calendarPagingModel.getFlow()
+                                    .collectLatest {
+                                        rootUsageHostViewModel.calendarPagingModel.fetch()
+                                    }
+
                         }
                         launch {
                             rootUsageHostViewModel.calendarPagingModel.getFlow().collectLatest { responseStates ->
@@ -103,7 +105,6 @@ public class MoneyUsagesCalendarViewModel(
                                 rootUsageHostViewModel.calendarPagingModel.changeSearchText(
                                     text = rootViewModelState.searchText,
                                 )
-                                rootUsageHostViewModel.calendarPagingModel.fetch()
                             }
                         }
                     }
