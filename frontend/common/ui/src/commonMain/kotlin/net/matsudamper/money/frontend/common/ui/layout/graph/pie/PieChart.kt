@@ -28,45 +28,39 @@ import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 
 /**
- * Data class representing the UI state for the pie chart
+ * Data class representing a single item in the pie chart
  */
-public data class PieChartUiState(
-    val items: ImmutableList<Item>,
-) {
-    /**
-     * Data class representing a single item in the pie chart
-     */
-    public data class Item(
-        val color: Color,
-        val title: String,
-        val value: Long,
-        val event: ItemEvent? = null,
-    )
+public data class PieChartItem(
+    val color: Color,
+    val title: String,
+    val value: Long,
+    val event: PieChartItemEvent? = null,
+)
 
-    /**
-     * Interface for handling item events
-     */
-    @Immutable
-    public interface ItemEvent {
-        public fun onClick()
-    }
+/**
+ * Interface for handling item events
+ */
+@Immutable
+public interface PieChartItemEvent {
+    public fun onClick()
 }
 
 /**
  * A reusable pie chart component that displays data as a pie chart
  *
- * @param uiState The UI state for the pie chart
+ * @param items The list of items to display in the pie chart
+ * @param title The title of the pie chart
  * @param modifier The modifier to be applied to the component
  * @param showLegend Whether to show the legend or not
  */
 @Composable
 public fun PieChart(
-    uiState: PieChartUiState,
+    items: ImmutableList<PieChartItem>,
     title: String? = null,
     modifier: Modifier = Modifier,
     showLegend: Boolean = true,
 ) {
-    val totalValue = uiState.items.sumOf { it.value }.toFloat()
+    val totalValue = items.sumOf { it.value }.toFloat()
 
     Column(modifier = modifier) {
         if (title != null) {
@@ -91,7 +85,7 @@ public fun PieChart(
             var startAngle = 0f
 
             // Draw pie slices
-            uiState.items.forEach { item ->
+            items.forEach { item ->
                 if (item.value <= 0) return@forEach
 
                 val sweepAngle = (item.value / totalValue) * 360f
@@ -129,7 +123,7 @@ public fun PieChart(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                uiState.items.forEach { item ->
+                items.forEach { item ->
                     if (item.value <= 0) return@forEach
 
                     val percentage = (item.value.toFloat() / totalValue * 100).toInt()

@@ -32,7 +32,7 @@ import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
-import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartUiState
+import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreenScaffold
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreenScaffoldUiState
 
@@ -158,16 +158,14 @@ private fun LoadedContent(
             item {
                 if (loadingState.categoryItems.isNotEmpty()) {
                     PieChart(
-                        uiState = PieChartUiState(
-                            items = ImmutableList(
-                                loadingState.categoryItems.map { categoryItem ->
-                                    PieChartUiState.Item(
-                                        color = categoryItem.color,
-                                        title = categoryItem.title,
-                                        value = categoryItem.value,
-                                    )
-                                },
-                            ),
+                        items = ImmutableList(
+                            loadingState.categoryItems.map { categoryItem ->
+                                PieChartItem(
+                                    color = categoryItem.color,
+                                    title = categoryItem.title,
+                                    value = categoryItem.value,
+                                )
+                            }
                         ),
                         title = "カテゴリ別支出",
                         modifier = Modifier.fillMaxWidth()
