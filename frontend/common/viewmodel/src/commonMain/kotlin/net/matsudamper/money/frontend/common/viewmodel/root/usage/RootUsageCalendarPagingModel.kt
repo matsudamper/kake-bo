@@ -9,7 +9,9 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flattenMerge
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -81,9 +83,13 @@ public class RootUsageCalendarPagingModel(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     internal fun getFlow(): Flow<ApolloResponse<UsageCalendarScreenPagingQuery.Data>> {
-        return graphqlClient.apolloClient.query(cacheQuery)
-            .fetchPolicy(FetchPolicy.CacheOnly)
-            .watch()
+        return modelStateFlow.mapNotNull { it.selectedMonth }
+            .map {
+                graphqlClient.apolloClient.query(getCacheQuery(it))
+                    .fetchPolicy(FetchPolicy.CacheOnly)
+                    .watch()
+            }
+            .flattenMerge()
     }
 
     internal fun fetch() {
@@ -93,7 +99,8 @@ public class RootUsageCalendarPagingModel(
     private fun fetchData(isForceRefresh: Boolean = false) {
         coroutineScope.launch {
             val query = firstQuery.first() ?: return@launch
-            graphqlClient.apolloClient.updateOperation(cacheQuery) { before ->
+            val month = modelStateFlow.map { it.selectedMonth }.first() ?: return@launch
+            graphqlClient.apolloClient.updateOperation(getCacheQuery(selectedMonth = month)) { before ->
                 if (before == null || isForceRefresh) return@updateOperation executeQuery(query)
                 if (before.user?.moneyUsages?.hasMore == false) return@updateOperation null
 
@@ -140,8 +147,8 @@ public class RootUsageCalendarPagingModel(
     )
 
     public companion object {
-        private val cacheQuery = createQuery(
-            selectedMonth = LocalDate.Companion.fromEpochDays(0),
+        private fun getCacheQuery(selectedMonth: LocalDate) = createQuery(
+            selectedMonth = selectedMonth,
             searchText = "",
             cursor = null,
         )
