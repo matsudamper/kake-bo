@@ -20,6 +20,7 @@ import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
+import com.apollographql.apollo3.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
@@ -40,24 +41,20 @@ import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScre
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MonthlyScreenListQuery
 import net.matsudamper.money.frontend.graphql.MonthlyScreenQuery
-import net.matsudamper.money.frontend.graphql.lib.ApolloPagingResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
+import net.matsudamper.money.frontend.graphql.updateOperation
 
 public class RootHomeMonthlyScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     argument: RootHomeScreenStructure.Monthly,
     loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
-    graphqlClient: GraphqlClient,
+    private val graphqlClient: GraphqlClient,
     navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(
         ViewModelState(
             argument = argument,
         ),
-    )
-    private val monthlyListState: ApolloPagingResponseCollector<MonthlyScreenListQuery.Data> = ApolloPagingResponseCollector.create(
-        graphqlClient = graphqlClient,
-        coroutineScope = viewModelScope,
     )
 
     private val eventSender = EventSender<Event>()
@@ -82,6 +79,7 @@ public class RootHomeMonthlyScreenViewModel(
             viewModelScope.launch { fetch() }
         }
     }
+
     public val uiStateFlow: StateFlow<RootHomeMonthlyScreenUiState> = MutableStateFlow(
         RootHomeMonthlyScreenUiState(
             loadingState = RootHomeMonthlyScreenUiState.LoadingState.Loading,
@@ -120,11 +118,14 @@ public class RootHomeMonthlyScreenViewModel(
                         }
                     }
                     viewModelScope.launch {
-                        monthlyListState.getFlow().collectLatest { responses ->
-                            viewModelStateFlow.value = viewModelStateFlow.value.copy(
-                                monthlyListResponses = responses,
-                            )
-                        }
+                        graphqlClient.apolloClient.query(getFirstQuery())
+                            .fetchPolicy(FetchPolicy.CacheOnly)
+                            .watch()
+                            .collectLatest { response ->
+                                viewModelStateFlow.value = viewModelStateFlow.value.copy(
+                                    monthlyListResponse = ApolloResponseState.Success(response),
+                                )
+                            }
                     }
                 }
 
@@ -148,10 +149,8 @@ public class RootHomeMonthlyScreenViewModel(
         viewModelScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
                 uiStateFlow.value = uiStateFlow.value.copy(
-                    loadingState = when (viewModelState.monthlyListResponses.firstOrNull()) {
-                        null,
-                        is ApolloResponseState.Loading,
-                            -> {
+                    loadingState = when (viewModelState.monthlyListResponse) {
+                        is ApolloResponseState.Loading -> {
                             RootHomeMonthlyScreenUiState.LoadingState.Loading
                         }
 
@@ -195,10 +194,11 @@ public class RootHomeMonthlyScreenViewModel(
             )
         }.orEmpty().sortedByDescending { it.value }
 
+        val response = (viewModelState.monthlyListResponse as? ApolloResponseState.Success)?.value
+        val nodes = response?.data?.user?.moneyUsages?.nodes.orEmpty()
+
         return RootHomeMonthlyScreenUiState.LoadingState.Loaded(
-            items = viewModelState.monthlyListResponses.flatMap {
-                it.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.nodes.orEmpty()
-            }.map { node ->
+            items = nodes.map { node ->
                 RootHomeMonthlyScreenUiState.Item(
                     title = node.title,
                     amount = "${Formatter.formatMoney(node.amount)}円",
@@ -212,8 +212,7 @@ public class RootHomeMonthlyScreenViewModel(
                 )
             }.toImmutableList(),
             pieChartItems = pieChartItems.toImmutableList(),
-            hasMoreItem = viewModelState.monthlyListResponses
-                .lastOrNull()?.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.hasMore != false,
+            hasMoreItem = response?.data?.user?.moneyUsages?.hasMore != false,
             totalAmount = run amount@{
                 val totalAmount = viewModelState.moneyUsageAnalytics?.totalAmount ?: return@amount ""
                 "${Formatter.formatMoney(totalAmount)}円"
@@ -249,46 +248,38 @@ public class RootHomeMonthlyScreenViewModel(
         }
     }
 
-    private fun fetch() {
-        monthlyListState.add {
-            val cursor: String? = when (val lastState = it.lastOrNull()?.getFlow()?.value) {
-                is ApolloResponseState.Loading -> return@add null
-                is ApolloResponseState.Failure -> {
-                    viewModelScope.launch {
-                        monthlyListState.lastRetry()
-                    }
-                    return@add null
-                }
+    private suspend fun fetch() {
+        graphqlClient.apolloClient.updateOperation(getFirstQuery()) { before ->
+            if (before == null) return@updateOperation fetch(cursor = null)
+            if (before.user?.moneyUsages?.hasMore == false) return@updateOperation null
 
-                null -> null
+            val cursor = before.user?.moneyUsages?.cursor
 
-                is ApolloResponseState.Success -> {
-                    val result = lastState.value.data?.user?.moneyUsages
-                    if (result == null) {
-                        viewModelScope.launch {
-                            monthlyListState.lastRetry()
-                        }
-                        return@add null
-                    }
-                    if (result.hasMore.not()) return@add null
-
-                    result.cursor
-                }
-            }
-            val sinceDateTime = createSinceLocalDateTime()
-            val untilDateTime = run {
-                LocalDateTime(
-                    date = sinceDateTime.date.plus(1, DateTimeUnit.MONTH),
-                    time = sinceDateTime.time,
+            val result = fetch(cursor)
+            val newMoneyUsage = result.data?.user?.moneyUsages ?: return@updateOperation null
+            result.newBuilder()
+                .data(
+                    data = before.copy(
+                        user = before.user?.let user@{ user ->
+                            val usages = user.moneyUsages ?: return@user null
+                            user.copy(
+                                moneyUsages = MonthlyScreenListQuery.MoneyUsages(
+                                    cursor = newMoneyUsage.cursor,
+                                    hasMore = newMoneyUsage.hasMore,
+                                    nodes = usages.nodes + newMoneyUsage.nodes,
+                                ),
+                            )
+                        },
+                    ),
                 )
-            }
-            MonthlyScreenListQuery(
-                cursor = Optional.present(cursor),
-                size = 50,
-                sinceDateTime = Optional.present(sinceDateTime),
-                untilDateTime = Optional.present(untilDateTime),
-            )
+                .build()
         }
+    }
+
+    private suspend fun fetch(cursor: String?): ApolloResponse<MonthlyScreenListQuery.Data> {
+        return graphqlClient.apolloClient.query(
+            getFirstQuery().copy(cursor = Optional.present(cursor)),
+        ).execute()
     }
 
     private fun createSinceLocalDateTime(): LocalDateTime {
@@ -305,13 +296,27 @@ public class RootHomeMonthlyScreenViewModel(
         )
     }
 
+    private fun getFirstQuery(): MonthlyScreenListQuery {
+        return MonthlyScreenListQuery(
+            cursor = Optional.present(null),
+            size = 5,
+            sinceDateTime = Optional.present(createSinceLocalDateTime()),
+            untilDateTime = Optional.present(
+                LocalDateTime(
+                    date = createSinceLocalDateTime().date.plus(1, DateTimeUnit.MONTH),
+                    time = createSinceLocalDateTime().time,
+                ),
+            ),
+        )
+    }
+
     public interface Event {
         public fun navigate(screen: ScreenStructure)
     }
 
     private data class ViewModelState(
         val argument: RootHomeScreenStructure.Monthly,
-        val monthlyListResponses: List<ApolloResponseState<ApolloResponse<MonthlyScreenListQuery.Data>>> = listOf(),
+        val monthlyListResponse: ApolloResponseState<ApolloResponse<MonthlyScreenListQuery.Data>> = ApolloResponseState.Loading(),
         val moneyUsageAnalytics: MonthlyScreenQuery.MoneyUsageAnalytics? = null,
         val sortType: RootHomeMonthlyScreenUiState.SortType = RootHomeMonthlyScreenUiState.SortType.Date,
     )
