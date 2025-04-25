@@ -11,6 +11,7 @@ import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
 import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolder
+import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -39,6 +40,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeri
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.RootHomeMonthlyScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.category.RootHomeMonthlyCategoryScreenViewModel
+import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.ui.root.viewmodel.provideViewModel
 
 private enum class SavedStateHolderKey {
@@ -77,12 +79,12 @@ internal fun RootNavContent(
                 when (current) {
                     is RootHomeScreenStructure.Monthly -> {
                         holder.SaveableStateProvider(RootHomeScreenStructure.Monthly::class.simpleName!!) {
-                            val viewModel = provideViewModel {
+                            val viewModel = LocalScopedObjectStore.current.putOrGet<RootHomeMonthlyScreenViewModel>(Unit) {
                                 RootHomeMonthlyScreenViewModel(
                                     scopedObjectFeature = it,
                                     loginCheckUseCase = loginCheckUseCase,
                                     argument = current,
-                                    graphqlClient = koin.get(),
+                                    graphqlClient = koin.get<GraphqlClient>(),
                                     navController = navController,
                                 )
                             }
