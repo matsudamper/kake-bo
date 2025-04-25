@@ -156,6 +156,31 @@ public class RootHomeMonthlyScreenViewModel(
     }.asStateFlow()
 
     private fun createLoadedUiState(viewModelState: ViewModelState): RootHomeMonthlyScreenUiState.LoadingState.Loaded {
+        // Generate colors for categories
+        val categoryColors = listOf(
+            androidx.compose.ui.graphics.Color(0xFF4285F4), // Blue
+            androidx.compose.ui.graphics.Color(0xFFEA4335), // Red
+            androidx.compose.ui.graphics.Color(0xFFFBBC05), // Yellow
+            androidx.compose.ui.graphics.Color(0xFF34A853), // Green
+            androidx.compose.ui.graphics.Color(0xFF9C27B0), // Purple
+            androidx.compose.ui.graphics.Color(0xFF00BCD4), // Cyan
+            androidx.compose.ui.graphics.Color(0xFFFF9800), // Orange
+            androidx.compose.ui.graphics.Color(0xFF795548), // Brown
+            androidx.compose.ui.graphics.Color(0xFF607D8B), // Blue Grey
+            androidx.compose.ui.graphics.Color(0xFFE91E63), // Pink
+        )
+
+        // Create category items from the analytics data
+        val categoryItems = viewModelState.moneyUsageAnalytics?.byCategories?.mapIndexed { index, byCategory ->
+            val colorIndex = index % categoryColors.size
+            RootHomeMonthlyScreenUiState.CategoryItem(
+                title = byCategory.category.name,
+                amount = "${Formatter.formatMoney(byCategory.totalAmount ?: 0)}円",
+                color = categoryColors[colorIndex],
+                value = byCategory.totalAmount ?: 0,
+            )
+        } ?: emptyList()
+
         return RootHomeMonthlyScreenUiState.LoadingState.Loaded(
             items = viewModelState.monthlyListResponses.flatMap {
                 it.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.nodes.orEmpty()
@@ -172,6 +197,7 @@ public class RootHomeMonthlyScreenViewModel(
                     ),
                 )
             },
+            categoryItems = categoryItems,
             hasMoreItem = viewModelState.monthlyListResponses
                 .lastOrNull()?.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.hasMore != false,
             totalAmount = run amount@{

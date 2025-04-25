@@ -28,8 +28,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
+import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreenScaffold
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreenScaffoldUiState
 
@@ -47,10 +50,18 @@ public data class RootHomeMonthlyScreenUiState(
         public data class Loaded(
             val totalAmount: String,
             val items: List<Item>,
+            val categoryItems: List<CategoryItem>,
             val hasMoreItem: Boolean,
             val event: LoadedEvent,
         ) : LoadingState
     }
+
+    public data class CategoryItem(
+        val title: String,
+        val amount: String,
+        val color: androidx.compose.ui.graphics.Color,
+        val value: Long,
+    )
 
     public data class Item(
         val title: String,
@@ -145,11 +156,24 @@ private fun LoadedContent(
                 )
             }
             item {
-                Text(
-                    text = "TODO ここに円グラフ",
-                    modifier = Modifier.fillMaxWidth()
-                        .padding(16.dp),
-                )
+                if (loadingState.categoryItems.isNotEmpty()) {
+                    PieChart(
+                        uiState = PieChartUiState(
+                            items = ImmutableList(
+                                loadingState.categoryItems.map { categoryItem ->
+                                    PieChartUiState.Item(
+                                        color = categoryItem.color,
+                                        title = categoryItem.title,
+                                        value = categoryItem.value,
+                                    )
+                                }
+                            ),
+                            title = "カテゴリ別支出",
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(16.dp),
+                    )
+                }
             }
             items(loadingState.items) { item ->
                 Card(
