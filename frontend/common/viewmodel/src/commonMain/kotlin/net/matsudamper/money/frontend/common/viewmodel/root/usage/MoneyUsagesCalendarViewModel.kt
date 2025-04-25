@@ -141,9 +141,9 @@ public class MoneyUsagesCalendarViewModel(
             viewModelStateFlow
                 .collectLatest { viewModelState ->
                     val nodes = viewModelState.response?.data?.user?.moneyUsages?.nodes.orEmpty()
-                    .filter { node ->
-                        node.date.date.month == viewModelState.displayMonth.month
-                    }
+                        .filter { node ->
+                            node.date.date.month == viewModelState.displayMonth.month
+                        }
 
                     val cells: ImmutableList<RootUsageCalendarScreenUiState.CalendarCell> = run cells@{
                         val dayGroup = nodes.groupBy { it.date.date.dayOfMonth }

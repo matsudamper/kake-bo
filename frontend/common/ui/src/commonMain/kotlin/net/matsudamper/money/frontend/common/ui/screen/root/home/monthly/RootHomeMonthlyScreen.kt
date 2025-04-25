@@ -174,19 +174,20 @@ private fun LoadedContent(
                     Text(
                         text = "並び替え:",
                         style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(end = 8.dp)
+                        modifier = Modifier.padding(end = 8.dp),
                     )
                     androidx.compose.material3.Button(
                         onClick = {
                             uiState.event.onSortTypeChanged(RootHomeMonthlyScreenUiState.SortType.Date)
                         },
                         colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                            containerColor = if (uiState.currentSortType == RootHomeMonthlyScreenUiState.SortType.Date) 
-                                MaterialTheme.colorScheme.primary 
-                            else 
+                            containerColor = if (uiState.currentSortType == RootHomeMonthlyScreenUiState.SortType.Date) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
                                 MaterialTheme.colorScheme.surfaceVariant
+                            },
                         ),
-                        modifier = Modifier.padding(end = 8.dp)
+                        modifier = Modifier.padding(end = 8.dp),
                     ) {
                         Text("日付順")
                     }
@@ -195,11 +196,12 @@ private fun LoadedContent(
                             uiState.event.onSortTypeChanged(RootHomeMonthlyScreenUiState.SortType.Amount)
                         },
                         colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                            containerColor = if (uiState.currentSortType == RootHomeMonthlyScreenUiState.SortType.Amount) 
-                                MaterialTheme.colorScheme.primary 
-                            else 
+                            containerColor = if (uiState.currentSortType == RootHomeMonthlyScreenUiState.SortType.Amount) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
                                 MaterialTheme.colorScheme.surfaceVariant
-                        )
+                            },
+                        ),
                     ) {
                         Text("金額順")
                     }
