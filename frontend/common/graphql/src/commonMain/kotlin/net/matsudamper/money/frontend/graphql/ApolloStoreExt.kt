@@ -6,11 +6,11 @@ import com.apollographql.apollo3.api.Operation
 import com.apollographql.apollo3.cache.normalized.apolloStore
 import com.apollographql.apollo3.exception.CacheMissException
 
-suspend fun <D : Operation.Data> ApolloClient.updateOperation(query: Operation<D>, block: suspend (D?) -> ApolloResponse<D>): Result<ApolloResponse<D>> {
+suspend fun <D : Operation.Data> ApolloClient.updateOperation(query: Operation<D>, block: suspend (D?) -> ApolloResponse<D>?): Result<ApolloResponse<D>> {
     return runCatching {
         while (true) {
             val before = readOperationOrNull(query)
-            val newResponse = block(before)
+            val newResponse = block(before) ?: break
             val new = newResponse.data ?: return@runCatching newResponse
 
             if (readOperationOrNull(query) == before) {
