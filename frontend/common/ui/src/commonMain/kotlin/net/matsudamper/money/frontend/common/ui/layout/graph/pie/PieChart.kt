@@ -82,7 +82,7 @@ public fun PieChart(
             val radius = canvasSize / 2
             val center = Offset(size.width / 2, size.height / 2)
 
-            var startAngle = 0f
+            var startAngle = 270f
 
             // Draw pie slices
             items.forEach { item ->
