@@ -18,6 +18,7 @@ suspend fun <D : Operation.Data> ApolloClient.updateOperation(query: Operation<D
                     operation = query,
                     operationData = new,
                     customScalarAdapters = customScalarAdapters,
+                    publish = true,
                 )
                 return@runCatching newResponse
             }
