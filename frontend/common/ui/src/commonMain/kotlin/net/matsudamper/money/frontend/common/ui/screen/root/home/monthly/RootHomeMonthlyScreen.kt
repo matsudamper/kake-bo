@@ -41,7 +41,12 @@ public data class RootHomeMonthlyScreenUiState(
     val rootHomeTabUiState: RootHomeTabScreenScaffoldUiState,
     val scaffoldListener: RootScreenScaffoldListener,
     val event: Event,
+    val currentSortType: SortType = SortType.Date,
 ) {
+    public enum class SortType {
+        Date,
+        Amount,
+    }
     public sealed interface LoadingState {
         public data object Loading : LoadingState
 
@@ -77,6 +82,7 @@ public data class RootHomeMonthlyScreenUiState(
     @Immutable
     public interface Event {
         public suspend fun onViewInitialized()
+        public fun onSortTypeChanged(sortType: SortType)
     }
 }
 
@@ -99,6 +105,7 @@ public fun RootHomeMonthlyScreen(
                     LoadedContent(
                         modifier = Modifier.fillMaxSize(),
                         loadingState = loadingState,
+                        uiState = uiState,
                     )
                 }
 
@@ -125,6 +132,7 @@ public fun RootHomeMonthlyScreen(
 @Composable
 private fun LoadedContent(
     loadingState: RootHomeMonthlyScreenUiState.LoadingState.Loaded,
+    uiState: RootHomeMonthlyScreenUiState,
     modifier: Modifier = Modifier,
 ) {
     BoxWithConstraints(
@@ -156,6 +164,45 @@ private fun LoadedContent(
                         modifier = Modifier.fillMaxWidth()
                             .padding(16.dp),
                     )
+                }
+            }
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = "並び替え:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                    androidx.compose.material3.Button(
+                        onClick = {
+                            uiState.event.onSortTypeChanged(RootHomeMonthlyScreenUiState.SortType.Date)
+                        },
+                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                            containerColor = if (uiState.currentSortType == RootHomeMonthlyScreenUiState.SortType.Date) 
+                                MaterialTheme.colorScheme.primary 
+                            else 
+                                MaterialTheme.colorScheme.surfaceVariant
+                        ),
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Text("日付順")
+                    }
+                    androidx.compose.material3.Button(
+                        onClick = {
+                            uiState.event.onSortTypeChanged(RootHomeMonthlyScreenUiState.SortType.Amount)
+                        },
+                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                            containerColor = if (uiState.currentSortType == RootHomeMonthlyScreenUiState.SortType.Amount) 
+                                MaterialTheme.colorScheme.primary 
+                            else 
+                                MaterialTheme.colorScheme.surfaceVariant
+                        )
+                    ) {
+                        Text("金額順")
+                    }
                 }
             }
             items(loadingState.items) { item ->

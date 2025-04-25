@@ -86,6 +86,7 @@ public class RootHomeMonthlyScreenViewModel(
         RootHomeMonthlyScreenUiState(
             loadingState = RootHomeMonthlyScreenUiState.LoadingState.Loading,
             rootHomeTabUiState = tabViewModel.uiStateFlow.value,
+            currentSortType = RootHomeMonthlyScreenUiState.SortType.Date,
             scaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
                 override fun onClickHome() {
                     if (PlatformTypeProvider.type == PlatformType.JS) {
@@ -126,6 +127,14 @@ public class RootHomeMonthlyScreenViewModel(
                         }
                     }
                 }
+
+                override fun onSortTypeChanged(sortType: RootHomeMonthlyScreenUiState.SortType) {
+                    viewModelScope.launch {
+                        viewModelStateFlow.value = viewModelStateFlow.value.copy(
+                            sortType = sortType,
+                        )
+                    }
+                }
             },
         ),
     ).also { uiStateFlow ->
@@ -156,6 +165,7 @@ public class RootHomeMonthlyScreenViewModel(
                             )
                         }
                     },
+                    currentSortType = viewModelState.sortType,
                 )
             }
         }
@@ -303,5 +313,6 @@ public class RootHomeMonthlyScreenViewModel(
         val argument: RootHomeScreenStructure.Monthly,
         val monthlyListResponses: List<ApolloResponseState<ApolloResponse<MonthlyScreenListQuery.Data>>> = listOf(),
         val moneyUsageAnalytics: MonthlyScreenQuery.MoneyUsageAnalytics? = null,
+        val sortType: RootHomeMonthlyScreenUiState.SortType = RootHomeMonthlyScreenUiState.SortType.Date,
     )
 }
