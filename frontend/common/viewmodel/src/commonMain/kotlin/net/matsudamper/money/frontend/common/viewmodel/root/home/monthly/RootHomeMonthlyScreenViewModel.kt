@@ -172,7 +172,6 @@ public class RootHomeMonthlyScreenViewModel(
             androidx.compose.ui.graphics.Color(0xFFE91E63), // Pink
         )
 
-        // Create category items from the analytics data
         val categoryItems = viewModelState.moneyUsageAnalytics?.byCategories?.mapIndexed { index, byCategory ->
             val colorIndex = index % categoryColors.size
             RootHomeMonthlyScreenUiState.CategoryItem(
@@ -181,7 +180,7 @@ public class RootHomeMonthlyScreenViewModel(
                 color = categoryColors[colorIndex],
                 value = byCategory.totalAmount ?: 0,
             )
-        } ?: emptyList()
+        }.orEmpty().toImmutableList()
 
         val pieChartItems = viewModelState.moneyUsageAnalytics?.byCategories?.mapIndexed { index, byCategory ->
             val colorIndex = index % categoryColors.size
@@ -207,7 +206,7 @@ public class RootHomeMonthlyScreenViewModel(
                         id = node.id,
                     ),
                 )
-            },
+            }.toImmutableList(),
             categoryItems = categoryItems,
             pieChartItems = pieChartItems.toImmutableList(),
             hasMoreItem = viewModelState.monthlyListResponses

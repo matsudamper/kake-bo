@@ -49,8 +49,8 @@ public data class RootHomeMonthlyScreenUiState(
 
         public data class Loaded(
             val totalAmount: String,
-            val items: List<Item>,
-            val categoryItems: List<CategoryItem>,
+            val items: ImmutableList<Item>,
+            val categoryItems: ImmutableList<CategoryItem>,
             val pieChartItems: ImmutableList<PieChartItem>,
             val hasMoreItem: Boolean,
             val event: LoadedEvent,
