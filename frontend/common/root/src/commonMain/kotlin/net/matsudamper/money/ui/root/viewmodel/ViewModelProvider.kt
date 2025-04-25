@@ -28,7 +28,13 @@ internal inline fun <reified T : Any> createViewModelProvider(
 }
 
 @Composable
-@Deprecated("use LocalScopedObjectStore.current.putOrGet(Unit)")
+@Deprecated(
+    message = "use LocalScopedObjectStore.current.putOrGet(Unit)",
+    ReplaceWith(
+        expression = "LocalScopedObjectStore.current.putOrGet(Unit) { factory() }",
+        imports = ["net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore"],
+    ),
+)
 internal inline fun <reified T : Any> provideViewModel(
     noinline factory: (ScopedObjectFeature) -> T,
 ): T {
