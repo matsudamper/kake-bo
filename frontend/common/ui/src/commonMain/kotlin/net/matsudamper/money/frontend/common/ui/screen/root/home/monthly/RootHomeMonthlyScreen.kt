@@ -50,19 +50,11 @@ public data class RootHomeMonthlyScreenUiState(
         public data class Loaded(
             val totalAmount: String,
             val items: ImmutableList<Item>,
-            val categoryItems: ImmutableList<CategoryItem>,
             val pieChartItems: ImmutableList<PieChartItem>,
             val hasMoreItem: Boolean,
             val event: LoadedEvent,
         ) : LoadingState
     }
-
-    public data class CategoryItem(
-        val title: String,
-        val amount: String,
-        val color: androidx.compose.ui.graphics.Color,
-        val value: Long,
-    )
 
     public data class Item(
         val title: String,

@@ -142,9 +142,13 @@ public class RootHomeMonthlyScreenViewModel(
                     loadingState = when (viewModelState.monthlyListResponses.firstOrNull()) {
                         null,
                         is ApolloResponseState.Loading,
-                        -> RootHomeMonthlyScreenUiState.LoadingState.Loading
+                            -> {
+                            RootHomeMonthlyScreenUiState.LoadingState.Loading
+                        }
 
-                        is ApolloResponseState.Failure -> RootHomeMonthlyScreenUiState.LoadingState.Error
+                        is ApolloResponseState.Failure -> {
+                            RootHomeMonthlyScreenUiState.LoadingState.Error
+                        }
 
                         is ApolloResponseState.Success -> {
                             createLoadedUiState(
@@ -172,16 +176,6 @@ public class RootHomeMonthlyScreenViewModel(
             androidx.compose.ui.graphics.Color(0xFFE91E63), // Pink
         )
 
-        val categoryItems = viewModelState.moneyUsageAnalytics?.byCategories?.mapIndexed { index, byCategory ->
-            val colorIndex = index % categoryColors.size
-            RootHomeMonthlyScreenUiState.CategoryItem(
-                title = byCategory.category.name,
-                amount = "${Formatter.formatMoney(byCategory.totalAmount ?: 0)}円",
-                color = categoryColors[colorIndex],
-                value = byCategory.totalAmount ?: 0,
-            )
-        }.orEmpty().toImmutableList()
-
         val pieChartItems = viewModelState.moneyUsageAnalytics?.byCategories?.mapIndexed { index, byCategory ->
             val colorIndex = index % categoryColors.size
             PieChartItem(
@@ -189,7 +183,7 @@ public class RootHomeMonthlyScreenViewModel(
                 color = categoryColors[colorIndex],
                 value = byCategory.totalAmount ?: 0,
             )
-        }.orEmpty()
+        }.orEmpty().sortedByDescending { it.value }
 
         return RootHomeMonthlyScreenUiState.LoadingState.Loaded(
             items = viewModelState.monthlyListResponses.flatMap {
@@ -207,7 +201,6 @@ public class RootHomeMonthlyScreenViewModel(
                     ),
                 )
             }.toImmutableList(),
-            categoryItems = categoryItems,
             pieChartItems = pieChartItems.toImmutableList(),
             hasMoreItem = viewModelState.monthlyListResponses
                 .lastOrNull()?.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.hasMore != false,
