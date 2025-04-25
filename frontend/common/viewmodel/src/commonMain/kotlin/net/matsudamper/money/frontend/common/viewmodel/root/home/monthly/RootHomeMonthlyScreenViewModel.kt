@@ -249,7 +249,6 @@ public class RootHomeMonthlyScreenViewModel(
     }
 
     private suspend fun fetch() {
-        println("fetch")
         graphqlClient.apolloClient.updateOperation(getFirstQuery()) update@{ before ->
             if (before == null) return@update success(fetch(cursor = null))
             if (before.user?.moneyUsages?.hasMore == false) return@update noHasMore()
