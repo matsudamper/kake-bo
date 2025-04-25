@@ -7,7 +7,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -29,7 +28,6 @@ import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.UsageCalendarScreenPagingQuery
-import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class MoneyUsagesCalendarViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -81,18 +79,16 @@ public class MoneyUsagesCalendarViewModel(
                     }
                     CoroutineScope(currentCoroutineContext()).launch {
                         launch {
-                            rootUsageHostViewModel.calendarPagingModel.getFlow().map { it.lastOrNull()?.getSuccessOrNull() }
+                            rootUsageHostViewModel.calendarPagingModel.getFlow()
                                 .collectLatest {
-                                    if (it?.value?.data?.user?.moneyUsages?.hasMore == true) {
-                                        rootUsageHostViewModel.calendarPagingModel.fetch()
-                                    }
+                                    rootUsageHostViewModel.calendarPagingModel.fetch()
                                 }
                         }
                         launch {
                             rootUsageHostViewModel.calendarPagingModel.getFlow().collectLatest { responseStates ->
                                 viewModelStateFlow.update {
                                     it.copy(
-                                        results = responseStates,
+                                        response = responseStates,
                                     )
                                 }
                             }
@@ -144,11 +140,8 @@ public class MoneyUsagesCalendarViewModel(
         viewModelScope.launch {
             viewModelStateFlow
                 .collectLatest { viewModelState ->
-                    val nodes = viewModelState.results.mapNotNull { state ->
-                        state.getSuccessOrNull()?.value
-                    }.flatMap {
-                        it.data?.user?.moneyUsages?.nodes.orEmpty()
-                    }.filter { node ->
+                    val nodes = viewModelState.response?.data?.user?.moneyUsages?.nodes.orEmpty()
+                    .filter { node ->
                         node.date.date.month == viewModelState.displayMonth.month
                     }
 
@@ -302,7 +295,7 @@ public class MoneyUsagesCalendarViewModel(
     }
 
     public data class ViewModelState(
-        val results: List<ApolloResponseState<ApolloResponse<UsageCalendarScreenPagingQuery.Data>>> = listOf(),
+        val response: ApolloResponse<UsageCalendarScreenPagingQuery.Data>? = null,
         val today: LocalDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date,
         val displayMonth: LocalDate = run {
             val currentLocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
