@@ -79,7 +79,7 @@ public class RootUsageCalendarPagingModel(
     }
 
     public fun refresh() {
-//        fetchData(isForceRefresh = true)
+        fetchData(isForceRefresh = true)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
