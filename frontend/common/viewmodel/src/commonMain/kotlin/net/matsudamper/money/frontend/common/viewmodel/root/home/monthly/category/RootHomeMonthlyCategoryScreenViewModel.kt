@@ -1,12 +1,18 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.category
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -15,7 +21,10 @@ import kotlinx.datetime.plus
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
+import com.apollographql.apollo3.cache.normalized.fetchPolicy
+import com.apollographql.apollo3.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
@@ -31,10 +40,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MonthlyCategoryScreenListQuery
-import net.matsudamper.money.frontend.graphql.MonthlyCategoryScreenQuery
-import net.matsudamper.money.frontend.graphql.lib.ApolloPagingResponseCollector
-import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector
-import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
+import net.matsudamper.money.frontend.graphql.updateOperation
 
 public class RootHomeMonthlyCategoryScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -53,11 +59,19 @@ public class RootHomeMonthlyCategoryScreenViewModel(
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
-    private val monthlyCategoryResultState: ApolloPagingResponseCollector<MonthlyCategoryScreenListQuery.Data> = ApolloPagingResponseCollector.create(
-        graphqlClient = graphqlClient,
-        fetchPolicy = FetchPolicy.CacheFirst,
-        coroutineScope = viewModelScope,
-    )
+    private val firstQueryFlow = viewModelStateFlow.map {
+        it.createFirstQuery()
+    }.stateIn(viewModelScope, SharingStarted.Lazily, null)
+
+    private fun getFlow(): Flow<ApolloResponse<MonthlyCategoryScreenListQuery.Data>> {
+        @Suppress("OPT_IN_USAGE")
+        return firstQueryFlow.filterNotNull().flatMapLatest {
+            graphqlClient.apolloClient.query(it)
+                .fetchPolicy(FetchPolicy.CacheOnly)
+                .watch()
+        }
+    }
+
     private val loadedEvent = object : RootHomeMonthlyCategoryScreenUiState.LoadedEvent {
         override fun loadMore() {
             viewModelScope.launch {
@@ -81,33 +95,11 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                         loginCheckUseCase.check()
                     }
                     viewModelScope.launch {
-                        monthlyCategoryResultState.getFlow().collectLatest { results ->
+                        getFlow().collectLatest { response ->
                             viewModelStateFlow.update { viewModelState ->
                                 viewModelState.copy(
-                                    apolloResponses = results,
+                                    apolloResponse = response,
                                 )
-                            }
-                        }
-                    }
-                    viewModelScope.launch {
-                        viewModelStateFlow.map { viewModelState ->
-                            viewModelState.categoryId
-                        }.stateIn(this).collectLatest { categoryId ->
-                            val collector = ApolloResponseCollector.create(
-                                apolloClient = graphqlClient.apolloClient,
-                                fetchPolicy = FetchPolicy.CacheFirst,
-                                query = MonthlyCategoryScreenQuery(
-                                    id = categoryId,
-                                ),
-                            )
-                            collector.fetch()
-                            collector.getFlow().collectLatest { responseState ->
-                                val categoryName = responseState.getSuccessOrNull()?.value?.data?.user?.moneyUsageCategory?.name
-                                viewModelStateFlow.update { viewModelState ->
-                                    viewModelState.copy(
-                                        categoryName = categoryName,
-                                    )
-                                }
                             }
                         }
                     }
@@ -122,40 +114,26 @@ public class RootHomeMonthlyCategoryScreenViewModel(
     ).also { uiStateFlow ->
         viewModelScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
-                val state = when (viewModelState.apolloResponses.firstOrNull()) {
-                    is ApolloResponseState.Failure -> {
-                        RootHomeMonthlyCategoryScreenUiState.LoadingState.Error
-                    }
-
-                    null,
-                    is ApolloResponseState.Loading,
-                    -> {
-                        RootHomeMonthlyCategoryScreenUiState.LoadingState.Loading
-                    }
-
-                    is ApolloResponseState.Success -> {
-                        RootHomeMonthlyCategoryScreenUiState.LoadingState.Loaded(
-                            items = viewModelState.apolloResponses.flatMap {
-                                it.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.nodes.orEmpty()
-                            }.map { node ->
-                                createItem(node)
-                            },
-                            event = loadedEvent,
-                            hasMoreItem = viewModelState.apolloResponses.lastOrNull()
-                                ?.getSuccessOrNull()?.value
-                                ?.data?.user?.moneyUsages?.hasMore != false,
-                        )
-                    }
+                val response = viewModelState.apolloResponse
+                val state = if (response == null) {
+                    RootHomeMonthlyCategoryScreenUiState.LoadingState.Loading
+                } else if (response.hasErrors()) {
+                    RootHomeMonthlyCategoryScreenUiState.LoadingState.Error
+                } else {
+                    val nodes = response.data?.user?.moneyUsages?.nodes.orEmpty()
+                    RootHomeMonthlyCategoryScreenUiState.LoadingState.Loaded(
+                        items = nodes.map { node ->
+                            createItem(node)
+                        },
+                        event = loadedEvent,
+                        hasMoreItem = response.data?.user?.moneyUsages?.hasMore != false,
+                    )
                 }
                 uiStateFlow.value = uiStateFlow.value.copy(
                     loadingState = state,
                     title = run {
                         val yearText = "${viewModelState.year}年${viewModelState.month}月"
-                        val descriptionText = if (viewModelState.categoryName == null) {
-                            "カテゴリ別一覧"
-                        } else {
-                            "${viewModelState.categoryName}"
-                        }
+                        val descriptionText = viewModelState.categoryName ?: "カテゴリ別一覧"
                         "$yearText $descriptionText"
                     },
                 )
@@ -198,46 +176,47 @@ public class RootHomeMonthlyCategoryScreenViewModel(
         }
     }
 
-    private fun fetch() {
-        monthlyCategoryResultState.add { results ->
-            val cursor: String? = when (val lastResponseState = viewModelStateFlow.value.apolloResponses.lastOrNull()) {
-                null -> null
-
-                is ApolloResponseState.Success -> {
-                    val moneyUsage = lastResponseState.value.data?.user?.moneyUsages ?: return@add null
-                    if (moneyUsage.hasMore) {
-                        moneyUsage.cursor
-                    } else {
-                        null
-                    }
-                }
-
-                is ApolloResponseState.Failure,
-                is ApolloResponseState.Loading,
-                -> return@add null
+    private suspend fun fetch() {
+        val firstQuery = firstQueryFlow.value ?: return
+        graphqlClient.apolloClient.updateOperation(firstQuery) update@{ before ->
+            if (before == null) {
+                return@update success(queryExec(firstQuery))
             }
-            val date = LocalDate(
-                year = viewModelStateFlow.value.year,
-                monthNumber = viewModelStateFlow.value.month,
-                dayOfMonth = 1,
-            )
-            MonthlyCategoryScreenListQuery(
-                cursor = Optional.present(cursor),
-                size = 50,
-                category = viewModelStateFlow.value.categoryId,
-                sinceDateTime = Optional.present(
-                    LocalDateTime(
-                        date = date,
-                        time = LocalTime(0, 0),
-                    ),
-                ),
-                untilDateTime = Optional.present(
-                    LocalDateTime(
-                        date = date.plus(1, DateTimeUnit.MONTH),
-                        time = LocalTime(0, 0),
-                    ),
+
+            if (before.user?.moneyUsages?.hasMore != true) return@update noHasMore()
+
+            val response = queryExec(
+                query = viewModelStateFlow.value.createQuery(
+                    cursor = before.user?.moneyUsages?.cursor ?: return@update error(),
                 ),
             )
+
+            val newNodes = response.data?.user?.moneyUsages?.nodes ?: return@update error()
+            val beforeNodes = before.user?.moneyUsages?.nodes ?: return@update error()
+
+            success(
+                response.newBuilder()
+                    .data(
+                        data = before.copy(
+                            user = before.user?.copy(
+                                moneyUsages = MonthlyCategoryScreenListQuery.MoneyUsages(
+                                    cursor = response.data?.user?.moneyUsages?.cursor,
+                                    hasMore = response.data?.user?.moneyUsages?.hasMore ?: false,
+                                    nodes = beforeNodes + newNodes,
+                                ),
+                            ),
+                        ),
+                    )
+                    .build(),
+            )
+        }
+    }
+
+    private suspend fun queryExec(query: MonthlyCategoryScreenListQuery): ApolloResponse<MonthlyCategoryScreenListQuery.Data> {
+        return withContext(Dispatchers.IO) {
+            graphqlClient.apolloClient.query(query)
+                .fetchPolicy(FetchPolicy.NetworkOnly)
+                .execute()
         }
     }
 
@@ -250,6 +229,55 @@ public class RootHomeMonthlyCategoryScreenViewModel(
         val month: Int,
         val categoryId: MoneyUsageCategoryId,
         val categoryName: String? = null,
-        val apolloResponses: List<ApolloResponseState<ApolloResponse<MonthlyCategoryScreenListQuery.Data>>> = listOf(),
+        val apolloResponse: ApolloResponse<MonthlyCategoryScreenListQuery.Data>? = null,
+    ) {
+        fun createFirstQuery(): MonthlyCategoryScreenListQuery {
+            return createQuery(
+                cursor = null,
+                categoryId = categoryId,
+                year = year,
+                month = month,
+            )
+        }
+
+        fun createQuery(cursor: String?): MonthlyCategoryScreenListQuery {
+            return createQuery(
+                cursor = cursor,
+                categoryId = categoryId,
+                year = year,
+                month = month,
+            )
+        }
+    }
+}
+
+
+private fun createQuery(
+    cursor: String?,
+    categoryId: MoneyUsageCategoryId,
+    year: Int,
+    month: Int,
+): MonthlyCategoryScreenListQuery {
+    val date = LocalDate(
+        year = year,
+        monthNumber = month,
+        dayOfMonth = 1,
+    )
+    return MonthlyCategoryScreenListQuery(
+        cursor = Optional.present(cursor),
+        size = 50,
+        category = categoryId,
+        sinceDateTime = Optional.present(
+            LocalDateTime(
+                date = date,
+                time = LocalTime(0, 0),
+            ),
+        ),
+        untilDateTime = Optional.present(
+            LocalDateTime(
+                date = date.plus(1, DateTimeUnit.MONTH),
+                time = LocalTime(0, 0),
+            ),
+        ),
     )
 }
