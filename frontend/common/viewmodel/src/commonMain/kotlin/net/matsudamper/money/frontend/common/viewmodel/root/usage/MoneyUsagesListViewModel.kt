@@ -21,7 +21,6 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.UsageListScreenPagingQuery
-import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class MoneyUsagesListViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -90,11 +89,7 @@ public class MoneyUsagesListViewModel(
         viewModelScope.launch {
             viewModelStateFlow
                 .collectLatest { viewModelState ->
-                    val nodes = viewModelState.results.mapNotNull { state ->
-                        state.getSuccessOrNull()?.value
-                    }.flatMap {
-                        it.data?.user?.moneyUsages?.nodes.orEmpty()
-                    }
+                    val nodes = viewModelState.results?.data?.user?.moneyUsages?.nodes.orEmpty()
                     val items = buildList {
                         var lastMonth: LocalDateTime? = null
                         nodes.forEach { result ->
@@ -137,8 +132,7 @@ public class MoneyUsagesListViewModel(
                         }
                     }.toImmutableList()
 
-                    val hasMore = viewModelState.results.lastOrNull()
-                        ?.getSuccessOrNull()?.value?.data?.user?.moneyUsages?.hasMore
+                    val hasMore = viewModelState.results?.data?.user?.moneyUsages?.hasMore
                         ?: true
 
                     uiStateFlow.update { uiState ->
@@ -165,6 +159,6 @@ public class MoneyUsagesListViewModel(
     }
 
     private data class ViewModelState(
-        val results: List<ApolloResponseState<ApolloResponse<UsageListScreenPagingQuery.Data>>> = listOf(),
+        val results: ApolloResponse<UsageListScreenPagingQuery.Data>? = null,
     )
 }
