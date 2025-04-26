@@ -16,6 +16,7 @@ import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import com.apollographql.apollo3.cache.normalized.isFromCache
 import com.apollographql.apollo3.cache.normalized.watch
 
+@Deprecated("Use ApolloCache instead")
 public class ApolloResponseCollector<D : Query.Data>(
     private val apolloClient: ApolloClient,
     private val query: Query<D>,

@@ -13,6 +13,7 @@ import com.apollographql.apollo3.api.Query
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 
+@Deprecated("Use ApolloCache instead")
 class ApolloPagingResponseCollector<D : Query.Data>(
     private val graphqlClient: GraphqlClient,
     private val coroutineScope: CoroutineScope,
