@@ -143,50 +143,12 @@ private fun LoadedContent(
             ),
         ) {
             items(loadingState.items) { item ->
-                Card(
-                    modifier = Modifier.padding(vertical = 2.dp),
-                    onClick = {
-                        item.event.onClick()
-                    },
-                ) {
-                    ProvideTextStyle(
-                        MaterialTheme.typography.bodyMedium,
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(12.dp),
-                        ) {
-                            Text(
-                                text = item.date,
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Row {
-                                Text(
-                                    modifier = Modifier.weight(1f),
-                                    text = item.title,
-                                    maxLines = 3,
-                                )
-                                Text(
-                                    modifier = Modifier
-                                        .align(Alignment.Bottom)
-                                        .height(IntrinsicSize.Max)
-                                        .requiredWidthIn(min = 80.dp),
-                                    text = item.subCategory,
-                                    maxLines = 1,
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    modifier = Modifier
-                                        .align(Alignment.Bottom)
-                                        .height(IntrinsicSize.Max)
-                                        .requiredWidthIn(min = 60.dp),
-                                    maxLines = 1,
-                                    text = item.amount,
-                                    textAlign = TextAlign.End,
-                                )
-                            }
-                        }
-                    }
-                }
+                ListItem(
+                    item = item,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp),
+                )
             }
             if (loadingState.hasMoreItem) {
                 item {
@@ -199,6 +161,57 @@ private fun LoadedContent(
                     ) {
                         CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
                     }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ListItem(
+    item: RootHomeMonthlyCategoryScreenUiState.Item,
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        modifier = modifier,
+        onClick = {
+            item.event.onClick()
+        },
+    ) {
+        ProvideTextStyle(
+            MaterialTheme.typography.bodyMedium,
+        ) {
+            Column(
+                modifier = Modifier.padding(12.dp),
+            ) {
+                Text(
+                    text = item.date,
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Row {
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = item.title,
+                        maxLines = 3,
+                    )
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.Bottom)
+                            .height(IntrinsicSize.Max)
+                            .requiredWidthIn(min = 80.dp),
+                        text = item.subCategory,
+                        maxLines = 1,
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        modifier = Modifier
+                            .align(Alignment.Bottom)
+                            .height(IntrinsicSize.Max)
+                            .requiredWidthIn(min = 60.dp),
+                        maxLines = 1,
+                        text = item.amount,
+                        textAlign = TextAlign.End,
+                    )
                 }
             }
         }
