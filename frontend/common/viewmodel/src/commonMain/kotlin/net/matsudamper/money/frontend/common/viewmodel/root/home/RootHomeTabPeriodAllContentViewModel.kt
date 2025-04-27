@@ -215,6 +215,24 @@ public class RootHomeTabPeriodAllContentViewModel(
         }
     }.asStateFlow()
 
+    public fun updateStructure(current: RootHomeScreenStructure.Period) {
+        val since = current.since
+        if (since != null) {
+            viewModelStateFlow.update {
+                it.copy(
+                    displayPeriod = it.displayPeriod.copy(
+                        sinceDate = ViewModelState.YearMonth(since.year, since.monthNumber),
+                        monthCount = current.period,
+                    ),
+                )
+            }
+        }
+        fetchAll(
+            period = viewModelStateFlow.value.displayPeriod,
+            forceReFetch = false,
+        )
+    }
+
     private fun fetchAll(
         period: ViewModelState.Period,
         forceReFetch: Boolean,
@@ -357,24 +375,6 @@ public class RootHomeTabPeriodAllContentViewModel(
                 }
             }
         }
-    }
-
-    public fun updateStructure(current: RootHomeScreenStructure.Period) {
-        val since = current.since
-        if (since != null) {
-            viewModelStateFlow.update {
-                it.copy(
-                    displayPeriod = it.displayPeriod.copy(
-                        sinceDate = ViewModelState.YearMonth(since.year, since.monthNumber),
-                        monthCount = current.period,
-                    ),
-                )
-            }
-        }
-        fetchAll(
-            period = viewModelStateFlow.value.displayPeriod,
-            forceReFetch = false,
-        )
     }
 
     public interface Event {

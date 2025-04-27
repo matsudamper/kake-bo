@@ -137,6 +137,14 @@ public class RootHomeTabPeriodScreenViewModel(
         }
     }
 
+    public fun getCurrentLocalDate(): LocalDate {
+        return LocalDate(
+            year = viewModelStateFlow.value.displayPeriod.sinceDate.year,
+            monthNumber = viewModelStateFlow.value.displayPeriod.sinceDate.month,
+            dayOfMonth = 1,
+        )
+    }
+
     private fun updateSinceDate() {
         viewModelScope.launch {
             val newPeriod = viewModelStateFlow.value.displayPeriod
@@ -221,14 +229,6 @@ public class RootHomeTabPeriodScreenViewModel(
                 },
             )
         }
-    }
-
-    public fun getCurrentLocalDate(): LocalDate {
-        return LocalDate(
-            year = viewModelStateFlow.value.displayPeriod.sinceDate.year,
-            monthNumber = viewModelStateFlow.value.displayPeriod.sinceDate.month,
-            dayOfMonth = 1,
-        )
     }
 
     public interface Event {
