@@ -21,7 +21,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
 
     public data class PeriodAnalytics(
         override val since: LocalDate? = null,
-        override val period: Int = 3,
+        override val period: Int,
     ) : Period {
         override val direction: Screens = Screens.Home
         override val sameScreenId: String = Home::class.simpleName!!

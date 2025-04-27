@@ -42,7 +42,13 @@ public class RootHomeTabScreenViewModel(
         override fun onClickPeriod() {
             viewModelScope.launch {
                 viewModelEventSender.send {
-                    it.navigate(RootHomeScreenStructure.PeriodAnalytics())
+                    it.navigate(
+                        RootHomeScreenStructure.PeriodAnalytics(
+                            // TODO タブを切り替えたいだけ(前の表示情報そのままを引き継ぎたい)なのに期間を聞かれてしまう
+                            period = 3,
+                            since = null,
+                        ),
+                    )
                 }
             }
         }
