@@ -89,6 +89,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                                     RootHomeScreenStructure.PeriodCategory(
                                         categoryId = categoryId,
                                         since = viewModel.getCurrentLocalDate(),
+                                        period = viewModelStateFlow.value.displayPeriod.monthCount,
                                     ),
                                 )
                             }

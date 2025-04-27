@@ -89,6 +89,7 @@ public class RootHomeTabPeriodAllContentViewModel(
                                     RootHomeScreenStructure.PeriodCategory(
                                         categoryId = categoryId,
                                         since = viewModel.getCurrentLocalDate(),
+                                        period = viewModelStateFlow.value.displayPeriod.monthCount,
                                     ),
                                 )
                             }
@@ -318,7 +319,12 @@ public class RootHomeTabPeriodAllContentViewModel(
                     onClick = {
                         viewModelScope.launch {
                             eventSender.send {
-                                it.navigate(RootHomeScreenStructure.PeriodCategory(category.id))
+                                it.navigate(
+                                    RootHomeScreenStructure.PeriodCategory(
+                                        categoryId = category.id,
+                                        period = viewModelStateFlow.value.displayPeriod.monthCount,
+                                    ),
+                                )
                             }
                         }
                     },

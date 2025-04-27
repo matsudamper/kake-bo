@@ -67,7 +67,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
 
     public data class PeriodCategory(
         val categoryId: MoneyUsageCategoryId,
-        override val period: Int = 3,
+        override val period: Int,
         override val since: LocalDate? = null,
     ) : Period {
         override val direction: Screens = Screens.HomePeriodCategory
@@ -84,6 +84,10 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
                         },
                     )
                 }
+                append(
+                    PERIOD_KEY,
+                    period.toString(),
+                )
             }
             return direction.placeholderUrl
                 .replace("{id}", categoryId.value.toString())
@@ -92,6 +96,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
 
         public companion object {
             private const val SINCE_KEY = "since"
+            private const val PERIOD_KEY = "period"
 
             public fun create(
                 pathParams: Map<String, String>,
@@ -101,6 +106,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
                     categoryId = MoneyUsageCategoryId(pathParams["id"]!!.toInt()),
                     since = queryParams[SINCE_KEY]?.firstOrNull()
                         ?.let { LocalDate.parse("$it-01") },
+                    period = queryParams[PERIOD_KEY]?.firstOrNull()?.toIntOrNull() ?: 3,
                 )
             }
         }
