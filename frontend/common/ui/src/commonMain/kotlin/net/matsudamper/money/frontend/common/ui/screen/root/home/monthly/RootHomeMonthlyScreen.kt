@@ -35,6 +35,8 @@ import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreenScaffold
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreenScaffoldUiState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 
 public data class RootHomeMonthlyScreenUiState(
     val loadingState: LoadingState,
@@ -176,11 +178,11 @@ private fun LoadedContent(
                         style = MaterialTheme.typography.bodyMedium,
                         modifier = Modifier.padding(end = 8.dp),
                     )
-                    androidx.compose.material3.Button(
+                    Button(
                         onClick = {
                             uiState.event.onSortTypeChanged(RootHomeMonthlyScreenUiState.SortType.Date)
                         },
-                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        colors = ButtonDefaults.buttonColors(
                             containerColor = if (uiState.currentSortType == RootHomeMonthlyScreenUiState.SortType.Date) {
                                 MaterialTheme.colorScheme.primary
                             } else {
@@ -191,11 +193,11 @@ private fun LoadedContent(
                     ) {
                         Text("日付順")
                     }
-                    androidx.compose.material3.Button(
+                    Button(
                         onClick = {
                             uiState.event.onSortTypeChanged(RootHomeMonthlyScreenUiState.SortType.Amount)
                         },
-                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        colors = ButtonDefaults.buttonColors(
                             containerColor = if (uiState.currentSortType == RootHomeMonthlyScreenUiState.SortType.Amount) {
                                 MaterialTheme.colorScheme.primary
                             } else {
