@@ -192,6 +192,8 @@ public class RootHomeTabPeriodCategoryContentViewModel(
 
     public fun updateStructure(current: RootHomeScreenStructure.PeriodCategory) {
         val since = current.since
+
+        periodViewModel.updateScreenStructure(current)
         viewModelStateFlow.update { viewModelState ->
             viewModelState.copy(
                 categoryId = current.categoryId,

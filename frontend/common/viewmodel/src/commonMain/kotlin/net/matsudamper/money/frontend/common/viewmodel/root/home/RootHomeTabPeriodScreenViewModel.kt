@@ -4,6 +4,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -25,13 +26,9 @@ import net.matsudamper.money.frontend.graphql.RootHomeTabScreenQuery
 public class RootHomeTabPeriodScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     private val api: RootHomeTabScreenApi,
-    initialCategoryId: MoneyUsageCategoryId?,
+    private val initialCategoryId: MoneyUsageCategoryId?,
 ) : CommonViewModel(scopedObjectFeature) {
-    private val viewModelStateFlow = MutableStateFlow(
-        ViewModelState(
-            categoryId = initialCategoryId,
-        ),
-    )
+    private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
@@ -123,6 +120,31 @@ public class RootHomeTabPeriodScreenViewModel(
 
     public fun updateScreenStructure(current: RootHomeScreenStructure.Period) {
         val since = current.since
+        when (current) {
+            is RootHomeScreenStructure.Home,
+            is RootHomeScreenStructure.PeriodAnalytics,
+                -> {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        contentType = ViewModelState.ContentType.All,
+                    )
+                }
+            }
+
+            is RootHomeScreenStructure.PeriodCategory -> {
+                viewModelStateFlow.update { viewModelState ->
+                    val category = viewModelState.categories.firstOrNull { it.id == current.categoryId }
+                        ?: return@update viewModelState
+                    viewModelState.copy(
+                        contentType = ViewModelState.ContentType.Category(
+                            categoryId = category.id,
+                            name = category.name,
+                        ),
+                    )
+                }
+
+            }
+        }
         if (since != null) {
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
@@ -162,7 +184,7 @@ public class RootHomeTabPeriodScreenViewModel(
         viewModelScope.launch {
             api.screenFlow().collectLatest { response ->
                 val newCategories = response.data?.user?.moneyUsageCategories?.nodes.orEmpty()
-                val category = newCategories.firstOrNull { it.id == viewModelStateFlow.value.categoryId }
+                val category = newCategories.firstOrNull { it.id == initialCategoryId }
                 viewModelStateFlow.update { viewModelState ->
                     val newContentType = run type@{
                         if (viewModelState.categories.isNotEmpty()) {
@@ -244,7 +266,6 @@ public class RootHomeTabPeriodScreenViewModel(
     }
 
     private data class ViewModelState(
-        val categoryId: MoneyUsageCategoryId?,
         val contentType: ContentType = ContentType.Loading,
         val categories: List<RootHomeTabScreenQuery.Node> = listOf(),
         val displayPeriod: Period = run {

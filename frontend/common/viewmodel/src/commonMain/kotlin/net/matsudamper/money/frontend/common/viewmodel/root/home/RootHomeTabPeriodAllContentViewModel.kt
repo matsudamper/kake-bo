@@ -216,6 +216,8 @@ public class RootHomeTabPeriodAllContentViewModel(
     }.asStateFlow()
 
     public fun updateStructure(current: RootHomeScreenStructure.Period) {
+        periodViewModel.updateScreenStructure(current)
+
         val since = current.since
         if (since != null) {
             viewModelStateFlow.update {
