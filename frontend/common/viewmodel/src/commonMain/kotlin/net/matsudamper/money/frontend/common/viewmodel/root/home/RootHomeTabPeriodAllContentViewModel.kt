@@ -76,6 +76,7 @@ public class RootHomeTabPeriodAllContentViewModel(
                                 it.navigate(
                                     RootHomeScreenStructure.PeriodAnalytics(
                                         since = viewModel.getCurrentLocalDate(),
+                                        period = viewModelStateFlow.value.displayPeriod.monthCount,
                                     ),
                                 )
                             }

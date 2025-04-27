@@ -39,11 +39,11 @@ public class ImportedMailCategoryFilterScreenPagingModel(
     )
 
     internal suspend fun fetch(): UpdateOperationResponseResult<ImportedMailCategoryFiltersScreenPagingQuery.Data> {
-        return graphqlClient.apolloClient.updateOperation(firstQuery) update@    { before ->
+        return graphqlClient.apolloClient.updateOperation(firstQuery) update@{ before ->
             if (before == null) return@update success(fetch(cursor = null))
             if (before.user?.importedMailCategoryFilters?.isLast == true) return@update noHasMore()
 
-            val cursor = before.user?.importedMailCategoryFilters?.cursor?: return@update error()
+            val cursor = before.user?.importedMailCategoryFilters?.cursor ?: return@update error()
 
             success(fetch(cursor))
         }

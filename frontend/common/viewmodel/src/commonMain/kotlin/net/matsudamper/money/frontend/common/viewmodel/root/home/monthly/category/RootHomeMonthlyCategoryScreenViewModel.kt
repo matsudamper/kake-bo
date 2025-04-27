@@ -279,7 +279,6 @@ public class RootHomeMonthlyCategoryScreenViewModel(
     }
 }
 
-
 private fun createQuery(
     cursor: String?,
     categoryId: MoneyUsageCategoryId,

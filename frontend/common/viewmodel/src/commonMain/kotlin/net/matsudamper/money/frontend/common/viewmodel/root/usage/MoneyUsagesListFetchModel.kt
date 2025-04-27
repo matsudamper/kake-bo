@@ -23,7 +23,6 @@ import com.apollographql.apollo3.cache.normalized.watch
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.UsageListScreenPagingQuery
-import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryFilter
 import net.matsudamper.money.frontend.graphql.updateOperation
@@ -123,7 +122,7 @@ public class MoneyUsagesListFetchModel(
                                 },
                             ),
                         )
-                        .build()
+                        .build(),
                 )
             }
         }

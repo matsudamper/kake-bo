@@ -133,7 +133,7 @@ public class RootUsageCalendarPagingModel(
                                 },
                             ),
                         )
-                        .build()
+                        .build(),
                 )
             }
         }

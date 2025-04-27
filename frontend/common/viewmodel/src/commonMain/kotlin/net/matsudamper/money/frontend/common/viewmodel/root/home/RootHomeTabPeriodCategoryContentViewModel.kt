@@ -22,8 +22,8 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.GraphTitleChipUiState
-import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodCategoryContentUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAndCategoryUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodCategoryContentUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.PlatformType
@@ -76,6 +76,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                                 it.navigate(
                                     RootHomeScreenStructure.PeriodAnalytics(
                                         since = viewModel.getCurrentLocalDate(),
+                                        period = viewModelStateFlow.value.displayPeriod.monthCount,
                                     ),
                                 )
                             }

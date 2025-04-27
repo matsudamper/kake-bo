@@ -123,7 +123,7 @@ public class RootHomeTabPeriodScreenViewModel(
         when (current) {
             is RootHomeScreenStructure.Home,
             is RootHomeScreenStructure.PeriodAnalytics,
-                -> {
+            -> {
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         contentType = ViewModelState.ContentType.All,
@@ -142,7 +142,6 @@ public class RootHomeTabPeriodScreenViewModel(
                         ),
                     )
                 }
-
             }
         }
         if (since != null) {
