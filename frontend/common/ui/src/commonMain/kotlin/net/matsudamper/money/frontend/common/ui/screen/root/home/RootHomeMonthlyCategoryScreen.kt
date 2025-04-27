@@ -31,8 +31,11 @@ import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
+import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
+import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
+import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 
 public data class RootHomeMonthlyCategoryScreenUiState(
     val loadingState: LoadingState,
@@ -58,6 +61,7 @@ public data class RootHomeMonthlyCategoryScreenUiState(
             val items: List<Item>,
             val hasMoreItem: Boolean,
             val event: LoadedEvent,
+            val pieChartItems: ImmutableList<PieChartItem>,
         ) : LoadingState
 
         public data object Loading : LoadingState
@@ -142,6 +146,16 @@ private fun LoadedContent(
                 end = 8.dp,
             ),
         ) {
+            item {
+                if (loadingState.pieChartItems.isNotEmpty()) {
+                    PieChart(
+                        items = loadingState.pieChartItems,
+                        title = "カテゴリ別支出",
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(16.dp),
+                    )
+                }
+            }
             items(loadingState.items) { item ->
                 ListItem(
                     item = item,

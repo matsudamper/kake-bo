@@ -25,15 +25,20 @@ import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import com.apollographql.apollo3.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.frontend.common.base.IO
+import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
+import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItemEvent
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlyCategoryScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.PlatformType
 import net.matsudamper.money.frontend.common.viewmodel.PlatformTypeProvider
+import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
 import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -49,6 +54,8 @@ public class RootHomeMonthlyCategoryScreenViewModel(
     private val navController: ScreenNavController,
     private val graphqlClient: GraphqlClient,
 ) : CommonViewModel(scopedObjectFeature) {
+    private val reservedColorModel = ReservedColorModel()
+
     private val viewModelStateFlow = MutableStateFlow(
         ViewModelState(
             year = argument.year,
@@ -121,12 +128,13 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                     RootHomeMonthlyCategoryScreenUiState.LoadingState.Error
                 } else {
                     val nodes = response.data?.user?.moneyUsages?.nodes.orEmpty()
+                    val items = nodes.map { node -> createItem(node) }
+                    val pieChartItems = createPieChartItems(nodes)
                     RootHomeMonthlyCategoryScreenUiState.LoadingState.Loaded(
-                        items = nodes.map { node ->
-                            createItem(node)
-                        },
+                        items = items,
                         event = loadedEvent,
                         hasMoreItem = response.data?.user?.moneyUsages?.hasMore != false,
+                        pieChartItems = pieChartItems,
                     )
                 }
                 uiStateFlow.value = uiStateFlow.value.copy(
@@ -161,6 +169,26 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                 }
             },
         )
+    }
+
+    private fun createPieChartItems(nodes: List<MonthlyCategoryScreenListQuery.Node>): ImmutableList<PieChartItem> {
+        return nodes
+            .groupBy { it.moneyUsageSubCategory?.name ?: "その他" }
+            .mapValues { (_, nodes) -> nodes.sumOf { it.amount } }
+            .filter { it.value > 0 }
+            .entries
+            .mapIndexed { index, (subCategory, amount) ->
+                PieChartItem(
+                    color = reservedColorModel.getColor(subCategory),
+                    title = subCategory,
+                    value = amount.toLong(),
+                    event = object : PieChartItemEvent {
+                        override fun onClick() {
+                            // TODO
+                        }
+                    },
+                )
+            }.toImmutableList()
     }
 
     public fun updateStructure(current: RootHomeScreenStructure.MonthlyCategory) {
