@@ -210,7 +210,10 @@ private fun BetweenLoaded(
                         text = {
                             Text(type.title)
                         },
-                        onClick = { type.onClick() },
+                        onClick = {
+                            expanded = false
+                            type.onClick()
+                        },
                     )
                 }
             }
