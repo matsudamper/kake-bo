@@ -88,6 +88,7 @@ public class RootHomeMonthlyScreenViewModel(
             loadingState = RootHomeMonthlyScreenUiState.LoadingState.Loading,
             rootHomeTabUiState = tabViewModel.uiStateFlow.value,
             currentSortType = RootHomeMonthlyScreenUiState.SortType.Date,
+            sortOrder = RootHomeMonthlyScreenUiState.SortOrder.Ascending,
             scaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
                 override fun onClickHome() {
                     if (PlatformTypeProvider.type == PlatformType.JS) {
@@ -138,6 +139,10 @@ public class RootHomeMonthlyScreenViewModel(
                             sortType = sortType,
                         )
                     }
+                }
+
+                override fun onSortOrderChanged(order: RootHomeMonthlyScreenUiState.SortOrder) {
+
                 }
             },
         ),

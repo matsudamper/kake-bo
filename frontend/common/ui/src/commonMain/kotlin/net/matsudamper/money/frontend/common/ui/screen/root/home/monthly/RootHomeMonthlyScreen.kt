@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.home.monthly
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -16,16 +17,27 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
@@ -35,20 +47,25 @@ import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreenScaffold
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreenScaffoldUiState
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 
 public data class RootHomeMonthlyScreenUiState(
     val loadingState: LoadingState,
     val rootHomeTabUiState: RootHomeTabScreenScaffoldUiState,
     val scaffoldListener: RootScreenScaffoldListener,
     val event: Event,
-    val currentSortType: SortType = SortType.Date,
+    val currentSortType: SortType,
+    val sortOrder: SortOrder,
 ) {
     public enum class SortType {
         Date,
         Amount,
     }
+
+    public enum class SortOrder {
+        Ascending,
+        Descending,
+    }
+
     public sealed interface LoadingState {
         public data object Loading : LoadingState
 
@@ -85,6 +102,7 @@ public data class RootHomeMonthlyScreenUiState(
     public interface Event {
         public suspend fun onViewInitialized()
         public fun onSortTypeChanged(sortType: SortType)
+        public fun onSortOrderChanged(order: SortOrder)
     }
 }
 
@@ -169,45 +187,17 @@ private fun LoadedContent(
                 }
             }
             item {
-                Row(
+                SortSection(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = "並び替え:",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(end = 8.dp),
-                    )
-                    Button(
-                        onClick = {
-                            uiState.event.onSortTypeChanged(RootHomeMonthlyScreenUiState.SortType.Date)
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (uiState.currentSortType == RootHomeMonthlyScreenUiState.SortType.Date) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.surfaceVariant
-                            },
-                        ),
-                        modifier = Modifier.padding(end = 8.dp),
-                    ) {
-                        Text("日付順")
-                    }
-                    Button(
-                        onClick = {
-                            uiState.event.onSortTypeChanged(RootHomeMonthlyScreenUiState.SortType.Amount)
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (uiState.currentSortType == RootHomeMonthlyScreenUiState.SortType.Amount) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.surfaceVariant
-                            },
-                        ),
-                    ) {
-                        Text("金額順")
-                    }
-                }
+                    onSortTypeChanged = { type ->
+                        uiState.event.onSortTypeChanged(type)
+                    },
+                    currentSortType = uiState.currentSortType,
+                    onSortOrderChanged = { order ->
+                        uiState.event.onSortOrderChanged(order)
+                    },
+                    sortOrderType = uiState.sortOrder,
+                )
             }
             items(loadingState.items) { item ->
                 Card(
@@ -268,6 +258,98 @@ private fun LoadedContent(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun SortSection(
+    currentSortType: RootHomeMonthlyScreenUiState.SortType,
+    sortOrderType: RootHomeMonthlyScreenUiState.SortOrder,
+    onSortTypeChanged: (RootHomeMonthlyScreenUiState.SortType) -> Unit,
+    onSortOrderChanged: (RootHomeMonthlyScreenUiState.SortOrder) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .horizontalScroll(rememberScrollState()),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Row {
+            Text(
+                text = "並び替え:",
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.padding(end = 8.dp),
+            )
+            Button(
+                onClick = {
+                    onSortTypeChanged(RootHomeMonthlyScreenUiState.SortType.Date)
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (currentSortType == RootHomeMonthlyScreenUiState.SortType.Date) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant
+                    },
+                ),
+                modifier = Modifier.padding(end = 8.dp),
+            ) {
+                Text("日付順")
+            }
+            Button(
+                onClick = {
+                    onSortTypeChanged(RootHomeMonthlyScreenUiState.SortType.Amount)
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (currentSortType == RootHomeMonthlyScreenUiState.SortType.Amount) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant
+                    },
+                ),
+            ) {
+                Text("金額順")
+            }
+        }
+        var isExpanded by remember { mutableStateOf(false) }
+        OutlinedButton(
+            onClick = {
+                isExpanded = !isExpanded
+            },
+            modifier = Modifier.padding(end = 8.dp),
+        ) {
+            DropdownMenu(
+                expanded = isExpanded,
+                onDismissRequest = {
+                    isExpanded = false
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                DropdownMenuItem(
+                    text = {
+                        Text("昇順")
+                    },
+                    onClick = {
+                        onSortOrderChanged(RootHomeMonthlyScreenUiState.SortOrder.Ascending)
+                        isExpanded = false
+                    },
+                )
+                DropdownMenuItem(
+                    text = {
+                        Text("降順")
+                    },
+                    onClick = {
+                        onSortOrderChanged(RootHomeMonthlyScreenUiState.SortOrder.Descending)
+                        isExpanded = false
+                    },
+                )
+            }
+            Text(
+                when (sortOrderType) {
+                    RootHomeMonthlyScreenUiState.SortOrder.Ascending -> "昇順"
+                    RootHomeMonthlyScreenUiState.SortOrder.Descending -> "降順"
+                },
+            )
         }
     }
 }
