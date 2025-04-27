@@ -33,6 +33,7 @@ import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.PlatformType
 import net.matsudamper.money.frontend.common.viewmodel.PlatformTypeProvider
+import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
 import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -51,6 +52,8 @@ public class RootHomeMonthlyScreenViewModel(
     private val graphqlClient: GraphqlClient,
     navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
+    private val reservedColorModel = ReservedColorModel()
+
     private val viewModelStateFlow = MutableStateFlow(
         ViewModelState(
             argument = argument,
@@ -171,25 +174,10 @@ public class RootHomeMonthlyScreenViewModel(
     }.asStateFlow()
 
     private fun createLoadedUiState(viewModelState: ViewModelState): RootHomeMonthlyScreenUiState.LoadingState.Loaded {
-        // Generate colors for categories
-        val categoryColors = listOf(
-            androidx.compose.ui.graphics.Color(0xFF4285F4), // Blue
-            androidx.compose.ui.graphics.Color(0xFFEA4335), // Red
-            androidx.compose.ui.graphics.Color(0xFFFBBC05), // Yellow
-            androidx.compose.ui.graphics.Color(0xFF34A853), // Green
-            androidx.compose.ui.graphics.Color(0xFF9C27B0), // Purple
-            androidx.compose.ui.graphics.Color(0xFF00BCD4), // Cyan
-            androidx.compose.ui.graphics.Color(0xFFFF9800), // Orange
-            androidx.compose.ui.graphics.Color(0xFF795548), // Brown
-            androidx.compose.ui.graphics.Color(0xFF607D8B), // Blue Grey
-            androidx.compose.ui.graphics.Color(0xFFE91E63), // Pink
-        )
-
         val pieChartItems = viewModelState.moneyUsageAnalytics?.byCategories?.mapIndexed { index, byCategory ->
-            val colorIndex = index % categoryColors.size
             PieChartItem(
                 title = byCategory.category.name,
-                color = categoryColors[colorIndex],
+                color = reservedColorModel.getColor(byCategory.category.name),
                 value = byCategory.totalAmount ?: 0,
             )
         }.orEmpty().sortedByDescending { it.value }
