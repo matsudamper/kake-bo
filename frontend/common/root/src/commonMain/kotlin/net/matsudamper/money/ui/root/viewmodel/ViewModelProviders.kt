@@ -105,7 +105,7 @@ internal class ViewModelProviders(
     @Composable
     fun rootHomeTabPeriodAllContentViewModel(): RootHomeTabPeriodAllContentViewModel {
         val loginCheckUseCase = LocalGlobalEventHandlerLoginCheckUseCaseDelegate.current
-        return createViewModelProvider {
+        return LocalScopedObjectStore.current.putOrGet(Unit) {
             RootHomeTabPeriodAllContentViewModel(
                 scopedObjectFeature = it,
                 api = RootHomeTabScreenApi(
@@ -115,6 +115,6 @@ internal class ViewModelProviders(
                 graphqlClient = koin.get(),
                 navController = navController,
             )
-        }.get()
+        }
     }
 }

@@ -117,7 +117,7 @@ internal fun RootNavContent(
                             }
 
                             is RootHomeScreenStructure.PeriodCategory -> {
-                                val categoryViewModel = provideViewModel {
+                                val categoryViewModel = LocalScopedObjectStore.current.putOrGet(Unit) {
                                     RootHomeTabPeriodCategoryContentViewModel(
                                         initialCategoryId = current.categoryId,
                                         scopedObjectFeature = it,
