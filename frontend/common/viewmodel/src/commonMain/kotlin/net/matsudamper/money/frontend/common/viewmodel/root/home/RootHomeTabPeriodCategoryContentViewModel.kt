@@ -23,7 +23,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.GraphTitleChipUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodCategoryContentUiState
-import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAndCategoryUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.PlatformType
@@ -126,7 +126,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
     public val uiStateFlow: StateFlow<RootHomeTabPeriodCategoryContentUiState> = MutableStateFlow(
         RootHomeTabPeriodCategoryContentUiState(
             loadingState = RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading,
-            rootHomeTabPeriodUiState = periodViewModel.uiStateFlow.value,
+            rootHomeTabPeriodAndCategoryUiState = periodViewModel.uiStateFlow.value,
             rootHomeTabUiState = tabViewModel.uiStateFlow.value,
             rootScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
                 override fun onClickHome() {
@@ -167,7 +167,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
             periodViewModel.uiStateFlow.collectLatest { periodUiState ->
                 uiStateFlow.update { uiState ->
                     uiState.copy(
-                        rootHomeTabPeriodUiState = periodUiState,
+                        rootHomeTabPeriodAndCategoryUiState = periodUiState,
                     )
                 }
             }
@@ -293,7 +293,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                     val apolloResult = categoryResponseMap[key] ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading
                     val result = apolloResult.data?.user?.moneyUsageAnalyticsByCategory ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
 
-                    RootHomeTabPeriodUiState.MonthTotalItem(
+                    RootHomeTabPeriodAndCategoryUiState.MonthTotalItem(
                         title = "${yearMonth.year}/${yearMonth.month.toString().padStart(2, '0')}",
                         amount = Formatter.formatMoney(result.totalAmount ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error) + "円",
                         event = MonthTotalItemEvent(yearMonth),
@@ -307,7 +307,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
 
     private inner class MonthTotalItemEvent(
         private val yearMonth: ViewModelState.YearMonth,
-    ) : RootHomeTabPeriodUiState.MonthTotalItem.Event, EqualsImpl(yearMonth) {
+    ) : RootHomeTabPeriodAndCategoryUiState.MonthTotalItem.Event, EqualsImpl(yearMonth) {
         override fun onClick() {
             viewModelScope.launch {
                 eventSender.send {

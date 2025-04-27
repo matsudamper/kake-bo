@@ -37,7 +37,7 @@ import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 
-public data class RootHomeTabPeriodUiState(
+public data class RootHomeTabPeriodAndCategoryUiState(
     val loadingState: LoadingState,
     val event: Event,
 ) {
@@ -93,7 +93,7 @@ public data class RootHomeTabPeriodUiState(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun RootHomeTabPeriodScaffold(
-    uiState: RootHomeTabPeriodUiState,
+    uiState: RootHomeTabPeriodAndCategoryUiState,
     homeUiState: RootHomeTabScreenScaffoldUiState,
     scaffoldListener: RootScreenScaffoldListener,
     modifier: Modifier = Modifier,
@@ -133,13 +133,13 @@ public fun RootHomeTabPeriodScaffold(
             },
         ) {
             when (uiState.loadingState) {
-                RootHomeTabPeriodUiState.LoadingState.Loading -> {
+                RootHomeTabPeriodAndCategoryUiState.LoadingState.Loading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center),
                     )
                 }
 
-                RootHomeTabPeriodUiState.LoadingState.Error -> {
+                RootHomeTabPeriodAndCategoryUiState.LoadingState.Error -> {
                     LoadingErrorContent(
                         modifier = Modifier.fillMaxWidth(),
                         onClickRetry = {
@@ -148,7 +148,7 @@ public fun RootHomeTabPeriodScaffold(
                     )
                 }
 
-                is RootHomeTabPeriodUiState.LoadingState.Loaded -> {
+                is RootHomeTabPeriodAndCategoryUiState.LoadingState.Loaded -> {
                     val scrollState = rememberScrollState()
                     Column(
                         modifier = Modifier
@@ -184,7 +184,7 @@ public fun RootHomeTabPeriodScaffold(
 @Composable
 private fun BetweenLoaded(
     modifier: Modifier = Modifier,
-    uiState: RootHomeTabPeriodUiState.LoadingState.Loaded,
+    uiState: RootHomeTabPeriodAndCategoryUiState.LoadingState.Loaded,
     content: @Composable () -> Unit,
 ) {
     Column(

@@ -16,8 +16,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -31,7 +29,7 @@ import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
 public data class RootHomeTabPeriodCategoryContentUiState(
     val loadingState: LoadingState,
     val rootHomeTabUiState: RootHomeTabScreenScaffoldUiState,
-    val rootHomeTabPeriodUiState: RootHomeTabPeriodUiState,
+    val rootHomeTabPeriodAndCategoryUiState: RootHomeTabPeriodAndCategoryUiState,
     val rootScaffoldListener: RootScreenScaffoldListener,
     val event: Event,
 ) {
@@ -43,7 +41,7 @@ public data class RootHomeTabPeriodCategoryContentUiState(
         public data class Loaded(
             val graphItems: BarGraphUiState,
             val graphTitleItems: ImmutableList<GraphTitleChipUiState>,
-            val monthTotalItems: ImmutableList<RootHomeTabPeriodUiState.MonthTotalItem>,
+            val monthTotalItems: ImmutableList<RootHomeTabPeriodAndCategoryUiState.MonthTotalItem>,
         ) : LoadingState
     }
 
@@ -62,7 +60,7 @@ public fun RootHomeTabPeriodCategoryScreen(
 ) {
     val savedState = rememberSaveableStateHolder(id = "RootHomeTabPeriodCategoryScreen")
     RootHomeTabPeriodScaffold(
-        uiState = uiState.rootHomeTabPeriodUiState,
+        uiState = uiState.rootHomeTabPeriodAndCategoryUiState,
         homeUiState = uiState.rootHomeTabUiState,
         scaffoldListener = uiState.rootScaffoldListener,
         modifier = Modifier.fillMaxSize(),

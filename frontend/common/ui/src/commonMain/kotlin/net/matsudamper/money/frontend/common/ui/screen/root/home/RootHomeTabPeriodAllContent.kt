@@ -33,7 +33,7 @@ import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
 public data class RootHomeTabPeriodAllContentUiState(
     val rootHomeTabUiState: RootHomeTabScreenScaffoldUiState,
     val loadingState: LoadingState,
-    val rootHomeTabPeriodUiState: RootHomeTabPeriodUiState,
+    val rootHomeTabPeriodAndCategoryUiState: RootHomeTabPeriodAndCategoryUiState,
     val scaffoldListener: RootScreenScaffoldListener,
     val event: Event,
 ) {
@@ -44,7 +44,7 @@ public data class RootHomeTabPeriodAllContentUiState(
 
         public data class Loaded(
             val barGraph: BarGraphUiState,
-            val monthTotalItems: ImmutableList<RootHomeTabPeriodUiState.MonthTotalItem>,
+            val monthTotalItems: ImmutableList<RootHomeTabPeriodAndCategoryUiState.MonthTotalItem>,
             val totalBarColorTextMapping: ImmutableList<GraphTitleChipUiState>,
         ) : LoadingState
     }
@@ -63,7 +63,7 @@ public fun RootHomeTabPeriodAllScreen(
 ) {
     RootHomeTabPeriodScaffold(
         modifier = modifier.fillMaxSize(),
-        uiState = uiState.rootHomeTabPeriodUiState,
+        uiState = uiState.rootHomeTabPeriodAndCategoryUiState,
         homeUiState = uiState.rootHomeTabUiState,
         scaffoldListener = uiState.scaffoldListener,
         windowInsets = contentPadding,

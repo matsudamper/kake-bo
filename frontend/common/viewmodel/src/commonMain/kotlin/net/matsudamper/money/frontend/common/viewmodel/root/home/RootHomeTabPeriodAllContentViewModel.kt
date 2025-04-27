@@ -24,7 +24,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.GraphTitleChipUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllContentUiState
-import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAndCategoryUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.PlatformType
@@ -123,7 +123,7 @@ public class RootHomeTabPeriodAllContentViewModel(
     public val uiStateFlow: StateFlow<RootHomeTabPeriodAllContentUiState> = MutableStateFlow(
         RootHomeTabPeriodAllContentUiState(
             loadingState = RootHomeTabPeriodAllContentUiState.LoadingState.Loading,
-            rootHomeTabPeriodUiState = periodViewModel.uiStateFlow.value,
+            rootHomeTabPeriodAndCategoryUiState = periodViewModel.uiStateFlow.value,
             rootHomeTabUiState = tabViewModel.uiStateFlow.value,
             scaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
                 override fun onClickHome() {
@@ -164,7 +164,7 @@ public class RootHomeTabPeriodAllContentViewModel(
             periodViewModel.uiStateFlow.collectLatest { periodUiState ->
                 uiStateFlow.update { uiState ->
                     uiState.copy(
-                        rootHomeTabPeriodUiState = periodUiState,
+                        rootHomeTabPeriodAndCategoryUiState = periodUiState,
                     )
                 }
             }
@@ -331,7 +331,7 @@ public class RootHomeTabPeriodAllContentViewModel(
                 )
             }.toImmutableList(),
             monthTotalItems = responses.map { (yearMonth, response) ->
-                RootHomeTabPeriodUiState.MonthTotalItem(
+                RootHomeTabPeriodAndCategoryUiState.MonthTotalItem(
                     amount = Formatter.formatMoney(
                         response.data?.user?.moneyUsageAnalytics?.totalAmount
                             ?: return null,
@@ -345,7 +345,7 @@ public class RootHomeTabPeriodAllContentViewModel(
 
     private inner class MonthTotalItemEvent(
         private val yearMonth: ViewModelState.YearMonth,
-    ) : RootHomeTabPeriodUiState.MonthTotalItem.Event, EqualsImpl(yearMonth) {
+    ) : RootHomeTabPeriodAndCategoryUiState.MonthTotalItem.Event, EqualsImpl(yearMonth) {
         override fun onClick() {
             viewModelScope.launch {
                 eventSender.send {
