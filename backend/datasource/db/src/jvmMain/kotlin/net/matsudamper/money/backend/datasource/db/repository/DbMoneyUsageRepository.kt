@@ -119,6 +119,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
         categoryIds: List<MoneyUsageCategoryId>,
         subCategoryIds: List<MoneyUsageSubCategoryId>,
         text: String?,
+        orderType: MoneyUsageRepository.OrderType,
     ): MoneyUsageRepository.GetMoneyUsageByQueryResult {
         return runCatching {
             DbConnectionImpl.use { connection ->
@@ -186,10 +187,22 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                             ),
                     )
                     .orderBy(
-                        if (isAsc) {
-                            jUsage.DATETIME.asc()
-                        } else {
-                            jUsage.DATETIME.desc()
+                        when (orderType) {
+                            MoneyUsageRepository.OrderType.AMOUNT -> {
+                                if (isAsc) {
+                                    jUsage.AMOUNT.asc()
+                                } else {
+                                    jUsage.AMOUNT.desc()
+                                }
+                            }
+
+                            MoneyUsageRepository.OrderType.DATE -> {
+                                if (isAsc) {
+                                    jUsage.DATETIME.asc()
+                                } else {
+                                    jUsage.DATETIME.desc()
+                                }
+                            }
                         },
                         if (isAsc) {
                             jUsage.MONEY_USAGE_ID.asc()

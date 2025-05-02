@@ -24,6 +24,12 @@ input MoneyUsagesQuery {
     cursor: String
     isAsc: Boolean!
     filter: MoneyUsagesQueryFilter
+    orderType: MoneyUsagesQueryOrderType
+}
+
+enum MoneyUsagesQueryOrderType {
+    DATE
+    AMOUNT
 }
 
 input MoneyUsagesQueryFilter {

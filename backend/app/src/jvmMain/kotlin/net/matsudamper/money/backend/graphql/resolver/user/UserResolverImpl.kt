@@ -31,6 +31,7 @@ import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategoryInput
 import net.matsudamper.money.graphql.model.QlMoneyUsagesConnection
 import net.matsudamper.money.graphql.model.QlMoneyUsagesQuery
+import net.matsudamper.money.graphql.model.QlMoneyUsagesQueryOrderType
 import net.matsudamper.money.graphql.model.QlSessionAttributes
 import net.matsudamper.money.graphql.model.QlUser
 import net.matsudamper.money.graphql.model.QlUserSettings
@@ -135,6 +136,13 @@ class UserResolverImpl : UserResolver {
                     categoryIds = query.filter?.category.orEmpty(),
                     subCategoryIds = query.filter?.subCategory.orEmpty(),
                     text = query.filter?.text?.takeIf { it.isNotBlank() },
+                    orderType = when(query.orderType) {
+                        null,
+                        QlMoneyUsagesQueryOrderType.DATE ->
+                            MoneyUsageRepository.OrderType.DATE
+                        QlMoneyUsagesQueryOrderType.AMOUNT ->
+                            MoneyUsageRepository.OrderType.AMOUNT
+                    },
                 )
             val result = when (results) {
                 is MoneyUsageRepository.GetMoneyUsageByQueryResult.Failed -> throw results.error

@@ -33,7 +33,13 @@ interface MoneyUsageRepository {
         categoryIds: List<MoneyUsageCategoryId>,
         subCategoryIds: List<MoneyUsageSubCategoryId>,
         text: String?,
+        orderType: OrderType,
     ): GetMoneyUsageByQueryResult
+
+    enum class OrderType {
+        DATE,
+        AMOUNT,
+    }
 
     fun getMoneyUsage(
         userId: UserId,
