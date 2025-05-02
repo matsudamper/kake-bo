@@ -23,7 +23,9 @@ query MonthlyScreenList(
     $cursor: String,
     $size: Int!,
     $sinceDateTime: LocalDateTime,
-    $untilDateTime: LocalDateTime
+    $untilDateTime: LocalDateTime,
+    $isAsc: Boolean!,
+    $orderType: MoneyUsagesQueryOrderType
 ) {
     user {
         moneyUsages(query: {
@@ -33,7 +35,8 @@ query MonthlyScreenList(
                 sinceDateTime: $sinceDateTime
                 untilDateTime: $untilDateTime
             }
-            isAsc: true
+            isAsc: $isAsc
+            orderType: $orderType
         }) {
             cursor
             hasMore

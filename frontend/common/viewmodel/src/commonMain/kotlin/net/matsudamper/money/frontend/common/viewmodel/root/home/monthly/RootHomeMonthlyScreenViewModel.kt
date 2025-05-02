@@ -1,11 +1,14 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.home.monthly
 
+import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -45,6 +48,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MonthlyScreenListQuery
 import net.matsudamper.money.frontend.graphql.MonthlyScreenQuery
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
+import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryOrderType
 import net.matsudamper.money.frontend.graphql.updateOperation
 
 public class RootHomeMonthlyScreenViewModel(
@@ -124,14 +128,16 @@ public class RootHomeMonthlyScreenViewModel(
                         }
                     }
                     viewModelScope.launch {
-                        graphqlClient.apolloClient.query(getFirstQuery())
-                            .fetchPolicy(FetchPolicy.CacheOnly)
-                            .watch()
-                            .collectLatest { response ->
-                                viewModelStateFlow.value = viewModelStateFlow.value.copy(
-                                    monthlyListResponse = ApolloResponseState.Success(response),
-                                )
-                            }
+                        getFirstQueryFlow().collectLatest { firstQuery ->
+                            graphqlClient.apolloClient.query(firstQuery)
+                                .fetchPolicy(FetchPolicy.CacheFirst)
+                                .watch()
+                                .collectLatest { response ->
+                                    viewModelStateFlow.value = viewModelStateFlow.value.copy(
+                                        monthlyListResponse = ApolloResponseState.Success(response),
+                                    )
+                                }
+                        }
                     }
                 }
 
@@ -244,13 +250,14 @@ public class RootHomeMonthlyScreenViewModel(
     }
 
     private suspend fun fetch() {
-        graphqlClient.apolloClient.updateOperation(getFirstQuery()) update@{ before ->
-            if (before == null) return@update success(fetch(cursor = null))
+        val firstQuery = getFirstQueryFlow().value
+        graphqlClient.apolloClient.updateOperation(firstQuery) update@{ before ->
+            if (before == null) return@update success(fetch(firstQuery = firstQuery, cursor = null))
             if (before.user?.moneyUsages?.hasMore == false) return@update noHasMore()
 
             val cursor = before.user?.moneyUsages?.cursor
 
-            val result = fetch(cursor)
+            val result = fetch(firstQuery = firstQuery, cursor = cursor)
             val newMoneyUsage = result.data?.user?.moneyUsages ?: return@update error()
             success(
                 result.newBuilder()
@@ -273,9 +280,9 @@ public class RootHomeMonthlyScreenViewModel(
         }
     }
 
-    private suspend fun fetch(cursor: String?): ApolloResponse<MonthlyScreenListQuery.Data> {
+    private suspend fun fetch(firstQuery: MonthlyScreenListQuery, cursor: String?): ApolloResponse<MonthlyScreenListQuery.Data> {
         return graphqlClient.apolloClient.query(
-            getFirstQuery().copy(cursor = Optional.present(cursor)),
+            firstQuery.copy(cursor = Optional.present(cursor)),
         ).execute()
     }
 
@@ -293,18 +300,36 @@ public class RootHomeMonthlyScreenViewModel(
         )
     }
 
-    private fun getFirstQuery(): MonthlyScreenListQuery {
-        return MonthlyScreenListQuery(
-            cursor = Optional.present(null),
-            size = 5,
-            sinceDateTime = Optional.present(createSinceLocalDateTime()),
-            untilDateTime = Optional.present(
-                LocalDateTime(
-                    date = createSinceLocalDateTime().date.plus(1, DateTimeUnit.MONTH),
-                    time = createSinceLocalDateTime().time,
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private suspend fun getFirstQueryFlow(): StateFlow<MonthlyScreenListQuery> {
+        return viewModelStateFlow.mapLatest { viewModelState ->
+            MonthlyScreenListQuery(
+                cursor = Optional.present(null),
+                size = 5,
+                sinceDateTime = Optional.present(createSinceLocalDateTime()),
+                untilDateTime = Optional.present(
+                    LocalDateTime(
+                        date = createSinceLocalDateTime().date.plus(1, DateTimeUnit.MONTH),
+                        time = createSinceLocalDateTime().time,
+                    ),
                 ),
-            ),
-        )
+                isAsc = when (viewModelState.sortStateMap.currentSortState.order) {
+                    RootHomeMonthlyScreenUiState.SortOrder.Ascending -> true
+                    RootHomeMonthlyScreenUiState.SortOrder.Descending -> false
+                },
+                orderType = Optional.present(
+                    when (viewModelState.sortStateMap.currentSortState.type) {
+                        RootHomeMonthlyScreenUiState.SortType.Date -> {
+                            MoneyUsagesQueryOrderType.DATE
+                        }
+
+                        RootHomeMonthlyScreenUiState.SortType.Amount -> {
+                            MoneyUsagesQueryOrderType.AMOUNT
+                        }
+                    },
+                ),
+            )
+        }.stateIn(CoroutineScope(coroutineContext))
     }
 
     private fun updateSortType(
