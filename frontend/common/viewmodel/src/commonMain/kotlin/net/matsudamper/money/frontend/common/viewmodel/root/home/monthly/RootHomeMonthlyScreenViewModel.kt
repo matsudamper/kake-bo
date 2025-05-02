@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.DateTimeUnit
@@ -39,6 +40,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.RootHomeMonthlyScreenViewModel.ViewModelState.SortState
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MonthlyScreenListQuery
 import net.matsudamper.money.frontend.graphql.MonthlyScreenQuery
@@ -134,15 +136,14 @@ public class RootHomeMonthlyScreenViewModel(
                 }
 
                 override fun onSortTypeChanged(sortType: RootHomeMonthlyScreenUiState.SortType) {
-                    viewModelScope.launch {
-                        viewModelStateFlow.value = viewModelStateFlow.value.copy(
-                            sortType = sortType,
-                        )
-                    }
+                    updateSortType(sortType)
                 }
 
                 override fun onSortOrderChanged(order: RootHomeMonthlyScreenUiState.SortOrder) {
-
+                    setOrder(
+                        type = viewModelStateFlow.value.sortStateMap.currentSortType,
+                        order = order,
+                    )
                 }
             },
         ),
@@ -172,7 +173,8 @@ public class RootHomeMonthlyScreenViewModel(
                             )
                         }
                     },
-                    currentSortType = viewModelState.sortType,
+                    currentSortType = viewModelState.sortStateMap.currentSortState.type,
+                    sortOrder = viewModelState.sortStateMap.currentSortState.order,
                 )
             }
         }
@@ -305,6 +307,40 @@ public class RootHomeMonthlyScreenViewModel(
         )
     }
 
+    private fun updateSortType(
+        type: RootHomeMonthlyScreenUiState.SortType,
+    ) {
+        viewModelStateFlow.update {
+            it.copy(
+                sortStateMap = it.sortStateMap.copy(
+                    currentSortType = type,
+                ),
+            )
+        }
+    }
+
+    private fun setOrder(
+        type: RootHomeMonthlyScreenUiState.SortType,
+        order: RootHomeMonthlyScreenUiState.SortOrder,
+    ) {
+        viewModelStateFlow.update {
+            it.copy(
+                sortStateMap = it.sortStateMap.copy(
+                    sortStateList = it.sortStateMap.sortStateList.toMutableMap().also { map ->
+                        map[type] = map.getOrPut(key = type) {
+                            SortState(
+                                type = type,
+                                order = order,
+                            )
+                        }.copy(
+                            order = order,
+                        )
+                    },
+                ),
+            )
+        }
+    }
+
     public interface Event {
         public fun navigate(screen: ScreenStructure)
     }
@@ -313,6 +349,34 @@ public class RootHomeMonthlyScreenViewModel(
         val argument: RootHomeScreenStructure.Monthly,
         val monthlyListResponse: ApolloResponseState<ApolloResponse<MonthlyScreenListQuery.Data>> = ApolloResponseState.Loading(),
         val moneyUsageAnalytics: MonthlyScreenQuery.MoneyUsageAnalytics? = null,
-        val sortType: RootHomeMonthlyScreenUiState.SortType = RootHomeMonthlyScreenUiState.SortType.Date,
-    )
+        val sortStateMap: SortStateMap = SortStateMap(),
+    ) {
+        data class SortStateMap(
+            val sortStateList: Map<RootHomeMonthlyScreenUiState.SortType, SortState> = mapOf(),
+            val currentSortType: RootHomeMonthlyScreenUiState.SortType = RootHomeMonthlyScreenUiState.SortType.Date,
+        ) {
+            val currentSortState: SortState = run state@{
+                val current = sortStateList[currentSortType]
+                if (current != null) return@state current
+
+                SortState(
+                    type = currentSortType,
+                    order = when (currentSortType) {
+                        RootHomeMonthlyScreenUiState.SortType.Date -> {
+                            RootHomeMonthlyScreenUiState.SortOrder.Ascending
+                        }
+
+                        RootHomeMonthlyScreenUiState.SortType.Amount -> {
+                            RootHomeMonthlyScreenUiState.SortOrder.Descending
+                        }
+                    },
+                )
+            }
+        }
+
+        data class SortState(
+            val type: RootHomeMonthlyScreenUiState.SortType,
+            val order: RootHomeMonthlyScreenUiState.SortOrder,
+        )
+    }
 }
