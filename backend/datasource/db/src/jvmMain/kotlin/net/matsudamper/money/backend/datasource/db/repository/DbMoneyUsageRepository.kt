@@ -243,7 +243,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                     ids = resultMoneyUsageIds,
                     cursor = run cursor@{
                         when (orderType) {
-                            DATE -> {
+                            MoneyUsageRepository.OrderType.DATE -> {
                                 MoneyUsageRepository.GetMoneyUsageByQueryResult.Cursor(
                                     lastId = cursorLastId ?: return@cursor null,
                                     date = lastDate ?: return@cursor null,
@@ -251,7 +251,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                                 )
                             }
 
-                            AMOUNT -> {
+                            MoneyUsageRepository.OrderType.AMOUNT -> {
                                 MoneyUsageRepository.GetMoneyUsageByQueryResult.Cursor(
                                     lastId = cursorLastId ?: return@cursor null,
                                     date = null,
