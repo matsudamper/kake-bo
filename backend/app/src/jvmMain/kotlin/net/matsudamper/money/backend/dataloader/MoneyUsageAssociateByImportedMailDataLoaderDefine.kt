@@ -38,7 +38,7 @@ class MoneyUsageAssociateByImportedMailDataLoaderDefine(
                     }.flatten()
 
                 keys.associateWith { key ->
-                    val result = results[key] ?: throw IllegalStateException("not result key: $key")
+                    val result = results[key].orEmpty()
                     Result(
                         userId = key.userId,
                         mailIdList = result,
