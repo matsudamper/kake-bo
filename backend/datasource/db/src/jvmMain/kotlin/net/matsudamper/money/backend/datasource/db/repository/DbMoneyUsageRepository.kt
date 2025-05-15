@@ -3,6 +3,7 @@ package net.matsudamper.money.backend.datasource.db.repository
 import java.lang.IllegalStateException
 import java.time.LocalDateTime
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
+import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository.OrderType.*
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
@@ -127,6 +128,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                     .select(
                         jUsage.MONEY_USAGE_ID,
                         jUsage.DATETIME,
+                        jUsage.AMOUNT,
                     )
                     .from(jUsage)
                     .leftJoin(jSubCategory).on(
@@ -142,11 +144,29 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                                     null -> DSL.value(true)
                                     else ->
                                         if (isAsc) {
-                                            DSL.row(jUsage.DATETIME, jUsage.MONEY_USAGE_ID)
-                                                .greaterThan(cursor.date, cursor.lastId.id)
+                                            when (orderType) {
+                                                MoneyUsageRepository.OrderType.DATE -> {
+                                                    DSL.row(jUsage.DATETIME, jUsage.MONEY_USAGE_ID)
+                                                        .greaterThan(cursor.date!!, cursor.lastId.id)
+                                                }
+
+                                                MoneyUsageRepository.OrderType.AMOUNT -> {
+                                                    DSL.row(jUsage.AMOUNT, jUsage.MONEY_USAGE_ID)
+                                                        .greaterThan(cursor.amount!!, cursor.lastId.id)
+                                                }
+                                            }
                                         } else {
-                                            DSL.row(jUsage.DATETIME, jUsage.MONEY_USAGE_ID)
-                                                .lessThan(cursor.date, cursor.lastId.id)
+                                            when (orderType) {
+                                                MoneyUsageRepository.OrderType.DATE -> {
+                                                    DSL.row(jUsage.DATETIME, jUsage.MONEY_USAGE_ID)
+                                                        .lessThan(cursor.date!!, cursor.lastId.id)
+                                                }
+
+                                                MoneyUsageRepository.OrderType.AMOUNT -> {
+                                                    DSL.row(jUsage.AMOUNT, jUsage.MONEY_USAGE_ID)
+                                                        .lessThan(cursor.amount!!, cursor.lastId.id)
+                                                }
+                                            }
                                         }
                                 },
                             )
@@ -217,14 +237,30 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                     MoneyUsageId(result.get(jUsage.MONEY_USAGE_ID)!!)
                 }
                 val lastDate = results.lastOrNull()?.get(jUsage.DATETIME)
+                val lastAmount = results.lastOrNull()?.get(jUsage.AMOUNT)
                 val cursorLastId = resultMoneyUsageIds.lastOrNull()
                 MoneyUsageRepository.GetMoneyUsageByQueryResult.Success(
                     ids = resultMoneyUsageIds,
                     cursor = run cursor@{
-                        MoneyUsageRepository.GetMoneyUsageByQueryResult.Cursor(
-                            lastId = cursorLastId ?: return@cursor null,
-                            date = lastDate ?: return@cursor null,
-                        )
+                        when (orderType) {
+                            DATE -> {
+                                MoneyUsageRepository.GetMoneyUsageByQueryResult.Cursor(
+                                    lastId = cursorLastId ?: return@cursor null,
+                                    date = lastDate ?: return@cursor null,
+                                    amount = null,
+                                )
+
+                            }
+
+                            AMOUNT -> {
+                                MoneyUsageRepository.GetMoneyUsageByQueryResult.Cursor(
+                                    lastId = cursorLastId ?: return@cursor null,
+                                    date = null,
+                                    amount = lastAmount,
+                                )
+
+                            }
+                        }
                     },
                 )
             }

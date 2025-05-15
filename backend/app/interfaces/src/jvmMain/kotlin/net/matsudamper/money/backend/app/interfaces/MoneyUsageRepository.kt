@@ -92,7 +92,8 @@ interface MoneyUsageRepository {
 
         data class Cursor(
             val lastId: MoneyUsageId,
-            val date: LocalDateTime,
+            val date: LocalDateTime? ,
+            val amount: Int?,
         )
     }
 }

@@ -129,6 +129,7 @@ class UserResolverImpl : UserResolver {
                         MoneyUsageRepository.GetMoneyUsageByQueryResult.Cursor(
                             lastId = it.lastId,
                             date = it.lastDate,
+                            amount = it.amount,
                         )
                     },
                     sinceDateTime = query.filter?.sinceDateTime,
@@ -136,10 +137,12 @@ class UserResolverImpl : UserResolver {
                     categoryIds = query.filter?.category.orEmpty(),
                     subCategoryIds = query.filter?.subCategory.orEmpty(),
                     text = query.filter?.text?.takeIf { it.isNotBlank() },
-                    orderType = when(query.orderType) {
+                    orderType = when (query.orderType) {
                         null,
-                        QlMoneyUsagesQueryOrderType.DATE ->
+                        QlMoneyUsagesQueryOrderType.DATE,
+                            ->
                             MoneyUsageRepository.OrderType.DATE
+
                         QlMoneyUsagesQueryOrderType.AMOUNT ->
                             MoneyUsageRepository.OrderType.AMOUNT
                     },
@@ -158,6 +161,7 @@ class UserResolverImpl : UserResolver {
                     MoneyUsagesCursor(
                         lastId = cursor.lastId,
                         lastDate = cursor.date,
+                        amount = cursor.amount,
                     ).toCursorString()
                 },
                 hasMore = result.ids.isNotEmpty(),
