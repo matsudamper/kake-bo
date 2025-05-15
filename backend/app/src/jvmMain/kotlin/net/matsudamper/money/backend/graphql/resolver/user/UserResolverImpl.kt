@@ -140,7 +140,7 @@ class UserResolverImpl : UserResolver {
                     orderType = when (query.orderType) {
                         null,
                         QlMoneyUsagesQueryOrderType.DATE,
-                            ->
+                        ->
                             MoneyUsageRepository.OrderType.DATE
 
                         QlMoneyUsagesQueryOrderType.AMOUNT ->

@@ -3,7 +3,7 @@ package net.matsudamper.money.backend.datasource.db.repository
 import java.lang.IllegalStateException
 import java.time.LocalDateTime
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
-import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository.OrderType.*
+import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository.OrderType
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
@@ -249,7 +249,6 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                                     date = lastDate ?: return@cursor null,
                                     amount = null,
                                 )
-
                             }
 
                             AMOUNT -> {
@@ -258,7 +257,6 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                                     date = null,
                                     amount = lastAmount,
                                 )
-
                             }
                         }
                     },
