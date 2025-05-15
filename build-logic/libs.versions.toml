@@ -6,9 +6,9 @@ activity = "1.10.1"
 appcompat = "1.7.0"
 agp = "8.10.0"
 jackson = "2.18.3"
-compose = "1.8.0-rc01"
+compose = "1.8.0"
 protoBuf = "4.30.2"
-lifecycle = "2.8.7"
+lifecycle = "2.9.0"
 jooq = "3.20.3"
 
 [plugins]
@@ -72,7 +72,7 @@ jackson-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr
 # WebAUth4J
 webauth4jCore = { module = "com.webauthn4j:webauthn4j-core", version.require = "0.29.0.RELEASE" }
 
-opentelemetryApi = { module = "io.opentelemetry:opentelemetry-api", version.require = "1.49.0" }
+opentelemetryApi = { module = "io.opentelemetry:opentelemetry-api", version.require = "1.50.0" }
 
 # Android
 androidActivityActivityCompose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
@@ -105,10 +105,10 @@ graphqlJava = { module = "com.graphql-java:graphql-java", version.require = "23.
 graphqlJavaKickstart-JavaTools = { module = "com.graphql-java-kickstart:graphql-java-tools", version.require = "14.0.1" }
 
 # DataStore
-androidxDatastoreDatastore = { module = "androidx.datastore:datastore", version.require = "1.1.5" }
+androidxDatastoreDatastore = { module = "androidx.datastore:datastore", version.require = "1.1.6" }
 
 # Other
-jedis = { module = "redis.clients:jedis", version.require = "5.2.0" }
+jedis = { module = "redis.clients:jedis", version.require = "6.0.0" }
 jsoup = { module = "org.jsoup:jsoup", version.require = "1.20.1" }
 hikariCP = { module = "com.zaxxer:HikariCP", version.require = "6.3.0" }
 mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.3" }
