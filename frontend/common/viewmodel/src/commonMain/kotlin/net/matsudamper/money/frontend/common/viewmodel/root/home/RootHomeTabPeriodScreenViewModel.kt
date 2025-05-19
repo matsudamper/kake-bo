@@ -152,6 +152,7 @@ public class RootHomeTabPeriodScreenViewModel(
                             year = since.year,
                             month = since.monthNumber,
                         ),
+                        monthCount = current.period,
                     ),
                 )
             }
