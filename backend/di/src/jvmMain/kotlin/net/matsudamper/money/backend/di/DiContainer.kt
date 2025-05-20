@@ -35,6 +35,7 @@ import net.matsudamper.money.backend.datasource.db.repository.DbUserConfigReposi
 import net.matsudamper.money.backend.datasource.db.repository.DbUserLoginRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbUserRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbUserSessionRepository
+import net.matsudamper.money.backend.datasource.session.UserSessionRepositoryProvider
 import net.matsudamper.money.backend.mail.MailRepositoryImpl
 
 interface DiContainer {
@@ -95,10 +96,18 @@ class MainDiContainer : DiContainer {
         )
     }
 
-    private val dbUserSessionRepository = DbUserSessionRepository()
+    private val userSessionRepository: UserSessionRepository = if (ServerEnv.enableRedis) {
+        UserSessionRepositoryProvider.provideRedisRepository(
+            host = ServerEnv.redisHost!!,
+            port = ServerEnv.redisPort!!,
+            index = ServerVariables.REDIS_INDEX_USER_SESSION,
+        )
+    } else {
+        DbUserSessionRepository()
+    }
 
-    override fun createUserSessionRepository(): DbUserSessionRepository {
-        return dbUserSessionRepository
+    override fun createUserSessionRepository(): UserSessionRepository {
+        return userSessionRepository
     }
 
     private val mailFilterRepository = DbMailFilterRepository(dbConnection = DbConnectionImpl)
