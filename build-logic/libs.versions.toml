@@ -105,7 +105,7 @@ graphqlJava = { module = "com.graphql-java:graphql-java", version.require = "24.
 graphqlJavaKickstart-JavaTools = { module = "com.graphql-java-kickstart:graphql-java-tools", version.require = "14.0.1" }
 
 # DataStore
-androidxDatastoreDatastore = { module = "androidx.datastore:datastore", version.require = "1.1.6" }
+androidxDatastoreDatastore = { module = "androidx.datastore:datastore", version.require = "1.1.7" }
 
 # Other
 jedis = { module = "redis.clients:jedis", version.require = "6.0.0" }
