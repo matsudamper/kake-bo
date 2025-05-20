@@ -6,8 +6,11 @@ import java.util.UUID
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
 import net.matsudamper.money.backend.app.interfaces.UserSessionRepository
 import net.matsudamper.money.backend.app.interfaces.element.UserSessionId
+import net.matsudamper.money.backend.base.ObjectMapper
 import net.matsudamper.money.backend.base.ServerVariables
 import net.matsudamper.money.element.UserId
 import redis.clients.jedis.JedisPool
@@ -20,38 +23,30 @@ internal class RedisUserSessionRepository(
 ) : UserSessionRepository {
     private val jedisPool = JedisPool(host, port)
 
-    // Key format: user_session:{sessionId}
-    private fun getSessionKey(sessionId: UserSessionId): String = "user_session:${sessionId.id}"
-
-    // Key format: user_session_by_user:{userId}:{sessionName}
-    private fun getUserSessionKey(userId: UserId, sessionName: String): String = "user_session_by_user:${userId.value}:$sessionName"
-
-    // Key format: user_sessions:{userId}
-    private fun getUserSessionsKey(userId: UserId): String = "user_sessions:${userId.value}"
-
     override fun clearSession(sessionId: UserSessionId) {
         useJedis { jedis ->
-            // Get user ID and session name before deleting
             val sessionKey = getSessionKey(sessionId)
-            val sessionData = jedis.get(sessionKey)
+            val jsonData = jedis.get(sessionKey)
 
-            if (sessionData != null) {
-                val parts = sessionData.split("|")
-                if (parts.size >= 2) {
-                    val userId = UserId(parts[0].toInt())
-                    val sessionName = parts[1]
+            if (jsonData != null) {
+                val sessionData = try {
+                    ObjectMapper.kotlinxSerialization.decodeFromString<SessionData>(jsonData)
+                } catch (e: Exception) {
+                    null
+                }
 
-                    // Remove from user's sessions list
+                if (sessionData != null) {
+                    val userId = UserId(sessionData.userId)
+                    val sessionName = sessionData.sessionName
+
                     jedis.srem(getUserSessionsKey(userId), sessionId.id)
 
-                    // Remove user session mapping
                     if (sessionName.isNotEmpty()) {
                         jedis.del(getUserSessionKey(userId, sessionName))
                     }
                 }
             }
 
-            // Delete the session
             jedis.del(sessionKey)
         }
     }
@@ -61,23 +56,27 @@ internal class RedisUserSessionRepository(
         val now = LocalDateTime.now(ZoneOffset.UTC)
 
         useJedis { jedis ->
-            // Store session data: userId|sessionName
+            val sessionData = SessionData(
+                userId = userId.value,
+                latestAccess = now.toString()
+            )
+
+            val jsonData = ObjectMapper.kotlinxSerialization.encodeToString(sessionData)
+
             val sessionKey = getSessionKey(sessionId)
             jedis.set(
                 sessionKey,
-                "${userId.value}||",
+                jsonData,
                 SetParams().ex(ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60) // Convert days to seconds
             )
 
-            // Add to user's sessions list
             jedis.sadd(getUserSessionsKey(userId), sessionId.id)
-            // Set expiration on the user's sessions list too
             jedis.expire(getUserSessionsKey(userId), ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
         }
 
         return UserSessionRepository.CreateSessionResult(
             sessionId = sessionId,
-            latestAccess = now, // Still return current time for API compatibility
+            latestAccess = now,
         )
     }
 
@@ -89,21 +88,21 @@ internal class RedisUserSessionRepository(
 
         return useJedis { jedis ->
             val sessionKey = getSessionKey(sessionId)
-            val sessionData = jedis.get(sessionKey) ?: return@useJedis UserSessionRepository.VerifySessionResult.Failure
+            val jsonData = jedis.get(sessionKey) ?: return@useJedis UserSessionRepository.VerifySessionResult.Failure
 
-            val parts = sessionData.split("|")
-            if (parts.size < 2) return@useJedis UserSessionRepository.VerifySessionResult.Failure
+            val sessionData = try {
+                ObjectMapper.kotlinxSerialization.decodeFromString<SessionData>(jsonData)
+            } catch (e: Exception) {
+                return@useJedis UserSessionRepository.VerifySessionResult.Failure
+            }
 
-            val userId = UserId(parts[0].toInt())
-            val sessionName = parts[1]
+            val userId = UserId(sessionData.userId)
+            val sessionName = sessionData.sessionName
 
-            // Refresh expiration time
             jedis.expire(sessionKey, ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
 
-            // Also refresh user sessions list expiration
             jedis.expire(getUserSessionsKey(userId), ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
 
-            // If there's a session name, refresh its expiration too
             if (sessionName.isNotEmpty()) {
                 jedis.expire(getUserSessionKey(userId, sessionName), ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
             }
@@ -111,7 +110,7 @@ internal class RedisUserSessionRepository(
             UserSessionRepository.VerifySessionResult.Success(
                 userId = userId,
                 sessionId = sessionId,
-                latestAccess = now, // Still return current time for API compatibility
+                latestAccess = now,
             )
         }
     }
@@ -119,18 +118,19 @@ internal class RedisUserSessionRepository(
     override fun getSessionInfo(sessionId: UserSessionId): UserSessionRepository.SessionInfo? {
         return useJedis { jedis ->
             val sessionKey = getSessionKey(sessionId)
-            val sessionData = jedis.get(sessionKey) ?: return@useJedis null
+            val jsonData = jedis.get(sessionKey) ?: return@useJedis null
 
-            val parts = sessionData.split("|")
-            if (parts.size < 2) return@useJedis null
+            val sessionData = try {
+                ObjectMapper.kotlinxSerialization.decodeFromString<SessionData>(jsonData)
+            } catch (e: Exception) {
+                return@useJedis null
+            }
 
-            val sessionName = parts[1]
-            // We no longer store latest access time, so use current time
             val now = LocalDateTime.now(ZoneOffset.UTC)
 
             UserSessionRepository.SessionInfo(
-                name = sessionName,
-                latestAccess = now, // Use current time for API compatibility
+                name = sessionData.sessionName,
+                latestAccess = now,
             )
         }
     }
@@ -143,16 +143,17 @@ internal class RedisUserSessionRepository(
 
             sessionIds.mapNotNull { sessionIdStr ->
                 val sessionKey = getSessionKey(UserSessionId(sessionIdStr))
-                val sessionData = jedis.get(sessionKey) ?: return@mapNotNull null
+                val jsonData = jedis.get(sessionKey) ?: return@mapNotNull null
 
-                val parts = sessionData.split("|")
-                if (parts.size < 2) return@mapNotNull null
-
-                val sessionName = parts[1]
+                val sessionData = try {
+                    ObjectMapper.kotlinxSerialization.decodeFromString<SessionData>(jsonData)
+                } catch (e: Exception) {
+                    return@mapNotNull null
+                }
 
                 UserSessionRepository.SessionInfo(
-                    name = sessionName,
-                    latestAccess = now, // Use current time for API compatibility
+                    name = sessionData.sessionName,
+                    latestAccess = now,
                 )
             }
         }
@@ -184,25 +185,33 @@ internal class RedisUserSessionRepository(
     ): UserSessionRepository.SessionInfo? {
         return useJedis { jedis ->
             val sessionKey = getSessionKey(sessionId)
-            val sessionData = jedis.get(sessionKey) ?: return@useJedis null
+            val jsonData = jedis.get(sessionKey) ?: return@useJedis null
 
-            val parts = sessionData.split("|")
-            if (parts.size < 3) return@useJedis null
+            val sessionData = try {
+                ObjectMapper.kotlinxSerialization.decodeFromString<SessionData>(jsonData)
+            } catch (e: Exception) {
+                return@useJedis null
+            }
 
-            val userId = UserId(parts[0].toInt())
-            val oldName = parts[1]
-            val latestAccess = LocalDateTime.parse(parts[2])
+            val userId = UserId(sessionData.userId)
+            val oldName = sessionData.sessionName
+            val latestAccess = try {
+                LocalDateTime.parse(sessionData.latestAccess)
+            } catch (e: Exception) {
+                LocalDateTime.now(ZoneOffset.UTC)
+            }
 
-            // Remove old name mapping if it exists
             if (oldName.isNotEmpty()) {
                 jedis.del(getUserSessionKey(userId, oldName))
             }
 
-            // Add new name mapping
             jedis.set(getUserSessionKey(userId, name), sessionId.id)
 
-            // Update session data
-            jedis.set(sessionKey, "${userId.value}|$name|$latestAccess")
+            val updatedSessionData = sessionData.copy(sessionName = name)
+
+            val updatedJsonData = ObjectMapper.kotlinxSerialization.encodeToString(updatedSessionData)
+
+            jedis.set(sessionKey, updatedJsonData)
 
             UserSessionRepository.SessionInfo(
                 name = name,
@@ -221,4 +230,17 @@ internal class RedisUserSessionRepository(
             return block(jedis)
         }
     }
+
+    private fun getSessionKey(sessionId: UserSessionId): String = "user_session:${sessionId.id}"
+
+    private fun getUserSessionKey(userId: UserId, sessionName: String): String = "user_session_by_user:${userId.value}:$sessionName"
+
+    private fun getUserSessionsKey(userId: UserId): String = "user_sessions:${userId.value}"
+
+    @Serializable
+    private data class SessionData(
+        val userId: Int,
+        val sessionName: String = "",
+        val latestAccess: String = LocalDateTime.now(ZoneOffset.UTC).toString()
+    )
 }
