@@ -94,7 +94,6 @@ public data class RootHomeTabPeriodAndCategoryUiState(
 @Composable
 public fun RootHomeTabPeriodScaffold(
     uiState: RootHomeTabPeriodAndCategoryUiState,
-    homeUiState: RootHomeTabScreenScaffoldUiState,
     scaffoldListener: RootScreenScaffoldListener,
     modifier: Modifier = Modifier,
     menu: @Composable () -> Unit = {},
@@ -105,13 +104,9 @@ public fun RootHomeTabPeriodScaffold(
     LaunchedEffect(uiState.event) {
         uiState.event.onViewInitialized()
     }
-    LaunchedEffect(homeUiState.event) {
-        homeUiState.event.onViewInitialized()
-    }
 
     RootHomeTabScreenScaffold(
         modifier = modifier,
-        uiState = homeUiState,
         scaffoldListener = scaffoldListener,
         menu = menu,
         windowInsets = windowInsets,

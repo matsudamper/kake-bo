@@ -28,37 +28,14 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 
-public data class RootHomeTabScreenScaffoldUiState(
-    val contentType: ContentType,
-    val event: Event,
-) {
-    public enum class ContentType {
-        Period,
-        Monthly,
-    }
-
-    @Immutable
-    public interface Event {
-        public fun onViewInitialized()
-
-        public fun onClickPeriod()
-
-        public fun onClickMonth()
-    }
-}
-
 @Composable
 public fun RootHomeTabScreenScaffold(
-    uiState: RootHomeTabScreenScaffoldUiState,
     scaffoldListener: RootScreenScaffoldListener,
     modifier: Modifier = Modifier,
     menu: @Composable () -> Unit = {},
     windowInsets: PaddingValues,
     content: @Composable () -> Unit,
 ) {
-    LaunchedEffect(uiState.event) {
-        uiState.event.onViewInitialized()
-    }
     RootScreenScaffold(
         modifier = modifier.fillMaxSize(),
         currentScreen = RootScreenTab.Home,
@@ -83,72 +60,11 @@ public fun RootHomeTabScreenScaffold(
                         menu()
                     }
                 },
-                menu = {
-                    Menu(
-                        modifier = Modifier.padding(horizontal = 12.dp),
-                        contentType = uiState.contentType,
-                        onClickPeriod = uiState.event::onClickPeriod,
-                        onClickMonth = uiState.event::onClickMonth,
-                    )
-                },
+                menu = {},
             )
         },
         content = {
             content()
         },
     )
-}
-
-@Composable
-private fun Menu(
-    modifier: Modifier = Modifier,
-    contentType: RootHomeTabScreenScaffoldUiState.ContentType,
-    onClickPeriod: () -> Unit,
-    onClickMonth: () -> Unit,
-) {
-    var expanded by remember { mutableStateOf(false) }
-    Box(modifier = modifier) {
-        DropDownMenuButton(
-            modifier = Modifier
-                .semantics(true) {
-                    contentDescription = "表示タイプ変更"
-                }
-                .align(Alignment.CenterEnd),
-            onClick = { expanded = !expanded },
-        ) {
-            when (contentType) {
-                RootHomeTabScreenScaffoldUiState.ContentType.Period -> {
-                    Text(text = "期間")
-                }
-
-                RootHomeTabScreenScaffoldUiState.ContentType.Monthly -> {
-                    Text(text = "月別")
-                }
-            }
-        }
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-        ) {
-            DropdownMenuItem(
-                onClick = {
-                    expanded = false
-                    onClickPeriod()
-                },
-                text = {
-                    Text(text = "期間")
-                },
-            )
-            DropdownMenuItem(
-                onClick = {
-                    expanded = false
-                    onClickMonth()
-                },
-                text = {
-                    Text(text = "月別")
-                },
-            )
-        }
-    }
 }

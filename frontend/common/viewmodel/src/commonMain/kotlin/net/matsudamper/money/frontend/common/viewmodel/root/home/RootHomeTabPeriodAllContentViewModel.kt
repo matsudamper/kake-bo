@@ -48,20 +48,6 @@ public class RootHomeTabPeriodAllContentViewModel(
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState())
     private val reservedColorModel = ReservedColorModel()
 
-    private val tabViewModel = RootHomeTabScreenViewModel(
-        scopedObjectFeature = scopedObjectFeature,
-        loginCheckUseCase = loginCheckUseCase,
-    ).also { viewModel ->
-        viewModelScope.launch {
-            viewModel.viewModelEventHandler.collect(
-                object : RootHomeTabScreenViewModel.Event {
-                    override fun navigate(screen: ScreenStructure) {
-                        viewModelScope.launch { eventSender.send { it.navigate(screen) } }
-                    }
-                },
-            )
-        }
-    }
     private val periodViewModel = RootHomeTabPeriodScreenViewModel(
         scopedObjectFeature = scopedObjectFeature,
         api = RootHomeTabScreenApi(graphqlClient = graphqlClient),
@@ -125,7 +111,6 @@ public class RootHomeTabPeriodAllContentViewModel(
         RootHomeTabPeriodAllContentUiState(
             loadingState = RootHomeTabPeriodAllContentUiState.LoadingState.Loading,
             rootHomeTabPeriodAndCategoryUiState = periodViewModel.uiStateFlow.value,
-            rootHomeTabUiState = tabViewModel.uiStateFlow.value,
             scaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
                 override fun onClickHome() {
                     if (PlatformTypeProvider.type == PlatformType.JS) {
@@ -153,13 +138,7 @@ public class RootHomeTabPeriodAllContentViewModel(
         ),
     ).also { uiStateFlow ->
         viewModelScope.launch {
-            tabViewModel.uiStateFlow.collectLatest { tabUiState ->
-                uiStateFlow.update { uiState ->
-                    uiState.copy(
-                        rootHomeTabUiState = tabUiState,
-                    )
-                }
-            }
+            loginCheckUseCase.check()
         }
         viewModelScope.launch {
             periodViewModel.uiStateFlow.collectLatest { periodUiState ->

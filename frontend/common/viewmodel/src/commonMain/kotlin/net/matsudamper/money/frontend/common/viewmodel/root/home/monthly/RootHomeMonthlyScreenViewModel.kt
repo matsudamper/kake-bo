@@ -42,7 +42,6 @@ import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListene
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
-import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.RootHomeMonthlyScreenViewModel.ViewModelState.SortState
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MonthlyScreenListQuery
@@ -69,20 +68,6 @@ public class RootHomeMonthlyScreenViewModel(
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
-    private val tabViewModel = RootHomeTabScreenViewModel(
-        scopedObjectFeature = scopedObjectFeature,
-        loginCheckUseCase = loginCheckUseCase,
-    ).also { viewModel ->
-        viewModelScope.launch {
-            viewModel.viewModelEventHandler.collect(
-                object : RootHomeTabScreenViewModel.Event {
-                    override fun navigate(screen: ScreenStructure) {
-                        viewModelScope.launch { eventSender.send { it.navigate(screen) } }
-                    }
-                },
-            )
-        }
-    }
     private val loadedEvent = object : RootHomeMonthlyScreenUiState.LoadedEvent {
         override fun loadMore() {
             viewModelScope.launch { fetch() }
@@ -92,7 +77,6 @@ public class RootHomeMonthlyScreenViewModel(
     public val uiStateFlow: StateFlow<RootHomeMonthlyScreenUiState> = MutableStateFlow(
         RootHomeMonthlyScreenUiState(
             loadingState = RootHomeMonthlyScreenUiState.LoadingState.Loading,
-            rootHomeTabUiState = tabViewModel.uiStateFlow.value,
             currentSortType = RootHomeMonthlyScreenUiState.SortType.Date,
             sortOrder = RootHomeMonthlyScreenUiState.SortOrder.Ascending,
             scaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
@@ -155,11 +139,7 @@ public class RootHomeMonthlyScreenViewModel(
         ),
     ).also { uiStateFlow ->
         viewModelScope.launch {
-            tabViewModel.uiStateFlow.collectLatest { rootHomeTabUiState ->
-                uiStateFlow.value = uiStateFlow.value.copy(
-                    rootHomeTabUiState = rootHomeTabUiState,
-                )
-            }
+            loginCheckUseCase.check()
         }
         viewModelScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
@@ -242,7 +222,6 @@ public class RootHomeMonthlyScreenViewModel(
 
     public fun updateStructure(current: RootHomeScreenStructure.Monthly) {
         viewModelStateFlow.value = viewModelStateFlow.value.copy(argument = current)
-        tabViewModel.updateScreenStructure(current)
 
         viewModelScope.launch {
             fetch()

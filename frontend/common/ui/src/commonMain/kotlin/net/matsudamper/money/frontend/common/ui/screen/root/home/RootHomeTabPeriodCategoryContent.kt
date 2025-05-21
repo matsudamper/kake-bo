@@ -28,7 +28,6 @@ import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
 
 public data class RootHomeTabPeriodCategoryContentUiState(
     val loadingState: LoadingState,
-    val rootHomeTabUiState: RootHomeTabScreenScaffoldUiState,
     val rootHomeTabPeriodAndCategoryUiState: RootHomeTabPeriodAndCategoryUiState,
     val rootScaffoldListener: RootScreenScaffoldListener,
     val event: Event,
@@ -61,7 +60,6 @@ public fun RootHomeTabPeriodCategoryScreen(
     val savedState = rememberSaveableStateHolder(id = "RootHomeTabPeriodCategoryScreen")
     RootHomeTabPeriodScaffold(
         uiState = uiState.rootHomeTabPeriodAndCategoryUiState,
-        homeUiState = uiState.rootHomeTabUiState,
         scaffoldListener = uiState.rootScaffoldListener,
         modifier = Modifier.fillMaxSize(),
         onRefresh = {

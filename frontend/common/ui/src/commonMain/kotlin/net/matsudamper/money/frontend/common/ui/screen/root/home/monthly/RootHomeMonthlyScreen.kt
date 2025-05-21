@@ -41,7 +41,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlin.math.max
@@ -51,11 +50,9 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreenScaffold
-import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreenScaffoldUiState
 
 public data class RootHomeMonthlyScreenUiState(
     val loadingState: LoadingState,
-    val rootHomeTabUiState: RootHomeTabScreenScaffoldUiState,
     val scaffoldListener: RootScreenScaffoldListener,
     val event: Event,
     val currentSortType: SortType,
@@ -121,7 +118,6 @@ public fun RootHomeMonthlyScreen(
         uiState.event.onViewInitialized()
     }
     RootHomeTabScreenScaffold(
-        uiState = uiState.rootHomeTabUiState,
         scaffoldListener = uiState.scaffoldListener,
         modifier = modifier,
         content = {
