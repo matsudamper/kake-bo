@@ -7,11 +7,10 @@ import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
 
 public data class RootHomeTabPeriodSubCategoryContentUiState(
     val loadingState: LoadingState,
-    val rootHomeTabPeriodAndCategoryUiState: RootHomeTabPeriodAndCategoryUiState,
-    val rootHomeTabUiState: RootHomeTabScreenScaffoldUiState,
     val rootScaffoldListener: RootScreenScaffoldListener,
     val event: Event,
 ) {
+
     @Immutable
     public sealed interface LoadingState {
         public data class Loaded(

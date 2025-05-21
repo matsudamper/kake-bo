@@ -265,15 +265,14 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                                     eventSender.send { event ->
                                         event.navigate(
                                             RootHomeScreenStructure.PeriodSubCategory(
-                                                categoryId = categoryId,
-                                                subCategoryId = it.id.id.toString().toInt(),
+                                                subCategoryId = it.id,
                                                 since = LocalDate(
                                                     year = viewModelStateFlow.value.displayPeriod.sinceDate.year,
                                                     monthNumber = viewModelStateFlow.value.displayPeriod.sinceDate.month,
-                                                    dayOfMonth = 1
+                                                    dayOfMonth = 1,
                                                 ),
-                                                period = viewModelStateFlow.value.displayPeriod.monthCount
-                                            )
+                                                period = viewModelStateFlow.value.displayPeriod.monthCount,
+                                            ),
                                         )
                                     }
                                 }

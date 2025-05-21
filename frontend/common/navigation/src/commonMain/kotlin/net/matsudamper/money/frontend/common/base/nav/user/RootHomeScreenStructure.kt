@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.base.nav.user
 
 import kotlinx.datetime.LocalDate
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 
 public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
     override val stackGroupId: Any get() = RootHomeScreenStructure::class
@@ -113,11 +114,10 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
     }
 
     public data class PeriodSubCategory(
-        val categoryId: MoneyUsageCategoryId,
-        val subCategoryId: Int,
-        override val period: Int,
-        override val since: LocalDate? = null,
-    ) : Period {
+        val subCategoryId: MoneyUsageSubCategoryId,
+        val period: Int,
+        val since: LocalDate? = null,
+    ) : RootHomeScreenStructure {
         override val direction: Screens = Screens.HomePeriodSubCategory
 
         override fun createUrl(): String {
@@ -138,8 +138,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
                 )
             }
             return direction.placeholderUrl
-                .replace("{categoryId}", categoryId.value.toString())
-                .replace("{subCategoryId}", subCategoryId.toString())
+                .replace("{subCategoryId}", subCategoryId.id.toString())
                 .plus(urlParam)
         }
 
@@ -151,12 +150,10 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
                 pathParams: Map<String, String>,
                 queryParams: Map<String, List<String>>,
             ): PeriodSubCategory? {
-                val categoryId = pathParams["categoryId"]?.toIntOrNull() ?: return null
                 val subCategoryId = pathParams["subCategoryId"]?.toIntOrNull() ?: return null
 
                 return PeriodSubCategory(
-                    categoryId = MoneyUsageCategoryId(categoryId),
-                    subCategoryId = subCategoryId,
+                    subCategoryId = MoneyUsageSubCategoryId(subCategoryId),
                     since = queryParams[SINCE_KEY]?.firstOrNull()
                         ?.let { LocalDate.parse("$it-01") },
                     period = queryParams[PERIOD_KEY]?.firstOrNull()?.toIntOrNull() ?: 3,

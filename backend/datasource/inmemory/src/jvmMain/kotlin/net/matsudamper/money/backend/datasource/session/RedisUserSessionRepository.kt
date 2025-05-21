@@ -69,7 +69,7 @@ internal class RedisUserSessionRepository(
             jedis.set(
                 sessionKey,
                 jsonData,
-                SetParams().ex(ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60), // Convert days to seconds
+                SetParams().ex(ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60),
             )
 
             jedis.sadd(getUserSessionsKey(userId), sessionId.id)

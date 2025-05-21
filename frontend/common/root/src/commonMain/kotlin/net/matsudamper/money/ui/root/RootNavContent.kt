@@ -35,7 +35,6 @@ import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostS
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.LocalGlobalEventHandlerLoginCheckUseCaseDelegate
-import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodCategoryContentViewModel
@@ -144,31 +143,26 @@ internal fun RootNavContent(
                                     windowInsets = windowInsets,
                                 )
                             }
-
-                            is RootHomeScreenStructure.PeriodSubCategory -> {
-                                val subCategoryViewModel = LocalScopedObjectStore.current.putOrGet(Unit) {
-                                    RootHomeTabPeriodSubCategoryContentViewModel(
-                                        initialCategoryId = current.categoryId,
-                                        initialSubCategoryId = current.subCategoryId,
-                                        scopedObjectFeature = it,
-                                        api = RootHomeTabScreenApi(
-                                            graphqlClient = koin.get(),
-                                        ),
-                                        loginCheckUseCase = loginCheckUseCase,
-                                        graphqlClient = koin.get(),
-                                        navController = navController,
-                                    )
-                                }
-                                LaunchedEffect(subCategoryViewModel, current) {
-                                    subCategoryViewModel.updateStructure(current)
-                                }
-                                RootHomeTabPeriodSubCategoryScreen(
-                                    modifier = Modifier.fillMaxSize(),
-                                    uiState = subCategoryViewModel.uiStateFlow.collectAsState().value,
-                                    windowInsets = windowInsets,
-                                )
-                            }
                         }
+                    }
+
+                    is RootHomeScreenStructure.PeriodSubCategory -> {
+                        val subCategoryViewModel = LocalScopedObjectStore.current.putOrGet(Unit) {
+                            RootHomeTabPeriodSubCategoryContentViewModel(
+                                initialSubCategoryId = current.subCategoryId,
+                                scopedObjectFeature = it,
+                                loginCheckUseCase = loginCheckUseCase,
+                                navController = navController,
+                            )
+                        }
+                        LaunchedEffect(subCategoryViewModel.eventHandler) {
+                            viewModelEventHandlers.handleRootHomeTabPeriodSubCategoryContent(subCategoryViewModel.eventHandler)
+                        }
+                        RootHomeTabPeriodSubCategoryScreen(
+                            modifier = Modifier.fillMaxSize(),
+                            uiState = subCategoryViewModel.uiStateFlow.collectAsState().value,
+                            windowInsets = windowInsets,
+                        )
                     }
 
                     is RootHomeScreenStructure.MonthlyCategory -> {

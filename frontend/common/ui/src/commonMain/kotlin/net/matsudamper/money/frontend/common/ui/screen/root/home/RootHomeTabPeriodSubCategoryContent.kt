@@ -21,10 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolder
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraph
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,14 +33,9 @@ public fun RootHomeTabPeriodSubCategoryScreen(
     windowInsets: PaddingValues,
 ) {
     val savedState = rememberSaveableStateHolder(id = "RootHomeTabPeriodSubCategoryScreen")
-    RootHomeTabPeriodScaffold(
-        uiState = uiState.rootHomeTabPeriodAndCategoryUiState,
-        homeUiState = uiState.rootHomeTabUiState,
+    RootHomeTabScreenScaffold(
         scaffoldListener = uiState.rootScaffoldListener,
         modifier = Modifier.fillMaxSize(),
-        onRefresh = {
-            uiState.event.refresh()
-        },
         content = {
             when (val loadingState = uiState.loadingState) {
                 is RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Loaded -> {
@@ -85,7 +78,7 @@ private fun LoadedContent(
             text = "サブカテゴリ: ${loadingState.subCategoryName}",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
         )
 
         Spacer(modifier = Modifier.height(12.dp))
