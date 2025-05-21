@@ -112,6 +112,59 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
         }
     }
 
+    public data class PeriodSubCategory(
+        val categoryId: MoneyUsageCategoryId,
+        val subCategoryId: Int,
+        override val period: Int,
+        override val since: LocalDate? = null,
+    ) : Period {
+        override val direction: Screens = Screens.HomePeriodSubCategory
+
+        override fun createUrl(): String {
+            val urlParam = buildParameter {
+                if (since != null) {
+                    append(
+                        SINCE_KEY,
+                        buildString {
+                            append(since.year)
+                            append("-")
+                            append(since.monthNumber.toString().padStart(2, '0'))
+                        },
+                    )
+                }
+                append(
+                    PERIOD_KEY,
+                    period.toString(),
+                )
+            }
+            return direction.placeholderUrl
+                .replace("{categoryId}", categoryId.value.toString())
+                .replace("{subCategoryId}", subCategoryId.toString())
+                .plus(urlParam)
+        }
+
+        public companion object {
+            private const val SINCE_KEY = "since"
+            private const val PERIOD_KEY = "period"
+
+            public fun create(
+                pathParams: Map<String, String>,
+                queryParams: Map<String, List<String>>,
+            ): PeriodSubCategory? {
+                val categoryId = pathParams["categoryId"]?.toIntOrNull() ?: return null
+                val subCategoryId = pathParams["subCategoryId"]?.toIntOrNull() ?: return null
+
+                return PeriodSubCategory(
+                    categoryId = MoneyUsageCategoryId(categoryId),
+                    subCategoryId = subCategoryId,
+                    since = queryParams[SINCE_KEY]?.firstOrNull()
+                        ?.let { LocalDate.parse("$it-01") },
+                    period = queryParams[PERIOD_KEY]?.firstOrNull()?.toIntOrNull() ?: 3,
+                )
+            }
+        }
+    }
+
     public data class Monthly(
         val date: LocalDate? = null,
     ) : RootHomeScreenStructure {

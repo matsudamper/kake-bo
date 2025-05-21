@@ -143,6 +143,19 @@ public class RootHomeTabPeriodScreenViewModel(
                     )
                 }
             }
+
+            is RootHomeScreenStructure.PeriodSubCategory -> {
+                viewModelStateFlow.update { viewModelState ->
+                    val category = viewModelState.categories.firstOrNull { it.id == current.categoryId }
+                        ?: return@update viewModelState
+                    viewModelState.copy(
+                        contentType = ViewModelState.ContentType.Category(
+                            categoryId = category.id,
+                            name = category.name,
+                        ),
+                    )
+                }
+            }
         }
         if (since != null) {
             viewModelStateFlow.update { viewModelState ->

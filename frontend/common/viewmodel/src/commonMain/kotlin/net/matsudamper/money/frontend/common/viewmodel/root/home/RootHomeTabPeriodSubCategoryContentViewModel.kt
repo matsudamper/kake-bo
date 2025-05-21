@@ -23,7 +23,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.GraphTitleChipUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAndCategoryUiState
-import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodCategoryContentUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodSubCategoryContentUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.PlatformType
@@ -37,8 +37,9 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByCategoryQuery
 
-public class RootHomeTabPeriodCategoryContentViewModel(
+public class RootHomeTabPeriodSubCategoryContentViewModel(
     initialCategoryId: MoneyUsageCategoryId,
+    initialSubCategoryId: Int,
     scopedObjectFeature: ScopedObjectFeature,
     private val api: RootHomeTabScreenApi,
     graphqlClient: GraphqlClient,
@@ -46,8 +47,27 @@ public class RootHomeTabPeriodCategoryContentViewModel(
     navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val reservedColorModel = ReservedColorModel()
-    private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(ViewModelState(categoryId = initialCategoryId))
+    private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
+        ViewModelState(
+            categoryId = initialCategoryId,
+            subCategoryId = initialSubCategoryId
+        )
+    )
 
+    private val tabViewModel = RootHomeTabScreenViewModel(
+        scopedObjectFeature = scopedObjectFeature,
+        loginCheckUseCase = loginCheckUseCase,
+    ).also { viewModel ->
+        viewModelScope.launch {
+            viewModel.viewModelEventHandler.collect(
+                object : RootHomeTabScreenViewModel.Event {
+                    override fun navigate(screen: ScreenStructure) {
+                        viewModelScope.launch { eventSender.send { it.navigate(screen) } }
+                    }
+                },
+            )
+        }
+    }
     private val periodViewModel = RootHomeTabPeriodScreenViewModel(
         scopedObjectFeature = scopedObjectFeature,
         api = RootHomeTabScreenApi(graphqlClient = graphqlClient),
@@ -110,10 +130,11 @@ public class RootHomeTabPeriodCategoryContentViewModel(
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
-    public val uiStateFlow: StateFlow<RootHomeTabPeriodCategoryContentUiState> = MutableStateFlow(
-        RootHomeTabPeriodCategoryContentUiState(
-            loadingState = RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading,
+    public val uiStateFlow: StateFlow<RootHomeTabPeriodSubCategoryContentUiState> = MutableStateFlow(
+        RootHomeTabPeriodSubCategoryContentUiState(
+            loadingState = RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Loading,
             rootHomeTabPeriodAndCategoryUiState = periodViewModel.uiStateFlow.value,
+            rootHomeTabUiState = tabViewModel.uiStateFlow.value,
             rootScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
                 override fun onClickHome() {
                     if (PlatformTypeProvider.type == PlatformType.JS) {
@@ -121,7 +142,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                     }
                 }
             },
-            event = object : RootHomeTabPeriodCategoryContentUiState.Event {
+            event = object : RootHomeTabPeriodSubCategoryContentUiState.Event {
                 override suspend fun onViewInitialized() {
                     fetchCategory(
                         period = viewModelStateFlow.value.displayPeriod,
@@ -140,7 +161,13 @@ public class RootHomeTabPeriodCategoryContentViewModel(
         ),
     ).also { uiStateFlow ->
         viewModelScope.launch {
-            loginCheckUseCase.check()
+            tabViewModel.uiStateFlow.collectLatest { tabUiState ->
+                uiStateFlow.update { uiState ->
+                    uiState.copy(
+                        rootHomeTabUiState = tabUiState,
+                    )
+                }
+            }
         }
         viewModelScope.launch {
             periodViewModel.uiStateFlow.collectLatest { periodUiState ->
@@ -158,8 +185,9 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                 }
                 uiStateFlow.update {
                     it.copy(
-                        loadingState = createCategoryUiState(
+                        loadingState = createSubCategoryUiState(
                             categoryId = viewModelState.categoryId,
+                            subCategoryId = viewModelState.subCategoryId,
                             displayPeriods = displayPeriods,
                             categoryResponseMap = viewModelState.categoryResponseMap,
                         ),
@@ -169,13 +197,14 @@ public class RootHomeTabPeriodCategoryContentViewModel(
         }
     }.asStateFlow()
 
-    public fun updateStructure(current: RootHomeScreenStructure.PeriodCategory) {
+    public fun updateStructure(current: RootHomeScreenStructure.PeriodSubCategory) {
         val since = current.since
 
         periodViewModel.updateScreenStructure(current)
         viewModelStateFlow.update { viewModelState ->
             viewModelState.copy(
                 categoryId = current.categoryId,
+                subCategoryId = current.subCategoryId,
                 displayPeriod = viewModelState.displayPeriod.copy(
                     sinceDate = run since@{
                         if (since != null) {
@@ -197,13 +226,14 @@ public class RootHomeTabPeriodCategoryContentViewModel(
         )
     }
 
-    private fun createCategoryUiState(
+    private fun createSubCategoryUiState(
         categoryId: MoneyUsageCategoryId,
+        subCategoryId: Int,
         displayPeriods: List<ViewModelState.YearMonth>,
         categoryResponseMap: Map<ViewModelState.YearMonthCategory, ApolloResponse<RootHomeTabScreenAnalyticsByCategoryQuery.Data>?>,
-    ): RootHomeTabPeriodCategoryContentUiState.LoadingState {
+    ): RootHomeTabPeriodSubCategoryContentUiState.LoadingState {
         val loadingState = run loadingState@{
-            RootHomeTabPeriodCategoryContentUiState.LoadingState.Loaded(
+            RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Loaded(
                 graphItems = BarGraphUiState(
                     items = displayPeriods.map { yearMonth ->
                         val key = ViewModelState.YearMonthCategory(
@@ -211,22 +241,25 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                             yearMonth = yearMonth,
                         )
                         val apolloResult = categoryResponseMap[key]
-                            ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading
-                        val amount = apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.totalAmount
-                            ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
+                            ?: return@loadingState RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Loading
+
                         val subCategory = apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.bySubCategories
-                            ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
+                            ?.firstOrNull { it.subCategory.id.toString() == subCategoryId.toString() }
+                            ?: return@loadingState RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Error
+
+                        val amount = subCategory.totalAmount
+                            ?: return@loadingState RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Error
 
                         BarGraphUiState.PeriodData(
                             year = yearMonth.year,
                             month = yearMonth.month,
-                            items = subCategory.map { bySubCategory ->
+                            items = listOf(
                                 BarGraphUiState.Item(
-                                    color = reservedColorModel.getColor(bySubCategory.subCategory.id.toString()),
-                                    title = bySubCategory.subCategory.name,
-                                    value = bySubCategory.totalAmount ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error,
+                                    color = reservedColorModel.getColor(subCategory.subCategory.id.toString()),
+                                    title = subCategory.subCategory.name,
+                                    value = amount,
                                 )
-                            }.toImmutableList(),
+                            ).toImmutableList(),
                             total = amount,
                             event = object : BarGraphUiState.PeriodDataEvent {
                                 override fun onClick() {
@@ -251,33 +284,18 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                         categoryId = categoryId,
                         yearMonth = yearMonth,
                     )
-                    val apolloResult = categoryResponseMap[key] ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading
-                    val subCategory = apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.bySubCategories ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
+                    val apolloResult = categoryResponseMap[key] ?: return@loadingState RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Loading
+                    val subCategory = apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.bySubCategories
+                        ?.firstOrNull { it.subCategory.id.toString() == subCategoryId.toString() }
+                        ?: return@loadingState RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Error
 
-                    subCategory.map { it.subCategory }
+                    listOf(subCategory.subCategory)
                 }.distinctBy { it.id }
                     .map {
                         GraphTitleChipUiState(
                             title = it.name,
                             color = reservedColorModel.getColor(it.id.toString()),
-                            onClick = {
-                                viewModelScope.launch {
-                                    eventSender.send { event ->
-                                        event.navigate(
-                                            RootHomeScreenStructure.PeriodSubCategory(
-                                                categoryId = categoryId,
-                                                subCategoryId = it.id.id.toString().toInt(),
-                                                since = LocalDate(
-                                                    year = viewModelStateFlow.value.displayPeriod.sinceDate.year,
-                                                    monthNumber = viewModelStateFlow.value.displayPeriod.sinceDate.month,
-                                                    dayOfMonth = 1
-                                                ),
-                                                period = viewModelStateFlow.value.displayPeriod.monthCount
-                                            )
-                                        )
-                                    }
-                                }
-                            },
+                            onClick = {},
                         )
                     }.toImmutableList(),
                 monthTotalItems = displayPeriods.map { yearMonth ->
@@ -286,15 +304,31 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                         yearMonth = yearMonth,
                     )
 
-                    val apolloResult = categoryResponseMap[key] ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Loading
-                    val result = apolloResult.data?.user?.moneyUsageAnalyticsByCategory ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error
+                    val apolloResult = categoryResponseMap[key] ?: return@loadingState RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Loading
+                    val subCategory = apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.bySubCategories
+                        ?.firstOrNull { it.subCategory.id.toString() == subCategoryId.toString() }
+                        ?: return@loadingState RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Error
+
+                    val amount = subCategory.totalAmount ?: return@loadingState RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Error
 
                     RootHomeTabPeriodAndCategoryUiState.MonthTotalItem(
                         title = "${yearMonth.year}/${yearMonth.month.toString().padStart(2, '0')}",
-                        amount = Formatter.formatMoney(result.totalAmount ?: return@loadingState RootHomeTabPeriodCategoryContentUiState.LoadingState.Error) + "円",
+                        amount = Formatter.formatMoney(amount) + "円",
                         event = MonthTotalItemEvent(yearMonth),
                     )
                 }.toImmutableList(),
+                subCategoryName = run {
+                    val key = ViewModelState.YearMonthCategory(
+                        categoryId = categoryId,
+                        yearMonth = displayPeriods.firstOrNull() ?: return@loadingState RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Error,
+                    )
+                    val apolloResult = categoryResponseMap[key] ?: return@loadingState RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Loading
+                    val subCategory = apolloResult.data?.user?.moneyUsageAnalyticsByCategory?.bySubCategories
+                        ?.firstOrNull { it.subCategory.id.toString() == subCategoryId.toString() }
+                        ?: return@loadingState RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Error
+
+                    subCategory.subCategory.name
+                }
             )
         }
 
@@ -375,6 +409,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
 
     private data class ViewModelState(
         val categoryId: MoneyUsageCategoryId,
+        val subCategoryId: Int,
         val categoryResponseMap: Map<YearMonthCategory, ApolloResponse<RootHomeTabScreenAnalyticsByCategoryQuery.Data>?> = mapOf(),
         val displayPeriod: Period = run {
             val currentDate = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
