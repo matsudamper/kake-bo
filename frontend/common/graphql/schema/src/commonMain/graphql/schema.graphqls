@@ -577,6 +577,8 @@ type User {
 
   moneyUsageAnalyticsByCategory(id: MoneyUsageCategoryId!, query: MoneyUsageAnalyticsQuery!): MoneyUsageAnalyticsByCategory
 
+  moneyUsageAnalyticsBySubCategory(id: MoneyUsageSubCategoryId!, query: MoneyUsageAnalyticsQuery!): MoneyUsageAnalyticsBySubCategory
+
   moneyUsageCategories(input: MoneyUsageCategoriesInput!): MoneyUsageCategoriesConnection
 
   moneyUsageCategory(id: MoneyUsageCategoryId!): MoneyUsageCategory

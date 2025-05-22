@@ -19,6 +19,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthly
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllContentUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodCategoryScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodSubCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.monthly.RootHomeMonthlyScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeAddTabScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeAddTabScreenUiState
@@ -36,7 +37,9 @@ import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListS
 import net.matsudamper.money.frontend.common.viewmodel.LocalGlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
+import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeAnalyticsSubCategoryApi
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodCategoryContentViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodSubCategoryContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.RootHomeMonthlyScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.category.RootHomeMonthlyCategoryScreenViewModel
@@ -125,7 +128,6 @@ internal fun RootNavContent(
                                             graphqlClient = koin.get(),
                                         ),
                                         loginCheckUseCase = loginCheckUseCase,
-                                        graphqlClient = koin.get(),
                                         navController = navController,
                                     )
                                 }
@@ -142,6 +144,28 @@ internal fun RootNavContent(
                                 )
                             }
                         }
+                    }
+
+                    is RootHomeScreenStructure.PeriodSubCategory -> {
+                        val subCategoryViewModel = LocalScopedObjectStore.current.putOrGet(Unit) {
+                            RootHomeTabPeriodSubCategoryContentViewModel(
+                                structure = current,
+                                scopedObjectFeature = it,
+                                loginCheckUseCase = loginCheckUseCase,
+                                navController = navController,
+                                api = RootHomeAnalyticsSubCategoryApi(
+                                    graphqlClient = koin.get(),
+                                ),
+                            )
+                        }
+                        LaunchedEffect(subCategoryViewModel.eventHandler) {
+                            viewModelEventHandlers.handleRootHomeTabPeriodSubCategoryContent(subCategoryViewModel.eventHandler)
+                        }
+                        RootHomeTabPeriodSubCategoryScreen(
+                            modifier = Modifier.fillMaxSize(),
+                            uiState = subCategoryViewModel.uiStateFlow.collectAsState().value,
+                            windowInsets = windowInsets,
+                        )
                     }
 
                     is RootHomeScreenStructure.MonthlyCategory -> {

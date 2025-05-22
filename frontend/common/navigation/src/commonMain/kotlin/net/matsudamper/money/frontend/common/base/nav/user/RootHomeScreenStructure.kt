@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.base.nav.user
 
 import kotlinx.datetime.LocalDate
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 
 public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
     override val stackGroupId: Any get() = RootHomeScreenStructure::class
@@ -104,6 +105,55 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
             ): PeriodCategory {
                 return PeriodCategory(
                     categoryId = MoneyUsageCategoryId(pathParams["id"]!!.toInt()),
+                    since = queryParams[SINCE_KEY]?.firstOrNull()
+                        ?.let { LocalDate.parse("$it-01") },
+                    period = queryParams[PERIOD_KEY]?.firstOrNull()?.toIntOrNull() ?: 3,
+                )
+            }
+        }
+    }
+
+    public data class PeriodSubCategory(
+        val subCategoryId: MoneyUsageSubCategoryId,
+        val period: Int,
+        val since: LocalDate? = null,
+    ) : RootHomeScreenStructure {
+        override val direction: Screens = Screens.HomePeriodSubCategory
+
+        override fun createUrl(): String {
+            val urlParam = buildParameter {
+                if (since != null) {
+                    append(
+                        SINCE_KEY,
+                        buildString {
+                            append(since.year)
+                            append("-")
+                            append(since.monthNumber.toString().padStart(2, '0'))
+                        },
+                    )
+                }
+                append(
+                    PERIOD_KEY,
+                    period.toString(),
+                )
+            }
+            return direction.placeholderUrl
+                .replace("{subCategoryId}", subCategoryId.id.toString())
+                .plus(urlParam)
+        }
+
+        public companion object {
+            private const val SINCE_KEY = "since"
+            private const val PERIOD_KEY = "period"
+
+            public fun create(
+                pathParams: Map<String, String>,
+                queryParams: Map<String, List<String>>,
+            ): PeriodSubCategory? {
+                val subCategoryId = pathParams["subCategoryId"]?.toIntOrNull() ?: return null
+
+                return PeriodSubCategory(
+                    subCategoryId = MoneyUsageSubCategoryId(subCategoryId),
                     since = queryParams[SINCE_KEY]?.firstOrNull()
                         ?.let { LocalDate.parse("$it-01") },
                     period = queryParams[PERIOD_KEY]?.firstOrNull()?.toIntOrNull() ?: 3,

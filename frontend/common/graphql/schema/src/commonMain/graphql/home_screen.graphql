@@ -46,3 +46,15 @@ query RootHomeTabScreenAnalyticsByCategory($id: MoneyUsageCategoryId!, $query: M
         }
     }
 }
+
+query RootHomeTabScreenAnalyticsBySubCategory($id: MoneyUsageSubCategoryId!, $query: MoneyUsageAnalyticsQuery!) {
+    user {
+        moneyUsageAnalyticsBySubCategory(id: $id, query: $query) {
+            totalAmount
+            subCategory {
+                id
+                name
+            }
+        }
+    }
+}

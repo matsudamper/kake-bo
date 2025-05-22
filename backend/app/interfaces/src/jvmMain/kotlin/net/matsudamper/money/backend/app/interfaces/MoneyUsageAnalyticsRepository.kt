@@ -12,12 +12,19 @@ interface MoneyUsageAnalyticsRepository {
         untilDateTimeAt: LocalDateTime,
     ): Long?
 
-    fun getTotalAmountBySubCategories(
+    fun getTotalAmountBySubCategoriesWithCategoryId(
         userId: UserId,
         categoryIds: List<MoneyUsageCategoryId>,
         sinceDateTimeAt: LocalDateTime,
         untilDateTimeAt: LocalDateTime,
     ): Result<List<TotalAmountBySubCategory>>
+
+    fun getTotalAmountBySubCategoriesWithSubCategoryId(
+        userId: UserId,
+        subCategoryIds: List<MoneyUsageSubCategoryId>,
+        sinceDateTimeAt: LocalDateTime,
+        untilDateTimeAt: LocalDateTime,
+    ): Result<List<SubCategoryTotalAmount>>
 
     fun getTotalAmountByCategories(
         userId: UserId,

@@ -9,7 +9,8 @@ import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterCondit
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFiltersDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
-import net.matsudamper.money.backend.dataloader.MoneyUsageAnalyticsBySubCategoryLoader
+import net.matsudamper.money.backend.dataloader.MoneyUsageAnalyticsBySubCategoryLoaderWithCategoryId
+import net.matsudamper.money.backend.dataloader.MoneyUsageAnalyticsBySubCategoryLoaderWithSubCategoryId
 import net.matsudamper.money.backend.dataloader.MoneyUsageAssociateByImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageCategoryDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
@@ -59,8 +60,12 @@ internal class DataLoaders(
         ImportedMailCategoryFilterConditionsDataLoaderDefine(diContainer)
     }
 
-    val moneyUsageAnalyticsBySubCategoryLoader by register {
-        MoneyUsageAnalyticsBySubCategoryLoader(diContainer, userSessionManager)
+    val moneyUsageAnalyticsBySubCategoryLoaderWithCategoryId by register {
+        MoneyUsageAnalyticsBySubCategoryLoaderWithCategoryId(diContainer, userSessionManager)
+    }
+
+    val moneyUsageAnalyticsBySubCategoryLoaderWithSubCategoryId by register {
+        MoneyUsageAnalyticsBySubCategoryLoaderWithSubCategoryId(diContainer, userSessionManager)
     }
 
     val userNameDataLoader by register {

@@ -65,6 +65,12 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
                 queryParams = queryParams,
             )
 
+        Screens.HomePeriodSubCategory ->
+            RootHomeScreenStructure.PeriodSubCategory.create(
+                pathParams = pathParams,
+                queryParams = queryParams,
+            ) ?: ScreenStructure.NotFound
+
         Screens.Settings -> ScreenStructure.Root.Settings.Root
         Screens.Api -> ScreenStructure.Root.Settings.Api
         Screens.SettingsImap -> ScreenStructure.Root.Settings.Imap

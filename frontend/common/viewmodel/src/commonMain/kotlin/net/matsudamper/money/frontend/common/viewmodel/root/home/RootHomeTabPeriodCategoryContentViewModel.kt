@@ -34,14 +34,12 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
-import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByCategoryQuery
 
 public class RootHomeTabPeriodCategoryContentViewModel(
     initialCategoryId: MoneyUsageCategoryId,
     scopedObjectFeature: ScopedObjectFeature,
     private val api: RootHomeTabScreenApi,
-    graphqlClient: GraphqlClient,
     loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
     navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
@@ -50,7 +48,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
 
     private val periodViewModel = RootHomeTabPeriodScreenViewModel(
         scopedObjectFeature = scopedObjectFeature,
-        api = RootHomeTabScreenApi(graphqlClient = graphqlClient),
+        api = api,
         initialCategoryId = initialCategoryId,
     ).also { viewModel ->
         viewModelScope.launch {
@@ -261,7 +259,21 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                             title = it.name,
                             color = reservedColorModel.getColor(it.id.toString()),
                             onClick = {
-                                // TODO
+                                viewModelScope.launch {
+                                    eventSender.send { event ->
+                                        event.navigate(
+                                            RootHomeScreenStructure.PeriodSubCategory(
+                                                subCategoryId = it.id,
+                                                since = LocalDate(
+                                                    year = viewModelStateFlow.value.displayPeriod.sinceDate.year,
+                                                    monthNumber = viewModelStateFlow.value.displayPeriod.sinceDate.month,
+                                                    dayOfMonth = 1,
+                                                ),
+                                                period = viewModelStateFlow.value.displayPeriod.monthCount,
+                                            ),
+                                        )
+                                    }
+                                }
                             },
                         )
                     }.toImmutableList(),

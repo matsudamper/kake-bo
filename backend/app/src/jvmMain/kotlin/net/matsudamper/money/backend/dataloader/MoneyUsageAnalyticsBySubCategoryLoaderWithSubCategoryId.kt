@@ -7,17 +7,17 @@ import kotlinx.coroutines.runBlocking
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageAnalyticsRepository
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.graphql.UserSessionManagerImpl
-import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
 
-internal class MoneyUsageAnalyticsBySubCategoryLoader(
+internal class MoneyUsageAnalyticsBySubCategoryLoaderWithSubCategoryId(
     private val repositoryFactory: DiContainer,
     private val userSessionManager: UserSessionManagerImpl,
-) : DataLoaderDefine<MoneyUsageAnalyticsBySubCategoryLoader.Key, MoneyUsageAnalyticsRepository.TotalAmountBySubCategory> {
+) : DataLoaderDefine<MoneyUsageAnalyticsBySubCategoryLoaderWithSubCategoryId.Key, MoneyUsageAnalyticsRepository.SubCategoryTotalAmount> {
     override val key: String = this::class.java.name
 
-    override fun getDataLoader(): DataLoader<Key, MoneyUsageAnalyticsRepository.TotalAmountBySubCategory> {
+    override fun getDataLoader(): DataLoader<Key, MoneyUsageAnalyticsRepository.SubCategoryTotalAmount> {
         return DataLoaderFactory.newMappedDataLoader { keys, _ ->
             CompletableFuture.supplyAsync {
                 runBlocking {
@@ -34,11 +34,11 @@ internal class MoneyUsageAnalyticsBySubCategoryLoader(
 
                         async {
                             key to
-                                repository.getTotalAmountBySubCategories(
+                                repository.getTotalAmountBySubCategoriesWithSubCategoryId(
                                     userId = userId,
                                     sinceDateTimeAt = key.sinceDateTimeAt,
                                     untilDateTimeAt = key.untilDateTimeAt,
-                                    categoryIds = ids,
+                                    subCategoryIds = ids,
                                 )
                         }
                     }.map {
@@ -49,7 +49,7 @@ internal class MoneyUsageAnalyticsBySubCategoryLoader(
                             }
                             .getOrNull().orEmpty().map { result ->
                                 Key(
-                                    id = result.categoryId,
+                                    id = result.id,
                                     sinceDateTimeAt = key.sinceDateTimeAt,
                                     untilDateTimeAt = key.untilDateTimeAt,
                                 ) to result
@@ -62,7 +62,7 @@ internal class MoneyUsageAnalyticsBySubCategoryLoader(
     }
 
     data class Key(
-        val id: MoneyUsageCategoryId,
+        val id: MoneyUsageSubCategoryId,
         val sinceDateTimeAt: LocalDateTime,
         val untilDateTimeAt: LocalDateTime,
     )
