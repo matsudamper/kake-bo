@@ -28,7 +28,6 @@ class Auth4JModel(
         ),
         ServerEnv.domain!!,
         { challenge.toByteArray() },
-        null,
     )
 
     fun register(
@@ -104,7 +103,7 @@ class Auth4JModel(
         val webAuthnManager = WebAuthnManager.createNonStrictWebAuthnManager()
 
         runCatching {
-            webAuthnManager.validate(
+            webAuthnManager.verify(
                 webAuthnManager.parse(request),
                 AuthenticationParameters(
                     serverProperty,
