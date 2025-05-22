@@ -47,7 +47,7 @@ class DbMoneyUsageAnalyticsRepository(
         )
     }
 
-    override fun getTotalAmountBySubCategories(
+    override fun getTotalAmountBySubCategoriesWithCategoryId(
         userId: UserId,
         categoryIds: List<MoneyUsageCategoryId>,
         sinceDateTimeAt: LocalDateTime,
@@ -85,6 +85,39 @@ class DbMoneyUsageAnalyticsRepository(
                                 totalAmount = it.get(amount).toLong(),
                             )
                         },
+                    )
+                }
+            }
+        }
+    }
+
+    override fun getTotalAmountBySubCategoriesWithSubCategoryId(
+        userId: UserId,
+        subCategoryIds: List<MoneyUsageSubCategoryId>,
+        sinceDateTimeAt: LocalDateTime,
+        untilDateTimeAt: LocalDateTime,
+    ): Result<List<MoneyUsageAnalyticsRepository.SubCategoryTotalAmount>> {
+        return runCatching {
+            dbConnection.use { connection ->
+                val amount = DSL.coalesce(DSL.sum(usage.AMOUNT), 0.toBigDecimal())
+                val results = DSL.using(connection)
+                    .select(amount, subCategories.MONEY_USAGE_SUB_CATEGORY_ID)
+                    .from(usage)
+                    .join(subCategories).using(usage.MONEY_USAGE_SUB_CATEGORY_ID)
+                    .where(
+                        DSL.value(true)
+                            .and(usage.USER_ID.eq(userId.value))
+                            .and(usage.DATETIME.greaterOrEqual(sinceDateTimeAt))
+                            .and(usage.DATETIME.lessThan(untilDateTimeAt))
+                            .and(usage.MONEY_USAGE_SUB_CATEGORY_ID.`in`(subCategoryIds.map { it.id })),
+                    )
+                    .groupBy(subCategories.MONEY_USAGE_SUB_CATEGORY_ID)
+                    .fetch()
+
+                results.map {
+                    MoneyUsageAnalyticsRepository.SubCategoryTotalAmount(
+                        id = MoneyUsageSubCategoryId(it.get(subCategories.MONEY_USAGE_SUB_CATEGORY_ID)!!),
+                        totalAmount = it.get(amount).toLong(),
                     )
                 }
             }

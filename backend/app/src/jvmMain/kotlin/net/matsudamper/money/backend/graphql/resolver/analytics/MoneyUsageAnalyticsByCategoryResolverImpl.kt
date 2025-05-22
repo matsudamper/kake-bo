@@ -4,7 +4,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
-import net.matsudamper.money.backend.dataloader.MoneyUsageAnalyticsBySubCategoryLoader
+import net.matsudamper.money.backend.dataloader.MoneyUsageAnalyticsBySubCategoryLoaderWithCategoryId
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsByCategoryLocalContext
 import net.matsudamper.money.backend.graphql.requireLocalContext
@@ -25,9 +25,9 @@ class MoneyUsageAnalyticsByCategoryResolverImpl : MoneyUsageAnalyticsByCategoryR
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         context.verifyUserSessionAndGetUserId()
 
-        val dataLoader = context.dataLoaders.moneyUsageAnalyticsBySubCategoryLoader.get(env)
+        val dataLoader = context.dataLoaders.moneyUsageAnalyticsBySubCategoryLoaderWithCategoryId.get(env)
         val future = dataLoader.load(
-            MoneyUsageAnalyticsBySubCategoryLoader.Key(
+            MoneyUsageAnalyticsBySubCategoryLoaderWithCategoryId.Key(
                 id = moneyUsageAnalyticsByCategory.category.id,
                 sinceDateTimeAt = env.localContext.query.sinceDateTime,
                 untilDateTimeAt = env.localContext.query.untilDateTime,

@@ -34,7 +34,6 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
-import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.RootHomeTabScreenAnalyticsByCategoryQuery
 
 public class RootHomeTabPeriodCategoryContentViewModel(

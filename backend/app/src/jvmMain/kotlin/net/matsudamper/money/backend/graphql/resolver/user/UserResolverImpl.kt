@@ -7,6 +7,7 @@ import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
+import net.matsudamper.money.backend.dataloader.MoneyUsageAnalyticsBySubCategoryLoaderWithSubCategoryId
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.graphql.DataFetcherResultBuilder
 import net.matsudamper.money.backend.graphql.GraphQlContext
@@ -16,6 +17,7 @@ import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.graphql.model.QlApiTokenAttributes
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilter
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersConnection
@@ -23,6 +25,7 @@ import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersQuery
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageAnalytics
 import net.matsudamper.money.graphql.model.QlMoneyUsageAnalyticsByCategory
+import net.matsudamper.money.graphql.model.QlMoneyUsageAnalyticsBySubCategory
 import net.matsudamper.money.graphql.model.QlMoneyUsageAnalyticsQuery
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategoriesConnection
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategoriesInput
@@ -303,5 +306,30 @@ class UserResolverImpl : UserResolver {
                 )
                 .build()
         }
+    }
+
+    override fun moneyUsageAnalyticsBySubCategory(
+        user: QlUser,
+        id: MoneyUsageSubCategoryId,
+        query: QlMoneyUsageAnalyticsQuery,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlMoneyUsageAnalyticsBySubCategory?>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val future = context.dataLoaders.moneyUsageAnalyticsBySubCategoryLoaderWithSubCategoryId.get(env).load(
+            MoneyUsageAnalyticsBySubCategoryLoaderWithSubCategoryId.Key(
+                id = id,
+                sinceDateTimeAt = query.sinceDateTime,
+                untilDateTimeAt = query.untilDateTime,
+            ),
+        )
+
+        return CompletableFuture.allOf(future).thenApplyAsync {
+            val result = future.get() ?: return@thenApplyAsync null
+
+            QlMoneyUsageAnalyticsBySubCategory(
+                subCategory = QlMoneyUsageSubCategory(result.id),
+                totalAmount = result.totalAmount,
+            )
+        }.toDataFetcher()
     }
 }
