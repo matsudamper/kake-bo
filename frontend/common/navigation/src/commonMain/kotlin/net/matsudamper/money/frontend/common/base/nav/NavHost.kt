@@ -25,7 +25,7 @@ public fun NavHost(
             snapshotFlow { navController.backstackEntries }
                 .collect {
                     val removedEntries = beforeEntries.filterNot { it in navController.backstackEntries }
-                        .filterNot { it.isHome }
+//                        .filterNot { it.isHome }
                         .filterNot { it.savedState }
                     for (entry in removedEntries) {
                         holder.removeState(entry.scopeKey)
