@@ -19,6 +19,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -61,8 +62,8 @@ internal fun BarGraph(
 ) {
     var maxValue by rememberSaveable { mutableLongStateOf(0) }
     LaunchedEffect(uiState) {
-        uiState.items.map { item ->
-            val value = item.items.maxOfOrNull { it.value } ?: 0
+        uiState.items.map { row ->
+            val value = row.items.sumOf { it.value }
             maxValue = maxValue.coerceAtLeast(value)
         }
     }
@@ -101,11 +102,14 @@ internal fun BarGraph(
                                         }
                                     },
                             ) {
-                                val maxValueString = maxValue.toString()
-                                    .reversed()
-                                    .chunked(3)
-                                    .joinToString(",")
-                                    .reversed()
+                                val maxValueString = remember(item.items) {
+                                    val total = item.items.sumOf { it.value }
+                                    total.toString()
+                                        .reversed()
+                                        .chunked(3)
+                                        .joinToString(",")
+                                        .reversed()
+                                }
                                 Text(
                                     text = maxValueString,
                                     style = MaterialTheme.typography.labelSmall,
