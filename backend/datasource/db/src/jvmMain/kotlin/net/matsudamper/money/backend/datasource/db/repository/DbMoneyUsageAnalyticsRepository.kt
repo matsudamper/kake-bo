@@ -114,10 +114,14 @@ class DbMoneyUsageAnalyticsRepository(
                     .groupBy(subCategories.MONEY_USAGE_SUB_CATEGORY_ID)
                     .fetch()
 
-                results.map {
+                val resultsMap = results.associateBy {
+                    MoneyUsageSubCategoryId(it.get(subCategories.MONEY_USAGE_SUB_CATEGORY_ID)!!)
+                }
+                subCategoryIds.map { subCategoryId ->
+                    val result = resultsMap[subCategoryId]
                     MoneyUsageAnalyticsRepository.SubCategoryTotalAmount(
-                        id = MoneyUsageSubCategoryId(it.get(subCategories.MONEY_USAGE_SUB_CATEGORY_ID)!!),
-                        totalAmount = it.get(amount).toLong(),
+                        id = subCategoryId,
+                        totalAmount = result?.get(amount)?.toLong() ?: 0,
                     )
                 }
             }
