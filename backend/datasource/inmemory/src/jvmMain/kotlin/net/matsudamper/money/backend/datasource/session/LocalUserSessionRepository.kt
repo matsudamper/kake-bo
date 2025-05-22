@@ -4,10 +4,8 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
-import kotlinx.serialization.Serializable
 import net.matsudamper.money.backend.app.interfaces.UserSessionRepository
 import net.matsudamper.money.backend.app.interfaces.element.UserSessionId
-import net.matsudamper.money.backend.base.ServerVariables
 import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.element.UserId
 

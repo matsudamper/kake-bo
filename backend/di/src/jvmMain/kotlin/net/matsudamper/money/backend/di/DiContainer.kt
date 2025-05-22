@@ -34,7 +34,6 @@ import net.matsudamper.money.backend.datasource.db.repository.DbMoneyUsageSubCat
 import net.matsudamper.money.backend.datasource.db.repository.DbUserConfigRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbUserLoginRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbUserRepository
-import net.matsudamper.money.backend.datasource.db.repository.DbUserSessionRepository
 import net.matsudamper.money.backend.datasource.session.UserSessionRepositoryProvider
 import net.matsudamper.money.backend.mail.MailRepositoryImpl
 

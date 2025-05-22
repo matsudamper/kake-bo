@@ -60,7 +60,7 @@ internal class RedisUserSessionRepository(
         useJedis { jedis ->
             val sessionData = SessionData(
                 userId = userId.value,
-                latestAccess = now.toString()
+                latestAccess = now.toString(),
             )
 
             val jsonData = ObjectMapper.kotlinxSerialization.encodeToString(sessionData)
@@ -69,7 +69,7 @@ internal class RedisUserSessionRepository(
             jedis.set(
                 sessionKey,
                 jsonData,
-                SetParams().ex(ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60) // Convert days to seconds
+                SetParams().ex(ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60), // Convert days to seconds
             )
 
             jedis.sadd(getUserSessionsKey(userId), sessionId.id)
@@ -248,6 +248,6 @@ internal class RedisUserSessionRepository(
     private data class SessionData(
         val userId: Int,
         val sessionName: String = "",
-        val latestAccess: String = LocalDateTime.now(ZoneOffset.UTC).toString()
+        val latestAccess: String = LocalDateTime.now(ZoneOffset.UTC).toString(),
     )
 }
