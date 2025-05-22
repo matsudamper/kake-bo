@@ -26,8 +26,6 @@ import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructu
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
-import net.matsudamper.money.frontend.common.ui.screen.root.home.GraphTitleChipUiState
-import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAndCategoryUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAndCategoryUiState.LoadingState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodSubCategoryContentUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
@@ -178,7 +176,6 @@ public class RootHomeTabPeriodSubCategoryContentViewModel(
                                 amount = "${amount}円",
                                 event = object : RootHomeTabPeriodSubCategoryContentUiState.MonthTotalItem.Event {
                                     override fun onClick() {
-
                                     }
                                 },
                             ),
