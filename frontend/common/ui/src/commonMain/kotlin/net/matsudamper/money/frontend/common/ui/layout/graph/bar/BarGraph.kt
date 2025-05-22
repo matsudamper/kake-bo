@@ -149,7 +149,7 @@ internal fun BarGraph(
                                     placeable.place(0, y)
                                 }
                             },
-                        text = if (item.month == 0 || index == 0) {
+                        text = if (item.month == 1 || index == 0) {
                             "${item.year}/${item.month}"
                         } else {
                             item.month.toString()
