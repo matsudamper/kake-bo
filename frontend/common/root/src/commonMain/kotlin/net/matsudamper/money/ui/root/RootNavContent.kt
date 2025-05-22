@@ -37,6 +37,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListS
 import net.matsudamper.money.frontend.common.viewmodel.LocalGlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
+import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeAnalyticsSubCategoryApi
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodCategoryContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodSubCategoryContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenApi
@@ -127,7 +128,6 @@ internal fun RootNavContent(
                                             graphqlClient = koin.get(),
                                         ),
                                         loginCheckUseCase = loginCheckUseCase,
-                                        graphqlClient = koin.get(),
                                         navController = navController,
                                     )
                                 }
@@ -149,10 +149,13 @@ internal fun RootNavContent(
                     is RootHomeScreenStructure.PeriodSubCategory -> {
                         val subCategoryViewModel = LocalScopedObjectStore.current.putOrGet(Unit) {
                             RootHomeTabPeriodSubCategoryContentViewModel(
-                                initialSubCategoryId = current.subCategoryId,
+                                structure = current,
                                 scopedObjectFeature = it,
                                 loginCheckUseCase = loginCheckUseCase,
                                 navController = navController,
+                                api = RootHomeAnalyticsSubCategoryApi(
+                                    graphqlClient = koin.get(),
+                                ),
                             )
                         }
                         LaunchedEffect(subCategoryViewModel.eventHandler) {

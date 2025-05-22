@@ -40,7 +40,6 @@ public class RootHomeTabPeriodCategoryContentViewModel(
     initialCategoryId: MoneyUsageCategoryId,
     scopedObjectFeature: ScopedObjectFeature,
     private val api: RootHomeTabScreenApi,
-    graphqlClient: GraphqlClient,
     loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
     navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
@@ -49,7 +48,7 @@ public class RootHomeTabPeriodCategoryContentViewModel(
 
     private val periodViewModel = RootHomeTabPeriodScreenViewModel(
         scopedObjectFeature = scopedObjectFeature,
-        api = RootHomeTabScreenApi(graphqlClient = graphqlClient),
+        api = api,
         initialCategoryId = initialCategoryId,
     ).also { viewModel ->
         viewModelScope.launch {

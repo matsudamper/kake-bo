@@ -16,13 +16,24 @@ public data class RootHomeTabPeriodSubCategoryContentUiState(
         public data class Loaded(
             val graphItems: BarGraphUiState,
             val graphTitleItems: ImmutableList<GraphTitleChipUiState>,
-            val monthTotalItems: ImmutableList<RootHomeTabPeriodAndCategoryUiState.MonthTotalItem>,
+            val monthTotalItems: ImmutableList<MonthTotalItem>,
             val subCategoryName: String,
         ) : LoadingState
 
         public data object Loading : LoadingState
 
         public data object Error : LoadingState
+    }
+
+    public data class MonthTotalItem(
+        val title: String,
+        val amount: String,
+        val event: Event,
+    ) {
+        @Immutable
+        public interface Event {
+            public fun onClick()
+        }
     }
 
     @Immutable
