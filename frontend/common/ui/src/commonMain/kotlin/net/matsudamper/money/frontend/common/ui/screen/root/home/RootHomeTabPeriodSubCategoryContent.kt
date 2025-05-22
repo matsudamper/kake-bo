@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,9 +31,9 @@ import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraph
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun RootHomeTabPeriodSubCategoryScreen(
-    modifier: Modifier = Modifier,
     uiState: RootHomeTabPeriodSubCategoryContentUiState,
     windowInsets: PaddingValues,
+    modifier: Modifier = Modifier,
 ) {
     val savedState = rememberSaveableStateHolder(id = "RootHomeTabPeriodSubCategoryScreen")
     LaunchedEffect(Unit) {
@@ -74,10 +76,11 @@ private fun LoadedContent(
     modifier: Modifier = Modifier,
     loadingState: RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Loaded,
 ) {
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier.verticalScroll(rememberScrollState()),
+    ) {
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Subcategory title
         Text(
             text = "サブカテゴリ: ${loadingState.subCategoryName}",
             fontSize = 18.sp,
