@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import net.matsudamper.money.frontend.common.base.Logger
 
 /**
  * 元のrememberSaveableStateHolderは`LocalSaveableStateRegistry.current`を使用している。
@@ -24,13 +25,15 @@ private class IdSaveableStateHolderImpl(
 ) : SaveableStateHolder {
     @Composable
     override fun SaveableStateProvider(key: Any, content: @Composable () -> Unit) {
-        // TODO: AndroidではSerializableにしないといけないので、とりあえずStringにしておく
-        holder.SaveableStateProvider(key = IdSaveableStateKey(id, key).toString(), content = content)
+        holder.SaveableStateProvider(key = getKey(key), content = content)
     }
 
     override fun removeState(key: Any) {
-        holder.removeState(IdSaveableStateKey(id, key).toString())
+        holder.removeState(getKey(key))
     }
+
+    // TODO: AndroidではSerializableにしないといけないので、とりあえずStringにしておく
+    private fun getKey(key: Any) = IdSaveableStateKey(id, key).toString().also { Logger.d("LOG", it) }
 
     private data class IdSaveableStateKey(
         val id: Any,
