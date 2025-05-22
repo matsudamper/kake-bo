@@ -10,4 +10,8 @@ object UserSessionRepositoryProvider {
     ): UserSessionRepository {
         return RedisUserSessionRepository(host, port, index)
     }
+
+    fun provideLocalRepository(): UserSessionRepository {
+        return LocalUserSessionRepository()
+    }
 }

@@ -103,7 +103,7 @@ class MainDiContainer : DiContainer {
             index = ServerVariables.REDIS_INDEX_USER_SESSION,
         )
     } else {
-        DbUserSessionRepository()
+        UserSessionRepositoryProvider.provideLocalRepository()
     }
 
     override fun createUserSessionRepository(): UserSessionRepository {
