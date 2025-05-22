@@ -62,7 +62,7 @@ internal fun BarGraph(
     var maxValue by rememberSaveable { mutableLongStateOf(0) }
     LaunchedEffect(uiState) {
         uiState.items.map { item ->
-            val value = item.items.sumOf { it.value }
+            val value = item.items.maxOfOrNull { it.value } ?: 0
             maxValue = maxValue.coerceAtLeast(value)
         }
     }
