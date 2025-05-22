@@ -15,7 +15,6 @@ public data class RootHomeTabPeriodSubCategoryContentUiState(
     public sealed interface LoadingState {
         public data class Loaded(
             val graphItems: BarGraphUiState,
-            val graphTitleItems: ImmutableList<GraphTitleChipUiState>,
             val monthTotalItems: ImmutableList<MonthTotalItem>,
             val subCategoryName: String,
         ) : LoadingState

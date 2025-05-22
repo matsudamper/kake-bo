@@ -137,7 +137,6 @@ public class RootHomeTabPeriodSubCategoryContentViewModel(
             viewModelStateFlow.collectLatest { viewModelState ->
                 val loadingState: RootHomeTabPeriodSubCategoryContentUiState.LoadingState = run loadingState@{
                     val graphItems: MutableList<BarGraphUiState.PeriodData> = mutableListOf()
-                    val graphTitleItems: MutableList<GraphTitleChipUiState> = mutableListOf()
                     val monthTotalItems: MutableList<RootHomeTabPeriodSubCategoryContentUiState.MonthTotalItem> = mutableListOf()
                     var subCategoryName = ""
                     for (i in 0 until viewModelState.displayPeriod.monthCount) {
@@ -187,7 +186,6 @@ public class RootHomeTabPeriodSubCategoryContentViewModel(
                     }
                     RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Loaded(
                         graphItems = BarGraphUiState(graphItems.toImmutableList()),
-                        graphTitleItems = graphTitleItems.toImmutableList(),
                         monthTotalItems = monthTotalItems.toImmutableList(),
                         subCategoryName = subCategoryName,
                     )

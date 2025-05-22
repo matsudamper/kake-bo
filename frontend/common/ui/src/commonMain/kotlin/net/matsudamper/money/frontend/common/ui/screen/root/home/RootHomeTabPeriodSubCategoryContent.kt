@@ -99,11 +99,6 @@ private fun LoadedContent(
                 uiState = loadingState.graphItems,
                 contentColor = LocalContentColor.current,
             )
-            Spacer(modifier = Modifier.height(8.dp))
-            GraphTitleChips(
-                modifier = Modifier.padding(horizontal = 16.dp),
-                items = loadingState.graphTitleItems,
-            )
         }
         Spacer(modifier = Modifier.height(12.dp))
         Card {
