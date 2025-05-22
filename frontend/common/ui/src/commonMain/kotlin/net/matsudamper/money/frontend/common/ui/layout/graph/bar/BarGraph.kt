@@ -80,6 +80,13 @@ internal fun BarGraph(
                             .fillMaxHeight()
                             .weight(1f),
                     ) {
+                        SingleBarGraph(
+                            modifier = Modifier
+                                .fillMaxHeight(),
+                            maxValue = maxValue,
+                            items = item.items,
+                            onClick = { item.event.onClick() },
+                        )
                         if (index == 0) {
                             Box(
                                 modifier = Modifier.fillMaxHeight()
@@ -105,13 +112,6 @@ internal fun BarGraph(
                                 )
                             }
                         }
-                        SingleBarGraph(
-                            modifier = Modifier
-                                .fillMaxHeight(),
-                            maxValue = maxValue,
-                            items = item.items,
-                            onClick = { item.event.onClick() },
-                        )
                     }
                 }
             }
