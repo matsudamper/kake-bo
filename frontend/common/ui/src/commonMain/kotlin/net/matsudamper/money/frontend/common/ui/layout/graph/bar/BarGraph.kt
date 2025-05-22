@@ -102,9 +102,8 @@ internal fun BarGraph(
                                         }
                                     },
                             ) {
-                                val maxValueString = remember(item.items) {
-                                    val total = item.items.sumOf { it.value }
-                                    total.toString()
+                                val maxValueString = remember(maxValue) {
+                                    maxValue.toString()
                                         .reversed()
                                         .chunked(3)
                                         .joinToString(",")
