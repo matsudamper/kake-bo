@@ -14,6 +14,7 @@ import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ApiSettingScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImapConfigScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImportedMailFilterCategoryScreen
@@ -41,7 +42,6 @@ import net.matsudamper.money.frontend.common.viewmodel.settings.SettingScreenCat
 import net.matsudamper.money.frontend.common.viewmodel.shared.FidoApi
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.GraphqlUserConfigQuery
-import net.matsudamper.money.ui.root.viewmodel.provideViewModel
 
 @Composable
 internal fun SettingNavContent(
@@ -69,7 +69,7 @@ internal fun SettingNavContent(
 
         ScreenStructure.Root.Settings.Categories -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel = provideViewModel {
+                val viewModel = LocalScopedObjectStore.current.putOrGet<SettingCategoriesViewModel>(Unit) {
                     SettingCategoriesViewModel(
                         scopedObjectFeature = it,
                         api = SettingScreenCategoryApi(
@@ -122,11 +122,11 @@ internal fun SettingNavContent(
 
         ScreenStructure.Root.Settings.Imap -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel = provideViewModel {
+                val viewModel = LocalScopedObjectStore.current.putOrGet<ImapSettingViewModel>(Unit) {
                     ImapSettingViewModel(
                         scopedObjectFeature = it,
                         graphqlQuery = GraphqlUserConfigQuery(
-                            graphqlClient = koin.get(),
+                            graphqlClient = koin.get<GraphqlClient>(),
                         ),
                         globalEventSender = globalEventSender,
                         ioDispatchers = Dispatchers.IO,
@@ -144,12 +144,12 @@ internal fun SettingNavContent(
 
         ScreenStructure.Root.Settings.MailCategoryFilters -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel = provideViewModel {
+                val viewModel = LocalScopedObjectStore.current.putOrGet<SettingMailCategoryFiltersViewModel>(Unit) {
                     SettingMailCategoryFiltersViewModel(
                         scopedObjectFeature = it,
                         pagingModel = ImportedMailCategoryFilterScreenPagingModel(
                             scopedObjectFeature = it,
-                            graphqlClient = koin.get(),
+                            graphqlClient = koin.get<GraphqlClient>(),
                         ),
                         api = SettingImportedMailCategoryFilterApi(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
@@ -170,14 +170,14 @@ internal fun SettingNavContent(
 
         is ScreenStructure.Root.Settings.MailCategoryFilter -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel = provideViewModel {
+                val viewModel = LocalScopedObjectStore.current.putOrGet<ImportedMailFilterCategoryViewModel>(Unit) {
                     ImportedMailFilterCategoryViewModel(
                         scopedObjectFeature = it,
                         id = state.id,
                         api = ImportedMailFilterCategoryScreenGraphqlApi(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),
-                        graphqlClient = koin.get(),
+                        graphqlClient = koin.get<GraphqlClient>(),
                         navController = navController,
                     )
                 }
@@ -196,7 +196,7 @@ internal fun SettingNavContent(
 
         ScreenStructure.Root.Settings.Login -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel = provideViewModel {
+                val viewModel = LocalScopedObjectStore.current.putOrGet<LoginSettingViewModel>(Unit) {
                     LoginSettingViewModel(
                         scopedObjectFeature = it,
                         api = LoginSettingScreenApi(
@@ -205,7 +205,7 @@ internal fun SettingNavContent(
                         fidoApi = FidoApi(
                             apolloClient = koin.get<GraphqlClient>().apolloClient,
                         ),
-                        webAuthModel = koin.get(),
+                        webAuthModel = koin.get<WebAuthModel>(),
                         navController = navController,
                     )
                 }
@@ -224,7 +224,7 @@ internal fun SettingNavContent(
 
         ScreenStructure.Root.Settings.Api -> {
             holder.SaveableStateProvider(state::class.toString()) {
-                val viewModel = provideViewModel {
+                val viewModel = LocalScopedObjectStore.current.putOrGet<ApiSettingScreenViewModel>(Unit) {
                     ApiSettingScreenViewModel(
                         scopedObjectFeature = it,
                         api = ApiSettingScreenApi(

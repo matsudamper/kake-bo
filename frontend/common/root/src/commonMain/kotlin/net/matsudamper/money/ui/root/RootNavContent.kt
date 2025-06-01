@@ -44,7 +44,6 @@ import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScre
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.RootHomeMonthlyScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.category.RootHomeMonthlyCategoryScreenViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlClient
-import net.matsudamper.money.ui.root.viewmodel.provideViewModel
 
 private enum class SavedStateHolderKey {
     TabHolder,
@@ -169,12 +168,12 @@ internal fun RootNavContent(
                     }
 
                     is RootHomeScreenStructure.MonthlyCategory -> {
-                        val monthlyCategoryViewModel = provideViewModel {
+                        val monthlyCategoryViewModel = LocalScopedObjectStore.current.putOrGet<RootHomeMonthlyCategoryScreenViewModel>(Unit) {
                             RootHomeMonthlyCategoryScreenViewModel(
                                 argument = current,
                                 scopedObjectFeature = it,
                                 loginCheckUseCase = loginCheckUseCase,
-                                graphqlClient = koin.get(),
+                                graphqlClient = koin.get<GraphqlClient>(),
                                 navController = navController,
                             )
                         }

@@ -45,11 +45,11 @@ import net.matsudamper.money.frontend.common.viewmodel.root.home.LoginCheckUseCa
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeAddTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalendarPagingModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
+import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.ui.root.platform.PlatformTools
 import net.matsudamper.money.ui.root.viewmodel.LocalViewModelProviders
 import net.matsudamper.money.ui.root.viewmodel.ViewModelProviders
-import net.matsudamper.money.ui.root.viewmodel.provideViewModel
 
 private enum class ScopeKey {
     ROOT,
@@ -128,23 +128,23 @@ public fun Content(
         ) {
             val rootViewModel = LocalViewModelProviders.current.rootViewModel()
 
-            val rootUsageHostViewModel = provideViewModel {
+            val rootUsageHostViewModel = LocalScopedObjectStore.current.putOrGet<RootUsageHostViewModel>(Unit) {
                 RootUsageHostViewModel(
                     scopedObjectFeature = it,
                     navController = navController,
                     calendarPagingModel = RootUsageCalendarPagingModel(
                         coroutineScope = rootCoroutineScope,
-                        graphqlClient = koin.get(),
+                        graphqlClient = koin.get<GraphqlClient>(),
                     ),
                 )
             }
-            val mailScreenViewModel = provideViewModel {
+            val mailScreenViewModel = LocalScopedObjectStore.current.putOrGet<HomeAddTabScreenViewModel>(Unit) {
                 HomeAddTabScreenViewModel(
                     scopedObjectFeature = it,
                     navController = navController,
                 )
             }
-            val settingViewModel = provideViewModel {
+            val settingViewModel = LocalScopedObjectStore.current.putOrGet<SettingViewModel>(Unit) {
                 SettingViewModel(
                     scopedObjectFeature = it,
                     globalEventSender = globalEventSender,
