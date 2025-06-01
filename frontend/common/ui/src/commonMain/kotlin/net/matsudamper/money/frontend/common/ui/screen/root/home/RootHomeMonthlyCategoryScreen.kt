@@ -39,7 +39,7 @@ import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 
 public data class RootHomeMonthlyCategoryScreenUiState(
     val loadingState: LoadingState,
-    val title: String,
+    val headerTitle: String,
     val event: Event,
     val scaffoldListener: RootScreenScaffoldListener,
 ) {
@@ -62,6 +62,7 @@ public data class RootHomeMonthlyCategoryScreenUiState(
             val hasMoreItem: Boolean,
             val event: LoadedEvent,
             val pieChartItems: ImmutableList<PieChartItem>,
+            val pieChartTitle: String,
         ) : LoadingState
 
         public data object Loading : LoadingState
@@ -97,7 +98,7 @@ public fun RootHomeMonthlyCategoryScreen(
         topBar = {
             KakeBoTopAppBar(
                 title = {
-                    Text(uiState.title)
+                    Text(uiState.headerTitle)
                 },
                 windowInsets = windowInsets,
             )
@@ -150,7 +151,7 @@ private fun LoadedContent(
                 if (loadingState.pieChartItems.isNotEmpty()) {
                     PieChart(
                         items = loadingState.pieChartItems,
-                        title = "カテゴリ別支出",
+                        title = loadingState.pieChartTitle,
                         modifier = Modifier.fillMaxWidth()
                             .padding(16.dp),
                     )

@@ -45,6 +45,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MonthlyCategoryScreenListQuery
+import net.matsudamper.money.frontend.graphql.MonthlyCategoryScreenQuery
 import net.matsudamper.money.frontend.graphql.updateOperation
 
 public class RootHomeMonthlyCategoryScreenViewModel(
@@ -82,7 +83,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
     private val loadedEvent = object : RootHomeMonthlyCategoryScreenUiState.LoadedEvent {
         override fun loadMore() {
             viewModelScope.launch {
-                fetch()
+                fetchList()
             }
         }
     }
@@ -111,12 +112,13 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                         }
                     }
                     viewModelScope.launch {
-                        fetch()
+                        fetchCategoryName()
+                        fetchList()
                     }
                 }
             },
             loadingState = RootHomeMonthlyCategoryScreenUiState.LoadingState.Loading,
-            title = "",
+            headerTitle = "",
         ),
     ).also { uiStateFlow ->
         viewModelScope.launch {
@@ -135,11 +137,12 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                         event = loadedEvent,
                         hasMoreItem = response.data?.user?.moneyUsages?.hasMore != false,
                         pieChartItems = pieChartItems,
+                        pieChartTitle = viewModelState.categoryName ?: "カテゴリ別一覧",
                     )
                 }
                 uiStateFlow.value = uiStateFlow.value.copy(
                     loadingState = state,
-                    title = run {
+                    headerTitle = run {
                         val yearText = "${viewModelState.year}年${viewModelState.month}月"
                         val descriptionText = viewModelState.categoryName ?: "カテゴリ別一覧"
                         "$yearText $descriptionText"
@@ -200,11 +203,35 @@ public class RootHomeMonthlyCategoryScreenViewModel(
             )
         }
         viewModelScope.launch {
-            fetch()
+            fetchCategoryName()
+        }
+        viewModelScope.launch {
+            fetchList()
         }
     }
 
-    private suspend fun fetch() {
+    private suspend fun fetchCategoryName() {
+        val categoryId = viewModelStateFlow.value.categoryId
+        val query = MonthlyCategoryScreenQuery(id = categoryId)
+        val response = withContext(Dispatchers.IO) {
+            graphqlClient.apolloClient.query(query)
+                .fetchPolicy(FetchPolicy.NetworkOnly)
+                .execute()
+        }
+
+        if (!response.hasErrors()) {
+            val categoryName = response.data?.user?.moneyUsageCategory?.name
+            if (categoryName != null) {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        categoryName = categoryName,
+                    )
+                }
+            }
+        }
+    }
+
+    private suspend fun fetchList() {
         val firstQuery = firstQueryFlow.value ?: return
         graphqlClient.apolloClient.updateOperation(firstQuery) update@{ before ->
             if (before == null) {
