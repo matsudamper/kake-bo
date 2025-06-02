@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.importedmail.html
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -10,6 +11,7 @@ import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.ImportedMailId
+import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.ui.screen.importedmail.html.ImportedMailHtmlScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
@@ -78,7 +80,7 @@ public class ImportedMailHtmlViewModel(
     }.asStateFlow()
 
     private fun fetch() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             val response = graphqlClient.apolloClient.query(
                 ImportedMailHtmlScreenQuery(
                     id = id,
