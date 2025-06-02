@@ -1,0 +1,45 @@
+query MonthlySubCategoryScreen($id: MoneyUsageSubCategoryId!) {
+    user {
+        moneyUsageSubCategory(input: {
+            id: $id
+        }) {
+            id
+            name
+        }
+    }
+}
+
+query MonthlySubCategoryScreenList(
+    $cursor: String,
+    $size: Int!,
+    $subCategory: MoneyUsageSubCategoryId!
+    $sinceDateTime: LocalDateTime,
+    $untilDateTime: LocalDateTime,
+    $isAsc: Boolean!,
+) {
+    user {
+        moneyUsages(query: {
+            cursor: $cursor
+            size: $size
+            filter: {
+                subCategory: [$subCategory]
+                sinceDateTime: $sinceDateTime
+                untilDateTime: $untilDateTime
+            }
+            isAsc: $isAsc
+        }) {
+            cursor
+            hasMore
+            nodes {
+                id
+                title
+                amount
+                date
+                moneyUsageSubCategory {
+                    id
+                    name
+                }
+            }
+        }
+    }
+}
