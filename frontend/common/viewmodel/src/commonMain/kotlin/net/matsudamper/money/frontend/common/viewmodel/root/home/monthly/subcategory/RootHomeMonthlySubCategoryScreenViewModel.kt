@@ -144,7 +144,7 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
                     loadingState = state,
                     headerTitle = run {
                         val yearText = "${viewModelState.year}年${viewModelState.month}月"
-                        val descriptionText = viewModelState.subCategoryName ?: "サブカテゴリ別一覧"
+                        val descriptionText = "サブカテゴリ別一覧"
                         "$yearText $descriptionText"
                     },
                 )
