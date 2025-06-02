@@ -54,25 +54,52 @@ public class ImportedMailHtmlViewModel(
     ).also { uiStateFlow ->
         viewModelScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
-                val response = viewModelState.apolloResponseState
-                val mailData = response?.data?.user?.importedMailAttributes?.mail
-                val loadingState = if (viewModelState.apolloResponseState == null) {
-                    ImportedMailHtmlScreenUiState.LoadingState.Loading
-                } else if (
-                    response.hasErrors() ||
-                    mailData == null
-                ) {
-                    ImportedMailHtmlScreenUiState.LoadingState.Error
-                } else {
-                    ImportedMailHtmlScreenUiState.LoadingState.Loaded(
-                        html = sequence {
-                            yield(mailData.html)
-                        }.filterNotNull().firstOrNull().orEmpty(),
-                    )
+                val apolloResult = viewModelState.apolloResponseState
+
+                if (apolloResult == null) {
+                    uiStateFlow.update {
+                        it.copy(
+                            loadingState = ImportedMailHtmlScreenUiState.LoadingState.Loading
+                        )
+                    }
+                    return@collectLatest
                 }
+
+                if (apolloResult.isFailure) {
+                    uiStateFlow.update {
+                        it.copy(
+                            loadingState = ImportedMailHtmlScreenUiState.LoadingState.Error
+                        )
+                    }
+                    return@collectLatest
+                }
+
+                val response = apolloResult.getOrThrow()
+                if (response.hasErrors()) {
+                    uiStateFlow.update {
+                        it.copy(
+                            loadingState = ImportedMailHtmlScreenUiState.LoadingState.Error
+                        )
+                    }
+                    return@collectLatest
+                }
+
+                val mailData = response.data?.user?.importedMailAttributes?.mail
+                if (mailData == null) {
+                    uiStateFlow.update {
+                        it.copy(
+                            loadingState = ImportedMailHtmlScreenUiState.LoadingState.Error
+                        )
+                    }
+                    return@collectLatest
+                }
+
+                val html = mailData.html ?: ""
                 uiStateFlow.update {
                     it.copy(
-                        loadingState = loadingState,
+                        loadingState = ImportedMailHtmlScreenUiState.LoadingState.Loaded(
+                            html = html
+                        )
                     )
                 }
             }
@@ -81,17 +108,19 @@ public class ImportedMailHtmlViewModel(
 
     private fun fetch() {
         viewModelScope.launch(Dispatchers.IO) {
-            val response = graphqlClient.apolloClient.query(
-                ImportedMailHtmlScreenQuery(
-                    id = id,
-                ),
-            )
-                .fetchPolicy(FetchPolicy.NetworkOnly)
-                .execute()
+            val result = runCatching {
+                graphqlClient.apolloClient.query(
+                    ImportedMailHtmlScreenQuery(
+                        id = id,
+                    ),
+                )
+                    .fetchPolicy(FetchPolicy.NetworkOnly)
+                    .execute()
+            }
 
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
-                    apolloResponseState = response,
+                    apolloResponseState = result,
                 )
             }
         }
@@ -102,6 +131,6 @@ public class ImportedMailHtmlViewModel(
     }
 
     private data class ViewModelState(
-        val apolloResponseState: ApolloResponse<ImportedMailHtmlScreenQuery.Data>? = null,
+        val apolloResponseState: Result<ApolloResponse<ImportedMailHtmlScreenQuery.Data>>? = null,
     )
 }

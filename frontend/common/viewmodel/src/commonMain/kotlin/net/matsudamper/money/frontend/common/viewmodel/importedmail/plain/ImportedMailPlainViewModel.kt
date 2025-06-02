@@ -54,26 +54,40 @@ public class ImportedMailPlainViewModel(
     ).also { uiStateFlow ->
         viewModelScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
-                val response = viewModelState.apolloResponseState
-                val mailData = response?.data?.user?.importedMailAttributes?.mail
-                val loadingState = if (viewModelState.apolloResponseState == null) {
-                    ImportedMailPlainScreenUiState.LoadingState.Loading
-                } else if (
-                    response.hasErrors() ||
-                    mailData == null
-                ) {
-                    ImportedMailPlainScreenUiState.LoadingState.Error
-                } else {
-                    ImportedMailPlainScreenUiState.LoadingState.Loaded(
-                        html = sequence {
-                            yield(
-                                mailData.plain
-                                    ?.replace("\r\n", "<br>")
-                                    ?.replace("\n", "<br>"),
-                            )
-                        }.filterNotNull().firstOrNull().orEmpty(),
-                    )
+                val loadingState: ImportedMailPlainScreenUiState.LoadingState
+
+                val apolloResult = viewModelState.apolloResponseState
+                if (apolloResult == null) {
+                    loadingState = ImportedMailPlainScreenUiState.LoadingState.Loading
+                    uiStateFlow.update { it.copy(loadingState = loadingState) }
+                    return@collectLatest
                 }
+
+                if (apolloResult.isFailure) {
+                    loadingState = ImportedMailPlainScreenUiState.LoadingState.Error
+                    uiStateFlow.update { it.copy(loadingState = loadingState) }
+                    return@collectLatest
+                }
+
+                val response = apolloResult.getOrThrow()
+                val mailData = response.data?.user?.importedMailAttributes?.mail
+
+                if (response.hasErrors() || mailData == null) {
+                    loadingState = ImportedMailPlainScreenUiState.LoadingState.Error
+                    uiStateFlow.update { it.copy(loadingState = loadingState) }
+                    return@collectLatest
+                }
+
+                loadingState = ImportedMailPlainScreenUiState.LoadingState.Loaded(
+                    html = sequence {
+                        yield(
+                            mailData.plain
+                                ?.replace("\r\n", "<br>")
+                                ?.replace("\n", "<br>"),
+                        )
+                    }.filterNotNull().firstOrNull().orEmpty(),
+                )
+
                 uiStateFlow.update {
                     it.copy(
                         loadingState = loadingState,
@@ -85,18 +99,19 @@ public class ImportedMailPlainViewModel(
 
     private fun fetch() {
         viewModelScope.launch(Dispatchers.IO) {
-            val response = graphqlClient.apolloClient.query(
-                ImportedMailPlainScreenQuery(
-                    id = id,
-                ),
-            )
-                .fetchPolicy(FetchPolicy.NetworkOnly)
-                .execute()
-
+            val result = runCatching {
+                graphqlClient.apolloClient.query(
+                    ImportedMailPlainScreenQuery(
+                        id = id,
+                    ),
+                )
+                    .fetchPolicy(FetchPolicy.NetworkOnly)
+                    .execute()
+            }
 
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
-                    apolloResponseState = response,
+                    apolloResponseState = result,
                 )
             }
         }
@@ -107,6 +122,6 @@ public class ImportedMailPlainViewModel(
     }
 
     private data class ViewModelState(
-        val apolloResponseState: ApolloResponse<ImportedMailPlainScreenQuery.Data>? = null,
+        val apolloResponseState: Result<ApolloResponse<ImportedMailPlainScreenQuery.Data>>? = null,
     )
 }
