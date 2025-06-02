@@ -44,8 +44,8 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
-import net.matsudamper.money.frontend.graphql.MonthlyScreenListQuery
-import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryFilter
+import net.matsudamper.money.frontend.graphql.MonthlySubCategoryScreenQuery
+import net.matsudamper.money.frontend.graphql.MonthlySubCategoryScreenListQuery
 import net.matsudamper.money.frontend.graphql.updateOperation
 
 public class RootHomeMonthlySubCategoryScreenViewModel(
@@ -71,7 +71,7 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
         it.createFirstQuery()
     }.stateIn(viewModelScope, SharingStarted.Lazily, null)
 
-    private fun getFlow(): Flow<ApolloResponse<MonthlyScreenListQuery.Data>> {
+    private fun getFlow(): Flow<ApolloResponse<MonthlySubCategoryScreenListQuery.Data>> {
         @Suppress("OPT_IN_USAGE")
         return firstQueryFlow.filterNotNull().flatMapLatest {
             graphqlClient.apolloClient.query(it)
@@ -152,7 +152,7 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
         }
     }
 
-    private fun createItem(node: MonthlyScreenListQuery.Node): RootHomeMonthlySubCategoryScreenUiState.Item {
+    private fun createItem(node: MonthlySubCategoryScreenListQuery.Node): RootHomeMonthlySubCategoryScreenUiState.Item {
         return RootHomeMonthlySubCategoryScreenUiState.Item(
             title = node.title,
             amount = "${Formatter.formatMoney(node.amount)}円",
@@ -174,7 +174,7 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
         )
     }
 
-    private fun createPieChartItems(nodes: List<MonthlyScreenListQuery.Node>): ImmutableList<PieChartItem> {
+    private fun createPieChartItems(nodes: List<MonthlySubCategoryScreenListQuery.Node>): ImmutableList<PieChartItem> {
         return nodes
             .groupBy { it.moneyUsageSubCategory?.name ?: "その他" }
             .mapValues { (_, nodes) -> nodes.sumOf { it.amount } }
@@ -210,6 +210,24 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
     }
 
     private suspend fun fetchSubCategoryName() {
+        val subCategoryId = viewModelStateFlow.value.subCategoryId
+        val query = MonthlySubCategoryScreenQuery(id = subCategoryId)
+        val response = withContext(Dispatchers.IO) {
+            graphqlClient.apolloClient.query(query)
+                .fetchPolicy(FetchPolicy.NetworkOnly)
+                .execute()
+        }
+
+        if (!response.hasErrors()) {
+            val subCategoryName = response.data?.user?.moneyUsageSubCategory?.name
+            if (subCategoryName != null) {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        subCategoryName = subCategoryName,
+                    )
+                }
+            }
+        }
     }
 
     private suspend fun fetchList() {
@@ -235,7 +253,7 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
                     .data(
                         data = before.copy(
                             user = before.user?.copy(
-                                moneyUsages = MonthlyScreenListQuery.MoneyUsages(
+                                moneyUsages = MonthlySubCategoryScreenListQuery.MoneyUsages(
                                     cursor = response.data?.user?.moneyUsages?.cursor,
                                     hasMore = response.data?.user?.moneyUsages?.hasMore ?: false,
                                     nodes = beforeNodes + newNodes,
@@ -248,7 +266,7 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
         }
     }
 
-    private suspend fun queryExec(query: MonthlyScreenListQuery): ApolloResponse<MonthlyScreenListQuery.Data> {
+    private suspend fun queryExec(query: MonthlySubCategoryScreenListQuery): ApolloResponse<MonthlySubCategoryScreenListQuery.Data> {
         return withContext(Dispatchers.IO) {
             graphqlClient.apolloClient.query(query)
                 .fetchPolicy(FetchPolicy.NetworkOnly)
@@ -265,9 +283,9 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
         val month: Int,
         val subCategoryId: MoneyUsageSubCategoryId,
         val subCategoryName: String? = null,
-        val apolloResponse: ApolloResponse<MonthlyScreenListQuery.Data>? = null,
+        val apolloResponse: ApolloResponse<MonthlySubCategoryScreenListQuery.Data>? = null,
     ) {
-        fun createFirstQuery(): MonthlyScreenListQuery {
+        fun createFirstQuery(): MonthlySubCategoryScreenListQuery {
             return createQuery(
                 cursor = null,
                 subCategoryId = subCategoryId,
@@ -276,7 +294,7 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
             )
         }
 
-        fun createQuery(cursor: String?): MonthlyScreenListQuery {
+        fun createQuery(cursor: String?): MonthlySubCategoryScreenListQuery {
             return createQuery(
                 cursor = cursor,
                 subCategoryId = subCategoryId,
@@ -292,17 +310,18 @@ private fun createQuery(
     subCategoryId: MoneyUsageSubCategoryId,
     year: Int,
     month: Int,
-): MonthlyScreenListQuery {
+): MonthlySubCategoryScreenListQuery {
     val date = LocalDate(
         year = year,
         monthNumber = month,
         dayOfMonth = 1,
     )
 
-    return MonthlyScreenListQuery(
+    return MonthlySubCategoryScreenListQuery(
         cursor = Optional.present(cursor),
         size = 50,
         isAsc = true,
+        subCategory = subCategoryId,
         sinceDateTime = Optional.present(
             LocalDateTime(
                 date = date,
