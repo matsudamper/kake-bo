@@ -123,21 +123,28 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
     ).also { uiStateFlow ->
         viewModelScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
-                val response = viewModelState.apolloResponse
-                val state = if (response == null) {
+                val listResponse = viewModelState.apolloResponse
+                val listData = listResponse?.data?.user?.moneyUsages
+                val screenResponse = viewModelState.screenResponse
+                val screenResponseData = screenResponse?.data?.user?.moneyUsageSubCategory
+                val state = if (listResponse == null || screenResponse == null) {
                     RootHomeMonthlySubCategoryScreenUiState.LoadingState.Loading
-                } else if (response.hasErrors()) {
+                } else if (
+                    listResponse.hasErrors() ||
+                    listData == null ||
+                    screenResponse.hasErrors() ||
+                    screenResponseData == null
+                ) {
                     RootHomeMonthlySubCategoryScreenUiState.LoadingState.Error
                 } else {
-                    val nodes = response.data?.user?.moneyUsages?.nodes.orEmpty()
-                    val items = nodes.map { node -> createItem(node) }
-                    val pieChartItems = createPieChartItems(nodes)
+                    val items = listData.nodes.map { node -> createItem(node) }
+                    val pieChartItems = createPieChartItems(listData.nodes)
                     RootHomeMonthlySubCategoryScreenUiState.LoadingState.Loaded(
                         items = items,
                         event = loadedEvent,
-                        hasMoreItem = response.data?.user?.moneyUsages?.hasMore != false,
+                        hasMoreItem = listResponse.data?.user?.moneyUsages?.hasMore != false,
                         pieChartItems = pieChartItems,
-                        pieChartTitle = viewModelState.subCategoryName ?: "サブカテゴリ別一覧",
+                        pieChartTitle = screenResponseData.name,
                     )
                 }
                 uiStateFlow.value = uiStateFlow.value.copy(
@@ -218,15 +225,10 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
                 .execute()
         }
 
-        if (!response.hasErrors()) {
-            val subCategoryName = response.data?.user?.moneyUsageSubCategory?.name
-            if (subCategoryName != null) {
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        subCategoryName = subCategoryName,
-                    )
-                }
-            }
+        viewModelStateFlow.update { viewModelState ->
+            viewModelState.copy(
+                screenResponse = response,
+            )
         }
     }
 
@@ -282,7 +284,7 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
         val year: Int,
         val month: Int,
         val subCategoryId: MoneyUsageSubCategoryId,
-        val subCategoryName: String? = null,
+        val screenResponse: ApolloResponse<MonthlySubCategoryScreenQuery.Data>? = null,
         val apolloResponse: ApolloResponse<MonthlySubCategoryScreenListQuery.Data>? = null,
     ) {
         fun createFirstQuery(): MonthlySubCategoryScreenListQuery {
