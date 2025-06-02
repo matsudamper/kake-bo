@@ -192,7 +192,9 @@ internal fun RootNavContent(
                     }
 
                     is RootHomeScreenStructure.MonthlySubCategory -> {
-                        val monthlySubCategoryViewModel = LocalScopedObjectStore.current.putOrGet<net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.subcategory.RootHomeMonthlySubCategoryScreenViewModel>(Unit) {
+                        val monthlySubCategoryViewModel = LocalScopedObjectStore.current.putOrGet<net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.subcategory.RootHomeMonthlySubCategoryScreenViewModel>(
+                            Unit,
+                        ) {
                             net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.subcategory.RootHomeMonthlySubCategoryScreenViewModel(
                                 argument = current,
                                 scopedObjectFeature = it,

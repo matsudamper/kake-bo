@@ -172,7 +172,7 @@ public class RootHomeTabPeriodSubCategoryContentViewModel(
                                                         subCategoryId = viewModelState.subCategoryId,
                                                         year = yearMonth.year,
                                                         month = yearMonth.month,
-                                                    )
+                                                    ),
                                                 )
                                             }
                                         }

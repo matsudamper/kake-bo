@@ -44,8 +44,8 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
-import net.matsudamper.money.frontend.graphql.MonthlySubCategoryScreenQuery
 import net.matsudamper.money.frontend.graphql.MonthlySubCategoryScreenListQuery
+import net.matsudamper.money.frontend.graphql.MonthlySubCategoryScreenQuery
 import net.matsudamper.money.frontend.graphql.updateOperation
 
 public class RootHomeMonthlySubCategoryScreenViewModel(
