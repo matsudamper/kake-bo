@@ -190,6 +190,30 @@ internal fun RootNavContent(
                             windowInsets = windowInsets,
                         )
                     }
+
+                    is RootHomeScreenStructure.MonthlySubCategory -> {
+                        val monthlySubCategoryViewModel = LocalScopedObjectStore.current.putOrGet<net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.subcategory.RootHomeMonthlySubCategoryScreenViewModel>(Unit) {
+                            net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.subcategory.RootHomeMonthlySubCategoryScreenViewModel(
+                                argument = current,
+                                scopedObjectFeature = it,
+                                loginCheckUseCase = loginCheckUseCase,
+                                graphqlClient = koin.get<GraphqlClient>(),
+                                navController = navController,
+                            )
+                        }
+                        LaunchedEffect(monthlySubCategoryViewModel.eventHandler) {
+                            viewModelEventHandlers.handleRootHomeMonthlySubCategoryScreen(monthlySubCategoryViewModel.eventHandler)
+                        }
+                        LaunchedEffect(monthlySubCategoryViewModel, current) {
+                            monthlySubCategoryViewModel.updateStructure(current)
+                        }
+
+                        net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlySubCategoryScreen(
+                            modifier = Modifier.fillMaxSize(),
+                            uiState = monthlySubCategoryViewModel.uiStateFlow.collectAsState().value,
+                            windowInsets = windowInsets,
+                        )
+                    }
                 }
             }
         }

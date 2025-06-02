@@ -160,6 +160,13 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
             ) ?: ScreenStructure.NotFound
         }
 
+        Screens.HomeMonthlySubCategory -> {
+            RootHomeScreenStructure.MonthlySubCategory.create(
+                pathParams = pathParams,
+                queryParams = queryParams,
+            ) ?: ScreenStructure.NotFound
+        }
+
         Screens.ImportedMailList -> {
             ScreenStructure.Root.Add.Imported.create(
                 pathParams = pathParams,

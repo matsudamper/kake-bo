@@ -21,6 +21,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeri
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodSubCategoryContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.RootHomeMonthlyScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.category.RootHomeMonthlyCategoryScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.subcategory.RootHomeMonthlySubCategoryScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeAddTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailLinkViewModelEvent
@@ -376,6 +377,18 @@ internal data class ViewModelEventHandlers(
         coroutineScope {
             handler.collect(
                 object : RootHomeMonthlyScreenViewModel.Event {
+                    override fun navigate(screen: ScreenStructure) {
+                        navController.navigate(screen)
+                    }
+                },
+            )
+        }
+    }
+
+    suspend fun handleRootHomeMonthlySubCategoryScreen(handler: EventHandler<RootHomeMonthlySubCategoryScreenViewModel.Event>) {
+        coroutineScope {
+            handler.collect(
+                object : RootHomeMonthlySubCategoryScreenViewModel.Event {
                     override fun navigate(screen: ScreenStructure) {
                         navController.navigate(screen)
                     }

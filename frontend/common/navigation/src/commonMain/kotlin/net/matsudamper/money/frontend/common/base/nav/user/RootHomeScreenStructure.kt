@@ -243,4 +243,48 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
             }
         }
     }
+
+    public data class MonthlySubCategory(
+        val subCategoryId: MoneyUsageSubCategoryId,
+        val year: Int,
+        val month: Int,
+    ) : RootHomeScreenStructure {
+        override val direction: Screens = Screens.HomeMonthlySubCategory
+
+        override fun createUrl(): String {
+            return direction.placeholderUrl
+                .replace("{$MONTH_KEY}", "$year-$month")
+                .replace("{$SUB_CATEGORY_KEY}", subCategoryId.id.toString())
+        }
+
+        public companion object {
+            private const val MONTH_KEY = "year-month"
+            private const val SUB_CATEGORY_KEY = "id"
+
+            @Suppress("UNUSED_PARAMETER")
+            public fun create(
+                pathParams: Map<String, String>,
+                queryParams: Map<String, List<String>>,
+            ): MonthlySubCategory? {
+                val subCategory = pathParams[SUB_CATEGORY_KEY]
+                    ?.toIntOrNull()
+                    ?: return null
+                val year: Int
+                val month: Int
+                run {
+                    val list = pathParams[MONTH_KEY]
+                        ?.split("-")
+                        ?: return null
+
+                    year = list.getOrNull(0)?.toIntOrNull() ?: return null
+                    month = list.getOrNull(1)?.toIntOrNull() ?: return null
+                }
+                return MonthlySubCategory(
+                    year = year,
+                    month = month,
+                    subCategoryId = MoneyUsageSubCategoryId(subCategory),
+                )
+            }
+        }
+    }
 }

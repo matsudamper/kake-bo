@@ -21,6 +21,10 @@ public enum class Screens : Direction {
         override val title: String = "月間カテゴリ"
         override val placeholderUrl: String = "/home/monthly/{year-month}/category/{id}"
     },
+    HomeMonthlySubCategory {
+        override val title: String = "月間サブカテゴリ"
+        override val placeholderUrl: String = "/home/monthly/{year-month}/sub-category/{id}"
+    },
     HomeMonthly {
         override val title: String = "月別"
         override val placeholderUrl: String = "/home/monthly"

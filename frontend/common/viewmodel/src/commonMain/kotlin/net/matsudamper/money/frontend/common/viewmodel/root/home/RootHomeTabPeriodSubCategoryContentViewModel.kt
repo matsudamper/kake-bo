@@ -165,7 +165,17 @@ public class RootHomeTabPeriodSubCategoryContentViewModel(
                                 total = amount,
                                 event = object : BarGraphUiState.PeriodDataEvent {
                                     override fun onClick() {
-                                        // TODO
+                                        viewModelScope.launch {
+                                            eventSender.send {
+                                                it.navigate(
+                                                    RootHomeScreenStructure.MonthlySubCategory(
+                                                        subCategoryId = viewModelState.subCategoryId,
+                                                        year = yearMonth.year,
+                                                        month = yearMonth.month,
+                                                    )
+                                                )
+                                            }
+                                        }
                                     }
                                 },
                             ),
