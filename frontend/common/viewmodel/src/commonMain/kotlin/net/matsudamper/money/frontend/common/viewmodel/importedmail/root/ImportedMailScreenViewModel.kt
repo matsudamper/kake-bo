@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.importedmail.root
 
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -8,6 +9,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.element.ImportedMailId
+import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -18,7 +20,6 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.ImportedMailScreenQuery
-import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class ImportedMailScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -29,8 +30,6 @@ public class ImportedMailScreenViewModel(
 
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
-
-    private val apolloResponseCollector = api.get(id = importedMailId)
     private val event = object : MailScreenUiState.Event {
         override fun onClickRetry() {
             fetch()
@@ -94,23 +93,24 @@ public class ImportedMailScreenViewModel(
                     uiState.copy(
                         confirmDialog = viewModelState.confirmDialog,
                         urlMenuDialog = viewModelState.urlMenuDialog,
-                        loadingState = when (val apolloResponse = viewModelState.apolloResponse) {
-                            is ApolloResponseState.Failure -> {
-                                MailScreenUiState.LoadingState.Error
+                        loadingState = run {
+                            val apolloResult = viewModelState.apolloResponse
+                            if (apolloResult == null) {
+                                return@run MailScreenUiState.LoadingState.Loading
                             }
 
-                            is ApolloResponseState.Loading -> {
-                                MailScreenUiState.LoadingState.Loading
+                            if (apolloResult.isFailure) {
+                                return@run MailScreenUiState.LoadingState.Error
                             }
 
-                            is ApolloResponseState.Success -> {
-                                val mail = apolloResponse.value.data?.user?.importedMailAttributes?.mail
-                                if (mail == null) {
-                                    MailScreenUiState.LoadingState.Loading
-                                } else {
-                                    createLoadedUiState(mail = mail)
-                                }
+                            val response = apolloResult.getOrThrow()
+                            val mail = response.data?.user?.importedMailAttributes?.mail
+
+                            if (response.hasErrors() || mail == null) {
+                                return@run MailScreenUiState.LoadingState.Error
                             }
+
+                            createLoadedUiState(mail = mail)
                         },
                     )
                 }
@@ -239,20 +239,18 @@ public class ImportedMailScreenViewModel(
     }
 
     init {
-        viewModelScope.launch {
-            apolloResponseCollector.getFlow().collectLatest { response ->
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        apolloResponse = response,
-                    )
-                }
-            }
-        }
+        fetch()
     }
 
     private fun fetch() {
         viewModelScope.launch {
-            apolloResponseCollector.fetch()
+            val result = api.get(id = importedMailId)
+
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    apolloResponse = result,
+                )
+            }
         }
     }
 
@@ -335,7 +333,7 @@ public class ImportedMailScreenViewModel(
 
     private data class ViewModelState(
         val isLoading: Boolean = true,
-        val apolloResponse: ApolloResponseState<ApolloResponse<ImportedMailScreenQuery.Data>> = ApolloResponseState.loading(),
+        val apolloResponse: Result<ApolloResponse<ImportedMailScreenQuery.Data>>? = null,
         val confirmDialog: MailScreenUiState.AlertDialog? = null,
         val urlMenuDialog: MailScreenUiState.UrlMenuDialog? = null,
     )
