@@ -43,6 +43,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeri
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.RootHomeMonthlyScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.category.RootHomeMonthlyCategoryScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.subcategory.RootHomeMonthlySubCategoryScreenViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 private enum class SavedStateHolderKey {
@@ -192,10 +193,10 @@ internal fun RootNavContent(
                     }
 
                     is RootHomeScreenStructure.MonthlySubCategory -> {
-                        val monthlySubCategoryViewModel = LocalScopedObjectStore.current.putOrGet<net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.subcategory.RootHomeMonthlySubCategoryScreenViewModel>(
+                        val monthlySubCategoryViewModel = LocalScopedObjectStore.current.putOrGet<RootHomeMonthlySubCategoryScreenViewModel>(
                             Unit,
                         ) {
-                            net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.subcategory.RootHomeMonthlySubCategoryScreenViewModel(
+                            RootHomeMonthlySubCategoryScreenViewModel(
                                 argument = current,
                                 scopedObjectFeature = it,
                                 loginCheckUseCase = loginCheckUseCase,

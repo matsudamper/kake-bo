@@ -59,7 +59,7 @@ public class ImportedMailHtmlViewModel(
                 if (apolloResult == null) {
                     uiStateFlow.update {
                         it.copy(
-                            loadingState = ImportedMailHtmlScreenUiState.LoadingState.Loading
+                            loadingState = ImportedMailHtmlScreenUiState.LoadingState.Loading,
                         )
                     }
                     return@collectLatest
@@ -68,7 +68,7 @@ public class ImportedMailHtmlViewModel(
                 if (apolloResult.isFailure) {
                     uiStateFlow.update {
                         it.copy(
-                            loadingState = ImportedMailHtmlScreenUiState.LoadingState.Error
+                            loadingState = ImportedMailHtmlScreenUiState.LoadingState.Error,
                         )
                     }
                     return@collectLatest
@@ -78,7 +78,7 @@ public class ImportedMailHtmlViewModel(
                 if (response.hasErrors()) {
                     uiStateFlow.update {
                         it.copy(
-                            loadingState = ImportedMailHtmlScreenUiState.LoadingState.Error
+                            loadingState = ImportedMailHtmlScreenUiState.LoadingState.Error,
                         )
                     }
                     return@collectLatest
@@ -88,7 +88,7 @@ public class ImportedMailHtmlViewModel(
                 if (mailData == null) {
                     uiStateFlow.update {
                         it.copy(
-                            loadingState = ImportedMailHtmlScreenUiState.LoadingState.Error
+                            loadingState = ImportedMailHtmlScreenUiState.LoadingState.Error,
                         )
                     }
                     return@collectLatest
@@ -98,8 +98,8 @@ public class ImportedMailHtmlViewModel(
                 uiStateFlow.update {
                     it.copy(
                         loadingState = ImportedMailHtmlScreenUiState.LoadingState.Loaded(
-                            html = html
-                        )
+                            html = html,
+                        ),
                     )
                 }
             }
