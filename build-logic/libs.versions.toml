@@ -101,7 +101,7 @@ logstashLogbackEncoder = { module = "net.logstash.logback:logstash-logback-encod
 
 # Graphql
 graphqlJava-extendedScalars = { module = "com.graphql-java:graphql-java-extended-scalars", version.require = "2023-01-24T02-11-56-babda5f" }
-graphqlJava = { module = "com.graphql-java:graphql-java", version.require = "24.0" }
+graphqlJava = { module = "com.graphql-java:graphql-java", version.require = "24.1" }
 graphqlJavaKickstart-JavaTools = { module = "com.graphql-java-kickstart:graphql-java-tools", version.require = "14.0.1" }
 
 # DataStore
