@@ -42,14 +42,6 @@ internal object KaldiCoffeeFarmUsageServices : MoneyUsageServices {
         val description = buildString {
             append("注文日: $orderDate\n")
             append("支払方法: $paymentMethod\n\n")
-
-            if (products.isNotEmpty()) {
-                append("商品一覧:\n")
-                products.forEach { product ->
-                    append("- ${product.name}\n")
-                    append("  単価: ${product.price}円 × ${product.quantity}個 = ${product.totalPrice}円\n")
-                }
-            }
         }
 
         return buildList {
