@@ -163,6 +163,30 @@ public class MoneyUsageScreenViewModel(
 
     private fun createLoadedEvent(): MoneyUsageScreenUiState.LoadedEvent {
         return object : MoneyUsageScreenUiState.LoadedEvent {
+            override fun onClickDuplicate() {
+                val currentState = viewModelStateFlow.value
+                val loadedState = currentState.apolloResponseState.getSuccessOrNull()?.value?.data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage
+                    ?: return
+                viewModelScope.launch {
+                    eventSender.send { event ->
+                        event.navigate(
+                            ScreenStructure.AddMoneyUsage(
+                                title = loadedState.title,
+                                price = loadedState.amount.toFloat(),
+                                date = loadedState.date,
+                                description = loadedState.description,
+                                categoryId = loadedState.moneyUsageSubCategory?.category?.id,
+                                categoryName = loadedState.moneyUsageSubCategory?.category?.name,
+                                subCategoryId = loadedState.moneyUsageSubCategory?.id,
+                                subCategoryName = loadedState.moneyUsageSubCategory?.name,
+                                importedMailId = null, // Not duplicating mail links for now
+                                importedMailIndex = null,
+                            ),
+                        )
+                    }
+                }
+            }
+
             override fun onClickDelete() {
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(

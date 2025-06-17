@@ -229,12 +229,25 @@ public class AddMoneyUsageViewModel(
                 ViewModelState().copy(
                     usageTitle = current.title ?: it.usageTitle,
                     usageDate = current.date?.date ?: it.usageDate,
+                    usageTime = current.date?.time ?: it.usageTime,
                     usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: it.usageAmount,
+                    usageDescription = current.description ?: it.usageDescription,
+                    usageCategorySet = if (current.categoryId != null && current.categoryName != null && current.subCategoryId != null && current.subCategoryName != null) {
+                        CategorySelectDialogViewModel.SelectedResult(
+                            categoryId = current.categoryId,
+                            categoryName = current.categoryName,
+                            subCategoryId = current.subCategoryId,
+                            subCategoryName = current.subCategoryName,
+                        )
+                    } else {
+                        it.usageCategorySet
+                    },
                 )
             }
             return
         }
 
+        // If importedMailId is present, prioritize fetching data from mail
         usageFromMailIdJob = viewModelScope.launch {
             graphqlApi.get(importedMailId)
                 .onSuccess { result ->
@@ -243,44 +256,94 @@ public class AddMoneyUsageViewModel(
                     val suggestUsage = result.data?.user?.importedMailAttributes?.mail?.suggestUsages
                         ?.getOrNull(importedMailIndex ?: 0)
                     val forwardedInfo = result.data?.user?.importedMailAttributes?.mail?.forwardedInfo
+
+                    // Default values from current navigation structure, possibly overridden by mail data later
+                    var baseTitle = current.title ?: viewModelStateFlow.value.usageTitle
+                    var baseDate = current.date?.date ?: viewModelStateFlow.value.usageDate
+                    var baseTime = current.date?.time ?: viewModelStateFlow.value.usageTime
+                    var baseAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: viewModelStateFlow.value.usageAmount
+                    var baseDescription = current.description ?: viewModelStateFlow.value.usageDescription
+                    var baseCategorySet = if (current.categoryId != null && current.categoryName != null && current.subCategoryId != null && current.subCategoryName != null) {
+                        CategorySelectDialogViewModel.SelectedResult(
+                            categoryId = current.categoryId,
+                            categoryName = current.categoryName,
+                            subCategoryId = current.subCategoryId,
+                            subCategoryName = current.subCategoryName,
+                        )
+                    } else {
+                        viewModelStateFlow.value.usageCategorySet
+                    }
+
                     if (suggestUsage == null) {
                         val subject = result.data?.user?.importedMailAttributes?.mail?.subject.orEmpty()
-                        val date = result.data?.user?.importedMailAttributes?.mail?.dateTime
+                        val mailDate = result.data?.user?.importedMailAttributes?.mail?.dateTime
                         viewModelStateFlow.update {
                             it.copy(
                                 importedMailId = importedMailId,
-                                usageTitle = forwardedInfo?.subject ?: subject,
-                                usageDate = forwardedInfo?.dateTime?.date
-                                    ?: date?.date
-                                    ?: Clock.System.todayIn(TimeZone.currentSystemDefault()),
+                                usageTitle = forwardedInfo?.subject ?: subject.takeIf { it.isNotBlank() } ?: baseTitle,
+                                usageDate = forwardedInfo?.dateTime?.date ?: mailDate?.date ?: baseDate,
+                                usageTime = forwardedInfo?.dateTime?.time ?: mailDate?.time ?: baseTime,
+                                usageDescription = baseDescription, // Keep description from nav args if suggestUsage is null
+                                usageCategorySet = baseCategorySet, // Keep category from nav args
+                                usageAmount = baseAmount, // Keep amount from nav args
                             )
                         }
                         return@launch
                     }
 
+                    // Mail data overrides if present
                     viewModelStateFlow.update {
                         it.copy(
                             importedMailId = importedMailId,
                             usageAmount = NumberInputValue.default(
-                                value = suggestUsage.amount ?: 0,
+                                value = suggestUsage.amount ?: baseAmount.value,
                             ),
-                            usageDate = suggestUsage.dateTime?.date ?: it.usageDate,
-                            usageTime = suggestUsage.dateTime?.time ?: it.usageTime,
-                            usageTitle = suggestUsage.title,
-                            usageDescription = suggestUsage.description,
+                            usageDate = suggestUsage.dateTime?.date ?: baseDate,
+                            usageTime = suggestUsage.dateTime?.time ?: baseTime,
+                            usageTitle = suggestUsage.title.takeIf { !it.isNullOrBlank() } ?: baseTitle,
+                            usageDescription = suggestUsage.description.takeIf { !it.isNullOrBlank() } ?: baseDescription,
                             usageCategorySet = run category@{
-                                CategorySelectDialogViewModel.SelectedResult(
-                                    categoryId = suggestUsage.subCategory?.category?.id ?: return@category null,
-                                    categoryName = suggestUsage.subCategory?.category?.name ?: return@category null,
-                                    subCategoryId = suggestUsage.subCategory?.id ?: return@category null,
-                                    subCategoryName = suggestUsage.subCategory?.name ?: return@category null,
-                                )
+                                val mailCategoryId = suggestUsage.subCategory?.category?.id
+                                val mailCategoryName = suggestUsage.subCategory?.category?.name
+                                val mailSubCategoryId = suggestUsage.subCategory?.id
+                                val mailSubCategoryName = suggestUsage.subCategory?.name
+
+                                if (mailCategoryId != null && mailCategoryName != null && mailSubCategoryId != null && mailSubCategoryName != null) {
+                                    CategorySelectDialogViewModel.SelectedResult(
+                                        categoryId = mailCategoryId,
+                                        categoryName = mailCategoryName,
+                                        subCategoryId = mailSubCategoryId,
+                                        subCategoryName = mailSubCategoryName,
+                                    )
+                                } else {
+                                    baseCategorySet
+                                }
                             },
                         )
                     }
                 }
                 .onFailure {
-                    // TODO
+                    // Failed to fetch mail details, fallback to only passed navigation arguments
+                    viewModelStateFlow.update {
+                        it.copy(
+                            importedMailId = importedMailId, // Still set the ID
+                            usageTitle = current.title ?: it.usageTitle,
+                            usageDate = current.date?.date ?: it.usageDate,
+                            usageTime = current.date?.time ?: it.usageTime,
+                            usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: it.usageAmount,
+                            usageDescription = current.description ?: it.usageDescription,
+                            usageCategorySet = if (current.categoryId != null && current.categoryName != null && current.subCategoryId != null && current.subCategoryName != null) {
+                                CategorySelectDialogViewModel.SelectedResult(
+                                    categoryId = current.categoryId,
+                                    categoryName = current.categoryName,
+                                    subCategoryId = current.subCategoryId,
+                                    subCategoryName = current.subCategoryName,
+                                )
+                            } else {
+                                it.usageCategorySet
+                            },
+                        )
+                    }
                 }
         }
     }

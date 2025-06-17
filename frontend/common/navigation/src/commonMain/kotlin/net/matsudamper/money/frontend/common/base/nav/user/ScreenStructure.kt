@@ -5,6 +5,7 @@ import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 
 public sealed interface ScreenStructure : IScreenStructure {
     public sealed interface Root : ScreenStructure {
@@ -234,6 +235,11 @@ public sealed interface ScreenStructure : IScreenStructure {
         val title: String? = null,
         val price: Float? = null,
         val date: LocalDateTime? = null,
+        val description: String? = null,
+        val categoryId: MoneyUsageCategoryId? = null,
+        val categoryName: String? = null,
+        val subCategoryId: MoneyUsageSubCategoryId? = null,
+        val subCategoryName: String? = null,
     ) : ScreenStructure {
         override val direction: Screens = Screens.AddMoneyUsage
         override val stackGroupId: Any? = null
@@ -251,6 +257,27 @@ public sealed interface ScreenStructure : IScreenStructure {
                     if (title != null) {
                         append(KEY_TITLE, title)
                     }
+                    if (price != null) {
+                        append(KEY_PRICE, price.toString())
+                    }
+                    if (date != null) {
+                        append(KEY_DATE, date.toString())
+                    }
+                    if (description != null) {
+                        append(KEY_DESCRIPTION, description)
+                    }
+                    if (categoryId != null) {
+                        append(KEY_CATEGORY_ID, categoryId.value.toString())
+                    }
+                    if (categoryName != null) {
+                        append(KEY_CATEGORY_NAME, categoryName)
+                    }
+                    if (subCategoryId != null) {
+                        append(KEY_SUB_CATEGORY_ID, subCategoryId.value.toString())
+                    }
+                    if (subCategoryName != null) {
+                        append(KEY_SUB_CATEGORY_NAME, subCategoryName)
+                    }
                 },
             )
         }
@@ -261,6 +288,11 @@ public sealed interface ScreenStructure : IScreenStructure {
             private const val KEY_TITLE = "title"
             private const val KEY_PRICE = "price"
             private const val KEY_DATE = "date"
+            private const val KEY_DESCRIPTION = "description"
+            private const val KEY_CATEGORY_ID = "category_id"
+            private const val KEY_CATEGORY_NAME = "category_name"
+            private const val KEY_SUB_CATEGORY_ID = "sub_category_id"
+            private const val KEY_SUB_CATEGORY_NAME = "sub_category_name"
 
             public fun fromQueryParams(queryParams: Map<String, List<String>>): AddMoneyUsage {
                 return AddMoneyUsage(
@@ -270,6 +302,13 @@ public sealed interface ScreenStructure : IScreenStructure {
                     title = queryParams[KEY_TITLE]?.firstOrNull(),
                     price = queryParams[KEY_PRICE]?.firstOrNull()?.toFloatOrNull(),
                     date = queryParams[KEY_DATE]?.firstOrNull()?.let { LocalDateTime.parse(it) },
+                    description = queryParams[KEY_DESCRIPTION]?.firstOrNull(),
+                    categoryId = queryParams[KEY_CATEGORY_ID]?.firstOrNull()?.toIntOrNull()
+                        ?.let { MoneyUsageCategoryId(it) },
+                    categoryName = queryParams[KEY_CATEGORY_NAME]?.firstOrNull(),
+                    subCategoryId = queryParams[KEY_SUB_CATEGORY_ID]?.firstOrNull()?.toIntOrNull()
+                        ?.let { MoneyUsageSubCategoryId(it) },
+                    subCategoryName = queryParams[KEY_SUB_CATEGORY_NAME]?.firstOrNull(),
                 )
             }
         }

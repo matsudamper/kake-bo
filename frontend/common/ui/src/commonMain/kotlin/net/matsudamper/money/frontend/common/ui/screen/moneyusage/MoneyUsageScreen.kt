@@ -146,6 +146,7 @@ public data class MoneyUsageScreenUiState(
     @Immutable
     public interface LoadedEvent {
         public fun onClickDelete()
+        public fun onClickDuplicate()
     }
 
     public data class Clickable(
@@ -398,6 +399,7 @@ private fun LoadedContent(
 private fun UsageMenuPopup(
     onDismissRequest: () -> Unit,
     onClickDelete: () -> Unit,
+    onClickDuplicate: () -> Unit,
 ) {
     Popup(
         onDismissRequest = onDismissRequest,
@@ -419,6 +421,14 @@ private fun UsageMenuPopup(
                         .padding(12.dp),
                     color = MaterialTheme.colorScheme.error,
                     text = "削除",
+                )
+                Text(
+                    modifier = Modifier.fillMaxWidth()
+                        .clickable {
+                            onClickDuplicate()
+                        }
+                        .padding(12.dp),
+                    text = "複製",
                 )
             }
         }
