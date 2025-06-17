@@ -5,6 +5,7 @@ import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 import net.matsudamper.money.backend.mail.parser.services.AmazonCoJpMonthlyUsageServices
 import net.matsudamper.money.backend.mail.parser.services.AmazonCoJpUsageServices
 import net.matsudamper.money.backend.mail.parser.services.AmazonPayUsageServices
+import net.matsudamper.money.backend.mail.parser.services.KaldiCoffeeFarmUsageService
 import net.matsudamper.money.backend.mail.parser.services.AuEasyPaymentUsageServices
 import net.matsudamper.money.backend.mail.parser.services.AuPayUsageService
 import net.matsudamper.money.backend.mail.parser.services.BicCameraUsageServices
@@ -56,6 +57,7 @@ public object MailParser {
         date: LocalDateTime,
     ): List<MoneyUsage> {
         return sequenceOf(
+            KaldiCoffeeFarmUsageService,
             AmazonCoJpUsageServices,
             AmazonCoJpMonthlyUsageServices,
             AmazonPayUsageServices,
