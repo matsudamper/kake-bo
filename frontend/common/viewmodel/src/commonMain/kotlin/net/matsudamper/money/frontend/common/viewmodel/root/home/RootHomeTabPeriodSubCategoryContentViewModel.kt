@@ -26,7 +26,6 @@ import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructu
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
-import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAndCategoryUiState.LoadingState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodSubCategoryContentUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
@@ -92,33 +91,10 @@ public class RootHomeTabPeriodSubCategoryContentViewModel(
                             .stateIn(this)
                             .collectLatest { displayPeriod ->
                                 for (i in 0 until displayPeriod.monthCount) {
-                                    val start = displayPeriod.sinceDate.addMonth(i)
-                                    val end = displayPeriod.sinceDate.addMonth(i + 1)
                                     launch {
-                                        val flow = api.watch(
-                                            subCategory = viewModelStateFlow.value.subCategoryId,
-                                            startYear = start.year,
-                                            startMonth = start.month,
-                                            endYear = end.year,
-                                            endMonth = end.month,
-                                            useCache = true,
+                                        collectSubCategory(
+                                            month = displayPeriod.sinceDate.addMonth(i),
                                         )
-                                        flow
-                                            .catch { e ->
-                                                e.printStackTrace()
-                                                viewModelStateFlow.update { viewModelState ->
-                                                    viewModelState.copy(
-                                                        resultMap = viewModelState.resultMap.plus(start to Result.failure(e)),
-                                                    )
-                                                }
-                                            }
-                                            .collectLatest { response ->
-                                                viewModelStateFlow.update { viewModelState ->
-                                                    viewModelState.copy(
-                                                        resultMap = viewModelState.resultMap.plus(start to Result.success(response)),
-                                                    )
-                                                }
-                                            }
                                     }
                                 }
                             }
@@ -206,6 +182,37 @@ public class RootHomeTabPeriodSubCategoryContentViewModel(
             }
         }
     }.asStateFlow()
+
+    private suspend fun collectSubCategory(
+        month: YearMonth,
+    ) {
+        val start = month
+        val end = start.addMonth(1)
+        val flow = api.watch(
+            subCategory = viewModelStateFlow.value.subCategoryId,
+            startYear = start.year,
+            startMonth = start.month,
+            endYear = end.year,
+            endMonth = end.month,
+            useCache = true,
+        )
+        flow
+            .catch { e ->
+                e.printStackTrace()
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        resultMap = viewModelState.resultMap.plus(start to Result.failure(e)),
+                    )
+                }
+            }
+            .collectLatest { response ->
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        resultMap = viewModelState.resultMap.plus(start to Result.success(response)),
+                    )
+                }
+            }
+    }
 
     private data class ViewModelState(
         val subCategoryId: MoneyUsageSubCategoryId,
