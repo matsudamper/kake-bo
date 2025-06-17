@@ -1,10 +1,10 @@
 package net.matsudamper.money.frontend.common.viewmodel.importedmail.root
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.graphql.GraphqlClient
