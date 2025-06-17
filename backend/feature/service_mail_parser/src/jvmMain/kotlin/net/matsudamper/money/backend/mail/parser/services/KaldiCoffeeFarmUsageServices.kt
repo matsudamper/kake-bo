@@ -81,13 +81,12 @@ internal object KaldiCoffeeFarmUsageServices : MoneyUsageServices {
         val lines = ParseUtil.splitByNewLine(plain)
 
         val startIndex = lines.indexOfFirst { it.contains("[ご注文商品]") }.takeIf { it >= 0 }
-        if (startIndex == null) return listOf()
+            ?: return listOf()
 
         val endIndex = lines.subList(startIndex + 1, lines.size).indexOfFirst {
-            it.contains("[配送日指定]") || it.contains("[配送時間帯指定]") || it.trim().isEmpty()
+            it.contains("[配送日指定]") || it.contains("[配送時間帯指定]")
         }.takeIf { it >= 0 }
-
-        if (endIndex == null) return listOf()
+            ?: return listOf()
 
         val productSection = lines.subList(startIndex + 1, startIndex + 1 + endIndex)
 
