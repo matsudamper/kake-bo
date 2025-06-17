@@ -26,10 +26,28 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -92,13 +110,33 @@ public fun Calendar(
                     tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
+            var showYearMonthPicker by remember { mutableStateOf(false) }
             Text(
                 modifier = Modifier
-                    .padding(12.dp),
+                    .padding(12.dp)
+                    .clickable {
+                        showYearMonthPicker = !showYearMonthPicker
+                    },
                 textAlign = TextAlign.Center,
                 text = "${currentMonthDateList.first().year}年${currentMonthDateList.first().monthNumber}月",
                 color = MaterialTheme.colorScheme.onSurface,
             )
+
+            if (showYearMonthPicker) {
+                YearMonthPicker(
+                    currentYear = visibleCalendarDate.year,
+                    currentMonth = visibleCalendarDate.monthNumber,
+                    onDateSelected = { year, month ->
+                        // Set to the first day of the selected month to ensure validity
+                        visibleCalendarDate = LocalDate(year, month, 1)
+                        showYearMonthPicker = false
+                    },
+                    onDismiss = {
+                        showYearMonthPicker = false
+                    }
+                )
+            }
+
             IconButton(onClick = {
                 visibleCalendarDate = visibleCalendarDate.plus(1, DateTimeUnit.MONTH)
             }) {
@@ -161,6 +199,89 @@ public fun Calendar(
                         )
                     }
                 }
+
+@Composable
+private fun YearMonthPicker(
+    currentYear: Int,
+    currentMonth: Int,
+    onDateSelected: (year: Int, month: Int) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    var selectedYear by remember { mutableStateOf(currentYear) }
+    var selectedMonthInternal by remember { mutableStateOf(currentMonth) }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.medium,
+            color = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Select Year and Month", style = MaterialTheme.typography.titleMedium)
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Year Selector
+                Text("Select Year", style = MaterialTheme.typography.titleSmall)
+                val yearRange = (currentYear - 10)..(currentYear + 10)
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    items(yearRange.toList()) { year ->
+                        OutlinedButton(
+                            onClick = { selectedYear = year },
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            border = if (selectedYear == year) ButtonDefaults.outlinedButtonBorder.copy(width = 2.dp) else ButtonDefaults.outlinedButtonBorder,
+                        ) {
+                            Text(year.toString())
+                        }
+                    }
+                }
+                Text("Selected Year: $selectedYear", style = MaterialTheme.typography.bodyMedium)
+
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Month Selector
+                Text("Select Month", style = MaterialTheme.typography.titleSmall)
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(4),
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                ) {
+                    items(12) { monthIndex ->
+                        val monthValue = monthIndex + 1
+                        OutlinedButton(
+                            onClick = { selectedMonthInternal = monthValue },
+                            modifier = Modifier.padding(4.dp),
+                            border = if (selectedMonthInternal == monthValue) ButtonDefaults.outlinedButtonBorder.copy(width = 2.dp) else ButtonDefaults.outlinedButtonBorder,
+                        ) {
+                            Text(monthValue.toString())
+                        }
+                    }
+                }
+                Text("Selected Month: $selectedMonthInternal", style = MaterialTheme.typography.bodyMedium)
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Button(
+                    onClick = {
+                        onDateSelected(selectedYear, selectedMonthInternal)
+                        onDismiss() // Call onDismiss to close the dialog
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Done")
+                }
+            }
+        }
+    }
+}
             }
         }
     }
