@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend.mail.parser
 
 import java.time.LocalDateTime
+import net.matsudamper.money.backend.base.element.MoneyUsageServiceType
 import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 import net.matsudamper.money.backend.mail.parser.services.AmazonCoJpMonthlyUsageServices
 import net.matsudamper.money.backend.mail.parser.services.AmazonCoJpUsageServices
@@ -40,6 +41,7 @@ import net.matsudamper.money.backend.mail.parser.services.RentioUsageServices
 import net.matsudamper.money.backend.mail.parser.services.ShunsuguUsageService
 import net.matsudamper.money.backend.mail.parser.services.SquareEnixMogStationUsageServices
 import net.matsudamper.money.backend.mail.parser.services.SteamUsageService
+import net.matsudamper.money.backend.mail.parser.services.TakaraTomyMallUsageService
 import net.matsudamper.money.backend.mail.parser.services.UberEatsUsageService
 import net.matsudamper.money.backend.mail.parser.services.YMobileUsageServices
 import net.matsudamper.money.backend.mail.parser.services.YahooShoppingUsageServices
@@ -100,6 +102,7 @@ public object MailParser {
             EPlusUsageServices,
             SquareEnixMogStationUsageServices,
             FFXIVUsageServices,
+            TakaraTomyMallUsageService,
         )
             .mapNotNull {
                 runCatching {

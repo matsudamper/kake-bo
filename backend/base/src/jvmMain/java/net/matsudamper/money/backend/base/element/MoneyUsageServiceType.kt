@@ -160,4 +160,8 @@ public enum class MoneyUsageServiceType(
         id = 40,
         displayName = "Microsoft",
     ),
+    TakaraTomyMall(
+        id = 41,
+        displayName = "タカラトミーモール",
+    ),
 }
