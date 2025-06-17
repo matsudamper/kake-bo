@@ -114,6 +114,7 @@ internal object KaldiCoffeeFarmUsageServices : MoneyUsageServices {
                             currentProduct = Product(name = name, code = code, price = 0, quantity = 0, totalPrice = 0)
                         }
                     }
+
                     line.startsWith("・単価") -> {
                         val pricePattern = "・単価 (.+?)円".toRegex()
                         val match = pricePattern.find(line)
@@ -123,6 +124,7 @@ internal object KaldiCoffeeFarmUsageServices : MoneyUsageServices {
                             currentProduct = currentProduct.copy(price = price)
                         }
                     }
+
                     line.startsWith("・数量") -> {
                         val quantityPattern = "・数量 (\\d+)".toRegex()
                         val match = quantityPattern.find(line)
@@ -132,6 +134,7 @@ internal object KaldiCoffeeFarmUsageServices : MoneyUsageServices {
                             currentProduct = currentProduct.copy(quantity = quantity)
                         }
                     }
+
                     line.startsWith("・商品代") -> {
                         val totalPricePattern = "・商品代 (\\d+)円".toRegex()
                         val match = totalPricePattern.find(line)
@@ -162,6 +165,6 @@ internal object KaldiCoffeeFarmUsageServices : MoneyUsageServices {
         subject: String,
     ): Boolean {
         return subject.contains("カルディコーヒーファーム オンラインストア") &&
-            subject.contains("ご注文を受け付けました")
+                subject.contains("ご注文を受け付けました")
     }
 }
