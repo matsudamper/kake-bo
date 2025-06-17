@@ -93,7 +93,7 @@ internal object KaldiCoffeeFarmUsageServices : MoneyUsageServices {
                             currentProduct = null
                         }
 
-                        val nameCodePattern = "・商品名（商品コード）(.+?)$".toRegex()
+                        val nameCodePattern = "・商品名（商品コード）(.+?)（.+?）$".toRegex()
                         val match = nameCodePattern.find(line)
 
                         if (match != null) {
@@ -113,7 +113,7 @@ internal object KaldiCoffeeFarmUsageServices : MoneyUsageServices {
                     }
 
                     line.contains("・数量") -> {
-                        val quantityPattern = "・数量(\\d+)$".toRegex()
+                        val quantityPattern = "・数量.+?(\\d+)$".toRegex()
                         val match = quantityPattern.find(line)
 
                         if (match != null) {
@@ -123,13 +123,9 @@ internal object KaldiCoffeeFarmUsageServices : MoneyUsageServices {
                     }
 
                     line.contains("・商品代") -> {
-                        val totalPricePattern = "・商品代(\\d+)円".toRegex()
-                        val match = totalPricePattern.find(line)
+                        val price = ParseUtil.getInt(line) ?: 0
 
-                        if (match != null) {
-                            val totalPrice = ParseUtil.getInt(match.groupValues[1]) ?: 0
-                            currentProduct = currentProduct?.copy(totalPrice = totalPrice)
-                        }
+                        currentProduct = currentProduct?.copy(totalPrice = price)
                     }
                 }
             }
