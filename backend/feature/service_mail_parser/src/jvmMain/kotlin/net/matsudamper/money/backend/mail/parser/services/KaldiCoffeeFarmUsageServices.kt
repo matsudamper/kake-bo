@@ -17,13 +17,11 @@ internal object KaldiCoffeeFarmUsageServices : MoneyUsageServices {
         date: LocalDateTime,
     ): List<MoneyUsage> {
         val forwardedInfo = ParseUtil.parseForwarded(plain)
-        if (
-            canHandleSubject(
-                subject = forwardedInfo?.subject ?: subject,
-            ).not()
-        ) {
-            return listOf()
+        val canHandle = sequence {
+            yield(canHandleFrom(forwardedInfo?.from ?: from))
+            yield(canHandleSubject(forwardedInfo?.subject ?: subject))
         }
+        if (canHandle.any { it }.not()) return listOf()
 
         val lines = ParseUtil.splitByNewLine(plain)
 
@@ -147,5 +145,11 @@ internal object KaldiCoffeeFarmUsageServices : MoneyUsageServices {
         subject: String,
     ): Boolean {
         return subject.contains("カルディコーヒーファーム オンラインストア") && subject.contains("ご注文を受け付けました")
+    }
+
+    private fun canHandleFrom(
+        from: String,
+    ): Boolean {
+        return from == "online@kaldi.co.jp"
     }
 }
