@@ -45,6 +45,24 @@ val value = if (hoge != null) {
 } ?: piyo
 ```
 
+## nullableとスコープ関数
+
+戻り値を使用せず、関数を実行するだけの場合においてはifを優先して使用してください。
+
+NG
+
+```kotlin
+hoge?.also { fuga(it) }
+```
+
+OK
+
+```kotlin
+if (hoge != null) {
+    fuga(hoge)
+}
+```
+
 ## null合体演算子
 
 null合体演算子使用しなくて良いものは使用しないでください。Listでも同様に`orEmpty()`を使用してください。

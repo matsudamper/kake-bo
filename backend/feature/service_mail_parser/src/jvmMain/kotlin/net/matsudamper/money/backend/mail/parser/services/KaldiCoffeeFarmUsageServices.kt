@@ -101,7 +101,9 @@ internal object KaldiCoffeeFarmUsageServices : MoneyUsageServices {
             for (line in productSection) {
                 when {
                     line.startsWith("・商品名（商品コード）") -> {
-                        currentProduct?.let { add(it) }
+                        if (currentProduct != null) {
+                            add(currentProduct)
+                        }
 
                         val nameCodePattern = "・商品名（商品コード） (.+?)（(.+?)）".toRegex()
                         val match = nameCodePattern.find(line)
@@ -142,7 +144,9 @@ internal object KaldiCoffeeFarmUsageServices : MoneyUsageServices {
                 }
             }
 
-            currentProduct?.let { add(it) }
+            if (currentProduct != null) {
+                add(currentProduct)
+            }
         }
     }
 
