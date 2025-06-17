@@ -164,4 +164,8 @@ public enum class MoneyUsageServiceType(
         id = 41,
         displayName = "カルディコーヒーファーム",
     ),
+    TakaraTomyMall(
+        id = 42,
+        displayName = "タカラトミーモール",
+    ),
 }
