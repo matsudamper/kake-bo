@@ -17,6 +17,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo3.api.ApolloResponse
+import com.apollographql.apollo3.cache.normalized.isFromCache
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
@@ -206,6 +207,9 @@ public class RootHomeTabPeriodSubCategoryContentViewModel(
                 }
             }
             .collectLatest { response ->
+                if (response.isFromCache && response.data == null) {
+                    return@collectLatest
+                }
                 viewModelStateFlow.update { viewModelState ->
                     viewModelState.copy(
                         resultMap = viewModelState.resultMap.plus(start to Result.success(response)),
