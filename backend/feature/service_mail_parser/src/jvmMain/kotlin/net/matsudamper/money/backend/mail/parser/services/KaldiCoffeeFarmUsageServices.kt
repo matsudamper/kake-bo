@@ -146,7 +146,6 @@ internal object KaldiCoffeeFarmUsageServices : MoneyUsageServices {
     private fun canHandleSubject(
         subject: String,
     ): Boolean {
-        return subject.contains("カルディコーヒーファーム オンラインストア") &&
-                subject.contains("ご注文を受け付けました")
+        return subject.contains("カルディコーヒーファーム オンラインストア") && subject.contains("ご注文を受け付けました")
     }
 }
