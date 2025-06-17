@@ -80,7 +80,6 @@ internal object TakaraTomyMallUsageServices : MoneyUsageServices {
                 ?.plus(1)
                 ?: return@buildList
 
-
             val reamingLines = lines.subList(startLine, lines.size).toMutableList()
             while (reamingLines.isNotEmpty()) {
                 val nameLine = reamingLines.removeFirstOrNull()?.trim()?.takeIf { it.isNotBlank() } ?: break
@@ -118,8 +117,7 @@ internal object TakaraTomyMallUsageServices : MoneyUsageServices {
     private fun canHandleSubject(
         subject: String,
     ): Boolean {
-        return subject.contains("タカラトミーモール") &&
-                subject.contains("ご注文を受け付けました")
+        return subject.contains("タカラトミーモール") && subject.contains("ご注文を受け付けました")
     }
 
     private fun canHandleFrom(

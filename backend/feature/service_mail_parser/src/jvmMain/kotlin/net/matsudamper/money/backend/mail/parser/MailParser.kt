@@ -20,7 +20,6 @@ import net.matsudamper.money.backend.mail.parser.services.FanzaDojinUsageService
 import net.matsudamper.money.backend.mail.parser.services.GooglePlayUsageService
 import net.matsudamper.money.backend.mail.parser.services.JapanTsushinUsageServices
 import net.matsudamper.money.backend.mail.parser.services.KaldiCoffeeFarmUsageServices
-import net.matsudamper.money.backend.mail.parser.services.TakaraTomyMallUsageServices
 import net.matsudamper.money.backend.mail.parser.services.MacdonaldsMobileOrderUsageService
 import net.matsudamper.money.backend.mail.parser.services.MicrosoftUsageServices
 import net.matsudamper.money.backend.mail.parser.services.MitsuiSumitomoCardUsageServices
@@ -42,6 +41,7 @@ import net.matsudamper.money.backend.mail.parser.services.RentioUsageServices
 import net.matsudamper.money.backend.mail.parser.services.ShunsuguUsageService
 import net.matsudamper.money.backend.mail.parser.services.SquareEnixMogStationUsageServices
 import net.matsudamper.money.backend.mail.parser.services.SteamUsageService
+import net.matsudamper.money.backend.mail.parser.services.TakaraTomyMallUsageServices
 import net.matsudamper.money.backend.mail.parser.services.UberEatsUsageService
 import net.matsudamper.money.backend.mail.parser.services.YMobileUsageServices
 import net.matsudamper.money.backend.mail.parser.services.YahooShoppingUsageServices
