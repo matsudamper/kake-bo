@@ -27,9 +27,6 @@ internal object KaldiCoffeeFarmUsageServices : MoneyUsageServices {
 
         val lines = ParseUtil.splitByNewLine(plain)
 
-        val orderNumberLine = lines.firstOrNull { it.contains("[注文番号]") }
-        val orderNumber = orderNumberLine?.substringAfter("[注文番号]")?.trim().orEmpty()
-
         val orderDateLine = lines.firstOrNull { it.contains("[ご注文日]") }
         val orderDate = orderDateLine?.substringAfter("[ご注文日]")?.trim().orEmpty()
 
@@ -43,7 +40,6 @@ internal object KaldiCoffeeFarmUsageServices : MoneyUsageServices {
         val products = extractProducts(plain)
 
         val description = buildString {
-            append("注文番号: $orderNumber\n")
             append("注文日: $orderDate\n")
             append("支払方法: $paymentMethod\n\n")
 
@@ -72,7 +68,7 @@ internal object KaldiCoffeeFarmUsageServices : MoneyUsageServices {
                     MoneyUsage(
                         title = product.name,
                         price = product.totalPrice,
-                        description = "単価: ${product.price}円 × ${product.quantity}個\n注文番号: $orderNumber",
+                        description = "単価: ${product.price}円 × ${product.quantity}個",
                         service = MoneyUsageServiceType.KaldiCoffeeFarm,
                         dateTime = forwardedInfo?.date ?: date,
                     ),
