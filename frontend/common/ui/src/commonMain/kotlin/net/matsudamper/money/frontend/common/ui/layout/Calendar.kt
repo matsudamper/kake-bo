@@ -31,6 +31,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import net.matsudamper.money.frontend.common.ui.layout.YearMonthPickerDialog
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.Clock
@@ -83,31 +85,42 @@ public fun Calendar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
-            IconButton(onClick = {
-                visibleCalendarDate = visibleCalendarDate.minus(1, DateTimeUnit.MONTH)
-            }) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "前の月",
-                    tint = MaterialTheme.colorScheme.onSurface,
-                )
-            }
-            Text(
-                modifier = Modifier
-                    .padding(12.dp),
-                textAlign = TextAlign.Center,
-                text = "${currentMonthDateList.first().year}年${currentMonthDateList.first().monthNumber}月",
-                color = MaterialTheme.colorScheme.onSurface,
+        IconButton(onClick = { visibleCalendarDate = visibleCalendarDate.minus(1, DateTimeUnit.MONTH) }) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                contentDescription = "前の月",
+                tint = MaterialTheme.colorScheme.onSurface,
             )
-            IconButton(onClick = {
-                visibleCalendarDate = visibleCalendarDate.plus(1, DateTimeUnit.MONTH)
-            }) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = "後の月",
-                    tint = MaterialTheme.colorScheme.onSurface,
-                )
-            }
+        }
+        var showYearMonthPicker by remember { mutableStateOf(false) }
+        Text(
+            modifier = Modifier
+                .padding(12.dp)
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                ) { showYearMonthPicker = true },
+            textAlign = TextAlign.Center,
+            text = "${currentMonthDateList.first().year}年${currentMonthDateList.first().monthNumber}月",
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        IconButton(onClick = { visibleCalendarDate = visibleCalendarDate.plus(1, DateTimeUnit.MONTH) }) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = "後の月",
+                tint = MaterialTheme.colorScheme.onSurface,
+            )
+        }
+        if (showYearMonthPicker) {
+            YearMonthPickerDialog(
+                initialDate = visibleCalendarDate,
+                onDismissRequest = { showYearMonthPicker = false },
+                onYearMonthChange = { year, month ->
+                    visibleCalendarDate = LocalDate(year, month, 1)
+                    showYearMonthPicker = false
+                }
+            )
+        }
         }
         LazyVerticalGrid(
             columns = GridCells.Fixed(7),
