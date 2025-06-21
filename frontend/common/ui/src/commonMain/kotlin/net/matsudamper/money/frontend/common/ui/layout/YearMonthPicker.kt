@@ -33,9 +33,6 @@ internal fun YearMonthPicker(
 
     var selectedDate by remember { mutableStateOf(initialDate) }
 
-    val initialYearIndex = years.indexOf(initialDate.year).takeIf { it >= 0 } ?: 0
-    val initialMonthIndex = initialDate.monthNumber - 1
-
     Column(
         modifier = modifier,
     ) {
@@ -55,6 +52,7 @@ internal fun YearMonthPicker(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.weight(1f),
             ) {
+                val initialYearIndex = years.indexOf(initialDate.year).takeIf { it >= 0 } ?: 0
                 Text(
                     text = "年",
                     style = MaterialTheme.typography.titleMedium,
@@ -66,8 +64,7 @@ internal fun YearMonthPicker(
                     initialIndex = initialYearIndex,
                     itemHeight = ItemHeight,
                     rows = PickerRowCount,
-                    onSelectedIndexChanged = { index ->
-                        val newYear = years[index]
+                    onSelectedIndexChanged = { newYear ->
                         val newDate = LocalDate(newYear, selectedDate.monthNumber, selectedDate.dayOfMonth)
                         onDateChanged(newDate)
                     },
@@ -95,6 +92,7 @@ internal fun YearMonthPicker(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.weight(1f),
             ) {
+                val initialMonthIndex = initialDate.monthNumber - 1
                 Text(
                     text = "月",
                     style = MaterialTheme.typography.titleMedium,
@@ -106,8 +104,7 @@ internal fun YearMonthPicker(
                     initialIndex = initialMonthIndex,
                     itemHeight = ItemHeight,
                     rows = PickerRowCount,
-                    onSelectedIndexChanged = { index ->
-                        val newMonth = months[index]
+                    onSelectedIndexChanged = { newMonth ->
                         val newDate = LocalDate(selectedDate.year, newMonth, selectedDate.dayOfMonth)
                         onDateChanged(newDate)
                     },

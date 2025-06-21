@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import kotlinx.datetime.LocalDate
+import net.matsudamper.money.frontend.common.base.Logger
 
 @Composable
 internal fun CalendarDialog(
@@ -61,23 +62,22 @@ internal fun CalendarDialog(
             ) {
                 var selectedDate by remember { mutableStateOf(initialCalendar) }
                 var showYearMonthPicker by remember { mutableStateOf(false) }
-                var visibleCalendarDate by remember { mutableStateOf(initialCalendar) }
 
                 if (showYearMonthPicker) {
+                    var selectingDate by remember { mutableStateOf(initialCalendar) }
                     CalendarAlertDialogScaffold(
                         dismissRequest = {
                             showYearMonthPicker = false
                         },
                         onClickDone = {
-                            selectedDate = visibleCalendarDate
+                            selectedDate = selectingDate
                             showYearMonthPicker = false
                         },
                     ) {
                         YearMonthPicker(
-                            initialDate = visibleCalendarDate,
+                            initialDate = selectedDate,
                             onDateChanged = { newDate ->
-                                visibleCalendarDate = newDate
-                                selectedDate = newDate
+                                selectingDate = newDate
                             },
                         )
                     }

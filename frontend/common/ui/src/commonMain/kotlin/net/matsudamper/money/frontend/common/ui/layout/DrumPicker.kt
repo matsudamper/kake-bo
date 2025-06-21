@@ -11,6 +11,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,7 +33,7 @@ internal fun <T> DrumPicker(
     initialIndex: Int,
     itemHeight: Dp,
     rows: Int,
-    onSelectedIndexChanged: (Int) -> Unit,
+    onSelectedIndexChanged: (T) -> Unit,
     modifier: Modifier = Modifier,
     itemContent: @Composable (item: T, isSelected: Boolean) -> Unit,
 ) {
@@ -41,27 +42,27 @@ internal fun <T> DrumPicker(
     val lazyListState = rememberLazyListState()
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = lazyListState)
 
-    val centerItemIndex = remember(lazyListState.layoutInfo) {
-        val layoutInfo = lazyListState.layoutInfo
-        if (layoutInfo.visibleItemsInfo.isEmpty() || layoutInfo.totalItemsCount == 0) {
-            null
-        } else {
-            val viewportCenterY = layoutInfo.viewportSize.height / 2f
-            val closestItem = layoutInfo.visibleItemsInfo.minByOrNull {
-                abs(it.offset + it.size / 2 - viewportCenterY)
+    val centerItemIndex by remember {
+        derivedStateOf {
+            val layoutInfo = lazyListState.layoutInfo
+            if (layoutInfo.visibleItemsInfo.isEmpty() || layoutInfo.totalItemsCount == 0) {
+                null
+            } else {
+                val viewportCenterY = layoutInfo.viewportSize.height / 2f
+                val closestItem = layoutInfo.visibleItemsInfo.minByOrNull {
+                    abs(it.offset + it.size / 2 - viewportCenterY)
+                }
+                closestItem?.index
             }
-            closestItem?.index
         }
     }
 
-    LaunchedEffect(lazyListState) {
+    LaunchedEffect(Unit) {
         snapshotFlow { centerItemIndex }
             .distinctUntilChanged()
             .filterNotNull()
             .collect { index ->
-                if (index in items.indices) {
-                    onSelectedIndexChanged(index)
-                }
+                onSelectedIndexChanged(items[index - rows / 2])
             }
     }
 
