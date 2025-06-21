@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Card
@@ -23,8 +22,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import kotlinx.datetime.LocalDate
@@ -48,7 +45,6 @@ internal fun CalendarDialog(
             },
         contentAlignment = Alignment.Center,
     ) {
-        val density = LocalDensity.current
         Card(
             modifier = Modifier
                 .clickable(
@@ -58,15 +54,10 @@ internal fun CalendarDialog(
                     // カード内をタップしても閉じないようにする
                 },
         ) {
-            var height by remember { mutableStateOf(0) }
             Column(
                 modifier = Modifier
                     .padding(24.dp)
-                    .widthIn(max = 500.dp)
-                    .heightIn(min = with(density) { height.toDp() })
-                    .onSizeChanged {
-                        height = it.height
-                    },
+                    .widthIn(max = 500.dp),
             ) {
                 var selectedDate by remember { mutableStateOf(initialCalendar) }
                 var showYearMonthPicker by remember { mutableStateOf(false) }
@@ -84,7 +75,6 @@ internal fun CalendarDialog(
                     ) {
                         YearMonthPicker(
                             initialDate = visibleCalendarDate,
-                            modifier = Modifier.padding(16.dp),
                             onDateChanged = { newDate ->
                                 visibleCalendarDate = newDate
                                 selectedDate = newDate

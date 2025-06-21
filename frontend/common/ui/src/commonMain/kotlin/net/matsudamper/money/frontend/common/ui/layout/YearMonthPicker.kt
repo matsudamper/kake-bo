@@ -17,10 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.todayIn
 
 private val ItemHeight = 48.dp
 private const val PickerRowCount = 5
@@ -31,12 +28,10 @@ internal fun YearMonthPicker(
     modifier: Modifier = Modifier,
     onDateChanged: (LocalDate) -> Unit,
 ) {
-    val currentYear = remember { Clock.System.todayIn(TimeZone.currentSystemDefault()).year }
-    val years = remember { (currentYear - 50..currentYear + 10).toList() }
+    val years = remember { (initialDate.year - 10..initialDate.year + 10).toList() }
     val months = (1..12).toList()
 
-    var selectedYear by remember { mutableStateOf(initialDate.year) }
-    var selectedMonth by remember { mutableStateOf(initialDate.monthNumber) }
+    var selectedDate by remember { mutableStateOf(initialDate) }
 
     val initialYearIndex = years.indexOf(initialDate.year).takeIf { it >= 0 } ?: 0
     val initialMonthIndex = initialDate.monthNumber - 1
@@ -72,12 +67,8 @@ internal fun YearMonthPicker(
                     itemHeight = ItemHeight,
                     rows = PickerRowCount,
                     onSelectedIndexChanged = { index ->
-                        selectedYear = years[index]
-                        val newDate = try {
-                            LocalDate(selectedYear, selectedMonth, 1)
-                        } catch (_: Exception) {
-                            Clock.System.todayIn(TimeZone.currentSystemDefault())
-                        }
+                        val newYear = years[index]
+                        val newDate = LocalDate(newYear, selectedDate.monthNumber, selectedDate.dayOfMonth)
                         onDateChanged(newDate)
                     },
                     itemContent = { year, isSelected ->
@@ -116,7 +107,9 @@ internal fun YearMonthPicker(
                     itemHeight = ItemHeight,
                     rows = PickerRowCount,
                     onSelectedIndexChanged = { index ->
-                        selectedMonth = months[index]
+                        val newMonth = months[index]
+                        val newDate = LocalDate(selectedDate.year, newMonth, selectedDate.dayOfMonth)
+                        onDateChanged(newDate)
                     },
                     itemContent = { month, isSelected ->
                         Text(
@@ -137,4 +130,4 @@ internal fun YearMonthPicker(
             }
         }
     }
-} 
+}
