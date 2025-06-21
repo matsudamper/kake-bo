@@ -79,93 +79,93 @@ public fun Calendar(
         (0 until offset).map { null } + currentMonthDateList
     }
     Column(modifier = modifier) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                IconButton(onClick = {
-                    visibleCalendarDate = visibleCalendarDate.minus(1, DateTimeUnit.MONTH)
-                }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                        contentDescription = "前の月",
-                        tint = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            IconButton(onClick = {
+                visibleCalendarDate = visibleCalendarDate.minus(1, DateTimeUnit.MONTH)
+            }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                    contentDescription = "前の月",
+                    tint = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+            Text(
+                modifier = Modifier
+                    .clickable {
+                        onYearMonthClick()
+                    }
+                    .padding(12.dp),
+                textAlign = TextAlign.Center,
+                text = "${currentMonthDateList.first().year}年${currentMonthDateList.first().monthNumber}月",
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            IconButton(onClick = {
+                visibleCalendarDate = visibleCalendarDate.plus(1, DateTimeUnit.MONTH)
+            }) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = "後の月",
+                    tint = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+        }
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(7),
+            modifier = Modifier,
+        ) {
+            items(7) {
                 Text(
                     modifier = Modifier
-                        .clickable {
-                            onYearMonthClick()
-                        }
-                        .padding(12.dp),
+                        .padding(vertical = 8.dp)
+                        .fillMaxWidth(),
                     textAlign = TextAlign.Center,
-                    text = "${currentMonthDateList.first().year}年${currentMonthDateList.first().monthNumber}月",
+                    text = when (it) {
+                        0 -> "日"
+                        1 -> "月"
+                        2 -> "火"
+                        3 -> "水"
+                        4 -> "木"
+                        5 -> "金"
+                        6 -> "土"
+                        else -> throw IllegalStateException()
+                    },
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                IconButton(onClick = {
-                    visibleCalendarDate = visibleCalendarDate.plus(1, DateTimeUnit.MONTH)
-                }) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                        contentDescription = "後の月",
-                        tint = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
             }
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(7),
-                modifier = Modifier,
-            ) {
-                items(7) {
-                    Text(
-                        modifier = Modifier
-                            .padding(vertical = 8.dp)
-                            .fillMaxWidth(),
-                        textAlign = TextAlign.Center,
-                        text = when (it) {
-                            0 -> "日"
-                            1 -> "月"
-                            2 -> "火"
-                            3 -> "水"
-                            4 -> "木"
-                            5 -> "金"
-                            6 -> "土"
-                            else -> throw IllegalStateException()
-                        },
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
-                }
-                items(calendarItems) { date ->
-                    Box(
-                        modifier = Modifier
-                            .border(1.dp, color = MaterialTheme.colorScheme.inversePrimary)
-                            .background(
-                                if (latestSelectedDate == date) {
-                                    MaterialTheme.colorScheme.onPrimaryContainer
-                                } else {
-                                    Color.Transparent
-                                },
-                            ),
-                    ) {
-                        if (date != null) {
-                            Text(
-                                modifier = Modifier
-                                    .clickable {
-                                        changeSelectedDate(date)
-                                    }
-                                    .fillMaxWidth()
-                                    .padding(8.dp),
-                                textAlign = TextAlign.Center,
-                                text = date.dayOfMonth.toString(),
-                                color = when (today == date) {
-                                    true -> MaterialTheme.colorScheme.primary
-                                    false -> MaterialTheme.colorScheme.onSurface
-                                },
-                            )
-                        }
+            items(calendarItems) { date ->
+                Box(
+                    modifier = Modifier
+                        .border(1.dp, color = MaterialTheme.colorScheme.inversePrimary)
+                        .background(
+                            if (latestSelectedDate == date) {
+                                MaterialTheme.colorScheme.onPrimaryContainer
+                            } else {
+                                Color.Transparent
+                            },
+                        ),
+                ) {
+                    if (date != null) {
+                        Text(
+                            modifier = Modifier
+                                .clickable {
+                                    changeSelectedDate(date)
+                                }
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            textAlign = TextAlign.Center,
+                            text = date.dayOfMonth.toString(),
+                            color = when (today == date) {
+                                true -> MaterialTheme.colorScheme.primary
+                                false -> MaterialTheme.colorScheme.onSurface
+                            },
+                        )
                     }
                 }
             }
+        }
     }
 }

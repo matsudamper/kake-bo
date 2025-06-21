@@ -25,7 +25,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import kotlinx.datetime.LocalDate
-import net.matsudamper.money.frontend.common.base.Logger
 
 @Composable
 internal fun CalendarDialog(

@@ -80,7 +80,6 @@ internal fun <T> DrumPicker(
         isInitialScrolled = true
     }
 
-
     Box(
         modifier = modifier
             .height(itemHeight * rows),
