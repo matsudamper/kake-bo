@@ -58,44 +58,92 @@ internal fun CalendarDialog(
                     // カード内をタップしても閉じないようにする
                 },
         ) {
+            var height by remember { mutableStateOf(0) }
             Column(
                 modifier = Modifier
-                    .padding(24.dp),
-            ) {
-                var height by remember { mutableStateOf(0) }
-                var selectedDate by remember { mutableStateOf(initialCalendar) }
-                Calendar(
-                    modifier = Modifier
-                        .widthIn(max = 500.dp)
-                        .heightIn(min = with(density) { height.toDp() })
-                        .onSizeChanged {
-                            height = it.height
-                        },
-                    selectedDate = selectedDate,
-                    changeSelectedDate = {
-                        selectedDate = it
+                    .padding(24.dp)
+                    .widthIn(max = 500.dp)
+                    .heightIn(min = with(density) { height.toDp() })
+                    .onSizeChanged {
+                        height = it.height
                     },
-                )
-                Spacer(Modifier.height(24.dp))
-                Row(
-                    modifier = Modifier
-                        .align(Alignment.End),
-                ) {
-                    TextButton(
-                        onClick = {
-                            dismissRequest()
+            ) {
+                var selectedDate by remember { mutableStateOf(initialCalendar) }
+                var showYearMonthPicker by remember { mutableStateOf(false) }
+                var visibleCalendarDate by remember { mutableStateOf(initialCalendar) }
+
+                if (showYearMonthPicker) {
+                    CalendarAlertDialogScaffold(
+                        dismissRequest = {
+                            showYearMonthPicker = false
+                        },
+                        onClickDone = {
+                            selectedDate = visibleCalendarDate
+                            showYearMonthPicker = false
                         },
                     ) {
-                        Text(text = "キャンセル")
+                        YearMonthPicker(
+                            initialDate = visibleCalendarDate,
+                            modifier = Modifier.padding(16.dp),
+                            onDateChanged = { newDate ->
+                                visibleCalendarDate = newDate
+                                selectedDate = newDate
+                            },
+                        )
                     }
-                    TextButton(
-                        onClick = {
+                } else {
+                    CalendarAlertDialogScaffold(
+                        dismissRequest = {
+                            dismissRequest()
+                        },
+                        onClickDone = {
                             selectedCalendar(selectedDate)
                         },
                     ) {
-                        Text(text = "決定")
+                        Calendar(
+                            modifier = Modifier,
+                            selectedDate = selectedDate,
+                            changeSelectedDate = {
+                                selectedDate = it
+                            },
+                            onYearMonthClick = {
+                                showYearMonthPicker = true
+                            },
+                        )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CalendarAlertDialogScaffold(
+    modifier: Modifier = Modifier,
+    dismissRequest: () -> Unit,
+    onClickDone: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    Column(modifier = modifier) {
+        content()
+        Spacer(Modifier.height(24.dp))
+        Row(
+            modifier = Modifier
+                .align(Alignment.End),
+        ) {
+            TextButton(
+                onClick = {
+                    dismissRequest()
+                },
+            ) {
+                Text(text = "キャンセル")
+            }
+            TextButton(
+                onClick = {
+                    onClickDone()
+                },
+            ) {
+                Text(text = "決定")
             }
         }
     }

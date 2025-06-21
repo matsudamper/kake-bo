@@ -3,9 +3,7 @@ package net.matsudamper.money.frontend.common.ui.layout
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -30,7 +28,7 @@ import kotlinx.coroutines.flow.filter
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-public fun <T> DrumPicker(
+internal fun <T> DrumPicker(
     items: List<T>,
     initialIndex: Int,
     itemHeight: Dp,
@@ -121,14 +119,12 @@ public fun <T> DrumPicker(
 
         HorizontalDivider(
             modifier = Modifier
-                .fillMaxWidth()
                 .offset(y = -itemHeight / 2),
             thickness = 1.dp,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
         )
         HorizontalDivider(
             modifier = Modifier
-                .fillMaxWidth()
                 .offset(y = itemHeight / 2),
             thickness = 1.dp,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
