@@ -11,7 +11,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,7 +23,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.abs
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterNotNull
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -45,20 +44,20 @@ internal fun <T> DrumPicker(
     val centerItemIndex = remember(lazyListState.layoutInfo) {
         val layoutInfo = lazyListState.layoutInfo
         if (layoutInfo.visibleItemsInfo.isEmpty() || layoutInfo.totalItemsCount == 0) {
-            -1
+            null
         } else {
             val viewportCenterY = layoutInfo.viewportSize.height / 2f
             val closestItem = layoutInfo.visibleItemsInfo.minByOrNull {
                 abs(it.offset + it.size / 2 - viewportCenterY)
             }
-            closestItem?.index ?: -1
+            closestItem?.index
         }
     }
 
     LaunchedEffect(lazyListState) {
         snapshotFlow { centerItemIndex }
             .distinctUntilChanged()
-            .filter { it != -1 }
+            .filterNotNull()
             .collect { index ->
                 if (index in items.indices) {
                     onSelectedIndexChanged(index)
@@ -67,17 +66,17 @@ internal fun <T> DrumPicker(
     }
 
     var isInitialScrolled by remember { mutableStateOf(false) }
-    LaunchedEffect(lazyListState.layoutInfo.totalItemsCount) {
-        if (isInitialScrolled.not() && lazyListState.layoutInfo.totalItemsCount > 0) {
-            val targetIndex = initialIndex
-            with(density) {
-                lazyListState.scrollToItem(
-                    index = targetIndex,
-                    scrollOffset = (-lazyListState.layoutInfo.viewportSize.height / 2 + itemHeight.roundToPx() / 2),
-                )
-            }
-            isInitialScrolled = true
+    LaunchedEffect(lazyListState.layoutInfo) {
+        if (isInitialScrolled) return@LaunchedEffect
+        if (lazyListState.layoutInfo.totalItemsCount == 0) return@LaunchedEffect
+        val targetIndex = initialIndex + lazyListState.layoutInfo.visibleItemsInfo.size / 2
+        with(density) {
+            lazyListState.scrollToItem(
+                index = targetIndex,
+                scrollOffset = (-lazyListState.layoutInfo.viewportSize.height / 2 + itemHeight.roundToPx() / 2),
+            )
         }
+        isInitialScrolled = true
     }
 
 
