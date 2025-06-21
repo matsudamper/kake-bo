@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.base.nav.user
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
 
@@ -72,5 +73,21 @@ internal class ScreenNavControllerImpl(
                 savedState = savedState,
             ),
         )
+    }
+
+    companion object {
+        private val globalSaver = mutableMapOf<Int, ScreenNavControllerImpl>()
+
+        fun Saver(id: Int): Saver<ScreenNavControllerImpl, *> {
+            return Saver(
+                save = {
+                    globalSaver[id] = it
+                    ""
+                },
+                restore = {
+                    globalSaver[id]
+                },
+            )
+        }
     }
 }

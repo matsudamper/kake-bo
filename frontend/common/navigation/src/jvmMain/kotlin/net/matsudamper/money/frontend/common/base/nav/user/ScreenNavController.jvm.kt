@@ -1,13 +1,12 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
+import androidx.compose.runtime.currentCompositeKeyHash
+import androidx.compose.runtime.saveable.rememberSaveable
 
 @Composable
 public actual fun rememberMainScreenNavController(initial: IScreenStructure): ScreenNavController {
-    val holder = rememberSaveableStateHolder()
-    return remember(holder) {
+    return rememberSaveable(saver = ScreenNavControllerImpl.Saver(currentCompositeKeyHash)) {
         ScreenNavControllerImpl(
             initial = initial,
         )
