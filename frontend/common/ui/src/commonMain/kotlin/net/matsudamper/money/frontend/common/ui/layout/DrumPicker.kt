@@ -33,8 +33,8 @@ internal fun <T> DrumPicker(
     initialIndex: Int,
     itemHeight: Dp,
     rows: Int,
-    modifier: Modifier = Modifier,
     onSelectedIndexChanged: (Int) -> Unit,
+    modifier: Modifier = Modifier,
     itemContent: @Composable (item: T, isSelected: Boolean) -> Unit,
 ) {
     require(rows % 2 != 0) { "rows must be odd" }
@@ -42,19 +42,16 @@ internal fun <T> DrumPicker(
     val lazyListState = rememberLazyListState()
     val flingBehavior = rememberSnapFlingBehavior(lazyListState = lazyListState)
 
-    val centerItemIndex by remember {
-        derivedStateOf {
-            val layoutInfo = lazyListState.layoutInfo
-            if (layoutInfo.visibleItemsInfo.isEmpty() || layoutInfo.totalItemsCount == 0) {
-                -1
-            } else {
-                val viewportCenterY = lazyListState.layoutInfo.viewportSize.height / 2f
-                val visibleItems = lazyListState.layoutInfo.visibleItemsInfo
-                val closestItem = visibleItems.minByOrNull {
-                    abs(it.offset + it.size / 2 - viewportCenterY)
-                }
-                closestItem?.index ?: -1
+    val centerItemIndex = remember(lazyListState.layoutInfo) {
+        val layoutInfo = lazyListState.layoutInfo
+        if (layoutInfo.visibleItemsInfo.isEmpty() || layoutInfo.totalItemsCount == 0) {
+            -1
+        } else {
+            val viewportCenterY = layoutInfo.viewportSize.height / 2f
+            val closestItem = layoutInfo.visibleItemsInfo.minByOrNull {
+                abs(it.offset + it.size / 2 - viewportCenterY)
             }
+            closestItem?.index ?: -1
         }
     }
 
