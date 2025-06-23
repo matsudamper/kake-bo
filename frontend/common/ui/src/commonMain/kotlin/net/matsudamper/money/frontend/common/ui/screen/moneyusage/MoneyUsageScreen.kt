@@ -146,6 +146,8 @@ public data class MoneyUsageScreenUiState(
     @Immutable
     public interface LoadedEvent {
         public fun onClickDelete()
+
+        public fun onClickCopy()
     }
 
     public data class Clickable(
@@ -341,6 +343,10 @@ private fun LoadedContent(
                                     visiblePopup = false
                                     uiState.event.onClickDelete()
                                 },
+                                onClickCopy = {
+                                    visiblePopup = false
+                                    uiState.event.onClickCopy()
+                                },
                             )
                         }
                     }
@@ -398,6 +404,7 @@ private fun LoadedContent(
 private fun UsageMenuPopup(
     onDismissRequest: () -> Unit,
     onClickDelete: () -> Unit,
+    onClickCopy: () -> Unit,
 ) {
     Popup(
         onDismissRequest = onDismissRequest,
@@ -411,6 +418,14 @@ private fun UsageMenuPopup(
             Column(
                 modifier = Modifier.width(IntrinsicSize.Max),
             ) {
+                Text(
+                    modifier = Modifier.fillMaxWidth()
+                        .clickable {
+                            onClickCopy()
+                        }
+                        .padding(12.dp),
+                    text = "コピー",
+                )
                 Text(
                     modifier = Modifier.fillMaxWidth()
                         .clickable {

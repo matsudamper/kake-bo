@@ -9,6 +9,7 @@ import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.graphql.AddMoneyUsageMutation
 import net.matsudamper.money.frontend.graphql.AddMoneyUsageScreenQuery
+import net.matsudamper.money.frontend.graphql.AddMoneyUsageScreenGetSubCategoryQuery
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.type.AddUsageQuery
 
@@ -47,6 +48,19 @@ public class AddMoneyUsageScreenApi(
                 .query(
                     AddMoneyUsageScreenQuery(
                         id = id,
+                    ),
+                )
+                .fetchPolicy(FetchPolicy.NetworkOnly)
+                .execute()
+        }
+    }
+
+    public suspend fun getSubCategory(subCategoryId: MoneyUsageSubCategoryId): Result<ApolloResponse<AddMoneyUsageScreenGetSubCategoryQuery.Data>> {
+        return runCatching {
+            graphqlClient.apolloClient
+                .query(
+                    AddMoneyUsageScreenGetSubCategoryQuery(
+                        subCategoryId = subCategoryId,
                     ),
                 )
                 .fetchPolicy(FetchPolicy.NetworkOnly)

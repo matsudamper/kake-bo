@@ -189,6 +189,30 @@ public class MoneyUsageScreenViewModel(
                     )
                 }
             }
+
+            override fun onClickCopy() {
+                val currentState = viewModelStateFlow.value
+                val moneyUsage = when (val state = currentState.apolloResponseState) {
+                    is ApolloResponseState.Success -> {
+                        state.value.data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage
+                    }
+                    else -> null
+                } ?: return
+
+                viewModelScope.launch {
+                    eventSender.send { event ->
+                        event.navigate(
+                            ScreenStructure.AddMoneyUsage(
+                                title = moneyUsage.title,
+                                price = moneyUsage.amount.toFloat(),
+                                date = moneyUsage.date,
+                                description = moneyUsage.description,
+                                subCategoryId = moneyUsage.moneyUsageSubCategory?.id?.id?.toString(),
+                            ),
+                        )
+                    }
+                }
+            }
         }
     }
 

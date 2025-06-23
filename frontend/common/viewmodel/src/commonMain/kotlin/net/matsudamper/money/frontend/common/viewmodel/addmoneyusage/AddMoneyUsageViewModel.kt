@@ -14,6 +14,7 @@ import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import net.matsudamper.money.element.ImportedMailId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
@@ -223,13 +224,46 @@ public class AddMoneyUsageViewModel(
     public fun updateScreenStructure(current: ScreenStructure.AddMoneyUsage) {
         usageFromMailIdJob.cancel()
 
+        val subCategoryId = current.subCategoryId
+        if (subCategoryId != null) {
+            usageFromMailIdJob = viewModelScope.launch {
+                val subCategory = graphqlApi.getSubCategory(MoneyUsageSubCategoryId(subCategoryId.toInt()))
+                    .map { response ->
+                        response.data?.user?.moneyUsageSubCategory
+                    }
+                    .getOrNull()
+
+                viewModelStateFlow.update { state ->
+                    state.copy(
+                        usageTitle = current.title ?: state.usageTitle,
+                        usageDate = current.date?.date ?: state.usageDate,
+                        usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
+                        usageDescription = current.description ?: state.usageDescription,
+                        usageCategorySet = if (subCategory != null) {
+                            CategorySelectDialogViewModel.SelectedResult(
+                                categoryId = subCategory.category.id,
+                                categoryName = subCategory.category.name,
+                                subCategoryId = subCategory.id,
+                                subCategoryName = subCategory.name,
+                            )
+                        } else {
+                            null
+                        },
+                    )
+                }
+
+            }
+        }
+
         val importedMailId = current.importedMailId
         if (importedMailId == null) {
-            viewModelStateFlow.update {
-                ViewModelState().copy(
-                    usageTitle = current.title ?: it.usageTitle,
-                    usageDate = current.date?.date ?: it.usageDate,
-                    usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: it.usageAmount,
+            viewModelStateFlow.update { state ->
+                state.copy(
+                    usageTitle = current.title ?: state.usageTitle,
+                    usageDate = current.date?.date ?: state.usageDate,
+                    usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
+                    usageDescription = current.description ?: state.usageDescription,
+                    usageCategorySet = null,
                 )
             }
             return

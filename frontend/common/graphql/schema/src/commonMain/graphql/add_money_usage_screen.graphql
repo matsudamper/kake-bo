@@ -35,3 +35,16 @@ query AddMoneyUsageScreen($id: ImportedMailId!) {
         }
     }
 }
+
+query AddMoneyUsageScreenGetSubCategory($subCategoryId: MoneyUsageSubCategoryId!) {
+    user {
+        moneyUsageSubCategory(input: { id: $subCategoryId }) {
+            id
+            name
+            category {
+                id
+                name
+            }
+        }
+    }
+}

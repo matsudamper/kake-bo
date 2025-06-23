@@ -234,6 +234,8 @@ public sealed interface ScreenStructure : IScreenStructure {
         val title: String? = null,
         val price: Float? = null,
         val date: LocalDateTime? = null,
+        val description: String? = null,
+        val subCategoryId: String? = null,
     ) : ScreenStructure {
         override val direction: Screens = Screens.AddMoneyUsage
         override val stackGroupId: Any? = null
@@ -251,6 +253,9 @@ public sealed interface ScreenStructure : IScreenStructure {
                     if (title != null) {
                         append(KEY_TITLE, title)
                     }
+                    if (description != null) {
+                        append(KEY_DESCRIPTION, description)
+                    }
                 },
             )
         }
@@ -261,6 +266,8 @@ public sealed interface ScreenStructure : IScreenStructure {
             private const val KEY_TITLE = "title"
             private const val KEY_PRICE = "price"
             private const val KEY_DATE = "date"
+            private const val KEY_DESCRIPTION = "description"
+            private const val KEY_SUB_CATEGORY_ID = "sub_category_id"
 
             public fun fromQueryParams(queryParams: Map<String, List<String>>): AddMoneyUsage {
                 return AddMoneyUsage(
@@ -270,6 +277,8 @@ public sealed interface ScreenStructure : IScreenStructure {
                     title = queryParams[KEY_TITLE]?.firstOrNull(),
                     price = queryParams[KEY_PRICE]?.firstOrNull()?.toFloatOrNull(),
                     date = queryParams[KEY_DATE]?.firstOrNull()?.let { LocalDateTime.parse(it) },
+                    description = queryParams[KEY_DESCRIPTION]?.firstOrNull(),
+                    subCategoryId = queryParams[KEY_SUB_CATEGORY_ID]?.firstOrNull(),
                 )
             }
         }
