@@ -25,23 +25,14 @@ kotlin {
             }
         }
         val androidMain by getting {
+            dependencies {
+                implementation(projects.frontend.common.feature.localstore)
+                implementation(libs.koinCore)
+            }
         }
     }
 }
 
-val localProperties = Properties().also { properties ->
-    val propertiesFile = File("$rootDir/local.properties")
-    if (propertiesFile.exists()) {
-        properties.load(propertiesFile.inputStream())
-    }
-}
 android {
     namespace = "net.matsudamper.money.frontend.graphql"
-    defaultConfig {
-        buildConfigField("String", "SERVER_PROTOCOL", "\"${localProperties["net.matsudamper.money.android.serverProtocol"]}\"")
-        buildConfigField("String", "SERVER_HOST", "\"${System.getenv("SERVER_HOST") ?: localProperties["net.matsudamper.money.android.serverHost"]}\"")
-    }
-    buildFeatures {
-        buildConfig = true
-    }
 }
