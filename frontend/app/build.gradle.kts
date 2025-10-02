@@ -88,7 +88,7 @@ android {
     defaultConfig {
         minSdk = 34
         targetSdk = 35
-        manifestPlaceholders["SERVER_HOST"] = System.getenv("SERVER_HOST") ?: localProperties["net.matsudamper.money.android.serverHost"] as String
+        manifestPlaceholders["SERVER_HOST"] = System.getenv("SERVER_HOST") ?: (localProperties["net.matsudamper.money.android.serverHost"] as? String) ?: "example.com"
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
