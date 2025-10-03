@@ -1,3 +1,48 @@
+# プロジェクトについて
+## Tech Stack
+
+**Backend**:
+- Ktor server framework (Netty)
+- GraphQL (graphql-java, GraphQL Java Kickstart)
+- MariaDB for persistence
+- Redis (optional) for sessions/challenges
+- FIDO for authentication
+
+**Frontend**:
+- Kotlin/JS for web
+- Jetpack Compose Multiplatform (Web + Android)
+- Apollo Client for GraphQL
+- Compose HTML
+
+## Architecture
+
+### Module Structure
+
+The project is organized into backend, frontend, and shared modules:
+
+- `backend/`: Ktor server application
+    - `app/`: Main application and GraphQL data loaders
+    - `app/interfaces/`: Repository interfaces
+    - `base/`: Core utilities and ServerEnv configuration
+    - `di/`: Dependency injection container (MainDiContainer)
+    - `datasource/`: Data layer (DB, mail, in-memory)
+    - `feature/`: Feature modules (FIDO, mail parser)
+    - `graphql/`: GraphQL schema and generated code
+
+- `frontend/`: Kotlin/JS and Android applications
+    - `app/`: Platform-specific entry points (JS + Android)
+    - `common/base/`: Core utilities
+    - `common/ui/`: Shared UI components
+    - `common/viewmodel/`: ViewModels
+    - `common/usecase/`: Business logic layer
+    - `common/navigation/`: Navigation logic
+    - `common/graphql/`: Apollo client and schema
+    - `common/di/`: Frontend DI (Koin)
+    - `common/feature/`: Feature modules (webauth, localstore)
+
+- `shared/`: Code shared between backend and frontend
+- `build-logic/`: Convention plugins and version catalog
+
 # コーディングガイドライン
 以下に従ってください
 https://kotlinlang.org/docs/coding-conventions.html
