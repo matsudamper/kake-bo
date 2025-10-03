@@ -75,6 +75,7 @@ public fun Calendar(
             DayOfWeek.THURSDAY -> 4
             DayOfWeek.FRIDAY -> 5
             DayOfWeek.SATURDAY -> 6
+            else -> throw IllegalStateException()
         }
         (0 until offset).map { null } + currentMonthDateList
     }
