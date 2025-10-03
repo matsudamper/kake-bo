@@ -83,7 +83,7 @@ androidxLifecycleViewModelCompose = { module = "androidx.lifecycle:lifecycle-vie
 androidxLifecycleRuntimeCompose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 
 # Test
-kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "5.9.1" }
+kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "6.0.3" }
 
 # Mail
 jakarta-mail-api = { module = "jakarta.mail:jakarta.mail-api", version.require = "2.1.5" }
