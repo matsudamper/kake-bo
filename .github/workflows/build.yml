@@ -23,13 +23,13 @@ jobs:
           java-version: '21'
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v3
+      - run: ./gradlew ktlintCheck --continue
       - run: ./gradlew :backend:assemble
       - run: ./gradlew :frontend:app:jsBrowserProductionWebpack
       - env:
           CI: true
         run: ./gradlew :frontend:app:assembleDebug
       - run: ./gradlew allTests
-      - run: ./gradlew ktlintCheck --continue
       - name: collect reports file
         if: failure()
         run: |
