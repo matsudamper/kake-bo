@@ -1,4 +1,6 @@
 
+import com.kobylynskyi.graphql.codegen.model.GeneratedLanguage
+import io.github.kobylynskyi.graphql.codegen.gradle.GraphQLCodegenGradleTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -6,12 +8,13 @@ plugins {
     alias(libs.plugins.kobylynskyi.graphqlCodegen)
 }
 
-val generatedPath = "$buildDir/generated/codegen"
+val generatedPath: String = layout.buildDirectory.dir("generated/codegen").get().asFile.path
 kotlin {
     jvm()
     sourceSets {
         jvmToolchain(21)
         val jvmMain by getting {
+            kotlin.srcDir(generatedPath)
             dependencies {
                 implementation(projects.backend.base)
                 implementation(projects.shared)
@@ -31,24 +34,11 @@ kotlin {
     }
 }
 
-sourceSets {
-    named("main") {
-        kotlin {
-            java.setSrcDirs(
-                listOf(
-                    "src/main/kotlin",
-                    generatedPath,
-                ).map { File(it) },
-            )
-        }
-    }
-}
-
-val graphqlCodegen = tasks.named<io.github.kobylynskyi.graphql.codegen.gradle.GraphQLCodegenGradleTask>("graphqlCodegen") {
+val graphqlCodegen = tasks.named<GraphQLCodegenGradleTask>("graphqlCodegen") {
     graphqlSchemaPaths = file("$projectDir/src/commonMain/resources/graphql").listFiles().orEmpty()
         .filter { it.extension == "graphqls" }
         .map { it.toString() }
-    generatedLanguage = com.kobylynskyi.graphql.codegen.model.GeneratedLanguage.KOTLIN
+    generatedLanguage = GeneratedLanguage.KOTLIN
     outputDir = File(generatedPath)
     packageName = "net.matsudamper.money.graphql.model"
     addGeneratedAnnotation = true
