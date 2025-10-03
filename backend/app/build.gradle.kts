@@ -5,7 +5,6 @@ plugins {
 
 kotlin {
     jvm {
-        withJava()
     }
     sourceSets {
         jvmToolchain(21)

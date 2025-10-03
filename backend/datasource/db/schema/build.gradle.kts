@@ -22,7 +22,6 @@ buildscript {
 
 kotlin {
     jvm {
-        withJava()
     }
     jvmToolchain(21)
     sourceSets {
