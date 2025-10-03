@@ -7,7 +7,7 @@ appcompat = "1.7.1"
 agp = "8.11.0"
 jackson = "2.19.0"
 compose = "1.8.2"
-protoBuf = "4.31.0"
+protoBuf = "4.32.1"
 lifecycle = "2.9.1"
 jooq = "3.20.4"
 
