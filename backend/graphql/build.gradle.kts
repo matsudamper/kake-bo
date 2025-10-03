@@ -8,9 +8,7 @@ plugins {
 
 val generatedPath = "$buildDir/generated/codegen"
 kotlin {
-    jvm {
-        withJava()
-    }
+    jvm()
     sourceSets {
         jvmToolchain(21)
         val jvmMain by getting {
