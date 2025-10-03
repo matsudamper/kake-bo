@@ -72,7 +72,7 @@ jackson-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr
 # WebAUth4J
 webauth4jCore = { module = "com.webauthn4j:webauthn4j-core", version.require = "0.29.3.RELEASE" }
 
-opentelemetryApi = { module = "io.opentelemetry:opentelemetry-api", version.require = "1.51.0" }
+opentelemetryApi = { module = "io.opentelemetry:opentelemetry-api", version.require = "1.54.1" }
 
 # Android
 androidActivityActivityCompose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
