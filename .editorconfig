@@ -18,6 +18,7 @@ ktlint_standard_annotation = disabled
 ktlint_standard_function-naming = disabled
 ktlint_standard_class-signature = disabled
 ktlint_standard_function-expression-body = disabled
+ktlint_standard_property-naming = disabled
 
 [.editorconfig]
 ij_any_space_after_comma = false
