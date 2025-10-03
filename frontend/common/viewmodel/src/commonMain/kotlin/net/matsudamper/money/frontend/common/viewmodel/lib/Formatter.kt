@@ -22,6 +22,7 @@ internal object Formatter {
             DayOfWeek.FRIDAY -> "金"
             DayOfWeek.SATURDAY -> "土"
             DayOfWeek.SUNDAY -> "日"
+            else -> throw IllegalStateException()
         }
     }
 
