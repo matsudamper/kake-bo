@@ -110,7 +110,7 @@ androidxDatastoreDatastore = { module = "androidx.datastore:datastore", version.
 # Other
 jedis = { module = "redis.clients:jedis", version.require = "6.0.0" }
 jsoup = { module = "org.jsoup:jsoup", version.require = "1.20.1" }
-hikariCP = { module = "com.zaxxer:HikariCP", version.require = "6.3.0" }
+hikariCP = { module = "com.zaxxer:HikariCP", version.require = "6.3.3" }
 mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.3" }
 
 # Play
