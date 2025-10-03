@@ -90,11 +90,6 @@ android {
         minSdk = 34
         targetSdk = 35
         manifestPlaceholders["SERVER_HOST"] = System.getenv("SERVER_HOST") ?: localProperties["net.matsudamper.money.android.serverHost"] as String
-        buildConfigField("String", "DEFAULT_SERVER_PROTOCOL", "\"${localProperties["net.matsudamper.money.android.serverProtocol"]}\"")
-        buildConfigField("String", "DEFAULT_SERVER_HOST", "\"${System.getenv("SERVER_HOST") ?: localProperties["net.matsudamper.money.android.serverHost"]}\"")
-    }
-    buildFeatures {
-        buildConfig = true
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21

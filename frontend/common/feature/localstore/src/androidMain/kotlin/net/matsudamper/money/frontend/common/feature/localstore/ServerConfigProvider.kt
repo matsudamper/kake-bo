@@ -21,13 +21,18 @@ internal class ServerConfigProviderImpl(
 
     override fun getServerProtocol(): String {
         return runBlocking {
-            dataStores.sessionDataStore.data.first().serverProtocol.orEmpty().ifEmpty { "https" }
+            val saved = dataStores.sessionDataStore.data.first().serverProtocol.orEmpty()
+            saved.ifEmpty { "https" }
         }
     }
 
     override fun getServerHost(): String {
         return runBlocking {
-            dataStores.sessionDataStore.data.first().serverHost.orEmpty()
+            val saved = dataStores.sessionDataStore.data.first().serverHost.orEmpty()
+            saved.ifEmpty {
+                // Return empty - the app will need to handle this case or set it via settings UI
+                ""
+            }
         }
     }
 
