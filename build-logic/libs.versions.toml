@@ -9,7 +9,7 @@ jackson = "2.19.0"
 compose = "1.8.2"
 protoBuf = "4.31.0"
 lifecycle = "2.9.1"
-jooq = "3.20.4"
+jooq = "3.20.8"
 
 [plugins]
 apollo = { id = "com.apollographql.apollo3", version.ref = "apollo" }
