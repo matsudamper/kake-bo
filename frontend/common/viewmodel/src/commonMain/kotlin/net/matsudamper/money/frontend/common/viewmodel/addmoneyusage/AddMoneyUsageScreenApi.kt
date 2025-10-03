@@ -8,8 +8,8 @@ import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.graphql.AddMoneyUsageMutation
-import net.matsudamper.money.frontend.graphql.AddMoneyUsageScreenQuery
 import net.matsudamper.money.frontend.graphql.AddMoneyUsageScreenGetSubCategoryQuery
+import net.matsudamper.money.frontend.graphql.AddMoneyUsageScreenQuery
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.type.AddUsageQuery
 
