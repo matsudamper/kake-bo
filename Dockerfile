@@ -1,6 +1,7 @@
 FROM amazoncorretto:21-alpine
 CMD mkdir src
 COPY frontend/app/build/kotlin-webpack/js/productionExecutable src
+COPY frontend/app/build/processedResources/js/main src
 
 COPY backend/build/distributions/backend.tar backend.tar
 RUN tar -xf backend.tar
