@@ -28,6 +28,7 @@ import io.ktor.server.request.receiveStream
 import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.accept
+import io.ktor.server.routing.contentType
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
@@ -160,6 +161,12 @@ fun Application.myApplicationModule() {
             remotePath = "/",
             dir = File(ServerEnv.frontPath),
         ) {
+            contentType { file ->
+                when (file.extension) {
+                    "wasm" -> ContentType.Application.Wasm
+                    else -> null
+                }
+            }
             cacheControl { file ->
                 when {
                     file.extension == "ttf" -> {
