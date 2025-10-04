@@ -91,7 +91,7 @@ android {
         manifestPlaceholders["SERVER_HOST"] = System.getenv("ANDROID_SERVER_HOST") ?: localProperties["net.matsudamper.money.android.serverHost"] as String
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.toVersion(libs.versions.java.get().toInt())
+        targetCompatibility = JavaVersion.toVersion(libs.versions.java.get().toInt())
     }
 }

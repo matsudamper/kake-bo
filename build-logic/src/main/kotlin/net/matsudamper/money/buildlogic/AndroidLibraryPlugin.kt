@@ -20,8 +20,8 @@ class AndroidLibraryPlugin : Plugin<Project> {
                     targetSdk = 36
                 }
                 compileOptions {
-                    sourceCompatibility = JavaVersion.VERSION_21
-                    targetCompatibility = JavaVersion.VERSION_21
+                    sourceCompatibility = JavaVersion.toVersion(libs.findVersion("java").get().displayName.toInt())
+                    targetCompatibility = JavaVersion.toVersion(libs.findVersion("java").get().displayName.toInt())
                 }
             }
         }
