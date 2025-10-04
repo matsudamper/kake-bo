@@ -2,7 +2,7 @@ FROM amazoncorretto:21-alpine
 CMD mkdir src
 COPY frontend/app/build/dist/js/developmentExecutable src
 
-COPY backend/build/distributions/backend.tar backend.tar
+COPY backend/build/distributions/backend-jvm.tar backend.tar
 RUN tar -xf backend.tar
 RUN rm backend.tar
 RUN mkdir logs
