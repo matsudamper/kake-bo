@@ -6,7 +6,7 @@ kotlin {
     jvm {
     }
     sourceSets {
-        jvmToolchain(libs.versions.java.get().toInt())
+        jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val jvmMain by getting {
             dependencies {
                 implementation(kotlin("stdlib"))
