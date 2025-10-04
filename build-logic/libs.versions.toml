@@ -92,7 +92,7 @@ angus-mail = { module = "org.eclipse.angus:angus-mail", version.require = "2.0.5
 jakarta-activation-api = { module = "jakarta.activation:jakarta.activation-api", version.require = "2.1.4" }
 
 # Koin
-koinCore = { module = "io.insert-koin:koin-core", version.require = "4.1.0" }
+koinCore = { module = "io.insert-koin:koin-core", version.require = "4.1.1" }
 
 # Log
 log4j-api = { module = "org.slf4j:slf4j-api", version.require = "2.0.17" }
