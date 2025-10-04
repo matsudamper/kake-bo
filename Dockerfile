@@ -1,4 +1,4 @@
-FROM amazoncorretto:21-alpine
+FROM amazoncorretto:25-alpine
 CMD mkdir src
 COPY frontend/app/build/kotlin-webpack/js/productionExecutable src
 
