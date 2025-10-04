@@ -7,7 +7,7 @@ permissions:
   packages: write
 
 jobs:
-  build-and-release:
+  docker-release:
     runs-on: ubuntu-latest
 
     steps:
