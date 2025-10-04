@@ -327,12 +327,13 @@ public class RootHomeTabPeriodCategoryContentViewModel(
                     start to start.addMonth(1)
                 }
                 .filter { (startYearMonth, _) ->
-                    forceReFetch || viewModelStateFlow.value.categoryResponseMap[
-                        ViewModelState.YearMonthCategory(
-                            categoryId = categoryId,
-                            yearMonth = startYearMonth,
-                        ),
-                    ] == null
+                    forceReFetch ||
+                        viewModelStateFlow.value.categoryResponseMap[
+                            ViewModelState.YearMonthCategory(
+                                categoryId = categoryId,
+                                yearMonth = startYearMonth,
+                            ),
+                        ] == null
                 }
                 .map { (startYearMonth, endYearMonth) ->
                     val key = ViewModelState.YearMonthCategory(

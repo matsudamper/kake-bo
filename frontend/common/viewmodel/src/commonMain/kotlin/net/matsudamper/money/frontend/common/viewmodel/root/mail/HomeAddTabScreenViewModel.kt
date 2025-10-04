@@ -2,7 +2,6 @@ package net.matsudamper.money.frontend.common.viewmodel.root.mail
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
@@ -18,8 +17,7 @@ public class HomeAddTabScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
-    private val _viewModelStateFlow = MutableStateFlow(ViewModelState())
-    private val viewModelStateFlow: StateFlow<ViewModelState> = _viewModelStateFlow.asStateFlow()
+    private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val navigateEventSender = EventSender<NavigateEvent>()
     public val navigateEventHandler: EventHandler<NavigateEvent> = navigateEventSender.asHandler()
@@ -54,7 +52,7 @@ public class HomeAddTabScreenViewModel(
     )
 
     public fun updateScreenStructure(structure: ScreenStructure.Root.Add) {
-        _viewModelStateFlow.update { viewModelState ->
+        viewModelStateFlow.update { viewModelState ->
             viewModelState.copy(
                 screenStructure = structure,
                 lastImportedMailStructure = (structure as? ScreenStructure.Root.Add.Imported)
