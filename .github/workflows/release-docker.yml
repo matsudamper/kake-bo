@@ -107,4 +107,4 @@ jobs:
         with:
           files: |
             backend-jvm.tar
-            frontend-dist
+            frontend-dist/*
