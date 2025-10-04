@@ -12,7 +12,7 @@ val generatedPath: String = layout.buildDirectory.dir("generated/codegen").get()
 kotlin {
     jvm()
     sourceSets {
-        jvmToolchain(21)
+        jvmToolchain(libs.versions.java.get().toInt())
         val jvmMain by getting {
             kotlin.srcDir(generatedPath)
             dependencies {
