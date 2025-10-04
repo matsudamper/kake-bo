@@ -41,7 +41,7 @@ kotlin {
     }
 }
 
-tasks.create("generateDbCode") {
+tasks.register("generateDbCode") {
     doLast {
         val localProperties = Properties().also { properties ->
             val propertiesFile = File("$rootDir/local.properties")
