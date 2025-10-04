@@ -1,3 +1,4 @@
+name: Docker Release
 on:
   push:
     tags:
