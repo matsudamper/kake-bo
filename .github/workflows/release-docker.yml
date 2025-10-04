@@ -7,6 +7,10 @@ permissions:
   packages: write
   contents: write
 
+concurrency:
+  group: docker-release
+  cancel-in-progress: false
+
 jobs:
   docker-release-build:
     runs-on: ubuntu-latest
