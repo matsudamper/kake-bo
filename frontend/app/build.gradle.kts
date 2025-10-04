@@ -64,7 +64,7 @@ val localProperties = Properties().also { properties ->
     }
 }
 android {
-    compileSdk = 35
+    compileSdk = 36
     namespace = "net.matsudamper.money"
     signingConfigs {
         create("release") {
@@ -87,7 +87,7 @@ android {
     }
     defaultConfig {
         minSdk = 34
-        targetSdk = 35
+        targetSdk = 36
         manifestPlaceholders["SERVER_HOST"] = System.getenv("SERVER_HOST") ?: localProperties["net.matsudamper.money.android.serverHost"] as String
     }
     compileOptions {
