@@ -164,6 +164,7 @@ fun Application.myApplicationModule() {
             contentType { file ->
                 when (file.extension) {
                     "wasm" -> ContentType.Application.Wasm
+                    "js" -> ContentType.Application.JavaScript
                     else -> null
                 }
             }
