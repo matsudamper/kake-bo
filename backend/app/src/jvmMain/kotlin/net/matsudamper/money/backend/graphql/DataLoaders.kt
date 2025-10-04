@@ -86,7 +86,9 @@ internal class DataLoaders(
         private val dataLoaderName: String,
     ) {
         fun get(env: DataFetchingEnvironment): DataLoader<K, V> {
-            return env.dataLoaderRegistry.getDataLoader(dataLoaderName)
+            return checkNotNull(env.dataLoaderRegistry.getDataLoader(dataLoaderName)) {
+                "$dataLoaderName is null"
+            }
         }
     }
 
