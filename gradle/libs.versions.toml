@@ -1,5 +1,5 @@
 [versions]
-java = "24"
+java = "21"
 kotlin = "2.2.20"
 apollo = "4.0.0-beta.7"
 ktor = "3.3.0"
