@@ -5,6 +5,7 @@ on:
 
 permissions:
   packages: write
+  contents: write
 
 jobs:
   docker-release-build:
@@ -78,3 +79,25 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+  github-release:
+    runs-on: ubuntu-latest
+    needs: docker-release-build
+    steps:
+      - name: Download backend artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-distribution
+
+      - name: Download frontend artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-distribution
+          path: frontend-dist
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            backend-jvm.tar
+            frontend-dist
