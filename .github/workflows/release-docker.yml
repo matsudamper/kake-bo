@@ -102,9 +102,20 @@ jobs:
           name: frontend-distribution
           path: frontend-dist
 
-      - name: Create release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            backend-jvm.tar
-            frontend-dist/*
+      - name: Create or update release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view ${{ github.ref_name }} > /dev/null 2>&1; then
+            gh release upload ${{ github.ref_name }} \
+              --repo ${{ github.repository }} \
+              --clobber \
+              backend-jvm.tar \
+              frontend-dist/*
+          else
+            gh release create ${{ github.ref_name }} \
+              --repo ${{ github.repository }} \
+              --title ${{ github.ref_name }} \
+              backend-jvm.tar \
+              frontend-dist/*
+          fi
