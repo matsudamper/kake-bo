@@ -23,7 +23,7 @@ buildscript {
 kotlin {
     jvm {
     }
-    jvmToolchain(25)
+    jvmToolchain(libs.versions.javaToolchain.get().toInt())
     sourceSets {
         val jvmMain by getting {
             dependencies {

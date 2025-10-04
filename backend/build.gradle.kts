@@ -18,7 +18,7 @@ kotlin {
         }
     }
     sourceSets {
-        jvmToolchain(25)
+        jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val jvmMain by getting {
             dependencies {
                 implementation(project(":backend:di"))
