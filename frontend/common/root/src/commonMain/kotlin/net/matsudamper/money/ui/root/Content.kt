@@ -214,7 +214,6 @@ public fun Content(
                 Box(
                     modifier = Modifier.fillMaxSize(),
                 ) {
-                    val rootHolder = rememberSaveableStateHolder("RootHolder")
                     NavHost(
                         navController = navController,
                         entryProvider = entryProvider(
@@ -222,20 +221,18 @@ public fun Content(
                                 when (unknownScreen) {
                                     is ScreenStructure.Root -> {
                                         NavEntry(unknownScreen) {
-                                            rootHolder.SaveableStateProvider(Unit) {
-                                                RootScreenContainer(
-                                                    current = unknownScreen,
-                                                    navController = navController,
-                                                    settingViewModel = settingViewModel,
-                                                    mailScreenViewModel = mailScreenViewModel,
-                                                    rootUsageHostViewModel = rootUsageHostViewModel,
-                                                    viewModelEventHandlers = viewModelEventHandlers,
-                                                    rootCoroutineScope = rootCoroutineScope,
-                                                    globalEventSender = globalEventSender,
-                                                    globalEvent = globalEvent,
-                                                    windowInsets = paddingValues,
-                                                )
-                                            }
+                                            RootScreenContainer(
+                                                current = unknownScreen,
+                                                navController = navController,
+                                                settingViewModel = settingViewModel,
+                                                mailScreenViewModel = mailScreenViewModel,
+                                                rootUsageHostViewModel = rootUsageHostViewModel,
+                                                viewModelEventHandlers = viewModelEventHandlers,
+                                                rootCoroutineScope = rootCoroutineScope,
+                                                globalEventSender = globalEventSender,
+                                                globalEvent = globalEvent,
+                                                windowInsets = paddingValues,
+                                            )
                                         }
                                     }
 

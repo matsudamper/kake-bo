@@ -27,7 +27,7 @@ private class AndroidScreenNavControllerImpl(
     override val canGoBack: Boolean get() = navBackstack.isNotEmpty()
 
     override fun back() {
-        navBackstack.dropLast(1)
+        navBackstack.removeAt(navBackstack.lastIndex)
     }
 
     override fun navigate(navigation: IScreenStructure, savedState: Boolean) {

@@ -1,9 +1,12 @@
 package net.matsudamper.money.frontend.common.base.nav
 
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.ui.NavDisplay
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 
@@ -12,9 +15,17 @@ public actual fun NavHost(
     navController: ScreenNavController,
     entryProvider: (IScreenStructure) -> NavEntry<IScreenStructure>,
 ) {
-    InternalNavHost(
-        navController = navController,
+    val dispatcher = LocalOnBackPressedDispatcherOwner.current
+    NavDisplay(
+        backStack = rememberUpdatedState(navController.backstackEntries).value,
         entryProvider = entryProvider,
+        onBack = {
+            if (navController.canGoBack) {
+                navController.back()
+            } else {
+                dispatcher?.onBackPressedDispatcher?.onBackPressed()
+            }
+        },
     )
 }
 
