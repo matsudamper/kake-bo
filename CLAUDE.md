@@ -15,7 +15,7 @@
 ## メールのパース
 
 `backend/feature/service_mail_parser`モジュールの`net/matsudamper/money/backend/mail/parser/services`にメールをパースするコードがあります。
-`net/matsudamper/money/backend/mail/parser/MailParser`に登録して使います。
+`net/matsudamper/money/backend/mail/parser/MailParser`に登録して使います。パースを追加する場合は全てのパース方法を確認してから実装してください。
 
 # コーディングルール
 
