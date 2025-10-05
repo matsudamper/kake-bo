@@ -31,7 +31,6 @@ internal class ScreenNavControllerImpl(
         listOf(
             ScreenNavController.NavStackEntry(
                 structure = initial,
-                isHome = true,
             ),
         ),
     )
@@ -51,14 +50,14 @@ internal class ScreenNavControllerImpl(
 
     override fun navigateToHome() {
         while (backstackEntries.isNotEmpty()) {
-            if (backstackEntries.last().isHome) {
+            if (backstackEntries.last().structure is ScreenStructure.Root) {
                 break
             }
             back()
         }
     }
 
-    override fun navigate(navigation: IScreenStructure, savedState: Boolean, isRoot: Boolean) {
+    override fun navigate(navigation: IScreenStructure, savedState: Boolean) {
         println("${backstackEntries.map { it.structure.direction.title }} -> ${navigation.direction.title}")
         if (navigation.stackGroupId != null && navigation.stackGroupId != currentBackstackEntry.structure.stackGroupId) {
             val targetGroupTailIndex = backstackEntries.indexOfLast { it.structure.stackGroupId == navigation.stackGroupId }
@@ -83,7 +82,6 @@ internal class ScreenNavControllerImpl(
         }
         val newEntry = ScreenNavController.NavStackEntry(
             structure = navigation,
-            isHome = navigation is ScreenStructure.Root,
         )
         backstackEntries = backstackEntries.plus(newEntry)
         if (savedState) {
