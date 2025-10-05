@@ -215,12 +215,12 @@ public fun Content(
                 ) {
                     NavHost(
                         navController = navController,
-                    ) {
+                    ) { structure ->
                         val rootHolder = rememberSaveableStateHolder("RootHolder")
-                        LaunchedEffect(it.structure) {
-                            Logger.d("LOG", "structure: ${it.structure}")
+                        LaunchedEffect(structure) {
+                            Logger.d("LOG", "structure: ${structure}")
                         }
-                        when (val current = it.structure) {
+                        when (val current = structure) {
                             is ScreenStructure -> {
                                 when (current) {
                                     is ScreenStructure.Root -> {

@@ -10,39 +10,39 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolder
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
+import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 
 @Composable
 public expect fun NavHost(
     navController: ScreenNavController,
-    content: @Composable (ScreenNavController.NavStackEntry) -> Unit,
+    content: @Composable (IScreenStructure) -> Unit,
 )
 
 @Composable
 public fun InternalNavHost(
     navController: ScreenNavController,
-    content: @Composable (ScreenNavController.NavStackEntry) -> Unit,
+    content: @Composable (IScreenStructure) -> Unit,
 ) {
     val scopedObjectStoreOwner = rememberScopedObjectStoreOwner("NavHost")
     val holder = rememberSaveableStateHolder("NavHostSaveableStateHolder")
     run {
-        var beforeEntries: List<ScreenNavController.NavStackEntry> by remember { mutableStateOf(listOf()) }
+        var beforeScopeKey: List<String> by remember { mutableStateOf(listOf()) }
         LaunchedEffect(navController) {
-            snapshotFlow { navController.backstackEntries }
-                .collect {
-                    val removedEntries = beforeEntries.filterNot { it in navController.backstackEntries }
-                        .filterNot { it.savedState }
-                    for (entry in removedEntries) {
-                        holder.removeState(entry.scopeKey)
+            snapshotFlow { navController.savedScopeKeys }
+                .collect { savedScopeKeys ->
+                    val removeScopeKeys = beforeScopeKey.filterNot { it in savedScopeKeys }
+                    for (removeScope in removeScopeKeys) {
+                        holder.removeState(removeScope)
                     }
                 }
         }
     }
-    LaunchedEffect(navController.backstackEntries) {
-        for (entry in navController.backstackEntries) {
-            scopedObjectStoreOwner.createOrGetScopedObjectStore(entry.scopeKey)
+    LaunchedEffect(navController.savedScopeKeys) {
+        for (scopeKey in navController.savedScopeKeys) {
+            scopedObjectStoreOwner.createOrGetScopedObjectStore(scopeKey)
         }
-        val aliveScopeKey = navController.backstackEntries.map { it.scopeKey }
+        val aliveScopeKey = navController.savedScopeKeys
         scopedObjectStoreOwner.keys()
             .mapNotNull { it as? String }
             .filterNot { it in aliveScopeKey }
@@ -52,15 +52,14 @@ public fun InternalNavHost(
     }
     CompositionLocalProvider(
         LocalScopedObjectStore provides scopedObjectStoreOwner
-            .createOrGetScopedObjectStore(navController.currentBackstackEntry.scopeKey),
+            .createOrGetScopedObjectStore(navController.currentBackstackEntry.sameScreenId),
     ) {
-        holder.SaveableStateProvider(navController.currentBackstackEntry.scopeKey) {
+        holder.SaveableStateProvider(navController.currentBackstackEntry.sameScreenId) {
             content(navController.currentBackstackEntry)
         }
     }
 }
 
-private val ScreenNavController.NavStackEntry.scopeKey: Any get() = structure.sameScreenId
 
 public interface ScopedObjectStoreOwner {
     public fun createOrGetScopedObjectStore(key: Any): ScopedObjectStore
@@ -85,5 +84,6 @@ internal class InMemoryScopedObjectStoreOwnerImpl() : ScopedObjectStoreOwner {
         return scopedObjectStore.keys
     }
 }
+
 @Composable
 public expect fun rememberScopedObjectStoreOwner(key: String): ScopedObjectStoreOwner
