@@ -39,6 +39,7 @@ import net.matsudamper.money.backend.mail.parser.services.RakutenOnlineUsageServ
 import net.matsudamper.money.backend.mail.parser.services.RakutenUsageServices
 import net.matsudamper.money.backend.mail.parser.services.RentioUsageServices
 import net.matsudamper.money.backend.mail.parser.services.ShunsuguUsageService
+import net.matsudamper.money.backend.mail.parser.services.SofmapUsageServices
 import net.matsudamper.money.backend.mail.parser.services.SonyBankUsageServices
 import net.matsudamper.money.backend.mail.parser.services.SquareEnixMogStationUsageServices
 import net.matsudamper.money.backend.mail.parser.services.SteamUsageService
@@ -106,6 +107,7 @@ public object MailParser {
             KaldiCoffeeFarmUsageServices,
             TakaraTomyMallUsageServices,
             SonyBankUsageServices,
+            SofmapUsageServices,
         )
             .mapNotNull {
                 runCatching {

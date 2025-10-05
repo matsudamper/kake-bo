@@ -172,4 +172,8 @@ public enum class MoneyUsageServiceType(
         id = 43,
         displayName = "ソニー銀行",
     ),
+    Sofmap(
+        id = 44,
+        displayName = "ソフマップ",
+    ),
 }
