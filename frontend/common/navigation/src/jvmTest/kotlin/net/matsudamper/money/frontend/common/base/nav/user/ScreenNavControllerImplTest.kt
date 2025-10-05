@@ -5,14 +5,14 @@ import io.kotest.matchers.equals.shouldBeEqual
 
 public class ScreenNavControllerImplTest : DescribeSpec(
     {
-        fun createStructure(text: String, groupId: Any): IScreenStructure {
+        fun createStructure(text: String, groupId: String): IScreenStructure {
             return object : IScreenStructure {
                 override val direction: Direction = object : Direction {
                     override val placeholderUrl: String = ""
                     override val title: String = text
                 }
-                override val stackGroupId: Any = groupId
-                override val sameScreenId: String = "$groupId"
+                override val stackGroupId: String = groupId
+                override val sameScreenId: String = groupId
 
                 override fun toString(): String {
                     return direction.title

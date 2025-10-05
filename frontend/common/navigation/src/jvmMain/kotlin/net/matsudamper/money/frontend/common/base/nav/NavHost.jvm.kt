@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.base.nav
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation3.runtime.NavEntry
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 
@@ -23,10 +24,10 @@ private class InMemoryScopedObjectStoreOwnerImplViewModel : ViewModel(),
 @Composable
 public actual fun NavHost(
     navController: ScreenNavController,
-    content: @Composable ((IScreenStructure) -> Unit),
+    entryProvider: (IScreenStructure) -> NavEntry<IScreenStructure>,
 ) {
     InternalNavHost(
         navController = navController,
-        content = content,
+        entryProvider = entryProvider,
     )
 }

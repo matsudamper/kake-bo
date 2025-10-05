@@ -6,7 +6,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 
 public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
-    override val stackGroupId: Any get() = RootHomeScreenStructure::class
+    override val stackGroupId: String get() = RootHomeScreenStructure::class.simpleName!!
     override val sameScreenId: String get() = this::class.simpleName!!
 
     public sealed interface Period : RootHomeScreenStructure {
@@ -15,13 +15,14 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
     }
 
     @Serializable
-    public data object Home : Period, IScreenStructure {
+    public data object Home : Period, RootHomeScreenStructure {
         override val since: LocalDate? = null
         override val period: Int = 3
         override val direction: Direction = Screens.HomeRedirect
         override val sameScreenId: String = Home::class.simpleName!!
     }
 
+    @Serializable
     public data class PeriodAnalytics(
         override val since: LocalDate? = null,
         override val period: Int,
@@ -68,6 +69,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
         }
     }
 
+    @Serializable
     public data class PeriodCategory(
         val categoryId: MoneyUsageCategoryId,
         override val period: Int,
@@ -115,6 +117,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
         }
     }
 
+    @Serializable
     public data class PeriodSubCategory(
         val subCategoryId: MoneyUsageSubCategoryId,
         val period: Int,
@@ -164,6 +167,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
         }
     }
 
+    @Serializable
     public data class Monthly(
         val date: LocalDate? = null,
     ) : RootHomeScreenStructure {
@@ -202,6 +206,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
         }
     }
 
+    @Serializable
     public data class MonthlyCategory(
         val categoryId: MoneyUsageCategoryId,
         val year: Int,
@@ -246,6 +251,7 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
         }
     }
 
+    @Serializable
     public data class MonthlySubCategory(
         val subCategoryId: MoneyUsageSubCategoryId,
         val year: Int,
