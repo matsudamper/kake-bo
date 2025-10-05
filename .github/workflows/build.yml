@@ -13,7 +13,7 @@ jobs:
   build_and_test:
     runs-on: ubuntu-latest
     env:
-      GRADLE_OPTS: -Dkotlin.compiler.execution.strategy=in-process -Dkotlin.incremental=false -Dorg.gradle.workers.max=2 -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx4500m"
+      GRADLE_OPTS: -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.workers.max=2 -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx4500m"
       ANDROID_SERVER_HOST: example.com
     steps:
       - uses: actions/checkout@v5
