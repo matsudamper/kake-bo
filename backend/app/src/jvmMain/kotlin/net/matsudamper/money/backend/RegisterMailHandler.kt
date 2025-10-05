@@ -72,7 +72,7 @@ class RegisterMailHandler(
 
     @Serializable
     data class Request(
-        @JsonProperty("raw") val raw: String,
+        @param:JsonProperty("raw") val raw: String,
     )
 
     sealed interface Result {
@@ -83,7 +83,7 @@ class RegisterMailHandler(
 
     @Serializable
     data class Response(
-        @JsonProperty("status") val status: Status,
+        @param:JsonProperty("status") val status: Status,
     ) {
         @Serializable
         enum class Status {
