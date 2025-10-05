@@ -3,12 +3,13 @@ package net.matsudamper.money.frontend.common.base.nav
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 
 @Composable
 public actual fun NavHost(
     navController: ScreenNavController,
-    content: @Composable (ScreenNavController.NavStackEntry) -> Unit,
+    content: @Composable (IScreenStructure) -> Unit,
 ) {
     InternalNavHost(
         navController = navController,

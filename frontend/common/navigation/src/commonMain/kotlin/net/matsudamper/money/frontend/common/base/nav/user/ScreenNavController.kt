@@ -9,8 +9,8 @@ public interface ScreenNavController {
      * 生きている保存するべきID
      */
     public val savedScopeKeys: Set<String>
-    public val backstackEntries: List<NavStackEntry>
-    public val currentBackstackEntry: NavStackEntry
+    public val backstackEntries: List<IScreenStructure>
+    public val currentBackstackEntry: IScreenStructure
 
     public val canGoBack: Boolean
 
@@ -19,18 +19,12 @@ public interface ScreenNavController {
     public fun navigate(
         navigation: IScreenStructure,
         savedState: Boolean = false,
-        isRoot: Boolean = false,
     )
 
     public fun navigateToHome()
 
-    public data class NavStackEntry(
-        val structure: IScreenStructure,
-        val isHome: Boolean,
-    )
-
     public interface RemovedBackstackEntryListener {
-        public fun onRemoved(entry: NavStackEntry)
+        public fun onRemoved(entry: IScreenStructure)
     }
 }
 
