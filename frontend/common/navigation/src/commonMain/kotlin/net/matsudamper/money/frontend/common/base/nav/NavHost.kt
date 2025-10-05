@@ -51,12 +51,15 @@ public fun InternalNavHost(
                 scopedObjectStoreOwner.removeScopedObjectStore(scopeKey)
             }
     }
-    CompositionLocalProvider(
-        LocalScopedObjectStore provides scopedObjectStoreOwner
-            .createOrGetScopedObjectStore(navController.currentBackstackEntry.sameScreenId),
-    ) {
-        holder.SaveableStateProvider(navController.currentBackstackEntry.sameScreenId) {
-            entryProvider(navController.currentBackstackEntry).Content()
+    val currentBackstackEntry = navController.currentBackstackEntry
+    if (currentBackstackEntry != null) {
+        CompositionLocalProvider(
+            LocalScopedObjectStore provides scopedObjectStoreOwner
+                .createOrGetScopedObjectStore(currentBackstackEntry.sameScreenId),
+        ) {
+            holder.SaveableStateProvider(currentBackstackEntry.sameScreenId) {
+                entryProvider(currentBackstackEntry).Content()
+            }
         }
     }
 }
