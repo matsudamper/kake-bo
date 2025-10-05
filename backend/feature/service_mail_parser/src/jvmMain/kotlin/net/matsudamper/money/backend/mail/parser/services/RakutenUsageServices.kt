@@ -80,19 +80,46 @@ internal object RakutenUsageServices : MoneyUsageServices {
                 ),
             )
         }
+        val products = buildList {
+            val pricePattern = "価格\\s+([\\d,]+)\\(円\\)\\s+x\\s+(\\d+)\\(個\\)\\s+=\\s+([\\d,]+)\\(円\\)".toRegex()
 
-        return buildList {
-            run total@{
+            for ((index, line) in lines.withIndex()) {
+                val match = pricePattern.find(line) ?: continue
+                val unitPrice = match.groupValues[1].replace(",", "").toIntOrNull() ?: continue
+                val quantity = match.groupValues[2].toIntOrNull() ?: continue
+                val itemTotalPrice = match.groupValues[3].replace(",", "").toIntOrNull() ?: continue
+
+                val productName = if (index > 0) {
+                    lines[index - 1].trim().removePrefix("[商品]").trim()
+                } else {
+                    ""
+                }
+
                 add(
                     MoneyUsage(
-                        title = "[$displayName] $storeName",
-                        price = totalPrice ?: 0,
-                        description = storeName,
+                        title = productName,
+                        price = itemTotalPrice,
+                        description = "${unitPrice}円 × ${quantity}個",
                         service = MoneyUsageServiceType.Rakuten,
                         dateTime = orderDate ?: forwardedInfo?.date ?: date,
                     ),
                 )
             }
+        }
+
+        return buildList {
+            add(
+                totalPrice ?: products.mapNotNull { it.price }.sum(),
+                MoneyUsage(
+                    title = "[$displayName] $storeName",
+                    price = totalPrice,
+                    description = storeName,
+                    service = MoneyUsageServiceType.Rakuten,
+                    dateTime = orderDate ?: forwardedInfo?.date ?: date,
+                ),
+            )
+
+            addAll(products)
         }
     }
 
