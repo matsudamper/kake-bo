@@ -89,7 +89,7 @@ internal object RakutenUsageServices : MoneyUsageServices {
                         price = totalPrice ?: 0,
                         description = storeName,
                         service = MoneyUsageServiceType.Rakuten,
-                        dateTime = orderDate ?: date,
+                        dateTime = orderDate ?: forwardedInfo?.date ?: date,
                     ),
                 )
             }
