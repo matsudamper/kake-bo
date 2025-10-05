@@ -30,20 +30,17 @@ public class ScreenNavControllerImplTest : DescribeSpec(
                         navigate(
                             navigation = createStructure("A2", "A"),
                             savedState = false,
-                            isRoot = false,
                         )
                         navigate(
                             navigation = rootB,
                             savedState = false,
-                            isRoot = true,
                         )
                         navigate(
                             navigation = rootA,
                             savedState = false,
-                            isRoot = true,
                         )
                     }
-                    controller.backstackEntries.map { it.structure.direction.title }
+                    controller.backstackEntries.map { it.direction.title }
                         .shouldBeEqual(
                             listOf(
                                 "B1",
@@ -59,35 +56,29 @@ public class ScreenNavControllerImplTest : DescribeSpec(
                         navigate(
                             navigation = createStructure("A2", "A"),
                             savedState = false,
-                            isRoot = false,
                         )
                         navigate(
                             navigation = rootB,
                             savedState = false,
-                            isRoot = true,
                         )
                         navigate(
                             navigation = createStructure("B2", "B"),
                             savedState = false,
-                            isRoot = false,
                         )
                         navigate(
                             navigation = rootC,
                             savedState = false,
-                            isRoot = true,
                         )
                         navigate(
                             navigation = createStructure("C2", "C"),
                             savedState = false,
-                            isRoot = false,
                         )
                         navigate(
                             navigation = rootB,
                             savedState = false,
-                            isRoot = true,
                         )
                     }
-                    controller.backstackEntries.map { it.structure.direction.title }
+                    controller.backstackEntries.map { it.direction.title }
                         .shouldBeEqual(
                             listOf(
                                 "A1",
