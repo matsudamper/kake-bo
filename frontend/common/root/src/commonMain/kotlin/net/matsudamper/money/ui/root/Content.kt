@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -211,6 +212,7 @@ public fun Content(
                     }
                 },
             ) { paddingValues ->
+                val paddingValues = rememberUpdatedState(paddingValues)
                 Box(
                     modifier = Modifier.fillMaxSize(),
                 ) {
@@ -231,7 +233,7 @@ public fun Content(
                                                 rootCoroutineScope = rootCoroutineScope,
                                                 globalEventSender = globalEventSender,
                                                 globalEvent = globalEvent,
-                                                windowInsets = paddingValues,
+                                                windowInsets = paddingValues.value,
                                             )
                                         }
                                     }
@@ -244,17 +246,17 @@ public fun Content(
                                 LoginScreenContainer(
                                     navController = navController,
                                     globalEventSender = globalEventSender,
-                                    windowInsets = paddingValues,
+                                    windowInsets = paddingValues.value,
                                 )
                             }
                             entry<ScreenStructure.Admin> {
                                 AdminContainer(
-                                    windowInsets = paddingValues,
+                                    windowInsets = paddingValues.value,
                                 )
                             }
                             entry<ScreenStructure.NotFound> {
                                 NotFoundScreen(
-                                    paddingValues = paddingValues,
+                                    paddingValues = paddingValues.value,
                                 )
                             }
                             entry<ScreenStructure.AddMoneyUsage> { current ->
@@ -262,7 +264,7 @@ public fun Content(
                                     rootCoroutineScope = rootCoroutineScope,
                                     current = current,
                                     viewModelEventHandlers = viewModelEventHandlers,
-                                    windowInsets = paddingValues,
+                                    windowInsets = paddingValues.value,
                                 )
                             }
 
@@ -270,7 +272,7 @@ public fun Content(
                                 ImportedMailScreenContainer(
                                     current = current,
                                     viewModelEventHandlers = viewModelEventHandlers,
-                                    windowInsets = paddingValues,
+                                    windowInsets = paddingValues.value,
                                 )
                             }
 
@@ -279,7 +281,7 @@ public fun Content(
                                     current = current,
                                     viewModelEventHandlers = viewModelEventHandlers,
                                     kakeboScaffoldListener = kakeboScaffoldListener,
-                                    windowInsets = paddingValues,
+                                    windowInsets = paddingValues.value,
                                 )
                             }
 
@@ -288,7 +290,7 @@ public fun Content(
                                     screen = current,
                                     viewModelEventHandlers = viewModelEventHandlers,
                                     kakeboScaffoldListener = kakeboScaffoldListener,
-                                    windowInsets = paddingValues,
+                                    windowInsets = paddingValues.value,
                                 )
                             }
 
@@ -297,7 +299,7 @@ public fun Content(
                                     screen = current,
                                     viewModelEventHandlers = viewModelEventHandlers,
                                     kakeboScaffoldListener = kakeboScaffoldListener,
-                                    windowInsets = paddingValues,
+                                    windowInsets = paddingValues.value,
                                 )
                             }
                         },
