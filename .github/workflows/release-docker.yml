@@ -91,6 +91,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: docker-release-build
     steps:
+      - uses: actions/checkout@v5
       - name: Download backend artifacts
         uses: actions/download-artifact@v4
         with:
@@ -106,7 +107,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if gh release view ${{ github.ref_name }} > /dev/null 2>&1; then
+          if gh release view ${{ github.ref_name }} 2>&1 >/dev/null; then
             echo "Release already exists"
             gh release upload ${{ github.ref_name }} \
               backend-jvm.tar \
