@@ -110,11 +110,13 @@ jobs:
           if gh release view ${{ github.ref_name }} 2>&1 >/dev/null; then
             echo "Release already exists"
             gh release upload ${{ github.ref_name }} \
+              --repo ${{ github.repository }} \
               backend-jvm.tar \
               frontend-dist/*
           else
             echo "Creating release"
             gh release create ${{ github.ref_name }} \
+              --repo ${{ github.repository }} \
               --title ${{ github.ref_name }} \
               backend-jvm.tar \
               frontend-dist/*
