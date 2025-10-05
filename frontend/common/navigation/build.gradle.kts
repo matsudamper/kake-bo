@@ -9,8 +9,8 @@ kotlin {
         binaries.executable()
     }
     jvm { }
+    jvmToolchain(libs.versions.javaToolchain.get().toInt())
     sourceSets {
-        jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
             dependencies {
                 implementation(projects.shared)
