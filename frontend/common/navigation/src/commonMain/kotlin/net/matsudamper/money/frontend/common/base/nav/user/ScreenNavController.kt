@@ -10,7 +10,7 @@ public interface ScreenNavController {
      */
     public val savedScopeKeys: Set<String>
     public val backstackEntries: List<IScreenStructure>
-    public val currentBackstackEntry: IScreenStructure
+    public val currentBackstackEntry: IScreenStructure?
 
     public val canGoBack: Boolean
 

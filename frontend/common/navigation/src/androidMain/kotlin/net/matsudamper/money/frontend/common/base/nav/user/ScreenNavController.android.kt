@@ -23,7 +23,7 @@ private class AndroidScreenNavControllerImpl(
 ) : ScreenNavController {
     override val savedScopeKeys: Set<String> = setOf()
     override val backstackEntries: List<IScreenStructure> get() = navBackstack.toList()
-    override val currentBackstackEntry: IScreenStructure get() = navBackstack.last()
+    override val currentBackstackEntry: IScreenStructure? get() = navBackstack.lastOrNull()
     override val canGoBack: Boolean get() = navBackstack.isNotEmpty()
 
     override fun back() {

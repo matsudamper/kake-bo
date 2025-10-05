@@ -18,9 +18,9 @@ internal class ScreenNavControllerImpl(
             .map { it.sameScreenId }
             .toSet()
     override var backstackEntries: List<IScreenStructure> by mutableStateOf(listOf(initial))
-    override val currentBackstackEntry: IScreenStructure
+    override val currentBackstackEntry: IScreenStructure?
         get() {
-            return backstackEntries.last()
+            return backstackEntries.lastOrNull()
         }
 
     public override val canGoBack: Boolean get() = backstackEntries.size > 1
