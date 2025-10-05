@@ -1,6 +1,10 @@
 package net.matsudamper.money.frontend.common.base.nav
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.lifecycle.ViewModel
@@ -25,6 +29,22 @@ public actual fun NavHost(
             } else {
                 dispatcher?.onBackPressedDispatcher?.onBackPressed()
             }
+        },
+        predictivePopTransitionSpec = {
+            ContentTransform(
+                targetContentEnter = fadeIn(
+                    animationSpec = spring(
+                        dampingRatio = 1.0f,
+                        stiffness = 1600.0f,
+                    ),
+                ),
+                initialContentExit = fadeOut(
+                    animationSpec = spring(
+                        dampingRatio = 1.0f,
+                        stiffness = 1600.0f,
+                    ),
+                ),
+            )
         },
     )
 }
