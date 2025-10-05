@@ -49,8 +49,8 @@ internal object RakutenUsageServices : MoneyUsageServices {
 
         val totalPrice = run totalPrice@{
             val priceIndex = lines.indexOfFirst { it.startsWith("支払い金額") || it.startsWith("*支払い金額*") }
-                .takeIf { it >= 0 }!!
-            ParseUtil.getInt(lines[priceIndex])!!
+                .takeIf { it >= 0 } ?: return@totalPrice null
+            ParseUtil.getInt(lines[priceIndex])
         }
 
         val orderDate = run orderDate@{
@@ -61,8 +61,8 @@ internal object RakutenUsageServices : MoneyUsageServices {
                     .takeIf { it >= 0 } ?: continue
                 prefix = checkPrefix
             }
-            prefix!!
-            index!!
+            prefix ?: return@orderDate null
+            index ?: return@orderDate null
 
             val temporal = DateTimeFormatter.ISO_LOCAL_DATE_TIME
                 .parse(lines[index].drop(prefix.length).trim().replace(" ", "T"))
@@ -86,10 +86,10 @@ internal object RakutenUsageServices : MoneyUsageServices {
                 add(
                     MoneyUsage(
                         title = "[$displayName] $storeName",
-                        price = totalPrice,
+                        price = totalPrice ?: 0,
                         description = storeName,
                         service = MoneyUsageServiceType.Rakuten,
-                        dateTime = orderDate,
+                        dateTime = orderDate ?: date,
                     ),
                 )
             }
