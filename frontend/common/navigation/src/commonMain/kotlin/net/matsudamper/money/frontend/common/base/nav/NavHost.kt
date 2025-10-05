@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.navigation3.runtime.NavEntry
 import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolder
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
@@ -16,13 +17,13 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 @Composable
 public expect fun NavHost(
     navController: ScreenNavController,
-    content: @Composable (IScreenStructure) -> Unit,
+    entryProvider: (IScreenStructure) -> NavEntry<IScreenStructure>,
 )
 
 @Composable
 public fun InternalNavHost(
     navController: ScreenNavController,
-    content: @Composable (IScreenStructure) -> Unit,
+    entryProvider: (IScreenStructure) -> NavEntry<IScreenStructure>,
 ) {
     val scopedObjectStoreOwner = rememberScopedObjectStoreOwner("NavHost")
     val holder = rememberSaveableStateHolder("NavHostSaveableStateHolder")
@@ -55,7 +56,7 @@ public fun InternalNavHost(
             .createOrGetScopedObjectStore(navController.currentBackstackEntry.sameScreenId),
     ) {
         holder.SaveableStateProvider(navController.currentBackstackEntry.sameScreenId) {
-            content(navController.currentBackstackEntry)
+            entryProvider(navController.currentBackstackEntry).Content()
         }
     }
 }

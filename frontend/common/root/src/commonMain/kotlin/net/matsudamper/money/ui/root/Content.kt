@@ -21,6 +21,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
+import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.entryProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -30,6 +32,7 @@ import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolde
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.NavHost
 import net.matsudamper.money.frontend.common.base.nav.rememberScopedObjectStoreOwner
+import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
@@ -213,102 +216,97 @@ public fun Content(
                 Box(
                     modifier = Modifier.fillMaxSize(),
                 ) {
+                    val rootHolder = rememberSaveableStateHolder("RootHolder")
                     NavHost(
                         navController = navController,
-                    ) { structure ->
-                        val rootHolder = rememberSaveableStateHolder("RootHolder")
-                        LaunchedEffect(structure) {
-                            Logger.d("LOG", "structure: ${structure}")
-                        }
-                        when (val current = structure) {
-                            is ScreenStructure -> {
-                                when (current) {
+                        entryProvider = entryProvider(
+                            fallback = { unknownScreen ->
+                                when (unknownScreen) {
                                     is ScreenStructure.Root -> {
-                                        rootHolder.SaveableStateProvider(Unit) {
-                                            RootScreenContainer(
-                                                current = current,
-                                                navController = navController,
-                                                settingViewModel = settingViewModel,
-                                                mailScreenViewModel = mailScreenViewModel,
-                                                rootUsageHostViewModel = rootUsageHostViewModel,
-                                                viewModelEventHandlers = viewModelEventHandlers,
-                                                rootCoroutineScope = rootCoroutineScope,
-                                                globalEventSender = globalEventSender,
-                                                globalEvent = globalEvent,
-                                                windowInsets = paddingValues,
-                                            )
+                                        NavEntry(unknownScreen) {
+                                            rootHolder.SaveableStateProvider(Unit) {
+                                                RootScreenContainer(
+                                                    current = unknownScreen,
+                                                    navController = navController,
+                                                    settingViewModel = settingViewModel,
+                                                    mailScreenViewModel = mailScreenViewModel,
+                                                    rootUsageHostViewModel = rootUsageHostViewModel,
+                                                    viewModelEventHandlers = viewModelEventHandlers,
+                                                    rootCoroutineScope = rootCoroutineScope,
+                                                    globalEventSender = globalEventSender,
+                                                    globalEvent = globalEvent,
+                                                    windowInsets = paddingValues,
+                                                )
+                                            }
                                         }
                                     }
 
-                                    ScreenStructure.Login -> {
-                                        LoginScreenContainer(
-                                            navController = navController,
-                                            globalEventSender = globalEventSender,
-                                            windowInsets = paddingValues,
-                                        )
-                                    }
-
-                                    ScreenStructure.Admin -> {
-                                        AdminContainer(
-                                            windowInsets = paddingValues,
-                                        )
-                                    }
-
-                                    ScreenStructure.NotFound -> {
-                                        NotFoundScreen(
-                                            paddingValues = paddingValues,
-                                        )
-                                    }
-
-                                    is ScreenStructure.AddMoneyUsage -> {
-                                        AddMoneyUsageScreenContainer(
-                                            rootCoroutineScope = rootCoroutineScope,
-                                            current = current,
-                                            viewModelEventHandlers = viewModelEventHandlers,
-                                            windowInsets = paddingValues,
-                                        )
-                                    }
-
-                                    is ScreenStructure.ImportedMail -> {
-                                        ImportedMailScreenContainer(
-                                            current = current,
-                                            viewModelEventHandlers = viewModelEventHandlers,
-                                            windowInsets = paddingValues,
-                                        )
-                                    }
-
-                                    is ScreenStructure.ImportedMailHTML -> {
-                                        ImportedMailHtmlContainer(
-                                            current = current,
-                                            viewModelEventHandlers = viewModelEventHandlers,
-                                            kakeboScaffoldListener = kakeboScaffoldListener,
-                                            windowInsets = paddingValues,
-                                        )
-                                    }
-
-                                    is ScreenStructure.ImportedMailPlain -> {
-                                        ImportedMailPlainScreenContainer(
-                                            screen = current,
-                                            viewModelEventHandlers = viewModelEventHandlers,
-                                            kakeboScaffoldListener = kakeboScaffoldListener,
-                                            windowInsets = paddingValues,
-                                        )
-                                    }
-
-                                    is ScreenStructure.MoneyUsage -> {
-                                        MoneyUsageContainer(
-                                            screen = current,
-                                            viewModelEventHandlers = viewModelEventHandlers,
-                                            kakeboScaffoldListener = kakeboScaffoldListener,
-                                            windowInsets = paddingValues,
-                                        )
-                                    }
+                                    else -> throw IllegalStateException("Unknown screen $unknownScreen")
                                 }
+                            },
+                        ) {
+                            entry<ScreenStructure.Login> {
+                                LoginScreenContainer(
+                                    navController = navController,
+                                    globalEventSender = globalEventSender,
+                                    windowInsets = paddingValues,
+                                )
+                            }
+                            entry<ScreenStructure.Admin> {
+                                AdminContainer(
+                                    windowInsets = paddingValues,
+                                )
+                            }
+                            entry<ScreenStructure.NotFound> {
+                                NotFoundScreen(
+                                    paddingValues = paddingValues,
+                                )
+                            }
+                            entry<ScreenStructure.AddMoneyUsage> { current ->
+                                AddMoneyUsageScreenContainer(
+                                    rootCoroutineScope = rootCoroutineScope,
+                                    current = current,
+                                    viewModelEventHandlers = viewModelEventHandlers,
+                                    windowInsets = paddingValues,
+                                )
                             }
 
-                            else -> throw NotImplementedError("$current is not implemented")
-                        }
-                    }
+                            entry<ScreenStructure.ImportedMail> { current ->
+                                ImportedMailScreenContainer(
+                                    current = current,
+                                    viewModelEventHandlers = viewModelEventHandlers,
+                                    windowInsets = paddingValues,
+                                )
+                            }
+
+                            entry<ScreenStructure.ImportedMailHTML> { current ->
+                                ImportedMailHtmlContainer(
+                                    current = current,
+                                    viewModelEventHandlers = viewModelEventHandlers,
+                                    kakeboScaffoldListener = kakeboScaffoldListener,
+                                    windowInsets = paddingValues,
+                                )
+                            }
+
+                            entry<ScreenStructure.ImportedMailPlain> { current ->
+                                ImportedMailPlainScreenContainer(
+                                    screen = current,
+                                    viewModelEventHandlers = viewModelEventHandlers,
+                                    kakeboScaffoldListener = kakeboScaffoldListener,
+                                    windowInsets = paddingValues,
+                                )
+                            }
+
+                            entry<ScreenStructure.MoneyUsage> { current ->
+                                MoneyUsageContainer(
+                                    screen = current,
+                                    viewModelEventHandlers = viewModelEventHandlers,
+                                    kakeboScaffoldListener = kakeboScaffoldListener,
+                                    windowInsets = paddingValues,
+                                )
+                            }
+                        },
+                    )
                 }
             }
         }
