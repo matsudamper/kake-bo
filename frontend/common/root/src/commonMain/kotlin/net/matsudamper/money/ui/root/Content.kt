@@ -222,7 +222,10 @@ public fun Content(
                             fallback = { unknownScreen ->
                                 when (unknownScreen) {
                                     is ScreenStructure.Root -> {
-                                        NavEntry(unknownScreen) {
+                                        NavEntry(
+                                            key = unknownScreen,
+                                            contentKey = unknownScreen.sameScreenId,
+                                        ) {
                                             RootScreenContainer(
                                                 current = unknownScreen,
                                                 navController = navController,
