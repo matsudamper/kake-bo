@@ -2,6 +2,8 @@ package net.matsudamper.money.frontend.common.base.nav.user
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.navigation3.runtime.NavKey
+import kotlinx.serialization.Serializable
 
 @Stable
 public interface ScreenNavController {

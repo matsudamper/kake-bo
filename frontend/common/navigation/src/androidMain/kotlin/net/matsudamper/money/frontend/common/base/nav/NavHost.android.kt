@@ -6,6 +6,18 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 
 @Composable
+public actual fun NavHost(
+    navController: ScreenNavController,
+    content: @Composable (ScreenNavController.NavStackEntry) -> Unit,
+) {
+    InternalNavHost(
+        navController = navController,
+        content = content
+    )
+}
+
+
+@Composable
 public actual fun rememberScopedObjectStoreOwner(key: String): ScopedObjectStoreOwner {
     val owner = viewModel(
         key = key,
@@ -17,15 +29,4 @@ public actual fun rememberScopedObjectStoreOwner(key: String): ScopedObjectStore
 }
 
 private class InMemoryScopedObjectStoreOwnerImplViewModel : ViewModel(),
-    ScopedObjectStoreOwner by InMemoryScopedObjectStoreOwnerImpl() {}
-
-@Composable
-public actual fun NavHost(
-    navController: ScreenNavController,
-    content: @Composable ((ScreenNavController.NavStackEntry) -> Unit),
-) {
-    InternalNavHost(
-        navController = navController,
-        content = content,
-    )
-}
+    ScopedObjectStoreOwner by InMemoryScopedObjectStoreOwnerImpl()

@@ -12,6 +12,7 @@ compose = "1.9.0"
 protoBuf = "4.32.1"
 lifecycle = "2.9.4"
 jooq = "3.20.8"
+nav3 = "1.0.0-alpha10"
 
 [plugins]
 apollo = { id = "com.apollographql.apollo3", version.ref = "apollo" }
@@ -83,6 +84,8 @@ androidxCoreKtx = { module = "androidx.core:core-ktx", version.require = "1.17.0
 androidxLifecycleViewModelKtx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 androidxLifecycleViewModelCompose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 androidxLifecycleRuntimeCompose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
+androidxNavigation3Runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3" }
+androidxNavigation3Ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3" }
 
 # Test
 kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "6.0.3" }

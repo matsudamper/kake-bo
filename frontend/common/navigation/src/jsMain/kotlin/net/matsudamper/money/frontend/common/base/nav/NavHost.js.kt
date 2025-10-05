@@ -2,13 +2,14 @@ package net.matsudamper.money.frontend.common.base.nav
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 
 @Composable
 public actual fun rememberScopedObjectStoreOwner(key: String): ScopedObjectStoreOwner {
     return remember(key) { NavViewModel() }
 }
 
-private class NavViewModel() : ScopedObjectStoreOwner {
+internal class NavViewModel() : ScopedObjectStoreOwner {
     private val scopedObjectStore = mutableMapOf<Any, ScopedObjectStore>()
 
     override fun createOrGetScopedObjectStore(key: Any): ScopedObjectStore {
@@ -24,4 +25,15 @@ private class NavViewModel() : ScopedObjectStoreOwner {
     override fun keys(): Set<Any> {
         return scopedObjectStore.keys
     }
+}
+
+@Composable
+public actual fun NavHost(
+    navController: ScreenNavController,
+    content: @Composable ((ScreenNavController.NavStackEntry) -> Unit)
+) {
+    InternalNavHost(
+        navController = navController,
+        content = content
+    )
 }

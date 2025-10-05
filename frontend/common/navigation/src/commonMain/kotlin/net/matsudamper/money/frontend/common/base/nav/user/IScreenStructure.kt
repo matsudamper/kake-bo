@@ -1,6 +1,8 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
-public interface IScreenStructure {
+import androidx.navigation3.runtime.NavKey
+
+public interface IScreenStructure : NavKey {
     public val direction: Direction
 
     /**
