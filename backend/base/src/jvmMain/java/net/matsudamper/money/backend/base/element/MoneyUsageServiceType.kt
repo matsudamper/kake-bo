@@ -168,4 +168,8 @@ public enum class MoneyUsageServiceType(
         id = 42,
         displayName = "タカラトミーモール",
     ),
+    SonyBank(
+        id = 43,
+        displayName = "ソニー銀行",
+    ),
 }
