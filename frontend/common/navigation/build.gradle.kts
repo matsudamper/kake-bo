@@ -63,7 +63,8 @@ kotlin {
                 implementation(compose.ui)
                 implementation(libs.androidxLifecycleRuntimeCompose)
                 implementation(libs.androidxLifecycleViewModelCompose)
-                api(libs.androidxNavigation3Ui)
+                implementation(libs.androidxNavigation3Runtime)
+                implementation(libs.androidxNavigation3Ui)
             }
         }
         val jvmTest by getting {
