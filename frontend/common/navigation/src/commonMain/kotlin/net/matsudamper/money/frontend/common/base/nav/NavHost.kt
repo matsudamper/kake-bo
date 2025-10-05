@@ -61,7 +61,6 @@ public fun InternalNavHost(
     }
 }
 
-
 public interface ScopedObjectStoreOwner {
     public fun createOrGetScopedObjectStore(key: Any): ScopedObjectStore
     public fun removeScopedObjectStore(key: Any)

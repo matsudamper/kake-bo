@@ -18,7 +18,6 @@ public actual fun NavHost(
     )
 }
 
-
 @Composable
 public actual fun rememberScopedObjectStoreOwner(key: String): ScopedObjectStoreOwner {
     val owner = viewModel(
@@ -30,5 +29,6 @@ public actual fun rememberScopedObjectStoreOwner(key: String): ScopedObjectStore
     return owner
 }
 
-private class InMemoryScopedObjectStoreOwnerImplViewModel : ViewModel(),
+private class InMemoryScopedObjectStoreOwnerImplViewModel :
+    ViewModel(),
     ScopedObjectStoreOwner by InMemoryScopedObjectStoreOwnerImpl()
