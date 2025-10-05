@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
 import kotlinx.datetime.LocalDate
+import kotlinx.serialization.Serializable
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 
@@ -13,7 +14,8 @@ public sealed interface RootHomeScreenStructure : ScreenStructure.Root {
         public val period: Int
     }
 
-    public data object Home : Period {
+    @Serializable
+    public data object Home : Period, IScreenStructure {
         override val since: LocalDate? = null
         override val period: Int = 3
         override val direction: Direction = Screens.HomeRedirect

@@ -13,7 +13,13 @@ import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectSto
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 
 @Composable
-public fun NavHost(
+public expect fun NavHost(
+    navController: ScreenNavController,
+    content: @Composable (ScreenNavController.NavStackEntry) -> Unit,
+)
+
+@Composable
+public fun InternalNavHost(
     navController: ScreenNavController,
     content: @Composable (ScreenNavController.NavStackEntry) -> Unit,
 ) {
@@ -65,5 +71,22 @@ public interface ScopedObjectStoreOwner {
     public fun keys(): Set<Any>
 }
 
+internal class InMemoryScopedObjectStoreOwnerImpl() : ScopedObjectStoreOwner {
+    private val scopedObjectStore = mutableMapOf<Any, ScopedObjectStore>()
+
+    override fun createOrGetScopedObjectStore(key: Any): ScopedObjectStore {
+        val store = scopedObjectStore[key] ?: ScopedObjectStore()
+        scopedObjectStore[key] = store
+        return store
+    }
+
+    override fun removeScopedObjectStore(key: Any) {
+        scopedObjectStore.remove(key)?.clearAll()
+    }
+
+    override fun keys(): Set<Any> {
+        return scopedObjectStore.keys
+    }
+}
 @Composable
 public expect fun rememberScopedObjectStoreOwner(key: String): ScopedObjectStoreOwner

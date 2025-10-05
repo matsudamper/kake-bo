@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     id("net.matsudamper.money.buildlogic.compose")
     id("net.matsudamper.money.buildlogic.androidLibrary")
+    alias(libs.plugins.kotlin.serialization)
 }
 android {
     namespace = "net.matsudamper.money.frontend.common.base.nav"
@@ -28,6 +29,8 @@ kotlin {
                 implementation(libs.kotlin.datetime)
 
                 implementation(libs.ktorClientCore)
+
+                api(libs.androidxNavigation3Runtime)
             }
         }
         val jsMain by getting {
@@ -58,6 +61,8 @@ kotlin {
 
                 implementation(compose.runtime)
                 implementation(compose.ui)
+                implementation(libs.androidxLifecycleRuntimeCompose)
+                implementation(libs.androidxLifecycleViewModelCompose)
             }
         }
         val jvmTest by getting {
