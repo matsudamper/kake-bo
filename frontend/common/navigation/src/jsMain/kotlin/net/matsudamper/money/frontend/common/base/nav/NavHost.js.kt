@@ -2,6 +2,8 @@ package net.matsudamper.money.frontend.common.base.nav
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.navigation3.runtime.NavEntry
+import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 
 @Composable
@@ -30,10 +32,10 @@ internal class NavViewModel() : ScopedObjectStoreOwner {
 @Composable
 public actual fun NavHost(
     navController: ScreenNavController,
-    content: @Composable ((ScreenNavController.NavStackEntry) -> Unit)
+    entryProvider: (IScreenStructure) -> NavEntry<IScreenStructure>,
 ) {
     InternalNavHost(
         navController = navController,
-        content = content
+        entryProvider = entryProvider,
     )
 }
