@@ -11,6 +11,7 @@ public sealed interface ScreenStructure : IScreenStructure {
     public sealed interface Root : ScreenStructure {
         public sealed interface Settings : Root {
             override val stackGroupId: String get() = Settings::class.simpleName!!
+
             @Serializable
             public data object Root : Settings {
                 override val direction: Screens = Screens.Settings
@@ -74,6 +75,7 @@ public sealed interface ScreenStructure : IScreenStructure {
 
         public sealed interface Add : Root {
             override val stackGroupId: String get() = Add::class.simpleName!!
+
             @Serializable
             public data object Root : Add {
                 override val direction: Screens = Screens.Add
@@ -124,6 +126,7 @@ public sealed interface ScreenStructure : IScreenStructure {
 
         public sealed interface Usage : Root {
             override val stackGroupId: String get() = Usage::class.simpleName!!
+
             @Serializable
             public data object List : Usage {
                 override val direction: Screens = Screens.UsageList

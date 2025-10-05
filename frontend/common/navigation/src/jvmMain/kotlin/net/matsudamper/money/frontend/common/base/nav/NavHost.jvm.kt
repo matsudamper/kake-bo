@@ -18,8 +18,9 @@ public actual fun rememberScopedObjectStoreOwner(key: String): ScopedObjectStore
     return owner
 }
 
-private class InMemoryScopedObjectStoreOwnerImplViewModel : ViewModel(),
-    ScopedObjectStoreOwner by InMemoryScopedObjectStoreOwnerImpl() {}
+private class InMemoryScopedObjectStoreOwnerImplViewModel :
+    ViewModel(),
+    ScopedObjectStoreOwner by InMemoryScopedObjectStoreOwnerImpl()
 
 @Composable
 public actual fun NavHost(

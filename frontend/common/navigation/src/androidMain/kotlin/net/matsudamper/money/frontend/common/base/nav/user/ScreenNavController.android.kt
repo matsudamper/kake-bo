@@ -18,7 +18,6 @@ public actual fun rememberMainScreenNavController(initial: IScreenStructure): Sc
     }
 }
 
-
 private class AndroidScreenNavControllerImpl(
     private val navBackstack: NavBackStack<IScreenStructure>,
 ) : ScreenNavController {
