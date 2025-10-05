@@ -3,6 +3,9 @@ package net.matsudamper.money.buildlogic
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 @Suppress("unused")
 class AndroidLibraryPlugin : Plugin<Project> {
@@ -22,6 +25,11 @@ class AndroidLibraryPlugin : Plugin<Project> {
                 compileOptions {
                     sourceCompatibility = JavaVersion.toVersion(libs.findVersion("java").get().displayName.toInt())
                     targetCompatibility = JavaVersion.toVersion(libs.findVersion("java").get().displayName.toInt())
+                }
+            }
+            tasks.withType<KotlinCompile>().configureEach {
+                compilerOptions {
+                    jvmTarget.set(JvmTarget.fromTarget(libs.findVersion("java").get().displayName))
                 }
             }
         }
