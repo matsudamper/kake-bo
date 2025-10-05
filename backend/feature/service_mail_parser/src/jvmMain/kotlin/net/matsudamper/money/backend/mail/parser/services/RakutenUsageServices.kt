@@ -41,23 +41,11 @@ internal object RakutenUsageServices : MoneyUsageServices {
 
         val lines = ParseUtil.splitByNewLine(plain)
 
-        val storeName = sequence {
-            val singleLine = plain.replace("\r\n", "").replace("\n", "")
-            yield(
-                run {
-                    val result = "この度は楽天市場内のショップ「(.+?)」をご利用いただきまして、誠にありがとうございます。".toRegex()
-                        .find(singleLine)
-                    result?.groupValues?.get(1)
-                },
-            )
-            yield(
-                run {
-                    val result = "この度は楽天市場内のショップ「\\*(.+?)\\*」をご利用いただきまして、誠にありがとうございます。".toRegex()
-                        .find(singleLine)
-                    result?.groupValues?.get(1)
-                },
-            )
-        }.filterNotNull().first()
+        val storeName = run {
+            val result = "この度は楽天市場内のショップ「\\*?(.+?)\\*?」を[\\s\\S]*?ご利用いただきまして、誠にありがとうございます。".toRegex()
+                .find(plain)
+            result?.groupValues?.get(1)
+        } ?: return emptyList()
 
         val totalPrice = run totalPrice@{
             val priceIndex = lines.indexOfFirst { it.startsWith("支払い金額") || it.startsWith("*支払い金額*") }
