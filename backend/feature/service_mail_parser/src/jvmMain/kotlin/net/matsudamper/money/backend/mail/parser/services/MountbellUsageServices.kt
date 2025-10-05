@@ -49,7 +49,7 @@ internal object MountbellUsageServices : MoneyUsageServices {
                     .firstOrNull { it.startsWith("商品名") }
                     ?.dropWhile { it != '：' }?.drop(1)?.trim() ?: break
                 val priceLine = productSections
-                    .firstOrNull { it.startsWith("単価(税込)") }
+                    .firstOrNull { it.startsWith("単価") }
                     ?.dropWhile { it != '：' }?.drop(1)
                     ?.takeWhile { it != '円' }?.trim() ?: break
                 val countLine = productSections
