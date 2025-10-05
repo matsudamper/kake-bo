@@ -5,33 +5,33 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.currentCompositeKeyHash
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
-import androidx.navigation3.runtime.NavBackStack
-import androidx.navigation3.runtime.rememberNavBackStack
-import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController.NavStackEntry
 
 @Composable
 public actual fun rememberMainScreenNavController(initial: IScreenStructure): ScreenNavController {
     return rememberSaveable(saver = ScreenNavControllerImpl.Saver(currentCompositeKeyHash)) {
-       ScreenNavControllerImpl(initial)
-   }
+        ScreenNavControllerImpl(initial)
+    }
 }
-
 
 @Stable
 internal class ScreenNavControllerImpl(
     initial: IScreenStructure,
 ) : ScreenNavController {
+    private var savedScopeKeyWithIsSavedList: Set<ScreenNavController.NavStackEntry> by mutableStateOf(setOf())
+    override val savedScopeKeys: Set<String>
+        get() = savedScopeKeyWithIsSavedList
+            .plus(backstackEntries)
+            .map { it.structure.sameScreenId }
+            .toSet()
     override var backstackEntries: List<ScreenNavController.NavStackEntry> by mutableStateOf(
         listOf(
             ScreenNavController.NavStackEntry(
                 structure = initial,
                 isHome = true,
-                savedState = false,
             ),
         ),
     )
@@ -81,13 +81,14 @@ internal class ScreenNavControllerImpl(
                 return
             }
         }
-        backstackEntries = backstackEntries.plus(
-            ScreenNavController.NavStackEntry(
-                structure = navigation,
-                isHome = navigation is ScreenStructure.Root,
-                savedState = savedState,
-            ),
+        val newEntry = ScreenNavController.NavStackEntry(
+            structure = navigation,
+            isHome = navigation is ScreenStructure.Root,
         )
+        backstackEntries = backstackEntries.plus(newEntry)
+        if (savedState) {
+            savedScopeKeyWithIsSavedList += newEntry
+        }
     }
 
     companion object {

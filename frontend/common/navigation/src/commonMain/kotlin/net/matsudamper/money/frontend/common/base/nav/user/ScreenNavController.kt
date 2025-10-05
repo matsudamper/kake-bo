@@ -2,11 +2,13 @@ package net.matsudamper.money.frontend.common.base.nav.user
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.navigation3.runtime.NavKey
-import kotlinx.serialization.Serializable
 
 @Stable
 public interface ScreenNavController {
+    /**
+     * 生きている保存するべきID
+     */
+    public val savedScopeKeys: Set<String>
     public val backstackEntries: List<NavStackEntry>
     public val currentBackstackEntry: NavStackEntry
 
@@ -25,7 +27,6 @@ public interface ScreenNavController {
     public data class NavStackEntry(
         val structure: IScreenStructure,
         val isHome: Boolean,
-        val savedState: Boolean,
     )
 
     public interface RemovedBackstackEntryListener {

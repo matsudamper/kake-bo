@@ -16,6 +16,11 @@ public interface IScreenStructure : NavKey {
      */
     public val sameScreenId: String
 
+    /**
+     * 画面を保存するための一意なID
+     */
+    public val scopeKey: String get() = sameScreenId
+
     public fun createUrl(): String {
         return direction.placeholderUrl
     }
