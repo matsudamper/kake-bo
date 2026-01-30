@@ -109,10 +109,9 @@ internal object RakutenUsageServices : MoneyUsageServices {
 
         return buildList {
             add(
-                totalPrice ?: products.mapNotNull { it.price }.sum(),
                 MoneyUsage(
                     title = "[$displayName] $storeName",
-                    price = totalPrice,
+                    price = totalPrice ?: products.mapNotNull { it.price }.sum(),
                     description = storeName,
                     service = MoneyUsageServiceType.Rakuten,
                     dateTime = orderDate ?: forwardedInfo?.date ?: date,
