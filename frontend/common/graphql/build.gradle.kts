@@ -12,6 +12,7 @@ kotlin {
     }
     androidTarget()
     sourceSets {
+        jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
             dependencies {
                 implementation(projects.shared)
