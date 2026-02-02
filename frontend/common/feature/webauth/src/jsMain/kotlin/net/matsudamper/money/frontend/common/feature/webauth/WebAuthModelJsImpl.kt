@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.feature.webauth
 import kotlinx.coroutines.await
 import io.ktor.util.decodeBase64Bytes
 import io.ktor.util.encodeBase64
+import net.matsudamper.money.frontend.common.feature.webauth.CredentialsContainerCreatePublicKeyOptions.User
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
@@ -17,11 +18,14 @@ public class WebAuthModelJsImpl : WebAuthModel {
         base64ExcludeCredentialIdList: List<String>,
     ): WebAuthModel.WebAuthCreateResult? {
         val options = createOption(
-            userId = id,
-            name = name,
             type = type,
             challenge = challenge,
             domain = domain,
+            user = User(
+                id = Uint8Array(id.encodeToByteArray().toTypedArray()),
+                name = name,
+                displayName = name,
+            ),
             excludeCredentials = base64ExcludeCredentialIdList.map {
                 CredentialsContainerCreatePublicKeyOptions.ExcludeCredential(
                     id = it.decodeBase64Bytes(),
@@ -47,15 +51,11 @@ public class WebAuthModelJsImpl : WebAuthModel {
     }
 
     public override suspend fun get(
-        userId: String,
-        name: String,
         type: WebAuthModel.WebAuthModelType,
         challenge: String,
         domain: String,
     ): WebAuthModel.WebAuthGetResult? {
         val options = createOption(
-            userId = userId,
-            name = name,
             type = type,
             challenge = challenge,
             domain = domain,
@@ -80,22 +80,16 @@ public class WebAuthModelJsImpl : WebAuthModel {
     }
 
     private fun createOption(
-        userId: String,
-        name: String,
+        user: User? = null,
         type: WebAuthModel.WebAuthModelType,
         challenge: String,
         domain: String,
         excludeCredentials: List<CredentialsContainerCreatePublicKeyOptions.ExcludeCredential>,
     ): CredentialsContainerCreateOptions {
-        val id = Uint8Array(userId.encodeToByteArray().toTypedArray())
         return CredentialsContainerCreateOptions(
             publicKey = CredentialsContainerCreatePublicKeyOptions(
                 challenge = Uint8Array(challenge.encodeToByteArray().toTypedArray()),
-                user = CredentialsContainerCreatePublicKeyOptions.User(
-                    id = id,
-                    name = name,
-                    displayName = name,
-                ),
+                user = user,
                 pubKeyCredParams = arrayOf(
                     // ES256
                     CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -7),

@@ -24,8 +24,6 @@ public class WebAuthModelAndroidImpl(
     }
 
     public override suspend fun get(
-        userId: String,
-        name: String,
         type: WebAuthModel.WebAuthModelType,
         challenge: String,
         domain: String,

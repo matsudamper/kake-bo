@@ -82,7 +82,7 @@ fun Application.myApplicationModule() {
 
         format { call ->
             buildString {
-                appendLine("==========${call.request.path()}==========")
+                appendLine("request=${call.request.path()}")
                 println("path: ${call.request.path()}")
                 appendLine(
                     call.request.headers.entries().joinToString("\n") { (key, value) ->
