@@ -53,6 +53,7 @@ kotlin {
                 implementation(kotlin("stdlib"))
                 implementation(libs.kotlin.serialization.json)
                 implementation(compose.html.core)
+                implementation(libs.androidxComposeSaveable)
             }
         }
     }

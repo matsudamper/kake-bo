@@ -10,36 +10,36 @@ import net.matsudamper.money.element.MoneyUsageId
 public sealed interface ScreenStructure : IScreenStructure {
     public sealed interface Root : ScreenStructure {
         public sealed interface Settings : Root {
-            override val stackGroupId: String get() = Settings::class.qualifiedName!!
+            override val stackGroupId: String get() = "ScreenStructure#Root#Settings"
 
             @Serializable
             public data object Root : Settings {
                 override val direction: Screens = Screens.Settings
-                override val sameScreenId: String = this::class.qualifiedName!!
+                override val sameScreenId: String = "ScreenStructure#Root#Settings#Root"
             }
 
             @Serializable
             public data object Api : Settings {
                 override val direction: Screens = Screens.Api
-                override val sameScreenId: String = this::class.qualifiedName!!
+                override val sameScreenId: String = "ScreenStructure#Root#Settings#Api"
             }
 
             @Serializable
             public data object Login : Settings {
                 override val direction: Screens = Screens.SettingsLogin
-                override val sameScreenId: String = this::class.qualifiedName!!
+                override val sameScreenId: String = "ScreenStructure#Root#Settings#Login"
             }
 
             @Serializable
             public data object Imap : Settings {
                 override val direction: Screens = Screens.SettingsImap
-                override val sameScreenId: String = this::class.qualifiedName!!
+                override val sameScreenId: String = "ScreenStructure#Root#Settings#Imap"
             }
 
             @Serializable
             public data object Categories : Settings {
                 override val direction: Screens = Screens.SettingsCategory
-                override val sameScreenId: String = this::class.qualifiedName!!
+                override val sameScreenId: String = "ScreenStructure#Root#Settings#Categories"
             }
 
             @Serializable
@@ -47,7 +47,7 @@ public sealed interface ScreenStructure : IScreenStructure {
                 public val id: MoneyUsageCategoryId,
             ) : Settings {
                 override val direction: Screens = Screens.SettingsCategoryId
-                override val sameScreenId: String = this::class.qualifiedName!!
+                override val sameScreenId: String = "ScreenStructure#Root#Settings#Category"
 
                 override fun createUrl(): String {
                     return direction.placeholderUrl.replace("{id}", id.value.toString())
@@ -57,7 +57,7 @@ public sealed interface ScreenStructure : IScreenStructure {
             @Serializable
             public data object MailCategoryFilters : Settings {
                 override val direction: Screens = Screens.MailCategoryFilters
-                override val sameScreenId: String = this::class.qualifiedName!!
+                override val sameScreenId: String = "ScreenStructure#Root#Settings#MailCategoryFilters"
             }
 
             @Serializable
@@ -65,7 +65,7 @@ public sealed interface ScreenStructure : IScreenStructure {
                 val id: ImportedMailCategoryFilterId,
             ) : Settings {
                 override val direction: Screens = Screens.MailCategoryFilter
-                override val sameScreenId: String = this::class.qualifiedName!!
+                override val sameScreenId: String = "ScreenStructure#Root#Settings#MailCategoryFilter($id)"
 
                 override fun createUrl(): String {
                     return direction.placeholderUrl.replace("{id}", id.id.toString())
@@ -74,12 +74,12 @@ public sealed interface ScreenStructure : IScreenStructure {
         }
 
         public sealed interface Add : Root {
-            override val stackGroupId: String get() = Add::class.qualifiedName!!
+            override val stackGroupId: String get() = "ScreenStructure#Root#Add"
 
             @Serializable
             public data object Root : Add {
                 override val direction: Screens = Screens.Add
-                override val sameScreenId: String = this::class.qualifiedName!!
+                override val sameScreenId: String = "ScreenStructure#Root#Add#Root"
             }
 
             @Serializable
@@ -87,6 +87,7 @@ public sealed interface ScreenStructure : IScreenStructure {
                 public val isLinked: Boolean?,
             ) : Add {
                 override val direction: Screens = Screens.ImportedMailList
+                override val sameScreenId: String = "ScreenStructure#Root#Add#Imported"
 
                 override fun createUrl(): String {
                     val urlParam = buildParameter {
@@ -97,8 +98,6 @@ public sealed interface ScreenStructure : IScreenStructure {
 
                     return direction.placeholderUrl.plus(urlParam)
                 }
-
-                override val sameScreenId: String = this::class.qualifiedName!!
 
                 public companion object {
                     private const val KEY_IS_LINKED = "is_linked"
@@ -120,17 +119,17 @@ public sealed interface ScreenStructure : IScreenStructure {
             @Serializable
             public data object Import : Add {
                 override val direction: Screens = Screens.MailImport
-                override val sameScreenId: String = this::class.qualifiedName!!
+                override val sameScreenId: String = "ScreenStructure#Root#Add#Import"
             }
         }
 
         public sealed interface Usage : Root {
-            override val stackGroupId: String get() = Usage::class.qualifiedName!!
+            override val stackGroupId: String get() = "ScreenStructure#Root#Usage"
 
             @Serializable
             public data object List : Usage {
                 override val direction: Screens = Screens.UsageList
-                override val sameScreenId: String = this::class.qualifiedName!!
+                override val sameScreenId: String = "ScreenStructure#Root#Usage#List"
             }
 
             @Serializable
@@ -138,7 +137,7 @@ public sealed interface ScreenStructure : IScreenStructure {
                 val yearMonth: YearMonth? = null,
             ) : Usage {
                 override val direction: Screens = Screens.UsageCalendar
-                override val sameScreenId: String = this::class.qualifiedName!!
+                override val sameScreenId: String = "ScreenStructure#Root#Usage#Calendar"
 
                 override fun createUrl(): String {
                     return if (yearMonth == null) {
@@ -180,21 +179,21 @@ public sealed interface ScreenStructure : IScreenStructure {
     public data object NotFound : ScreenStructure {
         override val direction: Screens = Screens.NotFound
         override val stackGroupId: String? = null
-        override val sameScreenId: String = this::class.qualifiedName!!
+        override val sameScreenId: String = "ScreenStructure#NotFound"
     }
 
     @Serializable
     public data object Login : ScreenStructure {
         override val direction: Screens = Screens.Login
         override val stackGroupId: String? = null
-        override val sameScreenId: String = this::class.qualifiedName!!
+        override val sameScreenId: String = "ScreenStructure#Login"
     }
 
     @Serializable
     public data object Admin : ScreenStructure {
         override val direction: Screens = Screens.Admin
         override val stackGroupId: String? = null
-        override val sameScreenId: String = this::class.qualifiedName!!
+        override val sameScreenId: String = "ScreenStructure#Admin"
     }
 
     @Serializable
@@ -203,7 +202,7 @@ public sealed interface ScreenStructure : IScreenStructure {
     ) : ScreenStructure {
         override val direction: Screens = Screens.ImportedMail
         override val stackGroupId: String? = null
-        override val sameScreenId: String = "${this::class.qualifiedName!!}($id)"
+        override val sameScreenId: String = "ScreenStructure#ImportedMail($id)"
 
         override fun createUrl(): String {
             return direction.placeholderUrl
@@ -217,7 +216,7 @@ public sealed interface ScreenStructure : IScreenStructure {
     ) : ScreenStructure {
         override val direction: Screens = Screens.MoneyUsage
         override val stackGroupId: String? = null
-        override val sameScreenId: String = "${this::class.qualifiedName!!}($id)"
+        override val sameScreenId: String = "ScreenStructure#MoneyUsage($id)"
 
         override fun createUrl(): String {
             return direction.placeholderUrl
@@ -231,7 +230,7 @@ public sealed interface ScreenStructure : IScreenStructure {
     ) : ScreenStructure {
         override val direction: Screens = Screens.ImportedMailHTML
         override val stackGroupId: String? = null
-        override val sameScreenId: String = "${this::class.qualifiedName!!}($id)"
+        override val sameScreenId: String = "ScreenStructure#ImportedMailHTML($id)"
 
         override fun createUrl(): String {
             return direction.placeholderUrl
@@ -245,7 +244,7 @@ public sealed interface ScreenStructure : IScreenStructure {
     ) : ScreenStructure {
         override val direction: Screens = Screens.ImportedMailPlain
         override val stackGroupId: String? = null
-        override val sameScreenId: String = "${this::class.qualifiedName!!}($id)"
+        override val sameScreenId: String = "ScreenStructure#ImportedMailPlain($id)"
 
         override fun createUrl(): String {
             return direction.placeholderUrl
@@ -265,7 +264,7 @@ public sealed interface ScreenStructure : IScreenStructure {
     ) : ScreenStructure {
         override val direction: Screens = Screens.AddMoneyUsage
         override val stackGroupId: String? = null
-        override val sameScreenId: String = this::class.qualifiedName!!
+        override val sameScreenId: String = "ScreenStructure#AddMoneyUsage"
 
         override fun createUrl(): String {
             return direction.placeholderUrl.plus(
