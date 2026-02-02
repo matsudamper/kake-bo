@@ -58,7 +58,7 @@ internal object VpassUsageServices : MoneyUsageServices {
                 title = storeName,
                 price = price ?: 0,
                 description = cardType,
-                service = MoneyUsageServiceType.CreditCard,
+                service = MoneyUsageServiceType.Vpass,
                 dateTime = parsedDate ?: forwardOriginal?.date ?: date,
             ),
         )

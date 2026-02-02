@@ -176,4 +176,8 @@ public enum class MoneyUsageServiceType(
         id = 44,
         displayName = "ソフマップ",
     ),
+    Vpass(
+        id = 45,
+        displayName = "Vpass",
+    ),
 }
