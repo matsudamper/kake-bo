@@ -59,7 +59,7 @@ public data class CredentialsContainerCreateResult(
 @JsExport
 public class CredentialsContainerCreatePublicKeyOptions(
     public val challenge: Uint8Array,
-    public val user: User,
+    public val user: User? = null,
     public val rp: Rp,
     public val pubKeyCredParams: Array<PubKeyCredParams>,
     public val excludeCredentials: Array<ExcludeCredential> = arrayOf(),

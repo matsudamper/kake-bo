@@ -17,8 +17,6 @@ public class WebAuthModelJsImpl : WebAuthModel {
         base64ExcludeCredentialIdList: List<String>,
     ): WebAuthModel.WebAuthCreateResult? {
         val options = createOption(
-            userId = id,
-            name = name,
             type = type,
             challenge = challenge,
             domain = domain,
@@ -47,15 +45,11 @@ public class WebAuthModelJsImpl : WebAuthModel {
     }
 
     public override suspend fun get(
-        userId: String,
-        name: String,
         type: WebAuthModel.WebAuthModelType,
         challenge: String,
         domain: String,
     ): WebAuthModel.WebAuthGetResult? {
         val options = createOption(
-            userId = userId,
-            name = name,
             type = type,
             challenge = challenge,
             domain = domain,
@@ -80,22 +74,14 @@ public class WebAuthModelJsImpl : WebAuthModel {
     }
 
     private fun createOption(
-        userId: String,
-        name: String,
         type: WebAuthModel.WebAuthModelType,
         challenge: String,
         domain: String,
         excludeCredentials: List<CredentialsContainerCreatePublicKeyOptions.ExcludeCredential>,
     ): CredentialsContainerCreateOptions {
-        val id = Uint8Array(userId.encodeToByteArray().toTypedArray())
         return CredentialsContainerCreateOptions(
             publicKey = CredentialsContainerCreatePublicKeyOptions(
                 challenge = Uint8Array(challenge.encodeToByteArray().toTypedArray()),
-                user = CredentialsContainerCreatePublicKeyOptions.User(
-                    id = id,
-                    name = name,
-                    displayName = name,
-                ),
                 pubKeyCredParams = arrayOf(
                     // ES256
                     CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -7),
