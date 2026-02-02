@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.base.nav
 
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.spring
@@ -20,6 +21,9 @@ public actual fun NavHost(
     entryProvider: (IScreenStructure) -> NavEntry<IScreenStructure>,
 ) {
     val dispatcher = LocalOnBackPressedDispatcherOwner.current
+    BackHandler(enabled = navController.backstackEntries.isEmpty()) {
+        dispatcher?.onBackPressedDispatcher?.onBackPressed()
+    }
     NavDisplay(
         backStack = rememberUpdatedState(navController.backstackEntries).value,
         entryProvider = entryProvider,
