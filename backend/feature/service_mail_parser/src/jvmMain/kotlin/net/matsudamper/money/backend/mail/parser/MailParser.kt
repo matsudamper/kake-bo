@@ -94,7 +94,6 @@ public object MailParser {
             YoutubeMembershipUsageServices,
             NttEastBillingUsageServices,
             MountbellUsageServices,
-            MitsuiSumitomoCardUsageServices,
             AuPayUsageService,
             BoothUsageService,
             PovoUsageServices,

@@ -10,7 +10,7 @@ import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
 import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 
 internal object VpassUsageServices : MoneyUsageServices {
-    override val displayName: String = "Vpass"
+    override val displayName: String = "三井住友カード"
 
     override fun parse(
         subject: String,
