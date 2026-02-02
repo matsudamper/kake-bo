@@ -3,32 +3,32 @@ package net.matsudamper.money.frontend.common.base.nav
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation3.runtime.NavEntry
+import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 
 @Composable
 public actual fun rememberScopedObjectStoreOwner(key: String): ScopedObjectStoreOwner {
     val owner = viewModel(
         key = key,
         initializer = {
-            ScopedObjectStoreOwnerImpl()
+            InMemoryScopedObjectStoreOwnerImplViewModel()
         },
     )
     return owner
 }
 
-private class ScopedObjectStoreOwnerImpl() : ViewModel(), ScopedObjectStoreOwner {
-    private val scopedObjectStore = mutableMapOf<Any, ScopedObjectStore>()
+private class InMemoryScopedObjectStoreOwnerImplViewModel :
+    ViewModel(),
+    ScopedObjectStoreOwner by InMemoryScopedObjectStoreOwnerImpl()
 
-    override fun createOrGetScopedObjectStore(key: Any): ScopedObjectStore {
-        val store = scopedObjectStore[key] ?: ScopedObjectStore()
-        scopedObjectStore[key] = store
-        return store
-    }
-
-    override fun removeScopedObjectStore(key: Any) {
-        scopedObjectStore.remove(key)?.clearAll()
-    }
-
-    override fun keys(): Set<Any> {
-        return scopedObjectStore.keys
-    }
+@Composable
+public actual fun NavHost(
+    navController: ScreenNavController,
+    entryProvider: (IScreenStructure) -> NavEntry<IScreenStructure>,
+) {
+    InternalNavHost(
+        navController = navController,
+        entryProvider = entryProvider,
+    )
 }

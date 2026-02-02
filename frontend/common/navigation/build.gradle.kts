@@ -1,6 +1,11 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     id("net.matsudamper.money.buildlogic.compose")
+    id("net.matsudamper.money.buildlogic.androidLibrary")
+    alias(libs.plugins.kotlin.serialization)
+}
+android {
+    namespace = "net.matsudamper.money.frontend.common.base.nav"
 }
 
 kotlin {
@@ -9,8 +14,9 @@ kotlin {
         binaries.executable()
     }
     jvm { }
+    androidTarget()
+    jvmToolchain(libs.versions.javaToolchain.get().toInt())
     sourceSets {
-        jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
             dependencies {
                 implementation(projects.shared)
@@ -23,6 +29,8 @@ kotlin {
                 implementation(libs.kotlin.datetime)
 
                 implementation(libs.ktorClientCore)
+
+                api(libs.androidxNavigation3Runtime)
             }
         }
         val jsMain by getting {
@@ -45,6 +53,18 @@ kotlin {
                 implementation(compose.ui)
                 implementation(libs.androidxLifecycleRuntimeCompose)
                 implementation(libs.androidxLifecycleViewModelCompose)
+            }
+        }
+        val androidMain by getting {
+            dependencies {
+                implementation(projects.shared)
+
+                implementation(compose.runtime)
+                implementation(compose.ui)
+                implementation(libs.androidxLifecycleRuntimeCompose)
+                implementation(libs.androidxLifecycleViewModelCompose)
+                implementation(libs.androidxNavigation3Runtime)
+                implementation(libs.androidxNavigation3Ui)
             }
         }
         val jvmTest by getting {

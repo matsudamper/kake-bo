@@ -12,23 +12,11 @@ internal class ScreenNavControllerImpl(
     private val initial: IScreenStructure,
     private val currentScreenStructureProvider: () -> IScreenStructure,
 ) : ScreenNavController {
-    override var backstackEntries: List<ScreenNavController.NavStackEntry> by mutableStateOf(
-        listOf(
-            ScreenNavController.NavStackEntry(
-                structure = initial,
-                isHome = true,
-                savedState = false,
-            ),
-        ),
-    )
-    override val currentBackstackEntry: ScreenNavController.NavStackEntry
+    override val savedScopeKeys: Set<String> = setOf()
+    override var backstackEntries: List<IScreenStructure> by mutableStateOf(listOf(initial))
+    override val currentBackstackEntry: IScreenStructure?
         get() {
-            val item = backstackEntries.last()
-            return ScreenNavController.NavStackEntry(
-                structure = item.structure,
-                isHome = item.isHome,
-                savedState = false,
-            )
+            return backstackEntries.lastOrNull()
         }
     override val canGoBack: Boolean = true
 
@@ -47,16 +35,16 @@ internal class ScreenNavControllerImpl(
         )
     }
 
-    override fun navigate(navigation: IScreenStructure, savedState: Boolean, isRoot: Boolean) {
-        println("${backstackEntries.map { it.structure.direction.title }} -> ${navigation.direction.title}")
-        if (navigation.stackGroupId != null && navigation.stackGroupId != currentBackstackEntry.structure.stackGroupId) {
-            val targetGroupTailIndex = backstackEntries.indexOfLast { it.structure.stackGroupId == navigation.stackGroupId }
+    override fun navigate(navigation: IScreenStructure, savedState: Boolean) {
+        println("${backstackEntries.map { it.direction.title }} -> ${navigation.direction.title}")
+        if (navigation.stackGroupId != null && navigation.stackGroupId != currentBackstackEntry.stackGroupId) {
+            val targetGroupTailIndex = backstackEntries.indexOfLast { it.stackGroupId == navigation.stackGroupId }
                 .takeIf { it >= 0 }
                 ?.plus(1)
 
             if (targetGroupTailIndex != null) {
                 val targetGroupStartIndex = backstackEntries.take(targetGroupTailIndex)
-                    .indexOfLast { it.structure.stackGroupId != navigation.stackGroupId }
+                    .indexOfLast { it.stackGroupId != navigation.stackGroupId }
                     .plus(1)
 
                 val list = backstackEntries.toMutableList()
@@ -69,15 +57,15 @@ internal class ScreenNavControllerImpl(
                 backstackEntries = list
                 window.history.pushState(
                     data = null,
-                    title = backstackEntries.last().structure.direction.title,
-                    url = backstackEntries.last().structure.createUrl(),
+                    title = backstackEntries.last().direction.title,
+                    url = backstackEntries.last().createUrl(),
                 )
                 return
             }
         }
 
         val url = navigation.createUrl()
-        if (backstackEntries.last().structure.sameScreenId == navigation.sameScreenId) {
+        if (backstackEntries.last().sameScreenId == navigation.sameScreenId) {
             window.history.replaceState(
                 data = null,
                 title = navigation.direction.title,
@@ -90,18 +78,18 @@ internal class ScreenNavControllerImpl(
                 url = url,
             )
         }
-        updateScreenState(navigation, savedState = savedState, isRoot = isRoot)
+        updateScreenState(navigation)
     }
 
     override fun navigateToHome() {
         while (backstackEntries.isNotEmpty()) {
-            if (backstackEntries.last().isHome) {
+            if (backstackEntries.last() is ScreenStructure.Root) {
                 break
             }
             back()
         }
         navigate(
-            backstackEntries.lastOrNull()?.structure ?: initial,
+            backstackEntries.lastOrNull() ?: initial,
         )
     }
 
@@ -109,21 +97,12 @@ internal class ScreenNavControllerImpl(
         window.history.back()
     }
 
-    private fun updateScreenState(screenStructure: IScreenStructure, savedState: Boolean = false, isRoot: Boolean = false) {
+    private fun updateScreenState(screenStructure: IScreenStructure) {
         /**
          * JSの場合はキャンセルさせず、上に積む。ブラウザの履歴のハンドリングが大変なので
          */
         backstackEntries = backstackEntries.toMutableStateList().also {
-            it.add(
-                ScreenNavController.NavStackEntry(
-                    structure = screenStructure,
-                    isHome = when (screenStructure) {
-                        is ScreenStructure.Root -> true
-                        else -> false
-                    },
-                    savedState = savedState,
-                ),
-            )
+            it.add(screenStructure)
         }
     }
 }

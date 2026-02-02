@@ -11,18 +11,16 @@ import androidx.compose.runtime.toMutableStateList
 internal class ScreenNavControllerImpl(
     initial: IScreenStructure,
 ) : ScreenNavController {
-    override var backstackEntries: List<ScreenNavController.NavStackEntry> by mutableStateOf(
-        listOf(
-            ScreenNavController.NavStackEntry(
-                structure = initial,
-                isHome = true,
-                savedState = false,
-            ),
-        ),
-    )
-    override val currentBackstackEntry: ScreenNavController.NavStackEntry
+    private var savedScopeKeyWithIsSavedList: Set<IScreenStructure> by mutableStateOf(setOf())
+    override val savedScopeKeys: Set<String>
+        get() = savedScopeKeyWithIsSavedList
+            .plus(backstackEntries)
+            .map { it.sameScreenId }
+            .toSet()
+    override var backstackEntries: List<IScreenStructure> by mutableStateOf(listOf(initial))
+    override val currentBackstackEntry: IScreenStructure?
         get() {
-            return backstackEntries.last()
+            return backstackEntries.lastOrNull()
         }
 
     public override val canGoBack: Boolean get() = backstackEntries.size > 1
@@ -36,23 +34,23 @@ internal class ScreenNavControllerImpl(
 
     override fun navigateToHome() {
         while (backstackEntries.isNotEmpty()) {
-            if (backstackEntries.last().isHome) {
+            if (backstackEntries.last() is ScreenStructure.Root) {
                 break
             }
             back()
         }
     }
 
-    override fun navigate(navigation: IScreenStructure, savedState: Boolean, isRoot: Boolean) {
-        println("${backstackEntries.map { it.structure.direction.title }} -> ${navigation.direction.title}")
-        if (navigation.stackGroupId != null && navigation.stackGroupId != currentBackstackEntry.structure.stackGroupId) {
-            val targetGroupTailIndex = backstackEntries.indexOfLast { it.structure.stackGroupId == navigation.stackGroupId }
+    override fun navigate(navigation: IScreenStructure, savedState: Boolean) {
+        println("${backstackEntries.map { it.direction.title }} -> ${navigation.direction.title}")
+        if (navigation.stackGroupId != null && navigation.stackGroupId != currentBackstackEntry.stackGroupId) {
+            val targetGroupTailIndex = backstackEntries.indexOfLast { it.stackGroupId == navigation.stackGroupId }
                 .takeIf { it >= 0 }
                 ?.plus(1)
 
             if (targetGroupTailIndex != null) {
                 val targetGroupStartIndex = backstackEntries.take(targetGroupTailIndex)
-                    .indexOfLast { it.structure.stackGroupId != navigation.stackGroupId }
+                    .indexOfLast { it.stackGroupId != navigation.stackGroupId }
                     .plus(1)
 
                 val list = backstackEntries.toMutableList()
@@ -66,13 +64,10 @@ internal class ScreenNavControllerImpl(
                 return
             }
         }
-        backstackEntries = backstackEntries.plus(
-            ScreenNavController.NavStackEntry(
-                structure = navigation,
-                isHome = navigation is ScreenStructure.Root,
-                savedState = savedState,
-            ),
-        )
+        backstackEntries = backstackEntries.plus(navigation)
+        if (savedState) {
+            savedScopeKeyWithIsSavedList += navigation
+        }
     }
 
     companion object {

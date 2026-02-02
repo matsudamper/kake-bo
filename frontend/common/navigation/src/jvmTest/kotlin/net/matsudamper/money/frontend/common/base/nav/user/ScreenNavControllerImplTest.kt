@@ -5,14 +5,14 @@ import io.kotest.matchers.equals.shouldBeEqual
 
 public class ScreenNavControllerImplTest : DescribeSpec(
     {
-        fun createStructure(text: String, groupId: Any): IScreenStructure {
+        fun createStructure(text: String, groupId: String): IScreenStructure {
             return object : IScreenStructure {
                 override val direction: Direction = object : Direction {
                     override val placeholderUrl: String = ""
                     override val title: String = text
                 }
-                override val stackGroupId: Any = groupId
-                override val sameScreenId: String = "$groupId"
+                override val stackGroupId: String = groupId
+                override val sameScreenId: String = groupId
 
                 override fun toString(): String {
                     return direction.title
@@ -30,20 +30,17 @@ public class ScreenNavControllerImplTest : DescribeSpec(
                         navigate(
                             navigation = createStructure("A2", "A"),
                             savedState = false,
-                            isRoot = false,
                         )
                         navigate(
                             navigation = rootB,
                             savedState = false,
-                            isRoot = true,
                         )
                         navigate(
                             navigation = rootA,
                             savedState = false,
-                            isRoot = true,
                         )
                     }
-                    controller.backstackEntries.map { it.structure.direction.title }
+                    controller.backstackEntries.map { it.direction.title }
                         .shouldBeEqual(
                             listOf(
                                 "B1",
@@ -59,35 +56,29 @@ public class ScreenNavControllerImplTest : DescribeSpec(
                         navigate(
                             navigation = createStructure("A2", "A"),
                             savedState = false,
-                            isRoot = false,
                         )
                         navigate(
                             navigation = rootB,
                             savedState = false,
-                            isRoot = true,
                         )
                         navigate(
                             navigation = createStructure("B2", "B"),
                             savedState = false,
-                            isRoot = false,
                         )
                         navigate(
                             navigation = rootC,
                             savedState = false,
-                            isRoot = true,
                         )
                         navigate(
                             navigation = createStructure("C2", "C"),
                             savedState = false,
-                            isRoot = false,
                         )
                         navigate(
                             navigation = rootB,
                             savedState = false,
-                            isRoot = true,
                         )
                     }
-                    controller.backstackEntries.map { it.structure.direction.title }
+                    controller.backstackEntries.map { it.direction.title }
                         .shouldBeEqual(
                             listOf(
                                 "A1",
