@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.feature.webauth
 import kotlinx.coroutines.await
 import io.ktor.util.decodeBase64Bytes
 import io.ktor.util.encodeBase64
+import net.matsudamper.money.frontend.common.feature.webauth.CredentialsContainerCreatePublicKeyOptions.User
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Uint8Array
 import org.khronos.webgl.get
@@ -20,6 +21,11 @@ public class WebAuthModelJsImpl : WebAuthModel {
             type = type,
             challenge = challenge,
             domain = domain,
+            user = User(
+                id = Uint8Array(id.encodeToByteArray().toTypedArray()),
+                name = name,
+                displayName = name,
+            ),
             excludeCredentials = base64ExcludeCredentialIdList.map {
                 CredentialsContainerCreatePublicKeyOptions.ExcludeCredential(
                     id = it.decodeBase64Bytes(),
@@ -74,6 +80,7 @@ public class WebAuthModelJsImpl : WebAuthModel {
     }
 
     private fun createOption(
+        user: User? = null,
         type: WebAuthModel.WebAuthModelType,
         challenge: String,
         domain: String,
@@ -82,6 +89,7 @@ public class WebAuthModelJsImpl : WebAuthModel {
         return CredentialsContainerCreateOptions(
             publicKey = CredentialsContainerCreatePublicKeyOptions(
                 challenge = Uint8Array(challenge.encodeToByteArray().toTypedArray()),
+                user = user,
                 pubKeyCredParams = arrayOf(
                     // ES256
                     CredentialsContainerCreatePublicKeyOptions.PubKeyCredParams("public-key", -7),
