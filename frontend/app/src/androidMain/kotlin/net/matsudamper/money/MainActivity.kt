@@ -79,6 +79,7 @@ class MainActivity : ComponentActivity() {
                 val queries = uri.queryParameterNames.associateWith { uri.getQueryParameter(it) }
                 val title = queries["title"].orEmpty()
                 val price = queries["price"].orEmpty().toFloatOrNull()
+                val description = queries["description"].orEmpty()
                 val date = run {
                     val dateString = queries["date"]
                     val formatter = DateTimeFormatterBuilder()
@@ -103,6 +104,7 @@ class MainActivity : ComponentActivity() {
                     title = title,
                     price = price,
                     date = date,
+                    description = description,
                 )
             }
 
