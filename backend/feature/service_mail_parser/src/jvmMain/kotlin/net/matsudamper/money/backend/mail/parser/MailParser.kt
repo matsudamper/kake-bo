@@ -22,7 +22,6 @@ import net.matsudamper.money.backend.mail.parser.services.JapanTsushinUsageServi
 import net.matsudamper.money.backend.mail.parser.services.KaldiCoffeeFarmUsageServices
 import net.matsudamper.money.backend.mail.parser.services.MacdonaldsMobileOrderUsageService
 import net.matsudamper.money.backend.mail.parser.services.MicrosoftUsageServices
-import net.matsudamper.money.backend.mail.parser.services.MitsuiSumitomoCardUsageServices
 import net.matsudamper.money.backend.mail.parser.services.MountbellUsageServices
 import net.matsudamper.money.backend.mail.parser.services.MovieTicketUsageService
 import net.matsudamper.money.backend.mail.parser.services.NijisanjiOfficialStoreUsageServices

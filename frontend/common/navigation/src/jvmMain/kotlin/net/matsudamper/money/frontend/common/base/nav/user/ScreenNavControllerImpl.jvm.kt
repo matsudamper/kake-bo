@@ -43,7 +43,7 @@ internal class ScreenNavControllerImpl(
 
     override fun navigate(navigation: IScreenStructure, savedState: Boolean) {
         println("${backstackEntries.map { it.direction.title }} -> ${navigation.direction.title}")
-        if (navigation.stackGroupId != null && navigation.stackGroupId != currentBackstackEntry.stackGroupId) {
+        if (navigation.stackGroupId != null && navigation.stackGroupId != currentBackstackEntry?.stackGroupId) {
             val targetGroupTailIndex = backstackEntries.indexOfLast { it.stackGroupId == navigation.stackGroupId }
                 .takeIf { it >= 0 }
                 ?.plus(1)

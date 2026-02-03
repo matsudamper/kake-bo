@@ -42,11 +42,18 @@ internal object SonyBankUsageServices : MoneyUsageServices {
         val month = dateMatch.groupValues[2].toIntOrNull() ?: return listOf()
         val day = dateMatch.groupValues[3].toIntOrNull() ?: return listOf()
 
-        val amountLineIndex = lines.indexOfFirst { it.startsWith("ご利用金額：") }
-            .takeIf { it != -1 } ?: return listOf()
-
-        val amountLine = lines[amountLineIndex].removePrefix("ご利用金額：")
-        val price = ParseUtil.getInt(amountLine.replace("円", "")) ?: return listOf()
+        val price = run {
+            val withdrawalLineIndex = lines.indexOfFirst { it.startsWith("お引落額：") }
+            if (withdrawalLineIndex != -1) {
+                val withdrawalLine = lines[withdrawalLineIndex].removePrefix("お引落額：")
+                ParseUtil.getInt(withdrawalLine)
+            } else {
+                val amountLineIndex = lines.indexOfFirst { it.startsWith("ご利用金額：") }
+                    .takeIf { it != -1 } ?: return listOf()
+                val amountLine = lines[amountLineIndex].removePrefix("ご利用金額：")
+                ParseUtil.getInt(amountLine.replace("円", ""))
+            }
+        }
 
         val merchantLineIndex = lines.indexOfFirst { it.startsWith("ご利用加盟店：") }
             .takeIf { it != -1 } ?: return listOf()
