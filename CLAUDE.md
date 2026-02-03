@@ -70,14 +70,6 @@ The project is organized into backend, frontend, and shared modules:
 - `AuthenticatorConverter.kt` - 変換ロジック
 - `Auth4JModel.kt` - WebAuthn4J統合
 
-## データベース
-
-- ORM: JOOQ 3.20.11
-- JDBC: `jdbc:mariadb://localhost:3306/money`
-- スキーマパッケージ: `net.matsudamper.money.db.schema`
-
-テーブル作成SQL: `backend/db/src/jvmMain/resources/sql/`
-
 # コーディングガイドライン
 
 以下に従ってください
