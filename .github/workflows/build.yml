@@ -35,7 +35,7 @@ jobs:
         run: |
           mkdir -p .tmp/reports
           find -wholename "*/build/reports" | xargs -I {} bash -c "mkdir -p .tmp/reports/{} && cp -r {} .tmp/reports/{}"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: failure()
         with:
           name: reports
