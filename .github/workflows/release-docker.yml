@@ -19,7 +19,7 @@ jobs:
       ANDROID_SERVER_HOST: ""
       GRADLE_OPTS: -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.workers.max=2 -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs="-Xmx4500m"
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Set up JDK
         uses: actions/setup-java@v5
@@ -49,7 +49,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: docker-release-build
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Download backend artifacts
         uses: actions/download-artifact@v4
@@ -92,7 +92,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: docker-release-build
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Download backend artifacts
         uses: actions/download-artifact@v4
         with:
