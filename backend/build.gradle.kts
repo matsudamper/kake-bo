@@ -53,7 +53,7 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
                 implementation(libs.kotestRunnerJunit5)
-                implementation("io.mockk:mockk:1.14.6")
+                implementation("io.mockk:mockk:1.14.9")
             }
         }
     }
