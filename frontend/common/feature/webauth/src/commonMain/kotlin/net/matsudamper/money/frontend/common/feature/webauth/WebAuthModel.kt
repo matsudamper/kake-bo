@@ -11,8 +11,6 @@ public interface WebAuthModel {
     ): WebAuthCreateResult?
 
     public suspend fun get(
-        userId: String,
-        name: String,
         type: WebAuthModelType,
         challenge: String,
         domain: String,

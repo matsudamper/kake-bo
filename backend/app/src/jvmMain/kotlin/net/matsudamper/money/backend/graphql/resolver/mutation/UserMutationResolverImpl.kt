@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend.graphql.resolver.mutation
 
 import java.time.ZoneOffset
+import java.util.Base64
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import kotlin.contracts.ExperimentalContracts
@@ -38,6 +39,7 @@ import net.matsudamper.money.element.MailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.element.UserId
 import net.matsudamper.money.graphql.model.QlAddCategoryInput
 import net.matsudamper.money.graphql.model.QlAddCategoryResult
 import net.matsudamper.money.graphql.model.QlAddImportedMailCategoryFilterConditionInput
@@ -212,12 +214,15 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<QlUserLoginResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val fidoRepository = context.diContainer.createFidoRepository()
-        val userRepository = context.diContainer.createUserNameRepository()
         val challengeRepository = context.diContainer.createChallengeRepository()
         return CompletableFuture.supplyAsync {
             runBlocking {
                 minExecutionTime(1000) {
-                    val requestUserId = userRepository.getUserId(userName = userFidoLoginInput.userName)
+                    val requestUserId = String(
+                        Base64.getUrlDecoder().decode(userFidoLoginInput.base64UserHandle),
+                        Charsets.UTF_8,
+                    ).toIntOrNull()
+                        ?.let { UserId(it) }
                         ?: return@minExecutionTime QlUserLoginResult(
                             isSuccess = false,
                         )
@@ -301,7 +306,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                     is ImportMailUseCase.Result.Success -> true
                     is ImportMailUseCase.Result.Failure,
                     is ImportMailUseCase.Result.ImapConfigNotFound,
-                    -> false
+                        -> false
                 },
             )
         }.toDataFetcher()

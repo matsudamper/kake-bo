@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -72,6 +73,8 @@ public fun LoginScreen(
                         onNextClick = { userIdInput = false },
                         textFieldTextStyle = textFieldTextStyle,
                         onValueChange = { uiState.listener.onUserIdChanged(it) },
+                        onClickSecurityKeyLogin = { uiState.listener.onClickSecurityKeyLogin() },
+                        onClickDeviceKeyLogin = { uiState.listener.onClickDeviceKeyLogin() },
                     )
                 } else {
                     PasswordInput(
@@ -80,8 +83,6 @@ public fun LoginScreen(
                         text = uiState.password.text,
                         onClickLogin = { uiState.listener.onClickLogin() },
                         textFieldTextStyle = textFieldTextStyle,
-                        onClickSecurityKeyLogin = { uiState.listener.onClickSecurityKeyLogin() },
-                        onClickDeviceKeyLogin = { uiState.listener.onClickDeviceKeyLogin() },
                         onClickBack = { userIdInput = true },
                     )
                 }
@@ -105,6 +106,8 @@ public fun LoginScreen(
 private fun UserIdInput(
     onNextClick: () -> Unit,
     onValueChange: (String) -> Unit,
+    onClickSecurityKeyLogin: () -> Unit,
+    onClickDeviceKeyLogin: () -> Unit,
     text: String,
     textFieldTextStyle: TextStyle,
     modifier: Modifier = Modifier,
@@ -112,46 +115,6 @@ private fun UserIdInput(
     LoginContainer(
         modifier = modifier,
         onClickBack = null,
-        footer = {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                Button(
-                    modifier = Modifier.align(Alignment.CenterEnd),
-                    onClick = { onNextClick() },
-                ) {
-                    Text(
-                        text = "Next",
-                        fontFamily = rememberCustomFontFamily(),
-                    )
-                }
-            }
-        },
-        content = {
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
-                onValueChange = onValueChange,
-                text = text,
-                textStyle = textFieldTextStyle,
-                label = "User Name",
-                maxLines = 1,
-            )
-        },
-    )
-}
-
-@Composable
-private fun PasswordInput(
-    text: String,
-    onValueChange: (String) -> Unit,
-    textFieldTextStyle: TextStyle,
-    onClickLogin: () -> Unit,
-    onClickSecurityKeyLogin: () -> Unit,
-    onClickDeviceKeyLogin: () -> Unit,
-    onClickBack: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    LoginContainer(
-        modifier = modifier,
-        onClickBack = onClickBack,
         footer = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -176,6 +139,44 @@ private fun PasswordInput(
                     )
                 }
             }
+        },
+        content = {
+            Column(modifier = Modifier.fillMaxWidth()) {
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    onValueChange = onValueChange,
+                    text = text,
+                    textStyle = textFieldTextStyle,
+                    label = "User Name",
+                    maxLines = 1,
+                )
+                Button(
+                    modifier = Modifier.align(Alignment.End),
+                    onClick = { onNextClick() },
+                ) {
+                    Text(
+                        text = "Next",
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                }
+            }
+        },
+    )
+}
+
+@Composable
+private fun PasswordInput(
+    text: String,
+    onValueChange: (String) -> Unit,
+    textFieldTextStyle: TextStyle,
+    onClickLogin: () -> Unit,
+    onClickBack: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    LoginContainer(
+        modifier = modifier,
+        onClickBack = onClickBack,
+        footer = {
         },
         content = {
             TextField(

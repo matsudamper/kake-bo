@@ -45,6 +45,7 @@ import net.matsudamper.money.backend.mail.parser.services.SquareEnixMogStationUs
 import net.matsudamper.money.backend.mail.parser.services.SteamUsageService
 import net.matsudamper.money.backend.mail.parser.services.TakaraTomyMallUsageServices
 import net.matsudamper.money.backend.mail.parser.services.UberEatsUsageService
+import net.matsudamper.money.backend.mail.parser.services.VpassUsageServices
 import net.matsudamper.money.backend.mail.parser.services.YMobileUsageServices
 import net.matsudamper.money.backend.mail.parser.services.YahooShoppingUsageServices
 import net.matsudamper.money.backend.mail.parser.services.YodobashiUsageService
@@ -93,7 +94,6 @@ public object MailParser {
             YoutubeMembershipUsageServices,
             NttEastBillingUsageServices,
             MountbellUsageServices,
-            MitsuiSumitomoCardUsageServices,
             AuPayUsageService,
             BoothUsageService,
             PovoUsageServices,
@@ -108,6 +108,7 @@ public object MailParser {
             TakaraTomyMallUsageServices,
             SonyBankUsageServices,
             SofmapUsageServices,
+            VpassUsageServices,
         )
             .mapNotNull {
                 runCatching {

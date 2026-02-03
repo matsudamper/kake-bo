@@ -128,8 +128,6 @@ public class LoginScreenViewModel(
             }
 
             val webAuthResult = webAuthModel.get(
-                userId = userName,
-                name = userName,
                 type = type,
                 challenge = fidoInfo.challenge,
                 domain = fidoInfo.domain,

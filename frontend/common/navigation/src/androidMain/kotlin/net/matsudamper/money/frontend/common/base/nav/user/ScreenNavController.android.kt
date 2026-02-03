@@ -8,7 +8,7 @@ import androidx.navigation3.runtime.rememberNavBackStack
 
 @Composable
 public actual fun rememberMainScreenNavController(initial: IScreenStructure): ScreenNavController {
-    val navBackstack = rememberNavBackStack<NavKey>()
+    val navBackstack = rememberNavBackStack()
     return remember(navBackstack, initial) {
         navBackstack.add(initial)
         @Suppress("UNCHECKED_CAST")
@@ -24,7 +24,7 @@ private class AndroidScreenNavControllerImpl(
     override val savedScopeKeys: Set<String> = setOf()
     override val backstackEntries: List<IScreenStructure> get() = navBackstack.toList()
     override val currentBackstackEntry: IScreenStructure? get() = navBackstack.lastOrNull()
-    override val canGoBack: Boolean get() = navBackstack.isNotEmpty()
+    override val canGoBack: Boolean get() = navBackstack.size > 1
 
     override fun back() {
         navBackstack.removeAt(navBackstack.lastIndex)

@@ -9,7 +9,7 @@ import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
 import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
 
-internal object MitsuiSumitomoCardUsageServices : MoneyUsageServices {
+internal object VpassUsageServices : MoneyUsageServices {
     override val displayName: String = "三井住友カード"
 
     override fun parse(
@@ -27,33 +27,37 @@ internal object MitsuiSumitomoCardUsageServices : MoneyUsageServices {
 
         val lines = ParseUtil.splitByNewLine(plain)
 
-        val dateIndex = lines.indexOfFirst { it.contains("ご利用日時") }
+        val cardTypeIndex = lines.indexOfFirst { it.startsWith("ご利用カード") }
             .takeIf { it >= 0 } ?: return listOf()
+        val cardType = lines[cardTypeIndex].substringAfter("ご利用カード：").trim()
 
+        val dateIndex = lines.indexOfFirst { it.startsWith("◇利用日") }
+            .takeIf { it >= 0 } ?: return listOf()
         val parsedDate = run {
             val dateLine = lines[dateIndex]
-            val dateString = dateLine.dropWhile { it != '：' }.drop(1).trim()
-            LocalDateTime.from(dateFormatter.parse(dateString))
+            val dateString = dateLine.substringAfter("◇利用日：").trim()
+            runCatching {
+                LocalDateTime.from(dateFormatter.parse(dateString))
+            }.getOrNull()
         }
 
-        val parsedName: String?
-        val price: Int
-        run {
-            val matchResult = """^(.+?)([\d,]+円)""".toRegex().matchEntire(lines[dateIndex + 1])
-            parsedName = matchResult?.groupValues?.get(1)
-            price = matchResult?.groupValues?.get(2)?.let { ParseUtil.getInt(it) } ?: 0
+        val storeIndex = lines.indexOfFirst { it.startsWith("◇利用先") }
+            .takeIf { it >= 0 } ?: return listOf()
+        val storeName = lines[storeIndex].substringAfter("◇利用先：").trim()
+
+        val priceIndex = lines.indexOfFirst { it.startsWith("◇利用金額") }
+            .takeIf { it >= 0 } ?: return listOf()
+        val price = run {
+            val priceLine = lines[priceIndex]
+            val priceString = priceLine.substringAfter("◇利用金額：").trim()
+            ParseUtil.getInt(priceString)
         }
+
         return listOf(
             MoneyUsage(
-                title = run {
-                    if (subject.contains(DEFAULT_SUBJECT)) {
-                        parsedName ?: DEFAULT_SUBJECT
-                    } else {
-                        subject
-                    }
-                },
-                price = price,
-                description = "",
+                title = storeName,
+                price = price ?: 0,
+                description = cardType,
                 service = MoneyUsageServiceType.CreditCard,
                 dateTime = parsedDate ?: forwardOriginal?.date ?: date,
             ),
@@ -71,14 +75,8 @@ internal object MitsuiSumitomoCardUsageServices : MoneyUsageServices {
         .appendLiteral('/')
         .appendValue(ChronoField.DAY_OF_MONTH, 2)
         .appendLiteral(' ')
-        .appendValue(ChronoField.HOUR_OF_DAY, 1, 2, SignStyle.NOT_NEGATIVE)
+        .appendValue(ChronoField.HOUR_OF_DAY, 2)
         .appendLiteral(':')
-        .appendValue(ChronoField.MINUTE_OF_HOUR, 1, 2, SignStyle.NOT_NEGATIVE)
-        .optionalStart()
-        .appendLiteral(':')
-        .appendValue(ChronoField.SECOND_OF_MINUTE, 1, 2, SignStyle.NOT_NEGATIVE)
-        .optionalEnd()
+        .appendValue(ChronoField.MINUTE_OF_HOUR, 2)
         .toFormatter()
-
-    private const val DEFAULT_SUBJECT = "ご利用のお知らせ【三井住友カード】"
 }
