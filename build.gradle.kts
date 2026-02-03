@@ -12,6 +12,12 @@ plugins {
     alias(libs.plugins.ktlint)
 }
 
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(libs.versions.javaToolchain.get().toInt()))
+    }
+}
+
 dependencies {
 }
 
