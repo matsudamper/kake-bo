@@ -53,7 +53,7 @@ internal object SonyBankUsageServices : MoneyUsageServices {
                 val amountLine = lines[amountLineIndex].removePrefix("ご利用金額：")
                 ParseUtil.getInt(amountLine.replace("円", ""))
             }
-        } ?: return listOf()
+        }
 
         val merchantLineIndex = lines.indexOfFirst { it.startsWith("ご利用加盟店：") }
             .takeIf { it != -1 } ?: return listOf()
