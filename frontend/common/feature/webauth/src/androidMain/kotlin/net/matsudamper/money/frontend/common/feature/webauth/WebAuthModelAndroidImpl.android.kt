@@ -29,10 +29,12 @@ public class WebAuthModelAndroidImpl(
         type: WebAuthModel.WebAuthModelType,
         challenge: String,
         domain: String,
+        allowCredentials: List<WebAuthModel.AllowCredential>,
     ): WebAuthModel.WebAuthGetResult? {
         val request = configureGetCredentialRequest(
             challenge = challenge,
             domain = domain,
+            allowCredentials = allowCredentials,
         )
         val credentialManager = CredentialManager.create(context)
         val credentialResult = credentialManager.getCredential(context, request)
@@ -65,12 +67,22 @@ public class WebAuthModelAndroidImpl(
     private fun configureGetCredentialRequest(
         challenge: String,
         domain: String,
+        allowCredentials: List<WebAuthModel.AllowCredential>,
     ): GetCredentialRequest {
+        val allowCredentialsJson = if (allowCredentials.isNotEmpty()) {
+            allowCredentials.joinToString(separator = ",", prefix = "[", postfix = "]") { credential ->
+                """{"id":"${credential.id}","type":"${credential.type}"}"""
+            }
+        } else {
+            "[]"
+        }
+        
         val getPublicKeyCredentialOption = GetPublicKeyCredentialOption(
             """
                 {
                     "challenge": "${Base64.getEncoder().encodeToString(challenge.toByteArray())}",
                     "rpId": "$domain",
+                    "allowCredentials": $allowCredentialsJson,
                     "userVerification": "required",
                     "timeout": 1800000
                 }

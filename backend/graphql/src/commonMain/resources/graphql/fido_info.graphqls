@@ -8,4 +8,10 @@ type FidoAddInfo {
 type FidoLoginInfo {
     challenge: String!
     domain: String!
+    allowCredentials: [FidoCredential!]!
+}
+
+type FidoCredential {
+    id: String!
+    type: String!
 }

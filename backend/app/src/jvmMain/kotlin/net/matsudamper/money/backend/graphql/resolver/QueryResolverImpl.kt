@@ -41,11 +41,32 @@ class QueryResolverImpl : QueryResolver {
     override fun fidoLoginInfo(env: DataFetchingEnvironment): CompletionStage<DataFetcherResult<QlFidoLoginInfo>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val challengeRepository = context.diContainer.createChallengeRepository()
-        return CompletableFuture.completedFuture(
+        val userName = env.getArgument<String>("userName")
+        val userRepository = context.diContainer.createUserNameRepository()
+        val fidoRepository = context.diContainer.createFidoRepository()
+        
+        return CompletableFuture.supplyAsync {
+            val allowCredentials = if (userName != null) {
+                val userId = userRepository.getUserId(userName = userName)
+                if (userId != null) {
+                    fidoRepository.getFidoList(userId).map { fido ->
+                        net.matsudamper.money.graphql.model.QlFidoCredential(
+                            id = fido.credentialId,
+                            type = "public-key",
+                        )
+                    }
+                } else {
+                    listOf()
+                }
+            } else {
+                listOf()
+            }
+            
             QlFidoLoginInfo(
                 challenge = ChallengeModel(challengeRepository).generateChallenge(),
                 domain = ServerEnv.domain!!,
-            ),
-        ).toDataFetcher()
+                allowCredentials = allowCredentials,
+            )
+        }.toDataFetcher()
     }
 }

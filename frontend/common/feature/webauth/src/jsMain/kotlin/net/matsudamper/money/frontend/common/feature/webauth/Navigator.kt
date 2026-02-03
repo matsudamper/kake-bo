@@ -59,11 +59,15 @@ public data class CredentialsContainerCreateResult(
 @JsExport
 public class CredentialsContainerCreatePublicKeyOptions(
     public val challenge: Uint8Array,
-    public val user: User,
-    public val rp: Rp,
-    public val pubKeyCredParams: Array<PubKeyCredParams>,
-    public val excludeCredentials: Array<ExcludeCredential> = arrayOf(),
-    public val authenticatorSelection: AuthenticatorSelection,
+    public val user: User? = null,
+    public val rp: Rp? = null,
+    public val rpId: String? = null,
+    public val pubKeyCredParams: Array<PubKeyCredParams>? = null,
+    public val excludeCredentials: Array<ExcludeCredential>? = null,
+    public val allowCredentials: Array<ExcludeCredential>? = null,
+    public val authenticatorSelection: AuthenticatorSelection? = null,
+    public val userVerification: String? = null,
+    public val timeout: Int? = null,
 ) {
     public class ExcludeCredential(
         public val id: ByteArray,

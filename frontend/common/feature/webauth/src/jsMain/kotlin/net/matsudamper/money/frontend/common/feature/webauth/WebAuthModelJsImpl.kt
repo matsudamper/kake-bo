@@ -52,14 +52,12 @@ public class WebAuthModelJsImpl : WebAuthModel {
         type: WebAuthModel.WebAuthModelType,
         challenge: String,
         domain: String,
+        allowCredentials: List<WebAuthModel.AllowCredential>,
     ): WebAuthModel.WebAuthGetResult? {
-        val options = createOption(
-            userId = userId,
-            name = name,
-            type = type,
+        val options = createGetOption(
             challenge = challenge,
             domain = domain,
-            excludeCredentials = emptyList(),
+            allowCredentials = allowCredentials,
         )
 
         val result = runCatching {
@@ -76,6 +74,27 @@ public class WebAuthModelJsImpl : WebAuthModel {
             base64Signature = result.response.signature.toBase64(),
             base64UserHandle = result.response.userHandle.toBase64(),
             base64AuthenticatorData = result.response.authenticatorData.toBase64(),
+        )
+    }
+
+    private fun createGetOption(
+        challenge: String,
+        domain: String,
+        allowCredentials: List<WebAuthModel.AllowCredential>,
+    ): CredentialsContainerCreateOptions {
+        return CredentialsContainerCreateOptions(
+            publicKey = CredentialsContainerCreatePublicKeyOptions(
+                challenge = Uint8Array(challenge.encodeToByteArray().toTypedArray()),
+                rpId = domain,
+                allowCredentials = allowCredentials.map { credential ->
+                    CredentialsContainerCreatePublicKeyOptions.ExcludeCredential(
+                        id = credential.id.decodeBase64Bytes(),
+                        type = credential.type,
+                    )
+                }.toTypedArray(),
+                userVerification = "required",
+                timeout = 1800000,
+            ),
         )
     }
 

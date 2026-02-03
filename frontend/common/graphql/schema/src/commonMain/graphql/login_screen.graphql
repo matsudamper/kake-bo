@@ -1,6 +1,10 @@
-query LoginScreenFidoInfo {
-    fidoLoginInfo {
+query LoginScreenFidoInfo($userName: String!) {
+    fidoLoginInfo(userName: $userName) {
         domain
         challenge
+        allowCredentials {
+            id
+            type
+        }
     }
 }

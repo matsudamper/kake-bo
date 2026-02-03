@@ -117,7 +117,7 @@ public class LoginScreenViewModel(
         type: WebAuthModel.WebAuthModelType,
     ) {
         viewModelScope.launch {
-            val fidoInfo = screenApi.fidoLoginInfo()
+            val fidoInfo = screenApi.fidoLoginInfo(userName = userName)
                 .data?.fidoLoginInfo
 
             if (fidoInfo == null) {
@@ -133,6 +133,12 @@ public class LoginScreenViewModel(
                 type = type,
                 challenge = fidoInfo.challenge,
                 domain = fidoInfo.domain,
+                allowCredentials = fidoInfo.allowCredentials.map { credential ->
+                    WebAuthModel.AllowCredential(
+                        id = credential.id,
+                        type = credential.type,
+                    )
+                },
             )
             if (webAuthResult == null) {
                 globalEventSender.send {

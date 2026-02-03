@@ -9,10 +9,10 @@ import net.matsudamper.money.frontend.graphql.LoginScreenFidoInfoQuery
 public class LoginScreenApi(
     private val graphqlClient: GraphqlClient,
 ) {
-    public suspend fun fidoLoginInfo(): ApolloResponse<LoginScreenFidoInfoQuery.Data> {
+    public suspend fun fidoLoginInfo(userName: String): ApolloResponse<LoginScreenFidoInfoQuery.Data> {
         return graphqlClient.apolloClient
             .query(
-                LoginScreenFidoInfoQuery(),
+                LoginScreenFidoInfoQuery(userName = userName),
             )
             .fetchPolicy(FetchPolicy.NetworkOnly)
             .execute()

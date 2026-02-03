@@ -16,6 +16,7 @@ public interface WebAuthModel {
         type: WebAuthModelType,
         challenge: String,
         domain: String,
+        allowCredentials: List<AllowCredential>,
     ): WebAuthGetResult?
 
     public data class WebAuthCreateResult(
@@ -29,6 +30,11 @@ public interface WebAuthModel {
         val base64Signature: String,
         val base64UserHandle: String,
         val credentialId: String,
+    )
+
+    public data class AllowCredential(
+        val id: String,
+        val type: String,
     )
 
     public enum class WebAuthModelType {
