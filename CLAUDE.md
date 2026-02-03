@@ -54,6 +54,88 @@ The project is organized into backend, frontend, and shared modules:
 `backend/feature/service_mail_parser`モジュールの`net/matsudamper/money/backend/mail/parser/services`にメールをパースするコードがあります。
 `net/matsudamper/money/backend/mail/parser/MailParser`に登録して使います。パースを追加する場合は全てのパース方法を確認してから実装してください。
 
+対応サービス: Amazon, Rakuten, Yahoo, AuPay, PayPal, Steam, Nintendo, FFXIV等、40以上のサービスに対応。
+
+### GraphQL スキーマ
+
+- Backend: `backend/graphql/src/commonMain/resources/graphql/`
+  - `schema.graphqls` - メインスキーマ
+  - `user_query.graphqls`, `user_mutation.graphqls` - ユーザー操作
+  - `money_usage.graphqls`, `money_usage_analytics.graphqls` - 家計簿機能
+  - `fido_info.graphqls` - FIDO認証
+  - `imported_mail.graphqls` - メールインポート
+
+### FIDO認証
+
+`backend/feature/fido/`モジュールでWebAuthn4J (`0.31.0.RELEASE`)を使用。
+- `FidoAuthenticator.kt` - データモデル
+- `AuthenticatorConverter.kt` - 変換ロジック
+- `Auth4JModel.kt` - WebAuthn4J統合
+
+## 環境変数
+
+`backend/base/src/jvmMain/java/net/matsudamper/money/backend/base/ServerEnv.kt`で定義。
+
+**サーバー設定**:
+- `IS_SECURE` - HTTPS使用
+- `DOMAIN` - ドメイン名
+- `PORT` - ポート番号
+- `HTML_PATH` - フロントエンドファイルパス
+- `IS_DEBUG` - デバッグモード
+
+**データベース**:
+- `DB_HOST`, `DB_PORT`, `DB_SCHEMA`
+- `DB_USERNAME`, `DB_PASSWORD`
+
+**認証**:
+- `ADMIN_PASSWORD` - 管理者パスワード
+- `USER_PASSWORD_PEPPER` - パスワードハッシュ用
+
+**Android**:
+- `APP_PACKAGE_NAME`, `APP_FINGERPRINT`, `APK_KEY_HASH`
+
+**Redis（オプション）**:
+- `ENABLE_REDIS`, `REDIS_HOST`, `REDIS_PORT`
+
+## ローカル開発設定
+
+`local.properties`（Git無視）に以下を設定:
+```properties
+DB_USER=your_user
+DB_PASS=your_password
+net.matsudamper.money.android.serverHost=http://localhost:8080
+
+# Android署名（リリースビルド用）
+KEYSTORE_PATH=path/to/keystore
+KEYSTORE_PASSWORD=password
+KEY_ALIAS=alias
+KEY_PASSWORD=password
+```
+
+## Docker
+
+**Dockerfile**: `amazoncorretto:24-alpine`ベース
+
+**docker-compose.yaml**:
+```yaml
+services:
+  redis:
+    volumes: ./redis:/redis
+  money:
+    ports: 9060:80
+    env_file: .env
+```
+
+起動: `docker-compose up`
+
+## データベース
+
+- ORM: JOOQ 3.20.11
+- JDBC: `jdbc:mariadb://localhost:3306/money`
+- スキーマパッケージ: `net.matsudamper.money.db.schema`
+
+テーブル作成SQL: `backend/db/src/jvmMain/resources/sql/`
+
 # コーディングガイドライン
 
 以下に従ってください
@@ -206,6 +288,20 @@ public/internal/privateの順番に並べてください。
 ```sh
 ./gradlew ktlintFormat
 ```
+
+## テスト
+
+テストフレームワーク: Kotest (JUnit 5), mockk
+
+```sh
+./gradlew allTests
+```
+
+## CI/CD
+
+GitHub Actionsで自動ビルド・テスト（`.github/workflows/`）:
+- **build.yml**: push/PR時に`ktlintCheck`, ビルド, `allTests`を実行
+- **release-docker.yml**: タグpush時にDockerイメージをghcr.ioへプッシュ
 
 ## 個別ビルド
 
