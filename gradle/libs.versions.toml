@@ -1,17 +1,17 @@
 [versions]
-java = "21"
-javaToolchain = "21"
-kotlin = "2.2.20"
+java = "24"
+javaToolchain = "24"
+kotlin = "2.3.0"
 apollo = "4.0.0-beta.7"
-ktor = "3.3.0"
-activity = "1.11.0"
+ktor = "3.4.0"
+activity = "1.12.3"
 appcompat = "1.7.1"
-agp = "8.11.0"
-jackson = "2.20.0"
-compose = "1.9.0"
-protoBuf = "4.32.1"
-lifecycle = "2.9.4"
-jooq = "3.20.8"
+agp = "8.11.2"
+jackson = "2.21.0"
+compose = "1.10.0"
+protoBuf = "4.33.5"
+lifecycle = "2.10.0"
+jooq = "3.20.11"
 nav3 = "1.0.0"
 
 [plugins]
@@ -22,16 +22,16 @@ kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref 
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.require = "13.1.0" }
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.require = "14.0.1" }
 kobylynskyi-graphqlCodegen = { id = "io.github.kobylynskyi.graphql.codegen", version.require = "5.10.0" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose" }
-protobuf = { id = "com.google.protobuf", version.require = "0.9.5" }
+protobuf = { id = "com.google.protobuf", version.require = "0.9.6" }
 
 [libraries]
 kotlinRefrect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlin-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.require = "1.10.2" }
 kotlin-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.require = "0.7.1-0.6.x-compat" }
-kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.require = "1.9.0" }
+kotlin-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.require = "1.10.0" }
 
 # Plugin
 androidGradlePlugin = { module = "com.android.application:com.android.application.gradle.plugin", version.ref = "agp" }
@@ -89,7 +89,7 @@ androidxNavigation3Ui = { module = "androidx.navigation3:navigation3-ui", versio
 androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.10.2" }
 
 # Test
-kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "6.0.3" }
+kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "6.1.2" }
 
 # Mail
 jakarta-mail-api = { module = "jakarta.mail:jakarta.mail-api", version.require = "2.1.5" }
@@ -102,22 +102,22 @@ koinCore = { module = "io.insert-koin:koin-core", version.require = "4.1.1" }
 
 # Log
 log4j-api = { module = "org.slf4j:slf4j-api", version.require = "2.0.17" }
-logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.5.19" }
-logstashLogbackEncoder = { module = "net.logstash.logback:logstash-logback-encoder", version.require = "8.1" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.5.27" }
+logstashLogbackEncoder = { module = "net.logstash.logback:logstash-logback-encoder", version.require = "9.0" }
 
 # Graphql
 graphqlJava-extendedScalars = { module = "com.graphql-java:graphql-java-extended-scalars", version.require = "2023-01-24T02-11-56-babda5f" }
-graphqlJava = { module = "com.graphql-java:graphql-java", version.require = "24.3" }
+graphqlJava = { module = "com.graphql-java:graphql-java", version.require = "25.0" }
 graphqlJavaKickstart-JavaTools = { module = "com.graphql-java-kickstart:graphql-java-tools", version.require = "14.0.1" }
 
 # DataStore
-androidxDatastoreDatastore = { module = "androidx.datastore:datastore", version.require = "1.1.7" }
+androidxDatastoreDatastore = { module = "androidx.datastore:datastore", version.require = "1.2.0" }
 
 # Other
-jedis = { module = "redis.clients:jedis", version.require = "6.2.0" }
-jsoup = { module = "org.jsoup:jsoup", version.require = "1.21.2" }
+jedis = { module = "redis.clients:jedis", version.require = "7.2.1" }
+jsoup = { module = "org.jsoup:jsoup", version.require = "1.22.1" }
 hikariCP = { module = "com.zaxxer:HikariCP", version.require = "7.0.2" }
-mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.6" }
+mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.7" }
 
 # Play
 androidxCredentialsPlayServicesAuth = { module = "androidx.credentials:credentials-play-services-auth", version.require = "1.5.0" }

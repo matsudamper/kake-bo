@@ -292,19 +292,15 @@ class UserResolverImpl : UserResolver {
 
             val result = results.firstOrNull { it.categoryId == id }
 
-            DataFetcherResult.newResult<QlMoneyUsageAnalyticsByCategory>()
-                .data(
-                    QlMoneyUsageAnalyticsByCategory(
-                        category = QlMoneyUsageCategory(id),
-                        totalAmount = result?.totalAmount ?: 0,
-                    ),
-                )
-                .localContext(
-                    MoneyUsageAnalyticsByCategoryLocalContext(
-                        query = query,
-                    ),
-                )
-                .build()
+            DataFetcherResultBuilder.nullable(
+                value = QlMoneyUsageAnalyticsByCategory(
+                    category = QlMoneyUsageCategory(id),
+                    totalAmount = result?.totalAmount ?: 0,
+                ),
+                localContext = MoneyUsageAnalyticsByCategoryLocalContext(
+                    query = query,
+                ),
+            ).build()
         }
     }
 

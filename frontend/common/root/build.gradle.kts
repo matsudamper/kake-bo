@@ -54,8 +54,3 @@ android {
 dependencies {
     implementation(project(":frontend:common:di"))
 }
-
-// wasm
-compose.experimental {
-    web.application {}
-}
