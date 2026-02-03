@@ -6,12 +6,14 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.ui.NavDisplay
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 
@@ -22,6 +24,10 @@ public actual fun NavHost(
 ) {
     val dispatcher = LocalOnBackPressedDispatcherOwner.current
     val backStack by rememberUpdatedState(navController.backstackEntries)
+
+    LaunchedEffect(navController.currentBackstackEntry) {
+        Logger.d("Navigation", "${navController.currentBackstackEntry}")
+    }
 
     NavDisplay(
         backStack = backStack,
