@@ -12,6 +12,8 @@ kotlin {
     }
     androidLibrary {
         namespace = "net.matsudamper.money.frontend.common.feature.webauth"
+        compileSdk = 36
+        minSdk = 34
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())

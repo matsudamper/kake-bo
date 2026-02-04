@@ -12,6 +12,8 @@ kotlin {
     }
     androidLibrary {
         namespace = "net.matsudamper.money.frontend.common.feature.localstore"
+        compileSdk = 36
+        minSdk = 34
         withJava()
     }
     sourceSets {

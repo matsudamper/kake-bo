@@ -10,6 +10,8 @@ kotlin {
     }
     androidLibrary {
         namespace = "net.matsudamper.money.frontend.common.di"
+        compileSdk = 36
+        minSdk = 34
     }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
