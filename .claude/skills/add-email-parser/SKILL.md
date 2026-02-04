@@ -89,9 +89,14 @@ internal object XxxUsageServices : MoneyUsageServices {
         plain: String,
         date: LocalDateTime,
     ): List<MoneyUsage> {
+        val forwardedInfo = ParseUtil.parseForwarded(plain)
+        val actualFrom = forwardedInfo?.from ?: from
+        val actualSubject = forwardedInfo?.subject ?: subject
+        val actualDate = forwardedInfo?.date ?: date
+
         val canHandle = sequence {
-            yield(canHandledWithFrom(from))
-            yield(canHandledWithSubject(subject))
+            yield(canHandledWithFrom(actualFrom))
+            yield(canHandledWithSubject(actualSubject))
         }
         if (canHandle.any { it }.not()) return listOf()
 
@@ -108,7 +113,7 @@ internal object XxxUsageServices : MoneyUsageServices {
                 price = parsedPrice,
                 description = "",
                 service = MoneyUsageServiceType.XxxService,
-                dateTime = parsedDate ?: date,
+                dateTime = parsedDate ?: actualDate,
             ),
         )
     }
@@ -123,19 +128,9 @@ internal object XxxUsageServices : MoneyUsageServices {
 }
 ```
 
-### 4. 転送メール対応（必要な場合）
+メールはGmailから転送されるため、`ParseUtil.parseForwarded()` で転送元の情報を取得し、`from` / `subject` / `date` のフォールバックとして必ず使用する。
 
-Gmailからの転送メールを処理する場合は `ParseUtil.parseForwarded()` を使用する。
-
-```kotlin
-val forwardedOriginalInfo = ParseUtil.parseForwarded(plain)
-// fromやsubjectの判定に転送元の情報を使う
-val actualFrom = forwardedOriginalInfo?.from ?: from
-val actualSubject = forwardedOriginalInfo?.subject ?: subject
-val actualDate = forwardedOriginalInfo?.date ?: date
-```
-
-### 5. HTML解析（必要な場合）
+### 4. HTML解析（必要な場合）
 
 HTMLメールの解析には jsoup を使用する。
 
@@ -146,13 +141,13 @@ val document = Jsoup.parse(html)
 val elements = document.getElementsByTag("td")
 ```
 
-### 6. MailParser への登録
+### 5. MailParser への登録
 
 **ファイル**: `backend/feature/service_mail_parser/src/jvmMain/kotlin/net/matsudamper/money/backend/mail/parser/MailParser.kt`
 
 `sequenceOf(...)` の中に新しいパーサーを追加する。先にマッチしたパーサーが優先されるため、汎用的なパーサー（VpassUsageServices等）の前に配置する。
 
-### 7. ビルドとテスト
+### 6. ビルドとテスト
 
 CLAUDE.md の「ビルドとテスト」セクションに従う。
 
