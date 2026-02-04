@@ -13,6 +13,7 @@ import kotlinx.serialization.json.Json
 public class WebAuthModelAndroidImpl(
     private val context: Context,
 ) : WebAuthModel {
+    private val json = Json { ignoreUnknownKeys = true }
 
     public override suspend fun create(
         id: String,
@@ -39,11 +40,11 @@ public class WebAuthModelAndroidImpl(
 
         if (result !is CreatePublicKeyCredentialResponse) return null
 
-        val json = Json.decodeFromString<AndroidWebAuthCreateResult>(result.registrationResponseJson)
+        val createResult = json.decodeFromString<AndroidWebAuthCreateResult>(result.registrationResponseJson)
 
         return WebAuthModel.WebAuthCreateResult(
-            attestationObjectBase64 = json.response.attestationObject.base64UrlToBase64() ?: return null,
-            clientDataJSONBase64 = json.response.clientDataJSON.base64UrlToBase64() ?: return null,
+            attestationObjectBase64 = createResult.response.attestationObject.base64UrlToBase64() ?: return null,
+            clientDataJSONBase64 = createResult.response.clientDataJSON.base64UrlToBase64() ?: return null,
         )
     }
 
@@ -61,13 +62,13 @@ public class WebAuthModelAndroidImpl(
 
         return if (credentialResult.credential is PublicKeyCredential) {
             val cred = credentialResult.credential as PublicKeyCredential
-            val json = Json.decodeFromString<AndroidWebAuthResult>(cred.authenticationResponseJson)
+            val authResult = json.decodeFromString<AndroidWebAuthResult>(cred.authenticationResponseJson)
             WebAuthModel.WebAuthGetResult(
-                base64AuthenticatorData = json.response.authenticatorData.base64UrlToBase64() ?: return null,
-                base64ClientDataJSON = json.response.clientDataJSON.base64UrlToBase64() ?: return null,
-                base64Signature = json.response.signature.base64UrlToBase64() ?: return null,
-                base64UserHandle = json.response.userHandle.base64UrlToBase64() ?: return null,
-                credentialId = json.id ?: return null,
+                base64AuthenticatorData = authResult.response.authenticatorData.base64UrlToBase64() ?: return null,
+                base64ClientDataJSON = authResult.response.clientDataJSON.base64UrlToBase64() ?: return null,
+                base64Signature = authResult.response.signature.base64UrlToBase64() ?: return null,
+                base64UserHandle = authResult.response.userHandle.base64UrlToBase64() ?: return null,
+                credentialId = authResult.id ?: return null,
             )
         } else {
             null
