@@ -46,6 +46,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MonthlyCategoryScreenListQuery
 import net.matsudamper.money.frontend.graphql.MonthlyCategoryScreenQuery
+import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryOrderType
 import net.matsudamper.money.frontend.graphql.updateOperation
 
 public class RootHomeMonthlyCategoryScreenViewModel(
@@ -116,9 +117,22 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                         fetchList()
                     }
                 }
+
+                override fun onSortTypeChanged(sortType: RootHomeMonthlyCategoryScreenUiState.SortType) {
+                    updateSortType(sortType)
+                }
+
+                override fun onSortOrderChanged(order: RootHomeMonthlyCategoryScreenUiState.SortOrder) {
+                    setOrder(
+                        type = viewModelStateFlow.value.sortStateMap.currentSortType,
+                        order = order,
+                    )
+                }
             },
             loadingState = RootHomeMonthlyCategoryScreenUiState.LoadingState.Loading,
             headerTitle = "",
+            currentSortType = RootHomeMonthlyCategoryScreenUiState.SortType.Date,
+            sortOrder = RootHomeMonthlyCategoryScreenUiState.SortOrder.Ascending,
         ),
     ).also { uiStateFlow ->
         viewModelScope.launch {
@@ -147,6 +161,8 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                         val descriptionText = viewModelState.categoryName ?: "カテゴリ別一覧"
                         "$yearText $descriptionText"
                     },
+                    currentSortType = viewModelState.sortStateMap.currentSortState.type,
+                    sortOrder = viewModelState.sortStateMap.currentSortState.order,
                 )
             }
         }
@@ -275,6 +291,48 @@ public class RootHomeMonthlyCategoryScreenViewModel(
         }
     }
 
+    private fun updateSortType(
+        type: RootHomeMonthlyCategoryScreenUiState.SortType,
+    ) {
+        viewModelStateFlow.update {
+            it.copy(
+                sortStateMap = it.sortStateMap.copy(
+                    currentSortType = type,
+                ),
+                apolloResponse = null,
+            )
+        }
+        viewModelScope.launch {
+            fetchList()
+        }
+    }
+
+    private fun setOrder(
+        type: RootHomeMonthlyCategoryScreenUiState.SortType,
+        order: RootHomeMonthlyCategoryScreenUiState.SortOrder,
+    ) {
+        viewModelStateFlow.update {
+            it.copy(
+                sortStateMap = it.sortStateMap.copy(
+                    sortStateList = it.sortStateMap.sortStateList.toMutableMap().also { map ->
+                        map[type] = map.getOrPut(key = type) {
+                            ViewModelState.SortState(
+                                type = type,
+                                order = order,
+                            )
+                        }.copy(
+                            order = order,
+                        )
+                    },
+                ),
+                apolloResponse = null,
+            )
+        }
+        viewModelScope.launch {
+            fetchList()
+        }
+    }
+
     public interface Event {
         public fun navigate(screen: ScreenStructure)
     }
@@ -285,6 +343,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
         val categoryId: MoneyUsageCategoryId,
         val categoryName: String? = null,
         val apolloResponse: ApolloResponse<MonthlyCategoryScreenListQuery.Data>? = null,
+        val sortStateMap: SortStateMap = SortStateMap(),
     ) {
         fun createFirstQuery(): MonthlyCategoryScreenListQuery {
             return createQuery(
@@ -292,6 +351,14 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                 categoryId = categoryId,
                 year = year,
                 month = month,
+                isAsc = when (sortStateMap.currentSortState.order) {
+                    RootHomeMonthlyCategoryScreenUiState.SortOrder.Ascending -> true
+                    RootHomeMonthlyCategoryScreenUiState.SortOrder.Descending -> false
+                },
+                orderType = when (sortStateMap.currentSortState.type) {
+                    RootHomeMonthlyCategoryScreenUiState.SortType.Date -> MoneyUsagesQueryOrderType.DATE
+                    RootHomeMonthlyCategoryScreenUiState.SortType.Amount -> MoneyUsagesQueryOrderType.AMOUNT
+                },
             )
         }
 
@@ -301,8 +368,44 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                 categoryId = categoryId,
                 year = year,
                 month = month,
+                isAsc = when (sortStateMap.currentSortState.order) {
+                    RootHomeMonthlyCategoryScreenUiState.SortOrder.Ascending -> true
+                    RootHomeMonthlyCategoryScreenUiState.SortOrder.Descending -> false
+                },
+                orderType = when (sortStateMap.currentSortState.type) {
+                    RootHomeMonthlyCategoryScreenUiState.SortType.Date -> MoneyUsagesQueryOrderType.DATE
+                    RootHomeMonthlyCategoryScreenUiState.SortType.Amount -> MoneyUsagesQueryOrderType.AMOUNT
+                },
             )
         }
+
+        data class SortStateMap(
+            val sortStateList: Map<RootHomeMonthlyCategoryScreenUiState.SortType, SortState> = mapOf(),
+            val currentSortType: RootHomeMonthlyCategoryScreenUiState.SortType = RootHomeMonthlyCategoryScreenUiState.SortType.Date,
+        ) {
+            val currentSortState: SortState = run state@{
+                val current = sortStateList[currentSortType]
+                if (current != null) return@state current
+
+                SortState(
+                    type = currentSortType,
+                    order = when (currentSortType) {
+                        RootHomeMonthlyCategoryScreenUiState.SortType.Date -> {
+                            RootHomeMonthlyCategoryScreenUiState.SortOrder.Ascending
+                        }
+
+                        RootHomeMonthlyCategoryScreenUiState.SortType.Amount -> {
+                            RootHomeMonthlyCategoryScreenUiState.SortOrder.Descending
+                        }
+                    },
+                )
+            }
+        }
+
+        data class SortState(
+            val type: RootHomeMonthlyCategoryScreenUiState.SortType,
+            val order: RootHomeMonthlyCategoryScreenUiState.SortOrder,
+        )
     }
 }
 
@@ -311,6 +414,8 @@ private fun createQuery(
     categoryId: MoneyUsageCategoryId,
     year: Int,
     month: Int,
+    isAsc: Boolean,
+    orderType: MoneyUsagesQueryOrderType,
 ): MonthlyCategoryScreenListQuery {
     val date = LocalDate(
         year = year,
@@ -333,5 +438,7 @@ private fun createQuery(
                 time = LocalTime(0, 0),
             ),
         ),
+        isAsc = isAsc,
+        orderType = Optional.present(orderType),
     )
 }
