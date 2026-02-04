@@ -1,9 +1,7 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.home
 
 import androidx.compose.runtime.Immutable
-import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 
 public data class RootHomeMonthlySubCategoryScreenUiState(
     val loadingState: LoadingState,
@@ -41,8 +39,8 @@ public data class RootHomeMonthlySubCategoryScreenUiState(
             val items: List<Item>,
             val hasMoreItem: Boolean,
             val event: LoadedEvent,
-            val pieChartItems: ImmutableList<PieChartItem>,
-            val pieChartTitle: String,
+            val categoryName: String,
+            val subCategoryName: String,
         ) : LoadingState
 
         public data object Loading : LoadingState
