@@ -16,6 +16,7 @@ query MonthlySubCategoryScreenList(
     $sinceDateTime: LocalDateTime,
     $untilDateTime: LocalDateTime,
     $isAsc: Boolean!,
+    $orderType: MoneyUsagesQueryOrderType
 ) {
     user {
         moneyUsages(query: {
@@ -27,6 +28,7 @@ query MonthlySubCategoryScreenList(
                 untilDateTime: $untilDateTime
             }
             isAsc: $isAsc
+            orderType: $orderType
         }) {
             cursor
             hasMore
