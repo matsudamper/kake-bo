@@ -1,5 +1,3 @@
-# コーディングガイドライン
-
 以下に従ってください
 https://kotlinlang.org/docs/coding-conventions.html
 

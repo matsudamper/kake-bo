@@ -70,6 +70,8 @@ The project is organized into backend, frontend, and shared modules:
 - `AuthenticatorConverter.kt` - 変換ロジック
 - `Auth4JModel.kt` - WebAuthn4J統合
 
+# コーディングガイドライン
+
 @docs/coding_style.md
 
 # ビルドとテスト
