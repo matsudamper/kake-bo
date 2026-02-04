@@ -47,7 +47,6 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
-import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 
 @Composable
 public fun RootHomeMonthlySubCategoryScreen(
@@ -117,16 +116,6 @@ private fun LoadedContent(
                 end = 8.dp,
             ),
         ) {
-            item {
-                if (loadingState.pieChartItems.isNotEmpty()) {
-                    PieChart(
-                        items = loadingState.pieChartItems,
-                        title = loadingState.pieChartTitle,
-                        modifier = Modifier.fillMaxWidth()
-                            .padding(16.dp),
-                    )
-                }
-            }
             item {
                 SortSection(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
