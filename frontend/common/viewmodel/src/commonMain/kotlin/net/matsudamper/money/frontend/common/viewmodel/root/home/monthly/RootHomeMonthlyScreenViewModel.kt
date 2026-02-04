@@ -32,6 +32,8 @@ import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructu
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
+import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionOrder
+import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionType
 import net.matsudamper.money.frontend.common.ui.screen.root.home.monthly.RootHomeMonthlyScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
@@ -77,8 +79,8 @@ public class RootHomeMonthlyScreenViewModel(
     public val uiStateFlow: StateFlow<RootHomeMonthlyScreenUiState> = MutableStateFlow(
         RootHomeMonthlyScreenUiState(
             loadingState = RootHomeMonthlyScreenUiState.LoadingState.Loading,
-            currentSortType = RootHomeMonthlyScreenUiState.SortType.Date,
-            sortOrder = RootHomeMonthlyScreenUiState.SortOrder.Ascending,
+            currentSortType = SortSectionType.Date,
+            sortOrder = SortSectionOrder.Ascending,
             scaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
                 override fun onClickHome() {
                     if (PlatformTypeProvider.type == PlatformType.JS) {
@@ -125,11 +127,11 @@ public class RootHomeMonthlyScreenViewModel(
                     }
                 }
 
-                override fun onSortTypeChanged(sortType: RootHomeMonthlyScreenUiState.SortType) {
+                override fun onSortTypeChanged(sortType: SortSectionType) {
                     updateSortType(sortType)
                 }
 
-                override fun onSortOrderChanged(order: RootHomeMonthlyScreenUiState.SortOrder) {
+                override fun onSortOrderChanged(order: SortSectionOrder) {
                     setOrder(
                         type = viewModelStateFlow.value.sortStateMap.currentSortType,
                         order = order,
@@ -293,16 +295,16 @@ public class RootHomeMonthlyScreenViewModel(
                     ),
                 ),
                 isAsc = when (viewModelState.sortStateMap.currentSortState.order) {
-                    RootHomeMonthlyScreenUiState.SortOrder.Ascending -> true
-                    RootHomeMonthlyScreenUiState.SortOrder.Descending -> false
+                    SortSectionOrder.Ascending -> true
+                    SortSectionOrder.Descending -> false
                 },
                 orderType = Optional.present(
                     when (viewModelState.sortStateMap.currentSortState.type) {
-                        RootHomeMonthlyScreenUiState.SortType.Date -> {
+                        SortSectionType.Date -> {
                             MoneyUsagesQueryOrderType.DATE
                         }
 
-                        RootHomeMonthlyScreenUiState.SortType.Amount -> {
+                        SortSectionType.Amount -> {
                             MoneyUsagesQueryOrderType.AMOUNT
                         }
                     },
@@ -312,7 +314,7 @@ public class RootHomeMonthlyScreenViewModel(
     }
 
     private fun updateSortType(
-        type: RootHomeMonthlyScreenUiState.SortType,
+        type: SortSectionType,
     ) {
         viewModelStateFlow.update {
             it.copy(
@@ -324,8 +326,8 @@ public class RootHomeMonthlyScreenViewModel(
     }
 
     private fun setOrder(
-        type: RootHomeMonthlyScreenUiState.SortType,
-        order: RootHomeMonthlyScreenUiState.SortOrder,
+        type: SortSectionType,
+        order: SortSectionOrder,
     ) {
         viewModelStateFlow.update {
             it.copy(
@@ -356,8 +358,8 @@ public class RootHomeMonthlyScreenViewModel(
         val sortStateMap: SortStateMap = SortStateMap(),
     ) {
         data class SortStateMap(
-            val sortStateList: Map<RootHomeMonthlyScreenUiState.SortType, SortState> = mapOf(),
-            val currentSortType: RootHomeMonthlyScreenUiState.SortType = RootHomeMonthlyScreenUiState.SortType.Date,
+            val sortStateList: Map<SortSectionType, SortState> = mapOf(),
+            val currentSortType: SortSectionType = SortSectionType.Date,
         ) {
             val currentSortState: SortState = run state@{
                 val current = sortStateList[currentSortType]
@@ -366,12 +368,12 @@ public class RootHomeMonthlyScreenViewModel(
                 SortState(
                     type = currentSortType,
                     order = when (currentSortType) {
-                        RootHomeMonthlyScreenUiState.SortType.Date -> {
-                            RootHomeMonthlyScreenUiState.SortOrder.Ascending
+                        SortSectionType.Date -> {
+                            SortSectionOrder.Ascending
                         }
 
-                        RootHomeMonthlyScreenUiState.SortType.Amount -> {
-                            RootHomeMonthlyScreenUiState.SortOrder.Descending
+                        SortSectionType.Amount -> {
+                            SortSectionOrder.Descending
                         }
                     },
                 )
@@ -379,8 +381,8 @@ public class RootHomeMonthlyScreenViewModel(
         }
 
         data class SortState(
-            val type: RootHomeMonthlyScreenUiState.SortType,
-            val order: RootHomeMonthlyScreenUiState.SortOrder,
+            val type: SortSectionType,
+            val order: SortSectionOrder,
         )
     }
 }

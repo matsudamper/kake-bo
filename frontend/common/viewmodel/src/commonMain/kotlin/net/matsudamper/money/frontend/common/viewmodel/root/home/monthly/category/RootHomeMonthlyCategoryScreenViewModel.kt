@@ -34,6 +34,8 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItemEvent
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlyCategoryScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionOrder
+import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionType
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.PlatformType
@@ -118,11 +120,11 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                     }
                 }
 
-                override fun onSortTypeChanged(sortType: RootHomeMonthlyCategoryScreenUiState.SortType) {
+                override fun onSortTypeChanged(sortType: SortSectionType) {
                     updateSortType(sortType)
                 }
 
-                override fun onSortOrderChanged(order: RootHomeMonthlyCategoryScreenUiState.SortOrder) {
+                override fun onSortOrderChanged(order: SortSectionOrder) {
                     setOrder(
                         type = viewModelStateFlow.value.sortStateMap.currentSortType,
                         order = order,
@@ -131,8 +133,8 @@ public class RootHomeMonthlyCategoryScreenViewModel(
             },
             loadingState = RootHomeMonthlyCategoryScreenUiState.LoadingState.Loading,
             headerTitle = "",
-            currentSortType = RootHomeMonthlyCategoryScreenUiState.SortType.Date,
-            sortOrder = RootHomeMonthlyCategoryScreenUiState.SortOrder.Ascending,
+            currentSortType = SortSectionType.Date,
+            sortOrder = SortSectionOrder.Ascending,
         ),
     ).also { uiStateFlow ->
         viewModelScope.launch {
@@ -292,7 +294,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
     }
 
     private fun updateSortType(
-        type: RootHomeMonthlyCategoryScreenUiState.SortType,
+        type: SortSectionType,
     ) {
         viewModelStateFlow.update {
             it.copy(
@@ -308,8 +310,8 @@ public class RootHomeMonthlyCategoryScreenViewModel(
     }
 
     private fun setOrder(
-        type: RootHomeMonthlyCategoryScreenUiState.SortType,
-        order: RootHomeMonthlyCategoryScreenUiState.SortOrder,
+        type: SortSectionType,
+        order: SortSectionOrder,
     ) {
         viewModelStateFlow.update {
             it.copy(
@@ -352,12 +354,12 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                 year = year,
                 month = month,
                 isAsc = when (sortStateMap.currentSortState.order) {
-                    RootHomeMonthlyCategoryScreenUiState.SortOrder.Ascending -> true
-                    RootHomeMonthlyCategoryScreenUiState.SortOrder.Descending -> false
+                    SortSectionOrder.Ascending -> true
+                    SortSectionOrder.Descending -> false
                 },
                 orderType = when (sortStateMap.currentSortState.type) {
-                    RootHomeMonthlyCategoryScreenUiState.SortType.Date -> MoneyUsagesQueryOrderType.DATE
-                    RootHomeMonthlyCategoryScreenUiState.SortType.Amount -> MoneyUsagesQueryOrderType.AMOUNT
+                    SortSectionType.Date -> MoneyUsagesQueryOrderType.DATE
+                    SortSectionType.Amount -> MoneyUsagesQueryOrderType.AMOUNT
                 },
             )
         }
@@ -369,19 +371,19 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                 year = year,
                 month = month,
                 isAsc = when (sortStateMap.currentSortState.order) {
-                    RootHomeMonthlyCategoryScreenUiState.SortOrder.Ascending -> true
-                    RootHomeMonthlyCategoryScreenUiState.SortOrder.Descending -> false
+                    SortSectionOrder.Ascending -> true
+                    SortSectionOrder.Descending -> false
                 },
                 orderType = when (sortStateMap.currentSortState.type) {
-                    RootHomeMonthlyCategoryScreenUiState.SortType.Date -> MoneyUsagesQueryOrderType.DATE
-                    RootHomeMonthlyCategoryScreenUiState.SortType.Amount -> MoneyUsagesQueryOrderType.AMOUNT
+                    SortSectionType.Date -> MoneyUsagesQueryOrderType.DATE
+                    SortSectionType.Amount -> MoneyUsagesQueryOrderType.AMOUNT
                 },
             )
         }
 
         data class SortStateMap(
-            val sortStateList: Map<RootHomeMonthlyCategoryScreenUiState.SortType, SortState> = mapOf(),
-            val currentSortType: RootHomeMonthlyCategoryScreenUiState.SortType = RootHomeMonthlyCategoryScreenUiState.SortType.Date,
+            val sortStateList: Map<SortSectionType, SortState> = mapOf(),
+            val currentSortType: SortSectionType = SortSectionType.Date,
         ) {
             val currentSortState: SortState = run state@{
                 val current = sortStateList[currentSortType]
@@ -390,12 +392,12 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                 SortState(
                     type = currentSortType,
                     order = when (currentSortType) {
-                        RootHomeMonthlyCategoryScreenUiState.SortType.Date -> {
-                            RootHomeMonthlyCategoryScreenUiState.SortOrder.Ascending
+                        SortSectionType.Date -> {
+                            SortSectionOrder.Ascending
                         }
 
-                        RootHomeMonthlyCategoryScreenUiState.SortType.Amount -> {
-                            RootHomeMonthlyCategoryScreenUiState.SortOrder.Descending
+                        SortSectionType.Amount -> {
+                            SortSectionOrder.Descending
                         }
                     },
                 )
@@ -403,8 +405,8 @@ public class RootHomeMonthlyCategoryScreenViewModel(
         }
 
         data class SortState(
-            val type: RootHomeMonthlyCategoryScreenUiState.SortType,
-            val order: RootHomeMonthlyCategoryScreenUiState.SortOrder,
+            val type: SortSectionType,
+            val order: SortSectionOrder,
         )
     }
 }
