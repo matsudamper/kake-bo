@@ -58,19 +58,9 @@ public data class RootHomeMonthlyCategoryScreenUiState(
     val headerTitle: String,
     val event: Event,
     val scaffoldListener: RootScreenScaffoldListener,
-    val currentSortType: SortType,
-    val sortOrder: SortOrder,
+    val currentSortType: SortSectionType,
+    val sortOrder: SortSectionOrder,
 ) {
-    public enum class SortType {
-        Date,
-        Amount,
-    }
-
-    public enum class SortOrder {
-        Ascending,
-        Descending,
-    }
-
     public data class Item(
         val title: String,
         val amount: String,
@@ -106,8 +96,8 @@ public data class RootHomeMonthlyCategoryScreenUiState(
     @Immutable
     public interface Event {
         public fun onViewInitialized()
-        public fun onSortTypeChanged(sortType: SortType)
-        public fun onSortOrderChanged(order: SortOrder)
+        public fun onSortTypeChanged(sortType: SortSectionType)
+        public fun onSortOrderChanged(order: SortSectionOrder)
     }
 }
 
@@ -278,129 +268,3 @@ private fun ListItem(
     }
 }
 
-@Composable
-private fun SortSection(
-    currentSortType: RootHomeMonthlyCategoryScreenUiState.SortType,
-    sortOrderType: RootHomeMonthlyCategoryScreenUiState.SortOrder,
-    onSortTypeChanged: (RootHomeMonthlyCategoryScreenUiState.SortType) -> Unit,
-    onSortOrderChanged: (RootHomeMonthlyCategoryScreenUiState.SortOrder) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    BoxWithConstraints(
-        modifier = modifier,
-    ) {
-        val maxWidth = this.maxWidth
-        Layout(
-            modifier = Modifier
-                .horizontalScroll(rememberScrollState()),
-            content = {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text(
-                        text = "並び替え:",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.padding(end = 8.dp),
-                    )
-                    Button(
-                        onClick = {
-                            onSortTypeChanged(RootHomeMonthlyCategoryScreenUiState.SortType.Date)
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (currentSortType == RootHomeMonthlyCategoryScreenUiState.SortType.Date) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.surfaceVariant
-                            },
-                        ),
-                        modifier = Modifier.padding(end = 8.dp),
-                    ) {
-                        Text("日付順")
-                    }
-                    Button(
-                        onClick = {
-                            onSortTypeChanged(RootHomeMonthlyCategoryScreenUiState.SortType.Amount)
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (currentSortType == RootHomeMonthlyCategoryScreenUiState.SortType.Amount) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.surfaceVariant
-                            },
-                        ),
-                    ) {
-                        Text("金額順")
-                    }
-                }
-                var isExpanded by remember { mutableStateOf(false) }
-                TextButton(
-                    onClick = {
-                        isExpanded = !isExpanded
-                    },
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Default.Sort,
-                        contentDescription = null,
-                    )
-                    DropdownMenu(
-                        expanded = isExpanded,
-                        onDismissRequest = {
-                            isExpanded = false
-                        },
-                        modifier = Modifier,
-                    ) {
-                        DropdownMenuItem(
-                            text = {
-                                Text("昇順")
-                            },
-                            onClick = {
-                                onSortOrderChanged(RootHomeMonthlyCategoryScreenUiState.SortOrder.Ascending)
-                                isExpanded = false
-                            },
-                        )
-                        DropdownMenuItem(
-                            text = {
-                                Text("降順")
-                            },
-                            onClick = {
-                                onSortOrderChanged(RootHomeMonthlyCategoryScreenUiState.SortOrder.Descending)
-                                isExpanded = false
-                            },
-                        )
-                    }
-                    Text(
-                        when (sortOrderType) {
-                            RootHomeMonthlyCategoryScreenUiState.SortOrder.Ascending -> "昇順"
-                            RootHomeMonthlyCategoryScreenUiState.SortOrder.Descending -> "降順"
-                        },
-                    )
-                }
-            },
-        ) { measurables, constraints ->
-            val typePlaceable = measurables[0].measure(constraints)
-            val orderPlaceable = measurables[1].measure(constraints)
-
-            val height = max(typePlaceable.height, orderPlaceable.height)
-            layout(
-                width = maxWidth.roundToPx(),
-                height = height,
-            ) {
-                typePlaceable.place(
-                    x = 0,
-                    y = Alignment.CenterVertically.align(typePlaceable.height, height),
-                )
-                if (typePlaceable.width + orderPlaceable.width > maxWidth.toPx()) {
-                    orderPlaceable.place(
-                        x = typePlaceable.width,
-                        y = Alignment.CenterVertically.align(orderPlaceable.height, height),
-                    )
-                } else {
-                    orderPlaceable.place(
-                        x = maxWidth.roundToPx() - orderPlaceable.width,
-                        y = Alignment.CenterVertically.align(orderPlaceable.height, height),
-                    )
-                }
-            }
-        }
-    }
-}
