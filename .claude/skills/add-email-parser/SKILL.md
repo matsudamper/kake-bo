@@ -31,7 +31,7 @@ NewService(
 ),
 ```
 
-- `id`は既存の最大値+1を使用（現在の最大値は44）
+- `id`は既存の最大値+1を使用
 - 既存のサービスに該当する場合は新規追加不要
 
 ### 3. パーサーの実装
@@ -152,13 +152,9 @@ val elements = document.getElementsByTag("td")
 
 `sequenceOf(...)` の中に新しいパーサーを追加する。先にマッチしたパーサーが優先されるため、汎用的なパーサー（VpassUsageServices等）の前に配置する。
 
-### 7. テスト
+### 7. ビルドとテスト
 
-テストフレームワークは Kotest (JUnit 5) と mockk を使用する。
-
-```sh
-./gradlew allTests
-```
+CLAUDE.md の「ビルドとテスト」セクションに従う。
 
 ---
 
@@ -183,19 +179,4 @@ val elements = document.getElementsByTag("td")
 - `sequence { yield(...) }.any { it }` による遅延評価パターンで判定を行う
 - 日付のパースに失敗した場合は引数の `date` をフォールバックとして使用する
 - 価格は `Int?`（nullable）で、抽出できない場合は `null` を返す
-- コメントは日本語で書く（Whyのみ。コードの説明は不要）
-- `!!`（force unwrap）は使用しない
-- `var` より `val` を優先する
-- `emptyList()` ではなく `listOf()` を使用する
-- `str ?: ""` ではなく `str.orEmpty()` を使用する
 - 日本語の日付フォーマットには `DateTimeFormatterBuilder` を使用する
-
----
-
-## ビルドと確認
-
-```sh
-./gradlew assemble assembleDebug -x jsBrowserProductionWebpack
-./gradlew ktlintFormat
-./gradlew allTests
-```
