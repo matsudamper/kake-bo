@@ -117,6 +117,15 @@ private fun LoadedContent(
             ),
         ) {
             item {
+                Text(
+                    text = "${loadingState.categoryName} > ${loadingState.subCategoryName}",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                )
+            }
+            item {
                 SortSection(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
                     onSortTypeChanged = { type ->

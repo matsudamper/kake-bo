@@ -149,6 +149,8 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
                         items = items,
                         event = loadedEvent,
                         hasMoreItem = listResponse.data?.user?.moneyUsages?.hasMore != false,
+                        categoryName = screenResponseData.category.name,
+                        subCategoryName = screenResponseData.name,
                     )
                 }
                 uiStateFlow.value = uiStateFlow.value.copy(

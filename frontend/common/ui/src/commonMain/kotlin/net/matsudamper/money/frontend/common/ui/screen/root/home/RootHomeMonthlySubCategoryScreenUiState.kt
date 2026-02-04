@@ -39,6 +39,8 @@ public data class RootHomeMonthlySubCategoryScreenUiState(
             val items: List<Item>,
             val hasMoreItem: Boolean,
             val event: LoadedEvent,
+            val categoryName: String,
+            val subCategoryName: String,
         ) : LoadingState
 
         public data object Loading : LoadingState

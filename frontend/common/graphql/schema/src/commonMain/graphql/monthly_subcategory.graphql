@@ -5,6 +5,9 @@ query MonthlySubCategoryScreen($id: MoneyUsageSubCategoryId!) {
         }) {
             id
             name
+            category {
+                name
+            }
         }
     }
 }
