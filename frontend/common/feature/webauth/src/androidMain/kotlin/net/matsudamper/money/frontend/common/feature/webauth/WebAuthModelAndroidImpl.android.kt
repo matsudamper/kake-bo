@@ -33,9 +33,7 @@ public class WebAuthModelAndroidImpl(
         val createRequest = CreatePublicKeyCredentialRequest(requestJson)
         val credentialManager = CredentialManager.create(context)
 
-        val result = runCatching {
-            credentialManager.createCredential(context, createRequest)
-        }.getOrNull() ?: return null
+        val result = credentialManager.createCredential(context, createRequest)
 
         if (result !is CreatePublicKeyCredentialResponse) return null
 
