@@ -10,7 +10,19 @@ public data class RootHomeMonthlySubCategoryScreenUiState(
     val headerTitle: String,
     val event: Event,
     val scaffoldListener: RootScreenScaffoldListener,
+    val currentSortType: SortType,
+    val sortOrder: SortOrder,
 ) {
+    public enum class SortType {
+        Date,
+        Amount,
+    }
+
+    public enum class SortOrder {
+        Ascending,
+        Descending,
+    }
+
     public data class Item(
         val title: String,
         val amount: String,
@@ -46,5 +58,7 @@ public data class RootHomeMonthlySubCategoryScreenUiState(
     @Immutable
     public interface Event {
         public fun onViewInitialized()
+        public fun onSortTypeChanged(sortType: SortType)
+        public fun onSortOrderChanged(order: SortOrder)
     }
 }
