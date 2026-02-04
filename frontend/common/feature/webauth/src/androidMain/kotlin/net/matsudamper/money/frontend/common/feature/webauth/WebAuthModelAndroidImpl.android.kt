@@ -1,6 +1,8 @@
 package net.matsudamper.money.frontend.common.feature.webauth
 
 import android.content.Context
+import androidx.credentials.CreatePublicKeyCredentialRequest
+import androidx.credentials.CreatePublicKeyCredentialResponse
 import androidx.credentials.CredentialManager
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetPublicKeyCredentialOption
@@ -20,7 +22,29 @@ public class WebAuthModelAndroidImpl(
         domain: String,
         base64ExcludeCredentialIdList: List<String>,
     ): WebAuthModel.WebAuthCreateResult? {
-        TODO()
+        val requestJson = buildCreateCredentialRequestJson(
+            id = id,
+            name = name,
+            type = type,
+            challenge = challenge,
+            domain = domain,
+            base64ExcludeCredentialIdList = base64ExcludeCredentialIdList,
+        )
+        val createRequest = CreatePublicKeyCredentialRequest(requestJson)
+        val credentialManager = CredentialManager.create(context)
+
+        val result = runCatching {
+            credentialManager.createCredential(context, createRequest)
+        }.getOrNull() ?: return null
+
+        if (result !is CreatePublicKeyCredentialResponse) return null
+
+        val json = Json.decodeFromString<AndroidWebAuthCreateResult>(result.registrationResponseJson)
+
+        return WebAuthModel.WebAuthCreateResult(
+            attestationObjectBase64 = json.response.attestationObject.base64UrlToBase64() ?: return null,
+            clientDataJSONBase64 = json.response.clientDataJSON.base64UrlToBase64() ?: return null,
+        )
     }
 
     public override suspend fun get(
@@ -58,6 +82,51 @@ public class WebAuthModelAndroidImpl(
                     .decode(this),
             )
             .decodeToString()
+    }
+
+    private fun buildCreateCredentialRequestJson(
+        id: String,
+        name: String,
+        type: WebAuthModel.WebAuthModelType,
+        challenge: String,
+        domain: String,
+        base64ExcludeCredentialIdList: List<String>,
+    ): String {
+        val base64Challenge = Base64.getEncoder().encodeToString(challenge.toByteArray())
+        val base64UserId = Base64.getEncoder().encodeToString(id.toByteArray())
+        val authenticatorAttachment = when (type) {
+            WebAuthModel.WebAuthModelType.PLATFORM -> "platform"
+            WebAuthModel.WebAuthModelType.CROSS_PLATFORM -> "cross-platform"
+        }
+        val excludeCredentialsJson = base64ExcludeCredentialIdList.joinToString(",") { credentialId ->
+            """{"type": "public-key", "id": "$credentialId"}"""
+        }
+        return """
+            {
+                "challenge": "$base64Challenge",
+                "rp": {
+                    "name": "$domain",
+                    "id": "$domain"
+                },
+                "user": {
+                    "id": "$base64UserId",
+                    "name": "$name",
+                    "displayName": "$name"
+                },
+                "pubKeyCredParams": [
+                    {"type": "public-key", "alg": -7},
+                    {"type": "public-key", "alg": -257},
+                    {"type": "public-key", "alg": -8}
+                ],
+                "authenticatorSelection": {
+                    "authenticatorAttachment": "$authenticatorAttachment",
+                    "userVerification": "required",
+                    "residentKey": "required"
+                },
+                "excludeCredentials": [$excludeCredentialsJson],
+                "timeout": 1800000
+            }
+        """.trimIndent()
     }
 
     private fun configureGetCredentialRequest(
