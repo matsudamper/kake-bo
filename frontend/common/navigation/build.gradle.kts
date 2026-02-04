@@ -4,17 +4,15 @@ plugins {
     id("net.matsudamper.money.buildlogic.androidLibrary")
     alias(libs.plugins.kotlin.serialization)
 }
-android {
-    namespace = "net.matsudamper.money.frontend.common.base.nav"
-}
-
 kotlin {
     js(IR) {
         browser()
         binaries.executable()
     }
     jvm { }
-    androidTarget()
+    androidLibrary {
+        namespace = "net.matsudamper.money.frontend.common.base.nav"
+    }
     jvmToolchain(libs.versions.javaToolchain.get().toInt())
     sourceSets {
         val commonMain by getting {

@@ -14,7 +14,9 @@ kotlin {
         browser()
         binaries.executable()
     }
-    androidTarget()
+    androidLibrary {
+        namespace = "net.matsudamper.money.ui.root"
+    }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
@@ -48,9 +50,6 @@ kotlin {
     }
 }
 
-android {
-    namespace = "net.matsudamper.money.ui.root"
-}
 dependencies {
     implementation(project(":frontend:common:di"))
 }

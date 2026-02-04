@@ -1,5 +1,3 @@
-import com.google.protobuf.gradle.proto
-
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.kotlin.serialization)
@@ -12,7 +10,10 @@ kotlin {
         browser()
         binaries.executable()
     }
-    androidTarget()
+    androidLibrary {
+        namespace = "net.matsudamper.money.frontend.common.feature.localstore"
+        withJava()
+    }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
@@ -40,16 +41,6 @@ kotlin {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
-}
-
-android {
-    namespace = "net.matsudamper.money.frontend.common.feature.localstore"
-    buildFeatures {
-        buildConfig = true
-    }
-    sourceSets["main"].proto {
-        srcDir("src/androidMain/proto")
-    }
 }
 
 protobuf {

@@ -10,7 +10,9 @@ kotlin {
         browser()
         binaries.executable()
     }
-    androidTarget()
+    androidLibrary {
+        namespace = "net.matsudamper.money.frontend.common.feature.webauth"
+    }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
@@ -60,11 +62,4 @@ kotlin {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
-}
-
-android {
-    namespace = "net.matsudamper.money.frontend.common.feature.webauth"
-    buildFeatures {
-        buildConfig = true
-    }
 }

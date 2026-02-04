@@ -8,7 +8,9 @@ kotlin {
         browser()
         binaries.executable()
     }
-    androidTarget()
+    androidLibrary {
+        namespace = "net.matsudamper.money.frontend.common.di"
+    }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
@@ -29,6 +31,3 @@ tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 }
 
-android {
-    namespace = "net.matsudamper.money.frontend.common.di"
-}

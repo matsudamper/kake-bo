@@ -1,35 +1,25 @@
 package net.matsudamper.money.buildlogic
 
-import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.withType
+import org.gradle.kotlin.dsl.configure
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 @Suppress("unused")
 class AndroidLibraryPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
-                apply("com.android.library")
+                apply("com.android.kotlin.multiplatform.library")
             }
-            androidLibrary {
-                compileSdk = 36
-                defaultConfig {
+            extensions.configure<KotlinMultiplatformExtension> {
+                androidLibrary {
+                    compileSdk = 36
                     minSdk = 34
-                }
-                lint {
-                    targetSdk = 36
-                }
-                compileOptions {
-                    sourceCompatibility = JavaVersion.toVersion(libs.findVersion("java").get().displayName.toInt())
-                    targetCompatibility = JavaVersion.toVersion(libs.findVersion("java").get().displayName.toInt())
-                }
-            }
-            tasks.withType<KotlinCompile>().configureEach {
-                compilerOptions {
-                    jvmTarget.set(JvmTarget.fromTarget(libs.findVersion("java").get().displayName))
+                    compilerOptions {
+                        jvmTarget.set(JvmTarget.fromTarget(libs.findVersion("java").get().displayName))
+                    }
                 }
             }
         }

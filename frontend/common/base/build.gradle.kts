@@ -9,7 +9,9 @@ kotlin {
         browser()
         binaries.executable()
     }
-    androidTarget()
+    androidLibrary {
+        namespace = "net.matsudamper.money.frontend.common.base"
+    }
     jvm { }
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
@@ -72,11 +74,4 @@ kotlin {
 
 tasks.withType<Test>().configureEach {
     useJUnitPlatform()
-}
-
-android {
-    namespace = "net.matsudamper.money.frontend.common.base"
-    buildFeatures {
-        buildConfig = true
-    }
 }

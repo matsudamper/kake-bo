@@ -2,7 +2,6 @@ package net.matsudamper.money.buildlogic
 
 import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.dsl.TestedExtension
-import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.DependencyHandlerScope
@@ -47,10 +46,6 @@ fun Project.android(action: TestedExtension.() -> Unit) {
 }
 
 fun Project.androidApplication(action: BaseAppModuleExtension.() -> Unit) {
-    extensions.configure(action)
-}
-
-fun Project.androidLibrary(action: LibraryExtension.() -> Unit) {
     extensions.configure(action)
 }
 
