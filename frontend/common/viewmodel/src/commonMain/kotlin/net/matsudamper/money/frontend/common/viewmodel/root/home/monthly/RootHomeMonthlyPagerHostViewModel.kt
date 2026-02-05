@@ -10,6 +10,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
+import kotlinx.datetime.plus
 import kotlinx.datetime.todayIn
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
@@ -48,7 +49,7 @@ public class RootHomeMonthlyPagerHostViewModel(
                     add(
                         RootHomeMonthlyPagerHostScreenUiState.Page(
                             RootHomeScreenStructure.Monthly(
-                                initialDate.minus(
+                                initialDate.plus(
                                     value = index,
                                     unit = DateTimeUnit.MONTH,
                                 ),
