@@ -27,6 +27,7 @@ import net.matsudamper.money.backend.mail.parser.services.MovieTicketUsageServic
 import net.matsudamper.money.backend.mail.parser.services.NijisanjiOfficialStoreUsageServices
 import net.matsudamper.money.backend.mail.parser.services.NintendoChargeUsageServices
 import net.matsudamper.money.backend.mail.parser.services.NintendoProductBuyUsageServices
+import net.matsudamper.money.backend.mail.parser.services.NissinOnlineStoreUsageServices
 import net.matsudamper.money.backend.mail.parser.services.NttEastBillingUsageServices
 import net.matsudamper.money.backend.mail.parser.services.PayPalUsageService
 import net.matsudamper.money.backend.mail.parser.services.PostCoffeeSubscriptionUsageServices
@@ -107,6 +108,7 @@ public object MailParser {
             TakaraTomyMallUsageServices,
             SonyBankUsageServices,
             SofmapUsageServices,
+            NissinOnlineStoreUsageServices,
             VpassUsageServices,
         )
             .mapNotNull {
