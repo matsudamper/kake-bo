@@ -60,8 +60,8 @@ internal object KeurigOnlineStoreUsageServices : MoneyUsageServices {
                 add(
                     MoneyUsage(
                         title = product.name,
-                        price = null,
-                        description = "${product.quantity}個",
+                        price = product.price,
+                        description = "単価: ${product.price}円 × ${product.quantity}個",
                         service = MoneyUsageServiceType.KeurigOnlineStore,
                         dateTime = forwardedInfo?.date ?: date,
                     ),
@@ -71,27 +71,54 @@ internal object KeurigOnlineStoreUsageServices : MoneyUsageServices {
     }
 
     private fun extractProducts(lines: List<String>): List<Product> {
-        val sectionStart = lines.indexOfFirst { it.contains("選択商品内訳") }
+        val productSectionStart = lines.indexOfFirst { it.contains("ご注文商品明細") }
             .takeIf { it >= 0 } ?: return listOf()
 
-        val productLines = lines.subList(sectionStart + 1, lines.size)
+        val productLines = lines.subList(productSectionStart + 1, lines.size)
 
         return buildList {
+            var currentName: String? = null
+            var currentPrice: Int? = null
+            var currentQuantity: Int? = null
+
             for (line in productLines) {
                 val trimmed = line.trim()
-                if (trimmed.isEmpty()) break
+                when {
+                    trimmed.startsWith("商品名：") -> {
+                        if (currentName != null) {
+                            add(Product(name = currentName, price = currentPrice ?: 0, quantity = currentQuantity ?: 0))
+                            currentPrice = null
+                            currentQuantity = null
+                        }
+                        currentName = trimmed.substringAfter("商品名：").trim()
+                    }
+                    trimmed.startsWith("単価：") -> {
+                        currentPrice = ParseUtil.getInt(trimmed.substringAfter("単価："))
+                    }
+                    trimmed.startsWith("数量：") -> {
+                        currentQuantity = ParseUtil.getInt(trimmed.substringAfter("数量："))
+                    }
+                    trimmed.startsWith("小 計：") || trimmed.startsWith("小計：") -> {
+                        if (currentName != null) {
+                            add(Product(name = currentName, price = currentPrice ?: 0, quantity = currentQuantity ?: 0))
+                            currentName = null
+                            currentPrice = null
+                            currentQuantity = null
+                        }
+                        break
+                    }
+                }
+            }
 
-                val match = "^(.+?)\\s*×\\s*(\\d+)$".toRegex().find(trimmed) ?: continue
-                val name = match.groupValues[1].trim()
-                val quantity = match.groupValues[2].toIntOrNull() ?: continue
-
-                add(Product(name = name, quantity = quantity))
+            if (currentName != null) {
+                add(Product(name = currentName, price = currentPrice ?: 0, quantity = currentQuantity ?: 0))
             }
         }
     }
 
     private data class Product(
         val name: String,
+        val price: Int,
         val quantity: Int,
     )
 
