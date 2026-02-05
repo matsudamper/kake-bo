@@ -20,7 +20,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeri
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodSubCategoryScreen
-import net.matsudamper.money.frontend.common.ui.screen.root.home.monthly.RootHomeMonthlyScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.home.monthly.RootHomeMonthlyPagerHostScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeAddTabScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeAddTabScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportMailScreenUiState
@@ -41,6 +41,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeAnalyti
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodCategoryContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodSubCategoryContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenApi
+import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.RootHomeMonthlyPagerHostViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.RootHomeMonthlyScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.category.RootHomeMonthlyCategoryScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.subcategory.RootHomeMonthlySubCategoryScreenViewModel
@@ -82,25 +83,35 @@ internal fun RootNavContent(
                 when (current) {
                     is RootHomeScreenStructure.Monthly -> {
                         holder.SaveableStateProvider(RootHomeScreenStructure.Monthly::class.simpleName!!) {
-                            val viewModel = LocalScopedObjectStore.current.putOrGet<RootHomeMonthlyScreenViewModel>(Unit) {
-                                RootHomeMonthlyScreenViewModel(
+                            val hostViewModel = LocalScopedObjectStore.current.putOrGet<RootHomeMonthlyPagerHostViewModel>(Unit) {
+                                RootHomeMonthlyPagerHostViewModel(
                                     scopedObjectFeature = it,
-                                    loginCheckUseCase = loginCheckUseCase,
-                                    argument = current,
-                                    graphqlClient = koin.get<GraphqlClient>(),
+                                    initial = current,
                                     navController = navController,
                                 )
                             }
-                            LaunchedEffect(viewModel, current) {
-                                viewModel.updateStructure(current)
+                            LaunchedEffect(hostViewModel, current) {
+                                hostViewModel.updateStructure(current)
                             }
-                            LaunchedEffect(viewModel.eventHandler) {
-                                viewModelEventHandlers.handleRootHomeMonthlyScreen(viewModel.eventHandler)
-                            }
-                            RootHomeMonthlyScreen(
+                            RootHomeMonthlyPagerHostScreen(
                                 modifier = Modifier,
-                                uiState = viewModel.uiStateFlow.collectAsState().value,
                                 windowInsets = windowInsets,
+                                uiState = hostViewModel.uiState.collectAsState().value,
+                                uiStateProvider = { current ->
+                                    val viewModel = LocalScopedObjectStore.current.putOrGet<RootHomeMonthlyScreenViewModel>(current) {
+                                        RootHomeMonthlyScreenViewModel(
+                                            scopedObjectFeature = it,
+                                            loginCheckUseCase = loginCheckUseCase,
+                                            argument = current,
+                                            graphqlClient = koin.get<GraphqlClient>(),
+                                            navController = navController,
+                                        )
+                                    }
+                                    LaunchedEffect(viewModel.eventHandler) {
+                                        viewModelEventHandlers.handleRootHomeMonthlyScreen(viewModel.eventHandler)
+                                    }
+                                    viewModel.uiStateFlow.collectAsState().value
+                                },
                             )
                         }
                     }
