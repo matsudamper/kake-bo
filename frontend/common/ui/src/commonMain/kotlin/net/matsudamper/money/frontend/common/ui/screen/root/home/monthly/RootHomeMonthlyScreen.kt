@@ -95,21 +95,21 @@ public fun RootHomeMonthlyScreen(
     when (val loadingState = uiState.loadingState) {
         is RootHomeMonthlyScreenUiState.LoadingState.Loaded -> {
             LoadedContent(
-                modifier = Modifier.fillMaxSize(),
+                modifier = modifier.fillMaxSize(),
                 loadingState = loadingState,
                 uiState = uiState,
             )
         }
 
         RootHomeMonthlyScreenUiState.LoadingState.Loading -> {
-            Box(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = modifier.fillMaxSize()) {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
         }
 
         RootHomeMonthlyScreenUiState.LoadingState.Error -> {
             LoadingErrorContent(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = modifier.fillMaxWidth(),
                 onClickRetry = {
                     // TODO
                 },
