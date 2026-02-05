@@ -25,9 +25,9 @@ import net.matsudamper.money.backend.mail.parser.services.MicrosoftUsageServices
 import net.matsudamper.money.backend.mail.parser.services.MountbellUsageServices
 import net.matsudamper.money.backend.mail.parser.services.MovieTicketUsageService
 import net.matsudamper.money.backend.mail.parser.services.NijisanjiOfficialStoreUsageServices
-import net.matsudamper.money.backend.mail.parser.services.NissinOnlineStoreUsageServices
 import net.matsudamper.money.backend.mail.parser.services.NintendoChargeUsageServices
 import net.matsudamper.money.backend.mail.parser.services.NintendoProductBuyUsageServices
+import net.matsudamper.money.backend.mail.parser.services.NissinOnlineStoreUsageServices
 import net.matsudamper.money.backend.mail.parser.services.NttEastBillingUsageServices
 import net.matsudamper.money.backend.mail.parser.services.PayPalUsageService
 import net.matsudamper.money.backend.mail.parser.services.PostCoffeeSubscriptionUsageServices

@@ -27,15 +27,13 @@ internal object NissinOnlineStoreUsageServices : MoneyUsageServices {
 
         val lines = ParseUtil.splitByNewLine(plain)
 
-        val orderNumber = extractOrderNumber(forwardedInfo?.subject ?: subject)
-
         val totalPrice = extractTotal(lines)
 
         val products = extractProducts(lines)
 
         val description = buildString {
-            if (orderNumber != null) {
-                appendLine("注文番号: $orderNumber")
+            for (product in products) {
+                appendLine("${product.name} × ${product.quantity}")
             }
         }.trim()
 
@@ -62,12 +60,6 @@ internal object NissinOnlineStoreUsageServices : MoneyUsageServices {
                 )
             }
         }
-    }
-
-    private fun extractOrderNumber(subject: String): String? {
-        return "注文番号[：:]\\s*(.+)$".toRegex().find(subject)
-            ?.groupValues?.getOrNull(1)
-            ?.trim()
     }
 
     private fun extractTotal(lines: List<String>): Int? {
