@@ -33,8 +33,6 @@ import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
-import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 
 public data class HomeAddTabScreenUiState(
     val rootScreenScaffoldListener: RootScreenScaffoldListener,
@@ -50,15 +48,11 @@ public data class HomeAddTabScreenUiState(
 @Composable
 public fun HomeAddTabScreen(
     uiState: HomeAddTabScreenUiState,
-    navigationUi: SharedNavigation,
     windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
     RootScreenScaffold(
         modifier = modifier,
-        currentScreen = RootScreenTab.Add,
-        listener = uiState.rootScreenScaffoldListener,
-        navigationUi = navigationUi,
         windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(

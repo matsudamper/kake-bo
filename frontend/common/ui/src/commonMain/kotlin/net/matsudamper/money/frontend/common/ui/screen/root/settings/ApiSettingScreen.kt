@@ -47,8 +47,6 @@ import androidx.compose.ui.window.Dialog
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
-import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
 public data class ApiSettingScreenUiState(
@@ -118,7 +116,6 @@ public fun ApiSettingScreen(
     uiState: ApiSettingScreenUiState,
     snackbarHostState: SnackbarHostState,
     windowInsets: PaddingValues,
-    navigationUi: SharedNavigation,
 ) {
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
@@ -186,10 +183,8 @@ public fun ApiSettingScreen(
 
     RootScreenScaffold(
         modifier = modifier,
-        currentScreen = RootScreenTab.Settings,
         snackbarHostState = snackbarHostState,
         windowInsets = windowInsets,
-        navigationUi = navigationUi,
         topBar = {
             KakeBoTopAppBar(
                 navigation = {
@@ -211,7 +206,6 @@ public fun ApiSettingScreen(
                 windowInsets = windowInsets,
             )
         },
-        listener = uiState.rootScreenScaffoldListener,
     ) {
         SettingScaffold(
             title = {

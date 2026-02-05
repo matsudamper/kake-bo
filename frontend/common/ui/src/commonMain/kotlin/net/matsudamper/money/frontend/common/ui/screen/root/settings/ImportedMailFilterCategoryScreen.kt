@@ -62,8 +62,6 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
-import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 import net.matsudamper.money.frontend.common.ui.layout.AlertDialog
 import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
@@ -211,7 +209,6 @@ public data class ImportedMailFilterCategoryScreenUiState(
 public fun ImportedMailFilterCategoryScreen(
     modifier: Modifier = Modifier,
     uiState: ImportedMailFilterCategoryScreenUiState,
-    navigationUi: SharedNavigation,
     windowInsets: PaddingValues,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -260,7 +257,6 @@ public fun ImportedMailFilterCategoryScreen(
     }
     RootScreenScaffold(
         modifier = modifier,
-        currentScreen = RootScreenTab.Settings,
         topBar = {
             KakeBoTopAppBar(
                 navigation = {
@@ -284,8 +280,6 @@ public fun ImportedMailFilterCategoryScreen(
         },
         windowInsets = windowInsets,
         snackbarHostState = snackbarHostState,
-        listener = uiState.rootScreenScaffoldListener,
-        navigationUi = navigationUi,
     ) {
         SettingScaffold(
             title = {

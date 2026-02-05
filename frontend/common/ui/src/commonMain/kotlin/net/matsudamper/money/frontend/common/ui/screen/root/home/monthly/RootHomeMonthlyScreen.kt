@@ -30,7 +30,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
-import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSection
@@ -87,7 +86,6 @@ public data class RootHomeMonthlyScreenUiState(
 public fun RootHomeMonthlyScreen(
     uiState: RootHomeMonthlyScreenUiState,
     windowInsets: PaddingValues,
-    navigationUi: SharedNavigation,
     modifier: Modifier = Modifier,
 ) {
     LaunchedEffect(Unit) {

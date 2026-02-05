@@ -15,7 +15,6 @@ import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectSto
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
-import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ApiSettingScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImapConfigScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.ImportedMailFilterCategoryScreen
@@ -52,7 +51,6 @@ internal fun SettingNavContent(
     globalEvent: GlobalEvent,
     settingUiStateProvider: @Composable () -> RootSettingScreenUiState,
     viewModelEventHandlers: ViewModelEventHandlers,
-    navigationUi: SharedNavigation,
     windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
@@ -65,7 +63,6 @@ internal fun SettingNavContent(
                     modifier = modifier.fillMaxSize(),
                     uiState = settingUiStateProvider(),
                     windowInsets = windowInsets,
-                    navigationUi = navigationUi,
                 )
             }
         }
@@ -93,7 +90,6 @@ internal fun SettingNavContent(
                     uiState = viewModel.uiState.collectAsState().value,
                     modifier = modifier,
                     windowInsets = windowInsets,
-                    navigationUi = navigationUi,
                 )
             }
         }
@@ -120,7 +116,6 @@ internal fun SettingNavContent(
                     uiState = viewModel.uiState.collectAsState().value,
                     modifier = modifier,
                     windowInsets = windowInsets,
-                    navigationUi = navigationUi,
                 )
             }
         }
@@ -143,7 +138,6 @@ internal fun SettingNavContent(
                     uiState = viewModel.uiState.collectAsState().value,
                     modifier = modifier,
                     windowInsets = windowInsets,
-                    navigationUi = navigationUi,
                 )
             }
         }
@@ -170,7 +164,6 @@ internal fun SettingNavContent(
                     modifier = modifier.fillMaxSize(),
                     uiState = viewModel.uiStateFlow.collectAsState().value,
                     windowInsets = windowInsets,
-                    navigationUi = navigationUi,
                 )
             }
         }
@@ -197,7 +190,6 @@ internal fun SettingNavContent(
                     modifier = modifier.fillMaxSize(),
                     uiState = viewModel.uiStateFlow.collectAsState().value,
                     windowInsets = windowInsets,
-                    navigationUi = navigationUi,
                 )
             }
         }
@@ -226,7 +218,6 @@ internal fun SettingNavContent(
                     modifier = modifier.fillMaxSize(),
                     uiState = viewModel.uiStateFlow.collectAsState().value,
                     windowInsets = windowInsets,
-                    navigationUi = navigationUi,
                 )
             }
         }
@@ -254,7 +245,6 @@ internal fun SettingNavContent(
                     snackbarHostState = snackbarHostState,
                     modifier = modifier,
                     windowInsets = windowInsets,
-                    navigationUi = navigationUi,
                 )
             }
         }

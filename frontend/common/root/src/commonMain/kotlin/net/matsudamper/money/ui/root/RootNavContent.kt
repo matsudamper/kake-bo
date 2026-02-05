@@ -15,7 +15,6 @@ import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectSto
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlyCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllContentUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllScreen
@@ -68,7 +67,6 @@ internal fun RootNavContent(
     rootHomeTabPeriodAllContentUiStateProvider: @Composable (RootHomeScreenStructure.Period) -> RootHomeTabPeriodAllContentUiState,
     homeAddTabScreenUiStateProvider: @Composable () -> HomeAddTabScreenUiState,
     settingUiStateProvider: @Composable () -> RootSettingScreenUiState,
-    navigationUi: SharedNavigation,
     windowInsets: PaddingValues,
 ) {
     val tabHolder: SaveableStateHolder = rememberSaveableStateHolder(
@@ -114,7 +112,6 @@ internal fun RootNavContent(
                                     }
                                     viewModel.uiStateFlow.collectAsState().value
                                 },
-                                navigationUi = navigationUi,
                             )
                         }
                     }
@@ -129,7 +126,6 @@ internal fun RootNavContent(
                                         modifier = Modifier.fillMaxSize(),
                                         contentPadding = windowInsets,
                                         uiState = rootHomeTabPeriodAllContentUiStateProvider(current),
-                                        navigationUi = navigationUi,
                                     )
                                 }
                             }
@@ -156,7 +152,6 @@ internal fun RootNavContent(
                                     modifier = Modifier.fillMaxSize(),
                                     uiState = categoryViewModel.uiStateFlow.collectAsState().value,
                                     windowInsets = windowInsets,
-                                    navigationUi = navigationUi,
                                 )
                             }
                         }
@@ -181,7 +176,6 @@ internal fun RootNavContent(
                             modifier = Modifier.fillMaxSize(),
                             uiState = subCategoryViewModel.uiStateFlow.collectAsState().value,
                             windowInsets = windowInsets,
-                            navigationUi = navigationUi,
                         )
                     }
 
@@ -206,7 +200,6 @@ internal fun RootNavContent(
                             modifier = Modifier.fillMaxSize(),
                             uiState = monthlyCategoryViewModel.uiStateFlow.collectAsState().value,
                             windowInsets = windowInsets,
-                            navigationUi = navigationUi,
                         )
                     }
 
@@ -233,7 +226,6 @@ internal fun RootNavContent(
                             modifier = Modifier.fillMaxSize(),
                             uiState = monthlySubCategoryViewModel.uiStateFlow.collectAsState().value,
                             windowInsets = windowInsets,
-                            navigationUi = navigationUi,
                         )
                     }
                 }
@@ -248,7 +240,6 @@ internal fun RootNavContent(
                             modifier = Modifier.fillMaxSize(),
                             uiState = rootUiState,
                             windowInsets = windowInsets,
-                            navigationUi = navigationUi,
                         ) {
                             content()
                         }
@@ -290,7 +281,6 @@ internal fun RootNavContent(
                         HomeAddTabScreen(
                             uiState = homeAddTabScreenUiStateProvider(),
                             windowInsets = windowInsets,
-                            navigationUi = navigationUi,
                         )
                     }
 
@@ -298,7 +288,6 @@ internal fun RootNavContent(
                         MailImportScreen(
                             uiState = importMailLinkScreenUiStateProvider(current),
                             windowInsets = windowInsets,
-                            navigationUi = navigationUi,
                         )
                     }
 
@@ -306,7 +295,6 @@ internal fun RootNavContent(
                         ImportedMailListScreen(
                             uiState = importMailScreenUiStateProvider(current),
                             windowInsets = windowInsets,
-                            navigationUi = navigationUi,
                         )
                     }
                 }
@@ -323,7 +311,6 @@ internal fun RootNavContent(
                     viewModelEventHandlers = viewModelEventHandlers,
                     settingUiStateProvider = settingUiStateProvider,
                     windowInsets = windowInsets,
-                    navigationUi = navigationUi,
                 )
             }
         }

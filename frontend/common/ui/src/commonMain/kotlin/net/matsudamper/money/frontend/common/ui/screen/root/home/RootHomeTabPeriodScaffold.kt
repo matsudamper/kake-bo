@@ -36,7 +36,6 @@ import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 
 public data class RootHomeTabPeriodAndCategoryUiState(
     val loadingState: LoadingState,
@@ -96,7 +95,6 @@ public data class RootHomeTabPeriodAndCategoryUiState(
 public fun RootHomeTabPeriodScaffold(
     uiState: RootHomeTabPeriodAndCategoryUiState,
     scaffoldListener: RootScreenScaffoldListener,
-    navigationUi: SharedNavigation,
     modifier: Modifier = Modifier,
     menu: @Composable () -> Unit = {},
     windowInsets: PaddingValues,
@@ -112,7 +110,6 @@ public fun RootHomeTabPeriodScaffold(
         scaffoldListener = scaffoldListener,
         menu = menu,
         windowInsets = windowInsets,
-        navigationUi = navigationUi,
     ) {
         var isRefreshing by rememberSaveable { mutableStateOf(false) }
         val refreshState = rememberPullToRefreshState()

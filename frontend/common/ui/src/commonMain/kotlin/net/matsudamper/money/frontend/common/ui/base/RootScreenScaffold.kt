@@ -4,13 +4,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsetsSides
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
@@ -23,7 +20,6 @@ import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -34,8 +30,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import net.matsudamper.money.frontend.common.ui.CustomColors
-import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener.Companion.previewImpl
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
@@ -203,12 +197,9 @@ public class SharedNavigation {
 @Composable
 internal fun RootScreenScaffold(
     modifier: Modifier = Modifier,
-    currentScreen: RootScreenTab,
     topBar: @Composable () -> Unit,
     windowInsets: PaddingValues,
-    listener: RootScreenScaffoldListener,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    navigationUi: SharedNavigation,
     content: @Composable BoxScope.() -> Unit,
 ) {
     BoxWithConstraints(
@@ -223,27 +214,11 @@ internal fun RootScreenScaffold(
                     hostState = snackbarHostState,
                 )
             },
-            bottomBar = {
-                if (LocalIsLargeScreen.current.not()) {
-                    navigationUi.Bottom()
-                }
-            },
         ) {
-            Row(
+            Box(
                 modifier = Modifier.padding(it),
             ) {
-                if (LocalIsLargeScreen.current) {
-                    navigationUi.Rail()
-                    VerticalDivider(
-                        modifier = Modifier
-                            .width(1.dp)
-                            .fillMaxHeight(),
-                        color = CustomColors.MenuDividerColor,
-                    )
-                }
-                Box {
-                    content()
-                }
+                content()
             }
         }
     }

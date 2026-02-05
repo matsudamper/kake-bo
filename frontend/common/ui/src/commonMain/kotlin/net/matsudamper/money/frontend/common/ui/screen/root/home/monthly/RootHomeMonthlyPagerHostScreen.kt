@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreenScaffold
 
 @Stable
@@ -30,14 +29,12 @@ public fun RootHomeMonthlyPagerHostScreen(
     uiState: RootHomeMonthlyPagerHostScreenUiState,
     uiStateProvider: @Composable (RootHomeScreenStructure.Monthly) -> RootHomeMonthlyScreenUiState,
     windowInsets: PaddingValues,
-    navigationUi: SharedNavigation,
     modifier: Modifier = Modifier,
 ) {
     RootHomeTabScreenScaffold(
         scaffoldListener = uiState.scaffoldListener,
         modifier = modifier,
         windowInsets = windowInsets,
-        navigationUi = navigationUi,
         content = {
             val state = rememberPagerState(uiState.currentPage) { uiState.pages.size }
             LaunchedEffect(state, uiState.currentPage) {
@@ -55,7 +52,6 @@ public fun RootHomeMonthlyPagerHostScreen(
                     modifier = Modifier,
                     uiState = uiStateProvider(item.navigation),
                     windowInsets = windowInsets,
-                    navigationUi = navigationUi,
                 )
             }
         },

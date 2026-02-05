@@ -1,18 +1,30 @@
 package net.matsudamper.money.ui.root
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.ui.CustomColors
+import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
@@ -43,7 +55,6 @@ internal fun RootScreenContainer(
         navigationUi.windowInsets = windowInsets
     }
     LaunchedEffect(Unit) {
-        // TODO 各画面で別々にBottomNavigationUIを持っているのをやめる。移行中のコード
         navigationUi.listener = object : RootScreenScaffoldListener {
             override val kakeboScaffoldListener: KakeboScaffoldListener = object : KakeboScaffoldListener {
                 override fun onClickTitle() {
@@ -93,81 +104,100 @@ internal fun RootScreenContainer(
     LaunchedEffect(viewModelEventHandlers, settingViewModel.backgroundEventHandler) {
         viewModelEventHandlers.handleSetting(settingViewModel.backgroundEventHandler)
     }
-    RootNavContent(
-        windowInsets = windowInsets,
-        navController = navController,
-        current = current,
-        viewModelEventHandlers = viewModelEventHandlers,
-        rootCoroutineScope = rootCoroutineScope,
-        globalEventSender = globalEventSender,
-        globalEvent = globalEvent,
-        homeAddTabScreenUiStateProvider = {
-            mailScreenViewModel.uiStateFlow.collectAsState().value
-        },
-        usageCalendarUiStateProvider = { yearMonth ->
-            val coroutineScope = rememberCoroutineScope()
-            val viewModel = LocalViewModelProviders.current
-                .moneyUsagesCalendarViewModel(
-                    coroutineScope = coroutineScope,
-                    rootUsageHostViewModel = rootUsageHostViewModel,
-                    yearMonth = yearMonth,
+    Column(Modifier.fillMaxSize()) {
+        Row(
+            modifier = Modifier.weight(1f).fillMaxWidth(),
+        ) {
+            if (LocalIsLargeScreen.current) {
+                navigationUi.Rail()
+                VerticalDivider(
+                    modifier = Modifier
+                        .width(1.dp)
+                        .fillMaxHeight(),
+                    color = CustomColors.MenuDividerColor,
                 )
+            }
+            Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
+                RootNavContent(
+                    windowInsets = windowInsets,
+                    navController = navController,
+                    current = current,
+                    viewModelEventHandlers = viewModelEventHandlers,
+                    rootCoroutineScope = rootCoroutineScope,
+                    globalEventSender = globalEventSender,
+                    globalEvent = globalEvent,
+                    homeAddTabScreenUiStateProvider = {
+                        mailScreenViewModel.uiStateFlow.collectAsState().value
+                    },
+                    usageCalendarUiStateProvider = { yearMonth ->
+                        val coroutineScope = rememberCoroutineScope()
+                        val viewModel = LocalViewModelProviders.current
+                            .moneyUsagesCalendarViewModel(
+                                coroutineScope = coroutineScope,
+                                rootUsageHostViewModel = rootUsageHostViewModel,
+                                yearMonth = yearMonth,
+                            )
 
-            LaunchedEffect(viewModel.viewModelEventHandler) {
-                viewModelEventHandlers.handleMoneyUsagesCalendar(
-                    handler = viewModel.viewModelEventHandler,
-                )
-            }
-            viewModel.uiStateFlow.collectAsState().value
-        },
-        usageListUiStateProvider = {
-            val coroutineScope = rememberCoroutineScope()
-            val viewModel = LocalViewModelProviders.current
-                .moneyUsagesListViewModel(
-                    coroutineScope = coroutineScope,
-                    rootUsageHostViewModel = rootUsageHostViewModel,
-                )
-            LaunchedEffect(viewModel.viewModelEventHandler) {
-                viewModelEventHandlers.handleMoneyUsagesList(
-                    handler = viewModel.viewModelEventHandler,
-                )
-            }
-            viewModel.uiStateFlow.collectAsState().value
-        },
-        importMailLinkScreenUiStateProvider = {
-            val mailImportViewModel = LocalViewModelProviders.current
-                .mailImportViewModel()
-            LaunchedEffect(mailImportViewModel.eventHandler) {
-                viewModelEventHandlers.handleMailImport(mailImportViewModel.eventHandler)
-            }
+                        LaunchedEffect(viewModel.viewModelEventHandler) {
+                            viewModelEventHandlers.handleMoneyUsagesCalendar(
+                                handler = viewModel.viewModelEventHandler,
+                            )
+                        }
+                        viewModel.uiStateFlow.collectAsState().value
+                    },
+                    usageListUiStateProvider = {
+                        val coroutineScope = rememberCoroutineScope()
+                        val viewModel = LocalViewModelProviders.current
+                            .moneyUsagesListViewModel(
+                                coroutineScope = coroutineScope,
+                                rootUsageHostViewModel = rootUsageHostViewModel,
+                            )
+                        LaunchedEffect(viewModel.viewModelEventHandler) {
+                            viewModelEventHandlers.handleMoneyUsagesList(
+                                handler = viewModel.viewModelEventHandler,
+                            )
+                        }
+                        viewModel.uiStateFlow.collectAsState().value
+                    },
+                    importMailLinkScreenUiStateProvider = {
+                        val mailImportViewModel = LocalViewModelProviders.current
+                            .mailImportViewModel()
+                        LaunchedEffect(mailImportViewModel.eventHandler) {
+                            viewModelEventHandlers.handleMailImport(mailImportViewModel.eventHandler)
+                        }
 
-            mailImportViewModel.rootUiStateFlow.collectAsState().value
-        },
-        importMailScreenUiStateProvider = { screenStructure ->
-            val importedMailListViewModel = LocalViewModelProviders.current
-                .importedMailListViewModel()
-            LaunchedEffect(screenStructure) {
-                importedMailListViewModel.updateQuery(screenStructure)
+                        mailImportViewModel.rootUiStateFlow.collectAsState().value
+                    },
+                    importMailScreenUiStateProvider = { screenStructure ->
+                        val importedMailListViewModel = LocalViewModelProviders.current
+                            .importedMailListViewModel()
+                        LaunchedEffect(screenStructure) {
+                            importedMailListViewModel.updateQuery(screenStructure)
+                        }
+                        LaunchedEffect(importedMailListViewModel.eventHandler) {
+                            viewModelEventHandlers.handleMailLink(importedMailListViewModel.eventHandler)
+                        }
+                        importedMailListViewModel.rootUiStateFlow.collectAsState().value
+                    },
+                    settingUiStateProvider = {
+                        settingViewModel.uiState.collectAsState().value
+                    },
+                    rootHomeTabPeriodAllContentUiStateProvider = { current ->
+                        val allContentViewModel = LocalViewModelProviders.current
+                            .rootHomeTabPeriodAllContentViewModel()
+                        LaunchedEffect(allContentViewModel, current) {
+                            allContentViewModel.updateStructure(current)
+                        }
+                        LaunchedEffect(allContentViewModel.eventHandler) {
+                            viewModelEventHandlers.handleRootHomeTabPeriodAllContent(allContentViewModel.eventHandler)
+                        }
+                        allContentViewModel.uiStateFlow.collectAsState().value
+                    },
+                )
             }
-            LaunchedEffect(importedMailListViewModel.eventHandler) {
-                viewModelEventHandlers.handleMailLink(importedMailListViewModel.eventHandler)
-            }
-            importedMailListViewModel.rootUiStateFlow.collectAsState().value
-        },
-        settingUiStateProvider = {
-            settingViewModel.uiState.collectAsState().value
-        },
-        navigationUi = navigationUi,
-        rootHomeTabPeriodAllContentUiStateProvider = { current ->
-            val allContentViewModel = LocalViewModelProviders.current
-                .rootHomeTabPeriodAllContentViewModel()
-            LaunchedEffect(allContentViewModel, current) {
-                allContentViewModel.updateStructure(current)
-            }
-            LaunchedEffect(allContentViewModel.eventHandler) {
-                viewModelEventHandlers.handleRootHomeTabPeriodAllContent(allContentViewModel.eventHandler)
-            }
-            allContentViewModel.uiStateFlow.collectAsState().value
-        },
-    )
+        }
+        if (LocalIsLargeScreen.current.not()) {
+            navigationUi.Bottom()
+        }
+    }
 }
