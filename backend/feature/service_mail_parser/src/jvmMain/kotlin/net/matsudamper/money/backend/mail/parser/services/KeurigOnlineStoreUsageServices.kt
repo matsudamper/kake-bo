@@ -39,7 +39,7 @@ internal object KeurigOnlineStoreUsageServices : MoneyUsageServices {
                         for (item in getSelection(lines)) {
                             appendLine("${item.name} × ${item.quantity}個")
                         }
-                    },
+                    }.trim(),
                     service = MoneyUsageServiceType.KeurigOnlineStore,
                     dateTime = forwardedInfo?.date ?: date,
                 ),
