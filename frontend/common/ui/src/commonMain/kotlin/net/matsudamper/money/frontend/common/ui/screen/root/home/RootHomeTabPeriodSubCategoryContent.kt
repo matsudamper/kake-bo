@@ -26,12 +26,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolder
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
+import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraph
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun RootHomeTabPeriodSubCategoryScreen(
     uiState: RootHomeTabPeriodSubCategoryContentUiState,
+    navigationUi: SharedNavigation,
     windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
@@ -68,6 +70,7 @@ public fun RootHomeTabPeriodSubCategoryScreen(
             }
         },
         windowInsets = windowInsets,
+        navigationUi = navigationUi,
     )
 }
 

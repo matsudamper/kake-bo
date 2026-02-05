@@ -26,6 +26,7 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
+import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
@@ -90,6 +91,7 @@ public data class ImapSettingScreenUiState(
 public fun ImapConfigScreen(
     modifier: Modifier = Modifier,
     uiState: ImapSettingScreenUiState,
+    navigationUi: SharedNavigation,
     windowInsets: PaddingValues,
 ) {
     LaunchedEffect(Unit) {
@@ -132,6 +134,7 @@ public fun ImapConfigScreen(
             )
         },
         windowInsets = windowInsets,
+        navigationUi = navigationUi,
         content = {
             when (val loadingState = uiState.loadingState) {
                 is ImapSettingScreenUiState.LoadingState.Loaded -> {

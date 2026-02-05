@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.sp
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
+import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
@@ -56,6 +57,7 @@ import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 public fun MailImportScreen(
     uiState: ImportMailScreenUiState,
     windowInsets: PaddingValues,
+    navigationUi: SharedNavigation,
     modifier: Modifier = Modifier,
 ) {
     LaunchedEffect(uiState.event) {
@@ -83,6 +85,7 @@ public fun MailImportScreen(
         currentScreen = RootScreenTab.Add,
         listener = uiState.rootScreenScaffoldListener,
         windowInsets = windowInsets,
+        navigationUi = navigationUi,
         topBar = {
             KakeBoTopAppBar(
                 title = {

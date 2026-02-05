@@ -50,6 +50,7 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
+import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
 public data class SettingCategoryScreenUiState(
@@ -112,6 +113,7 @@ public fun SettingCategoryScreen(
     modifier: Modifier = Modifier,
     uiState: SettingCategoryScreenUiState,
     windowInsets: PaddingValues,
+    navigationUi: SharedNavigation,
 ) {
     LaunchedEffect(Unit) {
         uiState.event.onResume()
@@ -159,6 +161,7 @@ public fun SettingCategoryScreen(
         modifier = modifier.fillMaxSize(),
         currentScreen = RootScreenTab.Settings,
         listener = uiState.rootScreenScaffoldListener,
+        navigationUi = navigationUi,
         topBar = {
             KakeBoTopAppBar(
                 title = {

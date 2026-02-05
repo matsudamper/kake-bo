@@ -1,14 +1,22 @@
 package net.matsudamper.money.ui.root
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
+import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
@@ -29,20 +37,55 @@ internal fun RootScreenContainer(
     globalEvent: GlobalEvent,
     windowInsets: PaddingValues,
 ) {
+    val windowInsets = WindowInsets.safeDrawing.asPaddingValues()
+    val navigationUi = remember { SharedNavigation() }
+    LaunchedEffect(windowInsets) {
+        navigationUi.windowInsets = windowInsets
+    }
+    LaunchedEffect(Unit) {
+        // TODO 各画面で別々にBottomNavigationUIを持っているのをやめる。移行中のコード
+        navigationUi.listener = object : RootScreenScaffoldListener {
+            override val kakeboScaffoldListener: KakeboScaffoldListener = object : KakeboScaffoldListener {
+                override fun onClickTitle() {
+                    navController.navigateToHome()
+                }
+            }
+
+            override fun onClickHome() {
+                navController.navigate(RootHomeScreenStructure.Home)
+            }
+
+            override fun onClickList() {
+                navController.navigate(ScreenStructure.Root.Usage.Calendar())
+            }
+
+            override fun onClickSettings() {
+                navController.navigate(ScreenStructure.Root.Settings.Root)
+            }
+
+            override fun onClickAdd() {
+                navController.navigate(ScreenStructure.Root.Add.Root)
+            }
+        }
+    }
     LaunchedEffect(current, settingViewModel) {
         when (current) {
             is RootHomeScreenStructure -> {
+                navigationUi.currentScreen = RootScreenTab.Home
             }
 
             is ScreenStructure.Root.Add -> {
+                navigationUi.currentScreen = RootScreenTab.Add
                 mailScreenViewModel.updateScreenStructure(current)
             }
 
             is ScreenStructure.Root.Settings -> {
+                navigationUi.currentScreen = RootScreenTab.Settings
                 settingViewModel.updateLastStructure(current)
             }
 
             is ScreenStructure.Root.Usage -> {
+                navigationUi.currentScreen = RootScreenTab.List
                 rootUsageHostViewModel.updateStructure(current)
             }
         }
@@ -114,6 +157,7 @@ internal fun RootScreenContainer(
         settingUiStateProvider = {
             settingViewModel.uiState.collectAsState().value
         },
+        navigationUi = navigationUi,
         rootHomeTabPeriodAllContentUiStateProvider = { current ->
             val allContentViewModel = LocalViewModelProviders.current
                 .rootHomeTabPeriodAllContentViewModel()

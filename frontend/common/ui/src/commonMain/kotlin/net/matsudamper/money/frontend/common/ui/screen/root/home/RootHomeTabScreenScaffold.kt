@@ -16,10 +16,12 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
+import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 
 @Composable
 public fun RootHomeTabScreenScaffold(
     scaffoldListener: RootScreenScaffoldListener,
+    navigationUi: SharedNavigation,
     modifier: Modifier = Modifier,
     menu: @Composable () -> Unit = {},
     windowInsets: PaddingValues,
@@ -29,6 +31,7 @@ public fun RootHomeTabScreenScaffold(
         modifier = modifier.fillMaxSize(),
         currentScreen = RootScreenTab.Home,
         listener = scaffoldListener,
+        navigationUi = navigationUi,
         windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(

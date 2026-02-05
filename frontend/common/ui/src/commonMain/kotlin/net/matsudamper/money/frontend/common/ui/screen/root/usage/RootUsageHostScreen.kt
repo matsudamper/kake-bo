@@ -46,6 +46,7 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
+import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
@@ -114,6 +115,7 @@ public fun RootUsageHostScreen(
     modifier: Modifier = Modifier,
     uiState: RootUsageHostScreenUiState,
     windowInsets: PaddingValues,
+    navigationUi: SharedNavigation,
     content: @Composable () -> Unit,
 ) {
     uiState.textInputUiState?.also {
@@ -155,6 +157,7 @@ public fun RootUsageHostScreen(
                 windowInsets = windowInsets,
             )
         },
+        navigationUi = navigationUi,
         content = {
             Column {
                 Spacer(modifier = Modifier.height(12.dp))

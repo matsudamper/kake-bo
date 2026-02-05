@@ -27,6 +27,7 @@ import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraph
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
 
@@ -58,6 +59,7 @@ public data class RootHomeTabPeriodAllContentUiState(
 public fun RootHomeTabPeriodAllScreen(
     modifier: Modifier = Modifier,
     uiState: RootHomeTabPeriodAllContentUiState,
+    navigationUi: SharedNavigation,
     contentPadding: PaddingValues,
 ) {
     RootHomeTabPeriodScaffold(
@@ -66,6 +68,7 @@ public fun RootHomeTabPeriodAllScreen(
         scaffoldListener = uiState.scaffoldListener,
         windowInsets = contentPadding,
         onRefresh = { uiState.event.refresh() },
+        navigationUi = navigationUi,
     ) {
         when (val loadingState = uiState.loadingState) {
             is RootHomeTabPeriodAllContentUiState.LoadingState.Loaded -> {

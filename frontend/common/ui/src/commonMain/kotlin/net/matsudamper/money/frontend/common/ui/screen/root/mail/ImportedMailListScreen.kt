@@ -58,6 +58,7 @@ import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
+import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
@@ -66,6 +67,7 @@ public fun ImportedMailListScreen(
     modifier: Modifier = Modifier,
     uiState: ImportedMailListScreenUiState,
     windowInsets: PaddingValues,
+    navigationUi: SharedNavigation,
 ) {
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
@@ -76,6 +78,7 @@ public fun ImportedMailListScreen(
         currentScreen = RootScreenTab.Add,
         listener = uiState.rootScreenScaffoldListener,
         windowInsets = windowInsets,
+        navigationUi = navigationUi,
         topBar = {
             KakeBoTopAppBar(
                 title = {

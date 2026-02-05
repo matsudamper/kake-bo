@@ -34,9 +34,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.base.PreviewSharedNavigation
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
+import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 public data class RootSettingScreenUiState(
@@ -64,6 +66,7 @@ public data class RootSettingScreenUiState(
 public fun SettingRootScreen(
     modifier: Modifier = Modifier,
     uiState: RootSettingScreenUiState,
+    navigationUi: SharedNavigation,
     windowInsets: PaddingValues,
 ) {
     LaunchedEffect(Unit) {
@@ -91,6 +94,7 @@ public fun SettingRootScreen(
                 windowInsets = windowInsets,
             )
         },
+        navigationUi = navigationUi,
         content = {
             SettingScaffold(
                 modifier = Modifier.fillMaxSize(),
@@ -220,5 +224,6 @@ private fun Preview() {
             },
         ),
         windowInsets = PaddingValues(),
+        navigationUi = PreviewSharedNavigation,
     )
 }

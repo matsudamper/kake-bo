@@ -36,6 +36,7 @@ import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
+import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 
@@ -90,6 +91,7 @@ public data class RootHomeMonthlyCategoryScreenUiState(
 @Composable
 public fun RootHomeMonthlyCategoryScreen(
     uiState: RootHomeMonthlyCategoryScreenUiState,
+    navigationUi: SharedNavigation,
     modifier: Modifier = Modifier,
     windowInsets: PaddingValues,
 ) {
@@ -101,6 +103,7 @@ public fun RootHomeMonthlyCategoryScreen(
         currentScreen = RootScreenTab.Home,
         listener = uiState.scaffoldListener,
         windowInsets = windowInsets,
+        navigationUi = navigationUi,
         topBar = {
             KakeBoTopAppBar(
                 title = {

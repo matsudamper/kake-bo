@@ -39,6 +39,7 @@ import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
+import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
 public data class SettingMailCategoryFilterScreenUiState(
@@ -94,6 +95,7 @@ public data class SettingMailCategoryFilterScreenUiState(
 public fun SettingMailCategoryFiltersScreen(
     modifier: Modifier = Modifier,
     uiState: SettingMailCategoryFilterScreenUiState,
+    navigationUi: SharedNavigation,
     windowInsets: PaddingValues,
 ) {
     LaunchedEffect(Unit) {
@@ -134,6 +136,7 @@ public fun SettingMailCategoryFiltersScreen(
         },
         currentScreen = RootScreenTab.Settings,
         listener = uiState.rootScreenScaffoldListener,
+        navigationUi = navigationUi,
     ) {
         SettingScaffold(
             title = {

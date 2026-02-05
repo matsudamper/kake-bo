@@ -23,6 +23,7 @@ import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolder
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraph
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
 
@@ -55,6 +56,7 @@ public data class RootHomeTabPeriodCategoryContentUiState(
 public fun RootHomeTabPeriodCategoryScreen(
     modifier: Modifier = Modifier,
     uiState: RootHomeTabPeriodCategoryContentUiState,
+    navigationUi: SharedNavigation,
     windowInsets: PaddingValues,
 ) {
     val savedState = rememberSaveableStateHolder(id = "RootHomeTabPeriodCategoryScreen")
@@ -91,6 +93,7 @@ public fun RootHomeTabPeriodCategoryScreen(
             }
         },
         windowInsets = windowInsets,
+        navigationUi = navigationUi,
     )
 }
 
