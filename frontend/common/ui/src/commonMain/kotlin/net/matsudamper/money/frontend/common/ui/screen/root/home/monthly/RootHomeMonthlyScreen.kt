@@ -87,7 +87,6 @@ public data class RootHomeMonthlyScreenUiState(
 @Composable
 public fun RootHomeMonthlyScreen(
     uiState: RootHomeMonthlyScreenUiState,
-    windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
 ) {
     LaunchedEffect(Unit) {

@@ -51,7 +51,6 @@ public fun RootHomeMonthlyPagerHostScreen(
                 RootHomeMonthlyScreen(
                     modifier = Modifier,
                     uiState = uiStateProvider(item.navigation),
-                    windowInsets = windowInsets,
                 )
             }
         },
