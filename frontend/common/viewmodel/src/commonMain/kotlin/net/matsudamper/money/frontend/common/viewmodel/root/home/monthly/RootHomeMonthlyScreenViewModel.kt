@@ -37,10 +37,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionType
 import net.matsudamper.money.frontend.common.ui.screen.root.home.monthly.RootHomeMonthlyScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
-import net.matsudamper.money.frontend.common.viewmodel.PlatformType
-import net.matsudamper.money.frontend.common.viewmodel.PlatformTypeProvider
 import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
-import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
@@ -81,13 +78,6 @@ public class RootHomeMonthlyScreenViewModel(
             loadingState = RootHomeMonthlyScreenUiState.LoadingState.Loading,
             currentSortType = SortSectionType.Date,
             sortOrder = SortSectionOrder.Ascending,
-            scaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
-                override fun onClickHome() {
-                    if (PlatformTypeProvider.type == PlatformType.JS) {
-                        super.onClickHome()
-                    }
-                }
-            },
             event = object : RootHomeMonthlyScreenUiState.Event {
                 override suspend fun onViewInitialized() {
                     viewModelScope.launch {

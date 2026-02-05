@@ -32,17 +32,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
-import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreenScaffold
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSection
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionOrder
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionType
 
 public data class RootHomeMonthlyScreenUiState(
     val loadingState: LoadingState,
-    val scaffoldListener: RootScreenScaffoldListener,
     val event: Event,
     val currentSortType: SortSectionType,
     val sortOrder: SortSectionOrder,
@@ -96,37 +93,30 @@ public fun RootHomeMonthlyScreen(
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
     }
-    RootHomeTabScreenScaffold(
-        scaffoldListener = uiState.scaffoldListener,
-        modifier = modifier,
-        content = {
-            when (val loadingState = uiState.loadingState) {
-                is RootHomeMonthlyScreenUiState.LoadingState.Loaded -> {
-                    LoadedContent(
-                        modifier = Modifier.fillMaxSize(),
-                        loadingState = loadingState,
-                        uiState = uiState,
-                    )
-                }
+    when (val loadingState = uiState.loadingState) {
+        is RootHomeMonthlyScreenUiState.LoadingState.Loaded -> {
+            LoadedContent(
+                modifier = Modifier.fillMaxSize(),
+                loadingState = loadingState,
+                uiState = uiState,
+            )
+        }
 
-                RootHomeMonthlyScreenUiState.LoadingState.Loading -> {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    }
-                }
-
-                RootHomeMonthlyScreenUiState.LoadingState.Error -> {
-                    LoadingErrorContent(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClickRetry = {
-                            // TODO
-                        },
-                    )
-                }
+        RootHomeMonthlyScreenUiState.LoadingState.Loading -> {
+            Box(modifier = Modifier.fillMaxSize()) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
-        },
-        windowInsets = windowInsets,
-    )
+        }
+
+        RootHomeMonthlyScreenUiState.LoadingState.Error -> {
+            LoadingErrorContent(
+                modifier = Modifier.fillMaxWidth(),
+                onClickRetry = {
+                    // TODO
+                },
+            )
+        }
+    }
 }
 
 @Composable
