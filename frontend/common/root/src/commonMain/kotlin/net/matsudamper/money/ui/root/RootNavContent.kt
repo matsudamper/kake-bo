@@ -82,7 +82,7 @@ internal fun RootNavContent(
                 when (current) {
                     is RootHomeScreenStructure.Monthly -> {
                         holder.SaveableStateProvider(RootHomeScreenStructure.Monthly::class.simpleName!!) {
-                            val viewModel = LocalScopedObjectStore.current.putOrGet<RootHomeMonthlyScreenViewModel>(Unit) {
+                            val viewModel = LocalScopedObjectStore.current.putOrGet<RootHomeMonthlyScreenViewModel>(current) {
                                 RootHomeMonthlyScreenViewModel(
                                     scopedObjectFeature = it,
                                     loginCheckUseCase = loginCheckUseCase,
@@ -169,7 +169,7 @@ internal fun RootNavContent(
                     }
 
                     is RootHomeScreenStructure.MonthlyCategory -> {
-                        val monthlyCategoryViewModel = LocalScopedObjectStore.current.putOrGet<RootHomeMonthlyCategoryScreenViewModel>(Unit) {
+                        val monthlyCategoryViewModel = LocalScopedObjectStore.current.putOrGet<RootHomeMonthlyCategoryScreenViewModel>(current) {
                             RootHomeMonthlyCategoryScreenViewModel(
                                 argument = current,
                                 scopedObjectFeature = it,
@@ -194,7 +194,7 @@ internal fun RootNavContent(
 
                     is RootHomeScreenStructure.MonthlySubCategory -> {
                         val monthlySubCategoryViewModel = LocalScopedObjectStore.current.putOrGet<RootHomeMonthlySubCategoryScreenViewModel>(
-                            Unit,
+                            current,
                         ) {
                             RootHomeMonthlySubCategoryScreenViewModel(
                                 argument = current,
