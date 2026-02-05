@@ -42,7 +42,6 @@ public class RootHomeMonthlyPagerHostViewModel(
                 }
             },
             pages = buildList {
-                // currentMonth// 現在のシステムタイムゾーンで今日の日付を取得
                 val current = Clock.System.todayIn(TimeZone.currentSystemDefault())
                 val initialDate = initial.date ?: current
                 for (index in -betweenPageCount..betweenPageCount) {
