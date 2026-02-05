@@ -180,4 +180,8 @@ public enum class MoneyUsageServiceType(
         id = 45,
         displayName = "日清食品グループ オンラインストア",
     ),
+    KeurigOnlineStore(
+        id = 46,
+        displayName = "キューリグオンラインストア",
+    ),
 }
