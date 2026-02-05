@@ -176,4 +176,8 @@ public enum class MoneyUsageServiceType(
         id = 44,
         displayName = "ソフマップ",
     ),
+    NissinOnlineStore(
+        id = 45,
+        displayName = "日清食品グループ オンラインストア",
+    ),
 }
