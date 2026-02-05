@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.layout.MonthlyPager
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreenScaffold
@@ -84,6 +85,8 @@ public data class RootHomeMonthlyScreenUiState(
         public suspend fun onViewInitialized()
         public fun onSortTypeChanged(sortType: SortSectionType)
         public fun onSortOrderChanged(order: SortSectionOrder)
+        public fun onSwipeToNextMonth()
+        public fun onSwipeToPreviousMonth()
     }
 }
 
@@ -100,28 +103,34 @@ public fun RootHomeMonthlyScreen(
         scaffoldListener = uiState.scaffoldListener,
         modifier = modifier,
         content = {
-            when (val loadingState = uiState.loadingState) {
-                is RootHomeMonthlyScreenUiState.LoadingState.Loaded -> {
-                    LoadedContent(
-                        modifier = Modifier.fillMaxSize(),
-                        loadingState = loadingState,
-                        uiState = uiState,
-                    )
-                }
-
-                RootHomeMonthlyScreenUiState.LoadingState.Loading -> {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            MonthlyPager(
+                onNavigateToNextMonth = { uiState.event.onSwipeToNextMonth() },
+                onNavigateToPreviousMonth = { uiState.event.onSwipeToPreviousMonth() },
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                when (val loadingState = uiState.loadingState) {
+                    is RootHomeMonthlyScreenUiState.LoadingState.Loaded -> {
+                        LoadedContent(
+                            modifier = Modifier.fillMaxSize(),
+                            loadingState = loadingState,
+                            uiState = uiState,
+                        )
                     }
-                }
 
-                RootHomeMonthlyScreenUiState.LoadingState.Error -> {
-                    LoadingErrorContent(
-                        modifier = Modifier.fillMaxWidth(),
-                        onClickRetry = {
-                            // TODO
-                        },
-                    )
+                    RootHomeMonthlyScreenUiState.LoadingState.Loading -> {
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                        }
+                    }
+
+                    RootHomeMonthlyScreenUiState.LoadingState.Error -> {
+                        LoadingErrorContent(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClickRetry = {
+                                // TODO
+                            },
+                        )
+                    }
                 }
             }
         },

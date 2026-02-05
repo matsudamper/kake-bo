@@ -57,7 +57,7 @@ public class RootHomeMonthlyScreenViewModel(
     argument: RootHomeScreenStructure.Monthly,
     loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
     private val graphqlClient: GraphqlClient,
-    navController: ScreenNavController,
+    private val navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val reservedColorModel = ReservedColorModel()
 
@@ -136,6 +136,14 @@ public class RootHomeMonthlyScreenViewModel(
                         type = viewModelStateFlow.value.sortStateMap.currentSortType,
                         order = order,
                     )
+                }
+
+                override fun onSwipeToNextMonth() {
+                    navigateMonth(1)
+                }
+
+                override fun onSwipeToPreviousMonth() {
+                    navigateMonth(-1)
                 }
             },
         ),
@@ -220,6 +228,16 @@ public class RootHomeMonthlyScreenViewModel(
                 }
             }
         }
+    }
+
+    private fun navigateMonth(offset: Int) {
+        val currentDate = viewModelStateFlow.value.argument.date
+            ?: Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        val targetDate = LocalDate(currentDate.year, currentDate.monthNumber, 1)
+            .plus(offset, DateTimeUnit.MONTH)
+        navController.navigate(
+            RootHomeScreenStructure.Monthly(date = targetDate),
+        )
     }
 
     public fun updateStructure(current: RootHomeScreenStructure.Monthly) {

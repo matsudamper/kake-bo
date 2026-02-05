@@ -123,6 +123,14 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
                         order = order,
                     )
                 }
+
+                override fun onSwipeToNextMonth() {
+                    navigateMonth(1)
+                }
+
+                override fun onSwipeToPreviousMonth() {
+                    navigateMonth(-1)
+                }
             },
             loadingState = RootHomeMonthlySubCategoryScreenUiState.LoadingState.Loading,
             headerTitle = "",
@@ -188,6 +196,19 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
                     }
                 }
             },
+        )
+    }
+
+    private fun navigateMonth(offset: Int) {
+        val state = viewModelStateFlow.value
+        val targetDate = LocalDate(state.year, state.month, 1)
+            .plus(offset, DateTimeUnit.MONTH)
+        navController.navigate(
+            RootHomeScreenStructure.MonthlySubCategory(
+                subCategoryId = state.subCategoryId,
+                year = targetDate.year,
+                month = targetDate.monthNumber,
+            ),
         )
     }
 

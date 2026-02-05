@@ -130,6 +130,14 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                         order = order,
                     )
                 }
+
+                override fun onSwipeToNextMonth() {
+                    navigateMonth(1)
+                }
+
+                override fun onSwipeToPreviousMonth() {
+                    navigateMonth(-1)
+                }
             },
             loadingState = RootHomeMonthlyCategoryScreenUiState.LoadingState.Loading,
             headerTitle = "",
@@ -210,6 +218,19 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                     },
                 )
             }.toImmutableList()
+    }
+
+    private fun navigateMonth(offset: Int) {
+        val state = viewModelStateFlow.value
+        val targetDate = LocalDate(state.year, state.month, 1)
+            .plus(offset, DateTimeUnit.MONTH)
+        navController.navigate(
+            RootHomeScreenStructure.MonthlyCategory(
+                categoryId = state.categoryId,
+                year = targetDate.year,
+                month = targetDate.monthNumber,
+            ),
+        )
     }
 
     public fun updateStructure(current: RootHomeScreenStructure.MonthlyCategory) {

@@ -48,5 +48,7 @@ public data class RootHomeMonthlySubCategoryScreenUiState(
         public fun onViewInitialized()
         public fun onSortTypeChanged(sortType: SortSectionType)
         public fun onSortOrderChanged(order: SortSectionOrder)
+        public fun onSwipeToNextMonth()
+        public fun onSwipeToPreviousMonth()
     }
 }
