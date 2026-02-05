@@ -20,6 +20,7 @@ import net.matsudamper.money.backend.mail.parser.services.FanzaDojinUsageService
 import net.matsudamper.money.backend.mail.parser.services.GooglePlayUsageService
 import net.matsudamper.money.backend.mail.parser.services.JapanTsushinUsageServices
 import net.matsudamper.money.backend.mail.parser.services.KaldiCoffeeFarmUsageServices
+import net.matsudamper.money.backend.mail.parser.services.KeurigOnlineStoreUsageServices
 import net.matsudamper.money.backend.mail.parser.services.MacdonaldsMobileOrderUsageService
 import net.matsudamper.money.backend.mail.parser.services.MicrosoftUsageServices
 import net.matsudamper.money.backend.mail.parser.services.MountbellUsageServices
@@ -110,6 +111,7 @@ public object MailParser {
             SofmapUsageServices,
             NissinOnlineStoreUsageServices,
             VpassUsageServices,
+            KeurigOnlineStoreUsageServices,
         )
             .mapNotNull {
                 runCatching {
