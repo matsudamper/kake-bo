@@ -113,6 +113,14 @@ public class MoneyUsagesCalendarViewModel(
                         rootUsageHostViewModel.calendarPagingModel.refresh()
                     }
                 }
+
+                override fun onSwipePrevMonth() {
+                    prevMonth()
+                }
+
+                override fun onSwipeNextMonth() {
+                    nextMonth()
+                }
             },
         ),
     ).also { uiStateFlow ->

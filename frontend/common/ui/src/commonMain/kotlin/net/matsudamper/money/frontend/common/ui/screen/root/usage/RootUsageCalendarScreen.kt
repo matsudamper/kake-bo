@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.ui.layout.calendarHorizontalSwipe
 
 public data class RootUsageCalendarScreenUiState(
     val event: Event,
@@ -100,6 +101,8 @@ public data class RootUsageCalendarScreenUiState(
     public interface Event {
         public suspend fun onViewInitialized()
         public fun refresh()
+        public fun onSwipePrevMonth()
+        public fun onSwipeNextMonth()
     }
 }
 
@@ -129,7 +132,12 @@ public fun RootUsageCalendarScreen(
             }
         },
     ) {
-        BoxWithConstraints(modifier) {
+        BoxWithConstraints(
+            modifier = Modifier.calendarHorizontalSwipe(
+                onSwipeLeft = { uiState.event.onSwipeNextMonth() },
+                onSwipeRight = { uiState.event.onSwipePrevMonth() },
+            ),
+        ) {
             when (uiState.loadingState) {
                 is RootUsageCalendarScreenUiState.LoadingState.Loaded -> {
                     var buttonSize: IntSize by remember { mutableStateOf(IntSize.Zero) }
