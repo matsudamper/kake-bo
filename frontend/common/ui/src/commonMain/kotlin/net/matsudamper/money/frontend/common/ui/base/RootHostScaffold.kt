@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.only
@@ -36,7 +37,7 @@ public fun RootHostScaffold(
     onClickTab: (RootScreenTab) -> Unit,
     windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
+    content: @Composable (PaddingValues) -> Unit,
 ) {
     Column(modifier) {
         Row(
@@ -111,7 +112,11 @@ public fun RootHostScaffold(
                     .weight(1f)
                     .fillMaxHeight(),
             ) {
-                content()
+                content(
+                    windowInsets.asWindowInsets()
+                        .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+                        .asPaddingValues(),
+                )
             }
         }
         if (LocalIsLargeScreen.current.not()) {

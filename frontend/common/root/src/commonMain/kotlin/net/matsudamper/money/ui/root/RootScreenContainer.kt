@@ -98,9 +98,9 @@ internal fun RootScreenContainer(
             currentScreen = currentScreen,
             onClickTab = onClickTab,
             windowInsets = windowInsets,
-        ) {
+        ) { paddingValues ->
             RootNavContent(
-                windowInsets = windowInsets,
+                windowInsets = paddingValues,
                 navController = navController,
                 current = current,
                 viewModelEventHandlers = viewModelEventHandlers,
