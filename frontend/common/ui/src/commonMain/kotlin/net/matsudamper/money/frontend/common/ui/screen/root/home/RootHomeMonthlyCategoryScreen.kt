@@ -22,9 +22,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +37,7 @@ import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
+import net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
@@ -143,9 +146,9 @@ private fun LoadedContent(
         modifier = modifier,
     ) {
         val lazyListState = rememberLazyListState()
-        val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
-        val scrollToTopHandler = net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler.current
-        androidx.compose.runtime.DisposableEffect(scrollToTopHandler, lazyListState) {
+        val coroutineScope = rememberCoroutineScope()
+        val scrollToTopHandler = LocalScrollToTopHandler.current
+        DisposableEffect(scrollToTopHandler, lazyListState) {
             val handler = {
                 if (lazyListState.firstVisibleItemIndex > 0 || lazyListState.firstVisibleItemScrollOffset > 0) {
                     coroutineScope.launch { lazyListState.animateScrollToItem(0) }

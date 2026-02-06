@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -37,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -123,8 +125,8 @@ private fun MainContent(
         ) {
             val scrollState = rememberScrollState()
             val coroutineScope = rememberCoroutineScope()
-            val scrollToTopHandler = net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler.current
-            androidx.compose.runtime.DisposableEffect(scrollToTopHandler, scrollState) {
+            val scrollToTopHandler = LocalScrollToTopHandler.current
+            DisposableEffect(scrollToTopHandler, scrollState) {
                 val handler = {
                     if (scrollState.value > 0) {
                         coroutineScope.launch { scrollState.animateScrollTo(0) }
