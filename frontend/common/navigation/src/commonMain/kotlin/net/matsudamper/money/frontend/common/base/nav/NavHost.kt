@@ -60,6 +60,9 @@ public fun NavHostScopeProvider(
     val currentBackstackEntry = navController.currentBackstackEntry
     if (currentBackstackEntry != null) {
         CompositionLocalProvider(
+            // createOrGetScopedObjectStoreでScopedObjectStoreが再生成される事によって別のインスタンスが生成される事によって不具合が生じている
+            // ホームから別の画面に切り替えた瞬間に別のインスタンスが生成されてします。それによってViewModelが再生成されてしまう。
+            // なのでViewModelの生成に必要な値をNavDisplay側で入れてあげたほうが良い。完了が完全に分離される
             LocalScopedObjectStore provides scopedObjectStoreOwner
                 .createOrGetScopedObjectStore(currentBackstackEntry.sameScreenId),
         ) {
