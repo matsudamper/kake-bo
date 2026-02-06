@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -215,6 +216,21 @@ public fun Content(
                 Box(
                     modifier = Modifier.fillMaxSize(),
                 ) {
+                    val movableRoot = remember {
+                        movableContentOf { current: ScreenStructure.Root ->
+                            RootScreenContainer(
+                                current = current,
+                                navController = navController,
+                                settingViewModel = settingViewModel,
+                                mailScreenViewModel = mailScreenViewModel,
+                                rootUsageHostViewModel = rootUsageHostViewModel,
+                                viewModelEventHandlers = viewModelEventHandlers,
+                                rootCoroutineScope = rootCoroutineScope,
+                                globalEventSender = globalEventSender,
+                                globalEvent = globalEvent,
+                            )
+                        }
+                    }
                     NavHost(
                         navController = navController,
                         entryProvider = entryProvider(
@@ -225,17 +241,7 @@ public fun Content(
                                             key = unknownScreen,
                                             contentKey = unknownScreen.sameScreenId,
                                         ) {
-                                            RootScreenContainer(
-                                                current = unknownScreen,
-                                                navController = navController,
-                                                settingViewModel = settingViewModel,
-                                                mailScreenViewModel = mailScreenViewModel,
-                                                rootUsageHostViewModel = rootUsageHostViewModel,
-                                                viewModelEventHandlers = viewModelEventHandlers,
-                                                rootCoroutineScope = rootCoroutineScope,
-                                                globalEventSender = globalEventSender,
-                                                globalEvent = globalEvent,
-                                            )
+                                            movableRoot(unknownScreen)
                                         }
                                     }
 
