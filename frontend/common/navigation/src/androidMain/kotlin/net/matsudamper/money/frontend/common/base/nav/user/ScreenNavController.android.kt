@@ -33,6 +33,25 @@ private class AndroidScreenNavControllerImpl(
     }
 
     override fun navigate(navigation: IScreenStructure, savedState: Boolean) {
+        if (navigation.stackGroupId != null && navigation.stackGroupId != currentBackstackEntry?.stackGroupId) {
+            val targetGroupTailIndex = navBackstack.indexOfLast { it.stackGroupId == navigation.stackGroupId }
+                .takeIf { it >= 0 }
+                ?.plus(1)
+
+            if (targetGroupTailIndex != null) {
+                val targetGroupStartIndex = navBackstack.take(targetGroupTailIndex)
+                    .indexOfLast { it.stackGroupId != navigation.stackGroupId }
+                    .plus(1)
+
+                val targetRange = navBackstack.subList(targetGroupStartIndex, targetGroupTailIndex).toList()
+                repeat(targetRange.size) {
+                    navBackstack.removeAt(targetGroupStartIndex)
+                }
+                navBackstack.addAll(targetRange)
+
+                return
+            }
+        }
         navBackstack.add(navigation)
     }
 

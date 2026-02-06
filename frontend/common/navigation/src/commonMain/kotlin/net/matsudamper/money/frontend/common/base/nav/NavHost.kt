@@ -5,11 +5,12 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.navigation3.runtime.NavEntry
-import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolder
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
@@ -20,13 +21,17 @@ public expect fun NavHost(
     entryProvider: (IScreenStructure) -> NavEntry<IScreenStructure>,
 )
 
+/**
+ * @param execSavableStateProvider JSとJVMでNav3を使うまでの間の暫定対応
+ */
 @Composable
 public fun NavHostScopeProvider(
     navController: ScreenNavController,
+    savedStateHolder: SaveableStateHolder = rememberSaveableStateHolder(),
+    execSavableStateProvider: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val scopedObjectStoreOwner = rememberScopedObjectStoreOwner("NavHost")
-    val holder = rememberSaveableStateHolder("NavHostSaveableStateHolder")
     run {
         var beforeScopeKey: List<String> by rememberSaveable { mutableStateOf(listOf()) }
         LaunchedEffect(navController) {
@@ -34,7 +39,7 @@ public fun NavHostScopeProvider(
                 .collect { savedScopeKeys ->
                     val removeScopeKeys = beforeScopeKey.filterNot { it in savedScopeKeys }
                     for (removeScope in removeScopeKeys) {
-                        holder.removeState(removeScope)
+                        savedStateHolder.removeState(removeScope)
                     }
                     beforeScopeKey = savedScopeKeys.toList()
                 }
@@ -58,7 +63,11 @@ public fun NavHostScopeProvider(
             LocalScopedObjectStore provides scopedObjectStoreOwner
                 .createOrGetScopedObjectStore(currentBackstackEntry.sameScreenId),
         ) {
-            holder.SaveableStateProvider(currentBackstackEntry.sameScreenId) {
+            if (execSavableStateProvider) {
+                savedStateHolder.SaveableStateProvider(currentBackstackEntry.scopeKey) {
+                    content()
+                }
+            } else {
                 content()
             }
         }
