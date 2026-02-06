@@ -36,6 +36,7 @@ public actual fun NavHost(
 ) {
     NavHostScopeProvider(
         navController = navController,
+        execSavableStateProvider = true,
     ) {
         val currentBackstackEntry = navController.currentBackstackEntry
         if (currentBackstackEntry != null) {
