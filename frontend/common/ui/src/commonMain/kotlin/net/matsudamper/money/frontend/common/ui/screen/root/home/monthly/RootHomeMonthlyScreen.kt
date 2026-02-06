@@ -48,6 +48,7 @@ public data class RootHomeMonthlyScreenUiState(
         public data object Error : LoadingState
 
         public data class Loaded(
+            val yearMonth: String,
             val totalAmount: String,
             val items: ImmutableList<Item>,
             val pieChartItems: ImmutableList<PieChartItem>,
@@ -138,11 +139,20 @@ private fun LoadedContent(
             ),
         ) {
             item {
-                Text(
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    text = loadingState.totalAmount,
-                    style = MaterialTheme.typography.titleMedium,
-                )
+                    verticalAlignment = Alignment.Bottom,
+                ) {
+                    Text(
+                        text = loadingState.yearMonth,
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = loadingState.totalAmount,
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                }
             }
             item {
                 if (loadingState.pieChartItems.isNotEmpty()) {

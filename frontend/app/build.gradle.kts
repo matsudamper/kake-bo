@@ -79,7 +79,9 @@ android {
     buildTypes {
         debug {
             val isCI = System.getenv("CI")?.toBoolean() ?: false
-            if (isCI.not()) {
+            if (isCI) {
+                applicationIdSuffix = ".ci"
+            } else {
                 signingConfig = signingConfigs.getByName("release")
             }
         }
