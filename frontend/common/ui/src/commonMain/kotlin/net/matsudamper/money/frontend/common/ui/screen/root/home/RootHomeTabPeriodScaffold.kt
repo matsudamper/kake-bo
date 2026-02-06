@@ -35,8 +35,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
-import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler
 
 public data class RootHomeTabPeriodAndCategoryUiState(

@@ -16,9 +16,9 @@ import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmu
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState.Filters.LinkStatus
-import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender

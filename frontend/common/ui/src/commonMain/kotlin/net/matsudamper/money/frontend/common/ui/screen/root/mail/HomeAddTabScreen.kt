@@ -31,8 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 
 public data class HomeAddTabScreenUiState(
     val kakeboScaffoldListener: KakeboScaffoldListener,

@@ -11,8 +11,8 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
-import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoryScreenUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
+import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoryScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
