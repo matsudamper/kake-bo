@@ -81,6 +81,7 @@ android {
             val isCI = System.getenv("CI")?.toBoolean() ?: false
             if (isCI) {
                 applicationIdSuffix = ".ci"
+                resValue("string", "app_name", "家計簿(CI)")
             } else {
                 signingConfig = signingConfigs.getByName("release")
             }
@@ -90,6 +91,7 @@ android {
         }
     }
     defaultConfig {
+        resValue("string", "app_name", "家計簿")
         minSdk = 34
         targetSdk = 36
         manifestPlaceholders["SERVER_HOST"] = System.getenv("ANDROID_SERVER_HOST") ?: localProperties["net.matsudamper.money.android.serverHost"] as String
