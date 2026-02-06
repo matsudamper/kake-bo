@@ -35,7 +35,7 @@ public class LoginScreenViewModel(
             val initialHost = if (serverHostConfig != null) {
                 serverHostConfig.savedHost.takeIf { it.isNotEmpty() }
                     ?: serverHostConfig.defaultHost.takeIf { it.isNotEmpty() }
-                    .orEmpty()
+                        .orEmpty()
             } else {
                 ""
             }

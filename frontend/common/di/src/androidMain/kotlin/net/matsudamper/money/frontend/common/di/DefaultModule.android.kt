@@ -34,7 +34,7 @@ internal actual val factory: Factory = object : Factory() {
         val config = scope.get<ServerHostConfig>()
         val initialHost = config.savedHost.takeIf { it.isNotEmpty() }
             ?: config.defaultHost.takeIf { it.isNotEmpty() }
-            .orEmpty()
+                .orEmpty()
         val initialServerUrl = if (initialHost.isNotEmpty()) {
             "${config.protocol}://$initialHost/query"
         } else {
