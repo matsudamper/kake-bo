@@ -41,7 +41,6 @@ internal fun RootScreenContainer(
     rootCoroutineScope: CoroutineScope,
     globalEventSender: EventSender<GlobalEvent>,
     globalEvent: GlobalEvent,
-    windowInsets: PaddingValues,
 ) {
     val windowInsets = WindowInsets.safeDrawing.asPaddingValues()
     var currentScreen by remember { mutableStateOf(RootScreenTab.Home) }
