@@ -102,7 +102,7 @@ koinCore = { module = "io.insert-koin:koin-core", version.require = "4.1.1" }
 
 # Log
 log4j-api = { module = "org.slf4j:slf4j-api", version.require = "2.0.17" }
-logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.5.27" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.5.28" }
 logstashLogbackEncoder = { module = "net.logstash.logback:logstash-logback-encoder", version.require = "9.0" }
 
 # Graphql
