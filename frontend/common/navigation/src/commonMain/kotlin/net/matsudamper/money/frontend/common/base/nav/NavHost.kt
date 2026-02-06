@@ -5,7 +5,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.navigation3.runtime.NavEntry
@@ -28,7 +28,7 @@ public fun NavHostScopeProvider(
     val scopedObjectStoreOwner = rememberScopedObjectStoreOwner("NavHost")
     val holder = rememberSaveableStateHolder("NavHostSaveableStateHolder")
     run {
-        var beforeScopeKey: List<String> by remember { mutableStateOf(listOf()) }
+        var beforeScopeKey: List<String> by rememberSaveable { mutableStateOf(listOf()) }
         LaunchedEffect(navController) {
             snapshotFlow { navController.savedScopeKeys }
                 .collect { savedScopeKeys ->
@@ -36,6 +36,7 @@ public fun NavHostScopeProvider(
                     for (removeScope in removeScopeKeys) {
                         holder.removeState(removeScope)
                     }
+                    beforeScopeKey = savedScopeKeys.toList()
                 }
         }
     }
