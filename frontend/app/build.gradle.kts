@@ -81,7 +81,7 @@ android {
             val isCI = System.getenv("CI")?.toBoolean() ?: false
             if (isCI) {
                 applicationIdSuffix = ".ci"
-                resValue("string", "app_name", "家計簿(CI)")
+                resValue("string", "app_name", "家計簿.ci")
             } else {
                 signingConfig = signingConfigs.getByName("release")
             }
