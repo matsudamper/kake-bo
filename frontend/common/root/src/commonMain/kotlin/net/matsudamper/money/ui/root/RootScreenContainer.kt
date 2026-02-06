@@ -18,14 +18,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.ui.CustomColors
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.RootHostScaffold
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.money.frontend.common.ui.base.SharedNavigation
@@ -104,100 +105,85 @@ internal fun RootScreenContainer(
     LaunchedEffect(viewModelEventHandlers, settingViewModel.backgroundEventHandler) {
         viewModelEventHandlers.handleSetting(settingViewModel.backgroundEventHandler)
     }
-    Column(Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier.weight(1f).fillMaxWidth(),
-        ) {
-            if (LocalIsLargeScreen.current) {
-                navigationUi.Rail()
-                VerticalDivider(
-                    modifier = Modifier
-                        .width(1.dp)
-                        .fillMaxHeight(),
-                    color = CustomColors.MenuDividerColor,
-                )
-            }
-            Box(modifier = Modifier.weight(1f).fillMaxHeight()) {
-                RootNavContent(
-                    windowInsets = windowInsets,
-                    navController = navController,
-                    current = current,
-                    viewModelEventHandlers = viewModelEventHandlers,
-                    rootCoroutineScope = rootCoroutineScope,
-                    globalEventSender = globalEventSender,
-                    globalEvent = globalEvent,
-                    homeAddTabScreenUiStateProvider = {
-                        mailScreenViewModel.uiStateFlow.collectAsState().value
-                    },
-                    usageCalendarUiStateProvider = { yearMonth ->
-                        val coroutineScope = rememberCoroutineScope()
-                        val viewModel = LocalViewModelProviders.current
-                            .moneyUsagesCalendarViewModel(
-                                coroutineScope = coroutineScope,
-                                rootUsageHostViewModel = rootUsageHostViewModel,
-                                yearMonth = yearMonth,
-                            )
+    RootHostScaffold(
+        modifier = Modifier.fillMaxSize(),
+        navigationUi = navigationUi,
+    ) {
+        RootNavContent(
+            windowInsets = windowInsets,
+            navController = navController,
+            current = current,
+            viewModelEventHandlers = viewModelEventHandlers,
+            rootCoroutineScope = rootCoroutineScope,
+            globalEventSender = globalEventSender,
+            globalEvent = globalEvent,
+            homeAddTabScreenUiStateProvider = {
+                mailScreenViewModel.uiStateFlow.collectAsState().value
+            },
+            usageCalendarUiStateProvider = { yearMonth ->
+                val coroutineScope = rememberCoroutineScope()
+                val viewModel = LocalViewModelProviders.current
+                    .moneyUsagesCalendarViewModel(
+                        coroutineScope = coroutineScope,
+                        rootUsageHostViewModel = rootUsageHostViewModel,
+                        yearMonth = yearMonth,
+                    )
 
-                        LaunchedEffect(viewModel.viewModelEventHandler) {
-                            viewModelEventHandlers.handleMoneyUsagesCalendar(
-                                handler = viewModel.viewModelEventHandler,
-                            )
-                        }
-                        viewModel.uiStateFlow.collectAsState().value
-                    },
-                    usageListUiStateProvider = {
-                        val coroutineScope = rememberCoroutineScope()
-                        val viewModel = LocalViewModelProviders.current
-                            .moneyUsagesListViewModel(
-                                coroutineScope = coroutineScope,
-                                rootUsageHostViewModel = rootUsageHostViewModel,
-                            )
-                        LaunchedEffect(viewModel.viewModelEventHandler) {
-                            viewModelEventHandlers.handleMoneyUsagesList(
-                                handler = viewModel.viewModelEventHandler,
-                            )
-                        }
-                        viewModel.uiStateFlow.collectAsState().value
-                    },
-                    importMailLinkScreenUiStateProvider = {
-                        val mailImportViewModel = LocalViewModelProviders.current
-                            .mailImportViewModel()
-                        LaunchedEffect(mailImportViewModel.eventHandler) {
-                            viewModelEventHandlers.handleMailImport(mailImportViewModel.eventHandler)
-                        }
+                LaunchedEffect(viewModel.viewModelEventHandler) {
+                    viewModelEventHandlers.handleMoneyUsagesCalendar(
+                        handler = viewModel.viewModelEventHandler,
+                    )
+                }
+                viewModel.uiStateFlow.collectAsState().value
+            },
+            usageListUiStateProvider = {
+                val coroutineScope = rememberCoroutineScope()
+                val viewModel = LocalViewModelProviders.current
+                    .moneyUsagesListViewModel(
+                        coroutineScope = coroutineScope,
+                        rootUsageHostViewModel = rootUsageHostViewModel,
+                    )
+                LaunchedEffect(viewModel.viewModelEventHandler) {
+                    viewModelEventHandlers.handleMoneyUsagesList(
+                        handler = viewModel.viewModelEventHandler,
+                    )
+                }
+                viewModel.uiStateFlow.collectAsState().value
+            },
+            importMailLinkScreenUiStateProvider = {
+                val mailImportViewModel = LocalViewModelProviders.current
+                    .mailImportViewModel()
+                LaunchedEffect(mailImportViewModel.eventHandler) {
+                    viewModelEventHandlers.handleMailImport(mailImportViewModel.eventHandler)
+                }
 
-                        mailImportViewModel.rootUiStateFlow.collectAsState().value
-                    },
-                    importMailScreenUiStateProvider = { screenStructure ->
-                        val importedMailListViewModel = LocalViewModelProviders.current
-                            .importedMailListViewModel()
-                        LaunchedEffect(screenStructure) {
-                            importedMailListViewModel.updateQuery(screenStructure)
-                        }
-                        LaunchedEffect(importedMailListViewModel.eventHandler) {
-                            viewModelEventHandlers.handleMailLink(importedMailListViewModel.eventHandler)
-                        }
-                        importedMailListViewModel.rootUiStateFlow.collectAsState().value
-                    },
-                    settingUiStateProvider = {
-                        settingViewModel.uiState.collectAsState().value
-                    },
-                    rootHomeTabPeriodAllContentUiStateProvider = { current ->
-                        val allContentViewModel = LocalViewModelProviders.current
-                            .rootHomeTabPeriodAllContentViewModel()
-                        LaunchedEffect(allContentViewModel, current) {
-                            allContentViewModel.updateStructure(current)
-                        }
-                        LaunchedEffect(allContentViewModel.eventHandler) {
-                            viewModelEventHandlers.handleRootHomeTabPeriodAllContent(allContentViewModel.eventHandler)
-                        }
-                        allContentViewModel.uiStateFlow.collectAsState().value
-                    },
-                )
-            }
-        }
-        if (LocalIsLargeScreen.current.not()) {
-            navigationUi.Bottom()
-        }
+                mailImportViewModel.rootUiStateFlow.collectAsState().value
+            },
+            importMailScreenUiStateProvider = { screenStructure ->
+                val importedMailListViewModel = LocalViewModelProviders.current
+                    .importedMailListViewModel()
+                LaunchedEffect(screenStructure) {
+                    importedMailListViewModel.updateQuery(screenStructure)
+                }
+                LaunchedEffect(importedMailListViewModel.eventHandler) {
+                    viewModelEventHandlers.handleMailLink(importedMailListViewModel.eventHandler)
+                }
+                importedMailListViewModel.rootUiStateFlow.collectAsState().value
+            },
+            settingUiStateProvider = {
+                settingViewModel.uiState.collectAsState().value
+            },
+            rootHomeTabPeriodAllContentUiStateProvider = { current ->
+                val allContentViewModel = LocalViewModelProviders.current
+                    .rootHomeTabPeriodAllContentViewModel()
+                LaunchedEffect(allContentViewModel, current) {
+                    allContentViewModel.updateStructure(current)
+                }
+                LaunchedEffect(allContentViewModel.eventHandler) {
+                    viewModelEventHandlers.handleRootHomeTabPeriodAllContent(allContentViewModel.eventHandler)
+                }
+                allContentViewModel.uiStateFlow.collectAsState().value
+            },
+        )
     }
 }
