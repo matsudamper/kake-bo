@@ -27,8 +27,12 @@ public actual fun NavHost(
     navController: ScreenNavController,
     entryProvider: (IScreenStructure) -> NavEntry<IScreenStructure>,
 ) {
-    InternalNavHost(
+    NavHostScopeProvider(
         navController = navController,
-        entryProvider = entryProvider,
-    )
+    ) {
+        val currentBackstackEntry = navController.currentBackstackEntry
+        if (currentBackstackEntry != null) {
+            entryProvider(navController.currentBackstackEntry!!).Content()
+        }
+    }
 }

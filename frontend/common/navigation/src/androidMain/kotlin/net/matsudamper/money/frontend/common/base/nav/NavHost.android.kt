@@ -28,34 +28,37 @@ public actual fun NavHost(
     LaunchedEffect(navController.currentBackstackEntry) {
         Logger.d("Navigation", "${navController.currentBackstackEntry}")
     }
-
-    NavDisplay(
-        backStack = backStack,
-        entryProvider = entryProvider,
-        onBack = {
-            if (navController.canGoBack) {
-                navController.back()
-            } else {
-                dispatcher?.onBackPressedDispatcher?.onBackPressed()
-            }
-        },
-        predictivePopTransitionSpec = {
-            ContentTransform(
-                targetContentEnter = fadeIn(
-                    animationSpec = spring(
-                        dampingRatio = 1.0f,
-                        stiffness = 1600.0f,
+    NavHostScopeProvider(
+        navController = navController,
+    ) {
+        NavDisplay(
+            backStack = backStack,
+            entryProvider = entryProvider,
+            onBack = {
+                if (navController.canGoBack) {
+                    navController.back()
+                } else {
+                    dispatcher?.onBackPressedDispatcher?.onBackPressed()
+                }
+            },
+            predictivePopTransitionSpec = {
+                ContentTransform(
+                    targetContentEnter = fadeIn(
+                        animationSpec = spring(
+                            dampingRatio = 1.0f,
+                            stiffness = 1600.0f,
+                        ),
                     ),
-                ),
-                initialContentExit = fadeOut(
-                    animationSpec = spring(
-                        dampingRatio = 1.0f,
-                        stiffness = 1600.0f,
+                    initialContentExit = fadeOut(
+                        animationSpec = spring(
+                            dampingRatio = 1.0f,
+                            stiffness = 1600.0f,
+                        ),
                     ),
-                ),
-            )
-        },
-    )
+                )
+            },
+        )
+    }
 }
 
 @Composable
