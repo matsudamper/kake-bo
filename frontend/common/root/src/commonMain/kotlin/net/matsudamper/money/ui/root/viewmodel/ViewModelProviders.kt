@@ -10,7 +10,6 @@ import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectSto
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.viewmodel.LocalGlobalEventHandlerLoginCheckUseCaseDelegate
-import net.matsudamper.money.frontend.common.viewmodel.root.RootViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodAllContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.ImportedMailListViewModel
@@ -31,17 +30,6 @@ internal class ViewModelProviders(
     private val navController: ScreenNavController,
     private val rootCoroutineScope: CoroutineScope,
 ) {
-    @Composable
-    fun rootViewModel(): RootViewModel {
-        val loginCheckUseCase = LocalGlobalEventHandlerLoginCheckUseCaseDelegate.current
-        return LocalScopedObjectStore.current.putOrGet(Unit) { feature ->
-            RootViewModel(
-                loginCheckUseCase = loginCheckUseCase,
-                scopedObjectFeature = feature,
-                navController = navController,
-            )
-        }
-    }
 
     @Composable
     fun moneyUsagesCalendarViewModel(

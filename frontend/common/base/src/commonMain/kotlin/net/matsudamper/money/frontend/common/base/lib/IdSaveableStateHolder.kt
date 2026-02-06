@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import net.matsudamper.money.frontend.common.base.Logger
 
 /**
  * 元のrememberSaveableStateHolderは`LocalSaveableStateRegistry.current`を使用している。
@@ -33,7 +32,7 @@ private class IdSaveableStateHolderImpl(
     }
 
     // TODO: AndroidではSerializableにしないといけないので、とりあえずStringにしておく
-    private fun getKey(key: Any) = IdSaveableStateKey(id, key).toString().also { Logger.d("LOG", it) }
+    private fun getKey(key: Any) = IdSaveableStateKey(id, key).toString()
 
     private data class IdSaveableStateKey(
         val id: Any,

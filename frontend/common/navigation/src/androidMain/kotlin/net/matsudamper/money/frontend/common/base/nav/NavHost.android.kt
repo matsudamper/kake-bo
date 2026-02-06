@@ -6,6 +6,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -17,6 +18,8 @@ import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolder
+import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
+import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStoreOwner
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 
@@ -39,8 +42,9 @@ public actual fun NavHost(
         NavDisplay(
             backStack = backStack,
             entryProvider = entryProvider,
-            entryDecorators = listOf(
-                remember {
+            entryDecorators =
+            remember {
+                listOf(
                     NavEntryDecorator(
                         onPop = {
                             // NavHostScopeProviderで削除を管理する
@@ -52,9 +56,23 @@ public actual fun NavHost(
                                 entry.Content()
                             }
                         },
-                    )
-                },
-            ),
+                    ),
+                    NavEntryDecorator(
+                        onPop = {
+                            // NavHostScopeProviderで削除を管理する
+                        },
+                        decorate = { entry ->
+                            val structure = entry.contentKey as IScreenStructure
+
+                            CompositionLocalProvider(
+                                LocalScopedObjectStore provides LocalScopedObjectStoreOwner.current.createOrGetScopedObjectStore(structure.scopeKey),
+                            ) {
+                                entry.Content()
+                            }
+                        },
+                    ),
+                )
+            },
             onBack = {
                 if (navController.canGoBack) {
                     navController.back()
