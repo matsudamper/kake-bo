@@ -29,6 +29,10 @@ public actual fun NavHost(
 ) {
     NavHostScopeProvider(
         navController = navController,
-        entryProvider = entryProvider,
-    )
+    ) {
+        val currentBackstackEntry = navController.currentBackstackEntry
+        if (currentBackstackEntry != null) {
+            entryProvider(navController.currentBackstackEntry!!).Content()
+        }
+    }
 }
