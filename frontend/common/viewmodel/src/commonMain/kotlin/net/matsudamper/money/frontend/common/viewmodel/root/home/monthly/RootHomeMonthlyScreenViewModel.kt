@@ -170,7 +170,10 @@ public class RootHomeMonthlyScreenViewModel(
         val response = (viewModelState.monthlyListResponse as? ApolloResponseState.Success)?.value
         val nodes = response?.data?.user?.moneyUsages?.nodes.orEmpty()
 
+        val sinceDate = createSinceLocalDateTime().date
+
         return RootHomeMonthlyScreenUiState.LoadingState.Loaded(
+            yearMonth = "${sinceDate.year}年${sinceDate.monthNumber}月",
             items = nodes.map { node ->
                 RootHomeMonthlyScreenUiState.Item(
                     title = node.title,
