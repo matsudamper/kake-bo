@@ -16,6 +16,9 @@ public interface ScreenNavController {
 
     public fun back()
 
+    /**
+     * @param savedState TODO 使ってないので消す
+     */
     public fun navigate(
         navigation: IScreenStructure,
         savedState: Boolean = false,

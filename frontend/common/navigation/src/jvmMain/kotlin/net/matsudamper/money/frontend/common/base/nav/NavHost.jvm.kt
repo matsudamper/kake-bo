@@ -27,7 +27,7 @@ public actual fun NavHost(
     navController: ScreenNavController,
     entryProvider: (IScreenStructure) -> NavEntry<IScreenStructure>,
 ) {
-    InternalNavHost(
+    NavHostScopeProvider(
         navController = navController,
         entryProvider = entryProvider,
     )
