@@ -38,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,8 +57,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
-import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
@@ -73,8 +74,6 @@ public fun ImportedMailListScreen(
 
     RootScreenScaffold(
         modifier = modifier,
-        currentScreen = RootScreenTab.Add,
-        listener = uiState.rootScreenScaffoldListener,
         windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(
@@ -84,7 +83,7 @@ public fun ImportedMailListScreen(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
-                            uiState.rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                            uiState.kakeboScaffoldListener.onClickTitle()
                         },
                         text = "家計簿",
                     )
@@ -95,6 +94,19 @@ public fun ImportedMailListScreen(
     ) {
         val lazyListState = rememberLazyListState()
         val coroutineScope = rememberCoroutineScope()
+        val scrollToTopHandler = LocalScrollToTopHandler.current
+        DisposableEffect(scrollToTopHandler, lazyListState) {
+            val handler = {
+                if (lazyListState.firstVisibleItemIndex > 0 || lazyListState.firstVisibleItemScrollOffset > 0) {
+                    coroutineScope.launch { lazyListState.animateScrollToItem(0) }
+                    true
+                } else {
+                    false
+                }
+            }
+            scrollToTopHandler.register(handler)
+            onDispose { scrollToTopHandler.unregister() }
+        }
         LaunchedEffect(uiState.operation, coroutineScope) {
             uiState.operation.collect {
                 it(

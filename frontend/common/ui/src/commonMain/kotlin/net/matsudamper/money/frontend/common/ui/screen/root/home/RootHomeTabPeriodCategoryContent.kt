@@ -21,15 +21,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolder
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraph
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
 
 public data class RootHomeTabPeriodCategoryContentUiState(
     val loadingState: LoadingState,
     val rootHomeTabPeriodAndCategoryUiState: RootHomeTabPeriodAndCategoryUiState,
-    val rootScaffoldListener: RootScreenScaffoldListener,
+    val kakeboScaffoldListener: KakeboScaffoldListener,
     val event: Event,
 ) {
     public sealed interface LoadingState {
@@ -60,7 +60,7 @@ public fun RootHomeTabPeriodCategoryScreen(
     val savedState = rememberSaveableStateHolder(id = "RootHomeTabPeriodCategoryScreen")
     RootHomeTabPeriodScaffold(
         uiState = uiState.rootHomeTabPeriodAndCategoryUiState,
-        scaffoldListener = uiState.rootScaffoldListener,
+        kakeboScaffoldListener = uiState.kakeboScaffoldListener,
         modifier = Modifier.fillMaxSize(),
         onRefresh = {
             uiState.event.refresh()

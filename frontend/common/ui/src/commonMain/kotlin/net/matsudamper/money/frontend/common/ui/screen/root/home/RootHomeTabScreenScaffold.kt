@@ -7,19 +7,16 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 
 @Composable
 public fun RootHomeTabScreenScaffold(
-    scaffoldListener: RootScreenScaffoldListener,
+    kakeboScaffoldListener: KakeboScaffoldListener,
     modifier: Modifier = Modifier,
     menu: @Composable () -> Unit = {},
     windowInsets: PaddingValues,
@@ -27,8 +24,6 @@ public fun RootHomeTabScreenScaffold(
 ) {
     RootScreenScaffold(
         modifier = modifier.fillMaxSize(),
-        currentScreen = RootScreenTab.Home,
-        listener = scaffoldListener,
         windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(
@@ -42,7 +37,7 @@ public fun RootHomeTabScreenScaffold(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
                             ) {
-                                scaffoldListener.kakeboScaffoldListener.onClickTitle()
+                                kakeboScaffoldListener.onClickTitle()
                             },
                             text = "家計簿",
                         )

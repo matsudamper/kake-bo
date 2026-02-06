@@ -7,9 +7,9 @@ import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeAddTabScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
-import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
@@ -24,7 +24,11 @@ public class HomeAddTabScreenViewModel(
 
     public val uiStateFlow: StateFlow<HomeAddTabScreenUiState> = MutableStateFlow(
         HomeAddTabScreenUiState(
-            rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {},
+            kakeboScaffoldListener = object : KakeboScaffoldListener {
+                override fun onClickTitle() {
+                    navController.navigateToHome()
+                }
+            },
             event = object : HomeAddTabScreenUiState.Event {
                 override fun onClickImportButton() {
                     viewModelScope.launch {

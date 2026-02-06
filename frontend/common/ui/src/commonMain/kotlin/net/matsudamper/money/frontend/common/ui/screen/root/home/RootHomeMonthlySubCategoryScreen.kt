@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
-import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 
 @Composable
 public fun RootHomeMonthlySubCategoryScreen(
@@ -45,8 +44,6 @@ public fun RootHomeMonthlySubCategoryScreen(
     }
     RootScreenScaffold(
         modifier = modifier,
-        currentScreen = RootScreenTab.Home,
-        listener = uiState.scaffoldListener,
         windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(

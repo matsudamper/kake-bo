@@ -1,13 +1,13 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.home
 
 import androidx.compose.runtime.Immutable
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 
 public data class RootHomeMonthlySubCategoryScreenUiState(
     val loadingState: LoadingState,
     val headerTitle: String,
     val event: Event,
-    val scaffoldListener: RootScreenScaffoldListener,
+    val kakeboScaffoldListener: KakeboScaffoldListener,
     val currentSortType: SortSectionType,
     val sortOrder: SortSectionOrder,
 ) {

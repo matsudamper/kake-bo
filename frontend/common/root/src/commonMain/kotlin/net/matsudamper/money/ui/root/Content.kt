@@ -235,7 +235,6 @@ public fun Content(
                                                 rootCoroutineScope = rootCoroutineScope,
                                                 globalEventSender = globalEventSender,
                                                 globalEvent = globalEvent,
-                                                windowInsets = paddingValues.value,
                                             )
                                         }
                                     }

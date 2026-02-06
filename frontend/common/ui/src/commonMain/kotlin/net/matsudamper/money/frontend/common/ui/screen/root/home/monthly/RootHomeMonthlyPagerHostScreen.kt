@@ -10,12 +10,12 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabScreenScaffold
 
 @Stable
 public data class RootHomeMonthlyPagerHostScreenUiState(
-    val scaffoldListener: RootScreenScaffoldListener,
+    val kakeboScaffoldListener: KakeboScaffoldListener,
     val pages: ImmutableList<Page>,
     val currentPage: Int,
 ) {
@@ -32,7 +32,7 @@ public fun RootHomeMonthlyPagerHostScreen(
     modifier: Modifier = Modifier,
 ) {
     RootHomeTabScreenScaffold(
-        scaffoldListener = uiState.scaffoldListener,
+        kakeboScaffoldListener = uiState.kakeboScaffoldListener,
         modifier = modifier,
         windowInsets = windowInsets,
         content = {
@@ -51,6 +51,7 @@ public fun RootHomeMonthlyPagerHostScreen(
                 RootHomeMonthlyScreen(
                     modifier = Modifier,
                     uiState = uiStateProvider(item.navigation),
+                    windowInsets = windowInsets,
                 )
             }
         },

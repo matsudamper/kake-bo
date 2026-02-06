@@ -3,13 +3,13 @@ package net.matsudamper.money.frontend.common.ui.screen.root.mail
 import androidx.compose.runtime.Immutable
 import kotlinx.coroutines.flow.Flow
 import net.matsudamper.money.frontend.common.base.ImmutableList
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 
 public data class ImportedMailListScreenUiState(
     val event: Event,
     val filters: Filters,
     val loadingState: LoadingState,
-    val rootScreenScaffoldListener: RootScreenScaffoldListener,
+    val kakeboScaffoldListener: KakeboScaffoldListener,
     val operation: Flow<(Operation) -> Unit>,
 ) {
     public interface Operation {

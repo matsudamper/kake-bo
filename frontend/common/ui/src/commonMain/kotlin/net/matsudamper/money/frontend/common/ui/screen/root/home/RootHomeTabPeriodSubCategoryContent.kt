@@ -40,7 +40,7 @@ public fun RootHomeTabPeriodSubCategoryScreen(
         uiState.event.onViewInitialized()
     }
     RootHomeTabScreenScaffold(
-        scaffoldListener = uiState.rootScaffoldListener,
+        kakeboScaffoldListener = uiState.kakeboScaffoldListener,
         modifier = Modifier.fillMaxSize(),
         content = {
             when (val loadingState = uiState.loadingState) {

@@ -22,20 +22,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
+import net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 
@@ -43,7 +46,7 @@ public data class RootHomeMonthlyCategoryScreenUiState(
     val loadingState: LoadingState,
     val headerTitle: String,
     val event: Event,
-    val scaffoldListener: RootScreenScaffoldListener,
+    val kakeboScaffoldListener: KakeboScaffoldListener,
     val currentSortType: SortSectionType,
     val sortOrder: SortSectionOrder,
 ) {
@@ -98,8 +101,6 @@ public fun RootHomeMonthlyCategoryScreen(
     }
     RootScreenScaffold(
         modifier = modifier,
-        currentScreen = RootScreenTab.Home,
-        listener = uiState.scaffoldListener,
         windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(
@@ -145,6 +146,20 @@ private fun LoadedContent(
         modifier = modifier,
     ) {
         val lazyListState = rememberLazyListState()
+        val coroutineScope = rememberCoroutineScope()
+        val scrollToTopHandler = LocalScrollToTopHandler.current
+        DisposableEffect(scrollToTopHandler, lazyListState) {
+            val handler = {
+                if (lazyListState.firstVisibleItemIndex > 0 || lazyListState.firstVisibleItemScrollOffset > 0) {
+                    coroutineScope.launch { lazyListState.animateScrollToItem(0) }
+                    true
+                } else {
+                    false
+                }
+            }
+            scrollToTopHandler.register(handler)
+            onDispose { scrollToTopHandler.unregister() }
+        }
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState,
