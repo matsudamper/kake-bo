@@ -47,9 +47,8 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
 public data class SettingCategoryScreenUiState(
@@ -59,7 +58,7 @@ public data class SettingCategoryScreenUiState(
     val categoryName: String,
     val showCategoryNameChangeDialog: FullScreenInputDialog?,
     val showSubCategoryNameChangeDialog: FullScreenInputDialog?,
-    val rootScreenScaffoldListener: RootScreenScaffoldListener,
+    val kakeboScaffoldListener: KakeboScaffoldListener,
 ) {
     public data class FullScreenInputDialog(
         val initText: String,
@@ -157,8 +156,6 @@ public fun SettingCategoryScreen(
 
     RootScreenScaffold(
         modifier = modifier.fillMaxSize(),
-        currentScreen = RootScreenTab.Settings,
-        listener = uiState.rootScreenScaffoldListener,
         topBar = {
             KakeBoTopAppBar(
                 title = {
@@ -167,7 +164,7 @@ public fun SettingCategoryScreen(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
-                            uiState.rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                            uiState.kakeboScaffoldListener.onClickTitle()
                         },
                         text = "家計簿",
                     )

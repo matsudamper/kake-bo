@@ -45,9 +45,8 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
 public data class ApiSettingScreenUiState(
@@ -55,7 +54,7 @@ public data class ApiSettingScreenUiState(
     val addDialog: AddDialogUiState?,
     val addTokenResult: AddTokenResult?,
     val event: Event,
-    val rootScreenScaffoldListener: RootScreenScaffoldListener,
+    val kakeboScaffoldListener: KakeboScaffoldListener,
 ) {
     public data class AddTokenResult(
         val name: String,
@@ -184,7 +183,6 @@ public fun ApiSettingScreen(
 
     RootScreenScaffold(
         modifier = modifier,
-        currentScreen = RootScreenTab.Settings,
         snackbarHostState = snackbarHostState,
         windowInsets = windowInsets,
         topBar = {
@@ -200,7 +198,7 @@ public fun ApiSettingScreen(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
-                            uiState.rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                            uiState.kakeboScaffoldListener.onClickTitle()
                         },
                         text = "家計簿",
                     )
@@ -208,7 +206,6 @@ public fun ApiSettingScreen(
                 windowInsets = windowInsets,
             )
         },
-        listener = uiState.rootScreenScaffoldListener,
     ) {
         SettingScaffold(
             title = {

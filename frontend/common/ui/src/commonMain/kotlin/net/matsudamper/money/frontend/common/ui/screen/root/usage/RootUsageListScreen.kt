@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 
 public data class RootUsageListScreenUiState(
@@ -118,6 +120,20 @@ public fun RootUsageListScreen(
             when (uiState.loadingState) {
                 is RootUsageListScreenUiState.LoadingState.Loaded -> {
                     val lazyListState = rememberLazyListState()
+                    val coroutineScope = rememberCoroutineScope()
+                    val scrollToTopHandler = LocalScrollToTopHandler.current
+                    DisposableEffect(scrollToTopHandler, lazyListState) {
+                        val handler = {
+                            if (lazyListState.firstVisibleItemIndex > 0 || lazyListState.firstVisibleItemScrollOffset > 0) {
+                                coroutineScope.launch { lazyListState.animateScrollToItem(0) }
+                                true
+                            } else {
+                                false
+                            }
+                        }
+                        scrollToTopHandler.register(handler)
+                        onDispose { scrollToTopHandler.unregister() }
+                    }
                     LoadedContent(
                         modifier = Modifier.fillMaxSize(),
                         uiState = uiState.loadingState,

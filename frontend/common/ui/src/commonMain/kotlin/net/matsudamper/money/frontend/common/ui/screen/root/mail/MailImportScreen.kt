@@ -48,7 +48,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
-import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.money.frontend.common.ui.layout.html.html.Html
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
@@ -80,8 +79,6 @@ public fun MailImportScreen(
 
     RootScreenScaffold(
         modifier = modifier,
-        currentScreen = RootScreenTab.Add,
-        listener = uiState.rootScreenScaffoldListener,
         windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(
@@ -91,7 +88,7 @@ public fun MailImportScreen(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
-                            uiState.rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                            uiState.kakeboScaffoldListener.onClickTitle()
                         },
                         text = "家計簿",
                     )

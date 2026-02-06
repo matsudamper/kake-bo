@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,8 +35,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler
 
 public data class RootHomeTabPeriodAndCategoryUiState(
     val loadingState: LoadingState,
@@ -94,7 +96,7 @@ public data class RootHomeTabPeriodAndCategoryUiState(
 @Composable
 public fun RootHomeTabPeriodScaffold(
     uiState: RootHomeTabPeriodAndCategoryUiState,
-    scaffoldListener: RootScreenScaffoldListener,
+    kakeboScaffoldListener: KakeboScaffoldListener,
     modifier: Modifier = Modifier,
     menu: @Composable () -> Unit = {},
     windowInsets: PaddingValues,
@@ -107,7 +109,7 @@ public fun RootHomeTabPeriodScaffold(
 
     RootHomeTabScreenScaffold(
         modifier = modifier,
-        scaffoldListener = scaffoldListener,
+        kakeboScaffoldListener = kakeboScaffoldListener,
         menu = menu,
         windowInsets = windowInsets,
     ) {
@@ -145,6 +147,19 @@ public fun RootHomeTabPeriodScaffold(
 
                 is RootHomeTabPeriodAndCategoryUiState.LoadingState.Loaded -> {
                     val scrollState = rememberScrollState()
+                    val scrollToTopHandler = LocalScrollToTopHandler.current
+                    DisposableEffect(scrollToTopHandler, scrollState) {
+                        val handler = {
+                            if (scrollState.value > 0) {
+                                coroutineScope.launch { scrollState.animateScrollTo(0) }
+                                true
+                            } else {
+                                false
+                            }
+                        }
+                        scrollToTopHandler.register(handler)
+                        onDispose { scrollToTopHandler.unregister() }
+                    }
                     Column(
                         modifier = Modifier
                             .verticalScroll(scrollState)

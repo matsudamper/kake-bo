@@ -20,7 +20,10 @@ public actual fun rememberMainScreenNavController(initial: IScreenStructure): Sc
 private class AndroidScreenNavControllerImpl(
     private val navBackstack: NavBackStack<IScreenStructure>,
 ) : ScreenNavController {
-    override val savedScopeKeys: Set<String> = setOf()
+    override val savedScopeKeys: Set<String>
+        get() = navBackstack.map {
+            it.scopeKey
+        }.toSet()
     override val backstackEntries: List<IScreenStructure> get() = navBackstack.toList()
     override val currentBackstackEntry: IScreenStructure? get() = navBackstack.lastOrNull()
     override val canGoBack: Boolean get() = navBackstack.size > 1
@@ -30,7 +33,6 @@ private class AndroidScreenNavControllerImpl(
     }
 
     override fun navigate(navigation: IScreenStructure, savedState: Boolean) {
-        // TODO: savedState
         navBackstack.add(navigation)
     }
 

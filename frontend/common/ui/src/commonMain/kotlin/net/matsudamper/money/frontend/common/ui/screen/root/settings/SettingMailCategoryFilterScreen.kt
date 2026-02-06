@@ -35,17 +35,16 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
-import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
 public data class SettingMailCategoryFilterScreenUiState(
     public val event: Event,
     public val textInput: TextInput?,
     public val loadingState: LoadingState,
-    public val rootScreenScaffoldListener: RootScreenScaffoldListener,
+    public val kakeboScaffoldListener: KakeboScaffoldListener,
 ) {
     public data class TextInput(
         val title: String,
@@ -124,7 +123,7 @@ public fun SettingMailCategoryFiltersScreen(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
-                            uiState.rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                            uiState.kakeboScaffoldListener.onClickTitle()
                         },
                         text = "家計簿",
                     )
@@ -132,8 +131,6 @@ public fun SettingMailCategoryFiltersScreen(
                 windowInsets = windowInsets,
             )
         },
-        currentScreen = RootScreenTab.Settings,
-        listener = uiState.rootScreenScaffoldListener,
     ) {
         SettingScaffold(
             title = {

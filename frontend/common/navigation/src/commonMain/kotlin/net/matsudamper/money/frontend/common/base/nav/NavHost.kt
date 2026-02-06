@@ -21,9 +21,9 @@ public expect fun NavHost(
 )
 
 @Composable
-public fun InternalNavHost(
+public fun NavHostScopeProvider(
     navController: ScreenNavController,
-    entryProvider: (IScreenStructure) -> NavEntry<IScreenStructure>,
+    content: @Composable () -> Unit,
 ) {
     val scopedObjectStoreOwner = rememberScopedObjectStoreOwner("NavHost")
     val holder = rememberSaveableStateHolder("NavHostSaveableStateHolder")
@@ -58,7 +58,7 @@ public fun InternalNavHost(
                 .createOrGetScopedObjectStore(currentBackstackEntry.sameScreenId),
         ) {
             holder.SaveableStateProvider(currentBackstackEntry.sameScreenId) {
-                entryProvider(currentBackstackEntry).Content()
+                content()
             }
         }
     }

@@ -2,12 +2,12 @@ package net.matsudamper.money.frontend.common.ui.screen.root.home
 
 import androidx.compose.runtime.Immutable
 import net.matsudamper.money.frontend.common.base.ImmutableList
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
 
 public data class RootHomeTabPeriodSubCategoryContentUiState(
     val loadingState: LoadingState,
-    val rootScaffoldListener: RootScreenScaffoldListener,
+    val kakeboScaffoldListener: KakeboScaffoldListener,
     val event: Event,
 ) {
 

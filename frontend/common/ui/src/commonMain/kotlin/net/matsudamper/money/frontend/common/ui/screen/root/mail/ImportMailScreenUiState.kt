@@ -2,7 +2,7 @@ package net.matsudamper.money.frontend.common.ui.screen.root.mail
 
 import androidx.compose.runtime.Immutable
 import net.matsudamper.money.frontend.common.base.ImmutableList
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 
 public data class ImportMailScreenUiState(
     val isLoading: Boolean,
@@ -11,7 +11,7 @@ public data class ImportMailScreenUiState(
     val htmlDialog: String?,
     val mailDeleteDialog: MailDeleteDialog?,
     val event: Event,
-    val rootScreenScaffoldListener: RootScreenScaffoldListener,
+    val kakeboScaffoldListener: KakeboScaffoldListener,
 ) {
     public data class MailDeleteDialog(
         val event: Event,
