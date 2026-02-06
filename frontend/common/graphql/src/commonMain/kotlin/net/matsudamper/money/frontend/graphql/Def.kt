@@ -1,4 +1,4 @@
 package net.matsudamper.money.frontend.graphql
 
-internal expect val serverProtocol: String
-internal expect val serverHost: String
+expect val serverProtocol: String
+expect val serverHost: String

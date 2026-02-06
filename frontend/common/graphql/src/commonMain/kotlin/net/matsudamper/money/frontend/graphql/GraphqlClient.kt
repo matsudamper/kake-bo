@@ -35,14 +35,27 @@ import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryId as Ap
 
 public interface GraphqlClient {
     val apolloClient: ApolloClient
+
+    fun updateServerUrl(serverUrl: String)
 }
 
 class GraphqlClientImpl(
-    interceptors: List<ApolloInterceptor>,
+    private val interceptors: List<ApolloInterceptor>,
+    serverUrl: String,
+    private val onServerUrlChanged: (String) -> Unit,
 ) : GraphqlClient {
     private val cacheFactory = MemoryCacheFactory(maxSizeBytes = 10 * 1024 * 1024)
-    override val apolloClient: ApolloClient = ApolloClient.Builder()
-        .serverUrl("$serverProtocol://$serverHost/query")
+
+    override var apolloClient: ApolloClient = buildClient(serverUrl)
+        private set
+
+    override fun updateServerUrl(serverUrl: String) {
+        apolloClient = buildClient(serverUrl)
+        onServerUrlChanged(serverUrl)
+    }
+
+    private fun buildClient(serverUrl: String): ApolloClient = ApolloClient.Builder()
+        .serverUrl(serverUrl)
         .httpEngine(DefaultHttpEngine(timeoutMillis = 5000))
         .interceptors(interceptors)
         .normalizedCache(cacheFactory)

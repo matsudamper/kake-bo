@@ -15,7 +15,9 @@ import net.matsudamper.money.frontend.common.ui.screen.login.LoginScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.login.LoginScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
+import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
+import net.matsudamper.money.frontend.graphql.ServerHostConfig
 import net.matsudamper.money.frontend.graphql.type.UserFidoLoginInput
 
 public class LoginScreenViewModel(
@@ -25,14 +27,36 @@ public class LoginScreenViewModel(
     private val navController: ScreenNavController,
     private val globalEventSender: EventSender<GlobalEvent>,
     private val webAuthModel: WebAuthModel,
+    private val graphqlClient: GraphqlClient,
+    private val serverHostConfig: ServerHostConfig?,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
-        ViewModelState(),
+        run {
+            val initialHost = if (serverHostConfig != null) {
+                serverHostConfig.savedHost.takeIf { it.isNotEmpty() }
+                    ?: serverHostConfig.defaultHost.takeIf { it.isNotEmpty() }
+                    .orEmpty()
+            } else {
+                ""
+            }
+            ViewModelState(
+                selectedHost = initialHost,
+                customHosts = buildList {
+                    if (serverHostConfig != null) {
+                        val savedHost = serverHostConfig.savedHost
+                        if (savedHost.isNotEmpty() && savedHost != serverHostConfig.defaultHost) {
+                            add(savedHost)
+                        }
+                    }
+                },
+            )
+        },
     )
     public val uiStateFlow: StateFlow<LoginScreenUiState> = MutableStateFlow(
         LoginScreenUiState(
             userName = TextFieldValue(),
             password = TextFieldValue(),
+            serverHost = null,
             listener = object : LoginScreenUiState.Listener {
                 override fun onPasswordChanged(text: String) {
                     viewModelStateFlow.update {
@@ -75,6 +99,45 @@ public class LoginScreenViewModel(
                         type = WebAuthModel.WebAuthModelType.PLATFORM,
                     )
                 }
+
+                override fun onSelectServerHost(host: String) {
+                    viewModelStateFlow.update { it.copy(selectedHost = host) }
+                    if (serverHostConfig != null) {
+                        graphqlClient.updateServerUrl("${serverHostConfig.protocol}://$host/query")
+                    }
+                }
+
+                override fun onClickAddCustomHost() {
+                    viewModelStateFlow.update { it.copy(customHostDialogText = "") }
+                }
+
+                override fun onCustomHostTextChanged(text: String) {
+                    viewModelStateFlow.update { it.copy(customHostDialogText = text) }
+                }
+
+                override fun onConfirmCustomHost() {
+                    val text = viewModelStateFlow.value.customHostDialogText.orEmpty().trim()
+                    if (text.isEmpty()) return
+                    viewModelStateFlow.update {
+                        val updatedCustomHosts = if (it.customHosts.contains(text)) {
+                            it.customHosts
+                        } else {
+                            it.customHosts + text
+                        }
+                        it.copy(
+                            selectedHost = text,
+                            customHosts = updatedCustomHosts,
+                            customHostDialogText = null,
+                        )
+                    }
+                    if (serverHostConfig != null) {
+                        graphqlClient.updateServerUrl("${serverHostConfig.protocol}://$text/query")
+                    }
+                }
+
+                override fun onDismissCustomHostDialog() {
+                    viewModelStateFlow.update { it.copy(customHostDialogText = null) }
+                }
             },
         ),
     ).also { uiStateFlow ->
@@ -84,11 +147,32 @@ public class LoginScreenViewModel(
                     uiState.copy(
                         userName = viewModelState.userName,
                         password = viewModelState.password,
+                        serverHost = createServerHostUiState(viewModelState),
                     )
                 }
             }
         }
     }.asStateFlow()
+
+    private fun createServerHostUiState(state: ViewModelState): LoginScreenUiState.ServerHostUiState? {
+        if (serverHostConfig == null) return null
+        val hosts = buildList {
+            val defaultHost = serverHostConfig.defaultHost
+            if (defaultHost.isNotEmpty()) {
+                add(defaultHost)
+            }
+            for (customHost in state.customHosts) {
+                if (customHost != defaultHost) {
+                    add(customHost)
+                }
+            }
+        }
+        return LoginScreenUiState.ServerHostUiState(
+            selectedHost = state.selectedHost,
+            hosts = hosts,
+            customHostDialogText = state.customHostDialogText,
+        )
+    }
 
     private suspend fun postLogin(isSuccess: Boolean) {
         if (isSuccess) {
@@ -156,5 +240,8 @@ public class LoginScreenViewModel(
     private data class ViewModelState(
         val userName: TextFieldValue = TextFieldValue(),
         val password: TextFieldValue = TextFieldValue(),
+        val selectedHost: String = "",
+        val customHosts: List<String> = listOf(),
+        val customHostDialogText: String? = null,
     )
 }
