@@ -12,10 +12,8 @@ import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmu
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoryScreenUiState
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
-import net.matsudamper.money.frontend.common.viewmodel.PlatformType
-import net.matsudamper.money.frontend.common.viewmodel.PlatformTypeProvider
-import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
@@ -118,11 +116,9 @@ public class SettingCategoryViewModel(
             showCategoryNameChangeDialog = null,
             showSubCategoryNameChangeDialog = null,
             categoryName = "",
-            rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
-                override fun onClickSettings() {
-                    if (PlatformTypeProvider.type == PlatformType.JS) {
-                        super.onClickSettings()
-                    }
+            kakeboScaffoldListener = object : KakeboScaffoldListener {
+                override fun onClickTitle() {
+                    navController.navigateToHome()
                 }
             },
         ),

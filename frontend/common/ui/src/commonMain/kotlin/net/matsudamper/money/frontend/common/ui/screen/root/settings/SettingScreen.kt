@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,12 +36,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 public data class RootSettingScreenUiState(
     val kotlinVersion: String,
-    val rootScreenScaffoldListener: RootScreenScaffoldListener,
+    val kakeboScaffoldListener: KakeboScaffoldListener,
     val event: Event,
 ) {
     public interface Event {
@@ -80,7 +81,7 @@ public fun SettingRootScreen(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
-                            uiState.rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                            uiState.kakeboScaffoldListener.onClickTitle()
                         },
                         text = "家計簿",
                     )
@@ -120,6 +121,20 @@ private fun MainContent(
                 .fillMaxWidth(),
         ) {
             val scrollState = rememberScrollState()
+            val coroutineScope = rememberCoroutineScope()
+            val scrollToTopHandler = net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler.current
+            androidx.compose.runtime.DisposableEffect(scrollToTopHandler, scrollState) {
+                val handler = {
+                    if (scrollState.value > 0) {
+                        coroutineScope.launch { scrollState.animateScrollTo(0) }
+                        true
+                    } else {
+                        false
+                    }
+                }
+                scrollToTopHandler.register(handler)
+                onDispose { scrollToTopHandler.unregister() }
+            }
             var scrollContainerHeightPx by remember { mutableIntStateOf(0) }
             Column(
                 Modifier
@@ -205,7 +220,9 @@ private fun Preview() {
     SettingRootScreen(
         uiState = RootSettingScreenUiState(
             kotlinVersion = "preview",
-            rootScreenScaffoldListener = RootScreenScaffoldListener.previewImpl,
+            kakeboScaffoldListener = object : KakeboScaffoldListener {
+                override fun onClickTitle() {}
+            },
             event = object : RootSettingScreenUiState.Event {
                 override fun onResume() {}
                 override fun onClickImapButton() {}

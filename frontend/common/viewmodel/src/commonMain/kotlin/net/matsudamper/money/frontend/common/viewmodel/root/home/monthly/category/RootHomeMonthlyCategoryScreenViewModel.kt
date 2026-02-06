@@ -36,12 +36,10 @@ import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItemEve
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlyCategoryScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionOrder
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionType
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
-import net.matsudamper.money.frontend.common.viewmodel.PlatformType
-import net.matsudamper.money.frontend.common.viewmodel.PlatformTypeProvider
 import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
-import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
@@ -93,11 +91,9 @@ public class RootHomeMonthlyCategoryScreenViewModel(
 
     public val uiStateFlow: StateFlow<RootHomeMonthlyCategoryScreenUiState> = MutableStateFlow(
         RootHomeMonthlyCategoryScreenUiState(
-            scaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
-                override fun onClickHome() {
-                    if (PlatformTypeProvider.type == PlatformType.JS) {
-                        super.onClickHome()
-                    }
+            kakeboScaffoldListener = object : KakeboScaffoldListener {
+                override fun onClickTitle() {
+                    navController.navigateToHome()
                 }
             },
             event = object : RootHomeMonthlyCategoryScreenUiState.Event {

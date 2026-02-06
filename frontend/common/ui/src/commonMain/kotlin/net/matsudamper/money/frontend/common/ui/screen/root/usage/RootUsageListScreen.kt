@@ -118,6 +118,20 @@ public fun RootUsageListScreen(
             when (uiState.loadingState) {
                 is RootUsageListScreenUiState.LoadingState.Loaded -> {
                     val lazyListState = rememberLazyListState()
+                    val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
+                    val scrollToTopHandler = net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler.current
+                    androidx.compose.runtime.DisposableEffect(scrollToTopHandler, lazyListState) {
+                        val handler = {
+                            if (lazyListState.firstVisibleItemIndex > 0 || lazyListState.firstVisibleItemScrollOffset > 0) {
+                                coroutineScope.launch { lazyListState.animateScrollToItem(0) }
+                                true
+                            } else {
+                                false
+                            }
+                        }
+                        scrollToTopHandler.register(handler)
+                        onDispose { scrollToTopHandler.unregister() }
+                    }
                     LoadedContent(
                         modifier = Modifier.fillMaxSize(),
                         uiState = uiState.loadingState,

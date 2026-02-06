@@ -20,10 +20,8 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.LoginSettingScreenUiState
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
-import net.matsudamper.money.frontend.common.viewmodel.PlatformType
-import net.matsudamper.money.frontend.common.viewmodel.PlatformTypeProvider
-import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EqualsImpl
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -51,11 +49,9 @@ public class LoginSettingViewModel(
         LoginSettingScreenUiState(
             textInputDialogState = null,
             loadingState = LoginSettingScreenUiState.LoadingState.Loading,
-            rootScreenScaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
-                override fun onClickSettings() {
-                    if (PlatformTypeProvider.type == PlatformType.JS) {
-                        super.onClickSettings()
-                    }
+            kakeboScaffoldListener = object : KakeboScaffoldListener {
+                override fun onClickTitle() {
+                    navController.navigateToHome()
                 }
             },
             event = object : LoginSettingScreenUiState.Event {

@@ -34,7 +34,7 @@ import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 
@@ -42,7 +42,7 @@ public data class RootHomeMonthlyCategoryScreenUiState(
     val loadingState: LoadingState,
     val headerTitle: String,
     val event: Event,
-    val scaffoldListener: RootScreenScaffoldListener,
+    val kakeboScaffoldListener: KakeboScaffoldListener,
     val currentSortType: SortSectionType,
     val sortOrder: SortSectionOrder,
 ) {
@@ -142,6 +142,20 @@ private fun LoadedContent(
         modifier = modifier,
     ) {
         val lazyListState = rememberLazyListState()
+        val coroutineScope = androidx.compose.runtime.rememberCoroutineScope()
+        val scrollToTopHandler = net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler.current
+        androidx.compose.runtime.DisposableEffect(scrollToTopHandler, lazyListState) {
+            val handler = {
+                if (lazyListState.firstVisibleItemIndex > 0 || lazyListState.firstVisibleItemScrollOffset > 0) {
+                    coroutineScope.launch { lazyListState.animateScrollToItem(0) }
+                    true
+                } else {
+                    false
+                }
+            }
+            scrollToTopHandler.register(handler)
+            onDispose { scrollToTopHandler.unregister() }
+        }
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             state = lazyListState,

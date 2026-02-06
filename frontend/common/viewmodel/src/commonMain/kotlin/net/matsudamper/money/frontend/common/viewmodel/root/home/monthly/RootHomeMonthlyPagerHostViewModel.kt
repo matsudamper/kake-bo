@@ -17,10 +17,8 @@ import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.ui.screen.root.home.monthly.RootHomeMonthlyPagerHostScreenUiState
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
-import net.matsudamper.money.frontend.common.viewmodel.PlatformType
-import net.matsudamper.money.frontend.common.viewmodel.PlatformTypeProvider
-import net.matsudamper.money.frontend.common.viewmodel.RootScreenScaffoldListenerDefaultImpl
 
 public class RootHomeMonthlyPagerHostViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -35,11 +33,9 @@ public class RootHomeMonthlyPagerHostViewModel(
     private val betweenPageCount = 100
     public val uiState: StateFlow<RootHomeMonthlyPagerHostScreenUiState> = MutableStateFlow(
         RootHomeMonthlyPagerHostScreenUiState(
-            scaffoldListener = object : RootScreenScaffoldListenerDefaultImpl(navController) {
-                override fun onClickHome() {
-                    if (PlatformTypeProvider.type == PlatformType.JS) {
-                        super.onClickHome()
-                    }
+            kakeboScaffoldListener = object : KakeboScaffoldListener {
+                override fun onClickTitle() {
+                    navController.navigateToHome()
                 }
             },
             pages = buildList {

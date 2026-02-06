@@ -26,14 +26,14 @@ import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraph
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
 
 public data class RootHomeTabPeriodAllContentUiState(
     val loadingState: LoadingState,
     val rootHomeTabPeriodAndCategoryUiState: RootHomeTabPeriodAndCategoryUiState,
-    val scaffoldListener: RootScreenScaffoldListener,
+    val kakeboScaffoldListener: KakeboScaffoldListener,
     val event: Event,
 ) {
     public sealed interface LoadingState {
@@ -63,7 +63,7 @@ public fun RootHomeTabPeriodAllScreen(
     RootHomeTabPeriodScaffold(
         modifier = modifier.fillMaxSize(),
         uiState = uiState.rootHomeTabPeriodAndCategoryUiState,
-        scaffoldListener = uiState.scaffoldListener,
+        kakeboScaffoldListener = uiState.kakeboScaffoldListener,
         windowInsets = contentPadding,
         onRefresh = { uiState.event.refresh() },
     ) {

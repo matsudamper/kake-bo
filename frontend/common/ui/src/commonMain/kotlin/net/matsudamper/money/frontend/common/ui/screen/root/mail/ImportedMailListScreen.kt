@@ -81,7 +81,7 @@ public fun ImportedMailListScreen(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
                         ) {
-                            uiState.rootScreenScaffoldListener.kakeboScaffoldListener.onClickTitle()
+                            uiState.kakeboScaffoldListener.onClickTitle()
                         },
                         text = "家計簿",
                     )
@@ -92,6 +92,19 @@ public fun ImportedMailListScreen(
     ) {
         val lazyListState = rememberLazyListState()
         val coroutineScope = rememberCoroutineScope()
+        val scrollToTopHandler = net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler.current
+        androidx.compose.runtime.DisposableEffect(scrollToTopHandler, lazyListState) {
+            val handler = {
+                if (lazyListState.firstVisibleItemIndex > 0 || lazyListState.firstVisibleItemScrollOffset > 0) {
+                    coroutineScope.launch { lazyListState.animateScrollToItem(0) }
+                    true
+                } else {
+                    false
+                }
+            }
+            scrollToTopHandler.register(handler)
+            onDispose { scrollToTopHandler.unregister() }
+        }
         LaunchedEffect(uiState.operation, coroutineScope) {
             uiState.operation.collect {
                 it(

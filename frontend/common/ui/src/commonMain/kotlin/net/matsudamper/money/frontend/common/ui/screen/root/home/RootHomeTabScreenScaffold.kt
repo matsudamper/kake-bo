@@ -11,12 +11,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
-import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffoldListener
 
 @Composable
 public fun RootHomeTabScreenScaffold(
-    scaffoldListener: RootScreenScaffoldListener,
+    kakeboScaffoldListener: KakeboScaffoldListener,
     modifier: Modifier = Modifier,
     menu: @Composable () -> Unit = {},
     windowInsets: PaddingValues,
@@ -37,7 +37,7 @@ public fun RootHomeTabScreenScaffold(
                                 interactionSource = remember { MutableInteractionSource() },
                                 indication = null,
                             ) {
-                                scaffoldListener.kakeboScaffoldListener.onClickTitle()
+                                kakeboScaffoldListener.onClickTitle()
                             },
                             text = "家計簿",
                         )

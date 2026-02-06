@@ -33,7 +33,7 @@ import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 @Composable
 public fun RootHostScaffold(
     currentScreen: RootScreenTab,
-    listener: RootScreenScaffoldListener,
+    onClickTab: (RootScreenTab) -> Unit,
     windowInsets: PaddingValues,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
@@ -48,7 +48,7 @@ public fun RootHostScaffold(
                 ) {
                     NavigationRailItem(
                         selected = currentScreen == RootScreenTab.Home,
-                        onClick = { listener.onClickHome() },
+                        onClick = { onClickTab(RootScreenTab.Home) },
                         icon = {
                             Icon(Icons.Default.Home, null)
                         },
@@ -61,7 +61,7 @@ public fun RootHostScaffold(
                     )
                     NavigationRailItem(
                         selected = currentScreen == RootScreenTab.List,
-                        onClick = { listener.onClickList() },
+                        onClick = { onClickTab(RootScreenTab.List) },
                         icon = {
                             Icon(Icons.AutoMirrored.Filled.List, null)
                         },
@@ -74,7 +74,7 @@ public fun RootHostScaffold(
                     )
                     NavigationRailItem(
                         selected = currentScreen == RootScreenTab.Add,
-                        onClick = { listener.onClickAdd() },
+                        onClick = { onClickTab(RootScreenTab.Add) },
                         icon = {
                             Icon(Icons.Default.Add, null)
                         },
@@ -87,7 +87,7 @@ public fun RootHostScaffold(
                     )
                     NavigationRailItem(
                         selected = currentScreen == RootScreenTab.Settings,
-                        onClick = { listener.onClickSettings() },
+                        onClick = { onClickTab(RootScreenTab.Settings) },
                         icon = {
                             Icon(Icons.Default.Settings, null)
                         },
@@ -121,7 +121,7 @@ public fun RootHostScaffold(
             ) {
                 NavigationBarItem(
                     selected = currentScreen == RootScreenTab.Home,
-                    onClick = { listener.onClickHome() },
+                    onClick = { onClickTab(RootScreenTab.Home) },
                     icon = {
                         Icon(Icons.Default.Home, null)
                     },
@@ -134,7 +134,7 @@ public fun RootHostScaffold(
                 )
                 NavigationBarItem(
                     selected = currentScreen == RootScreenTab.List,
-                    onClick = { listener.onClickList() },
+                    onClick = { onClickTab(RootScreenTab.List) },
                     icon = {
                         Icon(Icons.AutoMirrored.Filled.List, null)
                     },
@@ -147,7 +147,7 @@ public fun RootHostScaffold(
                 )
                 NavigationBarItem(
                     selected = currentScreen == RootScreenTab.Add,
-                    onClick = { listener.onClickAdd() },
+                    onClick = { onClickTab(RootScreenTab.Add) },
                     icon = {
                         Icon(Icons.Default.Add, null)
                     },
@@ -160,7 +160,7 @@ public fun RootHostScaffold(
                 )
                 NavigationBarItem(
                     selected = currentScreen == RootScreenTab.Settings,
-                    onClick = { listener.onClickSettings() },
+                    onClick = { onClickTab(RootScreenTab.Settings) },
                     icon = {
                         Icon(Icons.Default.Settings, null)
                     },
