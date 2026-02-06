@@ -26,13 +26,16 @@ import androidx.compose.ui.unit.IntSize
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.entryProvider
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.NavHost
-import net.matsudamper.money.frontend.common.base.nav.rememberScopedObjectStoreOwner
+import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
+import net.matsudamper.money.frontend.common.base.nav.ScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -44,6 +47,7 @@ import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCh
 import net.matsudamper.money.frontend.common.viewmodel.LocalGlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
+import net.matsudamper.money.frontend.common.viewmodel.root.RootViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.LoginCheckUseCaseEventListenerImpl
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeAddTabScreenViewModel
@@ -55,10 +59,6 @@ import net.matsudamper.money.ui.root.platform.PlatformTools
 import net.matsudamper.money.ui.root.viewmodel.LocalViewModelProviders
 import net.matsudamper.money.ui.root.viewmodel.ViewModelProviders
 
-private enum class ScopeKey {
-    ROOT,
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun Content(
@@ -68,252 +68,256 @@ public fun Content(
     navController: ScreenNavController,
     composeSizeProvider: () -> MutableStateFlow<IntSize> = { MutableStateFlow(IntSize.Zero) },
 ) {
-    val scopedObjectStoreOwner = rememberScopedObjectStoreOwner(ScopeKey.ROOT::class.toString())
-    CompositionLocalProvider(
-        LocalScopedObjectStore provides scopedObjectStoreOwner.createOrGetScopedObjectStore(ScopeKey.ROOT),
-    ) {
-        val koin = LocalKoin.current
-        var alertDialogInfo: String? by remember { mutableStateOf(null) }
-        val rootCoroutineScope = rememberCoroutineScope()
-        var hostState by remember { mutableStateOf(SnackbarHostState()) }
-        val globalEvent: GlobalEvent = remember(hostState, rootCoroutineScope) {
-            object : GlobalEvent {
-                override fun showSnackBar(message: String) {
-                    // 二回目が表示されないのでstate自体を作成し直す
-                    hostState = SnackbarHostState()
-                    rootCoroutineScope.launch {
-                        hostState.showSnackbar(
-                            message = message,
-                            duration = SnackbarDuration.Short,
-                            withDismissAction = true,
-                        )
-                    }
-                }
-
-                override fun showNativeNotification(message: String) {
-                    alertDialogInfo = message
-                }
-            }
-        }
-        run {
-            val nonNullAlertDialogInfo = alertDialogInfo ?: return@run
-
-            BasicAlertDialog(
-                onDismissRequest = {
-                    alertDialogInfo = null
-                },
-            ) {
-                Text(nonNullAlertDialogInfo)
-            }
-        }
-
-        CompositionLocalProvider(
-            LocalGlobalEventHandlerLoginCheckUseCaseDelegate provides remember {
-                GlobalEventHandlerLoginCheckUseCaseDelegate(
-                    useCase = LoginCheckUseCaseImpl(
-                        graphqlQuery = GraphqlUserLoginQuery(
-                            graphqlClient = koin.get(),
-                        ),
-                        eventListener = LoginCheckUseCaseEventListenerImpl(
-                            navController = navController,
-                            globalEventSender = globalEventSender,
-                            coroutineScope = rootCoroutineScope,
-                        ),
-                    ),
-                )
-            },
-            LocalViewModelProviders provides remember {
-                ViewModelProviders(
-                    koin = koin,
-                    navController = navController,
-                    rootCoroutineScope = rootCoroutineScope,
-                )
-            },
-        ) {
-            val rootViewModel = LocalViewModelProviders.current.rootViewModel()
-
-            val rootUsageHostViewModel = LocalScopedObjectStore.current.putOrGet<RootUsageHostViewModel>(Unit) {
-                RootUsageHostViewModel(
-                    scopedObjectFeature = it,
-                    navController = navController,
-                    calendarPagingModel = RootUsageCalendarPagingModel(
-                        coroutineScope = rootCoroutineScope,
-                        graphqlClient = koin.get<GraphqlClient>(),
-                    ),
-                )
-            }
-            val mailScreenViewModel = LocalScopedObjectStore.current.putOrGet<HomeAddTabScreenViewModel>(Unit) {
-                HomeAddTabScreenViewModel(
-                    scopedObjectFeature = it,
-                    navController = navController,
-                )
-            }
-            val settingViewModel = LocalScopedObjectStore.current.putOrGet<SettingViewModel>(Unit) {
-                SettingViewModel(
-                    scopedObjectFeature = it,
-                    globalEventSender = globalEventSender,
-                    ioDispatchers = Dispatchers.IO,
-                    navController = navController,
-                )
-            }
-            val kakeboScaffoldListener: KakeboScaffoldListener = remember {
-                object : KakeboScaffoldListener {
-                    override fun onClickTitle() {
-                        navController.navigateToHome()
-                    }
-                }
-            }
-
-            LaunchedEffect(globalEventSender, globalEvent) {
-                globalEventSender.asHandler().collect(
-                    globalEvent,
-                )
-            }
-
-            val viewModelEventHandlers = remember(
-                navController,
-                globalEventSender,
-                platformToolsProvider,
-            ) {
-                ViewModelEventHandlers(
-                    navController = navController,
-                    globalEventSender = globalEventSender,
-                    platformToolsProvider = platformToolsProvider,
-                )
-            }
-            LaunchedEffect(mailScreenViewModel) {
-                viewModelEventHandlers.handleHomeAddTabScreen(
-                    mailScreenViewModel.navigateEventHandler,
-                )
-            }
-            LaunchedEffect(
-                viewModelEventHandlers,
-                rootUsageHostViewModel.rootNavigationEventHandler,
-            ) {
-                viewModelEventHandlers.handleRootUsageHost(
-                    handler = rootUsageHostViewModel.rootNavigationEventHandler,
-                )
-            }
-            LaunchedEffect(navController.currentBackstackEntry) {
-                rootViewModel.navigateChanged()
-            }
-            Scaffold(
-                modifier = modifier
-                    .fillMaxSize()
-                    .onSizeChanged {
-                        composeSizeProvider().value = it
-                    },
-                snackbarHost = {
-                    Box(
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        MySnackBarHost(
-                            modifier = Modifier.align(Alignment.CenterEnd),
-                            hostState = hostState,
-                        )
-                    }
-                },
-            ) { paddingValues ->
-                val paddingValues = rememberUpdatedState(paddingValues)
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    val movableRoot = remember {
-                        movableContentOf { current: ScreenStructure.Root ->
-                            RootScreenContainer(
-                                current = current,
-                                navController = navController,
-                                settingViewModel = settingViewModel,
-                                mailScreenViewModel = mailScreenViewModel,
-                                rootUsageHostViewModel = rootUsageHostViewModel,
-                                viewModelEventHandlers = viewModelEventHandlers,
-                                rootCoroutineScope = rootCoroutineScope,
-                                globalEventSender = globalEventSender,
-                                globalEvent = globalEvent,
-                            )
-                        }
-                    }
-                    NavHost(
-                        navController = navController,
-                        entryProvider = entryProvider(
-                            fallback = { unknownScreen ->
-                                when (unknownScreen) {
-                                    is ScreenStructure.Root -> {
-                                        NavEntry(
-                                            key = unknownScreen,
-                                            contentKey = unknownScreen,
-                                        ) {
-                                            movableRoot(unknownScreen)
-                                        }
-                                    }
-
-                                    else -> throw IllegalStateException("Unknown screen $unknownScreen")
-                                }
-                            },
-                        ) {
-                            addEntryProvider<ScreenStructure.Login> {
-                                LoginScreenContainer(
-                                    navController = navController,
-                                    globalEventSender = globalEventSender,
-                                    windowInsets = paddingValues.value,
-                                )
-                            }
-                            addEntryProvider<ScreenStructure.Admin> {
-                                AdminContainer(
-                                    windowInsets = paddingValues.value,
-                                )
-                            }
-                            addEntryProvider<ScreenStructure.NotFound> {
-                                NotFoundScreen(
-                                    paddingValues = paddingValues.value,
-                                )
-                            }
-                            addEntryProvider<ScreenStructure.AddMoneyUsage> { current ->
-                                AddMoneyUsageScreenContainer(
-                                    rootCoroutineScope = rootCoroutineScope,
-                                    current = current,
-                                    viewModelEventHandlers = viewModelEventHandlers,
-                                    windowInsets = paddingValues.value,
-                                )
-                            }
-
-                            addEntryProvider<ScreenStructure.ImportedMail> { current ->
-                                ImportedMailScreenContainer(
-                                    current = current,
-                                    viewModelEventHandlers = viewModelEventHandlers,
-                                    windowInsets = paddingValues.value,
-                                )
-                            }
-
-                            addEntryProvider<ScreenStructure.ImportedMailHTML> { current ->
-                                ImportedMailHtmlContainer(
-                                    current = current,
-                                    viewModelEventHandlers = viewModelEventHandlers,
-                                    kakeboScaffoldListener = kakeboScaffoldListener,
-                                    windowInsets = paddingValues.value,
-                                )
-                            }
-
-                            addEntryProvider<ScreenStructure.ImportedMailPlain> { current ->
-                                ImportedMailPlainScreenContainer(
-                                    screen = current,
-                                    viewModelEventHandlers = viewModelEventHandlers,
-                                    kakeboScaffoldListener = kakeboScaffoldListener,
-                                    windowInsets = paddingValues.value,
-                                )
-                            }
-
-                            addEntryProvider<ScreenStructure.MoneyUsage> { current ->
-                                MoneyUsageContainer(
-                                    screen = current,
-                                    viewModelEventHandlers = viewModelEventHandlers,
-                                    kakeboScaffoldListener = kakeboScaffoldListener,
-                                    windowInsets = paddingValues.value,
-                                )
-                            }
-                        },
+    val koin = LocalKoin.current
+    var alertDialogInfo: String? by remember { mutableStateOf(null) }
+    val rootCoroutineScope = rememberCoroutineScope()
+    var hostState by remember { mutableStateOf(SnackbarHostState()) }
+    val globalEvent: GlobalEvent = remember(hostState, rootCoroutineScope) {
+        object : GlobalEvent {
+            override fun showSnackBar(message: String) {
+                // 二回目が表示されないのでstate自体を作成し直す
+                hostState = SnackbarHostState()
+                rootCoroutineScope.launch {
+                    hostState.showSnackbar(
+                        message = message,
+                        duration = SnackbarDuration.Short,
+                        withDismissAction = true,
                     )
                 }
+            }
+
+            override fun showNativeNotification(message: String) {
+                alertDialogInfo = message
+            }
+        }
+    }
+    run {
+        val nonNullAlertDialogInfo = alertDialogInfo ?: return@run
+
+        BasicAlertDialog(
+            onDismissRequest = {
+                alertDialogInfo = null
+            },
+        ) {
+            Text(nonNullAlertDialogInfo)
+        }
+    }
+
+    CompositionLocalProvider(
+        LocalGlobalEventHandlerLoginCheckUseCaseDelegate provides remember {
+            GlobalEventHandlerLoginCheckUseCaseDelegate(
+                useCase = LoginCheckUseCaseImpl(
+                    graphqlQuery = GraphqlUserLoginQuery(
+                        graphqlClient = koin.get(),
+                    ),
+                    eventListener = LoginCheckUseCaseEventListenerImpl(
+                        navController = navController,
+                        globalEventSender = globalEventSender,
+                        coroutineScope = rootCoroutineScope,
+                    ),
+                ),
+            )
+        },
+        LocalViewModelProviders provides remember {
+            ViewModelProviders(
+                koin = koin,
+                navController = navController,
+                rootCoroutineScope = rootCoroutineScope,
+            )
+        },
+    ) {
+        val supervisorScopedObjectFeature = supervisorScopedObjectFeatureImpl()
+
+        val loginCheckUseCase = LocalGlobalEventHandlerLoginCheckUseCaseDelegate.current
+        val rootViewModel = remember(supervisorScopedObjectFeature) {
+            RootViewModel(
+                loginCheckUseCase = loginCheckUseCase,
+                scopedObjectFeature = supervisorScopedObjectFeature,
+                navController = navController,
+            )
+        }
+
+        val rootUsageHostViewModel = remember(supervisorScopedObjectFeature) {
+            RootUsageHostViewModel(
+                scopedObjectFeature = supervisorScopedObjectFeature,
+                navController = navController,
+                calendarPagingModel = RootUsageCalendarPagingModel(
+                    coroutineScope = rootCoroutineScope,
+                    graphqlClient = koin.get<GraphqlClient>(),
+                ),
+            )
+        }
+        val mailScreenViewModel = remember(supervisorScopedObjectFeature) {
+            HomeAddTabScreenViewModel(
+                scopedObjectFeature = supervisorScopedObjectFeature,
+                navController = navController,
+            )
+        }
+        val settingViewModel = remember(supervisorScopedObjectFeature) {
+            SettingViewModel(
+                scopedObjectFeature = supervisorScopedObjectFeature,
+                globalEventSender = globalEventSender,
+                ioDispatchers = Dispatchers.IO,
+                navController = navController,
+            )
+        }
+        val kakeboScaffoldListener: KakeboScaffoldListener = remember {
+            object : KakeboScaffoldListener {
+                override fun onClickTitle() {
+                    navController.navigateToHome()
+                }
+            }
+        }
+
+        LaunchedEffect(globalEventSender, globalEvent) {
+            globalEventSender.asHandler().collect(
+                globalEvent,
+            )
+        }
+
+        val viewModelEventHandlers = remember(
+            navController,
+            globalEventSender,
+            platformToolsProvider,
+        ) {
+            ViewModelEventHandlers(
+                navController = navController,
+                globalEventSender = globalEventSender,
+                platformToolsProvider = platformToolsProvider,
+            )
+        }
+        LaunchedEffect(mailScreenViewModel) {
+            viewModelEventHandlers.handleHomeAddTabScreen(
+                mailScreenViewModel.navigateEventHandler,
+            )
+        }
+        LaunchedEffect(
+            viewModelEventHandlers,
+            rootUsageHostViewModel.rootNavigationEventHandler,
+        ) {
+            viewModelEventHandlers.handleRootUsageHost(
+                handler = rootUsageHostViewModel.rootNavigationEventHandler,
+            )
+        }
+        LaunchedEffect(navController.currentBackstackEntry) {
+            rootViewModel.navigateChanged()
+        }
+        Scaffold(
+            modifier = modifier
+                .fillMaxSize()
+                .onSizeChanged {
+                    composeSizeProvider().value = it
+                },
+            snackbarHost = {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    MySnackBarHost(
+                        modifier = Modifier.align(Alignment.CenterEnd),
+                        hostState = hostState,
+                    )
+                }
+            },
+        ) { paddingValues ->
+            val paddingValues = rememberUpdatedState(paddingValues)
+            Box(
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                val movableRoot = remember {
+                    movableContentOf { current: ScreenStructure.Root ->
+                        RootScreenContainer(
+                            current = current,
+                            navController = navController,
+                            settingViewModel = settingViewModel,
+                            mailScreenViewModel = mailScreenViewModel,
+                            rootUsageHostViewModel = rootUsageHostViewModel,
+                            viewModelEventHandlers = viewModelEventHandlers,
+                            rootCoroutineScope = rootCoroutineScope,
+                            globalEventSender = globalEventSender,
+                            globalEvent = globalEvent,
+                        )
+                    }
+                }
+                NavHost(
+                    navController = navController,
+                    entryProvider = entryProvider(
+                        fallback = { unknownScreen ->
+                            when (unknownScreen) {
+                                is ScreenStructure.Root -> {
+                                    NavEntry(
+                                        key = unknownScreen,
+                                        contentKey = unknownScreen,
+                                    ) {
+                                        movableRoot(unknownScreen)
+                                    }
+                                }
+
+                                else -> throw IllegalStateException("Unknown screen $unknownScreen")
+                            }
+                        },
+                    ) {
+                        addEntryProvider<ScreenStructure.Login> {
+                            LoginScreenContainer(
+                                navController = navController,
+                                globalEventSender = globalEventSender,
+                                windowInsets = paddingValues.value,
+                            )
+                        }
+                        addEntryProvider<ScreenStructure.Admin> {
+                            AdminContainer(
+                                windowInsets = paddingValues.value,
+                            )
+                        }
+                        addEntryProvider<ScreenStructure.NotFound> {
+                            NotFoundScreen(
+                                paddingValues = paddingValues.value,
+                            )
+                        }
+                        addEntryProvider<ScreenStructure.AddMoneyUsage> { current ->
+                            AddMoneyUsageScreenContainer(
+                                rootCoroutineScope = rootCoroutineScope,
+                                current = current,
+                                viewModelEventHandlers = viewModelEventHandlers,
+                                windowInsets = paddingValues.value,
+                            )
+                        }
+
+                        addEntryProvider<ScreenStructure.ImportedMail> { current ->
+                            ImportedMailScreenContainer(
+                                current = current,
+                                viewModelEventHandlers = viewModelEventHandlers,
+                                windowInsets = paddingValues.value,
+                            )
+                        }
+
+                        addEntryProvider<ScreenStructure.ImportedMailHTML> { current ->
+                            ImportedMailHtmlContainer(
+                                current = current,
+                                viewModelEventHandlers = viewModelEventHandlers,
+                                kakeboScaffoldListener = kakeboScaffoldListener,
+                                windowInsets = paddingValues.value,
+                            )
+                        }
+
+                        addEntryProvider<ScreenStructure.ImportedMailPlain> { current ->
+                            ImportedMailPlainScreenContainer(
+                                screen = current,
+                                viewModelEventHandlers = viewModelEventHandlers,
+                                kakeboScaffoldListener = kakeboScaffoldListener,
+                                windowInsets = paddingValues.value,
+                            )
+                        }
+
+                        addEntryProvider<ScreenStructure.MoneyUsage> { current ->
+                            MoneyUsageContainer(
+                                screen = current,
+                                viewModelEventHandlers = viewModelEventHandlers,
+                                kakeboScaffoldListener = kakeboScaffoldListener,
+                                windowInsets = paddingValues.value,
+                            )
+                        }
+                    },
+                )
             }
         }
     }
@@ -327,5 +331,17 @@ private inline fun <reified K : IScreenStructure> EntryProviderScope<IScreenStru
         clazzContentKey = { it },
     ) { current ->
         content(current)
+    }
+}
+
+@Composable
+private fun supervisorScopedObjectFeatureImpl(): ScopedObjectFeature {
+    val coroutineScope = rememberCoroutineScope()
+    return remember(coroutineScope) {
+        object : ScopedObjectFeature {
+            override val coroutineScope: CoroutineScope
+                get() = CoroutineScope(SupervisorJob() + coroutineScope.coroutineContext)
+
+        }
     }
 }

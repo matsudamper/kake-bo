@@ -31,17 +31,6 @@ internal class ViewModelProviders(
     private val navController: ScreenNavController,
     private val rootCoroutineScope: CoroutineScope,
 ) {
-    @Composable
-    fun rootViewModel(): RootViewModel {
-        val loginCheckUseCase = LocalGlobalEventHandlerLoginCheckUseCaseDelegate.current
-        return LocalScopedObjectStore.current.putOrGet(Unit) { feature ->
-            RootViewModel(
-                loginCheckUseCase = loginCheckUseCase,
-                scopedObjectFeature = feature,
-                navController = navController,
-            )
-        }
-    }
 
     @Composable
     fun moneyUsagesCalendarViewModel(
