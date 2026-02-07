@@ -32,13 +32,7 @@ public class LoginScreenViewModel(
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
         run {
-            val initialHost = if (serverHostConfig != null) {
-                serverHostConfig.savedHost.takeIf { it.isNotEmpty() }
-                    ?: serverHostConfig.defaultHost.takeIf { it.isNotEmpty() }
-                        .orEmpty()
-            } else {
-                ""
-            }
+            val initialHost = serverHostConfig?.savedHost.orEmpty()
             ViewModelState(
                 selectedHost = initialHost,
                 customHosts = buildList {

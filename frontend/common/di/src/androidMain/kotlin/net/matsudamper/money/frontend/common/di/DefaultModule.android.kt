@@ -32,9 +32,7 @@ internal actual val factory: Factory = object : Factory() {
     override fun createGraphQlClient(scope: Scope): GraphqlClient {
         val sessionDataStore = scope.get<DataStores>().sessionDataStore
         val config = scope.get<ServerHostConfig>()
-        val initialHost = config.savedHost.takeIf { it.isNotEmpty() }
-            ?: config.defaultHost.takeIf { it.isNotEmpty() }
-                .orEmpty()
+        val initialHost = config.savedHost
         val initialServerUrl = if (initialHost.isNotEmpty()) {
             "${config.protocol}://$initialHost/query"
         } else {
