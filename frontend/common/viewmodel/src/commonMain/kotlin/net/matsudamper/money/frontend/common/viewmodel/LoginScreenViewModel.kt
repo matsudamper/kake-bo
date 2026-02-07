@@ -155,6 +155,7 @@ public class LoginScreenViewModel(
 
     init {
         viewModelScope.launch {
+            if (viewModelStateFlow.value.selectedHost.isEmpty()) return@launch
             val isLoggedIn = graphqlQuery.isLoggedIn()
             if (isLoggedIn) {
                 navController.navigate(RootHomeScreenStructure.Home)
