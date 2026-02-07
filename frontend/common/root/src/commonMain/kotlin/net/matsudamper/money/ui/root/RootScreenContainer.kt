@@ -15,6 +15,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
+import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -26,6 +27,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeAddTabScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalendarPagerHostViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
 import net.matsudamper.money.ui.root.viewmodel.LocalViewModelProviders
 
@@ -123,6 +125,16 @@ internal fun RootScreenContainer(
                         )
                     }
                     viewModel.uiStateFlow.collectAsState().value
+                },
+                usageCalendarHostUiStateProvider = { current ->
+                    val vm = LocalScopedObjectStore.current.putOrGet(Unit) {
+                        RootUsageCalendarPagerHostViewModel(
+                            scopedObjectFeature = it,
+                            rootUsageHostViewModel = rootUsageHostViewModel,
+                            initial = current,
+                        )
+                    }
+                    vm.uiState.collectAsState().value
                 },
                 usageListUiStateProvider = {
                     val coroutineScope = rememberCoroutineScope()
