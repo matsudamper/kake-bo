@@ -48,7 +48,6 @@ import net.matsudamper.money.frontend.common.base.ImmutableList
 
 public data class RootUsageCalendarScreenUiState(
     val event: Event,
-    val hostScreenUiState: RootUsageHostScreenUiState,
     val loadingState: LoadingState,
 ) {
     @Immutable
