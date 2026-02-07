@@ -71,7 +71,6 @@ public class MoneyUsagesCalendarViewModel(
     public val uiStateFlow: StateFlow<RootUsageCalendarScreenUiState> = MutableStateFlow(
         RootUsageCalendarScreenUiState(
             loadingState = RootUsageCalendarScreenUiState.LoadingState.Loading,
-            hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
             event = object : RootUsageCalendarScreenUiState.Event {
                 override suspend fun onViewInitialized() {
                     if (rootUsageHostViewModel.calendarPagingModel.hasSelectedMonth().not()) {
@@ -116,15 +115,6 @@ public class MoneyUsagesCalendarViewModel(
             },
         ),
     ).also { uiStateFlow ->
-        viewModelScope.launch {
-            rootUsageHostViewModel.uiStateFlow.collectLatest {
-                uiStateFlow.update { uiState ->
-                    uiState.copy(
-                        hostScreenUiState = it,
-                    )
-                }
-            }
-        }
         viewModelScope.launch {
             viewModelStateFlow.collectLatest {
                 val calendarViewModelState = it
