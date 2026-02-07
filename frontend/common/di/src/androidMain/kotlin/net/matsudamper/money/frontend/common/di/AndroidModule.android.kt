@@ -14,7 +14,7 @@ object AndroidModule {
     fun getModule(context: Application) = module {
         factory<Context> { context }
         factory<Application> { context }
-        factory<DataStores> { DataStores.create(context = get()) }
+        single<DataStores> { DataStores.create(context = get()) }
         single<ServerHostConfig> {
             val dataStores = get<DataStores>()
             val savedSession = runBlocking { dataStores.sessionDataStore.data.firstOrNull() }
