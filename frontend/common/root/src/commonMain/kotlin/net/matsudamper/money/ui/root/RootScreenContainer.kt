@@ -124,12 +124,14 @@ internal fun RootScreenContainer(
                     }
                     viewModel.uiStateFlow.collectAsState().value
                 },
-                usageListUiStateProvider = {
+                rootUsageHostViewModel = rootUsageHostViewModel,
+                usageListUiStateProvider = { navigation ->
                     val coroutineScope = rememberCoroutineScope()
                     val viewModel = LocalViewModelProviders.current
                         .moneyUsagesListViewModel(
                             coroutineScope = coroutineScope,
                             rootUsageHostViewModel = rootUsageHostViewModel,
+                            navigation = navigation,
                         )
                     LaunchedEffect(viewModel.viewModelEventHandler) {
                         viewModelEventHandlers.handleMoneyUsagesList(

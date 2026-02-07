@@ -49,7 +49,7 @@ public class RootUsageHostViewModel(
         override fun onClickList() {
             viewModelScope.launch {
                 rootNavigationEventSender.send {
-                    it.navigate(ScreenStructure.Root.Usage.List)
+                    it.navigate(ScreenStructure.Root.Usage.List(yearMonth = null))
                 }
             }
         }
@@ -123,7 +123,17 @@ public class RootUsageHostViewModel(
                             },
                             header = when (viewModelState.screenStructure) {
                                 is ScreenStructure.Root.Usage.Calendar -> viewModelState.calendarHeader
-                                is ScreenStructure.Root.Usage.List -> RootUsageHostScreenUiState.Header.None
+                                is ScreenStructure.Root.Usage.List -> {
+                                    val ym = viewModelState.screenStructure.yearMonth
+                                    if (ym != null) {
+                                        RootUsageHostScreenUiState.Header.List(
+                                            year = ym.year,
+                                            month = ym.month,
+                                        )
+                                    } else {
+                                        RootUsageHostScreenUiState.Header.None
+                                    }
+                                }
                             } ?: RootUsageHostScreenUiState.Header.None,
                             textInputUiState = viewModelState.textInputUiState,
                             searchText = viewModelState.searchText,

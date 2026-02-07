@@ -127,9 +127,50 @@ public sealed interface ScreenStructure : IScreenStructure {
             override val stackGroupId: String get() = "ScreenStructure#Root#Usage"
 
             @Serializable
-            public data object List : Usage {
+            public data class List(
+                val yearMonth: YearMonth?,
+            ) : Usage {
                 override val direction: Screens = Screens.UsageList
                 override val sameScreenId: String = "ScreenStructure#Root#Usage#List"
+
+                override fun createUrl(): String {
+                    return if (yearMonth == null) {
+                        direction.placeholderUrl
+                    } else {
+                        buildString {
+                            append(direction.placeholderUrl)
+                            append(
+                                buildParameter {
+                                    append("year", yearMonth.year.toString())
+                                    append("month", yearMonth.month.toString())
+                                },
+                            )
+                        }
+                    }
+                }
+
+                @Serializable
+                public data class YearMonth(
+                    val year: Int,
+                    val month: Int,
+                )
+
+                public companion object {
+                    public fun fromQueryParams(
+                        queryParams: Map<String, kotlin.collections.List<String>>,
+                    ): List {
+                        val year = queryParams["year"]?.firstOrNull()?.toIntOrNull()
+                            ?: return List(yearMonth = null)
+                        val month = queryParams["month"]?.firstOrNull()?.toIntOrNull()
+                            ?: return List(yearMonth = null)
+                        return List(
+                            yearMonth = YearMonth(
+                                year = year,
+                                month = month,
+                            ),
+                        )
+                    }
+                }
             }
 
             @Serializable

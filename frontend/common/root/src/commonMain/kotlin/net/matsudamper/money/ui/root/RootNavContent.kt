@@ -32,7 +32,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalen
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalendarScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreenUiState
-import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListPagerHostScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageListScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.LocalGlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
@@ -45,6 +45,8 @@ import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.RootHom
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.RootHomeMonthlyScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.category.RootHomeMonthlyCategoryScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.subcategory.RootHomeMonthlySubCategoryScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageListPagerHostViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 private enum class SavedStateHolderKey {
@@ -60,7 +62,8 @@ internal fun RootNavContent(
     globalEvent: GlobalEvent,
     rootCoroutineScope: CoroutineScope,
     globalEventSender: EventSender<GlobalEvent>,
-    usageListUiStateProvider: @Composable () -> RootUsageListScreenUiState,
+    rootUsageHostViewModel: RootUsageHostViewModel,
+    usageListUiStateProvider: @Composable (ScreenStructure.Root.Usage.List) -> RootUsageListScreenUiState,
     usageCalendarUiStateProvider: @Composable (ScreenStructure.Root.Usage.Calendar.YearMonth?) -> RootUsageCalendarScreenUiState,
     importMailScreenUiStateProvider: @Composable (ScreenStructure.Root.Add.Imported) -> ImportedMailListScreenUiState,
     importMailLinkScreenUiStateProvider: @Composable (ScreenStructure.Root.Add.Import) -> ImportMailScreenUiState,
@@ -261,11 +264,24 @@ internal fun RootNavContent(
 
                     is ScreenStructure.Root.Usage.List -> {
                         usageHost.SaveableStateProvider(ScreenStructure.Root.Usage.List::class.toString()) {
-                            val uiState = usageListUiStateProvider()
-                            rootScreen(uiState.hostScreenUiState) {
-                                RootUsageListScreen(
+                            val pagerHostViewModel = LocalScopedObjectStore.current
+                                .putOrGet<RootUsageListPagerHostViewModel>(Unit) {
+                                    RootUsageListPagerHostViewModel(
+                                        scopedObjectFeature = it,
+                                        initial = current,
+                                        rootUsageHostViewModel = rootUsageHostViewModel,
+                                    )
+                                }
+                            LaunchedEffect(pagerHostViewModel, current) {
+                                pagerHostViewModel.updateStructure(current)
+                            }
+                            rootScreen(rootUsageHostViewModel.uiStateFlow.collectAsState().value) {
+                                RootUsageListPagerHostScreen(
                                     modifier = Modifier.fillMaxSize(),
-                                    uiState = uiState,
+                                    uiState = pagerHostViewModel.uiState.collectAsState().value,
+                                    uiStateProvider = { navigation ->
+                                        usageListUiStateProvider(navigation)
+                                    },
                                 )
                             }
                         }

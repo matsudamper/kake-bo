@@ -62,12 +62,14 @@ internal class ViewModelProviders(
     fun moneyUsagesListViewModel(
         coroutineScope: CoroutineScope,
         rootUsageHostViewModel: RootUsageHostViewModel,
+        navigation: ScreenStructure.Root.Usage.List,
     ): MoneyUsagesListViewModel {
-        return LocalScopedObjectStore.current.putOrGet(Unit) { feature ->
+        return LocalScopedObjectStore.current.putOrGet(navigation) { feature ->
             MoneyUsagesListViewModel(
                 scopedObjectFeature = feature,
                 rootUsageHostViewModel = rootUsageHostViewModel,
                 graphqlClient = koin.get(),
+                navigation = navigation,
             )
         }
     }

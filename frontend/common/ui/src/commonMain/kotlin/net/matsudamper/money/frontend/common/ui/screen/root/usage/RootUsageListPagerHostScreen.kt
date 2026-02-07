@@ -1,0 +1,62 @@
+package net.matsudamper.money.frontend.common.ui.screen.root.usage
+
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.Modifier
+import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+
+@Stable
+public data class RootUsageListPagerHostScreenUiState(
+    val pages: ImmutableList<Page>,
+    val currentPage: Int,
+    val event: Event,
+) {
+    public data class Page(
+        val navigation: ScreenStructure.Root.Usage.List,
+    )
+
+    @Immutable
+    public interface Event {
+        public fun onPageChanged(page: Page)
+    }
+}
+
+@Composable
+public fun RootUsageListPagerHostScreen(
+    uiState: RootUsageListPagerHostScreenUiState,
+    uiStateProvider: @Composable (ScreenStructure.Root.Usage.List) -> RootUsageListScreenUiState,
+    modifier: Modifier = Modifier,
+) {
+    val state = rememberPagerState(uiState.currentPage) { uiState.pages.size }
+    LaunchedEffect(state, uiState.currentPage) {
+        state.animateScrollToPage(
+            uiState.currentPage,
+            animationSpec = tween(durationMillis = 300),
+        )
+    }
+    LaunchedEffect(state, uiState.event) {
+        snapshotFlow { state.settledPage }.collect { settledPage ->
+            val page = uiState.pages.getOrNull(settledPage) ?: return@collect
+            uiState.event.onPageChanged(page)
+        }
+    }
+    HorizontalPager(
+        state = state,
+        modifier = modifier,
+    ) { index ->
+        val item = uiState.pages[index]
+
+        RootUsageListScreen(
+            modifier = Modifier.fillMaxSize(),
+            uiState = uiStateProvider(item.navigation),
+        )
+    }
+}

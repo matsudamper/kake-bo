@@ -302,6 +302,7 @@ private fun TitleBar(
             }
 
             is RootUsageHostScreenUiState.Header.List -> {
+                Text(text = "${header.year}/${header.month}")
             }
 
             is RootUsageHostScreenUiState.Header.None -> Unit

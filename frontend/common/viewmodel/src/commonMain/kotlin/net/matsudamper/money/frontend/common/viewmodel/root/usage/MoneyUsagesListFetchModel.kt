@@ -15,6 +15,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.DateTimeUnit
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.plus
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
@@ -30,6 +35,7 @@ import net.matsudamper.money.frontend.graphql.updateOperation
 public class MoneyUsagesListFetchModel(
     private val graphqlClient: GraphqlClient,
     private val coroutineScope: CoroutineScope,
+    private val selectedMonth: LocalDate?,
 ) {
     private val modelStateFlow = MutableStateFlow(ModelState())
     private val resultsFlow = MutableStateFlow<ApolloResponse<UsageListScreenPagingQuery.Data>?>(null)
@@ -38,6 +44,7 @@ public class MoneyUsagesListFetchModel(
         createQuery(
             searchText = it.searchText.orEmpty(),
             cursor = null,
+            selectedMonth = selectedMonth,
         )
     }.stateIn(coroutineScope, started = SharingStarted.Lazily, initialValue = null)
 
@@ -140,26 +147,54 @@ public class MoneyUsagesListFetchModel(
         val searchText: String? = null,
     )
 
-    private companion object {
-        private fun getCacheQuery(searchText: String) = createQuery(
-            searchText = searchText,
-            cursor = null,
-        )
-    }
+    private fun getCacheQuery(searchText: String) = createQuery(
+        searchText = searchText,
+        cursor = null,
+        selectedMonth = selectedMonth,
+    )
 }
 
 private fun createQuery(
     searchText: String,
     cursor: String?,
+    selectedMonth: LocalDate?,
 ): UsageListScreenPagingQuery {
     return UsageListScreenPagingQuery(
         query = MoneyUsagesQuery(
             cursor = Optional.present(cursor),
             size = 10,
-            isAsc = false,
+            isAsc = if (selectedMonth != null) true else false,
             filter = Optional.present(
                 MoneyUsagesQueryFilter(
                     text = Optional.present(searchText),
+                    sinceDateTime = if (selectedMonth != null) {
+                        Optional.present(
+                            LocalDateTime(
+                                LocalDate(
+                                    year = selectedMonth.year,
+                                    month = selectedMonth.month,
+                                    dayOfMonth = 1,
+                                ),
+                                LocalTime(0, 0),
+                            ),
+                        )
+                    } else {
+                        Optional.absent()
+                    },
+                    untilDateTime = if (selectedMonth != null) {
+                        Optional.present(
+                            LocalDateTime(
+                                LocalDate(
+                                    year = selectedMonth.year,
+                                    monthNumber = selectedMonth.monthNumber,
+                                    dayOfMonth = 1,
+                                ).plus(1, DateTimeUnit.MONTH),
+                                LocalTime(0, 0),
+                            ),
+                        )
+                    } else {
+                        Optional.absent()
+                    },
                 ),
             ),
         ),
