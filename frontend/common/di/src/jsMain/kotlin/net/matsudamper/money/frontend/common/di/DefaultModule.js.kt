@@ -4,6 +4,8 @@ import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModelJsImpl
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.GraphqlClientImpl
+import net.matsudamper.money.frontend.graphql.serverHost
+import net.matsudamper.money.frontend.graphql.serverProtocol
 import org.koin.core.scope.Scope
 
 internal actual val factory: Factory = object : Factory() {
@@ -14,6 +16,8 @@ internal actual val factory: Factory = object : Factory() {
     override fun createGraphQlClient(scope: Scope): GraphqlClient {
         return GraphqlClientImpl(
             interceptors = listOf(),
+            serverUrl = "$serverProtocol://$serverHost/query",
+            onServerUrlChanged = {},
         )
     }
 }

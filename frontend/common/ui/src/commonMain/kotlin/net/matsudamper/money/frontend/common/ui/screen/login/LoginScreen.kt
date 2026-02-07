@@ -13,14 +13,18 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -97,8 +101,121 @@ public fun LoginScreen(
                     Text(text = "Admin Login Page")
                 }
             }
+
+            val serverHostState = uiState.serverHost
+            if (serverHostState != null) {
+                ServerHostSection(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(12.dp),
+                    serverHostState = serverHostState,
+                    listener = uiState.listener,
+                )
+                val dialogText = serverHostState.customHostDialogText
+                if (dialogText != null) {
+                    CustomHostDialog(
+                        text = dialogText,
+                        onTextChanged = { uiState.listener.onCustomHostTextChanged(it) },
+                        onConfirm = { uiState.listener.onConfirmCustomHost() },
+                        onDismiss = { uiState.listener.onDismissCustomHostDialog() },
+                    )
+                }
+            }
         }
     }
+}
+
+@Composable
+private fun ServerHostSection(
+    serverHostState: LoginScreenUiState.ServerHostUiState,
+    listener: LoginScreenUiState.Listener,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        val selectedHost = serverHostState.selectedHost
+        if (selectedHost.isNotEmpty()) {
+            Text(
+                text = selectedHost,
+                fontFamily = rememberCustomFontFamily(),
+                style = MaterialTheme.typography.bodySmall,
+            )
+            IconButton(
+                onClick = { listener.onClickChangeHost() },
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Settings,
+                    contentDescription = null,
+                )
+            }
+        } else {
+            TextButton(
+                onClick = { listener.onClickChangeHost() },
+            ) {
+                Text(
+                    text = "ホストを設定",
+                    fontFamily = rememberCustomFontFamily(),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CustomHostDialog(
+    text: String,
+    onTextChanged: (String) -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "ホスト設定",
+                fontFamily = rememberCustomFontFamily(),
+            )
+        },
+        text = {
+            OutlinedTextField(
+                value = text,
+                onValueChange = onTextChanged,
+                label = {
+                    Text(
+                        text = "ホスト名",
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                },
+                placeholder = {
+                    Text(
+                        text = "example.com:443",
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        },
+        confirmButton = {
+            Button(onClick = onConfirm) {
+                Text(
+                    text = "OK",
+                    fontFamily = rememberCustomFontFamily(),
+                )
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(
+                    text = "キャンセル",
+                    fontFamily = rememberCustomFontFamily(),
+                )
+            }
+        },
+    )
 }
 
 @Composable

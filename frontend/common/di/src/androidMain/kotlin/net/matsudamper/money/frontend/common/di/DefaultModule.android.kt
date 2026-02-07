@@ -18,6 +18,7 @@ import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModelAndroidImpl
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.GraphqlClientImpl
+import net.matsudamper.money.frontend.graphql.ServerHostConfig
 import org.koin.core.scope.Scope
 
 internal actual val factory: Factory = object : Factory() {
@@ -30,7 +31,18 @@ internal actual val factory: Factory = object : Factory() {
 
     override fun createGraphQlClient(scope: Scope): GraphqlClient {
         val sessionDataStore = scope.get<DataStores>().sessionDataStore
+        val config = scope.get<ServerHostConfig>()
+        val initialHost = config.savedHost.ifEmpty { config.defaultHost }
+        val initialServerUrl = if (initialHost.isNotEmpty()) {
+            "${config.protocol}://$initialHost/query"
+        } else {
+            ""
+        }
+
+        var activeHost = initialHost
+
         return GraphqlClientImpl(
+            serverUrl = initialServerUrl,
             interceptors = listOf(
                 object : ApolloInterceptor {
                     override fun <D : Operation.Data> intercept(
@@ -62,6 +74,7 @@ internal actual val factory: Factory = object : Factory() {
                                 sessionDataStore.updateData {
                                     it.toBuilder()
                                         .setUserSessionId(value)
+                                        .setServerHost(activeHost)
                                         .build()
                                 }
                             }
@@ -83,6 +96,9 @@ internal actual val factory: Factory = object : Factory() {
                     }
                 },
             ),
+            onServerUrlChanged = { url ->
+                activeHost = url.substringAfter("://").substringBefore("/")
+            },
         )
     }
 }
