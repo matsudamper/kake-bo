@@ -207,6 +207,12 @@ private fun CustomHostDialog(
                         fontFamily = rememberCustomFontFamily(),
                     )
                 },
+                placeholder = {
+                    Text(
+                        text = "example.com:443",
+                        fontFamily = rememberCustomFontFamily(),
+                    )
+                },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
