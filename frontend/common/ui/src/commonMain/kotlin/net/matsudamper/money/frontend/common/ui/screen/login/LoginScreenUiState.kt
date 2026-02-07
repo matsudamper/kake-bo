@@ -11,7 +11,6 @@ public data class LoginScreenUiState(
 ) {
     public data class ServerHostUiState(
         val selectedHost: String,
-        val hosts: List<String>,
         val customHostDialogText: String?,
     )
 
@@ -38,8 +37,7 @@ public data class LoginScreenUiState(
         public fun onUserIdChanged(text: String)
         public fun onPasswordChanged(text: String)
 
-        public fun onSelectServerHost(host: String)
-        public fun onClickAddCustomHost()
+        public fun onClickChangeHost()
         public fun onCustomHostTextChanged(text: String)
         public fun onConfirmCustomHost()
         public fun onDismissCustomHostDialog()

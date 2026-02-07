@@ -13,11 +13,9 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -106,7 +104,7 @@ public fun LoginScreen(
 
             val serverHostState = uiState.serverHost
             if (serverHostState != null) {
-                ServerHostDropdown(
+                ServerHostSection(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(12.dp),
@@ -128,56 +126,40 @@ public fun LoginScreen(
 }
 
 @Composable
-private fun ServerHostDropdown(
+private fun ServerHostSection(
     serverHostState: LoginScreenUiState.ServerHostUiState,
     listener: LoginScreenUiState.Listener,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier) {
-        var expanded by remember { mutableStateOf(false) }
-        TextButton(
-            onClick = { expanded = true },
-        ) {
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        val selectedHost = serverHostState.selectedHost
+        if (selectedHost.isNotEmpty()) {
             Text(
-                text = serverHostState.selectedHost.ifEmpty { "ホストを選択" },
+                text = selectedHost,
                 fontFamily = rememberCustomFontFamily(),
                 style = MaterialTheme.typography.bodySmall,
             )
-            Icon(
-                imageVector = Icons.Filled.ArrowDropDown,
-                contentDescription = null,
-            )
-        }
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-        ) {
-            for (host in serverHostState.hosts) {
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = host,
-                            fontFamily = rememberCustomFontFamily(),
-                        )
-                    },
-                    onClick = {
-                        listener.onSelectServerHost(host)
-                        expanded = false
-                    },
+            IconButton(
+                onClick = { listener.onClickChangeHost() },
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Settings,
+                    contentDescription = null,
                 )
             }
-            DropdownMenuItem(
-                text = {
-                    Text(
-                        text = "\uFF0Bカスタムホスト",
-                        fontFamily = rememberCustomFontFamily(),
-                    )
-                },
-                onClick = {
-                    listener.onClickAddCustomHost()
-                    expanded = false
-                },
-            )
+        } else {
+            TextButton(
+                onClick = { listener.onClickChangeHost() },
+            ) {
+                Text(
+                    text = "ホストを設定",
+                    fontFamily = rememberCustomFontFamily(),
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
         }
     }
 }
@@ -193,7 +175,7 @@ private fun CustomHostDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "カスタムホスト",
+                text = "ホスト設定",
                 fontFamily = rememberCustomFontFamily(),
             )
         },

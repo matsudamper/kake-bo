@@ -38,14 +38,6 @@ public class LoginScreenViewModel(
                     .orEmpty()
             ViewModelState(
                 selectedHost = initialHost,
-                customHosts = buildList {
-                    if (serverHostConfig != null) {
-                        val savedHost = serverHostConfig.savedHost
-                        if (savedHost.isNotEmpty() && savedHost != serverHostConfig.defaultHost) {
-                            add(savedHost)
-                        }
-                    }
-                },
             )
         },
     )
@@ -97,15 +89,10 @@ public class LoginScreenViewModel(
                     )
                 }
 
-                override fun onSelectServerHost(host: String) {
-                    viewModelStateFlow.update { it.copy(selectedHost = host) }
-                    if (serverHostConfig != null) {
-                        graphqlClient.updateServerUrl("${serverHostConfig.protocol}://$host/query")
+                override fun onClickChangeHost() {
+                    viewModelStateFlow.update {
+                        it.copy(customHostDialogText = it.selectedHost)
                     }
-                }
-
-                override fun onClickAddCustomHost() {
-                    viewModelStateFlow.update { it.copy(customHostDialogText = "") }
                 }
 
                 override fun onCustomHostTextChanged(text: String) {
@@ -116,14 +103,8 @@ public class LoginScreenViewModel(
                     val text = viewModelStateFlow.value.customHostDialogText.orEmpty().trim()
                     if (text.isEmpty()) return
                     viewModelStateFlow.update {
-                        val updatedCustomHosts = if (it.customHosts.contains(text)) {
-                            it.customHosts
-                        } else {
-                            it.customHosts + text
-                        }
                         it.copy(
                             selectedHost = text,
-                            customHosts = updatedCustomHosts,
                             customHostDialogText = null,
                         )
                     }
@@ -153,20 +134,8 @@ public class LoginScreenViewModel(
 
     private fun createServerHostUiState(state: ViewModelState): LoginScreenUiState.ServerHostUiState? {
         if (serverHostConfig == null) return null
-        val hosts = buildList {
-            val defaultHost = serverHostConfig.defaultHost
-            if (defaultHost.isNotEmpty()) {
-                add(defaultHost)
-            }
-            for (customHost in state.customHosts) {
-                if (customHost != defaultHost) {
-                    add(customHost)
-                }
-            }
-        }
         return LoginScreenUiState.ServerHostUiState(
             selectedHost = state.selectedHost,
-            hosts = hosts,
             customHostDialogText = state.customHostDialogText,
         )
     }
@@ -238,7 +207,6 @@ public class LoginScreenViewModel(
         val userName: TextFieldValue = TextFieldValue(),
         val password: TextFieldValue = TextFieldValue(),
         val selectedHost: String = "",
-        val customHosts: List<String> = listOf(),
         val customHostDialogText: String? = null,
     )
 }
