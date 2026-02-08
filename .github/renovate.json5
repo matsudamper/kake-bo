@@ -5,6 +5,10 @@
   "extends": [":dependencyDashboard"],
   "packageRules": [
     {
+      "matchDatasources": ["maven"],
+      "allowedVersions": "!/SNAPSHOT/",
+    },
+    {
       "matchPackageNames": [
         "com.graphql-java:graphql-java-extended-scalars",
         "com.graphql-java:graphql-java",
