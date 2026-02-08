@@ -47,6 +47,7 @@ public fun NavHost(
                 remember {
                     NavEntryDecorator(
                         onPop = {
+                            // NavHostScopeProviderで削除を管理する
                         },
                         decorate = { entry ->
                             val structure = entry.contentKey as IScreenStructure
