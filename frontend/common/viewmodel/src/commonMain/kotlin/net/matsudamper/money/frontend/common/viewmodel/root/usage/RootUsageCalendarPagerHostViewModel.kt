@@ -11,8 +11,10 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.YearMonth
+import kotlinx.datetime.minusMonth
 import kotlinx.datetime.number
 import kotlinx.datetime.plus
+import kotlinx.datetime.plusMonth
 import kotlinx.datetime.todayIn
 import kotlinx.datetime.yearMonth
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
@@ -143,13 +145,14 @@ public class RootUsageCalendarPagerHostViewModel(
     }
 
     private fun prevMonth() {
+        val prev = viewModelStateFlow.value.yearMonth.minusMonth()
         viewModelScope.launch {
             viewModelEventSender.send {
                 it.navigate(
                     ScreenStructure.Root.Usage.Calendar(
                         yearMonth = ScreenStructure.Root.Usage.Calendar.YearMonth(
-                            year = viewModelStateFlow.value.yearMonth.year,
-                            month = viewModelStateFlow.value.yearMonth.month.number,
+                            year = prev.year,
+                            month = prev.month.number,
                         ),
                     ),
                 )
@@ -158,13 +161,14 @@ public class RootUsageCalendarPagerHostViewModel(
     }
 
     private fun nextMonth() {
+        val next = viewModelStateFlow.value.yearMonth.plusMonth()
         viewModelScope.launch {
             viewModelEventSender.send {
                 it.navigate(
                     ScreenStructure.Root.Usage.Calendar(
                         yearMonth = ScreenStructure.Root.Usage.Calendar.YearMonth(
-                            year = viewModelStateFlow.value.yearMonth.year,
-                            month = viewModelStateFlow.value.yearMonth.month.number,
+                            year = next.year,
+                            month = next.month.number,
                         ),
                     ),
                 )
