@@ -36,65 +36,64 @@ public fun NavHost(
     }
     val holder = rememberSaveableStateHolder("nav_display")
     val scopedObjectStoreOwner = rememberScopedObjectStoreOwner("NavHost")
-    NavHostScopeProvider(
+    NavHostScopeLifecycleHandler(
         navController = navController,
         savedStateHolder = holder,
         scopedObjectStoreOwner = scopedObjectStoreOwner,
-    ) {
-        NavDisplay(
-            backStack = backStack,
-            entryProvider = entryProvider,
-            entryDecorators =
-                remember {
-                    listOf(
-                        NavEntryDecorator(
-                            onPop = {
-                                // NavHostScopeProviderで削除を管理する
-                            },
-                            decorate = { entry ->
-                                val structure = entry.contentKey as IScreenStructure
+    )
+    NavDisplay(
+        backStack = backStack,
+        entryProvider = entryProvider,
+        entryDecorators =
+            remember {
+                listOf(
+                    NavEntryDecorator(
+                        onPop = {
+                            // NavHostScopeProviderで削除を管理する
+                        },
+                        decorate = { entry ->
+                            val structure = entry.contentKey as IScreenStructure
 
-                                holder.SaveableStateProvider(structure.scopeKey) {
-                                    entry.Content()
-                                }
-                            },
-                        ),
-                        NavEntryDecorator(
-                            onPop = {
-
-                            },
-                            decorate = { entry ->
-                                val structure = entry.contentKey as IScreenStructure
-
-                                CompositionLocalProvider(
-                                    LocalScopedObjectStore provides scopedObjectStoreOwner
-                                        .createOrGetScopedObjectStore(structure.sameScreenId),
-                                ) {
-                                    entry.Content()
-                                }
-                            },
-                        ),
-                    )
-                },
-            onBack = onBack,
-            predictivePopTransitionSpec = {
-                ContentTransform(
-                    targetContentEnter = fadeIn(
-                        animationSpec = spring(
-                            dampingRatio = 1.0f,
-                            stiffness = 1600.0f,
-                        ),
+                            holder.SaveableStateProvider(structure.scopeKey) {
+                                entry.Content()
+                            }
+                        },
                     ),
-                    initialContentExit = fadeOut(
-                        animationSpec = spring(
-                            dampingRatio = 1.0f,
-                            stiffness = 1600.0f,
-                        ),
+                    NavEntryDecorator(
+                        onPop = {
+                            // NavHostScopeProviderで削除を管理する
+                        },
+                        decorate = { entry ->
+                            val structure = entry.contentKey as IScreenStructure
+
+                            CompositionLocalProvider(
+                                LocalScopedObjectStore provides scopedObjectStoreOwner
+                                    .createOrGetScopedObjectStore(structure.sameScreenId),
+                            ) {
+                                entry.Content()
+                            }
+                        },
                     ),
                 )
             },
-        )
-    }
+        onBack = onBack,
+        predictivePopTransitionSpec = {
+            ContentTransform(
+                targetContentEnter = fadeIn(
+                    animationSpec = spring(
+                        dampingRatio = 1.0f,
+                        stiffness = 1600.0f,
+                    ),
+                ),
+                initialContentExit = fadeOut(
+                    animationSpec = spring(
+                        dampingRatio = 1.0f,
+                        stiffness = 1600.0f,
+                    ),
+                ),
+            )
+        },
+    )
 }
 
 public interface ScopedObjectStoreOwner {

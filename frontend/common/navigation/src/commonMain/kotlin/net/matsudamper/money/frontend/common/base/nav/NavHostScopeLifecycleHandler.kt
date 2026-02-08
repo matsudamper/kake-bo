@@ -12,11 +12,10 @@ import androidx.compose.runtime.snapshotFlow
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 
 @Composable
-internal fun NavHostScopeProvider(
+internal fun NavHostScopeLifecycleHandler(
     navController: ScreenNavController,
     savedStateHolder: SaveableStateHolder = rememberSaveableStateHolder(),
     scopedObjectStoreOwner: ScopedObjectStoreOwner,
-    content: @Composable () -> Unit,
 ) {
     run {
         var beforeScopeKey: List<String> by rememberSaveable { mutableStateOf(listOf()) }
@@ -42,9 +41,5 @@ internal fun NavHostScopeProvider(
             .forEach { scopeKey ->
                 scopedObjectStoreOwner.removeScopedObjectStore(scopeKey)
             }
-    }
-    val currentBackstackEntry = navController.currentBackstackEntry
-    if (currentBackstackEntry != null) {
-        content()
     }
 }
