@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -13,16 +14,24 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolder
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 
+@Immutable
+public fun interface EntryDecorator {
+    @Composable
+    public fun Decorate(contentKey: IScreenStructure, content: @Composable () -> Unit)
+}
+
 @Composable
 public fun NavHost(
     navController: ScreenNavController,
     entryProvider: (IScreenStructure) -> NavEntry<IScreenStructure>,
+    entryDecorators: ImmutableList<EntryDecorator>,
     onBack: () -> Unit = {
         if (navController.canGoBack) {
             navController.back()
@@ -44,38 +53,49 @@ public fun NavHost(
     NavDisplay(
         backStack = backStack,
         entryProvider = entryProvider,
-        entryDecorators =
-        remember {
-            listOf(
-                NavEntryDecorator(
-                    onPop = {
-                        // NavHostScopeProviderで削除を管理する
-                    },
-                    decorate = { entry ->
-                        val structure = entry.contentKey as IScreenStructure
-
-                        holder.SaveableStateProvider(structure.scopeKey) {
-                            entry.Content()
-                        }
-                    },
-                ),
-                NavEntryDecorator(
-                    onPop = {
-                        // NavHostScopeProviderで削除を管理する
-                    },
-                    decorate = { entry ->
-                        val structure = entry.contentKey as IScreenStructure
-
-                        CompositionLocalProvider(
-                            LocalScopedObjectStore provides scopedObjectStoreOwner
-                                .createOrGetScopedObjectStore(structure.sameScreenId),
-                        ) {
-                            entry.Content()
-                        }
-                    },
-                ),
+        entryDecorators = entryDecorators.map { decorator ->
+            NavEntryDecorator<IScreenStructure>(
+                onPop = { },
+                decorate = { entry ->
+                    val structure = entry.contentKey as IScreenStructure
+                    decorator.Decorate(structure) {
+                        entry.Content()
+                    }
+                },
             )
-        },
+        }.plus(
+            remember {
+                listOf(
+                    NavEntryDecorator(
+                        onPop = {
+                            // NavHostScopeProviderで削除を管理する
+                        },
+                        decorate = { entry ->
+                            val structure = entry.contentKey as IScreenStructure
+
+                            holder.SaveableStateProvider(structure.scopeKey) {
+                                entry.Content()
+                            }
+                        },
+                    ),
+                    NavEntryDecorator(
+                        onPop = {
+                            // NavHostScopeProviderで削除を管理する
+                        },
+                        decorate = { entry ->
+                            val structure = entry.contentKey as IScreenStructure
+
+                            CompositionLocalProvider(
+                                LocalScopedObjectStore provides scopedObjectStoreOwner
+                                    .createOrGetScopedObjectStore(structure.sameScreenId),
+                            ) {
+                                entry.Content()
+                            }
+                        },
+                    ),
+                )
+            },
+        ),
         onBack = onBack,
         predictivePopTransitionSpec = {
             ContentTransform(
