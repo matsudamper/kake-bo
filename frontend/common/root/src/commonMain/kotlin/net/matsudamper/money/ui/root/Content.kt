@@ -1,12 +1,8 @@
 package net.matsudamper.money.ui.root
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -23,12 +19,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.entryProvider
@@ -38,19 +32,14 @@ import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
-import net.matsudamper.money.frontend.common.base.nav.EntryDecorator
 import net.matsudamper.money.frontend.common.base.nav.NavHost
 import net.matsudamper.money.frontend.common.base.nav.rememberScopedObjectStoreOwner
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
-import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
-import net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler
 import net.matsudamper.money.frontend.common.ui.base.MySnackBarHost
-import net.matsudamper.money.frontend.common.ui.base.RootHostScaffold
-import net.matsudamper.money.frontend.common.ui.base.RootScreenTab
-import net.matsudamper.money.frontend.common.ui.base.ScrollToTopHandler
+import net.matsudamper.money.frontend.common.ui.base.rootHostScaffoldEntryDecorator
 import net.matsudamper.money.frontend.common.ui.screen.status.NotFoundScreen
 import net.matsudamper.money.frontend.common.usecase.LoginCheckUseCaseImpl
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
@@ -67,10 +56,6 @@ import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.ui.root.platform.PlatformTools
 import net.matsudamper.money.ui.root.viewmodel.LocalViewModelProviders
 import net.matsudamper.money.ui.root.viewmodel.ViewModelProviders
-
-internal val LocalRootScaffoldPadding = staticCompositionLocalOf<PaddingValues> {
-    PaddingValues(0.dp)
-}
 
 private enum class ScopeKey {
     ROOT,
@@ -256,7 +241,7 @@ public fun Content(
                         }
                     }
                     val scaffoldDecorators = remember(navController) {
-                        immutableListOf(rootHostScaffoldDecorator(navController))
+                        immutableListOf(rootHostScaffoldEntryDecorator(navController))
                     }
                     NavHost(
                         navController = navController,
@@ -359,54 +344,5 @@ private inline fun <reified K : IScreenStructure> EntryProviderScope<IScreenStru
         clazzContentKey = { it },
     ) { current ->
         content(current)
-    }
-}
-
-private fun rootHostScaffoldDecorator(
-    navController: ScreenNavController,
-): EntryDecorator {
-    return EntryDecorator { structure, content ->
-        if (structure is ScreenStructure.Root) {
-            val windowInsets = WindowInsets.safeDrawing.asPaddingValues()
-            val scrollToTopHandler = remember { ScrollToTopHandler() }
-            val tab = when (structure) {
-                is RootHomeScreenStructure -> RootScreenTab.Home
-                is ScreenStructure.Root.Add -> RootScreenTab.Add
-                is ScreenStructure.Root.Settings -> RootScreenTab.Settings
-                is ScreenStructure.Root.Usage -> RootScreenTab.List
-            }
-            val onClickTab: (RootScreenTab) -> Unit = { clickedTab ->
-                if (clickedTab == tab) {
-                    if (scrollToTopHandler.requestScrollToTop().not()) {
-                        navigateToTabHome(navController, clickedTab)
-                    }
-                } else {
-                    navigateToTabHome(navController, clickedTab)
-                }
-            }
-            CompositionLocalProvider(LocalScrollToTopHandler provides scrollToTopHandler) {
-                RootHostScaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    currentScreen = tab,
-                    onClickTab = onClickTab,
-                    windowInsets = windowInsets,
-                ) { adjustedPadding ->
-                    CompositionLocalProvider(LocalRootScaffoldPadding provides adjustedPadding) {
-                        content()
-                    }
-                }
-            }
-        } else {
-            content()
-        }
-    }
-}
-
-private fun navigateToTabHome(navController: ScreenNavController, tab: RootScreenTab) {
-    when (tab) {
-        RootScreenTab.Home -> navController.navigate(RootHomeScreenStructure.Home)
-        RootScreenTab.List -> navController.navigate(ScreenStructure.Root.Usage.Calendar())
-        RootScreenTab.Add -> navController.navigate(ScreenStructure.Root.Add.Root)
-        RootScreenTab.Settings -> navController.navigate(ScreenStructure.Root.Settings.Root)
     }
 }
