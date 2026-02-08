@@ -67,6 +67,11 @@ public fun Content(
     platformToolsProvider: () -> PlatformTools,
     navController: ScreenNavController,
     composeSizeProvider: () -> MutableStateFlow<IntSize> = { MutableStateFlow(IntSize.Zero) },
+    onBack: () -> Unit = {
+        if (navController.canGoBack) {
+            navController.back()
+        }
+    },
 ) {
     val scopedObjectStoreOwner = rememberScopedObjectStoreOwner(ScopeKey.ROOT::class.toString())
     CompositionLocalProvider(
@@ -235,6 +240,7 @@ public fun Content(
                     }
                     NavHost(
                         navController = navController,
+                        onBack = onBack,
                         entryProvider = entryProvider(
                             fallback = { unknownScreen ->
                                 when (unknownScreen) {

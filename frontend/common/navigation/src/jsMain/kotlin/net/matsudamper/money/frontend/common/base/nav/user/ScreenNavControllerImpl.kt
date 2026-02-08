@@ -12,7 +12,8 @@ internal class ScreenNavControllerImpl(
     private val initial: IScreenStructure,
     private val currentScreenStructureProvider: () -> IScreenStructure,
 ) : ScreenNavController {
-    override val savedScopeKeys: Set<String> = setOf()
+    override val savedScopeKeys: Set<String>
+        get() = backstackEntries.map { it.scopeKey }.toSet()
     override var backstackEntries: List<IScreenStructure> by mutableStateOf(listOf(initial))
     override val currentBackstackEntry: IScreenStructure?
         get() {

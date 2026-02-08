@@ -24,13 +24,14 @@ kotlin {
 
                 implementation(compose.runtime)
                 implementation(compose.ui)
+                implementation(compose.animation)
 
                 implementation(libs.kotlin.coroutines.core)
                 implementation(libs.kotlin.datetime)
 
                 implementation(libs.ktorClientCore)
 
-                api(libs.androidxNavigation3Runtime)
+                api(libs.jetbrainsNavigation3Ui)
             }
         }
         val jsMain by getting {
@@ -63,8 +64,6 @@ kotlin {
                 implementation(compose.ui)
                 implementation(libs.androidxLifecycleRuntimeCompose)
                 implementation(libs.androidxLifecycleViewModelCompose)
-                implementation(libs.androidxNavigation3Runtime)
-                implementation(libs.androidxNavigation3Ui)
             }
         }
         val jvmTest by getting {

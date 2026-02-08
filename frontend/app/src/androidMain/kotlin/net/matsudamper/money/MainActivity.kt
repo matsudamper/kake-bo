@@ -55,6 +55,13 @@ class MainActivity : ComponentActivity() {
                         globalEventSender = globalEventSender,
                         platformToolsProvider = { PlatFormToolsImpl(this) },
                         navController = navController,
+                        onBack = {
+                            if (navController.canGoBack) {
+                                navController.back()
+                            } else {
+                                this@MainActivity.onBackPressedDispatcher.onBackPressed()
+                            }
+                        },
                     )
                 }
             }
