@@ -22,8 +22,8 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.graphql.model.QlApiTokenAttributes
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilter
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersConnection
-import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersSortType
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersQuery
+import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersSortType
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageAnalytics
 import net.matsudamper.money.graphql.model.QlMoneyUsageAnalyticsByCategory

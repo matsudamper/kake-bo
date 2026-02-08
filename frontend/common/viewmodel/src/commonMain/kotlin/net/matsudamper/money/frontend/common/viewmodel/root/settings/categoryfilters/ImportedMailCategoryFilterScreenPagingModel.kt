@@ -13,8 +13,8 @@ import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFiltersScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.UpdateOperationResponseResult
-import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersSortType
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersQuery
+import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersSortType
 import net.matsudamper.money.frontend.graphql.updateOperation
 
 public class ImportedMailCategoryFilterScreenPagingModel(
