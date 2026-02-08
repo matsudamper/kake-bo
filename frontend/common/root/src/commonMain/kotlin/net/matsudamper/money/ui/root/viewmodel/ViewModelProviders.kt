@@ -17,6 +17,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.mail.ImportedMailLis
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.MailImportViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.MoneyUsagesCalendarViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.MoneyUsagesListViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalendarPagingModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
 import net.matsudamper.money.frontend.graphql.MailImportScreenGraphqlApi
 import net.matsudamper.money.frontend.graphql.MailLinkScreenGraphqlApi
@@ -54,6 +55,10 @@ internal class ViewModelProviders(
                 scopedObjectFeature = feature,
                 rootUsageHostViewModel = rootUsageHostViewModel,
                 yearMonth = yearMonth,
+                calendarPagingModel = RootUsageCalendarPagingModel(
+                    coroutineScope = feature.coroutineScope,
+                    graphqlClient = koin.get(),
+                ),
             )
         }
     }

@@ -30,6 +30,7 @@ import net.matsudamper.money.frontend.graphql.UsageCalendarScreenPagingQuery
 public class MoneyUsagesCalendarViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     private val rootUsageHostViewModel: RootUsageHostViewModel,
+    private val calendarPagingModel: RootUsageCalendarPagingModel,
     yearMonth: ScreenStructure.Root.Usage.Calendar.YearMonth?,
 ) : CommonViewModel(scopedObjectFeature) {
     internal val viewModelStateFlow = MutableStateFlow(
@@ -46,18 +47,18 @@ public class MoneyUsagesCalendarViewModel(
             loadingState = RootUsageCalendarScreenUiState.LoadingState.Loading,
             event = object : RootUsageCalendarScreenUiState.Event {
                 override suspend fun onViewInitialized() {
-                    if (rootUsageHostViewModel.calendarPagingModel.hasSelectedMonth().not()) {
-                        rootUsageHostViewModel.calendarPagingModel.changeMonth(viewModelStateFlow.value.displayMonth)
+                    if (calendarPagingModel.hasSelectedMonth().not()) {
+                        calendarPagingModel.changeMonth(viewModelStateFlow.value.displayMonth)
                     }
                     CoroutineScope(currentCoroutineContext()).launch {
                         launch {
-                            rootUsageHostViewModel.calendarPagingModel.getFlow()
+                            calendarPagingModel.getFlow()
                                 .collectLatest {
-                                    rootUsageHostViewModel.calendarPagingModel.fetch()
+                                    calendarPagingModel.fetch()
                                 }
                         }
                         launch {
-                            rootUsageHostViewModel.calendarPagingModel.getFlow().collectLatest { responseStates ->
+                            calendarPagingModel.getFlow().collectLatest { responseStates ->
                                 viewModelStateFlow.update {
                                     it.copy(
                                         response = responseStates,
@@ -67,12 +68,12 @@ public class MoneyUsagesCalendarViewModel(
                         }
 
                         launch {
-                            rootUsageHostViewModel.calendarPagingModel.fetch()
+                            calendarPagingModel.fetch()
                         }
                         launch {
                             rootUsageHostViewModel.viewModelStateFlow.collectLatest { rootViewModelState ->
                                 delay(100)
-                                rootUsageHostViewModel.calendarPagingModel.changeSearchText(
+                                calendarPagingModel.changeSearchText(
                                     text = rootViewModelState.searchText,
                                 )
                             }
@@ -82,7 +83,7 @@ public class MoneyUsagesCalendarViewModel(
 
                 override fun refresh() {
                     viewModelScope.launch {
-                        rootUsageHostViewModel.calendarPagingModel.refresh()
+                        calendarPagingModel.refresh()
                     }
                 }
             },
@@ -184,7 +185,7 @@ public class MoneyUsagesCalendarViewModel(
                                 event = object : RootUsageCalendarScreenUiState.LoadedEvent {
                                     override fun loadMore() {
                                         viewModelScope.launch {
-                                            rootUsageHostViewModel.calendarPagingModel.fetch()
+                                            calendarPagingModel.fetch()
                                         }
                                     }
                                 },

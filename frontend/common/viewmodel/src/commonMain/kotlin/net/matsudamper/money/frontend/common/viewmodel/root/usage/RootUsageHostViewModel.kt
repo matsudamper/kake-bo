@@ -18,7 +18,6 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
 public class RootUsageHostViewModel(
     scopedObjectFeature: ScopedObjectFeature,
-    public val calendarPagingModel: RootUsageCalendarPagingModel,
     navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val mutableViewModelStateFlow = MutableStateFlow(ViewModelState())

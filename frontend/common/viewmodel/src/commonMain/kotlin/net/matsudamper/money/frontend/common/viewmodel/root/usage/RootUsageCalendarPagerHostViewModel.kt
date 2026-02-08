@@ -11,7 +11,6 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.YearMonth
-import kotlinx.datetime.minus
 import kotlinx.datetime.number
 import kotlinx.datetime.plus
 import kotlinx.datetime.todayIn
@@ -144,13 +143,6 @@ public class RootUsageCalendarPagerHostViewModel(
     }
 
     private fun prevMonth() {
-        viewModelStateFlow.update {
-            val month = it.yearMonth.minus(1, DateTimeUnit.MONTH)
-            rootUsageHostViewModel.calendarPagingModel.changeMonth(month.firstDay)
-            it.copy(
-                yearMonth = month,
-            )
-        }
         viewModelScope.launch {
             viewModelEventSender.send {
                 it.navigate(
@@ -162,18 +154,10 @@ public class RootUsageCalendarPagerHostViewModel(
                     ),
                 )
             }
-            rootUsageHostViewModel.calendarPagingModel.fetch()
         }
     }
 
     private fun nextMonth() {
-        viewModelStateFlow.update {
-            val month = it.yearMonth.plus(1, DateTimeUnit.MONTH)
-            rootUsageHostViewModel.calendarPagingModel.changeMonth(month.firstDay)
-            it.copy(
-                yearMonth = month,
-            )
-        }
         viewModelScope.launch {
             viewModelEventSender.send {
                 it.navigate(
@@ -185,7 +169,6 @@ public class RootUsageCalendarPagerHostViewModel(
                     ),
                 )
             }
-            rootUsageHostViewModel.calendarPagingModel.fetch()
         }
     }
 

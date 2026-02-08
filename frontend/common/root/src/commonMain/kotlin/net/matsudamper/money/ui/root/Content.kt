@@ -50,9 +50,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.LoginCheckUseCaseEventListenerImpl
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeAddTabScreenViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalendarPagingModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
-import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.ui.root.platform.PlatformTools
 import net.matsudamper.money.ui.root.viewmodel.LocalViewModelProviders
@@ -144,10 +142,6 @@ public fun Content(
                 RootUsageHostViewModel(
                     scopedObjectFeature = it,
                     navController = navController,
-                    calendarPagingModel = RootUsageCalendarPagingModel(
-                        coroutineScope = rootCoroutineScope,
-                        graphqlClient = koin.get<GraphqlClient>(),
-                    ),
                 )
             }
             val mailScreenViewModel = LocalScopedObjectStore.current.putOrGet<HomeAddTabScreenViewModel>(Unit) {
