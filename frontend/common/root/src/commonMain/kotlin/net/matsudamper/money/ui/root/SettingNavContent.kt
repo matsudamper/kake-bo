@@ -24,6 +24,8 @@ import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCate
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingMailCategoryFiltersScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingRootScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.settings.TextFieldTestScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.settings.TextFieldTestScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.ImapSettingViewModel
@@ -217,6 +219,18 @@ internal fun SettingNavContent(
                 LoginSettingScreen(
                     modifier = modifier.fillMaxSize(),
                     uiState = viewModel.uiStateFlow.collectAsState().value,
+                    windowInsets = windowInsets,
+                )
+            }
+        }
+
+        ScreenStructure.Root.Settings.TextFieldTest -> {
+            holder.SaveableStateProvider(state::class.toString()) {
+                TextFieldTestScreen(
+                    modifier = modifier.fillMaxSize(),
+                    uiState = TextFieldTestScreenUiState(
+                        kakeboScaffoldListener = settingUiStateProvider().kakeboScaffoldListener,
+                    ),
                     windowInsets = windowInsets,
                 )
             }
