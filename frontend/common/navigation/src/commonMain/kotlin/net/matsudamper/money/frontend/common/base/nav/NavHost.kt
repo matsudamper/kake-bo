@@ -21,14 +21,10 @@ public expect fun NavHost(
     entryProvider: (IScreenStructure) -> NavEntry<IScreenStructure>,
 )
 
-/**
- * @param execSavableStateProvider JSとJVMでNav3を使うまでの間の暫定対応
- */
 @Composable
 public fun NavHostScopeProvider(
     navController: ScreenNavController,
     savedStateHolder: SaveableStateHolder = rememberSaveableStateHolder(),
-    execSavableStateProvider: Boolean = false,
     content: @Composable () -> Unit,
 ) {
     val scopedObjectStoreOwner = rememberScopedObjectStoreOwner("NavHost")
@@ -63,13 +59,7 @@ public fun NavHostScopeProvider(
             LocalScopedObjectStore provides scopedObjectStoreOwner
                 .createOrGetScopedObjectStore(currentBackstackEntry.sameScreenId),
         ) {
-            if (execSavableStateProvider) {
-                savedStateHolder.SaveableStateProvider(currentBackstackEntry.scopeKey) {
-                    content()
-                }
-            } else {
-                content()
-            }
+            content()
         }
     }
 }
