@@ -276,7 +276,7 @@ private fun TitleBar(
                 text = "家計簿",
             )
         }
-        Spacer(modifier = Modifier.widthIn(12.dp))
+        Spacer(modifier = Modifier.widthIn(8.dp))
         when (header) {
             is RootUsageHostScreenUiState.Header.Calendar -> {
                 Row(

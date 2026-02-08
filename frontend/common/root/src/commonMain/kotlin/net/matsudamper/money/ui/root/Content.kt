@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
+import net.matsudamper.money.frontend.common.base.nav.ContentKeyWrapper
 import net.matsudamper.money.frontend.common.base.nav.NavHost
 import net.matsudamper.money.frontend.common.base.nav.rememberScopedObjectStoreOwner
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
@@ -49,9 +50,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.LoginCheckUseCaseEventListenerImpl
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeAddTabScreenViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalendarPagingModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
-import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.ui.root.platform.PlatformTools
 import net.matsudamper.money.ui.root.viewmodel.LocalViewModelProviders
@@ -143,10 +142,6 @@ public fun Content(
                 RootUsageHostViewModel(
                     scopedObjectFeature = it,
                     navController = navController,
-                    calendarPagingModel = RootUsageCalendarPagingModel(
-                        coroutineScope = rootCoroutineScope,
-                        graphqlClient = koin.get<GraphqlClient>(),
-                    ),
                 )
             }
             val mailScreenViewModel = LocalScopedObjectStore.current.putOrGet<HomeAddTabScreenViewModel>(Unit) {
@@ -253,7 +248,7 @@ public fun Content(
                                     is ScreenStructure.Root -> {
                                         NavEntry(
                                             key = unknownScreen,
-                                            contentKey = unknownScreen,
+                                            contentKey = ContentKeyWrapper(unknownScreen),
                                         ) {
                                             movableRoot(unknownScreen)
                                         }
@@ -341,7 +336,7 @@ private inline fun <reified K : IScreenStructure> EntryProviderScope<IScreenStru
 ) {
     addEntryProvider(
         clazz = K::class,
-        clazzContentKey = { it },
+        clazzContentKey = { ContentKeyWrapper(it) },
     ) { current ->
         content(current)
     }

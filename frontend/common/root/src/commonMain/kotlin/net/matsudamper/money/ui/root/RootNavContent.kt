@@ -28,7 +28,8 @@ import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailLis
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.MailImportScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.RootSettingScreenUiState
-import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalendarScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalendarPagerHostScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalendarPagerHostScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalendarScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostScreenUiState
@@ -61,6 +62,7 @@ internal fun RootNavContent(
     rootCoroutineScope: CoroutineScope,
     globalEventSender: EventSender<GlobalEvent>,
     usageListUiStateProvider: @Composable () -> RootUsageListScreenUiState,
+    usageCalendarHostUiStateProvider: @Composable (ScreenStructure.Root.Usage.Calendar) -> RootUsageCalendarPagerHostScreenUiState,
     usageCalendarUiStateProvider: @Composable (ScreenStructure.Root.Usage.Calendar.YearMonth?) -> RootUsageCalendarScreenUiState,
     importMailScreenUiStateProvider: @Composable (ScreenStructure.Root.Add.Imported) -> ImportedMailListScreenUiState,
     importMailLinkScreenUiStateProvider: @Composable (ScreenStructure.Root.Add.Import) -> ImportMailScreenUiState,
@@ -248,14 +250,15 @@ internal fun RootNavContent(
 
                 when (current) {
                     is ScreenStructure.Root.Usage.Calendar -> {
-                        usageHost.SaveableStateProvider(current::class.toString()) {
-                            val uiState = usageCalendarUiStateProvider(current.yearMonth)
-                            rootScreen(uiState.hostScreenUiState) {
-                                RootUsageCalendarScreen(
-                                    modifier = Modifier.fillMaxSize(),
-                                    uiState = uiState,
-                                )
-                            }
+                        val uiState = usageCalendarHostUiStateProvider(current)
+                        rootScreen(uiState.hostScreenUiState) {
+                            RootUsageCalendarPagerHostScreen(
+                                modifier = Modifier.fillMaxSize(),
+                                uiState = uiState,
+                                uiStateProvider = { navigation ->
+                                    usageCalendarUiStateProvider(navigation.yearMonth)
+                                },
+                            )
                         }
                     }
 

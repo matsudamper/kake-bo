@@ -31,6 +31,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfil
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.login.LoginSettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.MoneyUsagesCalendarViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.MoneyUsagesListViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalendarPagerHostViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
@@ -317,6 +318,18 @@ internal data class ViewModelEventHandlers(
         coroutineScope {
             handler.collect(
                 object : MoneyUsagesCalendarViewModel.Event {
+                    override fun navigate(screenStructure: ScreenStructure) {
+                        navController.navigate(screenStructure)
+                    }
+                },
+            )
+        }
+    }
+
+    suspend fun handleMoneyUsageCalendarHost(handler: EventHandler<RootUsageCalendarPagerHostViewModel.Event>) {
+        coroutineScope {
+            handler.collect(
+                object : RootUsageCalendarPagerHostViewModel.Event {
                     override fun navigate(screenStructure: ScreenStructure) {
                         navController.navigate(screenStructure)
                     }

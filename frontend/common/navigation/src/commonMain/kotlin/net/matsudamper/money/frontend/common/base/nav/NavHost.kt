@@ -57,7 +57,7 @@ public fun NavHost(
             NavEntryDecorator<IScreenStructure>(
                 onPop = { },
                 decorate = { entry ->
-                    val structure = entry.contentKey as IScreenStructure
+                    val structure = (entry.contentKey as ContentKeyWrapper).key
                     decorator.Decorate(structure) {
                         entry.Content()
                     }
@@ -71,7 +71,7 @@ public fun NavHost(
                             // NavHostScopeProviderで削除を管理する
                         },
                         decorate = { entry ->
-                            val structure = entry.contentKey as IScreenStructure
+                            val structure = (entry.contentKey as ContentKeyWrapper).key
 
                             holder.SaveableStateProvider(structure.scopeKey) {
                                 entry.Content()
@@ -83,7 +83,7 @@ public fun NavHost(
                             // NavHostScopeProviderで削除を管理する
                         },
                         decorate = { entry ->
-                            val structure = entry.contentKey as IScreenStructure
+                            val structure = (entry.contentKey as ContentKeyWrapper).key
 
                             CompositionLocalProvider(
                                 LocalScopedObjectStore provides scopedObjectStoreOwner
@@ -114,6 +114,23 @@ public fun NavHost(
             )
         },
     )
+}
+
+public data class ContentKeyWrapper(
+    val key: IScreenStructure,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is ContentKeyWrapper) return false
+
+        if (key.sameScreenId != other.key.sameScreenId) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        return key.sameScreenId.hashCode()
+    }
 }
 
 public interface ScopedObjectStoreOwner {
