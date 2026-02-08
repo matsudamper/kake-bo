@@ -74,6 +74,7 @@ class DbMailFilterRepository(
 
     override fun getFilters(
         isAsc: Boolean,
+        sortType: MailFilterRepository.SortType,
         userId: UserId,
         cursor: MailFilterRepository.MailFilterCursor?,
     ): Result<MailFilterRepository.MailFiltersResult> {
@@ -88,21 +89,30 @@ class DbMailFilterRepository(
                                 if (cursor == null) {
                                     DSL.value(true)
                                 } else {
+                                    val sortField = when (sortType) {
+                                        MailFilterRepository.SortType.TITLE -> filters.TITLE
+                                        MailFilterRepository.SortType.ORDER_NUMBER -> filters.ORDER_NUMBER
+                                    }
+                                    val sortValue: Any = when (sortType) {
+                                        MailFilterRepository.SortType.TITLE -> cursor.title
+                                        MailFilterRepository.SortType.ORDER_NUMBER -> cursor.orderNumber
+                                    }
                                     if (isAsc) {
-                                        DSL.row(filters.TITLE, filters.CATEGORY_MAIL_FILTER_ID)
-                                            .gt(cursor.title, cursor.id.id)
+                                        DSL.row(sortField, filters.CATEGORY_MAIL_FILTER_ID)
+                                            .gt(sortValue, cursor.id.id)
                                     } else {
-                                        DSL.row(filters.TITLE, filters.CATEGORY_MAIL_FILTER_ID)
-                                            .lt(cursor.title, cursor.id.id)
+                                        DSL.row(sortField, filters.CATEGORY_MAIL_FILTER_ID)
+                                            .lt(sortValue, cursor.id.id)
                                     }
                                 },
                             ),
                     )
                     .orderBy(
-                        if (isAsc) {
-                            filters.TITLE.asc()
-                        } else {
-                            filters.TITLE.desc()
+                        when (sortType) {
+                            MailFilterRepository.SortType.TITLE ->
+                                if (isAsc) filters.TITLE.asc() else filters.TITLE.desc()
+                            MailFilterRepository.SortType.ORDER_NUMBER ->
+                                if (isAsc) filters.ORDER_NUMBER.asc() else filters.ORDER_NUMBER.desc()
                         },
                         filters.CATEGORY_MAIL_FILTER_ID.asc(),
                     )
@@ -118,6 +128,7 @@ class DbMailFilterRepository(
                         MailFilterRepository.MailFilterCursor(
                             id = lastResult.importedMailCategoryFilterId,
                             title = lastResult.title,
+                            orderNumber = lastResult.orderNumber,
                         )
                     },
                 )
