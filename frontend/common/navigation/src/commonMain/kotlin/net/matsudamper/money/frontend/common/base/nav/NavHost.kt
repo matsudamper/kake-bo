@@ -55,7 +55,7 @@ public fun NavHost(
                             // NavHostScopeProviderで削除を管理する
                         },
                         decorate = { entry ->
-                            val structure = entry.contentKey as IScreenStructure
+                            val structure = entry.key as IScreenStructure
 
                             holder.SaveableStateProvider(structure.scopeKey) {
                                 entry.Content()
