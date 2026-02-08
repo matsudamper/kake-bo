@@ -89,23 +89,22 @@ class DbMailFilterRepository(
                                     DSL.value(true)
                                 } else {
                                     if (isAsc) {
-                                        DSL.row(filters.ORDER_NUMBER, filters.CATEGORY_MAIL_FILTER_ID)
-                                            .gt(cursor.orderNumber, cursor.id.id)
+                                        DSL.row(filters.TITLE, filters.CATEGORY_MAIL_FILTER_ID)
+                                            .gt(cursor.title, cursor.id.id)
                                     } else {
-                                        DSL.row(filters.ORDER_NUMBER, filters.CATEGORY_MAIL_FILTER_ID)
-                                            .lt(cursor.orderNumber, cursor.id.id)
+                                        DSL.row(filters.TITLE, filters.CATEGORY_MAIL_FILTER_ID)
+                                            .lt(cursor.title, cursor.id.id)
                                     }
                                 },
                             ),
                     )
                     .orderBy(
-                        // 基本はASCであり、追加直後の要素を先頭にするためにDESCにする
                         if (isAsc) {
-                            filters.CREATED_DATETIME.desc()
+                            filters.TITLE.asc()
                         } else {
-                            filters.CREATED_DATETIME.asc()
+                            filters.TITLE.desc()
                         },
-                        filters.ORDER_NUMBER.asc(),
+                        filters.CATEGORY_MAIL_FILTER_ID.asc(),
                     )
                     .fetch()
                     .map { mapResult(it) }
@@ -118,7 +117,7 @@ class DbMailFilterRepository(
                     } else {
                         MailFilterRepository.MailFilterCursor(
                             id = lastResult.importedMailCategoryFilterId,
-                            orderNumber = lastResult.orderNumber,
+                            title = lastResult.title,
                         )
                     },
                 )

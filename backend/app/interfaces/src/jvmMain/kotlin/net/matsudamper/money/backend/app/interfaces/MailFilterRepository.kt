@@ -60,7 +60,7 @@ interface MailFilterRepository {
 
     data class MailFilterCursor(
         val id: ImportedMailCategoryFilterId,
-        val orderNumber: Int,
+        val title: String,
     )
 
     fun getConditions(

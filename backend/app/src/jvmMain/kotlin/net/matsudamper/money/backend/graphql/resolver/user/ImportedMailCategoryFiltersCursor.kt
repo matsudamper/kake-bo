@@ -11,20 +11,20 @@ internal class ImportedMailCategoryFiltersCursor(
         return CursorParser.createToString(
             mapOf(
                 ID to cursor.id.id.toString(),
-                ORDER_NUM to cursor.orderNumber.toString(),
+                TITLE to cursor.title,
             ),
         )
     }
 
     companion object {
         private const val ID = "ID"
-        private const val ORDER_NUM = "ORDER_NUM"
+        private const val TITLE = "TITLE"
 
         fun fromString(cursorString: String): MailFilterRepository.MailFilterCursor {
             val map = CursorParser.parseFromString(cursorString)
             return MailFilterRepository.MailFilterCursor(
                 id = ImportedMailCategoryFilterId(map[ID]!!.toInt()),
-                orderNumber = map[ORDER_NUM]!!.toInt(),
+                title = map[TITLE]!!,
             )
         }
     }
