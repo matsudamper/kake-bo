@@ -6,8 +6,14 @@ import androidx.compose.ui.text.input.TextFieldValue
 public data class LoginScreenUiState(
     val userName: TextFieldValue,
     val password: TextFieldValue,
+    val serverHost: ServerHostUiState?,
     val listener: Listener,
 ) {
+    public data class ServerHostUiState(
+        val selectedHost: String,
+        val customHostDialogText: String?,
+    )
+
     public data class TextInputDialogUiState(
         val title: String,
         val name: String,
@@ -30,5 +36,10 @@ public data class LoginScreenUiState(
 
         public fun onUserIdChanged(text: String)
         public fun onPasswordChanged(text: String)
+
+        public fun onClickChangeHost()
+        public fun onCustomHostTextChanged(text: String)
+        public fun onConfirmCustomHost()
+        public fun onDismissCustomHostDialog()
     }
 }

@@ -24,6 +24,8 @@ public interface ScreenNavController {
         savedState: Boolean = false,
     )
 
+    public fun navigateReplace(navigation: IScreenStructure)
+
     public fun navigateToHome()
 
     public interface RemovedBackstackEntryListener {

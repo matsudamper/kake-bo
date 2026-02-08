@@ -197,6 +197,13 @@ public sealed interface ScreenStructure : IScreenStructure {
     }
 
     @Serializable
+    public data object Splash : ScreenStructure {
+        override val direction: Screens = Screens.Splash
+        override val stackGroupId: String? = null
+        override val sameScreenId: String = "ScreenStructure#Splash"
+    }
+
+    @Serializable
     public data class ImportedMail(
         public val id: ImportedMailId,
     ) : ScreenStructure {

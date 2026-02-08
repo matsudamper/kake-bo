@@ -257,6 +257,11 @@ public fun Content(
                                 }
                             },
                         ) {
+                            addEntryProvider<ScreenStructure.Splash> {
+                                SplashScreenContainer(
+                                    navController = navController,
+                                )
+                            }
                             addEntryProvider<ScreenStructure.Login> {
                                 LoginScreenContainer(
                                     navController = navController,
