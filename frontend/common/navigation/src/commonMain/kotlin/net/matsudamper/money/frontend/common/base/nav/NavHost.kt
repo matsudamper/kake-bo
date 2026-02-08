@@ -29,6 +29,11 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 public fun NavHost(
     navController: ScreenNavController,
     entryProvider: (IScreenStructure) -> NavEntry<IScreenStructure>,
+    onBack: () -> Unit = {
+        if (navController.canGoBack) {
+            navController.back()
+        }
+    },
 ) {
     val backStack by rememberUpdatedState(navController.backstackEntries)
 
@@ -59,11 +64,7 @@ public fun NavHost(
                     )
                 },
             ),
-            onBack = {
-                if (navController.canGoBack) {
-                    navController.back()
-                }
-            },
+            onBack = onBack,
             predictivePopTransitionSpec = {
                 ContentTransform(
                     targetContentEnter = fadeIn(
