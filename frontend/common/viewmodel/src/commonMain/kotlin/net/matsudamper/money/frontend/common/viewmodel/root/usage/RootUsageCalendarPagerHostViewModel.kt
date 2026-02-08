@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.YearMonth
 import kotlinx.datetime.minusMonth
@@ -18,6 +17,7 @@ import kotlinx.datetime.plusMonth
 import kotlinx.datetime.todayIn
 import kotlinx.datetime.yearMonth
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -35,7 +35,7 @@ public class RootUsageCalendarPagerHostViewModel(
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
         ViewModelState(
-            yearMonth = getDisplayYearMonth(initial),
+            currentYearMonth = getDisplayYearMonth(initial),
         ),
     )
 
@@ -56,43 +56,10 @@ public class RootUsageCalendarPagerHostViewModel(
         )
     }
 
-    private val betweenPageCount = 100
     public val uiState: StateFlow<RootUsageCalendarPagerHostScreenUiState> = MutableStateFlow(
         RootUsageCalendarPagerHostScreenUiState(
-            pages = buildList {
-                val current = Clock.System.todayIn(TimeZone.currentSystemDefault())
-                val yearMonth = initial.yearMonth
-                val initialDate = if (yearMonth != null) {
-                    LocalDate(
-                        year = yearMonth.year,
-                        month = yearMonth.month,
-                        day = 1,
-                    )
-                } else {
-                    LocalDate(
-                        year = current.year,
-                        month = current.month,
-                        day = 1,
-                    )
-                }
-                for (index in -betweenPageCount..betweenPageCount) {
-                    val date = initialDate.plus(
-                        value = index,
-                        unit = DateTimeUnit.MONTH,
-                    )
-                    add(
-                        RootUsageCalendarPagerHostScreenUiState.Page(
-                            navigation = ScreenStructure.Root.Usage.Calendar(
-                                yearMonth = ScreenStructure.Root.Usage.Calendar.YearMonth(
-                                    year = date.year,
-                                    month = date.month.number,
-                                ),
-                            ),
-                        ),
-                    )
-                }
-            }.toImmutableList(),
-            currentPage = betweenPageCount,
+            pages = immutableListOf(),
+            currentPage = null,
             hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
             event = object : RootUsageCalendarPagerHostScreenUiState.Event {
                 override fun onPageChanged(page: RootUsageCalendarPagerHostScreenUiState.Page) {
@@ -107,7 +74,7 @@ public class RootUsageCalendarPagerHostViewModel(
     ).also { mutableUiStateFlow ->
         viewModelScope.launch {
             viewModelStateFlow.collectLatest { calendarViewModelState ->
-                val yearMonth = calendarViewModelState.yearMonth
+                val yearMonth = calendarViewModelState.currentYearMonth
                 rootUsageHostViewModel.updateHeaderTitle(
                     "${yearMonth.year}/${yearMonth.month.number}",
                 )
@@ -127,9 +94,19 @@ public class RootUsageCalendarPagerHostViewModel(
             viewModelStateFlow.collectLatest { viewModelState ->
                 mutableUiStateFlow.update { uiState ->
                     uiState.copy(
-                        currentPage = uiState.pages.indexOfFirst { page ->
-                            page.navigation.yearMonth == viewModelState.yearMonth
-                        }.takeIf { it >= 0 } ?: uiState.currentPage,
+                        currentPage = viewModelState.pages.indexOf(viewModelState.currentYearMonth)
+                            .takeIf { it >= 0 }
+                            ?: TODO("無限スクロールをどうするか考える"),
+                        pages = viewModelState.pages.map { page ->
+                            RootUsageCalendarPagerHostScreenUiState.Page(
+                                navigation = ScreenStructure.Root.Usage.Calendar(
+                                    yearMonth = ScreenStructure.Root.Usage.Calendar.YearMonth(
+                                        year = page.year,
+                                        month = page.month.number,
+                                    ),
+                                ),
+                            )
+                        }.toImmutableList(),
                     )
                 }
             }
@@ -139,13 +116,13 @@ public class RootUsageCalendarPagerHostViewModel(
     public fun updateStructure(current: ScreenStructure.Root.Usage.Calendar) {
         viewModelStateFlow.update {
             it.copy(
-                yearMonth = getDisplayYearMonth(current),
+                currentYearMonth = getDisplayYearMonth(current),
             )
         }
     }
 
     private fun prevMonth() {
-        val prev = viewModelStateFlow.value.yearMonth.minusMonth()
+        val prev = viewModelStateFlow.value.currentYearMonth.minusMonth()
         viewModelScope.launch {
             viewModelEventSender.send {
                 it.navigate(
@@ -161,7 +138,7 @@ public class RootUsageCalendarPagerHostViewModel(
     }
 
     private fun nextMonth() {
-        val next = viewModelStateFlow.value.yearMonth.plusMonth()
+        val next = viewModelStateFlow.value.currentYearMonth.plusMonth()
         viewModelScope.launch {
             viewModelEventSender.send {
                 it.navigate(
@@ -189,7 +166,22 @@ public class RootUsageCalendarPagerHostViewModel(
         )
     }
 
+
     public data class ViewModelState(
-        val yearMonth: YearMonth,
+        val currentYearMonth: YearMonth,
+        val pages: List<YearMonth> = buildList {
+            val betweenPageCount = 100
+
+            val current = Clock.System.todayIn(TimeZone.currentSystemDefault())
+            val currentYearMonth = current.yearMonth
+
+            for (index in -betweenPageCount..betweenPageCount) {
+                val date = currentYearMonth.plus(
+                    value = index,
+                    unit = DateTimeUnit.MONTH,
+                )
+                add(date)
+            }
+        },
     )
 }
