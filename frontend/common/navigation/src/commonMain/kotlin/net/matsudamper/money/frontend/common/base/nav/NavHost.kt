@@ -12,6 +12,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
@@ -58,6 +62,22 @@ public fun NavHost(
                 if (navController.canGoBack) {
                     navController.back()
                 }
+            },
+            predictivePopTransitionSpec = {
+                ContentTransform(
+                    targetContentEnter = fadeIn(
+                        animationSpec = spring(
+                            dampingRatio = 1.0f,
+                            stiffness = 1600.0f,
+                        ),
+                    ),
+                    initialContentExit = fadeOut(
+                        animationSpec = spring(
+                            dampingRatio = 1.0f,
+                            stiffness = 1600.0f,
+                        ),
+                    ),
+                )
             },
         )
     }
