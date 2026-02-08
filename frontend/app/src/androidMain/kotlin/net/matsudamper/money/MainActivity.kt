@@ -20,7 +20,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.datetime.toKotlinLocalDateTime
-import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.rememberMainScreenNavController
@@ -37,7 +36,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         val globalEventSender = EventSender<GlobalEvent>()
-        val initialStructure = getScreenStructure(intent) ?: RootHomeScreenStructure.Home
+        val initialStructure = getScreenStructure(intent) ?: ScreenStructure.Splash
         setContent {
             MoneyCompositionLocalProvider(
                 koin = remember { GlobalContext.get() },

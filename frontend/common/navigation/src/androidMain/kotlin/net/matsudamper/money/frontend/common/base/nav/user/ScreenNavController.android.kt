@@ -32,6 +32,11 @@ private class AndroidScreenNavControllerImpl(
         navBackstack.removeAt(navBackstack.lastIndex)
     }
 
+    override fun navigateReplace(navigation: IScreenStructure) {
+        navBackstack.removeAt(navBackstack.lastIndex)
+        navBackstack.add(navigation)
+    }
+
     override fun navigate(navigation: IScreenStructure, savedState: Boolean) {
         if (navigation.stackGroupId != null && navigation.stackGroupId != currentBackstackEntry?.stackGroupId) {
             val targetGroupTailIndex = navBackstack.indexOfLast { it.stackGroupId == navigation.stackGroupId }

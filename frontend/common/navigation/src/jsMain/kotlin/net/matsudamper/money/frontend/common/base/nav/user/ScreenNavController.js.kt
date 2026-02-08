@@ -131,6 +131,8 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
             )
         }
 
+        Screens.Splash -> ScreenStructure.Splash
+
         null,
         Screens.NotFound,
         -> ScreenStructure.NotFound

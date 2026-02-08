@@ -36,6 +36,16 @@ internal class ScreenNavControllerImpl(
         )
     }
 
+    override fun navigateReplace(navigation: IScreenStructure) {
+        val url = navigation.createUrl()
+        window.history.replaceState(
+            data = null,
+            title = navigation.direction.title,
+            url = url,
+        )
+        backstackEntries = backstackEntries.dropLast(1).plus(navigation)
+    }
+
     override fun navigate(navigation: IScreenStructure, savedState: Boolean) {
         println("${backstackEntries.map { it.direction.title }} -> ${navigation.direction.title}")
         if (navigation.stackGroupId != null && navigation.stackGroupId != currentBackstackEntry?.stackGroupId) {
