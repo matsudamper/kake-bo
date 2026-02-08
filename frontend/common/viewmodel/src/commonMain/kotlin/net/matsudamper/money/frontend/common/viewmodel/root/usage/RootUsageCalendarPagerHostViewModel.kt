@@ -166,7 +166,6 @@ public class RootUsageCalendarPagerHostViewModel(
         )
     }
 
-
     public data class ViewModelState(
         val currentYearMonth: YearMonth,
         val pages: List<YearMonth> = buildList {
