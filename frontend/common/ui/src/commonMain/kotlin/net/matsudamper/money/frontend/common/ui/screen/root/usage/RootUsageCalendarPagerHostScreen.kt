@@ -1,9 +1,11 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.usage
 
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -54,10 +56,11 @@ public fun RootUsageCalendarPagerHostScreen(
         modifier = modifier,
     ) { index ->
         val item = uiState.pages[index]
-
-        RootUsageCalendarScreen(
-            modifier = Modifier.fillMaxSize(),
-            uiState = uiStateProvider(item.navigation),
-        )
+        Column {
+            RootUsageCalendarScreen(
+                modifier = Modifier.fillMaxSize(),
+                uiState = uiStateProvider(item.navigation),
+            )
+        }
     }
 }

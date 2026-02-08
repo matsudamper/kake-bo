@@ -15,6 +15,7 @@ import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
+import kotlinx.datetime.number
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo3.api.ApolloResponse
@@ -32,41 +33,16 @@ import net.matsudamper.money.frontend.graphql.UsageCalendarScreenPagingQuery
 public class MoneyUsagesCalendarViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     private val rootUsageHostViewModel: RootUsageHostViewModel,
-    private val yearMonth: ScreenStructure.Root.Usage.Calendar.YearMonth?,
+    yearMonth: ScreenStructure.Root.Usage.Calendar.YearMonth?,
 ) : CommonViewModel(scopedObjectFeature) {
     internal val viewModelStateFlow = MutableStateFlow(
         ViewModelState(
-            displayMonth = run {
-                val currentLocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-                if (yearMonth != null) {
-                    LocalDate(
-                        year = yearMonth.year,
-                        monthNumber = yearMonth.month,
-                        dayOfMonth = 1,
-                    )
-                } else {
-                    LocalDate(
-                        year = currentLocalDateTime.year,
-                        monthNumber = currentLocalDateTime.monthNumber,
-                        dayOfMonth = 1,
-                    )
-                }
-            },
+            displayMonth = createDisplayMonth(yearMonth),
         ),
     )
 
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
-
-    private val calendarHeaderEvent = object : RootUsageHostScreenUiState.HeaderCalendarEvent {
-        override fun onClickPrevMonth() {
-            prevMonth()
-        }
-
-        override fun onClickNextMonth() {
-            nextMonth()
-        }
-    }
 
     public val uiStateFlow: StateFlow<RootUsageCalendarScreenUiState> = MutableStateFlow(
         RootUsageCalendarScreenUiState(
@@ -115,17 +91,6 @@ public class MoneyUsagesCalendarViewModel(
             },
         ),
     ).also { uiStateFlow ->
-        viewModelScope.launch {
-            viewModelStateFlow.collectLatest {
-                val calendarViewModelState = it
-                rootUsageHostViewModel.updateHeader(
-                    RootUsageHostScreenUiState.Header.Calendar(
-                        title = "${calendarViewModelState.displayMonth.year}/${calendarViewModelState.displayMonth.monthNumber}",
-                        event = calendarHeaderEvent,
-                    ),
-                )
-            }
-        }
         viewModelScope.launch {
             viewModelStateFlow
                 .collectLatest { viewModelState ->
@@ -235,54 +200,25 @@ public class MoneyUsagesCalendarViewModel(
         }
     }.asStateFlow()
 
-    internal fun prevMonth() {
-        viewModelStateFlow.update {
-            val month = it.displayMonth.minus(1, DateTimeUnit.MONTH)
-            rootUsageHostViewModel.calendarPagingModel.changeMonth(month)
-            it.copy(
-                displayMonth = month,
-            )
-        }
-        viewModelScope.launch {
-            viewModelEventSender.send {
-                it.navigate(
-                    ScreenStructure.Root.Usage.Calendar(
-                        yearMonth = ScreenStructure.Root.Usage.Calendar.YearMonth(
-                            year = viewModelStateFlow.value.displayMonth.year,
-                            month = viewModelStateFlow.value.displayMonth.monthNumber,
-                        ),
-                    ),
-                )
-            }
-            rootUsageHostViewModel.calendarPagingModel.fetch()
-        }
-    }
-
-    internal fun nextMonth() {
-        viewModelStateFlow.update {
-            val month = it.displayMonth.plus(1, DateTimeUnit.MONTH)
-            rootUsageHostViewModel.calendarPagingModel.changeMonth(month)
-            it.copy(
-                displayMonth = month,
-            )
-        }
-        viewModelScope.launch {
-            viewModelEventSender.send {
-                it.navigate(
-                    ScreenStructure.Root.Usage.Calendar(
-                        yearMonth = ScreenStructure.Root.Usage.Calendar.YearMonth(
-                            year = viewModelStateFlow.value.displayMonth.year,
-                            month = viewModelStateFlow.value.displayMonth.monthNumber,
-                        ),
-                    ),
-                )
-            }
-            rootUsageHostViewModel.calendarPagingModel.fetch()
-        }
-    }
-
     public interface Event {
         public fun navigate(screenStructure: ScreenStructure)
+    }
+
+    private fun createDisplayMonth(yearMonth: ScreenStructure.Root.Usage.Calendar.YearMonth?): LocalDate {
+        return if (yearMonth != null) {
+            LocalDate(
+                year = yearMonth.year,
+                month = yearMonth.month,
+                day = 1,
+            )
+        } else {
+            val currentLocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+            LocalDate(
+                year = currentLocalDateTime.year,
+                month = currentLocalDateTime.month,
+                day = 1,
+            )
+        }
     }
 
     public data class ViewModelState(

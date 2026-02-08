@@ -252,17 +252,15 @@ internal fun RootNavContent(
 
                 when (current) {
                     is ScreenStructure.Root.Usage.Calendar -> {
-                        usageHost.SaveableStateProvider(current::class.toString()) {
-                            val uiState = usageCalendarHostUiStateProvider(current)
-                            rootScreen(uiState.hostScreenUiState) {
-                                RootUsageCalendarPagerHostScreen(
-                                    modifier = Modifier.fillMaxSize(),
-                                    uiState = uiState,
-                                    uiStateProvider = { navigation ->
-                                        usageCalendarUiStateProvider(navigation.yearMonth)
-                                    },
-                                )
-                            }
+                        val uiState = usageCalendarHostUiStateProvider(current)
+                        rootScreen(uiState.hostScreenUiState) {
+                            RootUsageCalendarPagerHostScreen(
+                                modifier = Modifier.fillMaxSize(),
+                                uiState = uiState,
+                                uiStateProvider = { navigation ->
+                                    usageCalendarUiStateProvider(navigation.yearMonth)
+                                },
+                            )
                         }
                     }
 

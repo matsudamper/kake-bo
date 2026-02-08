@@ -49,7 +49,7 @@ internal class ViewModelProviders(
         rootUsageHostViewModel: RootUsageHostViewModel,
         yearMonth: ScreenStructure.Root.Usage.Calendar.YearMonth?,
     ): MoneyUsagesCalendarViewModel {
-        return LocalScopedObjectStore.current.putOrGet(Unit) { feature ->
+        return LocalScopedObjectStore.current.putOrGet(yearMonth) { feature ->
             MoneyUsagesCalendarViewModel(
                 scopedObjectFeature = feature,
                 rootUsageHostViewModel = rootUsageHostViewModel,

@@ -2,6 +2,7 @@ package net.matsudamper.money.ui.root
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlinx.coroutines.CoroutineScope
@@ -79,14 +80,23 @@ internal fun RootScreenContainer(
             viewModel.uiStateFlow.collectAsState().value
         },
         usageCalendarHostUiStateProvider = { current ->
-            val vm = LocalScopedObjectStore.current.putOrGet(Unit) {
+            val viewModel = LocalScopedObjectStore.current.putOrGet(Unit) {
                 RootUsageCalendarPagerHostViewModel(
                     scopedObjectFeature = it,
                     rootUsageHostViewModel = rootUsageHostViewModel,
                     initial = current,
+                    navController = navController,
                 )
             }
-            vm.uiState.collectAsState().value
+            LaunchedEffect(viewModel.viewModelEventHandler) {
+                viewModelEventHandlers.handleMoneyUsageCalendarHost(
+                    handler = viewModel.viewModelEventHandler,
+                )
+            }
+            LaunchedEffect(viewModel, current) {
+                viewModel.updateStructure(current)
+            }
+            viewModel.uiState.collectAsState().value
         },
         usageListUiStateProvider = {
             val coroutineScope = rememberCoroutineScope()

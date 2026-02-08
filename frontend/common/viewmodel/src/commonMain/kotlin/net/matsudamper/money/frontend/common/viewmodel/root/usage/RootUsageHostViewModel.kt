@@ -122,9 +122,15 @@ public class RootUsageHostViewModel(
                                 is ScreenStructure.Root.Usage.List -> RootUsageHostScreenUiState.Type.List
                             },
                             header = when (viewModelState.screenStructure) {
-                                is ScreenStructure.Root.Usage.Calendar -> viewModelState.calendarHeader
+                                is ScreenStructure.Root.Usage.Calendar -> run {
+                                    RootUsageHostScreenUiState.Header.Calendar(
+                                        title = viewModelState.calendarTitle ?: return@run RootUsageHostScreenUiState.Header.None,
+                                        event = viewModelState.calendarEvent ?: return@run RootUsageHostScreenUiState.Header.None,
+                                    )
+                                }
+
                                 is ScreenStructure.Root.Usage.List -> RootUsageHostScreenUiState.Header.None
-                            } ?: RootUsageHostScreenUiState.Header.None,
+                            },
                             textInputUiState = viewModelState.textInputUiState,
                             searchText = viewModelState.searchText,
                         )
@@ -133,10 +139,18 @@ public class RootUsageHostViewModel(
         }
     }.asStateFlow()
 
-    public fun updateHeader(calendarHeader: RootUsageHostScreenUiState.Header.Calendar?) {
+    public fun updateEventListener(event: RootUsageHostScreenUiState.HeaderCalendarEvent) {
         mutableViewModelStateFlow.update {
             it.copy(
-                calendarHeader = calendarHeader,
+                calendarEvent = event,
+            )
+        }
+    }
+
+    public fun updateHeaderTitle(title: String) {
+        mutableViewModelStateFlow.update {
+            it.copy(
+                calendarTitle = title,
             )
         }
     }
@@ -166,7 +180,8 @@ public class RootUsageHostViewModel(
 
     public data class ViewModelState(
         val screenStructure: ScreenStructure.Root.Usage? = null,
-        val calendarHeader: RootUsageHostScreenUiState.Header.Calendar? = null,
+        val calendarEvent: RootUsageHostScreenUiState.HeaderCalendarEvent? = null,
+        val calendarTitle: String? = null,
         val textInputUiState: RootUsageHostScreenUiState.TextInputUiState? = null,
         val searchText: String = "",
     )

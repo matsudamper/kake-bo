@@ -11,11 +11,11 @@ public class ScopedObjectStore {
         store.remove(Key(id, clazz))?.scopedObjectFeature?.coroutineScope?.cancel()
     }
 
-    public inline fun <reified T : Any> putOrGet(id: Any, noinline provider: (ScopedObjectFeature) -> T): T {
+    public inline fun <reified T : Any> putOrGet(id: Any?, noinline provider: (ScopedObjectFeature) -> T): T {
         return putOrGet(id, T::class, provider)
     }
 
-    public fun <T : Any> putOrGet(id: Any, clazz: KClass<T>, provider: (ScopedObjectFeature) -> T): T {
+    public fun <T : Any> putOrGet(id: Any?, clazz: KClass<T>, provider: (ScopedObjectFeature) -> T): T {
         val item = store[Key(id, clazz)]
         if (item != null) {
             @Suppress("UNCHECKED_CAST")
@@ -39,7 +39,7 @@ public class ScopedObjectStore {
         val scopedObjectFeature: ScopedObjectFeature,
     )
 
-    private data class Key(val id: Any, val clazz: KClass<*>)
+    private data class Key(val id: Any?, val clazz: KClass<*>)
 }
 
 private class ScopedObjectFeatureImpl(

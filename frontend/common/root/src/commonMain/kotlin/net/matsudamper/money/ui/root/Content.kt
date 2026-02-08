@@ -32,6 +32,7 @@ import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
+import net.matsudamper.money.frontend.common.base.nav.ContentKeyWrapper
 import net.matsudamper.money.frontend.common.base.nav.NavHost
 import net.matsudamper.money.frontend.common.base.nav.rememberScopedObjectStoreOwner
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
@@ -253,7 +254,7 @@ public fun Content(
                                     is ScreenStructure.Root -> {
                                         NavEntry(
                                             key = unknownScreen,
-                                            contentKey = unknownScreen,
+                                            contentKey = ContentKeyWrapper(unknownScreen),
                                         ) {
                                             movableRoot(unknownScreen)
                                         }
@@ -341,7 +342,7 @@ private inline fun <reified K : IScreenStructure> EntryProviderScope<IScreenStru
 ) {
     addEntryProvider(
         clazz = K::class,
-        clazzContentKey = { it },
+        clazzContentKey = { ContentKeyWrapper(it) },
     ) { current ->
         content(current)
     }
