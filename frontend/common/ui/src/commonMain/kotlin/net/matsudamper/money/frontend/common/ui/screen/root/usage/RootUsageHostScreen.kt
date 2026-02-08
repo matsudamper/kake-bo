@@ -1,18 +1,27 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.usage
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -71,6 +80,8 @@ public data class RootUsageHostScreenUiState(
 
         public data class Calendar(
             val title: String,
+            val year: Int,
+            val month: Int,
             val event: HeaderCalendarEvent,
         ) : Header
 
@@ -90,6 +101,8 @@ public data class RootUsageHostScreenUiState(
         public fun onClickPrevMonth()
 
         public fun onClickNextMonth()
+
+        public fun onClickYearMonth(year: Int, month: Int)
     }
 
     @Immutable
@@ -115,21 +128,23 @@ public fun RootUsageHostScreen(
     windowInsets: PaddingValues,
     content: @Composable () -> Unit,
 ) {
-    uiState.textInputUiState?.also {
+    if (uiState.textInputUiState != null) {
         FullScreenTextInput(
-            title = it.title,
-            default = it.default,
-            inputType = it.inputType,
-            onComplete = it.textComplete,
-            canceled = it.canceled,
-            isMultiline = it.isMultiline,
-            name = it.name,
+            title = uiState.textInputUiState.title,
+            default = uiState.textInputUiState.default,
+            inputType = uiState.textInputUiState.inputType,
+            onComplete = uiState.textInputUiState.textComplete,
+            canceled = uiState.textInputUiState.canceled,
+            isMultiline = uiState.textInputUiState.isMultiline,
+            name = uiState.textInputUiState.name,
         )
     }
 
     LaunchedEffect(Unit) {
         uiState.event.onViewInitialized()
     }
+
+    var isDatePickerExpanded by remember { mutableStateOf(false) }
 
     RootScreenScaffold(
         modifier = modifier.fillMaxSize(),
@@ -146,6 +161,8 @@ public fun RootUsageHostScreen(
                 title = {
                     TitleBar(
                         header = uiState.header,
+                        isDatePickerExpanded = isDatePickerExpanded,
+                        onClickDatePickerToggle = { isDatePickerExpanded = !isDatePickerExpanded },
                         onClickTitle = uiState.event::onClickCalendar,
                     )
                 },
@@ -154,6 +171,20 @@ public fun RootUsageHostScreen(
         },
         content = {
             Column {
+                val header = uiState.header
+                if (header is RootUsageHostScreenUiState.Header.Calendar) {
+                    AnimatedVisibility(
+                        visible = isDatePickerExpanded,
+                        enter = expandVertically(),
+                        exit = shrinkVertically(),
+                    ) {
+                        CalendarDatePicker(
+                            selectedYear = header.year,
+                            selectedMonth = header.month,
+                            onSelectYearMonth = header.event::onClickYearMonth,
+                        )
+                    }
+                }
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -253,6 +284,8 @@ private fun SearchBox(
 @Composable
 private fun TitleBar(
     header: RootUsageHostScreenUiState.Header,
+    isDatePickerExpanded: Boolean,
+    onClickDatePickerToggle: () -> Unit,
     onClickTitle: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -298,6 +331,18 @@ private fun TitleBar(
                         Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "次の月")
                     }
                     Text(text = header.title)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Box(
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .clickable { onClickDatePickerToggle() }
+                            .padding(8.dp),
+                    ) {
+                        Text(
+                            text = if (isDatePickerExpanded) "▲" else "▼",
+                            style = MaterialTheme.typography.labelSmall,
+                        )
+                    }
                 }
             }
 
@@ -305,6 +350,103 @@ private fun TitleBar(
             }
 
             is RootUsageHostScreenUiState.Header.None -> Unit
+        }
+    }
+}
+
+@Composable
+private fun CalendarDatePicker(
+    selectedYear: Int,
+    selectedMonth: Int,
+    onSelectYearMonth: (Int, Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val years = remember(selectedYear) { (selectedYear - 10..selectedYear + 10).toList() }
+    val yearIndex = years.indexOf(selectedYear).takeIf { it >= 0 } ?: 10
+    val yearListState = rememberLazyListState(
+        initialFirstVisibleItemIndex = maxOf(0, yearIndex - 2),
+    )
+    val months = remember { (1..12).toList() }
+    val monthIndex = (selectedMonth - 1).coerceIn(0, 11)
+    val monthListState = rememberLazyListState(
+        initialFirstVisibleItemIndex = maxOf(0, monthIndex - 2),
+    )
+
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surfaceVariant,
+    ) {
+        Column(
+            modifier = Modifier.padding(
+                horizontal = 12.dp,
+                vertical = 8.dp,
+            ),
+        ) {
+            LazyRow(
+                state = yearListState,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(years) { year ->
+                    val isSelected = year == selectedYear
+                    Surface(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { onSelectYearMonth(year, selectedMonth) },
+                        color = if (isSelected) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.surface
+                        },
+                        shape = RoundedCornerShape(8.dp),
+                    ) {
+                        Text(
+                            text = "${year}年",
+                            modifier = Modifier.padding(
+                                horizontal = 16.dp,
+                                vertical = 8.dp,
+                            ),
+                            color = if (isSelected) {
+                                MaterialTheme.colorScheme.onPrimary
+                            } else {
+                                MaterialTheme.colorScheme.onSurface
+                            },
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            LazyRow(
+                state = monthListState,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(months) { month ->
+                    val isSelected = month == selectedMonth
+                    Surface(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .clickable { onSelectYearMonth(selectedYear, month) },
+                        color = if (isSelected) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.surface
+                        },
+                        shape = RoundedCornerShape(8.dp),
+                    ) {
+                        Text(
+                            text = "${month}月",
+                            modifier = Modifier.padding(
+                                horizontal = 16.dp,
+                                vertical = 8.dp,
+                            ),
+                            color = if (isSelected) {
+                                MaterialTheme.colorScheme.onPrimary
+                            } else {
+                                MaterialTheme.colorScheme.onSurface
+                            },
+                        )
+                    }
+                }
+            }
         }
     }
 }
