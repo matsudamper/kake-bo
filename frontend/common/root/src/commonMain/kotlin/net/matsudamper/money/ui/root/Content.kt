@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
+import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.entryProvider
 import kotlinx.coroutines.Dispatchers
@@ -32,6 +33,7 @@ import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.NavHost
 import net.matsudamper.money.frontend.common.base.nav.rememberScopedObjectStoreOwner
+import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
@@ -65,6 +67,11 @@ public fun Content(
     platformToolsProvider: () -> PlatformTools,
     navController: ScreenNavController,
     composeSizeProvider: () -> MutableStateFlow<IntSize> = { MutableStateFlow(IntSize.Zero) },
+    onBack: () -> Unit = {
+        if (navController.canGoBack) {
+            navController.back()
+        }
+    },
 ) {
     val scopedObjectStoreOwner = rememberScopedObjectStoreOwner(ScopeKey.ROOT::class.toString())
     CompositionLocalProvider(
@@ -233,13 +240,14 @@ public fun Content(
                     }
                     NavHost(
                         navController = navController,
+                        onBack = onBack,
                         entryProvider = entryProvider(
                             fallback = { unknownScreen ->
                                 when (unknownScreen) {
                                     is ScreenStructure.Root -> {
                                         NavEntry(
                                             key = unknownScreen,
-                                            contentKey = unknownScreen.sameScreenId,
+                                            contentKey = unknownScreen,
                                         ) {
                                             movableRoot(unknownScreen)
                                         }
@@ -249,24 +257,24 @@ public fun Content(
                                 }
                             },
                         ) {
-                            entry<ScreenStructure.Login> {
+                            addEntryProvider<ScreenStructure.Login> {
                                 LoginScreenContainer(
                                     navController = navController,
                                     globalEventSender = globalEventSender,
                                     windowInsets = paddingValues.value,
                                 )
                             }
-                            entry<ScreenStructure.Admin> {
+                            addEntryProvider<ScreenStructure.Admin> {
                                 AdminContainer(
                                     windowInsets = paddingValues.value,
                                 )
                             }
-                            entry<ScreenStructure.NotFound> {
+                            addEntryProvider<ScreenStructure.NotFound> {
                                 NotFoundScreen(
                                     paddingValues = paddingValues.value,
                                 )
                             }
-                            entry<ScreenStructure.AddMoneyUsage> { current ->
+                            addEntryProvider<ScreenStructure.AddMoneyUsage> { current ->
                                 AddMoneyUsageScreenContainer(
                                     rootCoroutineScope = rootCoroutineScope,
                                     current = current,
@@ -275,7 +283,7 @@ public fun Content(
                                 )
                             }
 
-                            entry<ScreenStructure.ImportedMail> { current ->
+                            addEntryProvider<ScreenStructure.ImportedMail> { current ->
                                 ImportedMailScreenContainer(
                                     current = current,
                                     viewModelEventHandlers = viewModelEventHandlers,
@@ -283,7 +291,7 @@ public fun Content(
                                 )
                             }
 
-                            entry<ScreenStructure.ImportedMailHTML> { current ->
+                            addEntryProvider<ScreenStructure.ImportedMailHTML> { current ->
                                 ImportedMailHtmlContainer(
                                     current = current,
                                     viewModelEventHandlers = viewModelEventHandlers,
@@ -292,7 +300,7 @@ public fun Content(
                                 )
                             }
 
-                            entry<ScreenStructure.ImportedMailPlain> { current ->
+                            addEntryProvider<ScreenStructure.ImportedMailPlain> { current ->
                                 ImportedMailPlainScreenContainer(
                                     screen = current,
                                     viewModelEventHandlers = viewModelEventHandlers,
@@ -301,7 +309,7 @@ public fun Content(
                                 )
                             }
 
-                            entry<ScreenStructure.MoneyUsage> { current ->
+                            addEntryProvider<ScreenStructure.MoneyUsage> { current ->
                                 MoneyUsageContainer(
                                     screen = current,
                                     viewModelEventHandlers = viewModelEventHandlers,
@@ -314,5 +322,16 @@ public fun Content(
                 }
             }
         }
+    }
+}
+
+private inline fun <reified K : IScreenStructure> EntryProviderScope<IScreenStructure>.addEntryProvider(
+    crossinline content: @Composable (current: K) -> Unit,
+) {
+    addEntryProvider(
+        clazz = K::class,
+        clazzContentKey = { it },
+    ) { current ->
+        content(current)
     }
 }

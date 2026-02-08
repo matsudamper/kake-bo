@@ -13,6 +13,7 @@ protoBuf = "4.33.5"
 lifecycle = "2.10.0"
 jooq = "3.20.11"
 nav3 = "1.0.0"
+jetbrainsNav3 = "1.0.0-alpha06"
 
 [plugins]
 apollo = { id = "com.apollographql.apollo3", version.ref = "apollo" }
@@ -86,6 +87,7 @@ androidxLifecycleViewModelCompose = { module = "androidx.lifecycle:lifecycle-vie
 androidxLifecycleRuntimeCompose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 androidxNavigation3Runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3" }
 androidxNavigation3Ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3" }
+jetbrainsNavigation3Ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "jetbrainsNav3" }
 androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.10.2" }
 
 # Test

@@ -76,11 +76,13 @@ android {
             keyPassword = localProperties["KEY_PASSWORD"] as? String ?: return@create
         }
     }
+    val appName = "家計簿"
     buildTypes {
         debug {
             val isCI = System.getenv("CI")?.toBoolean() ?: false
             if (isCI) {
                 applicationIdSuffix = ".ci"
+                resValue("string", "app_name", "$appName.$applicationIdSuffix")
             } else {
                 signingConfig = signingConfigs.getByName("release")
             }
@@ -90,6 +92,7 @@ android {
         }
     }
     defaultConfig {
+        resValue("string", "app_name", appName)
         minSdk = 34
         targetSdk = 36
         manifestPlaceholders["SERVER_HOST"] = System.getenv("ANDROID_SERVER_HOST")

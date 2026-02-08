@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Resources specialized for Android -->
-    <string name="app_name">家計簿</string>
 </resources>
