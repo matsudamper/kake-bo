@@ -119,7 +119,6 @@ public class MoneyUsagesCalendarViewModel(
                             DayOfWeek.THURSDAY -> 4
                             DayOfWeek.FRIDAY -> 5
                             DayOfWeek.SATURDAY -> 6
-                            else -> throw IllegalStateException()
                         }
                         buildList {
                             addAll(
@@ -141,7 +140,6 @@ public class MoneyUsagesCalendarViewModel(
                                             DayOfWeek.THURSDAY -> "木"
                                             DayOfWeek.FRIDAY -> "金"
                                             DayOfWeek.SATURDAY -> "土"
-                                            else -> throw IllegalStateException()
                                         },
                                         dayOfWeek = it,
                                     )
