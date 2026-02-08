@@ -4,6 +4,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.app.interfaces.MailFilterRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
@@ -21,6 +22,7 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.graphql.model.QlApiTokenAttributes
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilter
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersConnection
+import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersSortType
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFiltersQuery
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageAnalytics
@@ -183,8 +185,18 @@ class UserResolverImpl : UserResolver {
 
         return CompletableFuture.allOf().thenApplyAsync {
             val filterRepository = context.diContainer.createMailFilterRepository()
+            val sortType = when (query.sortType) {
+                null,
+                QlImportedMailCategoryFiltersSortType.TITLE,
+                ->
+                    MailFilterRepository.SortType.TITLE
+
+                QlImportedMailCategoryFiltersSortType.ORDER_NUMBER ->
+                    MailFilterRepository.SortType.ORDER_NUMBER
+            }
             val result = filterRepository.getFilters(
                 isAsc = query.isAsc,
+                sortType = sortType,
                 userId = userId,
                 cursor = query.cursor?.let {
                     ImportedMailCategoryFiltersCursor.fromString(it)
