@@ -195,10 +195,6 @@ public class MoneyUsagesCalendarViewModel(
         }
     }.asStateFlow()
 
-    public interface Event {
-        public fun navigate(screenStructure: ScreenStructure)
-    }
-
     private fun createDisplayMonth(yearMonth: ScreenStructure.Root.Usage.Calendar.YearMonth?): LocalDate {
         return if (yearMonth != null) {
             LocalDate(
@@ -228,4 +224,8 @@ public class MoneyUsagesCalendarViewModel(
             )
         },
     )
+
+    public interface Event {
+        public fun navigate(screenStructure: ScreenStructure)
+    }
 }
