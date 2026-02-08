@@ -247,7 +247,7 @@ public fun Content(
                                     is ScreenStructure.Root -> {
                                         NavEntry(
                                             key = unknownScreen,
-                                            contentKey = unknownScreen.sameScreenId,
+                                            contentKey = unknownScreen,
                                         ) {
                                             movableRoot(unknownScreen)
                                         }

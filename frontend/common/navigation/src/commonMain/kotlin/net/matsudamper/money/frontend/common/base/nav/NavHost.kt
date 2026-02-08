@@ -1,21 +1,15 @@
 package net.matsudamper.money.frontend.common.base.nav
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.SaveableStateHolder
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.saveable.rememberSaveableStateHolder
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
@@ -41,29 +35,47 @@ public fun NavHost(
         Logger.d("Navigation", "${navController.currentBackstackEntry}")
     }
     val holder = rememberSaveableStateHolder("nav_display")
+    val scopedObjectStoreOwner = rememberScopedObjectStoreOwner("NavHost")
     NavHostScopeProvider(
         navController = navController,
         savedStateHolder = holder,
+        scopedObjectStoreOwner = scopedObjectStoreOwner,
     ) {
         NavDisplay(
             backStack = backStack,
             entryProvider = entryProvider,
-            entryDecorators = listOf(
+            entryDecorators =
                 remember {
-                    NavEntryDecorator(
-                        onPop = {
-                            // NavHostScopeProviderで削除を管理する
-                        },
-                        decorate = { entry ->
-                            val structure = entry.key as IScreenStructure
+                    listOf(
+                        NavEntryDecorator(
+                            onPop = {
+                                // NavHostScopeProviderで削除を管理する
+                            },
+                            decorate = { entry ->
+                                val structure = entry.contentKey as IScreenStructure
 
-                            holder.SaveableStateProvider(structure.scopeKey) {
-                                entry.Content()
-                            }
-                        },
+                                holder.SaveableStateProvider(structure.scopeKey) {
+                                    entry.Content()
+                                }
+                            },
+                        ),
+                        NavEntryDecorator(
+                            onPop = {
+
+                            },
+                            decorate = { entry ->
+                                val structure = entry.contentKey as IScreenStructure
+
+                                CompositionLocalProvider(
+                                    LocalScopedObjectStore provides scopedObjectStoreOwner
+                                        .createOrGetScopedObjectStore(structure.sameScreenId),
+                                ) {
+                                    entry.Content()
+                                }
+                            },
+                        ),
                     )
                 },
-            ),
             onBack = onBack,
             predictivePopTransitionSpec = {
                 ContentTransform(
@@ -82,49 +94,6 @@ public fun NavHost(
                 )
             },
         )
-    }
-}
-
-@Composable
-public fun NavHostScopeProvider(
-    navController: ScreenNavController,
-    savedStateHolder: SaveableStateHolder = rememberSaveableStateHolder(),
-    content: @Composable () -> Unit,
-) {
-    val scopedObjectStoreOwner = rememberScopedObjectStoreOwner("NavHost")
-    run {
-        var beforeScopeKey: List<String> by rememberSaveable { mutableStateOf(listOf()) }
-        LaunchedEffect(navController) {
-            snapshotFlow { navController.savedScopeKeys }
-                .collect { savedScopeKeys ->
-                    val removeScopeKeys = beforeScopeKey.filterNot { it in savedScopeKeys }
-                    for (removeScope in removeScopeKeys) {
-                        savedStateHolder.removeState(removeScope)
-                    }
-                    beforeScopeKey = savedScopeKeys.toList()
-                }
-        }
-    }
-    LaunchedEffect(navController.savedScopeKeys) {
-        for (scopeKey in navController.savedScopeKeys) {
-            scopedObjectStoreOwner.createOrGetScopedObjectStore(scopeKey)
-        }
-        val aliveScopeKey = navController.savedScopeKeys
-        scopedObjectStoreOwner.keys()
-            .mapNotNull { it as? String }
-            .filterNot { it in aliveScopeKey }
-            .forEach { scopeKey ->
-                scopedObjectStoreOwner.removeScopedObjectStore(scopeKey)
-            }
-    }
-    val currentBackstackEntry = navController.currentBackstackEntry
-    if (currentBackstackEntry != null) {
-        CompositionLocalProvider(
-            LocalScopedObjectStore provides scopedObjectStoreOwner
-                .createOrGetScopedObjectStore(currentBackstackEntry.sameScreenId),
-        ) {
-            content()
-        }
     }
 }
 
