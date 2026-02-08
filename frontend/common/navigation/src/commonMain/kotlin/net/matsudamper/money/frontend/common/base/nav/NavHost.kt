@@ -45,37 +45,37 @@ public fun NavHost(
         backStack = backStack,
         entryProvider = entryProvider,
         entryDecorators =
-            remember {
-                listOf(
-                    NavEntryDecorator(
-                        onPop = {
-                            // NavHostScopeProviderで削除を管理する
-                        },
-                        decorate = { entry ->
-                            val structure = entry.contentKey as IScreenStructure
+        remember {
+            listOf(
+                NavEntryDecorator(
+                    onPop = {
+                        // NavHostScopeProviderで削除を管理する
+                    },
+                    decorate = { entry ->
+                        val structure = entry.contentKey as IScreenStructure
 
-                            holder.SaveableStateProvider(structure.scopeKey) {
-                                entry.Content()
-                            }
-                        },
-                    ),
-                    NavEntryDecorator(
-                        onPop = {
-                            // NavHostScopeProviderで削除を管理する
-                        },
-                        decorate = { entry ->
-                            val structure = entry.contentKey as IScreenStructure
+                        holder.SaveableStateProvider(structure.scopeKey) {
+                            entry.Content()
+                        }
+                    },
+                ),
+                NavEntryDecorator(
+                    onPop = {
+                        // NavHostScopeProviderで削除を管理する
+                    },
+                    decorate = { entry ->
+                        val structure = entry.contentKey as IScreenStructure
 
-                            CompositionLocalProvider(
-                                LocalScopedObjectStore provides scopedObjectStoreOwner
-                                    .createOrGetScopedObjectStore(structure.sameScreenId),
-                            ) {
-                                entry.Content()
-                            }
-                        },
-                    ),
-                )
-            },
+                        CompositionLocalProvider(
+                            LocalScopedObjectStore provides scopedObjectStoreOwner
+                                .createOrGetScopedObjectStore(structure.sameScreenId),
+                        ) {
+                            entry.Content()
+                        }
+                    },
+                ),
+            )
+        },
         onBack = onBack,
         predictivePopTransitionSpec = {
             ContentTransform(
