@@ -35,6 +35,7 @@ public actual fun FullScreenTextInput(
     name: String,
     inputType: TextFieldType,
     isMultiline: Boolean,
+    autocomplete: String?,
 ) {
     val state = rememberTextFieldState(initialText = default)
     Dialog(onDismissRequest = { canceled() }) {
