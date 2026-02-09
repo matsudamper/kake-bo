@@ -37,7 +37,7 @@ class GraphqlUserLoginQuery(
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
         } catch (@Suppress("TooGenericExceptionCaught") _: Exception) {
-            return IsLoggedInResult.LoggedIn
+            return IsLoggedInResult.ServerError
         }
 
         val isLoggedIn = response.data?.isLoggedIn
