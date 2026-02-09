@@ -52,6 +52,10 @@ public class RootUsageCalendarPagerHostViewModel(
                 override fun onClickNextMonth() {
                     nextMonth()
                 }
+
+                override fun onClickYearMonth(year: Int, month: Int) {
+                    navigateToYearMonth(year = year, month = month)
+                }
             },
         )
     }
@@ -77,6 +81,10 @@ public class RootUsageCalendarPagerHostViewModel(
                 val yearMonth = calendarViewModelState.currentYearMonth
                 rootUsageHostViewModel.updateHeaderTitle(
                     "${yearMonth.year}/${yearMonth.month.number}",
+                )
+                rootUsageHostViewModel.updateCalendarYearMonth(
+                    year = yearMonth.year,
+                    month = yearMonth.month.number,
                 )
             }
         }
@@ -146,6 +154,21 @@ public class RootUsageCalendarPagerHostViewModel(
                         yearMonth = ScreenStructure.Root.Usage.Calendar.YearMonth(
                             year = next.year,
                             month = next.month.number,
+                        ),
+                    ),
+                )
+            }
+        }
+    }
+
+    private fun navigateToYearMonth(year: Int, month: Int) {
+        viewModelScope.launch {
+            viewModelEventSender.send {
+                it.navigate(
+                    ScreenStructure.Root.Usage.Calendar(
+                        yearMonth = ScreenStructure.Root.Usage.Calendar.YearMonth(
+                            year = year,
+                            month = month,
                         ),
                     ),
                 )
