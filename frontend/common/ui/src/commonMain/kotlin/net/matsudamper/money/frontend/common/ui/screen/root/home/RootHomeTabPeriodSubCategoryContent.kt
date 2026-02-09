@@ -41,7 +41,7 @@ public fun RootHomeTabPeriodSubCategoryScreen(
     }
     RootHomeTabScreenScaffold(
         kakeboScaffoldListener = uiState.kakeboScaffoldListener,
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier,
         content = {
             Column(
                 modifier = Modifier
@@ -81,7 +81,7 @@ public fun RootHomeTabPeriodSubCategoryScreen(
 
                     RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Error -> {
                         LoadingErrorContent(
-                            modifier = modifier,
+                            modifier = Modifier.fillMaxSize(),
                             onClickRetry = { /* TODO */ },
                         )
                     }
