@@ -9,6 +9,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 
 @Composable
 public actual fun TextField(
@@ -75,6 +77,10 @@ public actual fun TextField(
                     keyboardType = KeyboardType.Password,
                 )
             }
+        },
+        visualTransformation = when (type) {
+            TextFieldType.Text -> VisualTransformation.None
+            TextFieldType.Password -> PasswordVisualTransformation()
         },
     )
 }
