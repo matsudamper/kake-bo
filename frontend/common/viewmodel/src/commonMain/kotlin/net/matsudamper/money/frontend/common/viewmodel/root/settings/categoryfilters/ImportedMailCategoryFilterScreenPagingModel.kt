@@ -14,6 +14,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailCategoryFiltersScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.UpdateOperationResponseResult
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersQuery
+import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersSortType
 import net.matsudamper.money.frontend.graphql.updateOperation
 
 public class ImportedMailCategoryFilterScreenPagingModel(
@@ -35,6 +36,7 @@ public class ImportedMailCategoryFilterScreenPagingModel(
         query = ImportedMailCategoryFiltersQuery(
             cursor = Optional.present(null),
             isAsc = true,
+            sortType = Optional.present(ImportedMailCategoryFiltersSortType.TITLE),
         ),
     )
 
@@ -44,17 +46,36 @@ public class ImportedMailCategoryFilterScreenPagingModel(
             if (before.user?.importedMailCategoryFilters?.isLast == true) return@update noHasMore()
 
             val cursor = before.user?.importedMailCategoryFilters?.cursor ?: return@update error()
-
-            success(fetch(cursor))
+            val newData = fetch(cursor = cursor)
+            success(
+                fetch(cursor).newBuilder()
+                    .data(
+                        data = before.copy(
+                            user = before.user?.copy(
+                                importedMailCategoryFilters = before.user?.importedMailCategoryFilters?.let { beforeFilters ->
+                                    val newFilters = newData.data?.user?.importedMailCategoryFilters
+                                        ?: throw IllegalStateException("importedMailCategoryFilters is null")
+                                    beforeFilters.copy(
+                                        cursor = newFilters.cursor,
+                                        isLast = newFilters.isLast,
+                                        nodes = beforeFilters.nodes + newFilters.nodes,
+                                    )
+                                },
+                            ),
+                        ),
+                    )
+                    .build(),
+            )
         }
     }
 
     private suspend fun fetch(cursor: String?): ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data> {
         return graphqlClient.apolloClient.query(
-            ImportedMailCategoryFiltersScreenPagingQuery(
+            query = ImportedMailCategoryFiltersScreenPagingQuery(
                 query = ImportedMailCategoryFiltersQuery(
                     cursor = Optional.present(cursor),
                     isAsc = true,
+                    sortType = Optional.present(ImportedMailCategoryFiltersSortType.TITLE),
                 ),
             ),
         ).execute()
