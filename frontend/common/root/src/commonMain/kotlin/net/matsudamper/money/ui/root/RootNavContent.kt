@@ -174,6 +174,9 @@ internal fun RootNavContent(
                         LaunchedEffect(subCategoryViewModel.eventHandler) {
                             viewModelEventHandlers.handleRootHomeTabPeriodSubCategoryContent(subCategoryViewModel.eventHandler)
                         }
+                        LaunchedEffect(subCategoryViewModel, current) {
+                            subCategoryViewModel.updateStructure(current)
+                        }
                         RootHomeTabPeriodSubCategoryScreen(
                             modifier = Modifier.fillMaxSize(),
                             uiState = subCategoryViewModel.uiStateFlow.collectAsState().value,
