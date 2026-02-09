@@ -85,6 +85,8 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
             ScreenStructure.Root.Settings.Login
         }
 
+        Screens.SettingsTextFieldTest -> ScreenStructure.Root.Settings.TextFieldTest
+
         Screens.UsageList -> ScreenStructure.Root.Usage.List
         Screens.UsageCalendar ->
             ScreenStructure.Root.Usage.Calendar.fromQueryParams(

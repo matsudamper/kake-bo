@@ -83,6 +83,16 @@ public class SettingViewModel(
                     }
                 }
 
+                override fun onClickTextFieldTest() {
+                    viewModelScope.launch {
+                        backgroundEventSender.send {
+                            it.navigate(
+                                ScreenStructure.Root.Settings.TextFieldTest,
+                            )
+                        }
+                    }
+                }
+
                 override fun onClickGitHub() {
                     viewModelScope.launch {
                         backgroundEventSender.send {
