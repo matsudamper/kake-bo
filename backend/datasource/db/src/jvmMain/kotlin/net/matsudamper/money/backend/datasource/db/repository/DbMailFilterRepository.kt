@@ -74,6 +74,7 @@ class DbMailFilterRepository(
 
     override fun getFilters(
         isAsc: Boolean,
+        sortType: MailFilterRepository.SortType,
         userId: UserId,
         cursor: MailFilterRepository.MailFilterCursor?,
     ): Result<MailFilterRepository.MailFiltersResult> {
@@ -88,24 +89,37 @@ class DbMailFilterRepository(
                                 if (cursor == null) {
                                     DSL.value(true)
                                 } else {
-                                    if (isAsc) {
-                                        DSL.row(filters.ORDER_NUMBER, filters.CATEGORY_MAIL_FILTER_ID)
-                                            .gt(cursor.orderNumber, cursor.id.id)
-                                    } else {
-                                        DSL.row(filters.ORDER_NUMBER, filters.CATEGORY_MAIL_FILTER_ID)
-                                            .lt(cursor.orderNumber, cursor.id.id)
+                                    when (sortType) {
+                                        MailFilterRepository.SortType.TITLE -> {
+                                            if (isAsc) {
+                                                DSL.row(filters.TITLE, filters.CATEGORY_MAIL_FILTER_ID)
+                                                    .gt(cursor.title, cursor.id.id)
+                                            } else {
+                                                DSL.row(filters.TITLE, filters.CATEGORY_MAIL_FILTER_ID)
+                                                    .lt(cursor.title, cursor.id.id)
+                                            }
+                                        }
+                                        MailFilterRepository.SortType.ORDER_NUMBER -> {
+                                            if (isAsc) {
+                                                DSL.row(filters.ORDER_NUMBER, filters.CATEGORY_MAIL_FILTER_ID)
+                                                    .gt(cursor.orderNumber, cursor.id.id)
+                                            } else {
+                                                DSL.row(filters.ORDER_NUMBER, filters.CATEGORY_MAIL_FILTER_ID)
+                                                    .lt(cursor.orderNumber, cursor.id.id)
+                                            }
+                                        }
                                     }
                                 },
                             ),
                     )
                     .orderBy(
-                        // 基本はASCであり、追加直後の要素を先頭にするためにDESCにする
-                        if (isAsc) {
-                            filters.CREATED_DATETIME.desc()
-                        } else {
-                            filters.CREATED_DATETIME.asc()
+                        when (sortType) {
+                            MailFilterRepository.SortType.TITLE ->
+                                if (isAsc) filters.TITLE.asc() else filters.TITLE.desc()
+                            MailFilterRepository.SortType.ORDER_NUMBER ->
+                                if (isAsc) filters.ORDER_NUMBER.asc() else filters.ORDER_NUMBER.desc()
                         },
-                        filters.ORDER_NUMBER.asc(),
+                        filters.CATEGORY_MAIL_FILTER_ID.asc(),
                     )
                     .fetch()
                     .map { mapResult(it) }
@@ -118,6 +132,7 @@ class DbMailFilterRepository(
                     } else {
                         MailFilterRepository.MailFilterCursor(
                             id = lastResult.importedMailCategoryFilterId,
+                            title = lastResult.title,
                             orderNumber = lastResult.orderNumber,
                         )
                     },

@@ -242,6 +242,14 @@ input ImportedMailCategoryFiltersQuery {
   isAsc: Boolean!
 
   cursor: String
+
+  sortType: ImportedMailCategoryFiltersSortType
+}
+
+enum ImportedMailCategoryFiltersSortType {
+  TITLE
+
+  ORDER_NUMBER
 }
 
 type ImportedMailConnection {
@@ -903,12 +911,12 @@ type __Schema {
   mutationType: __Type
 
   """
-  'A list of all directives supported by this server.
+  A list of all directives supported by this server.
   """
   directives: [__Directive!]!
 
   """
-  'If this server support subscription, the type that subscription operations will be rooted at.
+  If this server support subscription, the type that subscription operations will be rooted at.
   """
   subscriptionType: __Type
 }
@@ -947,7 +955,7 @@ An enum describing what kind of type a given __Type is
 """
 enum __TypeKind {
   """
-  Indicates this type is a scalar. 'specifiedByURL' is a valid field
+  Indicates this type is a scalar. `specifiedByURL` is a valid field
   """
   SCALAR
 
