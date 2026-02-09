@@ -63,4 +63,5 @@ public expect fun TextField(
     shape: Shape = TextFieldDefaults.shape,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     colors: TextFieldColors = TextFieldDefaults.colors(),
+    autocomplete: String? = null,
 )

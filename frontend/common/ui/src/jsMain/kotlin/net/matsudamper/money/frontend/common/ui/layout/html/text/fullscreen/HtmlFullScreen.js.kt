@@ -17,6 +17,7 @@ public actual fun FullScreenTextInput(
     name: String,
     inputType: TextFieldType,
     isMultiline: Boolean,
+    autocomplete: String?,
 ) {
     val context = LocalHtmlFullScreenTextInputContext.current
     val id = remember { Random.nextULong().toString() }
@@ -41,6 +42,7 @@ public actual fun FullScreenTextInput(
                 },
                 isMultiline = isMultiline,
                 name = name,
+                autocomplete = autocomplete,
             ),
         )
     }

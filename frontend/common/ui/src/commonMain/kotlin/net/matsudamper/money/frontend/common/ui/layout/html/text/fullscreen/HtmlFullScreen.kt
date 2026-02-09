@@ -12,4 +12,5 @@ public expect fun FullScreenTextInput(
     name: String = "",
     inputType: TextFieldType = TextFieldType.Text,
     isMultiline: Boolean = false,
+    autocomplete: String? = null,
 )
