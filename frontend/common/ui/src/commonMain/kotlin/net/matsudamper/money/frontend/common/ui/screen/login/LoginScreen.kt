@@ -11,14 +11,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -26,10 +23,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -37,6 +31,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.layout.TextField
+import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
 @Composable
@@ -56,7 +51,7 @@ public fun LoginScreen(
         Box(
             modifier = Modifier.fillMaxSize(),
         ) {
-            Box(
+            Column(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .widthIn(max = 400.dp)
@@ -68,26 +63,67 @@ public fun LoginScreen(
                             fontFamily = rememberCustomFontFamily(),
                         ),
                     )
-                var userIdInput by remember { mutableStateOf(true) }
-                if (userIdInput) {
-                    UserIdInput(
-                        modifier = Modifier.align(Alignment.Center),
-                        text = uiState.userName.text,
-                        onNextClick = { userIdInput = false },
-                        textFieldTextStyle = textFieldTextStyle,
-                        onValueChange = { uiState.listener.onUserIdChanged(it) },
-                        onClickSecurityKeyLogin = { uiState.listener.onClickSecurityKeyLogin() },
-                        onClickDeviceKeyLogin = { uiState.listener.onClickDeviceKeyLogin() },
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    fontFamily = rememberCustomFontFamily(),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleLarge,
+                    text = "ログイン",
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    onValueChange = { uiState.listener.onUserIdChanged(it) },
+                    text = uiState.userName.text,
+                    textStyle = textFieldTextStyle,
+                    label = "User Name",
+                    maxLines = 1,
+                    autocomplete = "username",
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    onValueChange = { uiState.listener.onPasswordChanged(it) },
+                    text = uiState.password.text,
+                    textStyle = textFieldTextStyle,
+                    label = "Password",
+                    maxLines = 1,
+                    type = TextFieldType.Password,
+                    autocomplete = "current-password",
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    modifier = Modifier.align(Alignment.End),
+                    onClick = { uiState.listener.onClickLogin() },
+                ) {
+                    Text(
+                        text = "ログイン",
+                        fontFamily = rememberCustomFontFamily(),
                     )
-                } else {
-                    PasswordInput(
-                        modifier = Modifier.align(Alignment.BottomCenter),
-                        onValueChange = { uiState.listener.onPasswordChanged(it) },
-                        text = uiState.password.text,
-                        onClickLogin = { uiState.listener.onClickLogin() },
-                        textFieldTextStyle = textFieldTextStyle,
-                        onClickBack = { userIdInput = true },
-                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    OutlinedButton(
+                        modifier = Modifier.align(Alignment.End),
+                        onClick = { uiState.listener.onClickSecurityKeyLogin() },
+                    ) {
+                        Text(
+                            text = "セキュリティキーでログイン",
+                            fontFamily = rememberCustomFontFamily(),
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(4.dp))
+                    OutlinedButton(
+                        modifier = Modifier.align(Alignment.End),
+                        onClick = { uiState.listener.onClickDeviceKeyLogin() },
+                    ) {
+                        Text(
+                            text = "デバイスのロックでログイン",
+                            fontFamily = rememberCustomFontFamily(),
+                        )
+                    }
                 }
             }
 
@@ -216,144 +252,4 @@ private fun CustomHostDialog(
             }
         },
     )
-}
-
-@Composable
-private fun UserIdInput(
-    onNextClick: () -> Unit,
-    onValueChange: (String) -> Unit,
-    onClickSecurityKeyLogin: () -> Unit,
-    onClickDeviceKeyLogin: () -> Unit,
-    text: String,
-    textFieldTextStyle: TextStyle,
-    modifier: Modifier = Modifier,
-) {
-    LoginContainer(
-        modifier = modifier,
-        onClickBack = null,
-        footer = {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                OutlinedButton(
-                    modifier = Modifier.align(Alignment.End),
-                    onClick = { onClickSecurityKeyLogin() },
-                ) {
-                    Text(
-                        text = "セキュリティキーでログイン",
-                        fontFamily = rememberCustomFontFamily(),
-                    )
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-                OutlinedButton(
-                    modifier = Modifier.align(Alignment.End),
-                    onClick = { onClickDeviceKeyLogin() },
-                ) {
-                    Text(
-                        text = "デバイスのロックでログイン",
-                        fontFamily = rememberCustomFontFamily(),
-                    )
-                }
-            }
-        },
-        content = {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                TextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    onValueChange = onValueChange,
-                    text = text,
-                    textStyle = textFieldTextStyle,
-                    label = "User Name",
-                    maxLines = 1,
-                )
-                Button(
-                    modifier = Modifier.align(Alignment.End),
-                    onClick = { onNextClick() },
-                ) {
-                    Text(
-                        text = "Next",
-                        fontFamily = rememberCustomFontFamily(),
-                    )
-                }
-            }
-        },
-    )
-}
-
-@Composable
-private fun PasswordInput(
-    text: String,
-    onValueChange: (String) -> Unit,
-    textFieldTextStyle: TextStyle,
-    onClickLogin: () -> Unit,
-    onClickBack: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    LoginContainer(
-        modifier = modifier,
-        onClickBack = onClickBack,
-        footer = {
-        },
-        content = {
-            TextField(
-                modifier = Modifier.fillMaxWidth(),
-                onValueChange = onValueChange,
-                text = text,
-                textStyle = textFieldTextStyle,
-                label = "password",
-                maxLines = 1,
-                trailingIcon = {
-                    IconButton(
-                        onClick = { onClickLogin() },
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                            contentDescription = "login",
-                            tint = LocalContentColor.current,
-                        )
-                    }
-                },
-            )
-        },
-    )
-}
-
-@Composable
-private fun LoginContainer(
-    onClickBack: (() -> Unit)?,
-    footer: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    Column(
-        modifier = modifier,
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            if (onClickBack != null) {
-                IconButton(
-                    onClick = { onClickBack() },
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "back",
-                        tint = LocalContentColor.current,
-                    )
-                }
-            }
-            Text(
-                modifier = Modifier.weight(1f),
-                fontFamily = rememberCustomFontFamily(),
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleLarge,
-                text = "ログイン",
-            )
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        content()
-        Spacer(modifier = Modifier.height(16.dp))
-        footer()
-    }
 }

@@ -205,6 +205,8 @@ public class RootUsageHostViewModel(
                                 is ScreenStructure.Root.Usage.Calendar -> run {
                                     RootUsageHostScreenUiState.Header.Calendar(
                                         title = viewModelState.calendarTitle ?: return@run RootUsageHostScreenUiState.Header.None,
+                                        year = viewModelState.calendarYear ?: return@run RootUsageHostScreenUiState.Header.None,
+                                        month = viewModelState.calendarMonth ?: return@run RootUsageHostScreenUiState.Header.None,
                                         event = viewModelState.calendarEvent ?: return@run RootUsageHostScreenUiState.Header.None,
                                     )
                                 }
@@ -232,6 +234,15 @@ public class RootUsageHostViewModel(
         mutableViewModelStateFlow.update {
             it.copy(
                 calendarTitle = title,
+            )
+        }
+    }
+
+    public fun updateCalendarYearMonth(year: Int, month: Int) {
+        mutableViewModelStateFlow.update {
+            it.copy(
+                calendarYear = year,
+                calendarMonth = month,
             )
         }
     }
@@ -268,6 +279,8 @@ public class RootUsageHostViewModel(
         val screenStructure: ScreenStructure.Root.Usage? = null,
         val calendarEvent: RootUsageHostScreenUiState.HeaderCalendarEvent? = null,
         val calendarTitle: String? = null,
+        val calendarYear: Int? = null,
+        val calendarMonth: Int? = null,
         val textInputUiState: RootUsageHostScreenUiState.TextInputUiState? = null,
         val searchText: String = "",
         val categories: List<CategoryInfo> = listOf(),

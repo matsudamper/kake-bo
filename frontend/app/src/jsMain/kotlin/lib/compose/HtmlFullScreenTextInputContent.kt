@@ -118,6 +118,10 @@ internal fun HtmlFullScreenTextInputContent(
                         name(value.name)
                         style {}
                         placeholder(value.title)
+                        val autocompleteValue = value.autocomplete
+                        if (autocompleteValue != null) {
+                            attr("autocomplete", autocompleteValue)
+                        }
                         onChange {
                             text = it.value
                         }
