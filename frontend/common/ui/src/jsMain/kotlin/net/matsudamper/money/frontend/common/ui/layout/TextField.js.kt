@@ -41,6 +41,7 @@ public actual fun TextField(
     shape: Shape,
     interactionSource: MutableInteractionSource,
     colors: TextFieldColors,
+    autocomplete: String?,
 ) {
     var visibleInput by remember { mutableStateOf(false) }
     if (visibleInput) {
@@ -49,6 +50,7 @@ public actual fun TextField(
             name = label ?: "",
             default = text,
             inputType = type,
+            autocomplete = autocomplete,
             onComplete = {
                 onValueChange(it)
                 visibleInput = false

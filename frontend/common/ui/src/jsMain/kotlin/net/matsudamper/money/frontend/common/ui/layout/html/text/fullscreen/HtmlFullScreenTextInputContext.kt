@@ -38,5 +38,6 @@ public class HtmlFullScreenTextInputContext {
         val default: String,
         val isMultiline: Boolean,
         val inputType: String,
+        val autocomplete: String? = null,
     )
 }
