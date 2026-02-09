@@ -330,18 +330,23 @@ private fun TitleBar(
                     ) {
                         Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = "次の月")
                     }
-                    Text(text = header.title)
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Box(
+                    Row(
                         modifier = Modifier
-                            .clip(CircleShape)
-                            .clickable { onClickDatePickerToggle() }
-                            .padding(8.dp),
+                            .clickable { onClickDatePickerToggle() },
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(
-                            text = if (isDatePickerExpanded) "▲" else "▼",
-                            style = MaterialTheme.typography.labelSmall,
-                        )
+                        Text(text = header.title)
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Box(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .padding(8.dp),
+                        ) {
+                            Text(
+                                text = if (isDatePickerExpanded) "▲" else "▼",
+                                style = MaterialTheme.typography.labelSmall,
+                            )
+                        }
                     }
                 }
             }
@@ -378,13 +383,14 @@ private fun CalendarDatePicker(
     ) {
         Column(
             modifier = Modifier.padding(
-                horizontal = 12.dp,
                 vertical = 8.dp,
             ),
         ) {
+            val lazyRowHorizontalPadding = 12.dp
             LazyRow(
                 state = yearListState,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(horizontal = lazyRowHorizontalPadding),
             ) {
                 items(years) { year ->
                     val isSelected = year == selectedYear
@@ -418,6 +424,7 @@ private fun CalendarDatePicker(
             LazyRow(
                 state = monthListState,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = PaddingValues(horizontal = lazyRowHorizontalPadding),
             ) {
                 items(months) { month ->
                     val isSelected = month == selectedMonth
