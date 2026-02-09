@@ -92,6 +92,11 @@ open class JMoneyUsageCategories(
     val NAME: TableField<JMoneyUsageCategoriesRecord, String?> = createField(DSL.name("name"), SQLDataType.VARCHAR(500).nullable(false), this, "")
 
     /**
+     * The column <code>money.money_usage_categories.color</code>.
+     */
+    val COLOR: TableField<JMoneyUsageCategoriesRecord, String?> = createField(DSL.name("color"), SQLDataType.VARCHAR(7), this, "")
+
+    /**
      * The column <code>money.money_usage_categories.created_datetime</code>.
      */
     val CREATED_DATETIME: TableField<JMoneyUsageCategoriesRecord, LocalDateTime?> = createField(DSL.name("created_datetime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field(DSL.raw("current_timestamp()"), SQLDataType.LOCALDATETIME)), this, "")
