@@ -30,10 +30,7 @@ class GraphqlUserLoginQuery(
             .execute()
     }
 
-    /**
-     * @return ログアウトさせた方が良い場合はfalseが返る
-     */
-    suspend fun isLoggedIn(): Boolean {
+    suspend fun isLoggedIn(): IsLoggedInResult {
         return runCatching {
             graphqlClient.apolloClient
                 .query(UserIsLoggedInQuery())
@@ -42,8 +39,20 @@ class GraphqlUserLoginQuery(
                 .data
                 ?.isLoggedIn
         }.fold(
-            onSuccess = { it == true },
-            onFailure = { true },
+            onSuccess = { result ->
+                if (result == true) {
+                    IsLoggedInResult.LoggedIn
+                } else {
+                    IsLoggedInResult.NotLoggedIn
+                }
+            },
+            onFailure = { IsLoggedInResult.ServerError },
         )
+    }
+
+    public sealed interface IsLoggedInResult {
+        public data object LoggedIn : IsLoggedInResult
+        public data object NotLoggedIn : IsLoggedInResult
+        public data object ServerError : IsLoggedInResult
     }
 }
