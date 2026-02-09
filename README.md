@@ -44,6 +44,7 @@
 
 # Download Schema
 サーバー側の環境変数は`IS_DEBUG=true`は必須。
+`schema_update_local.env`を使用してbackendを立ち上げれば良い。
 ```shell
 ./gradlew :frontend:common:graphql:schema:downloadSchema
 ```

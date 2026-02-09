@@ -1,6 +1,12 @@
 input ImportedMailCategoryFiltersQuery {
     isAsc: Boolean!
     cursor: String
+    sortType: ImportedMailCategoryFiltersSortType
+}
+
+enum ImportedMailCategoryFiltersSortType {
+    TITLE
+    ORDER_NUMBER
 }
 
 enum ImportedMailFilterCategoryConditionOperator {
