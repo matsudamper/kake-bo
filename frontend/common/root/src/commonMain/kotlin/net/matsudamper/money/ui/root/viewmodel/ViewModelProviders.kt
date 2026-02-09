@@ -39,7 +39,6 @@ internal class ViewModelProviders(
             RootViewModel(
                 loginCheckUseCase = loginCheckUseCase,
                 scopedObjectFeature = feature,
-                navController = navController,
             )
         }
     }
