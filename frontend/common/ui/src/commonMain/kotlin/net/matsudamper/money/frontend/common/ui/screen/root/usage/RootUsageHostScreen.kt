@@ -4,6 +4,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,6 +23,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -40,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -53,6 +57,7 @@ public data class RootUsageHostScreenUiState(
     val header: Header,
     val textInputUiState: TextInputUiState?,
     val searchText: String,
+    val categoryFilterState: CategoryFilterState,
     val event: Event,
     val kakeboScaffoldListener: KakeboScaffoldListener,
 ) {
@@ -65,6 +70,22 @@ public data class RootUsageHostScreenUiState(
         val isMultiline: Boolean,
         val name: String,
     )
+
+    public data class CategoryFilterState(
+        val categories: ImmutableList<CategoryItem>,
+        val selectedCategoryName: String?,
+    )
+
+    public data class CategoryItem(
+        val name: String,
+        val isSelected: Boolean,
+        val event: CategoryItemEvent,
+    )
+
+    @Immutable
+    public interface CategoryItemEvent {
+        public fun onClick()
+    }
 
     public sealed interface Header {
         public data object None : Header
@@ -103,6 +124,8 @@ public data class RootUsageHostScreenUiState(
         public fun onClickSearchBox()
 
         public fun onClickSearchBoxClear()
+
+        public fun onClickCategoryFilterClear()
 
         public fun onClickAdd()
     }
@@ -189,6 +212,11 @@ public fun RootUsageHostScreen(
                         )
                     }
                 }
+                CategoryFilterRow(
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                    categoryFilterState = uiState.categoryFilterState,
+                    onClickClear = uiState.event::onClickCategoryFilterClear,
+                )
                 Spacer(modifier = Modifier.height(12.dp))
                 content()
             }
@@ -245,6 +273,42 @@ private fun SearchBox(
                         contentDescription = "clear",
                     )
                 }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun CategoryFilterRow(
+    categoryFilterState: RootUsageHostScreenUiState.CategoryFilterState,
+    onClickClear: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    if (categoryFilterState.categories.isEmpty()) return
+    FlowRow(
+        modifier = modifier,
+    ) {
+        if (categoryFilterState.selectedCategoryName != null) {
+            FilterChip(
+                selected = true,
+                onClick = onClickClear,
+                label = { Text(categoryFilterState.selectedCategoryName) },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Clear,
+                        contentDescription = "clear",
+                    )
+                },
+            )
+        } else {
+            categoryFilterState.categories.forEach { category ->
+                FilterChip(
+                    modifier = Modifier.padding(end = 8.dp),
+                    selected = category.isSelected,
+                    onClick = category.event::onClick,
+                    label = { Text(category.name) },
+                )
             }
         }
     }

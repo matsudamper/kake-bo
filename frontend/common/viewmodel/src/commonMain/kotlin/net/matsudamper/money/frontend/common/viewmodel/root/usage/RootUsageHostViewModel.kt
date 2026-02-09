@@ -6,6 +6,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo3.cache.normalized.FetchPolicy
+import com.apollographql.apollo3.cache.normalized.fetchPolicy
+import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -15,10 +21,14 @@ import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostS
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
+import net.matsudamper.money.frontend.graphql.GraphqlClient
+import net.matsudamper.money.frontend.graphql.MoneyUsageSelectDialogCategoriesPagingQuery
+import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoriesInput
 
 public class RootUsageHostViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     navController: ScreenNavController,
+    private val graphqlClient: GraphqlClient,
 ) : CommonViewModel(scopedObjectFeature) {
     private val mutableViewModelStateFlow = MutableStateFlow(ViewModelState())
     public val viewModelStateFlow: StateFlow<ViewModelState> = mutableViewModelStateFlow.asStateFlow()
@@ -27,6 +37,7 @@ public class RootUsageHostViewModel(
     public val rootNavigationEventHandler: EventHandler<RootNavigationEvent> = rootNavigationEventSender.asHandler()
     private val event = object : RootUsageHostScreenUiState.Event {
         override suspend fun onViewInitialized() {
+            fetchCategories()
         }
 
         override fun onClickAdd() {
@@ -78,6 +89,14 @@ public class RootUsageHostViewModel(
             updateSearchText("")
         }
 
+        override fun onClickCategoryFilterClear() {
+            mutableViewModelStateFlow.update {
+                it.copy(
+                    selectedCategoryId = null,
+                )
+            }
+        }
+
         private fun closeTextInput() {
             mutableViewModelStateFlow.update {
                 it.copy(
@@ -95,12 +114,74 @@ public class RootUsageHostViewModel(
         }
     }
 
+    private fun fetchCategories() {
+        viewModelScope.launch {
+            val response = graphqlClient.apolloClient.query(
+                MoneyUsageSelectDialogCategoriesPagingQuery(
+                    MoneyUsageCategoriesInput(
+                        size = 100,
+                        cursor = Optional.present(null),
+                    ),
+                ),
+            )
+                .fetchPolicy(FetchPolicy.CacheFirst)
+                .execute()
+
+            val categories = response.data?.user?.moneyUsageCategories?.nodes.orEmpty()
+            mutableViewModelStateFlow.update {
+                it.copy(
+                    categories = categories.map { node ->
+                        CategoryInfo(
+                            id = node.id,
+                            name = node.name,
+                        )
+                    },
+                )
+            }
+        }
+    }
+
+    private fun createCategoryFilterState(viewModelState: ViewModelState): RootUsageHostScreenUiState.CategoryFilterState {
+        val categories = viewModelState.categories.map { category ->
+            RootUsageHostScreenUiState.CategoryItem(
+                name = category.name,
+                isSelected = category.id == viewModelState.selectedCategoryId,
+                event = object : RootUsageHostScreenUiState.CategoryItemEvent {
+                    override fun onClick() {
+                        mutableViewModelStateFlow.update {
+                            it.copy(
+                                selectedCategoryId = category.id,
+                            )
+                        }
+                    }
+                },
+            )
+        }.toImmutableList()
+
+        val selectedName = if (viewModelState.selectedCategoryId != null) {
+            viewModelState.categories
+                .firstOrNull { it.id == viewModelState.selectedCategoryId }
+                ?.name
+        } else {
+            null
+        }
+
+        return RootUsageHostScreenUiState.CategoryFilterState(
+            categories = categories,
+            selectedCategoryName = selectedName,
+        )
+    }
+
     public val uiStateFlow: StateFlow<RootUsageHostScreenUiState> = MutableStateFlow(
         RootUsageHostScreenUiState(
             type = RootUsageHostScreenUiState.Type.Calendar,
             header = RootUsageHostScreenUiState.Header.None,
             textInputUiState = null,
             searchText = "",
+            categoryFilterState = RootUsageHostScreenUiState.CategoryFilterState(
+                categories = ImmutableList(listOf()),
+                selectedCategoryName = null,
+            ),
             event = event,
             kakeboScaffoldListener = object : KakeboScaffoldListener {
                 override fun onClickTitle() {
@@ -132,6 +213,7 @@ public class RootUsageHostViewModel(
                             },
                             textInputUiState = viewModelState.textInputUiState,
                             searchText = viewModelState.searchText,
+                            categoryFilterState = createCategoryFilterState(viewModelState),
                         )
                     }
                 }
@@ -177,11 +259,18 @@ public class RootUsageHostViewModel(
         public fun navigate(screenStructure: ScreenStructure)
     }
 
+    public data class CategoryInfo(
+        val id: MoneyUsageCategoryId,
+        val name: String,
+    )
+
     public data class ViewModelState(
         val screenStructure: ScreenStructure.Root.Usage? = null,
         val calendarEvent: RootUsageHostScreenUiState.HeaderCalendarEvent? = null,
         val calendarTitle: String? = null,
         val textInputUiState: RootUsageHostScreenUiState.TextInputUiState? = null,
         val searchText: String = "",
+        val categories: List<CategoryInfo> = listOf(),
+        val selectedCategoryId: MoneyUsageCategoryId? = null,
     )
 }
