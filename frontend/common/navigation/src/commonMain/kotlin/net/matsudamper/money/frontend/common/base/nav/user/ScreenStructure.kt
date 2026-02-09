@@ -55,6 +55,12 @@ public sealed interface ScreenStructure : IScreenStructure {
             }
 
             @Serializable
+            public data object TextFieldTest : Settings {
+                override val direction: Screens = Screens.SettingsTextFieldTest
+                override val sameScreenId: String = "ScreenStructure#Root#Settings#TextFieldTest"
+            }
+
+            @Serializable
             public data object MailCategoryFilters : Settings {
                 override val direction: Screens = Screens.MailCategoryFilters
                 override val sameScreenId: String = "ScreenStructure#Root#Settings#MailCategoryFilters"
