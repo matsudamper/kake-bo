@@ -142,7 +142,7 @@ public class LoginScreenViewModel(
 
     private suspend fun postLogin(isSuccess: Boolean) {
         if (isSuccess) {
-            navController.navigate(RootHomeScreenStructure.Home)
+            navController.navigateReplace(RootHomeScreenStructure.Home)
             globalEventSender.send {
                 it.showSnackBar("ログインしました")
             }
