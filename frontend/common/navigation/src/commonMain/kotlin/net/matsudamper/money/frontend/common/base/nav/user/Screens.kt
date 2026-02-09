@@ -63,7 +63,7 @@ public enum class Screens : Direction {
         override val placeholderUrl: String = "/settings/login"
     },
     SettingsTextFieldTest {
-        override val title: String = "テキストフィールドテスト"
+        override val title: String = "TextFieldテスト"
         override val placeholderUrl: String = "/settings/textfield-test"
     },
 
