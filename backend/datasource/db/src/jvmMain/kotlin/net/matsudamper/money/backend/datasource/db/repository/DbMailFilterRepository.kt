@@ -89,20 +89,25 @@ class DbMailFilterRepository(
                                 if (cursor == null) {
                                     DSL.value(true)
                                 } else {
-                                    val sortField = when (sortType) {
-                                        MailFilterRepository.SortType.TITLE -> filters.TITLE
-                                        MailFilterRepository.SortType.ORDER_NUMBER -> filters.ORDER_NUMBER
-                                    }
-                                    val sortValue: Any = when (sortType) {
-                                        MailFilterRepository.SortType.TITLE -> cursor.title
-                                        MailFilterRepository.SortType.ORDER_NUMBER -> cursor.orderNumber
-                                    }
-                                    if (isAsc) {
-                                        DSL.row(sortField, filters.CATEGORY_MAIL_FILTER_ID)
-                                            .gt(sortValue, cursor.id.id)
-                                    } else {
-                                        DSL.row(sortField, filters.CATEGORY_MAIL_FILTER_ID)
-                                            .lt(sortValue, cursor.id.id)
+                                    when (sortType) {
+                                        MailFilterRepository.SortType.TITLE -> {
+                                            if (isAsc) {
+                                                DSL.row(filters.TITLE, filters.CATEGORY_MAIL_FILTER_ID)
+                                                    .gt(cursor.title, cursor.id.id)
+                                            } else {
+                                                DSL.row(filters.TITLE, filters.CATEGORY_MAIL_FILTER_ID)
+                                                    .lt(cursor.title, cursor.id.id)
+                                            }
+                                        }
+                                        MailFilterRepository.SortType.ORDER_NUMBER -> {
+                                            if (isAsc) {
+                                                DSL.row(filters.ORDER_NUMBER, filters.CATEGORY_MAIL_FILTER_ID)
+                                                    .gt(cursor.orderNumber, cursor.id.id)
+                                            } else {
+                                                DSL.row(filters.ORDER_NUMBER, filters.CATEGORY_MAIL_FILTER_ID)
+                                                    .lt(cursor.orderNumber, cursor.id.id)
+                                            }
+                                        }
                                     }
                                 },
                             ),
