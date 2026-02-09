@@ -225,15 +225,13 @@ internal fun SettingNavContent(
         }
 
         ScreenStructure.Root.Settings.TextFieldTest -> {
-            holder.SaveableStateProvider(state::class.toString()) {
-                TextFieldTestScreen(
-                    modifier = modifier.fillMaxSize(),
-                    uiState = TextFieldTestScreenUiState(
-                        kakeboScaffoldListener = settingUiStateProvider().kakeboScaffoldListener,
-                    ),
-                    windowInsets = windowInsets,
-                )
-            }
+            TextFieldTestScreen(
+                modifier = modifier.fillMaxSize(),
+                uiState = TextFieldTestScreenUiState(
+                    kakeboScaffoldListener = settingUiStateProvider().kakeboScaffoldListener,
+                ),
+                windowInsets = windowInsets,
+            )
         }
 
         ScreenStructure.Root.Settings.Api -> {
