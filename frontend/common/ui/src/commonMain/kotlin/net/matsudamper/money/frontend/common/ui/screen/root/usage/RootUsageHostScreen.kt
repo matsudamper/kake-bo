@@ -321,10 +321,12 @@ private fun CategoryFilterRow(
         CategoryDropdown(
             state = categoryFilterState.categoryDropdown,
         )
-        Spacer(modifier = Modifier.width(8.dp))
-        CategoryDropdown(
-            state = categoryFilterState.subCategoryDropdown,
-        )
+        if (categoryFilterState.subCategoryDropdown.items.isNotEmpty()) {
+            Spacer(modifier = Modifier.width(8.dp))
+            CategoryDropdown(
+                state = categoryFilterState.subCategoryDropdown,
+            )
+        }
     }
 }
 
@@ -336,7 +338,11 @@ private fun CategoryDropdown(
     var expanded by remember { mutableStateOf(false) }
     Box(modifier = modifier) {
         DropDownMenuButton(
-            onClick = { expanded = true },
+            onClick = {
+                if (state.items.isNotEmpty()) {
+                    expanded = true
+                }
+            },
         ) {
             Text(text = state.selectedLabel)
         }
