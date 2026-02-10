@@ -188,12 +188,14 @@ public class RootUsageHostViewModel(
     }
 
     private fun createCategoryFilterState(viewModelState: ViewModelState): RootUsageHostScreenUiState.CategoryFilterState {
-        val allLabel = "全て"
+        val allCategoryLabel = "全てのカテゴリ"
+        val allSubCategoryLabel = "全てのサブカテゴリ"
+        val noSubCategoryLabel = "-"
 
         val categoryItems = buildList {
             add(
                 RootUsageHostScreenUiState.DropdownItem(
-                    name = allLabel,
+                    name = allCategoryLabel,
                     event = object : RootUsageHostScreenUiState.DropdownItemEvent {
                         override fun onClick() {
                             selectCategory(null)
@@ -218,42 +220,50 @@ public class RootUsageHostViewModel(
         val selectedCategoryName = if (viewModelState.selectedCategoryId != null) {
             viewModelState.categories
                 .firstOrNull { it.id == viewModelState.selectedCategoryId }
-                ?.name ?: allLabel
+                ?.name ?: allCategoryLabel
         } else {
-            allLabel
+            allCategoryLabel
         }
 
-        val subCategoryItems = buildList {
-            add(
-                RootUsageHostScreenUiState.DropdownItem(
-                    name = allLabel,
-                    event = object : RootUsageHostScreenUiState.DropdownItemEvent {
-                        override fun onClick() {
-                            selectSubCategory(null)
-                        }
-                    },
-                ),
-            )
-            viewModelState.subCategories.forEach { subCategory ->
+        val isCategorySelected = viewModelState.selectedCategoryId != null
+
+        val subCategoryItems = if (isCategorySelected) {
+            buildList {
                 add(
                     RootUsageHostScreenUiState.DropdownItem(
-                        name = subCategory.name,
+                        name = allSubCategoryLabel,
                         event = object : RootUsageHostScreenUiState.DropdownItemEvent {
                             override fun onClick() {
-                                selectSubCategory(subCategory.id)
+                                selectSubCategory(null)
                             }
                         },
                     ),
                 )
-            }
-        }.toImmutableList()
+                viewModelState.subCategories.forEach { subCategory ->
+                    add(
+                        RootUsageHostScreenUiState.DropdownItem(
+                            name = subCategory.name,
+                            event = object : RootUsageHostScreenUiState.DropdownItemEvent {
+                                override fun onClick() {
+                                    selectSubCategory(subCategory.id)
+                                }
+                            },
+                        ),
+                    )
+                }
+            }.toImmutableList()
+        } else {
+            ImmutableList(listOf())
+        }
 
         val selectedSubCategoryName = if (viewModelState.selectedSubCategoryId != null) {
             viewModelState.subCategories
                 .firstOrNull { it.id == viewModelState.selectedSubCategoryId }
-                ?.name ?: allLabel
+                ?.name ?: allSubCategoryLabel
+        } else if (isCategorySelected) {
+            allSubCategoryLabel
         } else {
-            allLabel
+            noSubCategoryLabel
         }
 
         return RootUsageHostScreenUiState.CategoryFilterState(
@@ -276,11 +286,11 @@ public class RootUsageHostViewModel(
             searchText = "",
             categoryFilterState = RootUsageHostScreenUiState.CategoryFilterState(
                 categoryDropdown = RootUsageHostScreenUiState.DropdownState(
-                    selectedLabel = "全て",
+                    selectedLabel = "全てのカテゴリ",
                     items = ImmutableList(listOf()),
                 ),
                 subCategoryDropdown = RootUsageHostScreenUiState.DropdownState(
-                    selectedLabel = "全て",
+                    selectedLabel = "-",
                     items = ImmutableList(listOf()),
                 ),
             ),

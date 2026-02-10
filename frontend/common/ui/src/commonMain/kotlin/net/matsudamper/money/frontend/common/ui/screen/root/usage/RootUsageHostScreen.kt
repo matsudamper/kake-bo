@@ -336,7 +336,11 @@ private fun CategoryDropdown(
     var expanded by remember { mutableStateOf(false) }
     Box(modifier = modifier) {
         DropDownMenuButton(
-            onClick = { expanded = true },
+            onClick = {
+                if (state.items.isNotEmpty()) {
+                    expanded = true
+                }
+            },
         ) {
             Text(text = state.selectedLabel)
         }
