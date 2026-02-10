@@ -179,7 +179,7 @@ private fun MainContent(
                     SettingListMenuItemButton(
                         onClick = { uiState.event.onClickTextFieldTest() },
                     ) {
-                        Text("テキストフィールドテスト")
+                        Text("TextFieldテスト")
                     }
                     Column(
                         modifier = Modifier.fillMaxWidth(),
