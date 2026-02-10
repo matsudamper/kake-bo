@@ -200,7 +200,7 @@ private fun LoadedContent(
                 ),
             onClick = { uiState.event.onClickAdd() },
         ) {
-            Icon(Icons.Default.Add, contentDescription = null)
+            Icon(Icons.Default.Add, contentDescription = "フィルタを追加")
         }
     }
 }
