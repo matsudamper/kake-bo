@@ -54,6 +54,7 @@ public class MoneyUsagesListViewModel(
                                     delay(100)
                                     pagingModel.changeText(it.searchText)
                                     pagingModel.changeCategoryId(it.selectedCategoryId)
+                                    pagingModel.changeSubCategoryId(it.selectedSubCategoryId)
                                     pagingModel.fetch()
                                 }
                         }

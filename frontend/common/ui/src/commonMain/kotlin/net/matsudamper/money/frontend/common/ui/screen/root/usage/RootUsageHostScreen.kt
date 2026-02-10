@@ -8,8 +8,6 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,7 +30,6 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -81,18 +78,22 @@ public data class RootUsageHostScreenUiState(
     )
 
     public data class CategoryFilterState(
-        val categories: ImmutableList<CategoryItem>,
-        val selectedCategoryName: String?,
+        val categoryDropdown: DropdownState,
+        val subCategoryDropdown: DropdownState,
     )
 
-    public data class CategoryItem(
+    public data class DropdownState(
+        val selectedLabel: String,
+        val items: ImmutableList<DropdownItem>,
+    )
+
+    public data class DropdownItem(
         val name: String,
-        val isSelected: Boolean,
-        val event: CategoryItemEvent,
+        val event: DropdownItemEvent,
     )
 
     @Immutable
-    public interface CategoryItemEvent {
+    public interface DropdownItemEvent {
         public fun onClick()
     }
 
@@ -137,8 +138,6 @@ public data class RootUsageHostScreenUiState(
         public fun onClickSearchBox()
 
         public fun onClickSearchBoxClear()
-
-        public fun onClickCategoryFilterClear()
 
         public fun onClickAdd()
     }
@@ -246,7 +245,6 @@ public fun RootUsageHostScreen(
                 CategoryFilterRow(
                     modifier = Modifier.padding(horizontal = 12.dp),
                     categoryFilterState = uiState.categoryFilterState,
-                    onClickClear = uiState.event::onClickCategoryFilterClear,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 content()
@@ -309,36 +307,52 @@ private fun SearchBox(
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun CategoryFilterRow(
     categoryFilterState: RootUsageHostScreenUiState.CategoryFilterState,
-    onClickClear: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    if (categoryFilterState.categories.isEmpty()) return
-    FlowRow(
+    if (categoryFilterState.categoryDropdown.items.isEmpty()) return
+    Row(
         modifier = modifier,
+        horizontalArrangement = Arrangement.End,
     ) {
-        if (categoryFilterState.selectedCategoryName != null) {
-            FilterChip(
-                selected = true,
-                onClick = onClickClear,
-                label = { Text(categoryFilterState.selectedCategoryName) },
-                trailingIcon = {
-                    Icon(
-                        imageVector = Icons.Default.Clear,
-                        contentDescription = "clear",
-                    )
-                },
-            )
-        } else {
-            categoryFilterState.categories.forEach { category ->
-                FilterChip(
-                    modifier = Modifier.padding(end = 8.dp),
-                    selected = category.isSelected,
-                    onClick = category.event::onClick,
-                    label = { Text(category.name) },
+        Spacer(modifier = Modifier.weight(1f))
+        CategoryDropdown(
+            state = categoryFilterState.categoryDropdown,
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        CategoryDropdown(
+            state = categoryFilterState.subCategoryDropdown,
+        )
+    }
+}
+
+@Composable
+private fun CategoryDropdown(
+    state: RootUsageHostScreenUiState.DropdownState,
+    modifier: Modifier = Modifier,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Box(modifier = modifier) {
+        DropDownMenuButton(
+            onClick = { expanded = true },
+        ) {
+            Text(text = state.selectedLabel)
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            state.items.forEach { item ->
+                DropdownMenuItem(
+                    onClick = {
+                        expanded = false
+                        item.event.onClick()
+                    },
+                    text = {
+                        Text(text = item.name)
+                    },
                 )
             }
         }

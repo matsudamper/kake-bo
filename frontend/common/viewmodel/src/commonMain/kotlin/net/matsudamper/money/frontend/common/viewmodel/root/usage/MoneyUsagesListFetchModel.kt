@@ -21,6 +21,7 @@ import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import com.apollographql.apollo3.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.UsageListScreenPagingQuery
@@ -39,6 +40,7 @@ public class MoneyUsagesListFetchModel(
         createQuery(
             searchText = it.searchText.orEmpty(),
             categoryId = it.categoryId,
+            subCategoryId = it.subCategoryId,
             cursor = null,
         )
     }.stateIn(coroutineScope, started = SharingStarted.Lazily, initialValue = null)
@@ -58,6 +60,7 @@ public class MoneyUsagesListFetchModel(
                         getCacheQuery(
                             searchText = it,
                             categoryId = state.categoryId,
+                            subCategoryId = state.subCategoryId,
                         ),
                     )
                         .fetchPolicy(FetchPolicy.CacheOnly)
@@ -96,6 +99,15 @@ public class MoneyUsagesListFetchModel(
         }
     }
 
+    public fun changeSubCategoryId(subCategoryId: MoneyUsageSubCategoryId?) {
+        if (modelStateFlow.value.subCategoryId == subCategoryId) return
+        modelStateFlow.update {
+            it.copy(
+                subCategoryId = subCategoryId,
+            )
+        }
+    }
+
     public fun refresh() {
         fetchData(isForceRefresh = true)
     }
@@ -110,6 +122,7 @@ public class MoneyUsagesListFetchModel(
                 cacheQueryKey = getCacheQuery(
                     searchText = searchText,
                     categoryId = state.categoryId,
+                    subCategoryId = state.subCategoryId,
                 ),
             ) update@{ before ->
                 if (before == null || isForceRefresh) {
@@ -160,15 +173,18 @@ public class MoneyUsagesListFetchModel(
     private data class ModelState(
         val searchText: String? = null,
         val categoryId: MoneyUsageCategoryId? = null,
+        val subCategoryId: MoneyUsageSubCategoryId? = null,
     )
 
     private companion object {
         private fun getCacheQuery(
             searchText: String,
             categoryId: MoneyUsageCategoryId?,
+            subCategoryId: MoneyUsageSubCategoryId?,
         ) = createQuery(
             searchText = searchText,
             categoryId = categoryId,
+            subCategoryId = subCategoryId,
             cursor = null,
         )
     }
@@ -177,6 +193,7 @@ public class MoneyUsagesListFetchModel(
 private fun createQuery(
     searchText: String,
     categoryId: MoneyUsageCategoryId?,
+    subCategoryId: MoneyUsageSubCategoryId?,
     cursor: String?,
 ): UsageListScreenPagingQuery {
     return UsageListScreenPagingQuery(
@@ -189,6 +206,11 @@ private fun createQuery(
                     text = Optional.present(searchText),
                     category = if (categoryId != null) {
                         Optional.present(listOf(categoryId))
+                    } else {
+                        Optional.absent()
+                    },
+                    subCategory = if (subCategoryId != null) {
+                        Optional.present(listOf(subCategoryId))
                     } else {
                         Optional.absent()
                     },

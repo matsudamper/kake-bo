@@ -79,6 +79,9 @@ public class MoneyUsagesCalendarViewModel(
                                 calendarPagingModel.changeCategoryId(
                                     categoryId = rootViewModelState.selectedCategoryId,
                                 )
+                                calendarPagingModel.changeSubCategoryId(
+                                    subCategoryId = rootViewModelState.selectedSubCategoryId,
+                                )
                             }
                         }
                     }

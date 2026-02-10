@@ -28,6 +28,7 @@ import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import com.apollographql.apollo3.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.UsageCalendarScreenPagingQuery
@@ -46,6 +47,7 @@ public class RootUsageCalendarPagingModel(
             selectedMonth = it.selectedMonth ?: return@map null,
             searchText = it.searchText.orEmpty(),
             categoryId = it.categoryId,
+            subCategoryId = it.subCategoryId,
             cursor = null,
         )
     }.stateIn(coroutineScope, started = SharingStarted.Lazily, initialValue = null)
@@ -81,6 +83,15 @@ public class RootUsageCalendarPagingModel(
         modelStateFlow.update {
             it.copy(
                 categoryId = categoryId,
+            )
+        }
+    }
+
+    public fun changeSubCategoryId(subCategoryId: MoneyUsageSubCategoryId?) {
+        if (modelStateFlow.value.subCategoryId == subCategoryId) return
+        modelStateFlow.update {
+            it.copy(
+                subCategoryId = subCategoryId,
             )
         }
     }
@@ -162,6 +173,7 @@ public class RootUsageCalendarPagingModel(
         val selectedMonth: LocalDate? = null,
         val searchText: String? = null,
         val categoryId: MoneyUsageCategoryId? = null,
+        val subCategoryId: MoneyUsageSubCategoryId? = null,
     )
 
     public companion object {
@@ -169,6 +181,7 @@ public class RootUsageCalendarPagingModel(
             selectedMonth = selectedMonth,
             searchText = "",
             categoryId = null,
+            subCategoryId = null,
             cursor = null,
         )
     }
@@ -178,6 +191,7 @@ private fun createQuery(
     selectedMonth: LocalDate,
     searchText: String,
     categoryId: MoneyUsageCategoryId?,
+    subCategoryId: MoneyUsageSubCategoryId?,
     cursor: String?,
 ): UsageCalendarScreenPagingQuery {
     return UsageCalendarScreenPagingQuery(
@@ -208,6 +222,11 @@ private fun createQuery(
                     text = Optional.present(searchText),
                     category = if (categoryId != null) {
                         Optional.present(listOf(categoryId))
+                    } else {
+                        Optional.absent()
+                    },
+                    subCategory = if (subCategoryId != null) {
+                        Optional.present(listOf(subCategoryId))
                     } else {
                         Optional.absent()
                     },
