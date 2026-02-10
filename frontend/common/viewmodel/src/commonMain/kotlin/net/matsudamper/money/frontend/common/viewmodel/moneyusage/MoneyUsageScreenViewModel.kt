@@ -1,13 +1,19 @@
 package net.matsudamper.money.frontend.common.viewmodel.moneyusage
 
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import com.apollographql.apollo3.api.ApolloResponse
+import com.apollographql.apollo3.cache.normalized.FetchPolicy
+import com.apollographql.apollo3.cache.normalized.fetchPolicy
+import com.apollographql.apollo3.cache.normalized.isFromCache
+import com.apollographql.apollo3.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
@@ -24,7 +30,6 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenQuery
 import net.matsudamper.money.frontend.graphql.fragment.MoneyUsageScreenMoneyUsage
-import net.matsudamper.money.frontend.graphql.lib.ApolloResponseCollector
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
 
 public class MoneyUsageScreenViewModel(
@@ -65,13 +70,13 @@ public class MoneyUsageScreenViewModel(
             event = object : MoneyUsageScreenUiState.Event {
                 override fun onViewInitialized() {
                     viewModelScope.launch {
-                        apolloCollector.fetch()
+                        fetch()
                     }
                 }
 
                 override fun onClickRetry() {
                     viewModelScope.launch {
-                        apolloCollector.fetch()
+                        fetch()
                     }
                 }
 
@@ -348,23 +353,32 @@ public class MoneyUsageScreenViewModel(
         }
     }
 
-    private val apolloCollector = ApolloResponseCollector.create(
-        apolloClient = graphqlClient.apolloClient,
-        query = MoneyUsageScreenQuery(
-            id = moneyUsageId,
-        ),
-    )
+    private val apolloClient = graphqlClient.apolloClient
+    private var fetchJob: Job = Job()
+
+    private fun fetch() {
+        fetchJob.cancel()
+        fetchJob = viewModelScope.launch {
+            apolloClient
+                .query(MoneyUsageScreenQuery(id = moneyUsageId))
+                .fetchPolicy(FetchPolicy.CacheAndNetwork)
+                .watch()
+                .catch {
+                    it.printStackTrace()
+                    viewModelStateFlow.update { state ->
+                        state.copy(apolloResponseState = ApolloResponseState.failure(it))
+                    }
+                }
+                .collect {
+                    if (it.isFromCache && it.data == null) return@collect
+                    viewModelStateFlow.update { state ->
+                        state.copy(apolloResponseState = ApolloResponseState.success(it))
+                    }
+                }
+        }
+    }
 
     init {
-        viewModelScope.launch {
-            apolloCollector.getFlow().collectLatest { apolloResponseState ->
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        apolloResponseState = apolloResponseState,
-                    )
-                }
-            }
-        }
         viewModelScope.launch {
             categorySelectDialogViewModel.getUiStateFlow().collectLatest { categorySelectDialogUiState ->
                 viewModelStateFlow.update { viewModelState ->
