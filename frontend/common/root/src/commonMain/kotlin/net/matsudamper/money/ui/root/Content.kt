@@ -152,6 +152,7 @@ public fun Content(
                 RootUsageHostViewModel(
                     scopedObjectFeature = it,
                     navController = navController,
+                    graphqlClient = koin.get(),
                 )
             }
             val mailScreenViewModel = LocalScopedObjectStore.current.putOrGet<HomeAddTabScreenViewModel>(Unit) {

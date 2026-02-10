@@ -27,6 +27,8 @@ import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import com.apollographql.apollo3.cache.normalized.watch
+import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.UsageCalendarScreenPagingQuery
@@ -44,6 +46,8 @@ public class RootUsageCalendarPagingModel(
         createQuery(
             selectedMonth = it.selectedMonth ?: return@map null,
             searchText = it.searchText.orEmpty(),
+            categoryId = it.categoryId,
+            subCategoryId = it.subCategoryId,
             cursor = null,
         )
     }.stateIn(coroutineScope, started = SharingStarted.Lazily, initialValue = null)
@@ -70,6 +74,24 @@ public class RootUsageCalendarPagingModel(
         modelStateFlow.update {
             it.copy(
                 searchText = text,
+            )
+        }
+    }
+
+    public fun changeCategoryId(categoryId: MoneyUsageCategoryId?) {
+        if (modelStateFlow.value.categoryId == categoryId) return
+        modelStateFlow.update {
+            it.copy(
+                categoryId = categoryId,
+            )
+        }
+    }
+
+    public fun changeSubCategoryId(subCategoryId: MoneyUsageSubCategoryId?) {
+        if (modelStateFlow.value.subCategoryId == subCategoryId) return
+        modelStateFlow.update {
+            it.copy(
+                subCategoryId = subCategoryId,
             )
         }
     }
@@ -150,12 +172,16 @@ public class RootUsageCalendarPagingModel(
     private data class ModelState(
         val selectedMonth: LocalDate? = null,
         val searchText: String? = null,
+        val categoryId: MoneyUsageCategoryId? = null,
+        val subCategoryId: MoneyUsageSubCategoryId? = null,
     )
 
     public companion object {
         private fun getCacheQuery(selectedMonth: LocalDate) = createQuery(
             selectedMonth = selectedMonth,
             searchText = "",
+            categoryId = null,
+            subCategoryId = null,
             cursor = null,
         )
     }
@@ -164,6 +190,8 @@ public class RootUsageCalendarPagingModel(
 private fun createQuery(
     selectedMonth: LocalDate,
     searchText: String,
+    categoryId: MoneyUsageCategoryId?,
+    subCategoryId: MoneyUsageSubCategoryId?,
     cursor: String?,
 ): UsageCalendarScreenPagingQuery {
     return UsageCalendarScreenPagingQuery(
@@ -192,6 +220,16 @@ private fun createQuery(
                         ),
                     ),
                     text = Optional.present(searchText),
+                    category = if (categoryId != null) {
+                        Optional.present(listOf(categoryId))
+                    } else {
+                        Optional.absent()
+                    },
+                    subCategory = if (subCategoryId != null) {
+                        Optional.present(listOf(subCategoryId))
+                    } else {
+                        Optional.absent()
+                    },
                 ),
             ),
             isAsc = true,

@@ -20,6 +20,8 @@ import com.apollographql.apollo3.api.Optional
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
 import com.apollographql.apollo3.cache.normalized.watch
+import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.UsageListScreenPagingQuery
@@ -37,6 +39,8 @@ public class MoneyUsagesListFetchModel(
     private val firstQueryFlow = modelStateFlow.map {
         createQuery(
             searchText = it.searchText.orEmpty(),
+            categoryId = it.categoryId,
+            subCategoryId = it.subCategoryId,
             cursor = null,
         )
     }.stateIn(coroutineScope, started = SharingStarted.Lazily, initialValue = null)
@@ -51,7 +55,14 @@ public class MoneyUsagesListFetchModel(
         coroutineScope.launch {
             modelStateFlow.mapNotNull { it.searchText }
                 .map {
-                    graphqlClient.apolloClient.query(getCacheQuery(it))
+                    val state = modelStateFlow.value
+                    graphqlClient.apolloClient.query(
+                        getCacheQuery(
+                            searchText = it,
+                            categoryId = state.categoryId,
+                            subCategoryId = state.subCategoryId,
+                        ),
+                    )
                         .fetchPolicy(FetchPolicy.CacheOnly)
                         .watch()
                 }
@@ -79,6 +90,24 @@ public class MoneyUsagesListFetchModel(
         }
     }
 
+    public fun changeCategoryId(categoryId: MoneyUsageCategoryId?) {
+        if (modelStateFlow.value.categoryId == categoryId) return
+        modelStateFlow.update {
+            it.copy(
+                categoryId = categoryId,
+            )
+        }
+    }
+
+    public fun changeSubCategoryId(subCategoryId: MoneyUsageSubCategoryId?) {
+        if (modelStateFlow.value.subCategoryId == subCategoryId) return
+        modelStateFlow.update {
+            it.copy(
+                subCategoryId = subCategoryId,
+            )
+        }
+    }
+
     public fun refresh() {
         fetchData(isForceRefresh = true)
     }
@@ -86,10 +115,15 @@ public class MoneyUsagesListFetchModel(
     private fun fetchData(isForceRefresh: Boolean = false) {
         coroutineScope.launch {
             val firstQuery = firstQueryFlow.first() ?: return@launch
-            val searchText = modelStateFlow.map { it.searchText }.first() ?: return@launch
+            val state = modelStateFlow.first()
+            val searchText = state.searchText ?: return@launch
 
             graphqlClient.apolloClient.updateOperation(
-                cacheQueryKey = getCacheQuery(searchText = searchText),
+                cacheQueryKey = getCacheQuery(
+                    searchText = searchText,
+                    categoryId = state.categoryId,
+                    subCategoryId = state.subCategoryId,
+                ),
             ) update@{ before ->
                 if (before == null || isForceRefresh) {
                     val result = executeQuery(firstQuery)
@@ -138,11 +172,19 @@ public class MoneyUsagesListFetchModel(
 
     private data class ModelState(
         val searchText: String? = null,
+        val categoryId: MoneyUsageCategoryId? = null,
+        val subCategoryId: MoneyUsageSubCategoryId? = null,
     )
 
     private companion object {
-        private fun getCacheQuery(searchText: String) = createQuery(
+        private fun getCacheQuery(
+            searchText: String,
+            categoryId: MoneyUsageCategoryId?,
+            subCategoryId: MoneyUsageSubCategoryId?,
+        ) = createQuery(
             searchText = searchText,
+            categoryId = categoryId,
+            subCategoryId = subCategoryId,
             cursor = null,
         )
     }
@@ -150,6 +192,8 @@ public class MoneyUsagesListFetchModel(
 
 private fun createQuery(
     searchText: String,
+    categoryId: MoneyUsageCategoryId?,
+    subCategoryId: MoneyUsageSubCategoryId?,
     cursor: String?,
 ): UsageListScreenPagingQuery {
     return UsageListScreenPagingQuery(
@@ -160,6 +204,16 @@ private fun createQuery(
             filter = Optional.present(
                 MoneyUsagesQueryFilter(
                     text = Optional.present(searchText),
+                    category = if (categoryId != null) {
+                        Optional.present(listOf(categoryId))
+                    } else {
+                        Optional.absent()
+                    },
+                    subCategory = if (subCategoryId != null) {
+                        Optional.present(listOf(subCategoryId))
+                    } else {
+                        Optional.absent()
+                    },
                 ),
             ),
         ),

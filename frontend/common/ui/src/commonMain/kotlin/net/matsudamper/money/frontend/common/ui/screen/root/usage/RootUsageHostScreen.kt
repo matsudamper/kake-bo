@@ -49,6 +49,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -62,6 +63,7 @@ public data class RootUsageHostScreenUiState(
     val header: Header,
     val textInputUiState: TextInputUiState?,
     val searchText: String,
+    val categoryFilterState: CategoryFilterState,
     val event: Event,
     val kakeboScaffoldListener: KakeboScaffoldListener,
 ) {
@@ -74,6 +76,26 @@ public data class RootUsageHostScreenUiState(
         val isMultiline: Boolean,
         val name: String,
     )
+
+    public data class CategoryFilterState(
+        val categoryDropdown: DropdownState,
+        val subCategoryDropdown: DropdownState,
+    )
+
+    public data class DropdownState(
+        val selectedLabel: String,
+        val items: ImmutableList<DropdownItem>,
+    )
+
+    public data class DropdownItem(
+        val name: String,
+        val event: DropdownItemEvent,
+    )
+
+    @Immutable
+    public interface DropdownItemEvent {
+        public fun onClick()
+    }
 
     public sealed interface Header {
         public data object None : Header
@@ -220,6 +242,10 @@ public fun RootUsageHostScreen(
                         )
                     }
                 }
+                CategoryFilterRow(
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                    categoryFilterState = uiState.categoryFilterState,
+                )
                 Spacer(modifier = Modifier.height(12.dp))
                 content()
             }
@@ -276,6 +302,58 @@ private fun SearchBox(
                         contentDescription = "clear",
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CategoryFilterRow(
+    categoryFilterState: RootUsageHostScreenUiState.CategoryFilterState,
+    modifier: Modifier = Modifier,
+) {
+    if (categoryFilterState.categoryDropdown.items.isEmpty()) return
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.End,
+    ) {
+        Spacer(modifier = Modifier.weight(1f))
+        CategoryDropdown(
+            state = categoryFilterState.categoryDropdown,
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        CategoryDropdown(
+            state = categoryFilterState.subCategoryDropdown,
+        )
+    }
+}
+
+@Composable
+private fun CategoryDropdown(
+    state: RootUsageHostScreenUiState.DropdownState,
+    modifier: Modifier = Modifier,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    Box(modifier = modifier) {
+        DropDownMenuButton(
+            onClick = { expanded = true },
+        ) {
+            Text(text = state.selectedLabel)
+        }
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            state.items.forEach { item ->
+                DropdownMenuItem(
+                    onClick = {
+                        expanded = false
+                        item.event.onClick()
+                    },
+                    text = {
+                        Text(text = item.name)
+                    },
+                )
             }
         }
     }

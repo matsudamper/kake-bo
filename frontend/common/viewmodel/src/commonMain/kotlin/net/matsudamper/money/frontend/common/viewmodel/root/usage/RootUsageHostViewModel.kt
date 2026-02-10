@@ -6,6 +6,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo3.cache.normalized.FetchPolicy
+import com.apollographql.apollo3.cache.normalized.fetchPolicy
+import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
@@ -15,10 +22,16 @@ import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageHostS
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
+import net.matsudamper.money.frontend.graphql.GraphqlClient
+import net.matsudamper.money.frontend.graphql.MoneyUsageSelectDialogCategoriesPagingQuery
+import net.matsudamper.money.frontend.graphql.MoneyUsageSelectDialogSubCategoriesPagingQuery
+import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoriesInput
+import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryQuery
 
 public class RootUsageHostViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     navController: ScreenNavController,
+    private val graphqlClient: GraphqlClient,
 ) : CommonViewModel(scopedObjectFeature) {
     private val mutableViewModelStateFlow = MutableStateFlow(ViewModelState())
     public val viewModelStateFlow: StateFlow<ViewModelState> = mutableViewModelStateFlow.asStateFlow()
@@ -27,6 +40,7 @@ public class RootUsageHostViewModel(
     public val rootNavigationEventHandler: EventHandler<RootNavigationEvent> = rootNavigationEventSender.asHandler()
     private val event = object : RootUsageHostScreenUiState.Event {
         override suspend fun onViewInitialized() {
+            fetchCategories()
         }
 
         override fun onClickAdd() {
@@ -95,12 +109,181 @@ public class RootUsageHostViewModel(
         }
     }
 
+    private fun fetchCategories() {
+        viewModelScope.launch {
+            val response = graphqlClient.apolloClient.query(
+                MoneyUsageSelectDialogCategoriesPagingQuery(
+                    MoneyUsageCategoriesInput(
+                        size = 100,
+                        cursor = Optional.present(null),
+                    ),
+                ),
+            )
+                .fetchPolicy(FetchPolicy.CacheFirst)
+                .execute()
+
+            val categories = response.data?.user?.moneyUsageCategories?.nodes.orEmpty()
+            mutableViewModelStateFlow.update {
+                it.copy(
+                    categories = categories.map { node ->
+                        CategoryInfo(
+                            id = node.id,
+                            name = node.name,
+                        )
+                    },
+                )
+            }
+        }
+    }
+
+    private fun fetchSubCategories(categoryId: MoneyUsageCategoryId) {
+        viewModelScope.launch {
+            val response = graphqlClient.apolloClient.query(
+                MoneyUsageSelectDialogSubCategoriesPagingQuery(
+                    categoryId = categoryId,
+                    query = MoneyUsageSubCategoryQuery(
+                        size = 100,
+                        cursor = Optional.present(null),
+                    ),
+                ),
+            )
+                .fetchPolicy(FetchPolicy.CacheFirst)
+                .execute()
+
+            val subCategories = response.data?.user?.moneyUsageCategory?.subCategories?.nodes.orEmpty()
+            mutableViewModelStateFlow.update {
+                it.copy(
+                    subCategories = subCategories.map { node ->
+                        SubCategoryInfo(
+                            id = node.id,
+                            name = node.name,
+                        )
+                    },
+                )
+            }
+        }
+    }
+
+    private fun selectCategory(categoryId: MoneyUsageCategoryId?) {
+        val current = mutableViewModelStateFlow.value.selectedCategoryId
+        if (current == categoryId) return
+        mutableViewModelStateFlow.update {
+            it.copy(
+                selectedCategoryId = categoryId,
+                selectedSubCategoryId = null,
+                subCategories = listOf(),
+            )
+        }
+        if (categoryId != null) {
+            fetchSubCategories(categoryId)
+        }
+    }
+
+    private fun selectSubCategory(subCategoryId: MoneyUsageSubCategoryId?) {
+        mutableViewModelStateFlow.update {
+            it.copy(
+                selectedSubCategoryId = subCategoryId,
+            )
+        }
+    }
+
+    private fun createCategoryFilterState(viewModelState: ViewModelState): RootUsageHostScreenUiState.CategoryFilterState {
+        val allLabel = "全て"
+
+        val categoryItems = buildList {
+            add(
+                RootUsageHostScreenUiState.DropdownItem(
+                    name = allLabel,
+                    event = object : RootUsageHostScreenUiState.DropdownItemEvent {
+                        override fun onClick() {
+                            selectCategory(null)
+                        }
+                    },
+                ),
+            )
+            viewModelState.categories.forEach { category ->
+                add(
+                    RootUsageHostScreenUiState.DropdownItem(
+                        name = category.name,
+                        event = object : RootUsageHostScreenUiState.DropdownItemEvent {
+                            override fun onClick() {
+                                selectCategory(category.id)
+                            }
+                        },
+                    ),
+                )
+            }
+        }.toImmutableList()
+
+        val selectedCategoryName = if (viewModelState.selectedCategoryId != null) {
+            viewModelState.categories
+                .firstOrNull { it.id == viewModelState.selectedCategoryId }
+                ?.name ?: allLabel
+        } else {
+            allLabel
+        }
+
+        val subCategoryItems = buildList {
+            add(
+                RootUsageHostScreenUiState.DropdownItem(
+                    name = allLabel,
+                    event = object : RootUsageHostScreenUiState.DropdownItemEvent {
+                        override fun onClick() {
+                            selectSubCategory(null)
+                        }
+                    },
+                ),
+            )
+            viewModelState.subCategories.forEach { subCategory ->
+                add(
+                    RootUsageHostScreenUiState.DropdownItem(
+                        name = subCategory.name,
+                        event = object : RootUsageHostScreenUiState.DropdownItemEvent {
+                            override fun onClick() {
+                                selectSubCategory(subCategory.id)
+                            }
+                        },
+                    ),
+                )
+            }
+        }.toImmutableList()
+
+        val selectedSubCategoryName = if (viewModelState.selectedSubCategoryId != null) {
+            viewModelState.subCategories
+                .firstOrNull { it.id == viewModelState.selectedSubCategoryId }
+                ?.name ?: allLabel
+        } else {
+            allLabel
+        }
+
+        return RootUsageHostScreenUiState.CategoryFilterState(
+            categoryDropdown = RootUsageHostScreenUiState.DropdownState(
+                selectedLabel = selectedCategoryName,
+                items = categoryItems,
+            ),
+            subCategoryDropdown = RootUsageHostScreenUiState.DropdownState(
+                selectedLabel = selectedSubCategoryName,
+                items = subCategoryItems,
+            ),
+        )
+    }
+
     public val uiStateFlow: StateFlow<RootUsageHostScreenUiState> = MutableStateFlow(
         RootUsageHostScreenUiState(
             type = RootUsageHostScreenUiState.Type.Calendar,
             header = RootUsageHostScreenUiState.Header.None,
             textInputUiState = null,
             searchText = "",
+            categoryFilterState = RootUsageHostScreenUiState.CategoryFilterState(
+                categoryDropdown = RootUsageHostScreenUiState.DropdownState(
+                    selectedLabel = "全て",
+                    items = ImmutableList(listOf()),
+                ),
+                subCategoryDropdown = RootUsageHostScreenUiState.DropdownState(
+                    selectedLabel = "全て",
+                    items = ImmutableList(listOf()),
+                ),
+            ),
             event = event,
             kakeboScaffoldListener = object : KakeboScaffoldListener {
                 override fun onClickTitle() {
@@ -134,6 +317,7 @@ public class RootUsageHostViewModel(
                             },
                             textInputUiState = viewModelState.textInputUiState,
                             searchText = viewModelState.searchText,
+                            categoryFilterState = createCategoryFilterState(viewModelState),
                         )
                     }
                 }
@@ -188,6 +372,16 @@ public class RootUsageHostViewModel(
         public fun navigate(screenStructure: ScreenStructure)
     }
 
+    public data class CategoryInfo(
+        val id: MoneyUsageCategoryId,
+        val name: String,
+    )
+
+    public data class SubCategoryInfo(
+        val id: MoneyUsageSubCategoryId,
+        val name: String,
+    )
+
     public data class ViewModelState(
         val screenStructure: ScreenStructure.Root.Usage? = null,
         val calendarEvent: RootUsageHostScreenUiState.HeaderCalendarEvent? = null,
@@ -196,5 +390,9 @@ public class RootUsageHostViewModel(
         val calendarMonth: Int? = null,
         val textInputUiState: RootUsageHostScreenUiState.TextInputUiState? = null,
         val searchText: String = "",
+        val categories: List<CategoryInfo> = listOf(),
+        val subCategories: List<SubCategoryInfo> = listOf(),
+        val selectedCategoryId: MoneyUsageCategoryId? = null,
+        val selectedSubCategoryId: MoneyUsageSubCategoryId? = null,
     )
 }
