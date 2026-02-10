@@ -284,7 +284,7 @@ public class RootHomeTabPeriodAllContentViewModel(
                                 val amount = it.totalAmount
                                     ?: return null
                                 BarGraphUiState.Item(
-                                    color = reservedColorModel.getColor(it.category.id.value.toString()),
+                                    color = reservedColorModel.getColor(it.category.id.value.toString(), it.category.color),
                                     title = it.category.name,
                                     value = amount,
                                 )
@@ -310,7 +310,7 @@ public class RootHomeTabPeriodAllContentViewModel(
             ),
             totalBarColorTextMapping = categories.map { category ->
                 GraphTitleChipUiState(
-                    color = reservedColorModel.getColor(category.id.value.toString()),
+                    color = reservedColorModel.getColor(category.id.value.toString(), category.color),
                     title = category.name,
                     onClick = {
                         viewModelScope.launch {

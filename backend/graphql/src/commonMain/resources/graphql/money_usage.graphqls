@@ -10,6 +10,7 @@ type MoneyUsageSuggest {
 type MoneyUsageCategory {
     id: MoneyUsageCategoryId!
     name: String! @lazy
+    color: String @lazy
 
     subCategories(query: MoneyUsageSubCategoryQuery!): SubCategoriesConnection @lazy
 }

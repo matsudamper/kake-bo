@@ -99,7 +99,8 @@ public class SettingScreenCategoryApi(
 
     public suspend fun updateCategory(
         id: MoneyUsageCategoryId,
-        name: String,
+        name: Optional<String?>,
+        color: Optional<String?>,
     ): ApolloResponse<UpdateCategoryMutation.Data>? {
         return runCatching {
             apolloClient
@@ -107,7 +108,8 @@ public class SettingScreenCategoryApi(
                     UpdateCategoryMutation(
                         id = id,
                         query = UpdateCategoryQuery(
-                            name = Optional.present(name),
+                            name = name,
+                            color = color,
                         ),
                     ),
                 )
