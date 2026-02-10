@@ -69,6 +69,7 @@ mutation UpdateCategory($id: MoneyUsageCategoryId!, $query: UpdateCategoryQuery!
         updateCategory(id: $id, query: $query) {
             id
             name
+            color
         }
     }
 }

@@ -123,6 +123,7 @@ input UpdateSubCategoryQuery {
 
 input UpdateCategoryQuery {
     name: String
+    color: String
 }
 
 input AddSubCategoryInput {

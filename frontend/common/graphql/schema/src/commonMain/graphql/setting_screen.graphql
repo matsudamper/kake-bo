@@ -49,6 +49,7 @@ query CategorySettingScreen($categoryId: MoneyUsageCategoryId!) {
         moneyUsageCategory(id: $categoryId) {
             id
             name
+            color
         }
     }
 }
