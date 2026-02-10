@@ -22,6 +22,7 @@ interface MailFilterRepository {
 
     fun getFilters(
         isAsc: Boolean,
+        sortType: SortType,
         userId: UserId,
         cursor: MailFilterCursor?,
     ): Result<MailFiltersResult>
@@ -60,8 +61,14 @@ interface MailFilterRepository {
 
     data class MailFilterCursor(
         val id: ImportedMailCategoryFilterId,
+        val title: String,
         val orderNumber: Int,
     )
+
+    enum class SortType {
+        TITLE,
+        ORDER_NUMBER,
+    }
 
     fun getConditions(
         userId: UserId,

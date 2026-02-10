@@ -128,27 +128,20 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
     ).also { uiStateFlow ->
         viewModelScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
-                val listResponse = viewModelState.apolloResponse
-                val listData = listResponse?.data?.user?.moneyUsages
-                val screenResponse = viewModelState.screenResponse
-                val screenResponseData = screenResponse?.data?.user?.moneyUsageSubCategory
-                val state = if (listResponse == null || screenResponse == null) {
+                val response = viewModelState.apolloResponse
+                val state = if (response == null) {
                     RootHomeMonthlySubCategoryScreenUiState.LoadingState.Loading
-                } else if (
-                    listResponse.hasErrors() ||
-                    listData == null ||
-                    screenResponse.hasErrors() ||
-                    screenResponseData == null
-                ) {
+                } else if (response.hasErrors()) {
                     RootHomeMonthlySubCategoryScreenUiState.LoadingState.Error
                 } else {
-                    val items = listData.nodes.map { node -> createItem(node) }
+                    val nodes = response.data?.user?.moneyUsages?.nodes.orEmpty()
+                    val items = nodes.map { node -> createItem(node) }
                     RootHomeMonthlySubCategoryScreenUiState.LoadingState.Loaded(
                         items = items,
                         event = loadedEvent,
-                        hasMoreItem = listResponse.data?.user?.moneyUsages?.hasMore != false,
-                        categoryName = screenResponseData.category.name,
-                        subCategoryName = screenResponseData.name,
+                        hasMoreItem = response.data?.user?.moneyUsages?.hasMore != false,
+                        categoryName = viewModelState.categoryName.orEmpty(),
+                        subCategoryName = viewModelState.subCategoryName.orEmpty(),
                     )
                 }
                 uiStateFlow.value = uiStateFlow.value.copy(
@@ -212,10 +205,16 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
                 .execute()
         }
 
-        viewModelStateFlow.update { viewModelState ->
-            viewModelState.copy(
-                screenResponse = response,
-            )
+        if (!response.hasErrors()) {
+            val subCategory = response.data?.user?.moneyUsageSubCategory
+            if (subCategory != null) {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        categoryName = subCategory.category.name,
+                        subCategoryName = subCategory.name,
+                    )
+                }
+            }
         }
     }
 
@@ -313,7 +312,8 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
         val year: Int,
         val month: Int,
         val subCategoryId: MoneyUsageSubCategoryId,
-        val screenResponse: ApolloResponse<MonthlySubCategoryScreenQuery.Data>? = null,
+        val categoryName: String? = null,
+        val subCategoryName: String? = null,
         val apolloResponse: ApolloResponse<MonthlySubCategoryScreenListQuery.Data>? = null,
         val sortStateMap: SortStateMap = SortStateMap(),
     ) {
