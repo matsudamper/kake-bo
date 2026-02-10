@@ -321,10 +321,12 @@ private fun CategoryFilterRow(
         CategoryDropdown(
             state = categoryFilterState.categoryDropdown,
         )
-        Spacer(modifier = Modifier.width(8.dp))
-        CategoryDropdown(
-            state = categoryFilterState.subCategoryDropdown,
-        )
+        if (categoryFilterState.subCategoryDropdown.items.isNotEmpty()) {
+            Spacer(modifier = Modifier.width(8.dp))
+            CategoryDropdown(
+                state = categoryFilterState.subCategoryDropdown,
+            )
+        }
     }
 }
 
