@@ -370,6 +370,8 @@ type MoneyUsageCategory {
 
   name: String!
 
+  color: String
+
   subCategories(query: MoneyUsageSubCategoryQuery!): SubCategoriesConnection
 }
 
@@ -520,6 +522,8 @@ type SubCategoriesConnection {
 
 input UpdateCategoryQuery {
   name: String
+
+  color: String
 }
 
 input UpdateImportedMailCategoryFilterConditionInput {

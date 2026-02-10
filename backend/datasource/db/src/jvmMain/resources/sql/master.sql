@@ -70,6 +70,7 @@ CREATE TABLE money_usage_categories
     money_usage_category_id INT                                not null PRIMARY KEY AUTO_INCREMENT,
     user_id                 INT                                not null,
     name                    VARCHAR(500)                       not null,
+    color                   VARCHAR(7),
     created_datetime        DATETIME DEFAULT CURRENT_TIMESTAMP not null,
     update_datetime         DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP,
     INDEX user_id (user_id),

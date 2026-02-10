@@ -48,6 +48,7 @@ class MoneyUsageCategoryDataLoaderDefine(
                     Result(
                         userId = key.userId,
                         name = result.name,
+                        color = result.color,
                         categoryId = result.moneyUsageCategoryId,
                     )
                 }
@@ -58,6 +59,7 @@ class MoneyUsageCategoryDataLoaderDefine(
     data class Result(
         val userId: UserId,
         val name: String,
+        val color: String?,
         val categoryId: MoneyUsageCategoryId,
     )
 

@@ -33,6 +33,7 @@ class DbMoneyUsageCategoryRepository : MoneyUsageCategoryRepository {
                     userId = UserId(result.userId!!),
                     moneyUsageCategoryId = MoneyUsageCategoryId(result.moneyUsageCategoryId!!),
                     name = result.name!!,
+                    color = result.color,
                 )
             }
         }
@@ -64,6 +65,7 @@ class DbMoneyUsageCategoryRepository : MoneyUsageCategoryRepository {
                         userId = UserId(record.userId!!),
                         moneyUsageCategoryId = MoneyUsageCategoryId(record.moneyUsageCategoryId!!),
                         name = record.name!!,
+                        color = record.color,
                     )
                 }
             }
@@ -88,6 +90,7 @@ class DbMoneyUsageCategoryRepository : MoneyUsageCategoryRepository {
                         userId = UserId(record.userId!!),
                         moneyUsageCategoryId = MoneyUsageCategoryId(record.moneyUsageCategoryId!!),
                         name = record.name!!,
+                        color = record.color,
                     )
                 }
             }
@@ -101,22 +104,28 @@ class DbMoneyUsageCategoryRepository : MoneyUsageCategoryRepository {
         userId: UserId,
         categoryId: MoneyUsageCategoryId,
         name: String?,
+        color: String?,
     ): Boolean {
+        if (name == null && color == null) return false
         return DbConnectionImpl.use { connection ->
-            if (name != null) {
-                DSL.using(connection)
-                    .update(categories)
-                    .set(categories.NAME, name)
-                    .where(
-                        DSL.value(true)
-                            .and(categories.USER_ID.eq(userId.value))
-                            .and(categories.MONEY_USAGE_CATEGORY_ID.eq(categoryId.value)),
-                    )
-                    .limit(1)
-                    .execute()
-            } else {
-                0
-            } >= 1
+            val fields = buildMap {
+                if (name != null) {
+                    put(categories.NAME, name)
+                }
+                if (color != null) {
+                    put(categories.COLOR, color)
+                }
+            }
+            DSL.using(connection)
+                .update(categories)
+                .set(fields)
+                .where(
+                    DSL.value(true)
+                        .and(categories.USER_ID.eq(userId.value))
+                        .and(categories.MONEY_USAGE_CATEGORY_ID.eq(categoryId.value)),
+                )
+                .limit(1)
+                .execute() >= 1
         }
     }
 }

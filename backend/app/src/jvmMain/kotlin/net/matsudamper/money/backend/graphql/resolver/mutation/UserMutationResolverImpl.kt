@@ -517,6 +517,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                     userId = userId,
                     categoryId = id,
                     name = query.name,
+                    color = query.color,
                 )
             if (result) {
                 QlMoneyUsageCategory(

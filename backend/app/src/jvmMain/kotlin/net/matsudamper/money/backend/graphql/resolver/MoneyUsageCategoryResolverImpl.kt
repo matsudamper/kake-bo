@@ -35,6 +35,26 @@ class MoneyUsageCategoryResolverImpl : MoneyUsageCategoryResolver {
         }.toDataFetcher()
     }
 
+    override fun color(
+        moneyUsageCategory: QlMoneyUsageCategory,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<String?>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+
+        val categoryLoader = context.dataLoaders.moneyUsageCategoryDataLoaderDefine.get(env)
+            .load(
+                MoneyUsageCategoryDataLoaderDefine.Key(
+                    userId = userId,
+                    categoryId = moneyUsageCategory.id,
+                ),
+            )
+
+        return CompletableFuture.allOf(categoryLoader).thenApplyAsync {
+            categoryLoader.get()?.color
+        }.toDataFetcher()
+    }
+
     /**
      * TODO: Paging
      */

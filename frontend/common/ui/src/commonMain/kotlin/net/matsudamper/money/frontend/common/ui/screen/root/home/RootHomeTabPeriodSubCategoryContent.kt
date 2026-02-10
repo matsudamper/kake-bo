@@ -41,30 +41,52 @@ public fun RootHomeTabPeriodSubCategoryScreen(
     }
     RootHomeTabScreenScaffold(
         kakeboScaffoldListener = uiState.kakeboScaffoldListener,
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier,
         content = {
-            when (val loadingState = uiState.loadingState) {
-                is RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Loaded -> {
-                    savedState.SaveableStateProvider(Unit) {
-                        LoadedContent(
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 24.dp),
+            ) {
+                Spacer(modifier = Modifier.height(12.dp))
+                RootHomePeriodSection(
+                    modifier = Modifier.fillMaxWidth(),
+                    onClickPreviousMonth = { uiState.event.onClickPreviousMonth() },
+                    onClickNextMonth = { uiState.event.onClickNextMonth() },
+                    betweenText = {
+                        Text(uiState.periodUiState.between)
+                    },
+                    rangeText = {
+                        Text(uiState.periodUiState.rangeText)
+                    },
+                    onClickRange = { range -> uiState.event.onClickRange(range) },
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                when (val loadingState = uiState.loadingState) {
+                    is RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Loaded -> {
+                        savedState.SaveableStateProvider(Unit) {
+                            LoadedContent(
+                                modifier = Modifier.fillMaxWidth(),
+                                loadingState = loadingState,
+                            )
+                        }
+                    }
+
+                    RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Loading -> {
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+                        }
+                    }
+
+                    RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Error -> {
+                        LoadingErrorContent(
                             modifier = Modifier.fillMaxSize(),
-                            loadingState = loadingState,
+                            onClickRetry = { /* TODO */ },
                         )
                     }
                 }
-
-                RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Loading -> {
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-                    }
-                }
-
-                RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Error -> {
-                    LoadingErrorContent(
-                        modifier = modifier,
-                        onClickRetry = { /* TODO */ },
-                    )
-                }
+                Spacer(modifier = Modifier.height(12.dp))
             }
         },
         windowInsets = windowInsets,
@@ -76,16 +98,12 @@ private fun LoadedContent(
     modifier: Modifier = Modifier,
     loadingState: RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Loaded,
 ) {
-    Column(
-        modifier = modifier.verticalScroll(rememberScrollState()),
-    ) {
-        Spacer(modifier = Modifier.height(12.dp))
-
+    Column(modifier = modifier) {
         Text(
             text = "サブカテゴリ: ${loadingState.subCategoryName}",
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier.padding(vertical = 8.dp),
         )
 
         Spacer(modifier = Modifier.height(12.dp))

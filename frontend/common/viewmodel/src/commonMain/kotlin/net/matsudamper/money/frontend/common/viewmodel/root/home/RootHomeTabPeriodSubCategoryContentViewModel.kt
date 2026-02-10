@@ -68,6 +68,86 @@ public class RootHomeTabPeriodSubCategoryContentViewModel(
         public fun navigate(screen: ScreenStructure)
     }
 
+    private fun onClickNextMonth() {
+        viewModelStateFlow.update {
+            val period = it.displayPeriod
+            it.copy(
+                displayPeriod = period.copy(
+                    sinceDate = period.sinceDate.addMonth(1),
+                ),
+            )
+        }
+        emitNavigationUpdate()
+    }
+
+    private fun onClickPreviousMonth() {
+        viewModelStateFlow.update {
+            val period = it.displayPeriod
+            it.copy(
+                displayPeriod = period.copy(
+                    sinceDate = period.sinceDate.addMonth(-1),
+                ),
+            )
+        }
+        emitNavigationUpdate()
+    }
+
+    private fun onClickRange(range: Int) {
+        val currentEndYearMonth = viewModelStateFlow.value.displayPeriod.let { period ->
+            period.sinceDate.addMonth(period.monthCount)
+        }
+        val newSinceDate = currentEndYearMonth.addMonth(-range)
+
+        viewModelStateFlow.update {
+            it.copy(
+                displayPeriod = Period(
+                    sinceDate = newSinceDate,
+                    monthCount = range,
+                ),
+            )
+        }
+        emitNavigationUpdate()
+    }
+
+    private fun emitNavigationUpdate() {
+        viewModelScope.launch {
+            val state = viewModelStateFlow.value
+            eventSender.send {
+                it.navigate(
+                    RootHomeScreenStructure.PeriodSubCategory(
+                        subCategoryId = state.subCategoryId,
+                        since = LocalDate(
+                            year = state.displayPeriod.sinceDate.year,
+                            monthNumber = state.displayPeriod.sinceDate.month,
+                            dayOfMonth = 1,
+                        ),
+                        period = state.displayPeriod.monthCount,
+                    ),
+                )
+            }
+        }
+    }
+
+    public fun updateStructure(current: RootHomeScreenStructure.PeriodSubCategory) {
+        val since = current.since
+        viewModelStateFlow.update { viewModelState ->
+            viewModelState.copy(
+                subCategoryId = current.subCategoryId,
+                displayPeriod = viewModelState.displayPeriod.copy(
+                    sinceDate = if (since != null) {
+                        YearMonth(
+                            year = since.year,
+                            month = since.monthNumber,
+                        )
+                    } else {
+                        viewModelState.displayPeriod.sinceDate
+                    },
+                    monthCount = current.period,
+                ),
+            )
+        }
+    }
+
     public val uiStateFlow: StateFlow<RootHomeTabPeriodSubCategoryContentUiState> = MutableStateFlow(
         RootHomeTabPeriodSubCategoryContentUiState(
             loadingState = RootHomeTabPeriodSubCategoryContentUiState.LoadingState.Loading,
@@ -76,6 +156,7 @@ public class RootHomeTabPeriodSubCategoryContentViewModel(
                     navController.navigateToHome()
                 }
             },
+            periodUiState = createPeriodUiState(viewModelStateFlow.value.displayPeriod),
             event = object : RootHomeTabPeriodSubCategoryContentUiState.Event {
                 override suspend fun onViewInitialized() {
                     viewModelScope.launch {
@@ -98,6 +179,18 @@ public class RootHomeTabPeriodSubCategoryContentViewModel(
 
                 override fun refresh() {
                     // TODO
+                }
+
+                override fun onClickNextMonth() {
+                    this@RootHomeTabPeriodSubCategoryContentViewModel.onClickNextMonth()
+                }
+
+                override fun onClickPreviousMonth() {
+                    this@RootHomeTabPeriodSubCategoryContentViewModel.onClickPreviousMonth()
+                }
+
+                override fun onClickRange(range: Int) {
+                    this@RootHomeTabPeriodSubCategoryContentViewModel.onClickRange(range)
                 }
             },
         ),
@@ -172,6 +265,7 @@ public class RootHomeTabPeriodSubCategoryContentViewModel(
                 mutableUiStateFlow.update {
                     it.copy(
                         loadingState = loadingState,
+                        periodUiState = createPeriodUiState(viewModelState.displayPeriod),
                     )
                 }
             }
@@ -241,5 +335,16 @@ public class RootHomeTabPeriodSubCategoryContentViewModel(
             val sinceDate: YearMonth,
             val monthCount: Int,
         )
+    }
+
+    private companion object {
+        fun createPeriodUiState(displayPeriod: Period): RootHomeTabPeriodSubCategoryContentUiState.PeriodUiState {
+            val first = displayPeriod.sinceDate
+            val last = displayPeriod.sinceDate.addMonth(displayPeriod.monthCount - 1)
+            return RootHomeTabPeriodSubCategoryContentUiState.PeriodUiState(
+                between = "${first.year}/${first.month} - ${last.year}/${last.month}",
+                rangeText = "${displayPeriod.monthCount}ヶ月",
+            )
+        }
     }
 }
