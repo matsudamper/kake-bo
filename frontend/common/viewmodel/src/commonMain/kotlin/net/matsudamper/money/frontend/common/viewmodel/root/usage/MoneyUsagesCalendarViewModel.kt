@@ -76,6 +76,12 @@ public class MoneyUsagesCalendarViewModel(
                                 calendarPagingModel.changeSearchText(
                                     text = rootViewModelState.searchText,
                                 )
+                                calendarPagingModel.changeCategoryId(
+                                    categoryId = rootViewModelState.selectedCategoryId,
+                                )
+                                calendarPagingModel.changeSubCategoryId(
+                                    subCategoryId = rootViewModelState.selectedSubCategoryId,
+                                )
                             }
                         }
                     }
