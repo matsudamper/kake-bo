@@ -1,8 +1,10 @@
 package net.matsudamper.money.frontend.common.viewmodel.layout
 
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
@@ -13,6 +15,10 @@ import kotlinx.coroutines.launch
 import com.apollographql.apollo3.ApolloClient
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo3.cache.normalized.FetchPolicy
+import com.apollographql.apollo3.cache.normalized.fetchPolicy
+import com.apollographql.apollo3.cache.normalized.isFromCache
+import com.apollographql.apollo3.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
@@ -33,15 +39,35 @@ internal class CategorySelectDialogViewModel(
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
-    private val apolloResponseCollector = ApolloResponseCollector.create(
-        apolloClient = apolloClient,
-        query = MoneyUsageSelectDialogCategoriesPagingQuery(
-            MoneyUsageCategoriesInput(
-                size = 100,
-                cursor = Optional.present(null),
-            ),
+    private val categoriesQuery = MoneyUsageSelectDialogCategoriesPagingQuery(
+        MoneyUsageCategoriesInput(
+            size = 100,
+            cursor = Optional.present(null),
         ),
     )
+    private var categoriesFetchJob: Job = Job()
+
+    private fun fetchCategories() {
+        categoriesFetchJob.cancel()
+        categoriesFetchJob = viewModelScope.launch {
+            apolloClient
+                .query(categoriesQuery)
+                .fetchPolicy(FetchPolicy.CacheAndNetwork)
+                .watch()
+                .catch {
+                    it.printStackTrace()
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(categories = ApolloResponseState.failure(it))
+                    }
+                }
+                .collect {
+                    if (it.isFromCache && it.data == null) return@collect
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(categories = ApolloResponseState.success(it))
+                    }
+                }
+        }
+    }
     private val subCategoriesFlow: MutableStateFlow<Map<MoneyUsageCategoryId, ApolloResponseCollector<MoneyUsageSelectDialogSubCategoriesPagingQuery.Data>>> = MutableStateFlow(mapOf())
 
     suspend fun getUiStateFlow(): StateFlow<CategorySelectDialogUiState?> {
@@ -63,15 +89,6 @@ internal class CategorySelectDialogViewModel(
     }
 
     init {
-        viewModelScope.launch {
-            apolloResponseCollector.getFlow().collectLatest { apolloResponseState ->
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        categories = apolloResponseState,
-                    )
-                }
-            }
-        }
         viewModelScope.launch {
             subCategoriesFlow.collectLatest { map ->
                 combine(map.toList().map { pair -> pair.second.getFlow().map { pair.first to it } }) {
@@ -128,9 +145,7 @@ internal class CategorySelectDialogViewModel(
         ) {
             // TODO ページング
             // TODO error handling
-            viewModelScope.launch {
-                apolloResponseCollector.fetch()
-            }
+            fetchCategories()
         }
         if (subCategory != null && categoryId != null && viewModelStateFlow.value.subCategories[categoryId] == null) {
             fetchSubCategories(categoryId)
