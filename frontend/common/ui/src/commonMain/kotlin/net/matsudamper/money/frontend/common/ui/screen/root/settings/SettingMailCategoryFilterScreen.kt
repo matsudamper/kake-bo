@@ -3,16 +3,10 @@ package net.matsudamper.money.frontend.common.ui.screen.root.settings
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,9 +15,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -177,44 +171,36 @@ private fun LoadedContent(
 ) {
     val layoutDirection = LocalLayoutDirection.current
     val lazyListState = rememberLazyListState()
-    BoxWithConstraints(modifier = modifier) {
-        Column(
-            modifier = Modifier.fillMaxSize()
-                .padding(
-                    top = contentPadding.calculateTopPadding(),
-                ),
+    val fabSize = 56.dp
+    val fabPadding = 16.dp
+    Box(modifier = modifier) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize(),
+            state = lazyListState,
+            contentPadding = PaddingValues(
+                top = contentPadding.calculateTopPadding(),
+                start = contentPadding.calculateStartPadding(layoutDirection),
+                end = contentPadding.calculateEndPadding(layoutDirection),
+                bottom = contentPadding.calculateBottomPadding() + fabSize + fabPadding * 2,
+            ),
         ) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth()
-                    .padding(
-                        start = contentPadding.calculateStartPadding(layoutDirection),
-                        end = contentPadding.calculateEndPadding(layoutDirection),
-                    ),
-            ) {
-                Spacer(modifier = Modifier.weight(1f))
-                OutlinedButton(onClick = { uiState.event.onClickAdd() }) {
-                    Icon(Icons.Default.Add, contentDescription = null)
-                    Text("追加")
+            items(uiState.filters) { item ->
+                SettingListMenuItemButton(onClick = { item.event.onClick() }) {
+                    Text(item.title)
                 }
             }
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                state = lazyListState,
-                contentPadding = PaddingValues(
-                    start = contentPadding.calculateStartPadding(layoutDirection),
-                    end = contentPadding.calculateEndPadding(layoutDirection),
-                    bottom = contentPadding.calculateBottomPadding(),
+        }
+        FloatingActionButton(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(
+                    end = contentPadding.calculateEndPadding(layoutDirection) + fabPadding,
+                    bottom = contentPadding.calculateBottomPadding() + fabPadding,
                 ),
-            ) {
-                items(uiState.filters) { item ->
-                    SettingListMenuItemButton(onClick = { item.event.onClick() }) {
-                        Text(item.title)
-                    }
-                }
-            }
+            onClick = { uiState.event.onClickAdd() },
+        ) {
+            Icon(Icons.Default.Add, contentDescription = "フィルタを追加")
         }
     }
 }
