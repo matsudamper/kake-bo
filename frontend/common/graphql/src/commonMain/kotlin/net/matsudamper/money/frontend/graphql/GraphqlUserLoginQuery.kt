@@ -30,20 +30,29 @@ class GraphqlUserLoginQuery(
             .execute()
     }
 
-    /**
-     * @return ログアウトさせた方が良い場合はfalseが返る
-     */
-    suspend fun isLoggedIn(): Boolean {
-        return runCatching {
+    suspend fun isLoggedIn(): IsLoggedInResult {
+        val response = try {
             graphqlClient.apolloClient
                 .query(UserIsLoggedInQuery())
                 .fetchPolicy(FetchPolicy.NetworkOnly)
                 .execute()
-                .data
-                ?.isLoggedIn
-        }.fold(
-            onSuccess = { it == true },
-            onFailure = { true },
-        )
+        } catch (@Suppress("TooGenericExceptionCaught") _: Exception) {
+            return IsLoggedInResult.ServerError
+        }
+
+        val isLoggedIn = response.data?.isLoggedIn
+            ?: return IsLoggedInResult.ServerError
+
+        return if (isLoggedIn) {
+            IsLoggedInResult.LoggedIn
+        } else {
+            IsLoggedInResult.NotLoggedIn
+        }
+    }
+
+    public sealed interface IsLoggedInResult {
+        public data object LoggedIn : IsLoggedInResult
+        public data object NotLoggedIn : IsLoggedInResult
+        public data object ServerError : IsLoggedInResult
     }
 }

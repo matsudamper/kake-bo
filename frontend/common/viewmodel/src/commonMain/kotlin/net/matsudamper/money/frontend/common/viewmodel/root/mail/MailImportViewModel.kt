@@ -16,6 +16,7 @@ import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportMailScreenUiState
+import net.matsudamper.money.frontend.common.usecase.LoginCheckResult
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -58,7 +59,7 @@ public class MailImportViewModel(
                 override fun onViewInitialized() {
                     viewModelScope.launch {
                         val result = loginCheckUseCase.check()
-                        if (result.not()) return@launch
+                        if (result != LoginCheckResult.Success) return@launch
                         fetch()
                     }
                 }

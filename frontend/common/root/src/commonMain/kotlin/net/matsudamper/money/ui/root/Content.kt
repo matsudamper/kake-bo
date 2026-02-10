@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +30,7 @@ import androidx.navigation3.runtime.entryProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
@@ -42,6 +44,8 @@ import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.MySnackBarHost
 import net.matsudamper.money.frontend.common.ui.base.rootHostScaffoldEntryDecorator
 import net.matsudamper.money.frontend.common.ui.screen.status.NotFoundScreen
+import net.matsudamper.money.frontend.common.ui.screen.status.ServerErrorScreen
+import net.matsudamper.money.frontend.common.ui.screen.status.ServerErrorScreenUiState
 import net.matsudamper.money.frontend.common.usecase.LoginCheckUseCaseImpl
 import net.matsudamper.money.frontend.common.viewmodel.GlobalEventHandlerLoginCheckUseCaseDelegate
 import net.matsudamper.money.frontend.common.viewmodel.LocalGlobalEventHandlerLoginCheckUseCaseDelegate
@@ -82,6 +86,11 @@ public fun Content(
         var alertDialogInfo: String? by remember { mutableStateOf(null) }
         val rootCoroutineScope = rememberCoroutineScope()
         var hostState by remember { mutableStateOf(SnackbarHostState()) }
+        var showServerError by remember { mutableStateOf(false) }
+        var reloadCounter by remember { mutableStateOf(0) }
+        val onServerError: () -> Unit = remember {
+            { showServerError = true }
+        }
         val globalEvent: GlobalEvent = remember(hostState, rootCoroutineScope) {
             object : GlobalEvent {
                 override fun showSnackBar(message: String) {
@@ -124,6 +133,7 @@ public fun Content(
                             navController = navController,
                             globalEventSender = globalEventSender,
                             coroutineScope = rootCoroutineScope,
+                            onServerError = onServerError,
                         ),
                     ),
                 )
@@ -220,111 +230,153 @@ public fun Content(
                 Box(
                     modifier = Modifier.fillMaxSize(),
                 ) {
-                    val movableRoot = remember {
-                        movableContentOf { current: ScreenStructure.Root ->
-                            RootScreenContainer(
-                                current = current,
-                                navController = navController,
-                                settingViewModel = settingViewModel,
-                                mailScreenViewModel = mailScreenViewModel,
-                                rootUsageHostViewModel = rootUsageHostViewModel,
-                                viewModelEventHandlers = viewModelEventHandlers,
-                                rootCoroutineScope = rootCoroutineScope,
-                                globalEventSender = globalEventSender,
-                                globalEvent = globalEvent,
-                            )
+                    key(reloadCounter) {
+                        val movableRoot = remember {
+                            movableContentOf { current: ScreenStructure.Root ->
+                                RootScreenContainer(
+                                    current = current,
+                                    navController = navController,
+                                    settingViewModel = settingViewModel,
+                                    mailScreenViewModel = mailScreenViewModel,
+                                    rootUsageHostViewModel = rootUsageHostViewModel,
+                                    viewModelEventHandlers = viewModelEventHandlers,
+                                    rootCoroutineScope = rootCoroutineScope,
+                                    globalEventSender = globalEventSender,
+                                    globalEvent = globalEvent,
+                                )
+                            }
                         }
-                    }
-                    val scaffoldDecorators = remember(navController) {
-                        immutableListOf(rootHostScaffoldEntryDecorator(navController))
-                    }
-                    NavHost(
-                        navController = navController,
-                        onBack = onBack,
-                        entryDecorators = scaffoldDecorators,
-                        entryProvider = entryProvider(
-                            fallback = { unknownScreen ->
-                                when (unknownScreen) {
-                                    is ScreenStructure.Root -> {
-                                        NavEntry(
-                                            key = unknownScreen,
-                                            contentKey = ContentKeyWrapper(unknownScreen),
-                                        ) {
-                                            movableRoot(unknownScreen)
-                                        }
-                                    }
-
-                                    else -> throw IllegalStateException("Unknown screen $unknownScreen")
+                        val scaffoldDecorators = remember(navController) {
+                            immutableListOf(rootHostScaffoldEntryDecorator(navController))
+                        }
+                        NavHost(
+                            navController = navController,
+                            onBack = {
+                                if (!showServerError) {
+                                    onBack()
                                 }
                             },
-                        ) {
-                            addEntryProvider<ScreenStructure.Splash> {
-                                SplashScreenContainer(
-                                    navController = navController,
-                                )
-                            }
-                            addEntryProvider<ScreenStructure.Login> {
-                                LoginScreenContainer(
-                                    navController = navController,
-                                    globalEventSender = globalEventSender,
-                                    windowInsets = paddingValues.value,
-                                )
-                            }
-                            addEntryProvider<ScreenStructure.Admin> {
-                                AdminContainer(
-                                    windowInsets = paddingValues.value,
-                                )
-                            }
-                            addEntryProvider<ScreenStructure.NotFound> {
-                                NotFoundScreen(
-                                    paddingValues = paddingValues.value,
-                                )
-                            }
-                            addEntryProvider<ScreenStructure.AddMoneyUsage> { current ->
-                                AddMoneyUsageScreenContainer(
-                                    rootCoroutineScope = rootCoroutineScope,
-                                    current = current,
-                                    viewModelEventHandlers = viewModelEventHandlers,
-                                    windowInsets = paddingValues.value,
-                                )
-                            }
+                            entryDecorators = scaffoldDecorators,
+                            entryProvider = entryProvider(
+                                fallback = { unknownScreen ->
+                                    when (unknownScreen) {
+                                        is ScreenStructure.Root -> {
+                                            NavEntry(
+                                                key = unknownScreen,
+                                                contentKey = ContentKeyWrapper(unknownScreen),
+                                            ) {
+                                                movableRoot(unknownScreen)
+                                            }
+                                        }
 
-                            addEntryProvider<ScreenStructure.ImportedMail> { current ->
-                                ImportedMailScreenContainer(
-                                    current = current,
-                                    viewModelEventHandlers = viewModelEventHandlers,
-                                    windowInsets = paddingValues.value,
-                                )
-                            }
+                                        else -> throw IllegalStateException("Unknown screen $unknownScreen")
+                                    }
+                                },
+                            ) {
+                                addEntryProvider<ScreenStructure.Splash> {
+                                    SplashScreenContainer(
+                                        navController = navController,
+                                        onServerError = onServerError,
+                                    )
+                                }
+                                addEntryProvider<ScreenStructure.Login> {
+                                    LoginScreenContainer(
+                                        navController = navController,
+                                        globalEventSender = globalEventSender,
+                                        windowInsets = paddingValues.value,
+                                    )
+                                }
+                                addEntryProvider<ScreenStructure.Admin> {
+                                    AdminContainer(
+                                        windowInsets = paddingValues.value,
+                                    )
+                                }
+                                addEntryProvider<ScreenStructure.NotFound> {
+                                    NotFoundScreen(
+                                        paddingValues = paddingValues.value,
+                                    )
+                                }
+                                addEntryProvider<ScreenStructure.AddMoneyUsage> { current ->
+                                    AddMoneyUsageScreenContainer(
+                                        rootCoroutineScope = rootCoroutineScope,
+                                        current = current,
+                                        viewModelEventHandlers = viewModelEventHandlers,
+                                        windowInsets = paddingValues.value,
+                                    )
+                                }
 
-                            addEntryProvider<ScreenStructure.ImportedMailHTML> { current ->
-                                ImportedMailHtmlContainer(
-                                    current = current,
-                                    viewModelEventHandlers = viewModelEventHandlers,
-                                    kakeboScaffoldListener = kakeboScaffoldListener,
-                                    windowInsets = paddingValues.value,
-                                )
-                            }
+                                addEntryProvider<ScreenStructure.ImportedMail> { current ->
+                                    ImportedMailScreenContainer(
+                                        current = current,
+                                        viewModelEventHandlers = viewModelEventHandlers,
+                                        windowInsets = paddingValues.value,
+                                    )
+                                }
 
-                            addEntryProvider<ScreenStructure.ImportedMailPlain> { current ->
-                                ImportedMailPlainScreenContainer(
-                                    screen = current,
-                                    viewModelEventHandlers = viewModelEventHandlers,
-                                    kakeboScaffoldListener = kakeboScaffoldListener,
-                                    windowInsets = paddingValues.value,
-                                )
-                            }
+                                addEntryProvider<ScreenStructure.ImportedMailHTML> { current ->
+                                    ImportedMailHtmlContainer(
+                                        current = current,
+                                        viewModelEventHandlers = viewModelEventHandlers,
+                                        kakeboScaffoldListener = kakeboScaffoldListener,
+                                        windowInsets = paddingValues.value,
+                                    )
+                                }
 
-                            addEntryProvider<ScreenStructure.MoneyUsage> { current ->
-                                MoneyUsageContainer(
-                                    screen = current,
-                                    viewModelEventHandlers = viewModelEventHandlers,
-                                    kakeboScaffoldListener = kakeboScaffoldListener,
-                                    windowInsets = paddingValues.value,
-                                )
-                            }
-                        },
-                    )
+                                addEntryProvider<ScreenStructure.ImportedMailPlain> { current ->
+                                    ImportedMailPlainScreenContainer(
+                                        screen = current,
+                                        viewModelEventHandlers = viewModelEventHandlers,
+                                        kakeboScaffoldListener = kakeboScaffoldListener,
+                                        windowInsets = paddingValues.value,
+                                    )
+                                }
+
+                                addEntryProvider<ScreenStructure.MoneyUsage> { current ->
+                                    MoneyUsageContainer(
+                                        screen = current,
+                                        viewModelEventHandlers = viewModelEventHandlers,
+                                        kakeboScaffoldListener = kakeboScaffoldListener,
+                                        windowInsets = paddingValues.value,
+                                    )
+                                }
+                            },
+                        )
+                    }
+                    if (showServerError) {
+                        var isReloading by remember { mutableStateOf(false) }
+                        val graphqlQuery = remember {
+                            GraphqlUserLoginQuery(graphqlClient = koin.get())
+                        }
+                        ServerErrorScreen(
+                            uiState = ServerErrorScreenUiState(
+                                isLoading = isReloading,
+                                event = remember {
+                                    object : ServerErrorScreenUiState.Event {
+                                        override fun onClickReload() {
+                                            rootCoroutineScope.launch {
+                                                isReloading = true
+                                                val result = withContext(Dispatchers.IO) {
+                                                    graphqlQuery.isLoggedIn()
+                                                }
+                                                isReloading = false
+                                                when (result) {
+                                                    GraphqlUserLoginQuery.IsLoggedInResult.LoggedIn -> {
+                                                        showServerError = false
+                                                        reloadCounter++
+                                                    }
+                                                    GraphqlUserLoginQuery.IsLoggedInResult.NotLoggedIn -> {
+                                                        showServerError = false
+                                                        navController.navigate(ScreenStructure.Login)
+                                                    }
+                                                    GraphqlUserLoginQuery.IsLoggedInResult.ServerError -> {}
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                            ),
+                        )
+                    }
                 }
             }
         }

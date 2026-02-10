@@ -12,6 +12,7 @@ public class LoginCheckUseCaseEventListenerImpl(
     private val navController: ScreenNavController,
     private val globalEventSender: EventSender<GlobalEvent>,
     private val coroutineScope: CoroutineScope,
+    private val onServerError: () -> Unit,
 ) : LoginCheckUseCaseImpl.EventListener {
     override fun error(message: String) {
         coroutineScope.launch {
@@ -23,5 +24,9 @@ public class LoginCheckUseCaseEventListenerImpl(
 
     override fun logout() {
         navController.navigate(ScreenStructure.Login)
+    }
+
+    override fun serverError() {
+        onServerError()
     }
 }

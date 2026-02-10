@@ -14,6 +14,7 @@ import net.matsudamper.money.frontend.graphql.ServerHostConfig
 @Composable
 internal fun SplashScreenContainer(
     navController: ScreenNavController,
+    onServerError: () -> Unit,
 ) {
     val koin = LocalKoin.current
     val graphqlClient = koin.get<GraphqlClient>()
@@ -25,6 +26,7 @@ internal fun SplashScreenContainer(
                 graphqlClient = graphqlClient,
             ),
             serverHostConfig = koin.getOrNull<ServerHostConfig>(),
+            onServerError = onServerError,
         )
     }
     Box(modifier = Modifier.fillMaxSize())

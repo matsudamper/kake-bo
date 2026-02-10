@@ -13,6 +13,7 @@ public class SplashScreenViewModel(
     private val navController: ScreenNavController,
     private val graphqlQuery: GraphqlUserLoginQuery,
     private val serverHostConfig: ServerHostConfig?,
+    private val onServerError: () -> Unit,
 ) : CommonViewModel(scopedObjectFeature) {
     init {
         viewModelScope.launch {
@@ -24,11 +25,16 @@ public class SplashScreenViewModel(
                 return@launch
             }
 
-            val isLoggedIn = graphqlQuery.isLoggedIn()
-            if (isLoggedIn) {
-                navController.navigateReplace(RootHomeScreenStructure.Home)
-            } else {
-                navController.navigateReplace(ScreenStructure.Login)
+            when (graphqlQuery.isLoggedIn()) {
+                GraphqlUserLoginQuery.IsLoggedInResult.LoggedIn -> {
+                    navController.navigateReplace(RootHomeScreenStructure.Home)
+                }
+                GraphqlUserLoginQuery.IsLoggedInResult.NotLoggedIn -> {
+                    navController.navigateReplace(ScreenStructure.Login)
+                }
+                GraphqlUserLoginQuery.IsLoggedInResult.ServerError -> {
+                    onServerError()
+                }
             }
         }
     }
