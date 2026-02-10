@@ -8,8 +8,14 @@ import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
 public data class RootHomeTabPeriodSubCategoryContentUiState(
     val loadingState: LoadingState,
     val kakeboScaffoldListener: KakeboScaffoldListener,
+    val periodUiState: PeriodUiState,
     val event: Event,
 ) {
+
+    public data class PeriodUiState(
+        val between: String,
+        val rangeText: String,
+    )
 
     @Immutable
     public sealed interface LoadingState {
@@ -40,5 +46,11 @@ public data class RootHomeTabPeriodSubCategoryContentUiState(
         public suspend fun onViewInitialized()
 
         public fun refresh()
+
+        public fun onClickNextMonth()
+
+        public fun onClickPreviousMonth()
+
+        public fun onClickRange(range: Int)
     }
 }
