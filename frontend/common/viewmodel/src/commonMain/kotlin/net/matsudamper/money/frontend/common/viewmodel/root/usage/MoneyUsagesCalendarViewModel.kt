@@ -16,6 +16,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
+import androidx.compose.ui.graphics.Color
 import com.apollographql.apollo3.api.ApolloResponse
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
@@ -23,6 +24,7 @@ import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalendarScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.ReservedColorModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.UsageCalendarScreenPagingQuery
@@ -33,6 +35,8 @@ public class MoneyUsagesCalendarViewModel(
     private val calendarPagingModel: RootUsageCalendarPagingModel,
     yearMonth: ScreenStructure.Root.Usage.Calendar.YearMonth?,
 ) : CommonViewModel(scopedObjectFeature) {
+    private val reservedColorModel = ReservedColorModel()
+
     internal val viewModelStateFlow = MutableStateFlow(
         ViewModelState(
             displayMonth = createDisplayMonth(yearMonth),
@@ -165,8 +169,18 @@ public class MoneyUsagesCalendarViewModel(
                                         text = "${localDate.dayOfMonth}日",
                                         isToday = localDate == viewModelState.today,
                                         items = days.map { day ->
+                                            val subCategory = day.moneyUsageSubCategory
+                                            val color = if (subCategory != null) {
+                                                reservedColorModel.getColor(
+                                                    subCategory.id.toString(),
+                                                    subCategory.category.color,
+                                                )
+                                            } else {
+                                                Color.Gray
+                                            }
                                             RootUsageCalendarScreenUiState.CalendarDayItem(
                                                 title = day.title,
+                                                color = color,
                                                 event = object : RootUsageCalendarScreenUiState.CalendarDayEvent {
                                                     override fun onClick() {
                                                         viewModelScope.launch {
