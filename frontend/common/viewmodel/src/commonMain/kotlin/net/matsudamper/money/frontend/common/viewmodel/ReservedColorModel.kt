@@ -33,4 +33,23 @@ internal class ReservedColorModel(
         }
         return result[tag]!!
     }
+
+    fun getColor(tag: String, hexColorOverride: String?): Color {
+        if (hexColorOverride != null) {
+            return parseHexColor(hexColorOverride)
+        }
+        return getColor(tag)
+    }
+
+    companion object {
+        fun parseHexColor(hex: String): Color {
+            val colorString = hex.removePrefix("#")
+            val colorLong = colorString.toLongOrNull(16) ?: return Color.Gray
+            return Color(
+                red = ((colorLong shr 16) and 0xFF).toInt(),
+                green = ((colorLong shr 8) and 0xFF).toInt(),
+                blue = (colorLong and 0xFF).toInt(),
+            )
+        }
+    }
 }

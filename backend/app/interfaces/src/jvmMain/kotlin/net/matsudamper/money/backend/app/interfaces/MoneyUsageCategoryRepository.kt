@@ -20,12 +20,14 @@ interface MoneyUsageCategoryRepository {
         userId: UserId,
         categoryId: MoneyUsageCategoryId,
         name: String?,
+        color: String?,
     ): Boolean
 
     data class CategoryResult(
         val userId: UserId,
         val moneyUsageCategoryId: MoneyUsageCategoryId,
         val name: String,
+        val color: String?,
     )
 
     sealed interface AddCategoryResult {

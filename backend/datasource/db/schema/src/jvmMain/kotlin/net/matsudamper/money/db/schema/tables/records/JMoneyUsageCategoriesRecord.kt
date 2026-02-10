@@ -38,6 +38,10 @@ open class JMoneyUsageCategoriesRecord() : UpdatableRecordImpl<JMoneyUsageCatego
         set(value): Unit = set(4, value)
         get(): LocalDateTime? = get(4) as LocalDateTime?
 
+    open var color: String?
+        set(value): Unit = set(5, value)
+        get(): String? = get(5) as String?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -47,12 +51,13 @@ open class JMoneyUsageCategoriesRecord() : UpdatableRecordImpl<JMoneyUsageCatego
     /**
      * Create a detached, initialised JMoneyUsageCategoriesRecord
      */
-    constructor(moneyUsageCategoryId: Int? = null, userId: Int? = null, name: String? = null, createdDatetime: LocalDateTime? = null, updateDatetime: LocalDateTime? = null): this() {
+    constructor(moneyUsageCategoryId: Int? = null, userId: Int? = null, name: String? = null, createdDatetime: LocalDateTime? = null, updateDatetime: LocalDateTime? = null, color: String? = null): this() {
         this.moneyUsageCategoryId = moneyUsageCategoryId
         this.userId = userId
         this.name = name
         this.createdDatetime = createdDatetime
         this.updateDatetime = updateDatetime
+        this.color = color
         resetTouchedOnNotNull()
     }
 }

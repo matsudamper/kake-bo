@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import com.apollographql.apollo3.api.Optional
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
@@ -110,12 +111,62 @@ public class SettingCategoryViewModel(
                         }
                     }
                 }
+
+                override fun onClickChangeColor() {
+                    viewModelScope.launch {
+                        viewModelStateFlow.update {
+                            it.copy(
+                                showColorPickerDialog = true,
+                            )
+                        }
+                    }
+                }
+
+                override fun onDismissColorPicker() {
+                    viewModelScope.launch {
+                        viewModelStateFlow.update {
+                            it.copy(
+                                showColorPickerDialog = false,
+                            )
+                        }
+                    }
+                }
+
+                override fun onColorSelected(hexColor: String) {
+                    viewModelScope.launch {
+                        val result = api.updateCategory(
+                            id = categoryId,
+                            name = Optional.absent(),
+                            color = Optional.present(hexColor),
+                        )?.data?.userMutation?.updateCategory
+                        if (result == null) {
+                            launch {
+                                globalEventSender.send {
+                                    it.showNativeNotification("色の変更に失敗しました")
+                                }
+                            }
+                        } else {
+                            launch {
+                                globalEventSender.send {
+                                    it.showSnackBar("色を変更しました")
+                                }
+                            }
+                        }
+                        viewModelStateFlow.update {
+                            it.copy(
+                                showColorPickerDialog = false,
+                            )
+                        }
+                    }
+                }
             },
             loadingState = SettingCategoryScreenUiState.LoadingState.Loading,
             showCategoryNameInput = false,
             showCategoryNameChangeDialog = null,
             showSubCategoryNameChangeDialog = null,
+            showColorPickerDialog = false,
             categoryName = "",
+            categoryColor = null,
             kakeboScaffoldListener = object : KakeboScaffoldListener {
                 override fun onClickTitle() {
                     navController.navigateToHome()
@@ -145,7 +196,9 @@ public class SettingCategoryViewModel(
                         showCategoryNameInput = viewModelState.showAddSubCategoryNameInput,
                         showCategoryNameChangeDialog = viewModelState.showCategoryNameChangeInput,
                         showSubCategoryNameChangeDialog = viewModelState.showSubCategoryNameChangeInput,
+                        showColorPickerDialog = viewModelState.showColorPickerDialog,
                         categoryName = viewModelState.categoryInfo?.name.orEmpty(),
+                        categoryColor = viewModelState.categoryInfo?.color,
                     )
                 }
             }
@@ -161,7 +214,8 @@ public class SettingCategoryViewModel(
             viewModelScope.launch {
                 val result = api.updateCategory(
                     id = categoryId,
-                    name = text,
+                    name = Optional.present(text),
+                    color = Optional.absent(),
                 )?.data?.userMutation?.updateCategory
                 if (result == null) {
                     launch {
@@ -332,6 +386,7 @@ public class SettingCategoryViewModel(
         val showAddSubCategoryNameInput: Boolean = false,
         val showCategoryNameChangeInput: SettingCategoryScreenUiState.FullScreenInputDialog? = null,
         val showSubCategoryNameChangeInput: SettingCategoryScreenUiState.FullScreenInputDialog? = null,
+        val showColorPickerDialog: Boolean = false,
         val deletedSubCategoryIds: List<MoneyUsageSubCategoryId> = listOf(),
     )
 

@@ -22,6 +22,7 @@ query RootHomeTabScreenAnalyticsByDate($query: MoneyUsageAnalyticsQuery!) {
                 category {
                     id
                     name
+                    color
                 }
             }
         }
