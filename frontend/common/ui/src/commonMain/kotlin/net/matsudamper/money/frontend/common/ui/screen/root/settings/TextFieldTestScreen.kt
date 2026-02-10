@@ -63,7 +63,7 @@ public fun TextFieldTestScreen(
             SettingScaffold(
                 modifier = Modifier.fillMaxSize(),
                 title = {
-                    Text(text = "テキストフィールドテスト")
+                    Text(text = "TextFieldテスト")
                 },
             ) { paddingValues ->
                 Column(
