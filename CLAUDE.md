@@ -1,7 +1,3 @@
-# Agentへの指示
-
-すべての応答、説明、およびコミットメッセージは日本語で行ってください。
-
 # プロジェクトについて
 
 メールをパースして登録する家計簿アプリ。決済メールを中心とした家計簿ソフト。
@@ -76,7 +72,9 @@ The project is organized into backend, frontend, and shared modules:
 
 @docs/coding_style.md
 
-# Agent固有
+# Coding Agent
+すべての応答、説明、およびコミットメッセージは日本語で行ってください。
+
 ## Claude Code Web
 Claude Code WebではGradleの依存がダウンロードでエラーになります。
 https://github.com/anthropics/claude-code/issues/13372
