@@ -45,19 +45,15 @@ suspend fun <D : Operation.Data> ApolloClient.updateOperation(
                 is UpdateOperationResponseResult.NoHasMore<D> -> Unit
                 is UpdateOperationResponseResult.Error<D> -> Unit
                 is UpdateOperationResponseResult.Success<D> -> {
-                    val data = it.result.data
-                    if (data != null) {
-                        apolloStore.writeOperation(
-                            operation = cacheQueryKey,
-                            operationData = data,
-                            customScalarAdapters = customScalarAdapters,
-                            publish = true,
-                        )
-                    } else {
-                        return@fold UpdateOperationResponseResult.Error(
-                            NullPointerException("ApolloResponse.data is null"),
-                        )
-                    }
+                    val data = it.result.data ?: return@fold UpdateOperationResponseResult.Error(
+                        NullPointerException("ApolloResponse.data is null"),
+                    )
+                    apolloStore.writeOperation(
+                        operation = cacheQueryKey,
+                        operationData = data,
+                        customScalarAdapters = customScalarAdapters,
+                        publish = true,
+                    )
                 }
             }
             it
