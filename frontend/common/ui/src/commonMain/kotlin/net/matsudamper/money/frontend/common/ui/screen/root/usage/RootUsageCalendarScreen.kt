@@ -45,6 +45,8 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.ui.StickyHeaderState
+import net.matsudamper.money.frontend.common.ui.stickyHeaderScrollable
 
 public data class RootUsageCalendarScreenUiState(
     val event: Event,
@@ -108,6 +110,7 @@ public data class RootUsageCalendarScreenUiState(
 public fun RootUsageCalendarScreen(
     modifier: Modifier = Modifier,
     uiState: RootUsageCalendarScreenUiState,
+    stickyHeaderState: StickyHeaderState,
 ) {
     val density = LocalDensity.current
     LaunchedEffect(Unit) {
@@ -138,6 +141,7 @@ public fun RootUsageCalendarScreen(
                         modifier = Modifier.fillMaxSize(),
                         uiState = uiState.loadingState,
                         state = lazyGridState,
+                        stickyHeaderState = stickyHeaderState,
                         contentPadding = PaddingValues(
                             top = 12.dp,
                             bottom = with(density) { buttonSize.height.toDp() },
@@ -161,10 +165,14 @@ private fun LoadedContent(
     modifier: Modifier = Modifier,
     uiState: RootUsageCalendarScreenUiState.LoadingState.Loaded,
     state: LazyGridState,
+    stickyHeaderState: StickyHeaderState,
     contentPadding: PaddingValues,
 ) {
     LazyVerticalGrid(
-        modifier = modifier,
+        modifier = modifier.stickyHeaderScrollable(
+            state = stickyHeaderState,
+            listState = state,
+        ),
         state = state,
         columns = GridCells.Fixed(7),
         contentPadding = contentPadding,
