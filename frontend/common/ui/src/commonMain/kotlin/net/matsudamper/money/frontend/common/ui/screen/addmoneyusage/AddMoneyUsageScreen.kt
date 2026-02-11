@@ -1,8 +1,5 @@
 package net.matsudamper.money.frontend.common.ui.screen.addmoneyusage
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -26,12 +23,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
@@ -299,19 +295,9 @@ private fun NumberInputDialog(
     onChangeValue: (NumberInputValue) -> Unit,
     dismissRequest: () -> Unit,
 ) {
-    Box(
-        modifier = Modifier.fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.8f))
-            .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
-                dismissRequest()
-            },
-        contentAlignment = Alignment.Center,
-    ) {
+    Dialog(onDismissRequest = dismissRequest) {
         NumberInput(
-            modifier = Modifier.widthIn(max = 500.dp)
-                .clickable(interactionSource = remember { MutableInteractionSource() }, indication = null) {
-                    // Number Inputのタッチ無効範囲を触ってもダイアログを閉じないようにする
-                },
+            modifier = Modifier.widthIn(max = 500.dp),
             value = value,
             onChangeValue = { onChangeValue(it) },
             dismissRequest = { dismissRequest() },

@@ -1,24 +1,20 @@
 package net.matsudamper.money.frontend.common.ui.base
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material3.Card
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -28,42 +24,42 @@ import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import net.matsudamper.money.frontend.common.base.ImmutableList
 
 @Composable
 internal fun CategorySelectDialog(uiState: CategorySelectDialogUiState) {
-    Box(
-        modifier = Modifier.fillMaxSize()
-            .zIndex(Float.MAX_VALUE)
-            .background(Color.Black.copy(alpha = 0.8f))
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() },
-            ) { uiState.event.dismissRequest() },
-        contentAlignment = Alignment.Center,
-    ) {
-        Card(
-            modifier = Modifier
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() },
+    AlertDialog(
+        onDismissRequest = { uiState.event.dismissRequest() },
+        confirmButton = {
+            if (uiState.screenType is CategorySelectDialogUiState.Screen.Root) {
+                TextButton(
+                    onClick = { uiState.event.selectCompleted() },
                 ) {
-                    // カード内をタップしても閉じないようにする
+                    Text("OK")
                 }
-                .widthIn(max = 400.dp)
-                .heightIn(max = 700.dp)
-                .fillMaxWidth(),
-        ) {
+            }
+        },
+        dismissButton = if (uiState.screenType is CategorySelectDialogUiState.Screen.Root) {
+            {
+                TextButton(
+                    onClick = { uiState.event.dismissRequest() },
+                ) {
+                    Text("キャンセル")
+                }
+            }
+        } else {
+            null
+        },
+        text = {
             Column(
                 modifier = Modifier
-                    .padding(12.dp),
+                    .fillMaxWidth()
+                    .heightIn(max = 500.dp),
             ) {
                 when (val screenTypeState = uiState.screenType) {
                     is CategorySelectDialogUiState.Screen.Root -> {
@@ -88,19 +84,6 @@ internal fun CategorySelectDialog(uiState: CategorySelectDialogUiState) {
                                 Text(text = screenTypeState.subCategory)
                             },
                         )
-                        Spacer(Modifier.height(12.dp))
-                        Row(modifier = Modifier.align(Alignment.End)) {
-                            TextButton(
-                                onClick = { uiState.event.dismissRequest() },
-                            ) {
-                                Text("キャンセル")
-                            }
-                            TextButton(
-                                onClick = { uiState.event.selectCompleted() },
-                            ) {
-                                Text("OK")
-                            }
-                        }
                     }
 
                     is CategorySelectDialogUiState.Screen.Category -> {
@@ -124,8 +107,8 @@ internal fun CategorySelectDialog(uiState: CategorySelectDialogUiState) {
                     }
                 }
             }
-        }
-    }
+        },
+    )
 }
 
 @Composable
