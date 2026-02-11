@@ -1,28 +1,16 @@
 package net.matsudamper.money.frontend.common.ui.layout
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePicker
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalTime
 
-private val ItemHeight = 48.dp
-private const val PickerRowCount = 5
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun TimePickerDialog(
     initialTime: LocalTime,
@@ -30,24 +18,26 @@ internal fun TimePickerDialog(
     selectedTime: (LocalTime) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var selectedHour by remember { mutableStateOf(initialTime.hour) }
-    var selectedMinute by remember { mutableStateOf(initialTime.minute) }
+    val timePickerState = rememberTimePickerState(
+        initialHour = initialTime.hour,
+        initialMinute = initialTime.minute,
+        is24Hour = true,
+    )
+
     AlertDialog(
         modifier = modifier,
-        onDismissRequest = {
-            dismissRequest()
-        },
+        onDismissRequest = dismissRequest,
         confirmButton = {
-            Button(
+            TextButton(
                 onClick = {
-                    selectedTime(LocalTime(selectedHour, selectedMinute))
+                    selectedTime(LocalTime(timePickerState.hour, timePickerState.minute))
                 },
             ) {
                 Text(text = "OK")
             }
         },
         dismissButton = {
-            OutlinedButton(
+            TextButton(
                 onClick = dismissRequest,
             ) {
                 Text(text = "キャンセル")
@@ -58,108 +48,8 @@ internal fun TimePickerDialog(
         },
         text = {
             TimePicker(
-                initialHour = initialTime.hour,
-                initialMinute = initialTime.minute,
-                onHourChanged = { selectedHour = it },
-                onMinuteChanged = { selectedMinute = it },
+                state = timePickerState,
             )
         },
     )
-}
-
-@Composable
-private fun TimePicker(
-    initialHour: Int,
-    initialMinute: Int,
-    onHourChanged: (Int) -> Unit,
-    onMinuteChanged: (Int) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val hours = remember { (0..23).toList() }
-    val minutes = remember { (0..59).toList() }
-
-    Row(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.weight(1f),
-        ) {
-            Text(
-                text = "時",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
-            DrumPicker(
-                items = hours,
-                initialIndex = initialHour,
-                itemHeight = ItemHeight,
-                rows = PickerRowCount,
-                onSelectedIndexChanged = { hour ->
-                    onHourChanged(hour)
-                },
-                itemContent = { hour, isSelected ->
-                    Text(
-                        text = hour.toString().padStart(2, '0'),
-                        color = if (isSelected) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.onSurface
-                        },
-                        style = if (isSelected) {
-                            MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                        } else {
-                            MaterialTheme.typography.bodyLarge
-                        },
-                    )
-                },
-            )
-        }
-
-        Text(
-            text = ":",
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.align(Alignment.CenterVertically),
-        )
-
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.weight(1f),
-        ) {
-            Text(
-                text = "分",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
-            DrumPicker(
-                items = minutes,
-                initialIndex = initialMinute,
-                itemHeight = ItemHeight,
-                rows = PickerRowCount,
-                onSelectedIndexChanged = { minute ->
-                    onMinuteChanged(minute)
-                },
-                itemContent = { minute, isSelected ->
-                    Text(
-                        text = minute.toString().padStart(2, '0'),
-                        color = if (isSelected) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.onSurface
-                        },
-                        style = if (isSelected) {
-                            MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                        } else {
-                            MaterialTheme.typography.bodyLarge
-                        },
-                    )
-                },
-            )
-        }
-    }
 }
