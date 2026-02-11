@@ -77,6 +77,7 @@ public data class RootUsageCalendarScreenUiState(
 
     public data class CalendarDayItem(
         val title: String,
+        val color: Color,
         val event: CalendarDayEvent,
     )
 
@@ -229,10 +230,11 @@ private fun CalendarCell(
         )
         uiState.items.forEach { item ->
             Spacer(Modifier.height(2.dp))
+            val textColor = contrastTextColor(item.color)
             Card(
                 modifier = Modifier.padding(horizontal = 2.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    containerColor = item.color,
                 ),
                 shape = MaterialTheme.shapes.extraSmall,
             ) {
@@ -242,11 +244,16 @@ private fun CalendarCell(
                         .padding(2.dp),
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    color = textColor,
                     text = item.title,
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
         }
     }
+}
+
+private fun contrastTextColor(backgroundColor: Color): Color {
+    val luminance = 0.299 * backgroundColor.red + 0.587 * backgroundColor.green + 0.114 * backgroundColor.blue
+    return if (luminance > 0.5) Color.Black else Color.White
 }
