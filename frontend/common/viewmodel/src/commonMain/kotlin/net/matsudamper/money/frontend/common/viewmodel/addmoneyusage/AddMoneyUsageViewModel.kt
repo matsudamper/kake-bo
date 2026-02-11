@@ -87,6 +87,31 @@ public class AddMoneyUsageViewModel(
             }
         }
 
+        override fun dismissTimePicker() {
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    showTimePickerDialog = false,
+                )
+            }
+        }
+
+        override fun selectedTime(time: LocalTime) {
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    usageTime = time,
+                    showTimePickerDialog = false,
+                )
+            }
+        }
+
+        override fun onClickTimeChange() {
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    showTimePickerDialog = true,
+                )
+            }
+        }
+
         override fun onClickDescriptionChange() {
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
@@ -321,7 +346,9 @@ public class AddMoneyUsageViewModel(
     public val uiStateFlow: StateFlow<AddMoneyUsageScreenUiState> = MutableStateFlow(
         AddMoneyUsageScreenUiState(
             calendarDialog = null,
+            timePickerDialog = null,
             date = "",
+            time = "",
             title = "",
             description = "",
             amount = "",
@@ -339,10 +366,14 @@ public class AddMoneyUsageViewModel(
                         calendarDialog = AddMoneyUsageScreenUiState.CalendarDialog(
                             selectedDate = viewModelState.usageDate,
                         ).takeIf { viewModelState.showCalendarDialog },
+                        timePickerDialog = AddMoneyUsageScreenUiState.TimePickerDialog(
+                            selectedTime = viewModelState.usageTime,
+                        ).takeIf { viewModelState.showTimePickerDialog },
                         date = run {
                             val dayOfWeek = Formatter.dayOfWeekToJapanese(viewModelState.usageDate.dayOfWeek)
                             "${viewModelState.usageDate.year}-${viewModelState.usageDate.monthNumber}-${viewModelState.usageDate.dayOfMonth} ($dayOfWeek)"
                         },
+                        time = Formatter.formatTime(viewModelState.usageTime),
                         title = viewModelState.usageTitle,
                         description = viewModelState.usageDescription,
                         fullScreenTextInputDialog = viewModelState.textInputDialog,
@@ -376,6 +407,7 @@ public class AddMoneyUsageViewModel(
         val usageAmount: NumberInputValue = NumberInputValue.default(),
         val numberInputDialog: AddMoneyUsageScreenUiState.NumberInputDialog? = null,
         val showCalendarDialog: Boolean = false,
+        val showTimePickerDialog: Boolean = false,
         val textInputDialog: AddMoneyUsageScreenUiState.FullScreenTextInputDialog? = null,
         val categorySelectDialog: CategorySelectDialogUiState? = null,
         val usageCategorySet: CategorySelectDialogViewModel.SelectedResult? = null,

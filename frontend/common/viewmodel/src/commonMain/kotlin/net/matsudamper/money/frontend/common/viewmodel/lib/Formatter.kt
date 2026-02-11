@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.viewmodel.lib
 
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 
 internal object Formatter {
     fun formatMoney(value: Number): String {
@@ -33,6 +34,14 @@ internal object Formatter {
             append(dateTime.hour.toString().padStart(2, padChar = '0'))
             append(":")
             append(dateTime.minute.toString().padStart(2, padChar = '0'))
+        }
+    }
+
+    fun formatTime(time: LocalTime): String {
+        return buildString {
+            append(time.hour.toString().padStart(2, padChar = '0'))
+            append(":")
+            append(time.minute.toString().padStart(2, padChar = '0'))
         }
     }
 
