@@ -51,13 +51,13 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
+import net.matsudamper.money.frontend.common.ui.StickyHeaderState
 import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
-import net.matsudamper.money.frontend.common.ui.StickyHeaderState
 import net.matsudamper.money.frontend.common.ui.stickyHeader
 
 public data class RootUsageHostScreenUiState(
