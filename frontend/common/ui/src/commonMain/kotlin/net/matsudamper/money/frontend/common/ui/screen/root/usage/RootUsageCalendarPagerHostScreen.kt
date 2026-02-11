@@ -8,6 +8,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.base.ImmutableList
@@ -47,10 +52,21 @@ public fun RootUsageCalendarPagerHostScreen(
                 animationSpec = tween(durationMillis = 300),
             )
         }
-        LaunchedEffect(state, uiState.event) {
+        var beforePage: Int? by rememberSaveable { mutableStateOf(null) }
+        val event by rememberUpdatedState(uiState.event)
+        LaunchedEffect(state) {
             snapshotFlow { state.settledPage }.collect { settledPage ->
+                if (beforePage == null) {
+                    beforePage = settledPage
+                    return@collect
+                }
+                if (beforePage == beforePage) {
+                    return@collect
+                }
+                beforePage = settledPage
+
                 val page = uiState.pages.getOrNull(settledPage) ?: return@collect
-                uiState.event.onPageChanged(page)
+                event.onPageChanged(page)
             }
         }
         HorizontalPager(
