@@ -33,7 +33,7 @@ private class IdSaveableStateHolderImpl(
     }
 
     // TODO: AndroidではSerializableにしないといけないので、とりあえずStringにしておく
-    private fun getKey(key: Any) = IdSaveableStateKey(id, key).toString().also { Logger.d("LOG", it) }
+    private fun getKey(key: Any) = IdSaveableStateKey(id, key).toString()
 
     private data class IdSaveableStateKey(
         val id: Any,
