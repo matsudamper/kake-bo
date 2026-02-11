@@ -53,7 +53,9 @@ class MoneyUsageSuggestResolverImpl : MoneyUsageSuggestResolver {
             val result = filters
                 .firstOrNull { filter ->
                     val conditions = conditionsMap[filter.importedMailCategoryFilterId].orEmpty()
-                        .takeIf { it.isNotEmpty() } ?: return@thenApplyAsync null
+                        .filter { it.text.isNotEmpty() }
+
+                    if (conditions.isEmpty()) return@firstOrNull false
 
                     val results = conditions.asSequence().map { condition ->
                         val targetText = when (condition.dataSourceType) {
