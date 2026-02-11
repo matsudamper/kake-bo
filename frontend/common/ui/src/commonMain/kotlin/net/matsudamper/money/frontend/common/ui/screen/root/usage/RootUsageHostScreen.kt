@@ -51,12 +51,14 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
+import net.matsudamper.money.frontend.common.ui.StickyHeaderState
 import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.stickyHeader
 
 public data class RootUsageHostScreenUiState(
     val type: Type,
@@ -148,6 +150,7 @@ public fun RootUsageHostScreen(
     modifier: Modifier = Modifier,
     uiState: RootUsageHostScreenUiState,
     windowInsets: PaddingValues,
+    stickyHeaderState: StickyHeaderState,
     content: @Composable () -> Unit,
 ) {
     if (uiState.textInputUiState != null) {
@@ -193,60 +196,64 @@ public fun RootUsageHostScreen(
         },
         content = {
             Column {
-                val header = uiState.header
-                if (header is RootUsageHostScreenUiState.Header.Calendar) {
-                    AnimatedVisibility(
-                        visible = isDatePickerExpanded,
-                        enter = expandVertically(),
-                        exit = shrinkVertically(),
-                    ) {
-                        CalendarDatePicker(
-                            selectedYear = header.year,
-                            selectedMonth = header.month,
-                            onSelectYearMonth = header.event::onClickYearMonth,
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .padding(horizontal = 12.dp),
+                Column(
+                    modifier = Modifier.stickyHeader(stickyHeaderState),
                 ) {
-                    Box(
+                    val header = uiState.header
+                    if (header is RootUsageHostScreenUiState.Header.Calendar) {
+                        AnimatedVisibility(
+                            visible = isDatePickerExpanded,
+                            enter = expandVertically(),
+                            exit = shrinkVertically(),
+                        ) {
+                            CalendarDatePicker(
+                                selectedYear = header.year,
+                                selectedMonth = header.month,
+                                onSelectYearMonth = header.event::onClickYearMonth,
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .weight(1f),
+                            .padding(horizontal = 12.dp),
                     ) {
-                        SearchBox(
+                        Box(
                             modifier = Modifier
-                                .widthIn(max = 600.dp),
-                            text = uiState.searchText,
-                            onClick = { uiState.event.onClickSearchBox() },
-                            onClickClear = { uiState.event.onClickSearchBoxClear() },
-                        )
+                                .weight(1f),
+                        ) {
+                            SearchBox(
+                                modifier = Modifier
+                                    .widthIn(max = 600.dp),
+                                text = uiState.searchText,
+                                onClick = { uiState.event.onClickSearchBox() },
+                                onClickClear = { uiState.event.onClickSearchBoxClear() },
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        FloatingActionButton(
+                            modifier = Modifier,
+                            onClick = { uiState.event.onClickAdd() },
+                            elevation = FloatingActionButtonDefaults.elevation(
+                                0.dp,
+                                0.dp,
+                                0.dp,
+                                0.dp,
+                            ),
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = "add money usage",
+                            )
+                        }
                     }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    FloatingActionButton(
-                        modifier = Modifier,
-                        onClick = { uiState.event.onClickAdd() },
-                        elevation = FloatingActionButtonDefaults.elevation(
-                            0.dp,
-                            0.dp,
-                            0.dp,
-                            0.dp,
-                        ),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = "add money usage",
-                        )
-                    }
+                    CategoryFilterRow(
+                        modifier = Modifier.padding(horizontal = 12.dp),
+                        categoryFilterState = uiState.categoryFilterState,
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
                 }
-                CategoryFilterRow(
-                    modifier = Modifier.padding(horizontal = 12.dp),
-                    categoryFilterState = uiState.categoryFilterState,
-                )
-                Spacer(modifier = Modifier.height(12.dp))
                 content()
             }
         },
