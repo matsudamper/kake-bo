@@ -15,11 +15,9 @@ internal class CommonScreenNavControllerImpl(
 
     override fun back() {
         val removed = navBackstack.removeAt(navBackstack.lastIndex)
-        for (item in navBackstack.reversed()) {
-            item.stackGroupId ?: return
-            if (item.stackGroupId == removed.stackGroupId) {
-                navBackstack.removeAt(navBackstack.lastIndex)
-            }
+        val removedGroupId = removed.stackGroupId ?: return
+        while (navBackstack.lastOrNull()?.stackGroupId == removedGroupId) {
+            navBackstack.removeAt(navBackstack.lastIndex)
         }
     }
 
