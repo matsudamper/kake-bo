@@ -92,5 +92,35 @@ public class ScreenNavControllerImplTest : DescribeSpec(
                 }
             }
         }
+        describe("backで入れ替えができるか確認する") {
+            context("同じグループが連続している場合") {
+                it("まとめて消える") {
+                    val controller = ScreenNavControllerImpl(initial = rootA).apply {
+                        navigate(createStructure(text = "A-1", groupId = "A"))
+                        navigate(createStructure(text = "A-2", groupId = "A"))
+                        navigate(createStructure(text = "B-1", groupId = "B"))
+                        navigate(createStructure(text = "B-2", groupId = "B"))
+                    }
+                    controller.back()
+                    controller.backstackEntries.map { it.direction.title }
+                        .shouldBeEqual(
+                            listOf(
+                                "A-1",
+                                "A-2",
+                            ),
+                        )
+                }
+            }
+            context("同じグループが連続していて、最後のグループの場合") {
+                it("アプリが終了する") {
+                    val controller = ScreenNavControllerImpl(initial = rootA).apply {
+                        navigate(createStructure(text = "A-1", groupId = "A"))
+                        navigate(createStructure(text = "A-2", groupId = "A"))
+                    }
+                    controller.back()
+                    // TODO どうアプリの終了を検知するか
+                }
+            }
+        }
     },
 )
