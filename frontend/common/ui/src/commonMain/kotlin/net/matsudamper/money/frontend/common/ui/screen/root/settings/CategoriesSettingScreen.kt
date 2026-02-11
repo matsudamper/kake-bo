@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.settings
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -13,9 +14,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
@@ -30,6 +34,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -55,6 +61,7 @@ public data class SettingCategoriesScreenUiState(
 
     public data class CategoryItem(
         val name: String,
+        val color: String?,
         val event: Event,
     ) {
         public interface Event {
@@ -175,10 +182,23 @@ public fun MainContent(
                                     .fillMaxWidth(),
                                 onClick = { item.event.onClick() },
                             ) {
-                                Text(
-                                    modifier = Modifier,
-                                    text = item.name,
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    val color = item.color
+                                    if (color != null) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(16.dp)
+                                                .clip(CircleShape)
+                                                .background(parseHexColor(color)),
+                                        )
+                                        Spacer(Modifier.width(8.dp))
+                                    }
+                                    Text(
+                                        text = item.name,
+                                    )
+                                }
                             }
                         }
                         item {
@@ -199,4 +219,14 @@ public fun MainContent(
             }
         }
     }
+}
+
+private fun parseHexColor(hex: String): Color {
+    val colorString = hex.removePrefix("#")
+    val colorLong = colorString.toLongOrNull(16) ?: return Color.Gray
+    return Color(
+        red = ((colorLong shr 16) and 0xFF).toInt(),
+        green = ((colorLong shr 8) and 0xFF).toInt(),
+        blue = (colorLong and 0xFF).toInt(),
+    )
 }
