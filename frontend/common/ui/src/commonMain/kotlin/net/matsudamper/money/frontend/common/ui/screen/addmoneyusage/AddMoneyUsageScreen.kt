@@ -33,20 +33,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.layout.CalendarDialog
 import net.matsudamper.money.frontend.common.ui.layout.NumberInput
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
+import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
 
 public data class AddMoneyUsageScreenUiState(
     val calendarDialog: CalendarDialog?,
+    val timePickerDialog: TimePickerDialog?,
     val fullScreenTextInputDialog: FullScreenTextInputDialog?,
     val categorySelectDialog: CategorySelectDialogUiState?,
     val date: String,
+    val time: String,
     val title: String,
     val description: String,
     val category: String,
@@ -72,6 +76,10 @@ public data class AddMoneyUsageScreenUiState(
         val selectedDate: LocalDate,
     )
 
+    public data class TimePickerDialog(
+        val selectedTime: LocalTime,
+    )
+
     public interface Event {
         public fun onClickAdd()
 
@@ -79,7 +87,13 @@ public data class AddMoneyUsageScreenUiState(
 
         public fun dismissCalendar()
 
+        public fun selectedTime(time: LocalTime)
+
+        public fun dismissTimePicker()
+
         public fun onClickDateChange()
+
+        public fun onClickTimeChange()
 
         public fun onClickTitleChange()
 
@@ -179,6 +193,18 @@ public fun AddMoneyUsageScreen(
                 HorizontalDivider(Modifier.fillMaxWidth().height(1.dp))
                 Section(
                     title = {
+                        Text("時間")
+                    },
+                    description = {
+                        Text(uiState.time)
+                    },
+                    clickChange = {
+                        uiState.event.onClickTimeChange()
+                    },
+                )
+                HorizontalDivider(Modifier.fillMaxWidth().height(1.dp))
+                Section(
+                    title = {
                         Text("タイトル")
                     },
                     description = {
@@ -236,6 +262,18 @@ public fun AddMoneyUsageScreen(
             },
             selectedCalendar = {
                 uiState.event.selectedCalendar(it)
+            },
+        )
+    }
+
+    if (uiState.timePickerDialog != null) {
+        TimePickerDialog(
+            initialTime = uiState.timePickerDialog.selectedTime,
+            dismissRequest = {
+                uiState.event.dismissTimePicker()
+            },
+            selectedTime = {
+                uiState.event.selectedTime(it)
             },
         )
     }

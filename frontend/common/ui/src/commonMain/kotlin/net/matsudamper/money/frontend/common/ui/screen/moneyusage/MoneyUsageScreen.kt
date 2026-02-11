@@ -43,6 +43,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
@@ -55,6 +56,7 @@ import net.matsudamper.money.frontend.common.ui.layout.CalendarDialog
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.layout.NumberInput
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
+import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.UrlClickableText
 import net.matsudamper.money.frontend.common.ui.layout.UrlMenuDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
@@ -65,6 +67,7 @@ public data class MoneyUsageScreenUiState(
     val confirmDialog: ConfirmDialog?,
     val textInputDialog: TextInputDialog?,
     val calendarDialog: CalendarDialog?,
+    val timePickerDialog: TimePickerDialogState?,
     val urlMenuDialog: UrlMenuDialog?,
     val numberInputDialog: NumberInputDialog?,
     val categorySelectDialog: CategorySelectDialogUiState?,
@@ -72,6 +75,12 @@ public data class MoneyUsageScreenUiState(
     public data class CalendarDialog(
         val date: LocalDate,
         val onSelectedDate: (LocalDate) -> Unit,
+        val dismissRequest: () -> Unit,
+    )
+
+    public data class TimePickerDialogState(
+        val time: LocalTime,
+        val onSelectedTime: (LocalTime) -> Unit,
         val dismissRequest: () -> Unit,
     )
 
@@ -115,6 +124,7 @@ public data class MoneyUsageScreenUiState(
         val amount: String,
         val category: String,
         val dateTime: String,
+        val time: String,
         val event: MoneyUsageEvent,
     )
 
@@ -130,6 +140,8 @@ public data class MoneyUsageScreenUiState(
         public fun onClickTitleChange()
 
         public fun onClickDateChange()
+
+        public fun onClickTimeChange()
 
         public fun onClickCategoryChange()
 
@@ -230,6 +242,17 @@ public fun MoneyUsageScreen(
             },
             selectedCalendar = {
                 uiState.calendarDialog.onSelectedDate(it)
+            },
+        )
+    }
+    if (uiState.timePickerDialog != null) {
+        TimePickerDialog(
+            initialTime = uiState.timePickerDialog.time,
+            dismissRequest = {
+                uiState.timePickerDialog.dismissRequest()
+            },
+            selectedTime = {
+                uiState.timePickerDialog.onSelectedTime(it)
             },
         )
     }
@@ -507,6 +530,19 @@ private fun MoneyUsage(
             },
             onClickChange = {
                 uiState.event.onClickDateChange()
+            },
+        )
+        MoneyUsageSection(
+            title = {
+                Text("時間")
+            },
+            content = {
+                Text(
+                    text = uiState.time,
+                )
+            },
+            onClickChange = {
+                uiState.event.onClickTimeChange()
             },
         )
         MoneyUsageSection(

@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import com.apollographql.apollo3.api.ApolloResponse
 import com.apollographql.apollo3.cache.normalized.FetchPolicy
 import com.apollographql.apollo3.cache.normalized.fetchPolicy
@@ -92,6 +93,7 @@ public class MoneyUsageScreenViewModel(
             confirmDialog = null,
             textInputDialog = null,
             calendarDialog = null,
+            timePickerDialog = null,
             categorySelectDialog = null,
             urlMenuDialog = null,
             numberInputDialog = null,
@@ -122,6 +124,7 @@ public class MoneyUsageScreenViewModel(
                                         event = ClickableEventImpl(moneyUsage.description),
                                     ),
                                     dateTime = Formatter.formatDateTime(moneyUsage.date),
+                                    time = Formatter.formatTime(moneyUsage.date.time),
                                     category = run category@{
                                         val subCategory = moneyUsage.moneyUsageSubCategory ?: return@category "未指定"
                                         val category = subCategory.category
@@ -157,6 +160,7 @@ public class MoneyUsageScreenViewModel(
                         confirmDialog = viewModelState.confirmDialog,
                         textInputDialog = viewModelState.textInputDialog,
                         calendarDialog = viewModelState.calendarDialog,
+                        timePickerDialog = viewModelState.timePickerDialog,
                         categorySelectDialog = viewModelState.categorySelectDialog,
                         urlMenuDialog = viewModelState.urlMenuDialog,
                         numberInputDialog = viewModelState.numberInputDialog,
@@ -277,6 +281,30 @@ public class MoneyUsageScreenViewModel(
                             },
                             dismissRequest = { dismissCalendarDialog() },
                             date = item.date.date,
+                        ),
+                    )
+                }
+            }
+
+            override fun onClickTimeChange() {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        timePickerDialog = MoneyUsageScreenUiState.TimePickerDialogState(
+                            onSelectedTime = { time ->
+                                viewModelScope.launch {
+                                    val isSuccess = api.updateUsage(
+                                        id = moneyUsageId,
+                                        date = LocalDateTime(item.date.date, time),
+                                    )
+                                    if (isSuccess) {
+                                        dismissTimePickerDialog()
+                                    } else {
+                                        // TODO
+                                    }
+                                }
+                            },
+                            dismissRequest = { dismissTimePickerDialog() },
+                            time = item.date.time,
                         ),
                     )
                 }
@@ -414,6 +442,14 @@ public class MoneyUsageScreenViewModel(
         }
     }
 
+    private fun dismissTimePickerDialog() {
+        viewModelStateFlow.update { viewModelState ->
+            viewModelState.copy(
+                timePickerDialog = null,
+            )
+        }
+    }
+
     private inner class ClickableEventImpl(text: String) : MoneyUsageScreenUiState.ClickableEvent, EqualsImpl(text) {
         override fun onClickUrl(url: String) {
             val dialog = MoneyUsageScreenUiState.UrlMenuDialog(
@@ -483,6 +519,7 @@ public class MoneyUsageScreenViewModel(
         val confirmDialog: MoneyUsageScreenUiState.ConfirmDialog? = null,
         val textInputDialog: MoneyUsageScreenUiState.TextInputDialog? = null,
         val calendarDialog: MoneyUsageScreenUiState.CalendarDialog? = null,
+        val timePickerDialog: MoneyUsageScreenUiState.TimePickerDialogState? = null,
         val categorySelectDialog: CategorySelectDialogUiState? = null,
         val urlMenuDialog: MoneyUsageScreenUiState.UrlMenuDialog? = null,
         val numberInputDialog: MoneyUsageScreenUiState.NumberInputDialog? = null,
