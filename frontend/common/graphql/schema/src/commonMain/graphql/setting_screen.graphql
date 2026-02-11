@@ -22,6 +22,7 @@ query CategoriesSettingScreenCategoriesPaging($input: MoneyUsageCategoriesInput!
             nodes {
                 id
                 name
+                color
             }
         }
     }

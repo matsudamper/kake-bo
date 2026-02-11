@@ -107,6 +107,7 @@ public class SettingCategoriesViewModel(
                             item = items.map { item ->
                                 SettingCategoriesScreenUiState.CategoryItem(
                                     name = item.name,
+                                    color = item.color,
                                     event = object : SettingCategoriesScreenUiState.CategoryItem.Event {
                                         override fun onClick() {
                                             viewModelScope.launch {
