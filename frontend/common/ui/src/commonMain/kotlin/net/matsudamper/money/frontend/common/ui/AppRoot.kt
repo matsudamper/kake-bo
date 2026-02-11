@@ -40,6 +40,9 @@ public fun AppRoot(
             surfaceVariant = CustomColors.surfaceColor,
             surfaceContainer = CustomColors.surfaceColor,
             error = Color(0xffFF6075),
+            surfaceContainerHigh = CustomColors.surfaceColor,
+            surfaceContainerLow = CustomColors.surfaceColor,
+            surfaceContainerLowest = CustomColors.surfaceColor,
         ),
         typography = getTypography(),
     ) {

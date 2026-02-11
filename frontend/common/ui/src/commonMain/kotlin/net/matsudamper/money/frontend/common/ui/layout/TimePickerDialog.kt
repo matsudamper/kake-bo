@@ -1,21 +1,15 @@
 package net.matsudamper.money.frontend.common.ui.layout
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.Card
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,10 +17,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import kotlinx.datetime.LocalTime
 
 private val ItemHeight = 48.dp
@@ -41,62 +33,39 @@ internal fun TimePickerDialog(
 ) {
     var selectedHour by remember { mutableStateOf(initialTime.hour) }
     var selectedMinute by remember { mutableStateOf(initialTime.minute) }
-
-    Box(
-        modifier = modifier.zIndex(Float.MAX_VALUE)
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.8f))
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() },
+    AlertDialog(
+        modifier = modifier,
+        onDismissRequest = {
+            dismissRequest()
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    selectedTime(LocalTime(selectedHour, selectedMinute))
+                },
             ) {
-                dismissRequest()
-            },
-        contentAlignment = Alignment.Center,
-    ) {
-        Card(
-            modifier = Modifier
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() },
-                ) {},
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(24.dp)
-                    .widthIn(max = 500.dp),
-            ) {
-                Text(
-                    text = "時間を選択",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(bottom = 16.dp),
-                )
-                TimePicker(
-                    initialHour = initialTime.hour,
-                    initialMinute = initialTime.minute,
-                    onHourChanged = { selectedHour = it },
-                    onMinuteChanged = { selectedMinute = it },
-                )
-                Spacer(Modifier.height(24.dp))
-                Row(
-                    modifier = Modifier.align(Alignment.End),
-                ) {
-                    TextButton(
-                        onClick = { dismissRequest() },
-                    ) {
-                        Text(text = "キャンセル")
-                    }
-                    TextButton(
-                        onClick = { selectedTime(LocalTime(selectedHour, selectedMinute)) },
-                    ) {
-                        Text(text = "決定")
-                    }
-                }
+                Text(text = "OK")
             }
-        }
-    }
+        },
+        dismissButton = {
+            Button(
+                onClick = dismissRequest,
+            ) {
+                Text(text = "キャンセル")
+            }
+        },
+        title = {
+            Text(text = "時間を選択")
+        },
+        text = {
+            TimePicker(
+                initialHour = initialTime.hour,
+                initialMinute = initialTime.minute,
+                onHourChanged = { selectedHour = it },
+                onMinuteChanged = { selectedMinute = it },
+            )
+        },
+    )
 }
 
 @Composable
@@ -113,6 +82,7 @@ private fun TimePicker(
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
