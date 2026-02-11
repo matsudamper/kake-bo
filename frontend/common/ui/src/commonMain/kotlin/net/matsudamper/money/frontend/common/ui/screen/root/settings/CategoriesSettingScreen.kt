@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.settings
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -23,21 +22,17 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -131,7 +126,6 @@ public fun SettingCategoriesScreen(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 public fun MainContent(
     modifier: Modifier,
@@ -147,34 +141,22 @@ public fun MainContent(
     ) { paddingValues ->
         when (val state = uiState.loadingState) {
             is SettingCategoriesScreenUiState.LoadingState.Loaded -> {
+                val layoutDirection = LocalLayoutDirection.current
+                val lazyListState = rememberLazyListState()
+                val fabSize = 56.dp
+                val fabPadding = 16.dp
                 Box(modifier = Modifier.fillMaxSize()) {
-                    val lazyListState = rememberLazyListState()
-                    var listHeightPx by remember { mutableIntStateOf(0) }
                     LazyColumn(
-                        modifier = Modifier.fillMaxSize()
-                            .onSizeChanged {
-                                listHeightPx = it.height
-                            },
+                        modifier = Modifier.fillMaxSize(),
                         contentPadding = PaddingValues(
-                            start = paddingValues.calculateStartPadding(LayoutDirection.Ltr),
-                            end = paddingValues.calculateEndPadding(LayoutDirection.Ltr),
+                            start = paddingValues.calculateStartPadding(layoutDirection),
+                            end = paddingValues.calculateEndPadding(layoutDirection),
+                            bottom = fabSize + fabPadding * 2,
                         ),
                         state = lazyListState,
                     ) {
                         item {
                             Spacer(Modifier.height(24.dp))
-                        }
-                        stickyHeader {
-                            Row {
-                                Spacer(modifier = Modifier.weight(1f))
-                                OutlinedButton(
-                                    onClick = { uiState.event.onClickAddCategoryButton() },
-                                    modifier = Modifier.padding(horizontal = 24.dp),
-                                ) {
-                                    Icon(Icons.Default.Add, contentDescription = null)
-                                    Text(text = "カテゴリーを追加")
-                                }
-                            }
                         }
                         items(state.item) { item ->
                             SettingListMenuItemButton(
@@ -204,6 +186,17 @@ public fun MainContent(
                         item {
                             Spacer(Modifier.height(24.dp))
                         }
+                    }
+                    FloatingActionButton(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(
+                                end = paddingValues.calculateEndPadding(layoutDirection) + fabPadding,
+                                bottom = fabPadding,
+                            ),
+                        onClick = { uiState.event.onClickAddCategoryButton() },
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = "カテゴリーを追加")
                     }
                 }
             }
