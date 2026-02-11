@@ -88,7 +88,7 @@ androidxLifecycleRuntimeCompose = { module = "androidx.lifecycle:lifecycle-runti
 androidxNavigation3Runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3" }
 androidxNavigation3Ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3" }
 jetbrainsNavigation3Ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "jetbrainsNav3" }
-androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.10.2" }
+androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.10.3" }
 
 # Test
 kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "6.1.3" }
