@@ -1,16 +1,20 @@
 package net.matsudamper.money.frontend.common.ui.layout
 
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.toLocalDateTime
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun CalendarDialog(
     modifier: Modifier = Modifier,
@@ -18,21 +22,22 @@ internal fun CalendarDialog(
     selectedCalendar: (LocalDate) -> Unit,
     initialCalendar: LocalDate,
 ) {
-    var selectedDate by remember { mutableStateOf(initialCalendar) }
-    var showYearMonthPicker by remember { mutableStateOf(false) }
-    var selectingDate by remember { mutableStateOf(initialCalendar) }
+    val datePickerState = rememberDatePickerState(
+        initialSelectedDateMillis = initialCalendar.atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds(),
+    )
 
-    AlertDialog(
+    DatePickerDialog(
         modifier = modifier,
         onDismissRequest = dismissRequest,
         confirmButton = {
             TextButton(
                 onClick = {
-                    if (showYearMonthPicker) {
-                        selectedDate = selectingDate
-                        showYearMonthPicker = false
-                    } else {
-                        selectedCalendar(selectedDate)
+                    val millis = datePickerState.selectedDateMillis
+                    if (millis != null) {
+                        val date = Instant.fromEpochMilliseconds(millis)
+                            .toLocalDateTime(TimeZone.UTC)
+                            .date
+                        selectedCalendar(date)
                     }
                 },
             ) {
@@ -41,37 +46,14 @@ internal fun CalendarDialog(
         },
         dismissButton = {
             TextButton(
-                onClick = {
-                    if (showYearMonthPicker) {
-                        showYearMonthPicker = false
-                    } else {
-                        dismissRequest()
-                    }
-                },
+                onClick = dismissRequest,
             ) {
                 Text(text = "キャンセル")
             }
         },
-        text = {
-            if (showYearMonthPicker) {
-                YearMonthPicker(
-                    initialDate = selectedDate,
-                    onDateChanged = { newDate ->
-                        selectingDate = newDate
-                    },
-                )
-            } else {
-                Calendar(
-                    modifier = Modifier,
-                    selectedDate = selectedDate,
-                    changeSelectedDate = {
-                        selectedDate = it
-                    },
-                    onYearMonthClick = {
-                        showYearMonthPicker = true
-                    },
-                )
-            }
-        },
-    )
+    ) {
+        DatePicker(
+            state = datePickerState,
+        )
+    }
 }
