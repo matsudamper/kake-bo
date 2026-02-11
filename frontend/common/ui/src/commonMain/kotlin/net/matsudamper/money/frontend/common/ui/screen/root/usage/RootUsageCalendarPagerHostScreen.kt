@@ -1,7 +1,6 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.usage
 
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -13,6 +12,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.ui.StickyHeaderState
 
 @Stable
 public data class RootUsageCalendarPagerHostScreenUiState(
@@ -36,6 +36,7 @@ public fun RootUsageCalendarPagerHostScreen(
     uiState: RootUsageCalendarPagerHostScreenUiState,
     uiStateProvider: @Composable (ScreenStructure.Root.Usage.Calendar) -> RootUsageCalendarScreenUiState,
     modifier: Modifier = Modifier,
+    stickyHeaderState: StickyHeaderState,
 ) {
     val currentPage = uiState.currentPage
     if (currentPage != null) {
@@ -57,12 +58,11 @@ public fun RootUsageCalendarPagerHostScreen(
             modifier = modifier,
         ) { index ->
             val item = uiState.pages[index]
-            Column {
-                RootUsageCalendarScreen(
-                    modifier = Modifier.fillMaxSize(),
-                    uiState = uiStateProvider(item.navigation),
-                )
-            }
+            RootUsageCalendarScreen(
+                modifier = Modifier.fillMaxSize(),
+                uiState = uiStateProvider(item.navigation),
+                stickyHeaderState = stickyHeaderState,
+            )
         }
     }
 }
