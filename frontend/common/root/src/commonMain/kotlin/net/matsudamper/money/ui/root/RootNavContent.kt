@@ -15,7 +15,9 @@ import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectSto
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.ui.StickyHeaderState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlyCategoryScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlySubCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllContentUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodCategoryScreen
@@ -227,7 +229,7 @@ internal fun RootNavContent(
                             monthlySubCategoryViewModel.updateStructure(current)
                         }
 
-                        net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlySubCategoryScreen(
+                        RootHomeMonthlySubCategoryScreen(
                             modifier = Modifier.fillMaxSize(),
                             uiState = monthlySubCategoryViewModel.uiStateFlow.collectAsState().value,
                             windowInsets = windowInsets,
@@ -238,11 +240,17 @@ internal fun RootNavContent(
         }
 
         is ScreenStructure.Root.Usage -> {
+            val stickyHeaderState = remember {
+                StickyHeaderState(
+                    enterAlways = false,
+                )
+            }
             tabHolder.SaveableStateProvider(ScreenStructure.Root.Usage::class.toString()) {
                 val rootScreen = remember {
                     movableContentOf { rootUiState: RootUsageHostScreenUiState, content: @Composable () -> Unit ->
                         RootUsageHostScreen(
                             modifier = Modifier.fillMaxSize(),
+                            stickyHeaderState = stickyHeaderState,
                             uiState = rootUiState,
                             windowInsets = windowInsets,
                         ) {
@@ -258,6 +266,7 @@ internal fun RootNavContent(
                             RootUsageCalendarPagerHostScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 uiState = uiState,
+                                stickyHeaderState = stickyHeaderState,
                                 uiStateProvider = { navigation ->
                                     usageCalendarUiStateProvider(navigation.yearMonth)
                                 },
