@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.base.nav.user
 
 import androidx.navigation3.runtime.NavBackStack
 import io.kotest.core.spec.style.DescribeSpec
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.equals.shouldBeEqual
 
 public class CommonScreenNavControllerImplTest : DescribeSpec(
@@ -125,7 +126,8 @@ public class CommonScreenNavControllerImplTest : DescribeSpec(
                         navigate(createStructure(text = "A-2", groupId = "A"))
                     }
                     controller.back()
-                    // TODO どうアプリの終了を検知するか
+                    controller.backstackEntries
+                        .shouldBeEmpty()
                 }
             }
         }
