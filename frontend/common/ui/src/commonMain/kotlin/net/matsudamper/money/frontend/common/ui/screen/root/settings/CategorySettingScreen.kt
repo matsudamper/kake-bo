@@ -1,8 +1,11 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.settings
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,6 +33,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
@@ -40,6 +44,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -52,12 +57,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import kotlin.math.PI
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
+import kotlin.math.sqrt
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
@@ -446,7 +460,14 @@ private fun ColorPickerDialog(
     onDismiss: () -> Unit,
     onColorSelected: (String) -> Unit,
 ) {
-    var selectedColor by remember { mutableStateOf(currentColor) }
+    val defaultColor = presetColors.first()
+    var selectedColor by remember {
+        mutableStateOf(normalizeHexColor(currentColor) ?: defaultColor)
+    }
+    var hexInputText by remember {
+        mutableStateOf(selectedColor.removePrefix("#"))
+    }
+    val isHexInputError = hexInputText.isNotEmpty() && normalizeHexColor(hexInputText) == null
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -458,6 +479,37 @@ private fun ColorPickerDialog(
                 Text(
                     text = "カテゴリーの色を選択",
                     style = MaterialTheme.typography.titleMedium,
+                )
+                Spacer(Modifier.height(16.dp))
+                CircularColorPicker(
+                    selectedColor = parseHexColor(selectedColor),
+                    onColorChanged = { color ->
+                        val hexColor = color.toHexColorString()
+                        selectedColor = hexColor
+                        hexInputText = hexColor.removePrefix("#")
+                    },
+                )
+                Spacer(Modifier.height(16.dp))
+                OutlinedTextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = hexInputText,
+                    onValueChange = { value ->
+                        val normalizedText = value
+                            .removePrefix("#")
+                            .uppercase()
+                            .take(6)
+                            .filter { it in '0'..'9' || it in 'A'..'F' }
+                        hexInputText = normalizedText
+                        val normalizedHexColor = normalizeHexColor(normalizedText)
+                        if (normalizedHexColor != null) {
+                            selectedColor = normalizedHexColor
+                        }
+                    },
+                    label = { Text("HEX (#RRGGBB)") },
+                    prefix = { Text("#") },
+                    singleLine = true,
+                    isError = isHexInputError,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii),
                 )
                 Spacer(Modifier.height(16.dp))
                 LazyVerticalGrid(
@@ -484,7 +536,10 @@ private fun ColorPickerDialog(
                                         Modifier
                                     },
                                 )
-                                .clickable { selectedColor = color },
+                                .clickable {
+                                    selectedColor = color
+                                    hexInputText = color.removePrefix("#")
+                                },
                         )
                     }
                 }
@@ -498,13 +553,8 @@ private fun ColorPickerDialog(
                     }
                     Spacer(Modifier.width(8.dp))
                     TextButton(
-                        onClick = {
-                            val color = selectedColor
-                            if (color != null) {
-                                onColorSelected(color)
-                            }
-                        },
-                        enabled = selectedColor != null,
+                        onClick = { onColorSelected(selectedColor) },
+                        enabled = isHexInputError.not(),
                     ) {
                         Text("決定")
                     }
@@ -512,6 +562,160 @@ private fun ColorPickerDialog(
             }
         }
     }
+}
+
+@Composable
+private fun CircularColorPicker(
+    selectedColor: Color,
+    onColorChanged: (Color) -> Unit,
+) {
+    val hueAndSaturation = selectedColor.toHueAndSaturation()
+    BoxWithConstraints {
+        val canvasSize = minOf(maxWidth, 220.dp)
+        val radius = canvasSize / 2
+        Canvas(
+            modifier = Modifier
+                .size(canvasSize)
+                .pointerInput(Unit) {
+                    detectTapGestures { point ->
+                        val color = point.toColorFromWheel(radius.toPx())
+                        if (color != null) {
+                            onColorChanged(color)
+                        }
+                    }
+                }
+                .pointerInput(Unit) {
+                    detectDragGestures(
+                        onDragStart = { point ->
+                            val color = point.toColorFromWheel(radius.toPx())
+                            if (color != null) {
+                                onColorChanged(color)
+                            }
+                        },
+                        onDrag = { change, _ ->
+                            val color = change.position.toColorFromWheel(radius.toPx())
+                            if (color != null) {
+                                onColorChanged(color)
+                            }
+                        },
+                    )
+                },
+        ) {
+            val canvasRadius = size.minDimension / 2f
+            drawCircle(
+                brush = Brush.sweepGradient(
+                    colors = listOf(
+                        Color.Red,
+                        Color.Yellow,
+                        Color.Green,
+                        Color.Cyan,
+                        Color.Blue,
+                        Color.Magenta,
+                        Color.Red,
+                    ),
+                ),
+                radius = canvasRadius,
+            )
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(Color.White, Color.Transparent),
+                    center = center,
+                    radius = canvasRadius,
+                ),
+                radius = canvasRadius,
+            )
+
+            val indicatorDistance = canvasRadius * hueAndSaturation.second
+            val indicatorAngle = hueAndSaturation.first * PI.toFloat() / 180f
+            val indicatorCenter = Offset(
+                x = center.x + cos(indicatorAngle) * indicatorDistance,
+                y = center.y + sin(indicatorAngle) * indicatorDistance,
+            )
+
+            drawCircle(color = Color.White, radius = 8.dp.toPx(), center = indicatorCenter)
+            drawCircle(color = Color.Black, radius = 6.dp.toPx(), center = indicatorCenter)
+        }
+    }
+}
+
+private fun Offset.toColorFromWheel(radius: Float): Color? {
+    val centerX = radius
+    val centerY = radius
+    val dx = x - centerX
+    val dy = y - centerY
+    val distance = sqrt(dx * dx + dy * dy)
+    if (distance > radius) {
+        return null
+    }
+    val hue = ((atan2(dy, dx) * 180f / PI.toFloat()) + 360f) % 360f
+    val saturation = (distance / radius).coerceIn(0f, 1f)
+    return hsvToColor(hue = hue, saturation = saturation, value = 1f)
+}
+
+private fun Color.toHueAndSaturation(): Pair<Float, Float> {
+    val maxValue = maxOf(red, green, blue)
+    val minValue = minOf(red, green, blue)
+    val delta = maxValue - minValue
+
+    val hue = when {
+        delta == 0f -> 0f
+        maxValue == red -> 60f * (((green - blue) / delta) % 6f)
+        maxValue == green -> 60f * (((blue - red) / delta) + 2f)
+        else -> 60f * (((red - green) / delta) + 4f)
+    }.let { if (it < 0f) it + 360f else it }
+
+    val saturation = if (maxValue == 0f) {
+        0f
+    } else {
+        delta / maxValue
+    }
+    return hue to saturation
+}
+
+private fun hsvToColor(hue: Float, saturation: Float, value: Float): Color {
+    val c = value * saturation
+    val x = c * (1 - kotlin.math.abs((hue / 60f % 2f) - 1))
+    val m = value - c
+
+    val (r1, g1, b1) = when {
+        hue < 60f -> Triple(c, x, 0f)
+        hue < 120f -> Triple(x, c, 0f)
+        hue < 180f -> Triple(0f, c, x)
+        hue < 240f -> Triple(0f, x, c)
+        hue < 300f -> Triple(x, 0f, c)
+        else -> Triple(c, 0f, x)
+    }
+
+    return Color(
+        red = ((r1 + m) * 255).toInt().coerceIn(0, 255),
+        green = ((g1 + m) * 255).toInt().coerceIn(0, 255),
+        blue = ((b1 + m) * 255).toInt().coerceIn(0, 255),
+    )
+}
+
+private fun Color.toHexColorString(): String {
+    val redValue = (red * 255).toInt().coerceIn(0, 255)
+    val greenValue = (green * 255).toInt().coerceIn(0, 255)
+    val blueValue = (blue * 255).toInt().coerceIn(0, 255)
+    return "#${redValue.toHex2()}${greenValue.toHex2()}${blueValue.toHex2()}"
+}
+
+private fun Int.toHex2(): String {
+    return toString(radix = 16).uppercase().padStart(2, '0')
+}
+
+private fun normalizeHexColor(rawHex: String?): String? {
+    if (rawHex.isNullOrBlank()) {
+        return null
+    }
+    val normalizedText = rawHex.removePrefix("#").uppercase()
+    if (normalizedText.length != 6) {
+        return null
+    }
+    if (normalizedText.any { it !in '0'..'9' && it !in 'A'..'F' }) {
+        return null
+    }
+    return "#$normalizedText"
 }
 
 private fun parseHexColor(hex: String): Color {

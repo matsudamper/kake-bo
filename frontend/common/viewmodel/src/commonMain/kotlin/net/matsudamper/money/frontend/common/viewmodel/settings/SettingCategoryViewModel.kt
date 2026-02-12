@@ -134,6 +134,13 @@ public class SettingCategoryViewModel(
 
                 override fun onColorSelected(hexColor: String) {
                     viewModelScope.launch {
+                        if (isValidHexColor(hexColor).not()) {
+                            globalEventSender.send {
+                                it.showNativeNotification("色コードの形式が不正です")
+                            }
+                            return@launch
+                        }
+
                         val result = api.updateCategory(
                             id = categoryId,
                             name = Optional.absent(),
@@ -246,6 +253,22 @@ public class SettingCategoryViewModel(
     init {
         initialFetchSubCategories()
         fetchCategoryInfo()
+    }
+
+    private fun isValidHexColor(value: String): Boolean {
+        if (value.length != 7) {
+            return false
+        }
+        if (value.startsWith("#").not()) {
+            return false
+        }
+        val hex = value.removePrefix("#")
+        if (hex.length != 6) {
+            return false
+        }
+        return hex.all { char ->
+            (char in '0'..'9') || (char in 'A'..'F') || (char in 'a'..'f')
+        }
     }
 
     private fun createItemUiState(item: CategorySettingScreenSubCategoriesPagingQuery.Node): SettingCategoryScreenUiState.SubCategoryItem {
