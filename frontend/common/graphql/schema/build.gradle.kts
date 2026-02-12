@@ -1,5 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import com.apollographql.apollo3.gradle.internal.ApolloDownloadSchemaTask
+import com.apollographql.apollo.gradle.internal.ApolloDownloadSchemaTask
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -40,8 +40,8 @@ apollo {
         mapScalar("MoneyUsageSubCategoryId", "net.matsudamper.money.element.MoneyUsageSubCategoryId")
         mapScalar("ImportedMailCategoryFilterConditionId", "net.matsudamper.money.element.ImportedMailCategoryFilterConditionId")
         mapScalar("MoneyUsageId", "net.matsudamper.money.element.MoneyUsageId")
-        mapScalar("LocalDateTime", "kotlinx.datetime.LocalDateTime", "com.apollographql.apollo3.adapter.KotlinxLocalDateTimeAdapter")
-        mapScalar("OffsetDateTime", "kotlinx.datetime.Instant", "com.apollographql.apollo3.adapter.KotlinxInstantAdapter")
+        mapScalar("LocalDateTime", "kotlinx.datetime.LocalDateTime", "com.apollographql.apollo.adapter.KotlinxLocalDateTimeAdapter")
+        mapScalar("OffsetDateTime", "kotlinx.datetime.Instant", "com.apollographql.apollo.adapter.KotlinxInstantAdapter")
     }
 }
 
