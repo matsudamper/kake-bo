@@ -2,7 +2,7 @@
 java = "24"
 javaToolchain = "24"
 kotlin = "2.3.10"
-apollo = "4.0.0-beta.7"
+apollo = "4.4.1"
 ktor = "3.4.0"
 activity = "1.12.4"
 appcompat = "1.7.1"
@@ -16,7 +16,7 @@ nav3 = "1.0.1"
 jetbrainsNav3 = "1.0.0-alpha06"
 
 [plugins]
-apollo = { id = "com.apollographql.apollo3", version.ref = "apollo" }
+apollo = { id = "com.apollographql.apollo", version.ref = "apollo" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
@@ -64,9 +64,9 @@ ktorClientJs = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
 ktorClientLogging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 
 # Apollo
-apolloRuntime = { module = "com.apollographql.apollo3:apollo-runtime", version.ref = "apollo" }
-apolloNormalizedCache = { module = "com.apollographql.apollo3:apollo-normalized-cache", version.ref = "apollo" }
-apolloAdapters = { module = "com.apollographql.apollo3:apollo-adapters", version.ref = "apollo" }
+apolloRuntime = { module = "com.apollographql.apollo:apollo-runtime", version.ref = "apollo" }
+apolloNormalizedCache = { module = "com.apollographql.apollo:apollo-normalized-cache", version.ref = "apollo" }
+apolloAdapters = { module = "com.apollographql.apollo:apollo-adapters", version.ref = "apollo" }
 
 # Jackson
 jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
