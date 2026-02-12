@@ -41,7 +41,7 @@ apollo {
         mapScalar("ImportedMailCategoryFilterConditionId", "net.matsudamper.money.element.ImportedMailCategoryFilterConditionId")
         mapScalar("MoneyUsageId", "net.matsudamper.money.element.MoneyUsageId")
         mapScalar("LocalDateTime", "kotlinx.datetime.LocalDateTime", "com.apollographql.apollo3.adapter.KotlinxLocalDateTimeAdapter")
-        mapScalar("OffsetDateTime", "kotlinx.datetime.Instant", "com.apollographql.apollo3.adapter.KotlinxInstantAdapter")
+        mapScalar("OffsetDateTime", "kotlin.time.Instant", "com.apollographql.apollo3.adapter.KotlinInstantAdapter")
     }
 }
 
