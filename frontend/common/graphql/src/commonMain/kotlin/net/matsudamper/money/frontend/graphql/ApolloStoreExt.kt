@@ -1,10 +1,10 @@
 package net.matsudamper.money.frontend.graphql
 
-import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.ApolloResponse
-import com.apollographql.apollo3.api.Operation
-import com.apollographql.apollo3.cache.normalized.apolloStore
-import com.apollographql.apollo3.exception.CacheMissException
+import com.apollographql.apollo.ApolloClient
+import com.apollographql.apollo.api.ApolloResponse
+import com.apollographql.apollo.api.Operation
+import com.apollographql.apollo.cache.normalized.apolloStore
+import com.apollographql.apollo.exception.CacheMissException
 
 sealed interface UpdateOperationResponseResult<D : Operation.Data> {
     data class Success<D : Operation.Data>(val result: ApolloResponse<D>) : UpdateOperationResponseResult<D>
