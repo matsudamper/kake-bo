@@ -60,7 +60,7 @@ public fun RootUsageCalendarPagerHostScreen(
                     beforePage = settledPage
                     return@collect
                 }
-                if (beforePage == beforePage) {
+                if (beforePage == settledPage) {
                     return@collect
                 }
                 beforePage = settledPage
