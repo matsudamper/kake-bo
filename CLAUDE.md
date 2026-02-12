@@ -75,6 +75,9 @@ The project is organized into backend, frontend, and shared modules:
 # Coding Agent
 すべての応答、説明、およびコミットメッセージは日本語で行ってください。
 
+### スクリーンショットに関するルール
+スクリーンショットは撮れないため、スクリーンショットの試行をしないでください。
+
 ## Claude Code Web
 Claude Code WebではGradleの依存がダウンロードでエラーになります。
 https://github.com/anthropics/claude-code/issues/13372
