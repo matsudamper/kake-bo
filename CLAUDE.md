@@ -91,7 +91,7 @@ https://github.com/anthropics/claude-code/issues/13372
 コードを編集した後は必ず以下を実行してエラーを確認してください。
 
 ```sh
-./gradlew assemble assembleDebug -x jsBrowserProductionWebpack
+./gradlew :backend:assemble :frontend:app:jsBrowserDevelopmentWebpack :frontend:app:assembleDebug
 ```
 
 ## フォーマット
