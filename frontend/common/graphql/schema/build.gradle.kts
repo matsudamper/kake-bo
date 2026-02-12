@@ -40,8 +40,8 @@ apollo {
         mapScalar("MoneyUsageSubCategoryId", "net.matsudamper.money.element.MoneyUsageSubCategoryId")
         mapScalar("ImportedMailCategoryFilterConditionId", "net.matsudamper.money.element.ImportedMailCategoryFilterConditionId")
         mapScalar("MoneyUsageId", "net.matsudamper.money.element.MoneyUsageId")
-        mapScalar("LocalDateTime", "kotlinx.datetime.LocalDateTime", "com.apollographql.apollo.adapter.KotlinxLocalDateTimeAdapter")
-        mapScalar("OffsetDateTime", "kotlinx.datetime.Instant", "com.apollographql.apollo.adapter.KotlinxInstantAdapter")
+        mapScalar("LocalDateTime", "kotlinx.datetime.LocalDateTime", "com.apollographql.adapter.datetime.KotlinxLocalDateTimeAdapter")
+        mapScalar("OffsetDateTime", "kotlinx.datetime.Instant", "com.apollographql.adapter.datetime.KotlinxInstantAdapter")
     }
 }
 
