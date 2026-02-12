@@ -31,11 +31,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.layout.colorpicker.parseHexColor
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
@@ -212,14 +212,4 @@ public fun MainContent(
             }
         }
     }
-}
-
-private fun parseHexColor(hex: String): Color {
-    val colorString = hex.removePrefix("#")
-    val colorLong = colorString.toLongOrNull(16) ?: return Color.Gray
-    return Color(
-        red = ((colorLong shr 16) and 0xFF).toInt(),
-        green = ((colorLong shr 8) and 0xFF).toInt(),
-        blue = (colorLong and 0xFF).toInt(),
-    )
 }

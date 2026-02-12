@@ -1,7 +1,6 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.settings
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -23,13 +22,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
@@ -41,7 +36,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,14 +46,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.layout.colorpicker.ColorPickerDialog
+import net.matsudamper.money.frontend.common.ui.layout.colorpicker.parseHexColor
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
@@ -432,94 +426,3 @@ private fun HeaderSection(
     }
 }
 
-private val presetColors: List<String> = listOf(
-    "#F44336", "#E91E63", "#9C27B0", "#673AB7",
-    "#3F51B5", "#2196F3", "#03A9F4", "#00BCD4",
-    "#009688", "#4CAF50", "#8BC34A", "#CDDC39",
-    "#FFEB3B", "#FFC107", "#FF9800", "#FF5722",
-    "#795548", "#9E9E9E", "#607D8B", "#000000",
-)
-
-@Composable
-private fun ColorPickerDialog(
-    currentColor: String?,
-    onDismiss: () -> Unit,
-    onColorSelected: (String) -> Unit,
-) {
-    var selectedColor by remember { mutableStateOf(currentColor) }
-
-    Dialog(onDismissRequest = onDismiss) {
-        Card(
-            shape = RoundedCornerShape(16.dp),
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-            ) {
-                Text(
-                    text = "カテゴリーの色を選択",
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                Spacer(Modifier.height(16.dp))
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(5),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.height(200.dp),
-                ) {
-                    items(presetColors) { color ->
-                        val isSelected = selectedColor == color
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(parseHexColor(color))
-                                .then(
-                                    if (isSelected) {
-                                        Modifier.border(
-                                            width = 3.dp,
-                                            color = MaterialTheme.colorScheme.onSurface,
-                                            shape = CircleShape,
-                                        )
-                                    } else {
-                                        Modifier
-                                    },
-                                )
-                                .clickable { selectedColor = color },
-                        )
-                    }
-                }
-                Spacer(Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                ) {
-                    TextButton(onClick = onDismiss) {
-                        Text("キャンセル")
-                    }
-                    Spacer(Modifier.width(8.dp))
-                    TextButton(
-                        onClick = {
-                            val color = selectedColor
-                            if (color != null) {
-                                onColorSelected(color)
-                            }
-                        },
-                        enabled = selectedColor != null,
-                    ) {
-                        Text("決定")
-                    }
-                }
-            }
-        }
-    }
-}
-
-private fun parseHexColor(hex: String): Color {
-    val colorString = hex.removePrefix("#")
-    val colorLong = colorString.toLongOrNull(16) ?: return Color.Gray
-    return Color(
-        red = ((colorLong shr 16) and 0xFF).toInt(),
-        green = ((colorLong shr 8) and 0xFF).toInt(),
-        blue = (colorLong and 0xFF).toInt(),
-    )
-}
