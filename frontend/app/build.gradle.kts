@@ -84,7 +84,7 @@ android {
                 applicationIdSuffix = ".ci"
                 resValue("string", "app_name", "$appName.$applicationIdSuffix")
             } else {
-                signingConfig = signingConfigs.getByName("release")
+                signingConfig = signingConfigs.findByName("release") ?: signingConfigs.getByName("debug")
             }
         }
         release {
