@@ -1,7 +1,7 @@
 package net.matsudamper.money.frontend.common.viewmodel.moneyusage
 
 import kotlinx.datetime.LocalDateTime
-import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo.api.Optional
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenDeleteUsageMutation

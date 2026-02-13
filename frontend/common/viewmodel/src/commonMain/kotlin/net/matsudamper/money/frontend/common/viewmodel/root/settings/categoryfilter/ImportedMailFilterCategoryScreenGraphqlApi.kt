@@ -1,8 +1,8 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilter
 
-import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.ApolloResponse
-import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo.ApolloClient
+import com.apollographql.apollo.api.ApolloResponse
+import com.apollographql.apollo.api.Optional
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId

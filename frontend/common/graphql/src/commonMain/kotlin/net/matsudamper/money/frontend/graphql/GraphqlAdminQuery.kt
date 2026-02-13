@@ -1,6 +1,6 @@
 package net.matsudamper.money.frontend.graphql
 
-import com.apollographql.apollo3.api.ApolloResponse
+import com.apollographql.apollo.api.ApolloResponse
 
 class GraphqlAdminQuery(
     private val graphqlClient: GraphqlClient,
