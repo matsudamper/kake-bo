@@ -319,74 +319,43 @@ else:
         write_gradle_properties()
 
 # ── Android SDK セットアップ ──────────────────────────────────────────────────
-# sdkmanager + Java agent でプロキシ認証を有効にしてインストール
+# sdkmanager のセットアップのみ（パッケージはビルド時に AGP が自動ダウンロード）
 
 project_dir = os.environ.get('CLAUDE_PROJECT_DIR', os.getcwd())
 android_home = os.path.expanduser('~/android-sdk')
 local_props = os.path.join(project_dir, 'local.properties')
 
-# platforms/android-36 が既にインストール済みかチェック
-platform_dir = os.path.join(android_home, 'platforms', 'android-36')
-if os.path.isdir(platform_dir):
-    print(f"Android SDK already installed: {platform_dir}")
-else:
-    os.makedirs(android_home, exist_ok=True)
+os.makedirs(android_home, exist_ok=True)
 
-    # cmdline-tools のダウンロード（sdkmanager 本体の取得のみ直接ダウンロード）
-    cmdline_tools_dir = os.path.join(android_home, 'cmdline-tools', 'latest')
-    sdkmanager_bin = os.path.join(cmdline_tools_dir, 'bin', 'sdkmanager')
-    if not os.path.exists(sdkmanager_bin):
-        cmdline_url = 'https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip'
-        cmdline_zip = os.path.join(android_home, 'commandlinetools.zip')
-        download(cmdline_url, cmdline_zip, opener)
-        with zipfile.ZipFile(cmdline_zip, 'r') as zf:
-            zf.extractall(android_home)
-        os.unlink(cmdline_zip)
-        # zip は cmdline-tools/ に展開される → cmdline-tools/latest/ に移動
-        extracted = os.path.join(android_home, 'cmdline-tools')
-        temp_dir = os.path.join(android_home, '_cmdline-tools-temp')
-        os.rename(extracted, temp_dir)
-        os.makedirs(extracted, exist_ok=True)
-        shutil.move(temp_dir, cmdline_tools_dir)
-        os.chmod(sdkmanager_bin, 0o755)
-        print(f"cmdline-tools installed: {cmdline_tools_dir}")
+# cmdline-tools のダウンロード（sdkmanager 本体の取得）
+cmdline_tools_dir = os.path.join(android_home, 'cmdline-tools', 'latest')
+sdkmanager_bin = os.path.join(cmdline_tools_dir, 'bin', 'sdkmanager')
+if not os.path.exists(sdkmanager_bin):
+    cmdline_url = 'https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip'
+    cmdline_zip = os.path.join(android_home, 'commandlinetools.zip')
+    download(cmdline_url, cmdline_zip, opener)
+    with zipfile.ZipFile(cmdline_zip, 'r') as zf:
+        zf.extractall(android_home)
+    os.unlink(cmdline_zip)
+    # zip は cmdline-tools/ に展開される → cmdline-tools/latest/ に移動
+    extracted = os.path.join(android_home, 'cmdline-tools')
+    temp_dir = os.path.join(android_home, '_cmdline-tools-temp')
+    os.rename(extracted, temp_dir)
+    os.makedirs(extracted, exist_ok=True)
+    shutil.move(temp_dir, cmdline_tools_dir)
+    os.chmod(sdkmanager_bin, 0o755)
+    print(f"cmdline-tools installed: {cmdline_tools_dir}")
 
-    # ライセンス承認
-    licenses_dir = os.path.join(android_home, 'licenses')
-    os.makedirs(licenses_dir, exist_ok=True)
-    with open(os.path.join(licenses_dir, 'android-sdk-license'), 'w') as f:
-        f.write('\n24333f8a63b6825ea9c5514f83c2829b004d1fee\n')
-
-    # sdkmanager 実行用の環境変数（SDKMANAGER_OPTS でプロキシ認証 agent を設定）
-    sdk_env = os.environ.copy()
-    sdk_env['JAVA_HOME'] = java_home
-    agent_opt = f'-javaagent:{agent_jar} ' if os.path.exists(agent_jar) else ''
-    sdk_env['SDKMANAGER_OPTS'] = (
-        f'{agent_opt}'
-        f'-Dhttps.proxyHost={host} -Dhttps.proxyPort={port} '
-        f'-Dhttps.proxyUser={user} -Dhttps.proxyPassword={password} '
-        f'-Dhttp.proxyHost={host} -Dhttp.proxyPort={port} '
-        f'-Dhttp.proxyUser={user} -Dhttp.proxyPassword={password} '
-        f'-Djdk.http.auth.tunneling.disabledSchemes='
-    )
-
-    # sdkmanager でパッケージをインストール
-    sdk_packages = ['platforms;android-36', 'build-tools;36.0.0', 'platform-tools']
-    for pkg in sdk_packages:
-        r = subprocess.run(
-            [sdkmanager_bin, '--install', pkg, f'--sdk_root={android_home}'],
-            capture_output=True, text=True, env=sdk_env, input='y\n'
-        )
-        if r.returncode == 0:
-            print(f"Installed via sdkmanager: {pkg}")
-        else:
-            print(f"Failed to install {pkg}: {r.stderr[:500]}")
+# ライセンス承認
+licenses_dir = os.path.join(android_home, 'licenses')
+os.makedirs(licenses_dir, exist_ok=True)
+with open(os.path.join(licenses_dir, 'android-sdk-license'), 'w') as f:
+    f.write('\n24333f8a63b6825ea9c5514f83c2829b004d1fee\n')
 
 # local.properties に sdk.dir を書き込む
-if os.path.isdir(android_home):
-    with open(local_props, 'w') as f:
-        f.write(f"sdk.dir={android_home}\n")
-    print(f"local.properties written: sdk.dir={android_home}")
+with open(local_props, 'w') as f:
+    f.write(f"sdk.dir={android_home}\n")
+print(f"local.properties written: sdk.dir={android_home}")
 
 print("Session start hook completed.")
 PYEOF
