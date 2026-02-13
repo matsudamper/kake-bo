@@ -13,6 +13,7 @@ import com.apollographql.apollo.cache.normalized.api.MemoryCacheFactory
 import com.apollographql.apollo.cache.normalized.normalizedCache
 import com.apollographql.apollo.interceptor.ApolloInterceptor
 import com.apollographql.apollo.network.http.DefaultHttpEngine
+import com.apollographql.apollo.network.http.HttpInterceptor
 import net.matsudamper.money.element.ApiTokenId
 import net.matsudamper.money.element.FidoId
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
@@ -41,6 +42,7 @@ public interface GraphqlClient {
 
 class GraphqlClientImpl(
     private val interceptors: List<ApolloInterceptor>,
+    private val httpInterceptors: List<HttpInterceptor> = emptyList(),
     serverUrl: String,
     private val onServerUrlChanged: (String) -> Unit,
 ) : GraphqlClient {
@@ -57,6 +59,7 @@ class GraphqlClientImpl(
     private fun buildClient(serverUrl: String): ApolloClient = ApolloClient.Builder()
         .serverUrl(serverUrl)
         .httpEngine(DefaultHttpEngine(timeoutMillis = 5000))
+        .httpInterceptors(httpInterceptors)
         .interceptors(interceptors)
         .normalizedCache(cacheFactory)
         .addCustomScalarAdapter(
