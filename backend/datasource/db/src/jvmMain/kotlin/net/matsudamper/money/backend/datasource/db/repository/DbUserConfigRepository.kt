@@ -6,7 +6,6 @@ import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
 import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
-import net.matsudamper.money.backend.base.TraceLogger
 
 class DbUserConfigRepository : UserConfigRepository {
     /**
@@ -88,7 +87,7 @@ class DbUserConfigRepository : UserConfigRepository {
                 )
             },
             onFailure = {
-                TraceLogger.impl().noticeThrowable(it, mapOf(), true)
+                it.printStackTrace()
                 null
             },
         )

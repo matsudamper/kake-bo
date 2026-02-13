@@ -7,7 +7,6 @@ import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.app.interfaces.MailFilterRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
-import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageAnalyticsBySubCategoryLoaderWithSubCategoryId
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
@@ -203,7 +202,7 @@ class UserResolverImpl : UserResolver {
                     ImportedMailCategoryFiltersCursor.fromString(it)
                 },
             ).onFailure {
-                TraceLogger.impl().noticeThrowable(it, mapOf(), true)
+                it.printStackTrace()
             }.getOrNull() ?: return@thenApplyAsync null
 
             result.items.forEach { item ->
@@ -300,7 +299,7 @@ class UserResolverImpl : UserResolver {
                     untilDateTimeAt = query.untilDateTime,
                 )
                 .onFailure {
-                    TraceLogger.impl().noticeThrowable(it, mapOf(), true)
+                    it.printStackTrace()
                 }.getOrNull() ?: return@supplyAsync DataFetcherResultBuilder.buildNullValue()
 
             val result = results.firstOrNull { it.categoryId == id }

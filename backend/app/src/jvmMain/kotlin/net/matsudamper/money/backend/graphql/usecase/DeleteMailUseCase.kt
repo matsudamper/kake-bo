@@ -1,7 +1,6 @@
 package net.matsudamper.money.backend.graphql.usecase
 
 import kotlinx.coroutines.runBlocking
-import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.element.UserId
@@ -34,7 +33,7 @@ class DeleteMailUseCase(
                     Result.Success
                 },
                 onFailure = {
-                    TraceLogger.impl().noticeThrowable(it, mapOf(), true)
+                    it.printStackTrace()
                     Result.Exception(it)
                 },
             )

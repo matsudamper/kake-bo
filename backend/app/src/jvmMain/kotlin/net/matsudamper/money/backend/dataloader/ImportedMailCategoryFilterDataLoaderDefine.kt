@@ -2,7 +2,6 @@ package net.matsudamper.money.backend.dataloader
 
 import java.util.concurrent.CompletableFuture
 import net.matsudamper.money.backend.app.interfaces.MailFilterRepository
-import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.UserId
@@ -28,7 +27,7 @@ class ImportedMailCategoryFilterDataLoaderDefine(
                         ).map { result ->
                             result.associateBy { it.importedMailCategoryFilterId }
                         }.onFailure {
-                            TraceLogger.impl().noticeThrowable(it, mapOf(), true)
+                            it.printStackTrace()
                         }.getOrNull() ?: return@mapNotNull null
 
                         keys.associateWith { key ->

@@ -7,7 +7,6 @@ import java.time.format.DateTimeFormatterBuilder
 import java.time.format.SignStyle
 import java.time.temporal.ChronoField
 import java.util.Locale
-import net.matsudamper.money.backend.base.TraceLogger
 
 internal object ParseUtil {
     fun getInt(value: String): Int? {
@@ -59,7 +58,7 @@ internal object ParseUtil {
                 val result = runCatching {
                     forwardedMailDateJapaneseFormatter.parse(dateRawString)
                 }.onFailure {
-                    TraceLogger.impl().noticeThrowable(it, mapOf(), true)
+                    it.printStackTrace()
                 }.getOrNull() ?: return@let null
 
                 LocalDateTime.of(

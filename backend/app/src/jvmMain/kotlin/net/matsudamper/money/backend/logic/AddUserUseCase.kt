@@ -1,7 +1,6 @@
 package net.matsudamper.money.backend.logic
 
 import net.matsudamper.money.backend.app.interfaces.AdminRepository
-import net.matsudamper.money.backend.base.TraceLogger
 
 class AddUserUseCase(
     private val adminRepository: AdminRepository,
@@ -51,7 +50,7 @@ class AddUserUseCase(
             is AdminRepository.AddUserResult.Failed -> {
                 when (val error = addUserResult.error) {
                     is AdminRepository.AddUserResult.ErrorType.InternalServerError -> {
-                        TraceLogger.impl().noticeThrowable(error.e, mapOf(), true)
+                        error.e.printStackTrace()
                         Result.Failure(errors = listOf(Result.Errors.InternalServerError))
                     }
                 }

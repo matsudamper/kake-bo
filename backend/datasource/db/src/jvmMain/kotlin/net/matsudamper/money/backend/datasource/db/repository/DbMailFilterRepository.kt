@@ -19,7 +19,6 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 import org.jooq.kotlin.and
-import net.matsudamper.money.backend.base.TraceLogger
 
 class DbMailFilterRepository(
     private val dbConnection: DbConnection,
@@ -328,7 +327,7 @@ class DbMailFilterRepository(
                 resultRowCount == 1
             }
         }.onFailure {
-            TraceLogger.impl().noticeThrowable(it, mapOf(), true)
+            it.printStackTrace()
         }.fold(
             onSuccess = { it },
             onFailure = { false },
@@ -369,7 +368,7 @@ class DbMailFilterRepository(
                 resultRowCount == 1
             }
         }.onFailure {
-            TraceLogger.impl().noticeThrowable(it, mapOf(), true)
+            it.printStackTrace()
         }.fold(
             onSuccess = { it },
             onFailure = { false },
@@ -394,7 +393,7 @@ class DbMailFilterRepository(
                 resultRowCount == 1
             }
         }.onFailure {
-            TraceLogger.impl().noticeThrowable(it, mapOf(), true)
+            it.printStackTrace()
         }.fold(
             onSuccess = { it },
             onFailure = { false },
@@ -417,7 +416,7 @@ class DbMailFilterRepository(
                     }
             }
         }.onFailure {
-            TraceLogger.impl().noticeThrowable(it, mapOf(), true)
+            it.printStackTrace()
         }.fold(
             onSuccess = { it },
             onFailure = { listOf() },
@@ -439,7 +438,7 @@ class DbMailFilterRepository(
                     }
             }
         }.onFailure {
-            TraceLogger.impl().noticeThrowable(it, mapOf(), true)
+            it.printStackTrace()
         }.fold(
             onSuccess = { it },
             onFailure = { listOf() },

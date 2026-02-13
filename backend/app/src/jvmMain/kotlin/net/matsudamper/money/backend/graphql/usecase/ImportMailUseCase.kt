@@ -5,7 +5,6 @@ import java.time.ZoneOffset
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
-import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.base.element.MailResult
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.element.MailId
@@ -73,7 +72,7 @@ class ImportMailUseCase(
                     }
                 },
                 onFailure = {
-                    TraceLogger.impl().noticeThrowable(it, mapOf(), true)
+                    it.printStackTrace()
                     Result.Failure(it)
                 },
             )

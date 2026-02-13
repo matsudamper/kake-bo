@@ -52,7 +52,6 @@ import net.matsudamper.money.backend.mail.parser.services.YahooShoppingUsageServ
 import net.matsudamper.money.backend.mail.parser.services.YodobashiUsageService
 import net.matsudamper.money.backend.mail.parser.services.YoutubeMembershipUsageServices
 import net.matsudamper.money.backend.mail.parser.services.YoutubeSuperChatUsageServices
-import net.matsudamper.money.backend.base.TraceLogger
 
 public object MailParser {
     public fun parseUsage(
@@ -124,7 +123,7 @@ public object MailParser {
                         date = date,
                     ).takeIf { it.isNotEmpty() }
                 }.onFailure {
-                    TraceLogger.impl().noticeThrowable(it, mapOf(), true)
+                    it.printStackTrace()
                 }.getOrNull()
             }
             .firstOrNull()

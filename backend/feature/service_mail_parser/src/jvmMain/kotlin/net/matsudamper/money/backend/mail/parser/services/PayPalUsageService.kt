@@ -79,7 +79,7 @@ internal object PayPalUsageService : MoneyUsageServices {
 
             if (dateLine != null) {
                 val tmp = runCatching { dateTimeFormat1.parse(dateLine) }
-                    .onFailure { TraceLogger.impl().noticeThrowable(it, mapOf(), true) }
+                    .onFailure { it.printStackTrace() }
                     .getOrNull()
                     ?: return@date null
                 LocalDateTime.from(tmp)

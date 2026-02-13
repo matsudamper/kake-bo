@@ -5,7 +5,6 @@ import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryRepository
-import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.dataloader.MoneyUsageCategoryDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
@@ -75,7 +74,7 @@ class MoneyUsageCategoryResolverImpl : MoneyUsageCategoryResolver {
                 )
             when (result) {
                 is MoneyUsageSubCategoryRepository.GetSubCategoryResult.Failed -> {
-                    TraceLogger.impl().noticeThrowable(result.e, mapOf(), true)
+                    result.e.printStackTrace()
                     null
                 }
 

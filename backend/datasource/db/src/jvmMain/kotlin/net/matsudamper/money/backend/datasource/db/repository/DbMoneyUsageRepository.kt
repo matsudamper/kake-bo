@@ -16,7 +16,6 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 import org.jooq.kotlin.and
-import net.matsudamper.money.backend.base.TraceLogger
 
 class DbMoneyUsageRepository : MoneyUsageRepository {
     private val jUsage = JMoneyUsages.MONEY_USAGES
@@ -68,7 +67,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                     .execute() == 1
             }
         }.onFailure {
-            TraceLogger.impl().noticeThrowable(it, mapOf(), true)
+            it.printStackTrace()
         }.fold(
             onSuccess = { it },
             onFailure = { false },

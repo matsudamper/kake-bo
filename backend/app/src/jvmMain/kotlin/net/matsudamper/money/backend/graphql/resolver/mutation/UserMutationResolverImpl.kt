@@ -16,7 +16,6 @@ import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.app.interfaces.UserLoginRepository
 import net.matsudamper.money.backend.base.ServerVariables
-import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.fido.Auth4JModel
 import net.matsudamper.money.backend.fido.AuthenticatorConverter
@@ -487,7 +486,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                     title = input.title,
                     orderNum = 0,
                 ).onFailure {
-                    TraceLogger.impl().noticeThrowable(it, mapOf(), true)
+                    it.printStackTrace()
                 }.getOrNull() ?: return@supplyAsync null
 
             dataLoader.prime(
