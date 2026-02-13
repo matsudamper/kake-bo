@@ -124,7 +124,9 @@ props = (
     f"systemProp.http.nonProxyHosts=localhost|127.0.0.1\n"
 )
 if jdk24_home:
+    # デーモン用JVMとtoolchain検索パスの両方を設定する
     props += f"org.gradle.java.home={jdk24_home}\n"
+    props += f"org.gradle.java.installations.paths={jdk24_home}\n"
 
 with open(os.path.join(gradle_home, 'gradle.properties'), 'w') as f:
     f.write(props)
