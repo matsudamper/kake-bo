@@ -103,7 +103,6 @@ internal object PayPalUsageService : MoneyUsageServices {
                     for (error in results.mapNotNull { it.exceptionOrNull() }) {
                         TraceLogger.impl().noticeThrowable(
                             e = error,
-                            params = mapOf(),
                             isError = true,
                         )
                     }
