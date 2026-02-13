@@ -9,7 +9,7 @@ fi
 echo "Configuring Gradle proxy settings and downloading dependencies..."
 
 python3 - <<'PYEOF'
-import os, sys, hashlib, urllib.request, urllib.parse, zipfile
+import os, sys, hashlib, urllib.request, urllib.parse, zipfile, re, subprocess, tempfile, shutil
 
 proxy_url = os.environ.get('HTTPS_PROXY', '')
 if not proxy_url:
@@ -126,7 +126,6 @@ public class ProxyAuthAgent {
 # ── Gradle デーモン JVM (JDK 21) の truststore にプロキシ CA を追加 ────────────
 # HTTPS プロキシ (TLS 検査) の CA を JDK 21 truststore に追加する
 # これがないと foojay resolver が api.foojay.io に接続できない
-import re, subprocess, tempfile
 
 java_home = os.environ.get('JAVA_HOME', '/usr/lib/jvm/java-21-openjdk-amd64')
 
@@ -235,9 +234,9 @@ if jdk24_home:
     enable_basic_auth_tunneling(jdk24_home, 'JDK 24')
     write_gradle_properties(jdk_home=jdk24_home)
 else:
-    # JDK 24 がまだない場合：まず JDK 21 で gradle.properties を書き込み、
-    # foojay にダウンロードさせるために Gradle をプライミング実行する
-    write_gradle_properties()
+    # JDK 24 がまだない場合：foojay Disco API から直接ダウンロードする
+    # build-logic が JVM 24 を要求するため、Gradle デーモン自体が JDK 24 で起動する必要がある
+    # gradlew help によるプライミングでは build-logic の構成時点で JDK 21 エラーになる
 
     # Gradle distribution の事前ダウンロード
     dist_url  = 'https://services.gradle.org/distributions/gradle-9.3.1-all.zip'
@@ -262,31 +261,65 @@ else:
         download(dist_url, zip_path, opener)
         print(f"Gradle distribution download complete: {zip_path}")
 
-    # foojay プライミング: Gradle を実行して JDK 24 のダウンロードをトリガーする
-    # build-logic の構成時に foojay が JDK 24 をダウンロードする
-    # ビルド自体は JDK 21 デーモンでは失敗するが、JDK 24 はダウンロードされる
-    project_dir = os.environ.get('CLAUDE_PROJECT_DIR', os.getcwd())
-    gradlew = os.path.join(project_dir, 'gradlew')
-    print("Priming Gradle to trigger foojay JDK 24 download...")
-    subprocess.run([gradlew, 'help'], capture_output=True, text=True, cwd=project_dir)
+    # foojay Disco API から JDK 24 を直接ダウンロード
+    # build-logic が JVM 24 を要求するため、gradlew help のプライミングでは
+    # foojay ツールチェーン解決より前にエラーになる → 直接ダウンロードが必要
+    import json, tarfile
+    jdk_install_dir = os.path.join(gradle_home, 'jdks')
+    os.makedirs(jdk_install_dir, exist_ok=True)
+
+    disco_url = (
+        'https://api.foojay.io/disco/v3.0/packages'
+        '?distro=temurin&javafx_bundled=false&libc_type=glibc'
+        '&archive_type=tar.gz&operating_system=linux&architecture=x64'
+        '&package_type=jdk&version=24&latest=overall'
+    )
+    print("Querying foojay Disco API for JDK 24 download URL...")
+    jdk_download_url = ''
+    try:
+        with opener.open(disco_url) as resp:
+            disco_data = json.loads(resp.read().decode())
+        results = disco_data.get('result', [])
+        if results:
+            pkg_id = results[0].get('id', '')
+            if pkg_id:
+                redirect_url = f'https://api.foojay.io/disco/v3.0/ids/{pkg_id}/redirect'
+                jdk_download_url = redirect_url
+                print(f"Found JDK 24 package: {results[0].get('filename', 'unknown')}")
+    except Exception as e:
+        print(f"Disco API query failed: {e}")
+
+    if jdk_download_url:
+        jdk_tar_path = os.path.join(jdk_install_dir, 'jdk24.tar.gz')
+        if not os.path.exists(jdk_tar_path):
+            download(jdk_download_url, jdk_tar_path, opener)
+        print(f"JDK 24 archive downloaded: {jdk_tar_path}")
+
+        # 展開
+        with tarfile.open(jdk_tar_path) as tf:
+            tf.extractall(path=jdk_install_dir)
+        os.unlink(jdk_tar_path)
+        print("JDK 24 extracted")
 
     # ダウンロードされた JDK 24 を探す
     jdk24_home = find_jdk24_home()
     if jdk24_home:
-        print(f"JDK 24 downloaded by foojay: {jdk24_home}")
+        print(f"JDK 24 installed: {jdk24_home}")
         import_ca_into_jdk(jdk24_home, 'JDK 24')
         enable_basic_auth_tunneling(jdk24_home, 'JDK 24')
         write_gradle_properties(jdk_home=jdk24_home)
 
         # 古いデーモン (JDK 21) を停止
+        project_dir = os.environ.get('CLAUDE_PROJECT_DIR', os.getcwd())
+        gradlew = os.path.join(project_dir, 'gradlew')
         subprocess.run([gradlew, '--stop'], capture_output=True, text=True, cwd=project_dir)
         print("Stopped old Gradle daemon (JDK 21)")
     else:
-        print("WARNING: JDK 24 was not downloaded by foojay. Build may fail.")
+        print("WARNING: JDK 24 could not be installed. Build may fail.")
+        write_gradle_properties()
 
 # ── Android SDK セットアップ ──────────────────────────────────────────────────
 # sdkmanager + Java agent でプロキシ認証を有効にしてインストール
-import shutil
 
 project_dir = os.environ.get('CLAUDE_PROJECT_DIR', os.getcwd())
 android_home = os.path.expanduser('~/android-sdk')
