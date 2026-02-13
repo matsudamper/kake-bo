@@ -28,6 +28,7 @@ import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
 import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
 import net.matsudamper.money.backend.lib.ChallengeModel
 import net.matsudamper.money.backend.logic.ApiTokenEncryptManager
+import net.matsudamper.money.backend.logic.ColorValidator
 import net.matsudamper.money.backend.logic.IPasswordManager
 import net.matsudamper.money.backend.logic.PasswordManager
 import net.matsudamper.money.element.ApiTokenId
@@ -512,6 +513,9 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
         return CompletableFuture.supplyAsync {
+            if (!ColorValidator.isValid(query.color)) {
+                throw IllegalArgumentException("category color is invalid")
+            }
             val result = context.diContainer.createMoneyUsageCategoryRepository()
                 .updateCategory(
                     userId = userId,
