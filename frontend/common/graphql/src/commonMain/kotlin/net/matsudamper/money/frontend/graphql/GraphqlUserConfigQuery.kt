@@ -1,7 +1,7 @@
 package net.matsudamper.money.frontend.graphql
 
-import com.apollographql.apollo3.api.ApolloResponse
-import com.apollographql.apollo3.api.Optional
+import com.apollographql.apollo.api.ApolloResponse
+import com.apollographql.apollo.api.Optional
 import net.matsudamper.money.frontend.graphql.type.UpdateUserImapConfigInput
 
 class GraphqlUserConfigQuery(
