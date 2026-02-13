@@ -71,6 +71,58 @@ def download(url, dest_path, opener):
 proxy_handler = urllib.request.ProxyHandler({'https': proxy_url, 'http': proxy_url})
 opener = urllib.request.build_opener(proxy_handler)
 
+# ── プロキシ認証用 Java Agent ─────────────────────────────────────────────────
+# sdkmanager 等の JVM ツールでプロキシ認証を有効にするための Java agent
+# Gradle init スクリプトの Authenticator と同じパターン
+agent_dir = os.path.join(gradle_home, 'proxy-auth-agent')
+agent_jar = os.path.join(agent_dir, 'proxy-auth-agent.jar')
+
+if not os.path.exists(agent_jar):
+    os.makedirs(agent_dir, exist_ok=True)
+    agent_java = os.path.join(agent_dir, 'ProxyAuthAgent.java')
+    with open(agent_java, 'w') as f:
+        f.write("""import java.lang.instrument.Instrumentation;
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
+
+public class ProxyAuthAgent {
+    public static void premain(String args, Instrumentation inst) {
+        String proxyUser = System.getProperty("https.proxyUser",
+                           System.getProperty("http.proxyUser", ""));
+        String proxyPass = System.getProperty("https.proxyPassword",
+                           System.getProperty("http.proxyPassword", ""));
+        if (!proxyUser.isEmpty() && !proxyPass.isEmpty()) {
+            Authenticator.setDefault(new Authenticator() {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    if (getRequestorType() == RequestorType.PROXY) {
+                        return new PasswordAuthentication(proxyUser, proxyPass.toCharArray());
+                    }
+                    return null;
+                }
+            });
+        }
+    }
+}
+""")
+    manifest_path = os.path.join(agent_dir, 'MANIFEST.MF')
+    with open(manifest_path, 'w') as f:
+        f.write('Premain-Class: ProxyAuthAgent\n')
+    java_home_tmp = os.environ.get('JAVA_HOME', '/usr/lib/jvm/java-21-openjdk-amd64')
+    javac = os.path.join(java_home_tmp, 'bin', 'javac')
+    jar_cmd = os.path.join(java_home_tmp, 'bin', 'jar')
+    r1 = subprocess.run([javac, agent_java], cwd=agent_dir, capture_output=True, text=True)
+    if r1.returncode == 0:
+        r2 = subprocess.run([jar_cmd, 'cfm', agent_jar, 'MANIFEST.MF',
+                            'ProxyAuthAgent.class', 'ProxyAuthAgent$1.class'],
+                           cwd=agent_dir, capture_output=True, text=True)
+        if r2.returncode == 0:
+            print(f"Proxy auth Java agent created: {agent_jar}")
+        else:
+            print(f"Failed to create agent JAR: {r2.stderr.strip()}")
+    else:
+        print(f"Failed to compile ProxyAuthAgent: {r1.stderr.strip()}")
+
 # ── Gradle デーモン JVM (JDK 21) の truststore にプロキシ CA を追加 ────────────
 # HTTPS プロキシ (TLS 検査) の CA を JDK 21 truststore に追加する
 # これがないと foojay resolver が api.foojay.io に接続できない
@@ -233,7 +285,7 @@ else:
         print("WARNING: JDK 24 was not downloaded by foojay. Build may fail.")
 
 # ── Android SDK セットアップ ──────────────────────────────────────────────────
-# sdkmanager はプロキシ認証に対応していないため、Python で直接ダウンロードする
+# sdkmanager + Java agent でプロキシ認証を有効にしてインストール
 import shutil
 
 project_dir = os.environ.get('CLAUDE_PROJECT_DIR', os.getcwd())
@@ -245,37 +297,57 @@ platform_dir = os.path.join(android_home, 'platforms', 'android-36')
 if os.path.isdir(platform_dir):
     print(f"Android SDK already installed: {platform_dir}")
 else:
-    base_url = 'https://dl.google.com/android/repository/'
-    # パッケージ定義: (zip名, 展開時のトップディレクトリ名, 配置先)
-    sdk_packages = [
-        ('platform-36_r02.zip', 'android-36', 'platforms/android-36'),
-        ('build-tools_r36_linux.zip', 'android-16', 'build-tools/36.0.0'),
-        ('platform-tools_r36.0.2-linux.zip', 'platform-tools', 'platform-tools'),
-    ]
     os.makedirs(android_home, exist_ok=True)
 
-    for zip_name, extracted_top, target_dir in sdk_packages:
-        dest = os.path.join(android_home, target_dir)
-        if os.path.isdir(dest):
-            print(f"Already installed: {target_dir}")
-            continue
-        url = base_url + zip_name
-        zip_path = os.path.join(android_home, zip_name)
-        download(url, zip_path, opener)
-        with zipfile.ZipFile(zip_path, 'r') as zf:
+    # cmdline-tools のダウンロード（sdkmanager 本体の取得のみ直接ダウンロード）
+    cmdline_tools_dir = os.path.join(android_home, 'cmdline-tools', 'latest')
+    sdkmanager_bin = os.path.join(cmdline_tools_dir, 'bin', 'sdkmanager')
+    if not os.path.exists(sdkmanager_bin):
+        cmdline_url = 'https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip'
+        cmdline_zip = os.path.join(android_home, 'commandlinetools.zip')
+        download(cmdline_url, cmdline_zip, opener)
+        with zipfile.ZipFile(cmdline_zip, 'r') as zf:
             zf.extractall(android_home)
-        os.unlink(zip_path)
-        extracted = os.path.join(android_home, extracted_top)
-        if os.path.isdir(extracted) and not os.path.isdir(dest):
-            os.makedirs(os.path.dirname(dest), exist_ok=True)
-            shutil.move(extracted, dest)
-        print(f"Installed: {target_dir}")
+        os.unlink(cmdline_zip)
+        # zip は cmdline-tools/ に展開される → cmdline-tools/latest/ に移動
+        extracted = os.path.join(android_home, 'cmdline-tools')
+        temp_dir = os.path.join(android_home, '_cmdline-tools-temp')
+        os.rename(extracted, temp_dir)
+        os.makedirs(extracted, exist_ok=True)
+        shutil.move(temp_dir, cmdline_tools_dir)
+        os.chmod(sdkmanager_bin, 0o755)
+        print(f"cmdline-tools installed: {cmdline_tools_dir}")
 
-# ライセンスファイル作成
-licenses_dir = os.path.join(android_home, 'licenses')
-os.makedirs(licenses_dir, exist_ok=True)
-with open(os.path.join(licenses_dir, 'android-sdk-license'), 'w') as f:
-    f.write('\n24333f8a63b6825ea9c5514f83c2829b004d1fee\n')
+    # ライセンス承認
+    licenses_dir = os.path.join(android_home, 'licenses')
+    os.makedirs(licenses_dir, exist_ok=True)
+    with open(os.path.join(licenses_dir, 'android-sdk-license'), 'w') as f:
+        f.write('\n24333f8a63b6825ea9c5514f83c2829b004d1fee\n')
+
+    # sdkmanager 実行用の環境変数（SDKMANAGER_OPTS でプロキシ認証 agent を設定）
+    sdk_env = os.environ.copy()
+    sdk_env['JAVA_HOME'] = java_home
+    agent_opt = f'-javaagent:{agent_jar} ' if os.path.exists(agent_jar) else ''
+    sdk_env['SDKMANAGER_OPTS'] = (
+        f'{agent_opt}'
+        f'-Dhttps.proxyHost={host} -Dhttps.proxyPort={port} '
+        f'-Dhttps.proxyUser={user} -Dhttps.proxyPassword={password} '
+        f'-Dhttp.proxyHost={host} -Dhttp.proxyPort={port} '
+        f'-Dhttp.proxyUser={user} -Dhttp.proxyPassword={password} '
+        f'-Djdk.http.auth.tunneling.disabledSchemes='
+    )
+
+    # sdkmanager でパッケージをインストール
+    sdk_packages = ['platforms;android-36', 'build-tools;36.0.0', 'platform-tools']
+    for pkg in sdk_packages:
+        r = subprocess.run(
+            [sdkmanager_bin, '--install', pkg, f'--sdk_root={android_home}'],
+            capture_output=True, text=True, env=sdk_env, input='y\n'
+        )
+        if r.returncode == 0:
+            print(f"Installed via sdkmanager: {pkg}")
+        else:
+            print(f"Failed to install {pkg}: {r.stderr[:500]}")
 
 # local.properties に sdk.dir を書き込む
 if os.path.isdir(android_home):
