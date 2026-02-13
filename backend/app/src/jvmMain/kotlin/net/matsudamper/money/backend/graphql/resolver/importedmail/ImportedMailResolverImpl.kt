@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
@@ -226,7 +227,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                     )
                 }
             }.onFailure {
-                it.printStackTrace()
+                TraceLogger.impl().noticeThrowable(it, mapOf(), true)
             }
 
             result.fold(

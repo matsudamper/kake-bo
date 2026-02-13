@@ -2,6 +2,7 @@ package net.matsudamper.money.backend.dataloader
 
 import java.util.concurrent.CompletableFuture
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryRepository
+import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
@@ -30,7 +31,7 @@ class MoneyUsageSubCategoryDataLoaderDefine(
 
                         when (result) {
                             is MoneyUsageSubCategoryRepository.GetSubCategoryResult.Failed -> {
-                                result.e.printStackTrace()
+                                TraceLogger.impl().noticeThrowable(result.e, mapOf(), true)
                                 null
                             }
                             is MoneyUsageSubCategoryRepository.GetSubCategoryResult.Success -> {

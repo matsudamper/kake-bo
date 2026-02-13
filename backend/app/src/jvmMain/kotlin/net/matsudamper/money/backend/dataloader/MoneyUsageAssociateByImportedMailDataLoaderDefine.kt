@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend.dataloader
 
 import java.util.concurrent.CompletableFuture
+import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageId
@@ -26,7 +27,7 @@ class MoneyUsageAssociateByImportedMailDataLoaderDefine(
                                 userId = userId,
                                 moneyUsageIdList = key.map { it.moneyUsageId },
                             ).onFailure {
-                                it.printStackTrace()
+                                TraceLogger.impl().noticeThrowable(it, mapOf(), true)
                             }.getOrNull() ?: return@supplyAsync mapOf()
 
                         result.map { (usageId, mailId) ->

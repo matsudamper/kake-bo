@@ -5,6 +5,7 @@ import java.time.ZoneOffset
 import kotlinx.serialization.Serializable
 import com.fasterxml.jackson.annotation.JsonProperty
 import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
+import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.base.element.MailResult
 import net.matsudamper.money.backend.base.mailparser.MailParser
 import net.matsudamper.money.backend.di.DiContainer
@@ -50,7 +51,7 @@ class RegisterMailHandler(
             is ImportedMailRepository.AddUserResult.Failed -> {
                 when (val error = addResult.error) {
                     is ImportedMailRepository.AddUserResult.ErrorType.InternalServerError -> {
-                        error.e.printStackTrace()
+                        TraceLogger.impl().noticeThrowable(error.e, mapOf(), true)
                     }
                 }
                 Result.InternalServerError

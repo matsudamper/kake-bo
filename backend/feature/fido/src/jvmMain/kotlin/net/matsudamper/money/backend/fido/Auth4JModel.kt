@@ -15,6 +15,7 @@ import com.webauthn4j.data.client.Origin
 import com.webauthn4j.server.ServerProperty
 import com.webauthn4j.verifier.exception.VerificationException
 import net.matsudamper.money.backend.base.ServerEnv
+import net.matsudamper.money.backend.base.TraceLogger
 
 class Auth4JModel(
     challenge: String,
@@ -116,7 +117,7 @@ class Auth4JModel(
         }.onFailure {
             when (it) {
                 is VerificationException -> Unit
-                else -> it.printStackTrace()
+                else -> TraceLogger.impl().noticeThrowable(it, mapOf(), true)
             }
         }.getOrThrow()
     }

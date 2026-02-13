@@ -9,6 +9,7 @@ import net.matsudamper.money.backend.base.element.MoneyUsageServiceType
 import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
 import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
+import net.matsudamper.money.backend.base.TraceLogger
 
 internal object NintendoProductBuyUsageServices : MoneyUsageServices {
     override val displayName: String = "任天堂"
@@ -59,7 +60,7 @@ internal object NintendoProductBuyUsageServices : MoneyUsageServices {
                     .toFormatter()
                     .parse(dateText)
             }.onFailure {
-                it.printStackTrace()
+                TraceLogger.impl().noticeThrowable(it, mapOf(), true)
             }.getOrNull() ?: return@run null
 
             LocalDateTime.from(tmp)

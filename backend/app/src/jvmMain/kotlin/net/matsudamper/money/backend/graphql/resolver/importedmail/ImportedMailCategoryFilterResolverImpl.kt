@@ -6,6 +6,7 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.app.interfaces.MailFilterRepository
 import net.matsudamper.money.backend.app.interfaces.element.ImportedMailFilterCategoryConditionOperator
+import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterConditionDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
@@ -112,7 +113,7 @@ class ImportedMailCategoryFilterResolverImpl : ImportedMailCategoryFilterResolve
                     userId = userId,
                     filterId = importedMailCategoryFilter.id,
                 ).onFailure {
-                    it.printStackTrace()
+                    TraceLogger.impl().noticeThrowable(it, mapOf(), true)
                 }.getOrNull() ?: return@thenApplyAsync null
 
             result.conditions.map { condition ->

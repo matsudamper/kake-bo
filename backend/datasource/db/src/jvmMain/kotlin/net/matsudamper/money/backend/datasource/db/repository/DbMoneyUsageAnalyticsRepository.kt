@@ -11,6 +11,7 @@ import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 import org.jooq.kotlin.and
+import net.matsudamper.money.backend.base.TraceLogger
 
 class DbMoneyUsageAnalyticsRepository(
     private val dbConnection: DbConnection,
@@ -40,7 +41,7 @@ class DbMoneyUsageAnalyticsRepository(
                 result?.get(count)!!.toLong()
             }
         }.onFailure {
-            it.printStackTrace()
+            TraceLogger.impl().noticeThrowable(it, mapOf(), true)
         }.fold(
             onSuccess = { it },
             onFailure = { null },

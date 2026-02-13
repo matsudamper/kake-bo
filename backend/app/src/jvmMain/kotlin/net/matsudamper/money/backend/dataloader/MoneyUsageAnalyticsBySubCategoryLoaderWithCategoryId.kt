@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageAnalyticsRepository
+import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.graphql.UserSessionManagerImpl
 import net.matsudamper.money.element.MoneyUsageCategoryId
@@ -45,7 +46,7 @@ internal class MoneyUsageAnalyticsBySubCategoryLoaderWithCategoryId(
                         val (key, kotlinResult) = it.await()
                         kotlinResult
                             .onFailure { e ->
-                                e.printStackTrace()
+                                TraceLogger.impl().noticeThrowable(e, mapOf(), true)
                             }
                             .getOrNull().orEmpty().map { result ->
                                 Key(

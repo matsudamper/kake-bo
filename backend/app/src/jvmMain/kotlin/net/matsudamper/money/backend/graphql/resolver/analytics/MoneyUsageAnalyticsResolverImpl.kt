@@ -4,6 +4,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.graphql.DataFetcherResultBuilder
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsByCategoryLocalContext
@@ -50,7 +51,7 @@ class MoneyUsageAnalyticsResolverImpl : MoneyUsageAnalyticsResolver {
                     untilDateTimeAt = env.localContext.query.untilDateTime,
                 )
                 .onFailure {
-                    it.printStackTrace()
+                    TraceLogger.impl().noticeThrowable(it, mapOf(), true)
                 }.getOrNull() ?: return@supplyAsync DataFetcherResultBuilder.buildNullValue()
 
             DataFetcherResultBuilder.nullable(

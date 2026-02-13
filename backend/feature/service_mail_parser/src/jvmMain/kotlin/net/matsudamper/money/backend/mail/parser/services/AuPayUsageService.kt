@@ -9,6 +9,7 @@ import net.matsudamper.money.backend.base.element.MoneyUsageServiceType
 import net.matsudamper.money.backend.mail.parser.MoneyUsage
 import net.matsudamper.money.backend.mail.parser.MoneyUsageServices
 import net.matsudamper.money.backend.mail.parser.lib.ParseUtil
+import net.matsudamper.money.backend.base.TraceLogger
 
 internal object AuPayUsageService : MoneyUsageServices {
     override val displayName: String = "au PAY"
@@ -63,7 +64,7 @@ internal object AuPayUsageService : MoneyUsageServices {
                     .toFormatter()
                     .parse(dateString.trim())
             }.onFailure {
-                it.printStackTrace()
+                TraceLogger.impl().noticeThrowable(it, mapOf(), true)
             }.getOrNull()
             LocalDateTime.from(temp)
         }
