@@ -33,7 +33,8 @@ internal class RedisUserSessionRepository(
                 val sessionData = try {
                     ObjectMapper.kotlinxSerialization.decodeFromString<SessionData>(jsonData)
                 } catch (e: Throwable) {
-                    TraceLogger.impl().noticeThrowable(e, mapOf("jsonData" to jsonData), true)
+                    TraceLogger.impl().noticeThrowable(e, true)
+                    TraceLogger.impl().setAttribute("jsonData", jsonData)
                     null
                 }
 
@@ -95,7 +96,8 @@ internal class RedisUserSessionRepository(
             val sessionData = try {
                 ObjectMapper.kotlinxSerialization.decodeFromString<SessionData>(jsonData)
             } catch (e: Throwable) {
-                TraceLogger.impl().noticeThrowable(e, mapOf("jsonData" to jsonData), true)
+                TraceLogger.impl().noticeThrowable(e, true)
+                TraceLogger.impl().setAttribute("jsonData", jsonData)
                 return@useJedis UserSessionRepository.VerifySessionResult.Failure
             }
 
@@ -126,7 +128,8 @@ internal class RedisUserSessionRepository(
             val sessionData = try {
                 ObjectMapper.kotlinxSerialization.decodeFromString<SessionData>(jsonData)
             } catch (e: Throwable) {
-                TraceLogger.impl().noticeThrowable(e, mapOf("jsonData" to jsonData), true)
+                TraceLogger.impl().noticeThrowable(e, true)
+                TraceLogger.impl().setAttribute("jsonData", jsonData)
                 return@useJedis null
             }
 
@@ -152,7 +155,8 @@ internal class RedisUserSessionRepository(
                 val sessionData = try {
                     ObjectMapper.kotlinxSerialization.decodeFromString<SessionData>(jsonData)
                 } catch (e: Throwable) {
-                    TraceLogger.impl().noticeThrowable(e, mapOf("jsonData" to jsonData), true)
+                    TraceLogger.impl().noticeThrowable(e, true)
+                    TraceLogger.impl().setAttribute("jsonData", jsonData)
                     return@mapNotNull null
                 }
 
@@ -195,7 +199,8 @@ internal class RedisUserSessionRepository(
             val sessionData = try {
                 ObjectMapper.kotlinxSerialization.decodeFromString<SessionData>(jsonData)
             } catch (e: Throwable) {
-                TraceLogger.impl().noticeThrowable(e, mapOf("jsonData" to jsonData), true)
+                TraceLogger.impl().noticeThrowable(e, true)
+                TraceLogger.impl().setAttribute("jsonData", jsonData)
                 return@useJedis null
             }
 
@@ -204,7 +209,8 @@ internal class RedisUserSessionRepository(
             val latestAccess = try {
                 LocalDateTime.parse(sessionData.latestAccess)
             } catch (e: Throwable) {
-                TraceLogger.impl().noticeThrowable(e, mapOf("latestAccess" to sessionData.latestAccess), true)
+                TraceLogger.impl().noticeThrowable(e, true)
+                TraceLogger.impl().setAttribute("latestAccess", sessionData.latestAccess)
                 LocalDateTime.now(ZoneOffset.UTC)
             }
 

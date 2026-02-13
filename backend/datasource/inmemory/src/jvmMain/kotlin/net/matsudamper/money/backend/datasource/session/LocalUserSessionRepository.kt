@@ -69,7 +69,8 @@ internal class LocalUserSessionRepository : UserSessionRepository {
         val latestAccess = try {
             LocalDateTime.parse(sessionData.latestAccess)
         } catch (e: Throwable) {
-            TraceLogger.impl().noticeThrowable(e, mapOf("jsonData" to sessionData), true)
+            TraceLogger.impl().noticeThrowable(e, true)
+            TraceLogger.impl().setAttribute("jsonData", sessionData.toString())
             LocalDateTime.now(ZoneOffset.UTC)
         }
         return UserSessionRepository.SessionInfo(
@@ -86,7 +87,8 @@ internal class LocalUserSessionRepository : UserSessionRepository {
                 val latestAccess = try {
                     LocalDateTime.parse(data.latestAccess)
                 } catch (e: Throwable) {
-                    TraceLogger.impl().noticeThrowable(e, mapOf("latestAccess" to data.latestAccess), true)
+                    TraceLogger.impl().noticeThrowable(e, true)
+                    TraceLogger.impl().setAttribute("latestAccess", data.latestAccess)
                     LocalDateTime.now(ZoneOffset.UTC)
                 }
                 UserSessionRepository.SessionInfo(
@@ -131,7 +133,8 @@ internal class LocalUserSessionRepository : UserSessionRepository {
         val latestAccess = try {
             LocalDateTime.parse(updatedSessionData.latestAccess)
         } catch (e: Throwable) {
-            TraceLogger.impl().noticeThrowable(e, mapOf("latestAccess" to updatedSessionData.latestAccess), true)
+            TraceLogger.impl().noticeThrowable(e, true)
+            TraceLogger.impl().setAttribute("latestAccess", updatedSessionData.latestAccess)
             LocalDateTime.now(ZoneOffset.UTC)
         }
 

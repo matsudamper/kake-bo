@@ -34,6 +34,7 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import net.matsudamper.money.backend.base.ObjectMapper
 import net.matsudamper.money.backend.base.ServerEnv
+import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.di.MainDiContainer
 import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
 import org.slf4j.event.Level
@@ -93,6 +94,13 @@ fun Application.myApplicationModule() {
         }
     }
     install(StatusPages) {
+        exception<Throwable> { call, cause ->
+            TraceLogger.impl().noticeThrowable(cause, isError = true)
+            call.respondText(
+                status = HttpStatusCode.InternalServerError,
+                text = HttpStatusCode.InternalServerError.description,
+            )
+        }
         status(HttpStatusCode.NotFound) { call, _ ->
             call.respondFile(File(ServerEnv.htmlPath))
         }
