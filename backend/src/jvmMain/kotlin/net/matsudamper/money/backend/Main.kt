@@ -95,7 +95,7 @@ fun Application.myApplicationModule() {
     }
     install(StatusPages) {
         exception<Throwable> { call, cause ->
-            TraceLogger.impl().noticeThrowable(cause, mapOf(), isError = true)
+            TraceLogger.impl().noticeThrowable(cause, isError = true)
             call.respondText(
                 status = HttpStatusCode.InternalServerError,
                 text = HttpStatusCode.InternalServerError.description,

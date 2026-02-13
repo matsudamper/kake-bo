@@ -4,8 +4,8 @@ import io.opentelemetry.api.trace.Span
 import io.opentelemetry.api.trace.StatusCode
 
 public interface TraceLogger {
-    public fun noticeThrowable(e: Throwable, params: Map<String, Any>, isError: Boolean)
-    public fun setTag(key: String, value: String)
+    public fun noticeThrowable(e: Throwable, isError: Boolean)
+    public fun setAttribute(key: String, value: String)
     public fun noticeInfo(message: Any)
 
     public companion object {
@@ -17,10 +17,7 @@ public interface TraceLogger {
 
 internal class OpenTracerRepository : TraceLogger {
     private val span: Span get() = Span.current()
-    override fun noticeThrowable(e: Throwable, params: Map<String, Any>, isError: Boolean) {
-        for ((key, value) in params) {
-            span.setAttribute(key, value.toString())
-        }
+    override fun noticeThrowable(e: Throwable, isError: Boolean) {
         if (isError) {
             span.setStatus(StatusCode.ERROR)
         }
@@ -35,7 +32,7 @@ internal class OpenTracerRepository : TraceLogger {
         )
     }
 
-    override fun setTag(key: String, value: String) {
+    override fun setAttribute(key: String, value: String) {
         span.setAttribute(key, value)
     }
 }
