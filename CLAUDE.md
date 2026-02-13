@@ -89,9 +89,10 @@ https://github.com/anthropics/claude-code/issues/13372
 ## ビルド
 
 コードを編集した後は必ず以下を実行してエラーを確認してください。
+`CI=true` はリリース署名設定がない環境（Claude Code Web等）でAndroidビルドを通すために必要です。
 
 ```sh
-./gradlew :backend:assemble :frontend:app:jsBrowserDevelopmentWebpack :frontend:app:assembleDebug
+CI=true ./gradlew :backend:assemble :frontend:app:jsBrowserDevelopmentWebpack :frontend:app:assembleDebug
 ```
 
 ## フォーマット
@@ -127,7 +128,7 @@ GitHub Actionsで自動ビルド・テスト（`.github/workflows/`）:
 ### Frontend - Android App
 
 ```shell
-./gradlew :frontend:app:assembleDebug
+CI=true ./gradlew :frontend:app:assembleDebug
 ```
 
 ### Frontend - JS
