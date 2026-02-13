@@ -10,6 +10,12 @@ data class GraphQlRequest(
 ) {
     data class Extensions(
         @param:JsonProperty("persistedQuery") val persistedQuery: PersistedQuery? = null,
+        @param:JsonProperty("clientLibrary") val clientLibrary: ClientLibrary? = null,
+    )
+
+    data class ClientLibrary(
+        @param:JsonProperty("name") val name: String,
+        @param:JsonProperty("version") val version: String,
     )
 
     data class PersistedQuery(
