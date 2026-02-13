@@ -24,6 +24,8 @@ import io.ktor.server.plugins.forwardedheaders.ForwardedHeaders
 import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.request.path
+import net.matsudamper.money.backend.base.TraceLogger
+import org.slf4j.LoggerFactory
 import io.ktor.server.request.receiveStream
 import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondText
@@ -93,6 +95,15 @@ fun Application.myApplicationModule() {
         }
     }
     install(StatusPages) {
+        exception<Throwable> { call, cause ->
+            val logger = LoggerFactory.getLogger("net.matsudamper.money.backend.StatusPages")
+            logger.error("Unhandled exception", cause)
+            TraceLogger.impl().noticeThrowable(cause, mapOf(), true)
+            call.respondText(
+                status = HttpStatusCode.InternalServerError,
+                text = HttpStatusCode.InternalServerError.value.toString(),
+            )
+        }
         status(HttpStatusCode.NotFound) { call, _ ->
             call.respondFile(File(ServerEnv.htmlPath))
         }
