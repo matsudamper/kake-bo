@@ -12,10 +12,12 @@ import com.apollographql.apollo.api.http.get
 import com.apollographql.apollo.interceptor.ApolloInterceptor
 import com.apollographql.apollo.interceptor.ApolloInterceptorChain
 import com.apollographql.apollo.network.http.HttpInfo
+import com.apollographql.apollo.network.http.LoggingInterceptor
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.feature.localstore.DataStores
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModelAndroidImpl
+import net.matsudamper.money.frontend.graphql.BuildConfig
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.GraphqlClientImpl
 import net.matsudamper.money.frontend.graphql.ServerHostConfig
@@ -43,6 +45,11 @@ internal actual val factory: Factory = object : Factory() {
 
         return GraphqlClientImpl(
             serverUrl = initialServerUrl,
+            httpInterceptors = listOfNotNull(
+                LoggingInterceptor(LoggingInterceptor.Level.BODY) { line ->
+                    Logger.i("GraphqlHttp", line)
+                }.takeIf { BuildConfig.DEBUG },
+            ),
             interceptors = listOf(
                 object : ApolloInterceptor {
                     override fun <D : Operation.Data> intercept(
