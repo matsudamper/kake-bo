@@ -63,6 +63,9 @@ public fun ColorPickerDialog(
     }
 
     val hexString = remember(hsvState) { hsvState.toHexString() }
+    val isHexInputValid = remember(hexInput) {
+        hexInput.isEmpty() || isValidHexColor(hexInput)
+    }
 
     Dialog(onDismissRequest = onDismiss) {
         Card(
@@ -141,6 +144,15 @@ public fun ColorPickerDialog(
                         label = "HEX",
                         prefix = { Text("#") },
                         modifier = Modifier.weight(1f),
+                        isError = isHexInputValid.not(),
+                        supportingText = {
+                            if (isHexInputValid.not()) {
+                                Text(
+                                    text = "6桁の16進数で入力してください",
+                                    color = MaterialTheme.colorScheme.error,
+                                )
+                            }
+                        },
                     )
                 }
 
@@ -195,6 +207,7 @@ public fun ColorPickerDialog(
                         onClick = {
                             onColorSelected(hexString)
                         },
+                        enabled = isHexInputValid,
                     ) {
                         Text("決定")
                     }

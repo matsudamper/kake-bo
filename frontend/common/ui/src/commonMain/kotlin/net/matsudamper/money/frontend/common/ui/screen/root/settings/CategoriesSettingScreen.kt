@@ -37,6 +37,7 @@ import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
+import net.matsudamper.money.frontend.common.ui.layout.colorpicker.isValidHexColor
 import net.matsudamper.money.frontend.common.ui.layout.colorpicker.parseHexColor
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
@@ -168,7 +169,7 @@ public fun MainContent(
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     val color = item.color
-                                    if (color != null) {
+                                    if (color != null && isValidHexColor(color)) {
                                         Box(
                                             modifier = Modifier
                                                 .size(16.dp)

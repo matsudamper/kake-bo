@@ -11,6 +11,10 @@ internal data class HsvColor(
     val value: Float,
 )
 
+internal fun Int.toHex2(): String {
+    return toString(16).uppercase().padStart(2, '0')
+}
+
 internal fun HsvColor.toColor(): Color {
     val c = value * saturation
     val x = c * (1f - abs((hue / 60f) % 2f - 1f))
@@ -37,17 +41,22 @@ internal fun HsvColor.toHexString(): String {
     val r = (color.red * 255).toInt().coerceIn(0, 255)
     val g = (color.green * 255).toInt().coerceIn(0, 255)
     val b = (color.blue * 255).toInt().coerceIn(0, 255)
-    return "#%02X%02X%02X".format(r, g, b)
+    return "#${r.toHex2()}${g.toHex2()}${b.toHex2()}"
 }
 
 public fun parseHexColor(hex: String): Color {
     val colorString = hex.removePrefix("#")
+    if (colorString.length != 6) return Color.Gray
     val colorLong = colorString.toLongOrNull(16) ?: return Color.Gray
     return Color(
         red = ((colorLong shr 16) and 0xFF).toInt(),
         green = ((colorLong shr 8) and 0xFF).toInt(),
         blue = (colorLong and 0xFF).toInt(),
     )
+}
+
+public fun isValidHexColor(hex: String): Boolean {
+    return hsvFromHex(hex) != null
 }
 
 internal fun hsvFromColor(color: Color): HsvColor {
