@@ -55,6 +55,7 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.layout.colorpicker.ColorPickerDialog
+import net.matsudamper.money.frontend.common.ui.layout.colorpicker.isValidHexColor
 import net.matsudamper.money.frontend.common.ui.layout.colorpicker.parseHexColor
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
@@ -273,7 +274,7 @@ private fun LoadedContent(
                     onClickChangeColorButton = {
                         uiState.event.onClickChangeColor()
                     },
-                    oonClickSubCategoryButton = {
+                    onClickSubCategoryButton = {
                         uiState.event.onClickAddSubCategoryButton()
                     },
                 )
@@ -376,7 +377,7 @@ private fun HeaderSection(
     categoryColor: String?,
     onClickChangeCategoryNameButton: () -> Unit,
     onClickChangeColorButton: () -> Unit,
-    oonClickSubCategoryButton: () -> Unit,
+    onClickSubCategoryButton: () -> Unit,
 ) {
     Row(
         modifier = modifier,
@@ -385,7 +386,7 @@ private fun HeaderSection(
         FlowRow(
             verticalArrangement = Arrangement.Center,
         ) {
-            if (categoryColor != null) {
+            if (categoryColor != null && isValidHexColor(categoryColor)) {
                 Box(
                     modifier = Modifier
                         .padding(end = 8.dp)
@@ -416,7 +417,7 @@ private fun HeaderSection(
                 Spacer(modifier = Modifier.width(12.dp))
                 OutlinedButton(
                     modifier = Modifier,
-                    onClick = { oonClickSubCategoryButton() },
+                    onClick = { onClickSubCategoryButton() },
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null)
                     Text(text = "サブカテゴリーを追加")

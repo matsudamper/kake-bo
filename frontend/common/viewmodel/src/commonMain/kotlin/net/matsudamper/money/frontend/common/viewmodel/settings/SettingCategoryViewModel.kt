@@ -13,6 +13,7 @@ import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmu
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
+import net.matsudamper.money.frontend.common.ui.layout.colorpicker.isValidHexColor
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingCategoryScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -134,10 +135,18 @@ public class SettingCategoryViewModel(
 
                 override fun onColorSelected(hexColor: String) {
                     viewModelScope.launch {
+                        val normalizedHexColor = normalizeHexColor(hexColor)
+                        if (normalizedHexColor == null) {
+                            globalEventSender.send {
+                                it.showNativeNotification("色コードの形式が正しくありません")
+                            }
+                            return@launch
+                        }
+
                         val result = api.updateCategory(
                             id = categoryId,
                             name = Optional.absent(),
-                            color = Optional.present(hexColor),
+                            color = Optional.present(normalizedHexColor),
                         )?.data?.userMutation?.updateCategory
                         if (result == null) {
                             launch {
@@ -334,6 +343,11 @@ public class SettingCategoryViewModel(
                 }
             },
         )
+    }
+
+    private fun normalizeHexColor(hexColor: String): String? {
+        val normalized = "#" + hexColor.removePrefix("#").uppercase()
+        return normalized.takeIf { isValidHexColor(it) }
     }
 
     private fun fetchCategoryInfo() {
