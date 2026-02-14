@@ -5,7 +5,6 @@ import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.withTimeout
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
@@ -30,7 +29,6 @@ import io.ktor.server.request.receiveStream
 import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.accept
-import io.ktor.server.routing.contentType
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
@@ -38,7 +36,12 @@ import net.matsudamper.money.backend.base.ObjectMapper
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.di.MainDiContainer
+import net.matsudamper.money.backend.feature.session.KtorCookieManager
+import net.matsudamper.money.backend.feature.session.SessionAuthService
 import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
+import net.matsudamper.money.backend.image.ImageUploadConfig
+import net.matsudamper.money.backend.image.getImage
+import net.matsudamper.money.backend.image.postImage
 import org.slf4j.event.Level
 
 class Main {
@@ -66,6 +69,9 @@ class Main {
 }
 
 fun Application.myApplicationModule() {
+    val diContainer = MainDiContainer()
+    val sessionAuthService = SessionAuthService(diContainer = diContainer)
+
     install(ForwardedHeaders)
     install(XForwardedHeaders)
     install(Compression)
@@ -123,8 +129,8 @@ fun Application.myApplicationModule() {
                 ) {
                     return@respondText withTimeout(5.seconds) {
                         GraphqlHandler(
-                            cookieManager = CookieManagerImpl(call = call),
-                            diContainer = MainDiContainer(),
+                            cookieManager = KtorCookieManager(call = call),
+                            diContainer = diContainer,
                         ).handle(
                             requestText = call.receiveStream().bufferedReader().readText(),
                         )
@@ -135,7 +141,7 @@ fun Application.myApplicationModule() {
                 val apiKey = call.request.headers["Authorization"]
                 withTimeout(5.seconds) {
                     val result = RegisterMailHandler(
-                        diContainer = MainDiContainer(),
+                        diContainer = diContainer,
                     ).handle(
                         request = request,
                         apiKey = apiKey,
@@ -167,6 +173,23 @@ fun Application.myApplicationModule() {
                 }
             }
         }
+        postImage(
+            sessionAuthService = sessionAuthService,
+            userImageRepository = diContainer.createUserImageRepository(),
+            config = ImageUploadConfig(
+                storageDirectory = File(ServerEnv.imageStoragePath),
+                maxUploadBytes = ServerEnv.imageUploadMaxBytes,
+            ),
+        )
+        getImage(
+            sessionAuthService = sessionAuthService,
+            userImageRepository = diContainer.createUserImageRepository(),
+            imageUploadConfig = ImageUploadConfig(
+                storageDirectory = File(ServerEnv.imageStoragePath),
+                maxUploadBytes = ServerEnv.imageUploadMaxBytes,
+            ),
+        )
+
         get("/.well-known/assetlinks.json") {
             call.respondText(
                 contentType = ContentType.Application.Json,
@@ -234,14 +257,4 @@ private fun getAssetLinkJson(): String {
           }
         ]
     """.trimIndent()
-}
-
-private fun File.allFiles(): List<File> {
-    return if (isDirectory) {
-        listFiles().orEmpty().map {
-            it.allFiles()
-        }.flatten()
-    } else {
-        listOf(this)
-    }
 }

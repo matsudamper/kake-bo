@@ -1,0 +1,149 @@
+package net.matsudamper.money.backend.image
+
+import kotlinx.serialization.json.Json
+import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.PartData
+import io.ktor.server.application.ApplicationCall
+import io.ktor.server.request.receiveMultipart
+import io.ktor.server.response.respondText
+import io.ktor.server.routing.Route
+import io.ktor.server.routing.post
+import io.ktor.utils.io.jvm.javaio.toInputStream
+import net.matsudamper.money.backend.app.interfaces.UserImageRepository
+import net.matsudamper.money.backend.base.CookieManager
+import net.matsudamper.money.backend.di.DiContainer
+import net.matsudamper.money.backend.feature.image.ImageUploadHandler
+import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
+
+internal fun Route.postImage(
+    cookieManager: CookieManager,
+    diContainer: DiContainer,
+    userImageRepository: UserImageRepository,
+    config: ImageUploadConfig,
+    imageUploadHandler: ImageUploadHandler = ImageUploadHandler(),
+) {
+    post("/api/image/upload/v1") {
+        val userId = UserSessionManagerImpl(
+            cookieManager = cookieManager,
+            userSessionRepository = diContainer.createUserSessionRepository(),
+        ).verifyUserSession()
+        if (userId == null) {
+            call.respondApiError(
+                status = HttpStatusCode.Unauthorized,
+                message = "Unauthorized",
+            )
+            return@post
+        }
+
+        val multipart = call.receiveMultipart()
+
+
+        var result: ImageUploadHandler.Result? = null
+        while (true) {
+            val part = multipart.readPart() ?: break
+            if (part !is PartData.FileItem) {
+                part.dispose()
+                continue
+            }
+            if (result != null) {
+                part.dispose()
+                while (true) {
+                    multipart.readPart()?.dispose() ?: break
+                }
+                call.respondApiError(
+                    status = HttpStatusCode.BadRequest,
+                    message = HttpStatusCode.BadRequest.description,
+                )
+                return@post
+            }
+            result = part.provider().toInputStream().use { inputStream ->
+                imageUploadHandler.handle(
+                    request = ImageUploadHandler.Request(
+                        userId = userId,
+                        userImageRepository = userImageRepository,
+                        storageDirectory = config.storageDirectory,
+                        maxUploadBytes = config.maxUploadBytes,
+                        contentType = part.contentType?.withoutParameters()?.toString(),
+                        inputStream = inputStream,
+                    ),
+                )
+            }
+            part.dispose()
+        }
+
+        when (val uploadResult = result) {
+            null -> {
+                call.respondApiError(
+                    status = HttpStatusCode.BadRequest,
+                    message = "NoFile",
+                )
+            }
+
+            is ImageUploadHandler.Result.BadRequest -> {
+                call.respondApiError(
+                    status = HttpStatusCode.BadRequest,
+                    message = uploadResult.message,
+                )
+            }
+
+            ImageUploadHandler.Result.Unauthorized -> {
+                call.respondApiError(
+                    status = HttpStatusCode.Unauthorized,
+                    message = "Unauthorized",
+                )
+            }
+
+            ImageUploadHandler.Result.InternalServerError -> {
+                call.respondApiError(
+                    status = HttpStatusCode.InternalServerError,
+                    message = "InternalServerError",
+                )
+            }
+
+            ImageUploadHandler.Result.PayloadTooLarge -> {
+                call.respondApiError(
+                    status = HttpStatusCode.PayloadTooLarge,
+                    message = "FileTooLarge",
+                )
+            }
+
+            is ImageUploadHandler.Result.Success -> {
+                call.respondText(
+                    status = HttpStatusCode.Created,
+                    contentType = ContentType.Application.Json,
+                    text = Json.encodeToString(
+                        ImageUploadImageResponse(
+                            success = ImageUploadImageResponse.Success(
+                                hash = uploadResult.imageHash,
+                                url = "/api/image/v1/${uploadResult.imageHash}",
+                            ),
+                        ),
+                    ),
+                )
+            }
+
+            ImageUploadHandler.Result.UnsupportedMediaType -> {
+                call.respondApiError(
+                    status = HttpStatusCode.UnsupportedMediaType,
+                    message = "UnsupportedMediaType",
+                )
+            }
+        }
+    }
+}
+
+private suspend fun ApplicationCall.respondApiError(
+    status: HttpStatusCode,
+    message: String,
+) {
+    respondText(
+        status = status,
+        contentType = ContentType.Application.Json,
+        text = Json.encodeToString(
+            ImageUploadImageResponse(
+                error = mapOf("message" to message),
+            ),
+        ),
+    )
+}

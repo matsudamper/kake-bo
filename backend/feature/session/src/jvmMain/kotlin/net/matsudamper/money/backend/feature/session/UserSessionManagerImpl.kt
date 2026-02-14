@@ -1,4 +1,4 @@
-package net.matsudamper.money.backend.graphql
+package net.matsudamper.money.backend.feature.session
 
 import java.time.ZoneOffset
 import net.matsudamper.money.backend.app.interfaces.UserSessionRepository
@@ -7,21 +7,16 @@ import net.matsudamper.money.backend.base.CookieManager
 import net.matsudamper.money.backend.base.ServerVariables
 import net.matsudamper.money.element.UserId
 
-internal class UserSessionManagerImpl(
+class UserSessionManagerImpl(
     private val cookieManager: CookieManager,
     private val userSessionRepository: UserSessionRepository,
 ) {
     private var verifyUserSessionResult: UserSessionRepository.VerifySessionResult? = null
 
-    fun verifyUserSession(): UserId {
+    fun verifyUserSession(): UserId? {
         return when (val info = getSessionInfo()) {
-            is UserSessionRepository.VerifySessionResult.Failure -> {
-                throw GraphqlMoneyException.SessionNotVerify()
-            }
-
-            is UserSessionRepository.VerifySessionResult.Success -> {
-                info.userId
-            }
+            is UserSessionRepository.VerifySessionResult.Failure -> null
+            is UserSessionRepository.VerifySessionResult.Success -> info.userId
         }
     }
 
@@ -59,9 +54,6 @@ internal class UserSessionManagerImpl(
         }
     }
 
-    /**
-     * @return isSuccess
-     */
     fun clearUserSession() {
         val sessionId = cookieManager.getUserSessionId()
         if (sessionId == null) {

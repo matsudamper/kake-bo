@@ -6,7 +6,8 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageAnalyticsRepository
 import net.matsudamper.money.backend.di.DiContainer
-import net.matsudamper.money.backend.graphql.UserSessionManagerImpl
+import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
+import net.matsudamper.money.backend.graphql.GraphqlMoneyException
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
@@ -22,7 +23,7 @@ internal class MoneyUsageAnalyticsBySubCategoryLoaderWithSubCategoryId(
             CompletableFuture.supplyAsync {
                 runBlocking {
                     val repository = repositoryFactory.createMoneyUsageAnalyticsRepository()
-                    val userId = userSessionManager.verifyUserSession()
+                    val userId = userSessionManager.verifyUserSession() ?: throw GraphqlMoneyException.SessionNotVerify()
 
                     val results = keys.groupBy {
                         GroupKey(
