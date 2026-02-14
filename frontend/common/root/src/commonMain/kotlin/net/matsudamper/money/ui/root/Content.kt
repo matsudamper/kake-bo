@@ -340,6 +340,15 @@ public fun Content(
                                         windowInsets = paddingValues.value,
                                     )
                                 }
+
+                                addEntryProvider<ScreenStructure.CalendarDateList> { current ->
+                                    CalendarDateListScreenContainer(
+                                        screen = current,
+                                        viewModelEventHandlers = viewModelEventHandlers,
+                                        kakeboScaffoldListener = kakeboScaffoldListener,
+                                        windowInsets = paddingValues.value,
+                                    )
+                                }
                             },
                         )
                     }

@@ -77,6 +77,11 @@ public enum class Screens : Direction {
         override val placeholderUrl: String = "/usage/calendar"
     },
 
+    CalendarDateList {
+        override val title: String = "日付別一覧"
+        override val placeholderUrl: String = "/usage/calendar/date"
+    },
+
     NotFound {
         override val title: String = "404"
         override val placeholderUrl: String = "/status/404"

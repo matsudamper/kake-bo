@@ -168,6 +168,21 @@ public class MoneyUsagesCalendarViewModel(
                                     RootUsageCalendarScreenUiState.CalendarCell.Day(
                                         text = "${localDate.dayOfMonth}日",
                                         isToday = localDate == viewModelState.today,
+                                        event = object : RootUsageCalendarScreenUiState.DayCellEvent {
+                                            override fun onClick() {
+                                                viewModelScope.launch {
+                                                    viewModelEventSender.send {
+                                                        it.navigate(
+                                                            ScreenStructure.CalendarDateList(
+                                                                year = localDate.year,
+                                                                month = localDate.monthNumber,
+                                                                day = localDate.dayOfMonth,
+                                                            ),
+                                                        )
+                                                    }
+                                                }
+                                            }
+                                        },
                                         items = days.map { day ->
                                             val subCategory = day.moneyUsageSubCategory
                                             val color = if (subCategory != null) {
