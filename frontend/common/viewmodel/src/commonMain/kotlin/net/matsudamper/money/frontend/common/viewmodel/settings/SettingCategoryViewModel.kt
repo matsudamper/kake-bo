@@ -69,17 +69,9 @@ public class SettingCategoryViewModel(
 
                 override fun subCategoryNameInputCompleted(text: String) {
                     viewModelScope.launch {
-                        val normalizedText = normalizeName(text)
-                        if (normalizedText == null) {
-                            globalEventSender.send {
-                                it.showNativeNotification("サブカテゴリー名を入力してください")
-                            }
-                            return@launch
-                        }
-
                         val result = api.addSubCategory(
                             categoryId = categoryId,
-                            name = normalizedText,
+                            name = text,
                         )?.data?.userMutation?.addSubCategory?.subCategory
 
                         if (result == null) {
@@ -229,17 +221,9 @@ public class SettingCategoryViewModel(
 
         override fun onTextInputCompleted(text: String) {
             viewModelScope.launch {
-                val normalizedText = normalizeName(text)
-                if (normalizedText == null) {
-                    globalEventSender.send {
-                        it.showNativeNotification("カテゴリ名を入力してください")
-                    }
-                    return@launch
-                }
-
                 val result = api.updateCategory(
                     id = categoryId,
-                    name = Optional.present(normalizedText),
+                    name = Optional.present(text),
                     color = Optional.absent(),
                 )?.data?.userMutation?.updateCategory
                 if (result == null) {
@@ -327,17 +311,9 @@ public class SettingCategoryViewModel(
 
                         override fun onTextInputCompleted(text: String) {
                             viewModelScope.launch {
-                                val normalizedText = normalizeName(text)
-                                if (normalizedText == null) {
-                                    globalEventSender.send {
-                                        it.showNativeNotification("サブカテゴリ名を入力してください")
-                                    }
-                                    return@launch
-                                }
-
                                 val result = api.updateSubCategory(
                                     id = item.id,
-                                    name = normalizedText,
+                                    name = text,
                                 )?.data?.userMutation?.updateSubCategory
                                 if (result == null) {
                                     launch {
@@ -372,11 +348,6 @@ public class SettingCategoryViewModel(
     private fun normalizeHexColor(hexColor: String): String? {
         val normalized = "#" + hexColor.removePrefix("#").uppercase()
         return normalized.takeIf { isValidHexColor(it) }
-    }
-
-    private fun normalizeName(text: String): String? {
-        val normalized = text.trim()
-        return normalized.takeIf { it.isNotEmpty() }
     }
 
     private fun fetchCategoryInfo() {

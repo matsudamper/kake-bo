@@ -64,15 +64,7 @@ public class SettingCategoriesViewModel(
 
                 override fun categoryInputCompleted(text: String) {
                     viewModelScope.launch {
-                        val normalizedText = normalizeName(text)
-                        if (normalizedText == null) {
-                            globalEventSender.send {
-                                it.showNativeNotification("カテゴリー名を入力してください")
-                            }
-                            return@launch
-                        }
-
-                        val result = api.addCategory(normalizedText)?.data?.userMutation?.addCategory?.category
+                        val result = api.addCategory(text)?.data?.userMutation?.addCategory?.category
                         if (result == null) {
                             globalEventSender.send {
                                 it.showNativeNotification("追加に失敗しました")
@@ -143,11 +135,6 @@ public class SettingCategoriesViewModel(
 
     init {
         initialFetch()
-    }
-
-    private fun normalizeName(text: String): String? {
-        val normalized = text.trim()
-        return normalized.takeIf { it.isNotEmpty() }
     }
 
     private fun initialFetch() {
