@@ -93,6 +93,11 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
                 queryParams = queryParams,
             )
 
+        Screens.CalendarDateList ->
+            ScreenStructure.CalendarDateList.fromQueryParams(
+                queryParams = queryParams,
+            ) ?: ScreenStructure.NotFound
+
         Screens.Login -> ScreenStructure.Login
         Screens.Admin -> ScreenStructure.Admin
         Screens.MailImport -> ScreenStructure.Root.Add.Import

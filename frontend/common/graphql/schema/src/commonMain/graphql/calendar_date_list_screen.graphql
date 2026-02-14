@@ -1,0 +1,22 @@
+query CalendarDateListScreenPaging($query: MoneyUsagesQuery!) {
+    user {
+        moneyUsages(query: $query) {
+            cursor
+            hasMore
+            nodes {
+                id
+                amount
+                date
+                title
+                moneyUsageSubCategory {
+                    id
+                    name
+                    category {
+                        id
+                        name
+                    }
+                }
+            }
+        }
+    }
+}

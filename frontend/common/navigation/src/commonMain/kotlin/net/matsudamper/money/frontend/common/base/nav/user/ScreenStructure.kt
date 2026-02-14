@@ -182,6 +182,44 @@ public sealed interface ScreenStructure : IScreenStructure {
     }
 
     @Serializable
+    public data class CalendarDateList(
+        val year: Int,
+        val month: Int,
+        val day: Int,
+    ) : ScreenStructure {
+        override val direction: Screens = Screens.CalendarDateList
+        override val stackGroupId: String? = null
+        override val sameScreenId: String = "ScreenStructure#CalendarDateList($year-$month-$day)"
+
+        override fun createUrl(): String {
+            return direction.placeholderUrl.plus(
+                buildParameter {
+                    append(KEY_YEAR, year.toString())
+                    append(KEY_MONTH, month.toString())
+                    append(KEY_DAY, day.toString())
+                },
+            )
+        }
+
+        public companion object {
+            private const val KEY_YEAR = "year"
+            private const val KEY_MONTH = "month"
+            private const val KEY_DAY = "day"
+
+            public fun fromQueryParams(queryParams: Map<String, List<String>>): CalendarDateList? {
+                val year = queryParams[KEY_YEAR]?.firstOrNull()?.toIntOrNull() ?: return null
+                val month = queryParams[KEY_MONTH]?.firstOrNull()?.toIntOrNull() ?: return null
+                val day = queryParams[KEY_DAY]?.firstOrNull()?.toIntOrNull() ?: return null
+                return CalendarDateList(
+                    year = year,
+                    month = month,
+                    day = day,
+                )
+            }
+        }
+    }
+
+    @Serializable
     public data object NotFound : ScreenStructure {
         override val direction: Screens = Screens.NotFound
         override val stackGroupId: String? = null

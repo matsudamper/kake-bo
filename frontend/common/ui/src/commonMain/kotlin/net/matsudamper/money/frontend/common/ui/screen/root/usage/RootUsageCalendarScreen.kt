@@ -67,6 +67,7 @@ public data class RootUsageCalendarScreenUiState(
             val text: String,
             val isToday: Boolean,
             val items: ImmutableList<CalendarDayItem>,
+            val event: DayCellEvent,
         ) : CalendarCell
 
         public data class DayOfWeek(
@@ -82,6 +83,11 @@ public data class RootUsageCalendarScreenUiState(
         val color: Color,
         val event: CalendarDayEvent,
     )
+
+    @Immutable
+    public interface DayCellEvent {
+        public fun onClick()
+    }
 
     @Immutable
     public interface CalendarDayEvent {
@@ -208,6 +214,7 @@ private fun CalendarCell(
 ) {
     Column(
         modifier = modifier
+            .clickable { uiState.event.onClick() }
             .padding(vertical = 2.dp),
     ) {
         Text(

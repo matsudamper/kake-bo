@@ -29,6 +29,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.settings.api.ApiSett
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilter.ImportedMailFilterCategoryViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters.SettingMailCategoryFiltersViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.login.LoginSettingViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.usage.CalendarDateListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.MoneyUsagesCalendarViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.MoneyUsagesListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalendarPagerHostViewModel
@@ -308,6 +309,26 @@ internal data class ViewModelEventHandlers(
                 object : RootUsageHostViewModel.RootNavigationEvent {
                     override fun navigate(screenStructure: ScreenStructure) {
                         navController.navigate(screenStructure)
+                    }
+                },
+            )
+        }
+    }
+
+    suspend fun handleCalendarDateList(handler: EventHandler<CalendarDateListViewModel.Event>) {
+        coroutineScope {
+            handler.collect(
+                object : CalendarDateListViewModel.Event {
+                    override fun navigate(screenStructure: ScreenStructure) {
+                        navController.navigate(screenStructure)
+                    }
+
+                    override fun navigateBack() {
+                        if (navController.canGoBack) {
+                            navController.back()
+                        } else {
+                            platformToolsProvider().backPressDispatcher.onBackPressed()
+                        }
                     }
                 },
             )
