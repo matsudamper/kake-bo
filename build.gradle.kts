@@ -16,6 +16,14 @@ dependencies {
 }
 
 subprojects {
+    pluginManager.withPlugin("org.jetbrains.kotlin.multiplatform") {
+        extensions.configure<KotlinMultiplatformExtension> {
+            sourceSets.all {
+                languageSettings.optIn("kotlin.time.ExperimentalTime")
+            }
+        }
+    }
+
     afterEvaluate {
         extensions.findByType<KotlinMultiplatformExtension>()?.apply {
             if (
