@@ -23,6 +23,7 @@ kotlin {
                 implementation(libs.kotlin.datetime)
                 api(libs.apolloNormalizedCache)
                 implementation(libs.apolloAdapters)
+                implementation(libs.apolloAdaptersCore)
             }
         }
         val androidMain by getting {

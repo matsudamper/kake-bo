@@ -56,7 +56,7 @@ public data class SettingCategoriesScreenUiState(
 
     public data class CategoryItem(
         val name: String,
-        val color: String?,
+        val color: Color?,
         val event: Event,
     ) {
         public interface Event {
@@ -173,7 +173,7 @@ public fun MainContent(
                                             modifier = Modifier
                                                 .size(16.dp)
                                                 .clip(CircleShape)
-                                                .background(parseHexColor(color)),
+                                                .background(color),
                                         )
                                         Spacer(Modifier.width(8.dp))
                                     }
@@ -212,14 +212,4 @@ public fun MainContent(
             }
         }
     }
-}
-
-private fun parseHexColor(hex: String): Color {
-    val colorString = hex.removePrefix("#")
-    val colorLong = colorString.toLongOrNull(16) ?: return Color.Gray
-    return Color(
-        red = ((colorLong shr 16) and 0xFF).toInt(),
-        green = ((colorLong shr 8) and 0xFF).toInt(),
-        blue = (colorLong and 0xFF).toInt(),
-    )
 }

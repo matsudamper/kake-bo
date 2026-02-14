@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.frontend.common.base.ColorUtil
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
@@ -107,7 +108,7 @@ public class SettingCategoriesViewModel(
                             item = items.map { item ->
                                 SettingCategoriesScreenUiState.CategoryItem(
                                     name = item.name,
-                                    color = item.color,
+                                    color = item.color?.let(ColorUtil::parseHexColor),
                                     event = object : SettingCategoriesScreenUiState.CategoryItem.Event {
                                         override fun onClick() {
                                             viewModelScope.launch {

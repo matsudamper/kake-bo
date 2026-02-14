@@ -25,6 +25,7 @@ kotlin {
                 implementation(compose.foundation)
                 implementation(compose.material3)
                 implementation(libs.kotlin.datetime)
+                implementation(libs.apolloRuntime)
 
                 implementation(libs.koinCore)
             }
