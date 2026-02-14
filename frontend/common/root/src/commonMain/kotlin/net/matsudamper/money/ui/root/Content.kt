@@ -208,7 +208,12 @@ public fun Content(
                 )
             }
             LaunchedEffect(navController.currentBackstackEntry) {
-                rootViewModel.navigateChanged()
+                when (navController.currentBackstackEntry) {
+                    is ScreenStructure.Login,
+                    is ScreenStructure.Splash,
+                    -> Unit
+                    else -> rootViewModel.navigateChanged()
+                }
             }
             Scaffold(
                 modifier = modifier
