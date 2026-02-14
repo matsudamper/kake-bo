@@ -8,7 +8,10 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +40,15 @@ internal fun TimePickerDialog(
             }
         },
         dismissButton = {
+            TextButton(
+                onClick = {
+                    val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time
+                    timePickerState.hour = now.hour
+                    timePickerState.minute = now.minute
+                },
+            ) {
+                Text(text = "現在時刻")
+            }
             TextButton(
                 onClick = dismissRequest,
             ) {
