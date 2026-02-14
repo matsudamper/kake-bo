@@ -4,6 +4,7 @@ import androidx.compose.ui.graphics.Color
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 
 public data class HsvColor(
     val hue: Float,
@@ -33,9 +34,9 @@ public data class HsvColor(
 
     public fun toHexString(prefix: String = ""): String {
         val color = toColor()
-        val r = (color.red * 255).toInt().coerceIn(0, 255)
-        val g = (color.green * 255).toInt().coerceIn(0, 255)
-        val b = (color.blue * 255).toInt().coerceIn(0, 255)
+        val r = (color.red * 255).roundToInt().coerceIn(0, 255)
+        val g = (color.green * 255).roundToInt().coerceIn(0, 255)
+        val b = (color.blue * 255).roundToInt().coerceIn(0, 255)
         return "$prefix${toHex2(r)}${toHex2(g)}${toHex2(b)}"
     }
 
