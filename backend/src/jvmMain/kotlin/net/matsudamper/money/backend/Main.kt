@@ -9,6 +9,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
@@ -23,6 +24,7 @@ import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.forwardedheaders.ForwardedHeaders
 import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import io.ktor.server.plugins.statuspages.StatusPages
+import io.ktor.server.request.httpMethod
 import io.ktor.server.request.path
 import io.ktor.server.request.receiveStream
 import io.ktor.server.response.respondFile
@@ -102,7 +104,14 @@ fun Application.myApplicationModule() {
             )
         }
         status(HttpStatusCode.NotFound) { call, _ ->
-            call.respondFile(File(ServerEnv.htmlPath))
+            if (call.request.httpMethod == HttpMethod.Get) {
+                call.respondFile(File(ServerEnv.htmlPath))
+            } else {
+                call.respondText(
+                    status = HttpStatusCode.NotFound,
+                    text = HttpStatusCode.NotFound.description,
+                )
+            }
         }
     }
 
