@@ -32,7 +32,7 @@ jobs:
           name: apk
           path: frontend/app/build/outputs/apk/debug/*.apk
       - name: APKアップロード完了コメント
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: apk-upload
