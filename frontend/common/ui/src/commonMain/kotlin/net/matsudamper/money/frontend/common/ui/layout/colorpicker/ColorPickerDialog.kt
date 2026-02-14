@@ -80,9 +80,15 @@ public fun ColorPickerDialog(
         mutableStateOf(hsvState.toHexString())
     }
 
-    val currentColor = remember(hsvState) { hsvState.toColor() }
+    val selectedColor = remember(hsvState) { hsvState.toColor() }
     val isHexInputValid = remember(hexInput) {
         ColorUtil.isValidHexColor(hexInput)
+    }
+    val initialColorHex = remember(currentColor) {
+        currentColor?.let(ColorUtil::toHexColor)
+    }
+    val isColorChanged = remember(currentColor, selectedColor) {
+        initialColorHex != ColorUtil.toHexColor(selectedColor)
     }
 
     Dialog(onDismissRequest = onDismiss) {
@@ -183,7 +189,7 @@ public fun ColorPickerDialog(
                     modifier = Modifier.height(200.dp),
                 ) {
                     items(presetColors) { color ->
-                        val isSelected = currentColor == color
+                        val isSelected = selectedColor == color
                         Box(
                             modifier = Modifier
                                 .size(32.dp)
@@ -221,9 +227,9 @@ public fun ColorPickerDialog(
                     Spacer(Modifier.width(8.dp))
                     TextButton(
                         onClick = {
-                            onColorSelected(currentColor)
+                            onColorSelected(selectedColor)
                         },
-                        enabled = isHexInputValid,
+                        enabled = isHexInputValid && isColorChanged,
                     ) {
                         Text("決定")
                     }
