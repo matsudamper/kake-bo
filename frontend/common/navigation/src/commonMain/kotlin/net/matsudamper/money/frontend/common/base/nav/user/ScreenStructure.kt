@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import kotlinx.serialization.Serializable
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
@@ -310,6 +311,7 @@ public sealed interface ScreenStructure : IScreenStructure {
         val title: String? = null,
         val price: Float? = null,
         val date: LocalDateTime? = null,
+        val time: LocalTime? = null,
         val description: String? = null,
         val subCategoryId: String? = null,
     ) : ScreenStructure {
@@ -342,6 +344,7 @@ public sealed interface ScreenStructure : IScreenStructure {
             private const val KEY_TITLE = "title"
             private const val KEY_PRICE = "price"
             private const val KEY_DATE = "date"
+            private const val KEY_TIME = "time"
             private const val KEY_DESCRIPTION = "description"
             private const val KEY_SUB_CATEGORY_ID = "sub_category_id"
 
@@ -353,6 +356,7 @@ public sealed interface ScreenStructure : IScreenStructure {
                     title = queryParams[KEY_TITLE]?.firstOrNull(),
                     price = queryParams[KEY_PRICE]?.firstOrNull()?.toFloatOrNull(),
                     date = queryParams[KEY_DATE]?.firstOrNull()?.let { LocalDateTime.parse(it) },
+                    time = queryParams[KEY_TIME]?.firstOrNull()?.let { runCatching { LocalTime.parse(it) }.getOrNull() },
                     description = queryParams[KEY_DESCRIPTION]?.firstOrNull(),
                     subCategoryId = queryParams[KEY_SUB_CATEGORY_ID]?.firstOrNull(),
                 )

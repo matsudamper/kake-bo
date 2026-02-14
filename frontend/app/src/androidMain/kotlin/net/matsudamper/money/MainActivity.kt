@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatterBuilder
 import java.time.temporal.ChronoField
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.datetime.toKotlinLocalDateTime
+import kotlinx.datetime.toKotlinLocalTime
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.rememberMainScreenNavController
@@ -106,10 +108,20 @@ class MainActivity : ComponentActivity() {
                     }.getOrNull()?.toKotlinLocalDateTime()
                 }
 
+                val time = run {
+                    val timeString = queries["time"] ?: return@run null
+                    runCatching {
+                        LocalTime.parse(timeString)
+                    }.onFailure {
+                        it.printStackTrace()
+                    }.getOrNull()?.toKotlinLocalTime()
+                }
+
                 ScreenStructure.AddMoneyUsage(
                     title = title,
                     price = price,
                     date = date,
+                    time = time,
                     description = description,
                 )
             }
