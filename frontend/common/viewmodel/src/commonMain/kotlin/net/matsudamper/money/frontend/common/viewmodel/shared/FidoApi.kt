@@ -1,9 +1,9 @@
 package net.matsudamper.money.frontend.common.viewmodel.shared
 
-import com.apollographql.apollo3.ApolloClient
-import com.apollographql.apollo3.api.ApolloResponse
-import com.apollographql.apollo3.cache.normalized.FetchPolicy
-import com.apollographql.apollo3.cache.normalized.fetchPolicy
+import com.apollographql.apollo.ApolloClient
+import com.apollographql.apollo.api.ApolloResponse
+import com.apollographql.apollo.cache.normalized.FetchPolicy
+import com.apollographql.apollo.cache.normalized.fetchPolicy
 import net.matsudamper.money.frontend.graphql.LoginSettingScreenGetFidoInfoQuery
 
 public class FidoApi(

@@ -23,7 +23,7 @@ internal class IdLoggerInstrumentation(
                     ?.getter?.call(source)
 
                 if (id != null) {
-                    tracer.setTag("graphql.id", id.toString())
+                    tracer.setAttribute("graphql.id", id.toString())
                 }
             }
 

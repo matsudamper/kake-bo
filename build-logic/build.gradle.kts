@@ -20,8 +20,9 @@ tasks.withType<KotlinCompile>().configureEach {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_24
-    targetCompatibility = JavaVersion.VERSION_24
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(24)
+    }
 }
 
 dependencies {

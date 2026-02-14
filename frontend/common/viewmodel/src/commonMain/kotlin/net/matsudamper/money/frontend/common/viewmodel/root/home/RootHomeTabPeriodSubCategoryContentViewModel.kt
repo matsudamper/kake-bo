@@ -16,8 +16,8 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
-import com.apollographql.apollo3.api.ApolloResponse
-import com.apollographql.apollo3.cache.normalized.isFromCache
+import com.apollographql.apollo.api.ApolloResponse
+import com.apollographql.apollo.cache.normalized.isFromCache
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList

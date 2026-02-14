@@ -2,8 +2,11 @@ package net.matsudamper.money.frontend.common.ui.screen.root.settings
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.runtime.Composable
@@ -19,6 +22,7 @@ internal fun SettingListMenuItemButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit,
     titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
+    trailingContent: (@Composable () -> Unit)? = null,
     text: @Composable () -> Unit,
 ) {
     Box(
@@ -34,7 +38,15 @@ internal fun SettingListMenuItemButton(
                 fontFamily = rememberCustomFontFamily(),
             ),
         ) {
-            text()
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                text()
+                if (trailingContent != null) {
+                    Spacer(Modifier.width(8.dp))
+                    trailingContent()
+                }
+            }
         }
     }
 }
