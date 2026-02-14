@@ -3,7 +3,6 @@ package net.matsudamper.money.frontend.common.viewmodel
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.updateAndGet
-import net.matsudamper.money.frontend.common.base.ColorUtil
 
 internal class ReservedColorModel(
     private val colorSet: List<Color> = listOf(
