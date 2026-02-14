@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.settings
 
+import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -9,6 +10,7 @@ import kotlinx.coroutines.launch
 import com.apollographql.apollo.api.Optional
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.frontend.common.base.ColorUtil
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
@@ -132,12 +134,12 @@ public class SettingCategoryViewModel(
                     }
                 }
 
-                override fun onColorSelected(hexColor: String) {
+                override fun onColorSelected(color: Color) {
                     viewModelScope.launch {
                         val result = api.updateCategory(
                             id = categoryId,
                             name = Optional.absent(),
-                            color = Optional.present(hexColor),
+                            color = Optional.present("#${ColorUtil.toHexColor(color)}"),
                         )?.data?.userMutation?.updateCategory
                         if (result == null) {
                             launch {
@@ -198,7 +200,7 @@ public class SettingCategoryViewModel(
                         showSubCategoryNameChangeDialog = viewModelState.showSubCategoryNameChangeInput,
                         showColorPickerDialog = viewModelState.showColorPickerDialog,
                         categoryName = viewModelState.categoryInfo?.name.orEmpty(),
-                        categoryColor = viewModelState.categoryInfo?.color,
+                        categoryColor = viewModelState.categoryInfo?.color?.let(ColorUtil::parseHexColor),
                     )
                 }
             }

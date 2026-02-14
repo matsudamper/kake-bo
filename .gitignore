@@ -52,3 +52,4 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+.codex/config.toml

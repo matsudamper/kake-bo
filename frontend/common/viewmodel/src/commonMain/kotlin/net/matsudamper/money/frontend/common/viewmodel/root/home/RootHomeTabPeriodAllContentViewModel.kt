@@ -16,6 +16,7 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo.api.ApolloResponse
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.frontend.common.base.ColorUtil
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
@@ -284,7 +285,8 @@ public class RootHomeTabPeriodAllContentViewModel(
                                 val amount = it.totalAmount
                                     ?: return null
                                 BarGraphUiState.Item(
-                                    color = reservedColorModel.getColor(it.category.id.value.toString(), it.category.color),
+                                    color = it.category.color?.let { color -> ColorUtil.parseHexColor(color) }
+                                        ?: reservedColorModel.getColor(it.category.id.value.toString()),
                                     title = it.category.name,
                                     value = amount,
                                 )
@@ -310,7 +312,8 @@ public class RootHomeTabPeriodAllContentViewModel(
             ),
             totalBarColorTextMapping = categories.map { category ->
                 GraphTitleChipUiState(
-                    color = reservedColorModel.getColor(category.id.value.toString(), category.color),
+                    color = category.color?.let { color -> ColorUtil.parseHexColor(color) }
+                        ?: reservedColorModel.getColor(category.id.value.toString()),
                     title = category.name,
                     onClick = {
                         viewModelScope.launch {
