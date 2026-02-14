@@ -13,9 +13,6 @@ kotlin {
     }
     jvm {}
     sourceSets {
-        all {
-            languageSettings.optIn("kotlin.time.ExperimentalTime")
-        }
         val commonMain by getting {
             dependencies {
                 implementation(projects.shared)
