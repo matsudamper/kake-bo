@@ -288,6 +288,8 @@ input ImportedMailQuery {
 
 input ImportedMailQueryFilter {
   isLinked: Boolean
+
+  text: String
 }
 
 enum ImportedMailSortKey {

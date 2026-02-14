@@ -30,6 +30,7 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
                 .getCount(
                     userId = userId,
                     isLinked = query.isLinked,
+                    text = query.text,
                 )
         }.toDataFetcher()
     }
@@ -54,6 +55,7 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
                     },
                     pagingInfo = cursor?.pagingInfo,
                     isAsc = query.isAsc,
+                    text = query.filter.text,
                 )
 
             QlImportedMailConnection(
