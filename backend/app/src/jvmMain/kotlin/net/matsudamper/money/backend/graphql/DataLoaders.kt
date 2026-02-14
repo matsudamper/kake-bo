@@ -17,6 +17,7 @@ import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageSubCategoryDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.UserNameDataLoaderDefine
 import net.matsudamper.money.backend.di.DiContainer
+import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderRegistry
 

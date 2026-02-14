@@ -7,6 +7,7 @@ import net.matsudamper.money.backend.app.interfaces.element.AdminSession
 import net.matsudamper.money.backend.app.interfaces.element.UserSessionId
 import net.matsudamper.money.backend.base.CookieManager
 import net.matsudamper.money.backend.di.DiContainer
+import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
 import net.matsudamper.money.element.UserId
 
 internal class GraphQlContext(
@@ -32,10 +33,12 @@ internal class GraphQlContext(
         )
     }
 
-    fun verifyUserSessionAndGetUserId(): UserId = userSessionManager.verifyUserSession()
+    fun verifyUserSessionAndGetUserId(): UserId {
+        return userSessionManager.verifyUserSession() ?: throw GraphqlMoneyException.SessionNotVerify()
+    }
 
     fun verifyUserSessionAndGetSessionInfo(): SessionInfo {
-        val userId = userSessionManager.verifyUserSession()
+        val userId = userSessionManager.verifyUserSession() ?: throw GraphqlMoneyException.SessionNotVerify()
         val sessionId = UserSessionId(cookieManager.getUserSessionId()!!)
         val currentSessionInfo = diContainer.createUserSessionRepository()
             .getSessionInfo(sessionId)
