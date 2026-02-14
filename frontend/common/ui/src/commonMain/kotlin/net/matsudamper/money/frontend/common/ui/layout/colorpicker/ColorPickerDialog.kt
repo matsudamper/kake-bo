@@ -31,29 +31,45 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import net.matsudamper.money.frontend.common.base.ColorUtil
 import net.matsudamper.money.frontend.common.base.HsvColor
 import net.matsudamper.money.frontend.common.ui.layout.TextField
 
-private val presetColors: List<String> = listOf(
-    "#F44336", "#E91E63", "#9C27B0", "#673AB7",
-    "#3F51B5", "#2196F3", "#03A9F4", "#00BCD4",
-    "#009688", "#4CAF50", "#8BC34A", "#CDDC39",
-    "#FFEB3B", "#FFC107", "#FF9800", "#FF5722",
-    "#795548", "#9E9E9E", "#607D8B", "#000000",
+private val presetColors: List<Color> = listOf(
+    Color(0xFFF44336),
+    Color(0xFFE91E63),
+    Color(0xFF9C27B0),
+    Color(0xFF673AB7),
+    Color(0xFF3F51B5),
+    Color(0xFF2196F3),
+    Color(0xFF03A9F4),
+    Color(0xFF00BCD4),
+    Color(0xFF009688),
+    Color(0xFF4CAF50),
+    Color(0xFF8BC34A),
+    Color(0xFFCDDC39),
+    Color(0xFFFFEB3B),
+    Color(0xFFFFC107),
+    Color(0xFFFF9800),
+    Color(0xFFFF5722),
+    Color(0xFF795548),
+    Color(0xFF9E9E9E),
+    Color(0xFF607D8B),
+    Color(0xFF000000),
 )
 
 @Composable
 public fun ColorPickerDialog(
-    currentColor: String?,
+    currentColor: Color?,
     onDismiss: () -> Unit,
-    onColorSelected: (String) -> Unit,
+    onColorSelected: (Color) -> Unit,
 ) {
     var hsvState by remember {
         val initial = if (currentColor != null) {
-            HsvColor.fromHex(currentColor) ?: HsvColor(0f, 1f, 1f)
+            HsvColor.fromColor(currentColor)
         } else {
             HsvColor(0f, 1f, 1f)
         }
@@ -61,10 +77,10 @@ public fun ColorPickerDialog(
     }
 
     var hexInput by remember {
-        mutableStateOf(currentColor?.removePrefix("#").orEmpty())
+        mutableStateOf(hsvState.toHexString())
     }
 
-    val hexString = remember(hsvState) { hsvState.toHexString() }
+    val currentColor = remember(hsvState) { hsvState.toColor() }
     val isHexInputValid = remember(hexInput) {
         hexInput.isEmpty() || ColorUtil.isValidHexColor(hexInput)
     }
@@ -93,7 +109,7 @@ public fun ColorPickerDialog(
                         onHueChanged = { newHue ->
                             val newHsv = hsvState.copy(hue = newHue)
                             hsvState = newHsv
-                            hexInput = newHsv.toHexString().removePrefix("#")
+                            hexInput = newHsv.toHexString()
                         },
                         modifier = Modifier.fillMaxSize(),
                     )
@@ -104,7 +120,7 @@ public fun ColorPickerDialog(
                         onSaturationValueChanged = { s, v ->
                             val newHsv = hsvState.copy(saturation = s, value = v)
                             hsvState = newHsv
-                            hexInput = newHsv.toHexString().removePrefix("#")
+                            hexInput = newHsv.toHexString()
                         },
                         modifier = Modifier.size(120.dp),
                     )
@@ -167,12 +183,12 @@ public fun ColorPickerDialog(
                     modifier = Modifier.height(200.dp),
                 ) {
                     items(presetColors) { color ->
-                        val isSelected = hexString.equals(color, ignoreCase = true)
+                        val isSelected = currentColor == color
                         Box(
                             modifier = Modifier
                                 .size(32.dp)
                                 .clip(CircleShape)
-                                .background(ColorUtil.parseHexColor(color))
+                                .background(color)
                                 .then(
                                     if (isSelected) {
                                         Modifier.border(
@@ -185,11 +201,9 @@ public fun ColorPickerDialog(
                                     },
                                 )
                                 .clickable {
-                                    val hsv = HsvColor.fromHex(color)
-                                    if (hsv != null) {
-                                        hsvState = hsv
-                                        hexInput = color.removePrefix("#")
-                                    }
+                                    val hsv = HsvColor.fromColor(color)
+                                    hsvState = hsv
+                                    hexInput = hsv.toHexString()
                                 },
                         )
                     }
@@ -207,7 +221,7 @@ public fun ColorPickerDialog(
                     Spacer(Modifier.width(8.dp))
                     TextButton(
                         onClick = {
-                            onColorSelected(hexString)
+                            onColorSelected(currentColor)
                         },
                         enabled = isHexInputValid,
                     ) {

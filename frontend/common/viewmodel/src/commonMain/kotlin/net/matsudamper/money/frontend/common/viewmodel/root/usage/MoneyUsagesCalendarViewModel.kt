@@ -18,6 +18,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo.api.ApolloResponse
+import net.matsudamper.money.frontend.common.base.ColorUtil
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
@@ -171,10 +172,10 @@ public class MoneyUsagesCalendarViewModel(
                                         items = days.map { day ->
                                             val subCategory = day.moneyUsageSubCategory
                                             val color = if (subCategory != null) {
-                                                reservedColorModel.getColor(
-                                                    subCategory.id.toString(),
-                                                    subCategory.category.color,
-                                                )
+                                                subCategory.category.color?.let { color -> ColorUtil.parseHexColor(color) }
+                                                    ?: reservedColorModel.getColor(
+                                                        subCategory.id.toString(),
+                                                    )
                                             } else {
                                                 Color.Gray
                                             }

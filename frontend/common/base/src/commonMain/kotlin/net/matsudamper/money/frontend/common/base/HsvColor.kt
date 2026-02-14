@@ -31,12 +31,12 @@ public data class HsvColor(
         )
     }
 
-    public fun toHexString(): String {
+    public fun toHexString(prefix: String = ""): String {
         val color = toColor()
         val r = (color.red * 255).toInt().coerceIn(0, 255)
         val g = (color.green * 255).toInt().coerceIn(0, 255)
         val b = (color.blue * 255).toInt().coerceIn(0, 255)
-        return "#${toHex2(r)}${toHex2(g)}${toHex2(b)}"
+        return "$prefix${toHex2(r)}${toHex2(g)}${toHex2(b)}"
     }
 
     public companion object {

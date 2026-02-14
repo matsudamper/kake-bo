@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.settings
 
+import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -133,20 +134,12 @@ public class SettingCategoryViewModel(
                     }
                 }
 
-                override fun onColorSelected(hexColor: String) {
+                override fun onColorSelected(color: Color) {
                     viewModelScope.launch {
-                        val normalizedHexColor = ColorUtil.normalizeHexColorOrNull(hexColor)
-                        if (normalizedHexColor == null) {
-                            globalEventSender.send {
-                                it.showNativeNotification("色コードの形式が正しくありません")
-                            }
-                            return@launch
-                        }
-
                         val result = api.updateCategory(
                             id = categoryId,
                             name = Optional.absent(),
-                            color = Optional.present(normalizedHexColor),
+                            color = Optional.present("#${ColorUtil.toHexColor(color)}"),
                         )?.data?.userMutation?.updateCategory
                         if (result == null) {
                             launch {
@@ -207,7 +200,7 @@ public class SettingCategoryViewModel(
                         showSubCategoryNameChangeDialog = viewModelState.showSubCategoryNameChangeInput,
                         showColorPickerDialog = viewModelState.showColorPickerDialog,
                         categoryName = viewModelState.categoryInfo?.name.orEmpty(),
-                        categoryColor = viewModelState.categoryInfo?.color,
+                        categoryColor = viewModelState.categoryInfo?.color?.let(ColorUtil::parseHexColor),
                     )
                 }
             }

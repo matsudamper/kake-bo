@@ -34,11 +34,4 @@ internal class ReservedColorModel(
         }
         return result[tag]!!
     }
-
-    fun getColor(tag: String, hexColorOverride: String?): Color {
-        if (hexColorOverride != null) {
-            return ColorUtil.parseHexColor(hexColorOverride)
-        }
-        return getColor(tag)
-    }
 }

@@ -46,11 +46,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
-import net.matsudamper.money.frontend.common.base.ColorUtil
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
@@ -63,7 +63,7 @@ public data class SettingCategoryScreenUiState(
     val loadingState: LoadingState,
     val showCategoryNameInput: Boolean,
     val categoryName: String,
-    val categoryColor: String?,
+    val categoryColor: Color?,
     val showCategoryNameChangeDialog: FullScreenInputDialog?,
     val showSubCategoryNameChangeDialog: FullScreenInputDialog?,
     val showColorPickerDialog: Boolean,
@@ -117,7 +117,7 @@ public data class SettingCategoryScreenUiState(
 
         public fun onDismissColorPicker()
 
-        public fun onColorSelected(hexColor: String)
+        public fun onColorSelected(color: Color)
     }
 }
 
@@ -173,7 +173,7 @@ public fun SettingCategoryScreen(
         ColorPickerDialog(
             currentColor = uiState.categoryColor,
             onDismiss = { uiState.event.onDismissColorPicker() },
-            onColorSelected = { hexColor -> uiState.event.onColorSelected(hexColor) },
+            onColorSelected = { color -> uiState.event.onColorSelected(color) },
         )
     }
 
@@ -373,7 +373,7 @@ private fun SubCategoryItem(
 private fun HeaderSection(
     modifier: Modifier,
     categoryName: String,
-    categoryColor: String?,
+    categoryColor: Color?,
     onClickChangeCategoryNameButton: () -> Unit,
     onClickChangeColorButton: () -> Unit,
     onClickSubCategoryButton: () -> Unit,
@@ -385,13 +385,13 @@ private fun HeaderSection(
         FlowRow(
             verticalArrangement = Arrangement.Center,
         ) {
-            if (categoryColor != null && ColorUtil.isValidHexColor(categoryColor)) {
+            if (categoryColor != null) {
                 Box(
                     modifier = Modifier
                         .padding(end = 8.dp)
                         .size(24.dp)
                         .clip(CircleShape)
-                        .background(ColorUtil.parseHexColor(categoryColor)),
+                        .background(categoryColor),
                 )
             }
             Text(

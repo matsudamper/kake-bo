@@ -31,9 +31,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
-import net.matsudamper.money.frontend.common.base.ColorUtil
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
@@ -56,7 +56,7 @@ public data class SettingCategoriesScreenUiState(
 
     public data class CategoryItem(
         val name: String,
-        val color: String?,
+        val color: Color?,
         val event: Event,
     ) {
         public interface Event {
@@ -168,12 +168,12 @@ public fun MainContent(
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     val color = item.color
-                                    if (color != null && ColorUtil.isValidHexColor(color)) {
+                                    if (color != null) {
                                         Box(
                                             modifier = Modifier
                                                 .size(16.dp)
                                                 .clip(CircleShape)
-                                                .background(ColorUtil.parseHexColor(color)),
+                                                .background(color),
                                         )
                                         Spacer(Modifier.width(8.dp))
                                     }
