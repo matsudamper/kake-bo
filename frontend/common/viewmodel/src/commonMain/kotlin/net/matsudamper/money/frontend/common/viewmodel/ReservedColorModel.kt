@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.viewmodel
 import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.updateAndGet
+import net.matsudamper.money.frontend.common.base.ColorUtil
 
 internal class ReservedColorModel(
     private val colorSet: List<Color> = listOf(
@@ -36,20 +37,8 @@ internal class ReservedColorModel(
 
     fun getColor(tag: String, hexColorOverride: String?): Color {
         if (hexColorOverride != null) {
-            return parseHexColor(hexColorOverride)
+            return ColorUtil.parseHexColor(hexColorOverride)
         }
         return getColor(tag)
-    }
-
-    companion object {
-        fun parseHexColor(hex: String): Color {
-            val colorString = hex.removePrefix("#")
-            val colorLong = colorString.toLongOrNull(16) ?: return Color.Gray
-            return Color(
-                red = ((colorLong shr 16) and 0xFF).toInt(),
-                green = ((colorLong shr 8) and 0xFF).toInt(),
-                blue = (colorLong and 0xFF).toInt(),
-            )
-        }
     }
 }

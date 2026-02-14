@@ -50,13 +50,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import net.matsudamper.money.frontend.common.base.ColorUtil
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.layout.colorpicker.ColorPickerDialog
-import net.matsudamper.money.frontend.common.ui.layout.colorpicker.isValidHexColor
-import net.matsudamper.money.frontend.common.ui.layout.colorpicker.parseHexColor
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
 public data class SettingCategoryScreenUiState(
@@ -386,13 +385,13 @@ private fun HeaderSection(
         FlowRow(
             verticalArrangement = Arrangement.Center,
         ) {
-            if (categoryColor != null && isValidHexColor(categoryColor)) {
+            if (categoryColor != null && ColorUtil.isValidHexColor(categoryColor)) {
                 Box(
                     modifier = Modifier
                         .padding(end = 8.dp)
                         .size(24.dp)
                         .clip(CircleShape)
-                        .background(parseHexColor(categoryColor)),
+                        .background(ColorUtil.parseHexColor(categoryColor)),
                 )
             }
             Text(

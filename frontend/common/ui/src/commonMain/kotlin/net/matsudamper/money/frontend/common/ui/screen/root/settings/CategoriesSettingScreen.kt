@@ -33,12 +33,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.base.ColorUtil
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
-import net.matsudamper.money.frontend.common.ui.layout.colorpicker.isValidHexColor
-import net.matsudamper.money.frontend.common.ui.layout.colorpicker.parseHexColor
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
 public data class SettingCategoriesScreenUiState(
@@ -169,12 +168,12 @@ public fun MainContent(
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
                                     val color = item.color
-                                    if (color != null && isValidHexColor(color)) {
+                                    if (color != null && ColorUtil.isValidHexColor(color)) {
                                         Box(
                                             modifier = Modifier
                                                 .size(16.dp)
                                                 .clip(CircleShape)
-                                                .background(parseHexColor(color)),
+                                                .background(ColorUtil.parseHexColor(color)),
                                         )
                                         Spacer(Modifier.width(8.dp))
                                     }

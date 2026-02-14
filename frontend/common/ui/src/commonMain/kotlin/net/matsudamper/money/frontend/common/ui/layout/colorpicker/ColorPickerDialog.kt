@@ -33,6 +33,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import net.matsudamper.money.frontend.common.base.ColorUtil
+import net.matsudamper.money.frontend.common.base.HsvColor
 import net.matsudamper.money.frontend.common.ui.layout.TextField
 
 private val presetColors: List<String> = listOf(
@@ -51,7 +53,7 @@ public fun ColorPickerDialog(
 ) {
     var hsvState by remember {
         val initial = if (currentColor != null) {
-            hsvFromHex(currentColor) ?: HsvColor(0f, 1f, 1f)
+            HsvColor.fromHex(currentColor) ?: HsvColor(0f, 1f, 1f)
         } else {
             HsvColor(0f, 1f, 1f)
         }
@@ -64,7 +66,7 @@ public fun ColorPickerDialog(
 
     val hexString = remember(hsvState) { hsvState.toHexString() }
     val isHexInputValid = remember(hexInput) {
-        hexInput.isEmpty() || isValidHexColor(hexInput)
+        hexInput.isEmpty() || ColorUtil.isValidHexColor(hexInput)
     }
 
     Dialog(onDismissRequest = onDismiss) {
@@ -134,7 +136,7 @@ public fun ColorPickerDialog(
                                 .uppercase()
                             hexInput = filtered
                             if (filtered.length == 6) {
-                                val parsed = hsvFromHex(filtered)
+                                val parsed = HsvColor.fromHex(filtered)
                                 if (parsed != null) {
                                     hsvState = parsed
                                 }
@@ -170,7 +172,7 @@ public fun ColorPickerDialog(
                             modifier = Modifier
                                 .size(32.dp)
                                 .clip(CircleShape)
-                                .background(parseHexColor(color))
+                                .background(ColorUtil.parseHexColor(color))
                                 .then(
                                     if (isSelected) {
                                         Modifier.border(
@@ -183,7 +185,7 @@ public fun ColorPickerDialog(
                                     },
                                 )
                                 .clickable {
-                                    val hsv = hsvFromHex(color)
+                                    val hsv = HsvColor.fromHex(color)
                                     if (hsv != null) {
                                         hsvState = hsv
                                         hexInput = color.removePrefix("#")
