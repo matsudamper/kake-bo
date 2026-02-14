@@ -82,7 +82,7 @@ public fun ColorPickerDialog(
 
     val currentColor = remember(hsvState) { hsvState.toColor() }
     val isHexInputValid = remember(hexInput) {
-        hexInput.isEmpty() || ColorUtil.isValidHexColor(hexInput)
+        ColorUtil.isValidHexColor(hexInput)
     }
 
     Dialog(onDismissRequest = onDismiss) {
