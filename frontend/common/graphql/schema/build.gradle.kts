@@ -13,6 +13,9 @@ kotlin {
     }
     jvm {}
     sourceSets {
+        all {
+            languageSettings.optIn("kotlin.time.ExperimentalTime")
+        }
         val commonMain by getting {
             dependencies {
                 implementation(projects.shared)
@@ -22,6 +25,7 @@ kotlin {
                 implementation(libs.kotlin.datetime)
                 api(libs.apolloNormalizedCache)
                 implementation(libs.apolloAdapters)
+                implementation(libs.apolloAdaptersCore)
             }
         }
     }
@@ -41,7 +45,7 @@ apollo {
         mapScalar("ImportedMailCategoryFilterConditionId", "net.matsudamper.money.element.ImportedMailCategoryFilterConditionId")
         mapScalar("MoneyUsageId", "net.matsudamper.money.element.MoneyUsageId")
         mapScalar("LocalDateTime", "kotlinx.datetime.LocalDateTime", "com.apollographql.adapter.datetime.KotlinxLocalDateTimeAdapter")
-        mapScalar("OffsetDateTime", "kotlinx.datetime.Instant", "com.apollographql.adapter.datetime.KotlinxInstantAdapter")
+        mapScalar("OffsetDateTime", "kotlin.time.Instant", "com.apollographql.adapter.core.KotlinInstantAdapter")
     }
 }
 
