@@ -13,6 +13,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
@@ -192,6 +193,27 @@ public class AddMoneyUsageViewModel(
             }
         }
 
+        override fun onClickImageIdsChange() {
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    textInputDialog = AddMoneyUsageScreenUiState.FullScreenTextInputDialog(
+                        title = "画像",
+                        default = viewModelState.usageImageIds.joinToString(separator = "\n") { it.value },
+                        onComplete = { text ->
+                            viewModelStateFlow.update { current ->
+                                current.copy(
+                                    usageImageIds = parseImageIds(text),
+                                )
+                            }
+                            dismissTextInputDialog()
+                        },
+                        canceled = { dismissTextInputDialog() },
+                        isMultiline = true,
+                    ),
+                )
+            }
+        }
+
         private fun dismissTextInputDialog() {
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
@@ -227,6 +249,8 @@ public class AddMoneyUsageViewModel(
                 amount = viewModelStateFlow.value.usageAmount.value,
                 subCategoryId = viewModelStateFlow.value.usageCategorySet?.subCategoryId,
                 importedMailId = viewModelStateFlow.value.importedMailId,
+                imageIds = viewModelStateFlow.value.usageImageIds
+                    .takeIf { it.isNotEmpty() },
             )
 
             // TODO Toast
@@ -264,6 +288,9 @@ public class AddMoneyUsageViewModel(
                         usageDate = current.date?.date ?: state.usageDate,
                         usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
                         usageDescription = current.description ?: state.usageDescription,
+                        usageImageIds = current.imageIds
+                            .map(::ImageId)
+                            .ifEmpty { state.usageImageIds },
                         usageCategorySet = if (subCategory != null) {
                             CategorySelectDialogViewModel.SelectedResult(
                                 categoryId = subCategory.category.id,
@@ -287,6 +314,9 @@ public class AddMoneyUsageViewModel(
                     usageDate = current.date?.date ?: state.usageDate,
                     usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
                     usageDescription = current.description ?: state.usageDescription,
+                    usageImageIds = current.imageIds
+                        .map(::ImageId)
+                        .ifEmpty { state.usageImageIds },
                     usageCategorySet = null,
                 )
             }
@@ -308,6 +338,9 @@ public class AddMoneyUsageViewModel(
                             it.copy(
                                 importedMailId = importedMailId,
                                 usageTitle = forwardedInfo?.subject ?: subject,
+                                usageImageIds = current.imageIds
+                                    .map(::ImageId)
+                                    .ifEmpty { it.usageImageIds },
                                 usageDate = forwardedInfo?.dateTime?.date
                                     ?: date?.date
                                     ?: Clock.System.todayIn(TimeZone.currentSystemDefault()),
@@ -326,6 +359,9 @@ public class AddMoneyUsageViewModel(
                             usageTime = suggestUsage.dateTime?.time ?: it.usageTime,
                             usageTitle = suggestUsage.title,
                             usageDescription = suggestUsage.description,
+                            usageImageIds = current.imageIds
+                                .map(::ImageId)
+                                .ifEmpty { it.usageImageIds },
                             usageCategorySet = run category@{
                                 CategorySelectDialogViewModel.SelectedResult(
                                     categoryId = suggestUsage.subCategory?.category?.id ?: return@category null,
@@ -352,6 +388,7 @@ public class AddMoneyUsageViewModel(
             title = "",
             description = "",
             amount = "",
+            imageIds = "",
             fullScreenTextInputDialog = null,
             categorySelectDialog = null,
             numberInputDialog = null,
@@ -386,6 +423,7 @@ public class AddMoneyUsageViewModel(
                             val subCategory = categorySet.subCategoryName
                             "$category / $subCategory"
                         },
+                        imageIds = viewModelState.usageImageIds.joinToString(separator = "\n") { it.value },
                         categorySelectDialog = viewModelState.categorySelectDialog,
                     )
                 }
@@ -404,6 +442,7 @@ public class AddMoneyUsageViewModel(
         val usageTime: LocalTime = LocalTime(0, 0, 0, 0),
         val usageTitle: String = "",
         val usageDescription: String = "",
+        val usageImageIds: List<ImageId> = emptyList(),
         val usageAmount: NumberInputValue = NumberInputValue.default(),
         val numberInputDialog: AddMoneyUsageScreenUiState.NumberInputDialog? = null,
         val showCalendarDialog: Boolean = false,
@@ -412,4 +451,12 @@ public class AddMoneyUsageViewModel(
         val categorySelectDialog: CategorySelectDialogUiState? = null,
         val usageCategorySet: CategorySelectDialogViewModel.SelectedResult? = null,
     )
+
+    private fun parseImageIds(text: String): List<ImageId> {
+        return text.split("\n")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .distinct()
+            .map(::ImageId)
+    }
 }

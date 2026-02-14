@@ -48,6 +48,8 @@ input AddUsageQuery {
   date: LocalDateTime!
 
   importedMailId: ImportedMailId
+
+  imageIds: [ImageId!]
 }
 
 enum AdminAddUserErrorType {
@@ -274,6 +276,8 @@ type ImportedMailForwardedInfo {
 
 scalar ImportedMailId
 
+scalar ImageId
+
 input ImportedMailQuery {
   size: Int!
 
@@ -321,6 +325,10 @@ type MoneyUsage {
   date: LocalDateTime!
 
   amount: Int!
+
+  imageIds: [ImageId!]!
+
+  imageUrls: [String!]!
 
   linkedMail: [ImportedMail!]
 
@@ -564,6 +572,8 @@ input UpdateUsageQuery {
   description: String
 
   subCategoryId: MoneyUsageSubCategoryId
+
+  imageIds: [ImageId!]
 }
 
 input UpdateUserImapConfigInput {

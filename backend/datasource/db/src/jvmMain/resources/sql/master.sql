@@ -107,6 +107,7 @@ CREATE TABLE money_usages
     title                       VARCHAR(500)                       not null,
     description                 VARCHAR(1000)                      not null,
     amount                      int                                not null,
+    image_hash                  CHAR(64),
     money_usage_sub_category_id INT,
     datetime                    DATETIME                           not null,
     created_datetime            DATETIME DEFAULT CURRENT_TIMESTAMP not null,
@@ -125,6 +126,17 @@ CREATE TABLE money_usages_mails_relation
     index money_usage_id (user_id, money_usage_id),
     index user_mail_id (user_id, user_mail_id),
     created_datetime DATETIME DEFAULT CURRENT_TIMESTAMP not null
+);
+
+CREATE TABLE money_usage_images
+(
+    user_id        INT      not null,
+    money_usage_id INT      not null,
+    image_hash     CHAR(64) not null,
+    image_order    INT      not null,
+    PRIMARY KEY (user_id, money_usage_id, image_order),
+    INDEX user_money_usage_id (user_id, money_usage_id),
+    INDEX user_image_hash (user_id, image_hash)
 );
 
 CREATE TABLE category_mail_filters

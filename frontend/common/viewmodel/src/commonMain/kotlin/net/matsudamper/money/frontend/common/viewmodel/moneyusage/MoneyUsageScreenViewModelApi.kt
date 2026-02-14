@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.viewmodel.moneyusage
 
 import kotlinx.datetime.LocalDateTime
 import com.apollographql.apollo.api.Optional
+import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenDeleteUsageMutation
@@ -18,6 +19,7 @@ public class MoneyUsageScreenViewModelApi(
         amount: Int? = null,
         description: String? = null,
         subCategoryId: net.matsudamper.money.element.MoneyUsageSubCategoryId? = null,
+        imageIds: List<ImageId>? = null,
     ): Boolean {
         return runCatching {
             graphqlClient.apolloClient
@@ -30,6 +32,7 @@ public class MoneyUsageScreenViewModelApi(
                             amount = Optional.present(amount),
                             date = Optional.present(date),
                             subCategoryId = Optional.present(subCategoryId),
+                            imageIds = Optional.present(imageIds),
                         ),
                     ),
                 )

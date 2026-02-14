@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.ui.screen.moneyusage
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -38,10 +39,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
+import coil3.compose.AsyncImage
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import net.matsudamper.money.frontend.common.base.ImmutableList
@@ -125,6 +128,7 @@ public data class MoneyUsageScreenUiState(
         val category: String,
         val dateTime: String,
         val time: String,
+        val imageUrls: ImmutableList<String>,
         val event: MoneyUsageEvent,
     )
 
@@ -587,6 +591,34 @@ private fun MoneyUsage(
                 uiState.event.onClickDescription()
             },
         )
+        MoneyUsageSection(
+            multiline = true,
+            showChangeButton = false,
+            title = {
+                Text("画像")
+            },
+            content = {
+                if (uiState.imageUrls.isEmpty()) {
+                    Text("未設定")
+                } else {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        uiState.imageUrls.forEach { imageUrl ->
+                            AsyncImage(
+                                model = imageUrl,
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(180.dp),
+                            )
+                        }
+                    }
+                }
+            },
+            onClickChange = {},
+        )
     }
 }
 
@@ -594,6 +626,7 @@ private fun MoneyUsage(
 private fun MoneyUsageSection(
     modifier: Modifier = Modifier,
     multiline: Boolean = false,
+    showChangeButton: Boolean = true,
     title: @Composable () -> Unit,
     onClickChange: () -> Unit,
     content: @Composable () -> Unit,
@@ -623,19 +656,21 @@ private fun MoneyUsageSection(
                 }
             }
 
-            OutlinedButton(
-                modifier = Modifier.align(
-                    if (multiline) {
-                        Alignment.Bottom
-                    } else {
-                        Alignment.CenterVertically
+            if (showChangeButton) {
+                OutlinedButton(
+                    modifier = Modifier.align(
+                        if (multiline) {
+                            Alignment.Bottom
+                        } else {
+                            Alignment.CenterVertically
+                        },
+                    ),
+                    onClick = {
+                        onClickChange()
                     },
-                ),
-                onClick = {
-                    onClickChange()
-                },
-            ) {
-                Text("変更")
+                ) {
+                    Text("変更")
+                }
             }
         }
     }

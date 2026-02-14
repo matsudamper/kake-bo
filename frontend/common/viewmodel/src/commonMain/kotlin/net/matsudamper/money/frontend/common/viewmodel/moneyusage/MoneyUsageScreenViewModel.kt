@@ -129,6 +129,7 @@ public class MoneyUsageScreenViewModel(
                                         val category = subCategory.category
                                         "${subCategory.name} / ${category.name}"
                                     },
+                                    imageUrls = moneyUsage.imageUrls.toImmutableList(),
                                     event = createMoneyUsageEvent(item = moneyUsage),
                                 ),
                                 linkedMails = moneyUsage.linkedMail.orEmpty().map { mail ->
@@ -216,6 +217,7 @@ public class MoneyUsageScreenViewModel(
                                 date = moneyUsage.date,
                                 description = moneyUsage.description,
                                 subCategoryId = moneyUsage.moneyUsageSubCategory?.id?.id?.toString(),
+                                imageIds = moneyUsage.imageIds.map { it.value },
                             ),
                         )
                     }

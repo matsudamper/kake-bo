@@ -4,6 +4,7 @@ import java.io.File
 import java.io.InputStream
 import java.security.MessageDigest
 import net.matsudamper.money.backend.app.interfaces.UserImageRepository
+import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.UserId
 
 class ImageUploadHandler {
@@ -29,7 +30,7 @@ class ImageUploadHandler {
             WriteImageFileResult.PayloadTooLarge -> Result.PayloadTooLarge
             is WriteImageFileResult.Success -> {
                 val relativePath = createRelativePath(
-                    imageHash = writeResult.imageHash,
+                    imageId = writeResult.imageId,
                     extension = extension,
                 )
                 val destination = File(request.storageDirectory, relativePath)
@@ -39,7 +40,7 @@ class ImageUploadHandler {
                 } else {
                     val saveResult = request.userImageRepository.saveImage(
                         userId = userId,
-                        imageHash = writeResult.imageHash,
+                        imageId = writeResult.imageId,
                         relativePath = relativePath,
                     )
                     if (!saveResult) {
@@ -50,7 +51,7 @@ class ImageUploadHandler {
                     }
 
                     Result.Success(
-                        imageHash = writeResult.imageHash,
+                        imageId = writeResult.imageId,
                         relativePath = relativePath,
                     )
                 }
@@ -109,7 +110,7 @@ class ImageUploadHandler {
 
         return WriteImageFileResult.Success(
             tempFile = tempFile,
-            imageHash = digest.digest().toHexString(),
+            imageId = ImageId(digest.digest().toHexString()),
         )
     }
 
@@ -159,10 +160,10 @@ class ImageUploadHandler {
     }
 
     private fun createRelativePath(
-        imageHash: String,
+        imageId: ImageId,
         extension: String,
     ): String {
-        return "${imageHash.take(2)}/$imageHash.$extension"
+        return "${imageId.value.take(2)}/${imageId.value}.$extension"
     }
 
     data class Request(
@@ -176,7 +177,7 @@ class ImageUploadHandler {
 
     sealed interface Result {
         data class Success(
-            val imageHash: String,
+            val imageId: ImageId,
             val relativePath: String,
         ) : Result
 
@@ -190,7 +191,7 @@ class ImageUploadHandler {
     private sealed interface WriteImageFileResult {
         data class Success(
             val tempFile: File,
-            val imageHash: String,
+            val imageId: ImageId,
         ) : WriteImageFileResult
 
         data object PayloadTooLarge : WriteImageFileResult

@@ -5,6 +5,7 @@ import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
 import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
+import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.graphql.AddMoneyUsageMutation
@@ -23,6 +24,7 @@ public class AddMoneyUsageScreenApi(
         datetime: LocalDateTime,
         subCategoryId: MoneyUsageSubCategoryId?,
         importedMailId: ImportedMailId?,
+        imageIds: List<ImageId>?,
     ): ApolloResponse<AddMoneyUsageMutation.Data>? {
         return runCatching {
             graphqlClient.apolloClient
@@ -35,6 +37,7 @@ public class AddMoneyUsageScreenApi(
                             amount = amount,
                             date = datetime,
                             importedMailId = Optional.present(importedMailId),
+                            imageIds = Optional.present(imageIds),
                         ),
                     ),
                 )

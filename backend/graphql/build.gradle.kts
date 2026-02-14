@@ -58,6 +58,7 @@ val graphqlCodegen = tasks.named<GraphQLCodegenGradleTask>("graphqlCodegen") {
     }
     customTypesMapping = mutableMapOf(
         "UserId" to "net.matsudamper.money.element.UserId",
+        "ImageId" to "net.matsudamper.money.element.ImageId",
         "MailId" to "net.matsudamper.money.element.MailId",
         "FidoId" to "net.matsudamper.money.element.FidoId",
         "ApiTokenId" to "net.matsudamper.money.element.ApiTokenId",

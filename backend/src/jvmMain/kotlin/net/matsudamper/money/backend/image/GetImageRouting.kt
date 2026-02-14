@@ -9,17 +9,24 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import net.matsudamper.money.backend.app.interfaces.UserImageRepository
+import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.feature.image.ImageReadHandler
-import net.matsudamper.money.backend.feature.session.SessionAuthService
+import net.matsudamper.money.backend.feature.session.KtorCookieManager
+import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
+import net.matsudamper.money.element.ImageId
+import net.matsudamper.money.image.ImageUploadImageResponse
 
 internal fun Route.getImage(
-    sessionAuthService: SessionAuthService,
+    diContainer: DiContainer,
     userImageRepository: UserImageRepository,
     imageUploadConfig: ImageUploadConfig,
     imageReadHandler: ImageReadHandler = ImageReadHandler(),
 ) {
     get("/api/image/v1/{hash}") {
-        val userId = sessionAuthService.verifyUserSession(call)
+        val userId = UserSessionManagerImpl(
+            cookieManager = KtorCookieManager(call = call),
+            userSessionRepository = diContainer.createUserSessionRepository(),
+        ).verifyUserSession()
         if (userId == null) {
             call.respondApiError(
                 status = HttpStatusCode.Unauthorized,
@@ -44,9 +51,10 @@ internal fun Route.getImage(
             return@get
         }
 
+        val imageId = ImageId(imageHash)
         val relativePath = userImageRepository.getRelativePath(
             userId = userId,
-            imageHash = imageHash,
+            imageId = imageId,
         )
         if (relativePath == null) {
             call.respondApiError(

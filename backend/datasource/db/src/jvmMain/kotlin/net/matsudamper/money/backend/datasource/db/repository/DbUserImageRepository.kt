@@ -2,6 +2,7 @@ package net.matsudamper.money.backend.datasource.db.repository
 
 import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
+import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 
@@ -13,7 +14,7 @@ class DbUserImageRepository : UserImageRepository {
 
     override fun saveImage(
         userId: UserId,
-        imageHash: String,
+        imageId: ImageId,
         relativePath: String,
     ): Boolean {
         return runCatching {
@@ -21,7 +22,7 @@ class DbUserImageRepository : UserImageRepository {
                 DSL.using(connection)
                     .insertInto(userImagesTable)
                     .set(userIdField, userId.value)
-                    .set(imageHashField, imageHash)
+                    .set(imageHashField, imageId.value)
                     .set(imagePathField, relativePath)
                     .onDuplicateKeyUpdate()
                     .set(imagePathField, relativePath)
@@ -35,7 +36,7 @@ class DbUserImageRepository : UserImageRepository {
 
     override fun getRelativePath(
         userId: UserId,
-        imageHash: String,
+        imageId: ImageId,
     ): String? {
         return DbConnectionImpl.use { connection ->
             DSL.using(connection)
@@ -43,10 +44,28 @@ class DbUserImageRepository : UserImageRepository {
                 .from(userImagesTable)
                 .where(
                     userIdField.eq(userId.value)
-                        .and(imageHashField.eq(imageHash)),
+                        .and(imageHashField.eq(imageId.value)),
                 )
                 .limit(1)
                 .fetchOne(imagePathField)
+        }
+    }
+
+    override fun exists(
+        userId: UserId,
+        imageId: ImageId,
+    ): Boolean {
+        return DbConnectionImpl.use { connection ->
+            DSL.using(connection)
+                .fetchExists(
+                    DSL.using(connection)
+                        .selectOne()
+                        .from(userImagesTable)
+                        .where(
+                            userIdField.eq(userId.value)
+                                .and(imageHashField.eq(imageId.value)),
+                        ),
+                )
         }
     }
 }

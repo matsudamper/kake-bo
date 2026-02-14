@@ -8,12 +8,13 @@ import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
-import net.matsudamper.money.db.schema.tables.records.JMoneyUsagesRecord
+import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.UserId
+import org.jooq.Record
 import org.jooq.impl.DSL
 import org.jooq.kotlin.and
 
@@ -21,6 +22,15 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
     private val jUsage = JMoneyUsages.MONEY_USAGES
     private val jSubCategory = JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES
     private val jRelation = JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION
+    private val usageLegacyImageHashField = DSL.field(DSL.name("image_hash"), String::class.java)
+    private val usageImageTable = DSL.table(DSL.name("money_usage_images"))
+    private val usageImageUserIdField = DSL.field(DSL.name("user_id"), Int::class.java)
+    private val usageImageMoneyUsageIdField = DSL.field(DSL.name("money_usage_id"), Int::class.java)
+    private val usageImageRelationHashField = DSL.field(DSL.name("image_hash"), String::class.java)
+    private val usageImageOrderField = DSL.field(DSL.name("image_order"), Int::class.java)
+    private val userImagesTable = DSL.table(DSL.name("user_images"))
+    private val userImagesUserIdField = DSL.field(DSL.name("user_id"), Int::class.java)
+    private val userImagesImageHashField = DSL.field(DSL.name("image_hash"), String::class.java)
 
     override fun addMailRelation(
         userId: UserId,
@@ -81,25 +91,58 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
         subCategoryId: MoneyUsageSubCategoryId?,
         date: LocalDateTime,
         amount: Int,
+        imageIds: List<ImageId>,
     ): MoneyUsageRepository.AddResult {
         return runCatching {
             DbConnectionImpl.use { connection ->
-                val results = DSL.using(connection)
-                    .insertInto(jUsage)
-                    .set(jUsage.USER_ID, userId.value)
-                    .set(jUsage.TITLE, title)
-                    .set(jUsage.DESCRIPTION, description)
-                    .set(jUsage.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId?.id)
-                    .set(jUsage.DATETIME, date)
-                    .set(jUsage.AMOUNT, amount)
-                    .returningResult(jUsage)
-                    .fetch()
-
-                if (results.size != 1) {
-                    throw IllegalStateException("failed to insert")
+                if (!isAllOwnedImages(connection = connection, userId = userId, imageIds = imageIds)) {
+                    throw IllegalArgumentException("image is not found")
                 }
 
-                mapMoneyUsage(results.first().value1())
+                val context = DSL.using(connection)
+                context.startTransaction()
+                try {
+                    val results = context
+                        .insertInto(jUsage)
+                        .set(jUsage.USER_ID, userId.value)
+                        .set(jUsage.TITLE, title)
+                        .set(jUsage.DESCRIPTION, description)
+                        .set(jUsage.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId?.id)
+                        .set(jUsage.DATETIME, date)
+                        .set(jUsage.AMOUNT, amount)
+                        .set(usageLegacyImageHashField, imageIds.firstOrNull()?.value)
+                        .returningResult(
+                            jUsage.MONEY_USAGE_ID,
+                            jUsage.USER_ID,
+                            jUsage.TITLE,
+                            jUsage.DESCRIPTION,
+                            jUsage.MONEY_USAGE_SUB_CATEGORY_ID,
+                            jUsage.DATETIME,
+                            jUsage.AMOUNT,
+                            usageLegacyImageHashField,
+                        )
+                        .fetch()
+
+                    if (results.size != 1) {
+                        throw IllegalStateException("failed to insert")
+                    }
+
+                    val usage = mapMoneyUsage(
+                        result = results.first(),
+                        imageIds = imageIds,
+                    )
+                    replaceMoneyUsageImages(
+                        connection = connection,
+                        userId = userId,
+                        usageId = usage.id,
+                        imageIds = imageIds,
+                    )
+                    context.commit()
+                    usage
+                } catch (e: Throwable) {
+                    context.rollback()
+                    throw e
+                }
             }
         }
             .fold(
@@ -276,8 +319,23 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
     ): Result<List<MoneyUsageRepository.Usage>> {
         return runCatching {
             DbConnectionImpl.use { connection ->
+                val imageIdsMap = getImageIdsByUsageIds(
+                    connection = connection,
+                    userId = userId,
+                    usageIds = ids,
+                )
                 val results = DSL.using(connection)
-                    .selectFrom(jUsage)
+                    .select(
+                        jUsage.MONEY_USAGE_ID,
+                        jUsage.USER_ID,
+                        jUsage.TITLE,
+                        jUsage.DESCRIPTION,
+                        jUsage.MONEY_USAGE_SUB_CATEGORY_ID,
+                        jUsage.DATETIME,
+                        jUsage.AMOUNT,
+                        usageLegacyImageHashField,
+                    )
+                    .from(jUsage)
                     .where(
                         DSL.value(true)
                             .and(jUsage.USER_ID.eq(userId.value))
@@ -286,13 +344,26 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                     .fetch()
 
                 results.map { result ->
-                    mapMoneyUsage(result = result)
+                    val usageId = MoneyUsageId(result.get(jUsage.MONEY_USAGE_ID)!!)
+                    mapMoneyUsage(
+                        result = result,
+                        imageIds = imageIdsMap[usageId].orEmpty(),
+                    )
                 }
             }
         }
     }
 
-    private fun mapMoneyUsage(result: JMoneyUsagesRecord): MoneyUsageRepository.Usage {
+    private fun mapMoneyUsage(
+        result: Record,
+        imageIds: List<ImageId>,
+    ): MoneyUsageRepository.Usage {
+        val legacyImageId = result.get(usageLegacyImageHashField)?.let { ImageId(it) }
+        val allImageIds = when {
+            imageIds.isNotEmpty() -> imageIds
+            legacyImageId != null -> listOf(legacyImageId)
+            else -> emptyList()
+        }
         return MoneyUsageRepository.Usage(
             id = MoneyUsageId(result.get(jUsage.MONEY_USAGE_ID)!!),
             userId = UserId(result.get(jUsage.USER_ID)!!),
@@ -301,6 +372,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
             subCategoryId = result.get(jUsage.MONEY_USAGE_SUB_CATEGORY_ID)?.let { MoneyUsageSubCategoryId(it) },
             date = result.get(jUsage.DATETIME)!!,
             amount = result.get(jUsage.AMOUNT)!!,
+            imageIds = allImageIds,
         )
     }
 
@@ -310,8 +382,17 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
     ): Result<List<MoneyUsageRepository.Usage>> {
         return runCatching {
             DbConnectionImpl.use { connection ->
-                DSL.using(connection)
-                    .select(jUsage)
+                val results = DSL.using(connection)
+                    .select(
+                        jUsage.MONEY_USAGE_ID,
+                        jUsage.USER_ID,
+                        jUsage.TITLE,
+                        jUsage.DESCRIPTION,
+                        jUsage.MONEY_USAGE_SUB_CATEGORY_ID,
+                        jUsage.DATETIME,
+                        jUsage.AMOUNT,
+                        usageLegacyImageHashField,
+                    )
                     .from(jRelation)
                     .join(jUsage).on(
                         jRelation.MONEY_USAGE_ID.eq(jUsage.MONEY_USAGE_ID)
@@ -323,8 +404,18 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                             .and(jRelation.USER_MAIL_ID.eq(importedMailId.id)),
                     )
                     .fetch()
-                    .map {
-                        mapMoneyUsage(it.value1())
+                val usageIds = results.mapNotNull { it.get(jUsage.MONEY_USAGE_ID)?.let { id -> MoneyUsageId(id) } }
+                val imageIdsMap = getImageIdsByUsageIds(
+                    connection = connection,
+                    userId = userId,
+                    usageIds = usageIds,
+                )
+                results.map {
+                    val usageId = MoneyUsageId(it.get(jUsage.MONEY_USAGE_ID)!!)
+                    mapMoneyUsage(
+                        result = it,
+                        imageIds = imageIdsMap[usageId].orEmpty(),
+                    )
                     }
             }
         }
@@ -363,6 +454,15 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                         )
                         .execute()
 
+                    context
+                        .deleteFrom(usageImageTable)
+                        .where(
+                            DSL.value(true)
+                                .and(usageImageUserIdField.eq(userId.value))
+                                .and(usageImageMoneyUsageIdField.eq(usageId.id)),
+                        )
+                        .execute()
+
                     context.commit()
                     return@use true
                 } catch (e: Throwable) {
@@ -384,40 +484,144 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
         subCategoryId: MoneyUsageSubCategoryId?,
         date: LocalDateTime?,
         amount: Int?,
+        imageIds: List<ImageId>?,
     ): Boolean {
         return runCatching {
             DbConnectionImpl.use { connection ->
-                DSL.using(connection)
-                    .update(jUsage)
-                    .set(jUsage.MONEY_USAGE_ID, usageId.id)
-                    .apply {
-                        if (title != null) {
-                            set(jUsage.TITLE, title)
+                if (imageIds != null && !isAllOwnedImages(connection = connection, userId = userId, imageIds = imageIds)) {
+                    return@use false
+                }
+                val context = DSL.using(connection)
+                context.startTransaction()
+                try {
+                    val updatedCount = context
+                        .update(jUsage)
+                        .set(jUsage.MONEY_USAGE_ID, usageId.id)
+                        .apply {
+                            if (title != null) {
+                                set(jUsage.TITLE, title)
+                            }
+                            if (description != null) {
+                                set(jUsage.DESCRIPTION, description)
+                            }
+                            if (subCategoryId != null) {
+                                set(jUsage.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId.id)
+                            }
+                            if (date != null) {
+                                set(jUsage.DATETIME, date)
+                            }
+                            if (amount != null) {
+                                set(jUsage.AMOUNT, amount)
+                            }
+                            if (imageIds != null) {
+                                set(usageLegacyImageHashField, imageIds.firstOrNull()?.value)
+                            }
                         }
-                        if (description != null) {
-                            set(jUsage.DESCRIPTION, description)
-                        }
-                        if (subCategoryId != null) {
-                            set(jUsage.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId.id)
-                        }
-                        if (date != null) {
-                            set(jUsage.DATETIME, date)
-                        }
-                        if (amount != null) {
-                            set(jUsage.AMOUNT, amount)
-                        }
+                        .where(
+                            DSL.value(true)
+                                .and(jUsage.USER_ID.eq(userId.value))
+                                .and(jUsage.MONEY_USAGE_ID.eq(usageId.id)),
+                        )
+                        .limit(1)
+                        .execute()
+                    if (updatedCount != 1) {
+                        context.rollback()
+                        return@use false
                     }
-                    .where(
-                        DSL.value(true)
-                            .and(jUsage.USER_ID.eq(userId.value))
-                            .and(jUsage.MONEY_USAGE_ID.eq(usageId.id)),
-                    )
-                    .limit(1)
-                    .execute() == 1
+
+                    if (imageIds != null) {
+                        replaceMoneyUsageImages(
+                            connection = connection,
+                            userId = userId,
+                            usageId = usageId,
+                            imageIds = imageIds,
+                        )
+                    }
+
+                    context.commit()
+                    true
+                } catch (e: Throwable) {
+                    context.rollback()
+                    false
+                }
             }
         }.fold(
             onSuccess = { it },
             onFailure = { false },
         )
+    }
+
+    private fun isAllOwnedImages(
+        connection: java.sql.Connection,
+        userId: UserId,
+        imageIds: List<ImageId>,
+    ): Boolean {
+        if (imageIds.isEmpty()) {
+            return true
+        }
+        val uniqueImageIds = imageIds.distinctBy { it.value }
+        val context = DSL.using(connection)
+        val count = context.selectCount()
+                .from(userImagesTable)
+                .where(
+                    userImagesUserIdField.eq(userId.value)
+                        .and(userImagesImageHashField.`in`(uniqueImageIds.map { it.value })),
+                )
+                .fetchOne(0, Int::class.java)
+                ?: 0
+        return count == uniqueImageIds.size
+    }
+
+    private fun getImageIdsByUsageIds(
+        connection: java.sql.Connection,
+        userId: UserId,
+        usageIds: List<MoneyUsageId>,
+    ): Map<MoneyUsageId, List<ImageId>> {
+        if (usageIds.isEmpty()) {
+            return emptyMap()
+        }
+        val records = DSL.using(connection)
+            .select(
+                usageImageMoneyUsageIdField,
+                usageImageRelationHashField,
+            )
+            .from(usageImageTable)
+            .where(
+                usageImageUserIdField.eq(userId.value)
+                    .and(usageImageMoneyUsageIdField.`in`(usageIds.map { it.id })),
+            )
+            .orderBy(
+                usageImageMoneyUsageIdField.asc(),
+                usageImageOrderField.asc(),
+            )
+            .fetch()
+
+        return records.groupBy(
+            keySelector = { MoneyUsageId(it.get(usageImageMoneyUsageIdField)!!) },
+            valueTransform = { ImageId(it.get(usageImageRelationHashField)!!) },
+        )
+    }
+
+    private fun replaceMoneyUsageImages(
+        connection: java.sql.Connection,
+        userId: UserId,
+        usageId: MoneyUsageId,
+        imageIds: List<ImageId>,
+    ) {
+        val context = DSL.using(connection)
+        context.deleteFrom(usageImageTable)
+            .where(
+                usageImageUserIdField.eq(userId.value)
+                    .and(usageImageMoneyUsageIdField.eq(usageId.id)),
+            )
+            .execute()
+        imageIds.forEachIndexed { index, imageId ->
+            context.insertInto(usageImageTable)
+                .set(usageImageUserIdField, userId.value)
+                .set(usageImageMoneyUsageIdField, usageId.id)
+                .set(usageImageRelationHashField, imageId.value)
+                .set(usageImageOrderField, index)
+                .execute()
+        }
     }
 }

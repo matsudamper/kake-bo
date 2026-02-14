@@ -51,6 +51,7 @@ public data class AddMoneyUsageScreenUiState(
     val description: String,
     val category: String,
     val amount: String,
+    val imageIds: String,
     val event: Event,
     val numberInputDialog: NumberInputDialog?,
 ) {
@@ -98,6 +99,8 @@ public data class AddMoneyUsageScreenUiState(
         public fun onClickCategoryChange()
 
         public fun onClickAmountChange()
+
+        public fun onClickImageIdsChange()
     }
 }
 
@@ -244,6 +247,18 @@ public fun AddMoneyUsageScreen(
                     },
                     clickChange = {
                         uiState.event.onClickDescriptionChange()
+                    },
+                )
+                HorizontalDivider(Modifier.fillMaxWidth().height(1.dp))
+                Section(
+                    title = {
+                        Text("画像")
+                    },
+                    description = {
+                        Text(uiState.imageIds.ifBlank { "未設定" })
+                    },
+                    clickChange = {
+                        uiState.event.onClickImageIdsChange()
                     },
                 )
                 Spacer(Modifier.height(24.dp))

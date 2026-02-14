@@ -65,6 +65,8 @@ type MoneyUsage {
     description: String! @lazy
     date: LocalDateTime! @lazy
     amount: Int! @lazy
+    imageIds: [ImageId!]! @lazy
+    imageUrls: [String!]! @lazy
 
     linkedMail: [ImportedMail!] @lazy
     moneyUsageSubCategory: MoneyUsageSubCategory @lazy

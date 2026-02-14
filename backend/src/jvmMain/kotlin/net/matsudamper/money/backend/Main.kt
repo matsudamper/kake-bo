@@ -37,7 +37,6 @@ import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.di.MainDiContainer
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
-import net.matsudamper.money.backend.feature.session.SessionAuthService
 import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
 import net.matsudamper.money.backend.image.ImageUploadConfig
 import net.matsudamper.money.backend.image.getImage
@@ -70,7 +69,6 @@ class Main {
 
 fun Application.myApplicationModule() {
     val diContainer = MainDiContainer()
-    val sessionAuthService = SessionAuthService(diContainer = diContainer)
 
     install(ForwardedHeaders)
     install(XForwardedHeaders)
@@ -174,7 +172,7 @@ fun Application.myApplicationModule() {
             }
         }
         postImage(
-            sessionAuthService = sessionAuthService,
+            diContainer = diContainer,
             userImageRepository = diContainer.createUserImageRepository(),
             config = ImageUploadConfig(
                 storageDirectory = File(ServerEnv.imageStoragePath),
@@ -182,7 +180,7 @@ fun Application.myApplicationModule() {
             ),
         )
         getImage(
-            sessionAuthService = sessionAuthService,
+            diContainer = diContainer,
             userImageRepository = diContainer.createUserImageRepository(),
             imageUploadConfig = ImageUploadConfig(
                 storageDirectory = File(ServerEnv.imageStoragePath),

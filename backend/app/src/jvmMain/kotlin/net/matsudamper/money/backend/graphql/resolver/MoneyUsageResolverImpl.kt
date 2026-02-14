@@ -9,6 +9,7 @@ import net.matsudamper.money.backend.dataloader.MoneyUsageAssociateByImportedMai
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
+import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.UserId
 import net.matsudamper.money.graphql.model.MoneyUsageResolver
@@ -78,6 +79,40 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
             moneyUsageId = moneyUsage.id,
         ).thenApplyAsync { futureResult ->
             futureResult.amount
+        }.toDataFetcher()
+    }
+
+    override fun imageIds(
+        moneyUsage: QlMoneyUsage,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<List<ImageId>>> {
+        val context = getContext(env)
+        val userId = context.verifyUserSessionAndGetUserId()
+        return getMoneyUsageFutureResult(
+            context = context,
+            env = env,
+            userId = userId,
+            moneyUsageId = moneyUsage.id,
+        ).thenApplyAsync { futureResult ->
+            futureResult.imageIds
+        }.toDataFetcher()
+    }
+
+    override fun imageUrls(
+        moneyUsage: QlMoneyUsage,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<List<String>>> {
+        val context = getContext(env)
+        val userId = context.verifyUserSessionAndGetUserId()
+        return getMoneyUsageFutureResult(
+            context = context,
+            env = env,
+            userId = userId,
+            moneyUsageId = moneyUsage.id,
+        ).thenApplyAsync { futureResult ->
+            futureResult.imageIds.map { imageId ->
+                "/api/image/v1/${imageId.value}"
+            }
         }.toDataFetcher()
     }
 

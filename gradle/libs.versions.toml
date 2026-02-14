@@ -14,6 +14,7 @@ lifecycle = "2.10.0"
 jooq = "3.20.11"
 nav3 = "1.0.1"
 jetbrainsNav3 = "1.0.0-alpha06"
+coil3 = "3.0.4"
 
 [plugins]
 apollo = { id = "com.apollographql.apollo", version.ref = "apollo" }
@@ -102,6 +103,11 @@ jakarta-activation-api = { module = "jakarta.activation:jakarta.activation-api",
 
 # Koin
 koinCore = { module = "io.insert-koin:koin-core", version.require = "4.1.1" }
+
+# Coil
+coilCompose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3" }
+coilNetworkKtor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil3" }
+coilNetworkOkhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil3" }
 
 # Log
 log4j-api = { module = "org.slf4j:slf4j-api", version.require = "2.0.17" }
