@@ -7,7 +7,7 @@ public object ServerEnv {
     public val frontPath: String get() = System.getenv()["HTML_PATH"] ?: "../frontend/app/build/dist/js/developmentExecutable"
     public val htmlPath: String get() = "$frontPath/index.html"
     public val imageStoragePath: String get() = System.getenv()["IMAGE_STORAGE_PATH"] ?: "./uploaded_images"
-    public val imageUploadMaxBytes: Long get() = System.getenv()["IMAGE_UPLOAD_MAX_BYTES"]?.toLongOrNull() ?: 5L * 1024L * 1024L
+    public val imageUploadMaxBytes: Long get() = 50L * 1024L * 1024L // 50MB
     public val isDebug: Boolean get() = System.getenv()["IS_DEBUG"]?.toBooleanStrictOrNull() ?: false
 
     public val dbHost: String get() = System.getenv()["DB_HOST"]!!
