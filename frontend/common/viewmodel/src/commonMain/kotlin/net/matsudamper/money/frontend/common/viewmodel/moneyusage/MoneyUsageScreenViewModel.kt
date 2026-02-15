@@ -217,8 +217,6 @@ public class MoneyUsageScreenViewModel(
                                 date = moneyUsage.date,
                                 description = moneyUsage.description,
                                 subCategoryId = moneyUsage.moneyUsageSubCategory?.id?.id?.toString(),
-                                imageIds = moneyUsage.imageIds,
-                                imageUrls = moneyUsage.imageUrls,
                             ),
                         )
                     }

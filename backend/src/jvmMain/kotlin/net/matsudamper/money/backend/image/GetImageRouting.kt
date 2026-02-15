@@ -13,7 +13,6 @@ import net.matsudamper.money.backend.feature.image.ImageApiPath
 import net.matsudamper.money.backend.feature.image.ImageReadHandler
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
 import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
-import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.image.ImageUploadImageResponse
 
 internal fun Route.getImage(
@@ -21,7 +20,7 @@ internal fun Route.getImage(
     imageUploadConfig: ImageUploadConfig,
     imageReadHandler: ImageReadHandler = ImageReadHandler(),
 ) {
-    get(ImageApiPath.imageV1("{displayId}")) {
+    get(ImageApiPath.imageV1ByDisplayId("{displayId}")) {
         val userId = UserSessionManagerImpl(
             cookieManager = KtorCookieManager(call = call),
             userSessionRepository = diContainer.createUserSessionRepository(),
@@ -50,10 +49,9 @@ internal fun Route.getImage(
             return@get
         }
 
-        val imageId = ImageId(displayId)
-        val relativePath = diContainer.createUserImageRepository().getRelativePath(
+        val relativePath = diContainer.createUserImageRepository().getRelativePathByDisplayId(
             userId = userId,
-            imageId = imageId,
+            displayId = displayId,
         )
         if (relativePath == null) {
             call.respondApiError(

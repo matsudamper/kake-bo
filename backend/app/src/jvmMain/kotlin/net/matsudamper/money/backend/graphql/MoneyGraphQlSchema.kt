@@ -148,7 +148,7 @@ object MoneyGraphQlSchema {
                     deserialize = { ApiTokenId(it) },
                     serialize = { it.value },
                 ),
-                createStringScalarType(
+                createIntScalarType(
                     name = "ImageId",
                     deserialize = { ImageId(it) },
                     serialize = { it.value },

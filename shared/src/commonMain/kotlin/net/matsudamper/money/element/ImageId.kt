@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 @JvmInline
 public value class ImageId(
-    val value: String,
+    val value: Int,
 )

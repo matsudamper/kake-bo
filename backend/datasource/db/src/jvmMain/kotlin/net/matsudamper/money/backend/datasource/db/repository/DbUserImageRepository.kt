@@ -12,28 +12,49 @@ class DbUserImageRepository : UserImageRepository {
 
     override fun saveImage(
         userId: UserId,
-        imageId: ImageId,
+        displayId: String,
         relativePath: String,
-    ): Boolean {
-        return runCatching {
+    ): UserImageRepository.SaveImageResult? {
+        return runCatching<UserImageRepository.SaveImageResult?> {
             DbConnectionImpl.use { connection ->
-                DSL.using(connection)
+                val context = DSL.using(connection)
+                val insertedCount = context
                     .insertInto(jUserImages)
                     .set(jUserImages.USER_ID, userId.value)
-                    .set(jUserImages.DISPLAY_ID, imageId.value)
+                    .set(jUserImages.DISPLAY_ID, displayId)
                     .set(jUserImages.IMAGE_PATH, relativePath)
-                    .onDuplicateKeyIgnore()
-                    .execute() == 1
+                    .execute()
+                if (insertedCount != 1) {
+                    return@use null
+                }
+                context
+                    .select(
+                        jUserImages.IMAGE_ID,
+                        jUserImages.DISPLAY_ID,
+                    )
+                    .from(jUserImages)
+                    .where(
+                        jUserImages.USER_ID.eq(userId.value)
+                            .and(jUserImages.DISPLAY_ID.eq(displayId)),
+                    )
+                    .orderBy(jUserImages.IMAGE_ID.desc())
+                    .limit(1)
+                    .fetchOne()
+                    ?.let { record ->
+                        val imageId = record.get(jUserImages.IMAGE_ID) ?: return@let null
+                        val savedDisplayId = record.get(jUserImages.DISPLAY_ID) ?: return@let null
+                        UserImageRepository.SaveImageResult(
+                            imageId = ImageId(imageId),
+                            displayId = savedDisplayId,
+                        )
+                    }
             }
-        }.fold(
-            onSuccess = { it },
-            onFailure = { false },
-        )
+        }.getOrNull()
     }
 
-    override fun getRelativePath(
+    override fun getRelativePathByDisplayId(
         userId: UserId,
-        imageId: ImageId,
+        displayId: String,
     ): String? {
         return DbConnectionImpl.use { connection ->
             DSL.using(connection)
@@ -41,7 +62,7 @@ class DbUserImageRepository : UserImageRepository {
                 .from(jUserImages)
                 .where(
                     jUserImages.USER_ID.eq(userId.value)
-                        .and(jUserImages.DISPLAY_ID.eq(imageId.value)),
+                        .and(jUserImages.DISPLAY_ID.eq(displayId)),
                 )
                 .limit(1)
                 .fetchOne(jUserImages.IMAGE_PATH)
@@ -60,9 +81,35 @@ class DbUserImageRepository : UserImageRepository {
                         .from(jUserImages)
                         .where(
                             jUserImages.USER_ID.eq(userId.value)
-                                .and(jUserImages.DISPLAY_ID.eq(imageId.value)),
+                                .and(jUserImages.IMAGE_ID.eq(imageId.value)),
                         ),
                 )
+        }
+    }
+
+    override fun getDisplayIdsByImageIds(
+        userId: UserId,
+        imageIds: List<ImageId>,
+    ): Map<ImageId, String> {
+        if (imageIds.isEmpty()) {
+            return emptyMap()
+        }
+        val uniqueImageIds = imageIds.map { it.value }.distinct()
+        return DbConnectionImpl.use { connection ->
+            DSL.using(connection)
+                .select(
+                    jUserImages.IMAGE_ID,
+                    jUserImages.DISPLAY_ID,
+                )
+                .from(jUserImages)
+                .where(
+                    jUserImages.USER_ID.eq(userId.value)
+                        .and(jUserImages.IMAGE_ID.`in`(uniqueImageIds)),
+                )
+                .fetch()
+                .associate { record ->
+                    ImageId(record.get(jUserImages.IMAGE_ID)!!) to record.get(jUserImages.DISPLAY_ID)!!
+                }
         }
     }
 }

@@ -183,7 +183,7 @@ class GraphqlClientImpl(
         )
         .addCustomScalarAdapter(
             ApolloImageId.type,
-            CustomStringAdapter(
+            CustomIntAdapter(
                 serialize = {
                     it.value
                 },

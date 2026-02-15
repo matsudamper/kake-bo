@@ -20,18 +20,19 @@ class ImageUploadHandler {
             contentType = request.contentType,
         ) ?: return Result.UnsupportedMediaType
 
+        val displayId = UUID.randomUUID().toString()
         val writeResult = writeImageFile(
             inputStream = request.inputStream,
             storageDirectory = request.storageDirectory,
             maxUploadBytes = request.maxUploadBytes,
-            imageId = ImageId(UUID.randomUUID().toString()),
+            displayId = displayId,
         )
         return when (writeResult) {
             WriteImageFileResult.Empty -> Result.BadRequest(message = "EmptyFile")
             WriteImageFileResult.PayloadTooLarge -> Result.PayloadTooLarge
             is WriteImageFileResult.Success -> {
                 val relativePath = createRelativePath(
-                    imageId = writeResult.imageId,
+                    displayId = writeResult.displayId,
                     extension = extension,
                 )
                 val destination = File(request.storageDirectory, relativePath)
@@ -41,10 +42,10 @@ class ImageUploadHandler {
                 } else {
                     val saveResult = request.userImageRepository.saveImage(
                         userId = userId,
-                        imageId = writeResult.imageId,
+                        displayId = writeResult.displayId,
                         relativePath = relativePath,
                     )
-                    if (!saveResult) {
+                    if (saveResult == null) {
                         if (!destinationExisted) {
                             destination.delete()
                         }
@@ -52,7 +53,8 @@ class ImageUploadHandler {
                     }
 
                     Result.Success(
-                        imageId = writeResult.imageId,
+                        imageId = saveResult.imageId,
+                        displayId = saveResult.displayId,
                         relativePath = relativePath,
                     )
                 }
@@ -66,7 +68,7 @@ class ImageUploadHandler {
         inputStream: InputStream,
         storageDirectory: File,
         maxUploadBytes: Long,
-        imageId: ImageId,
+        displayId: String,
     ): WriteImageFileResult {
         val tempFile = runCatching {
             File.createTempFile("upload_", ".tmp", storageDirectory)
@@ -110,7 +112,7 @@ class ImageUploadHandler {
 
         return WriteImageFileResult.Success(
             tempFile = tempFile,
-            imageId = imageId,
+            displayId = displayId,
         )
     }
 
@@ -160,10 +162,10 @@ class ImageUploadHandler {
     }
 
     private fun createRelativePath(
-        imageId: ImageId,
+        displayId: String,
         extension: String,
     ): String {
-        return "${imageId.value.take(2)}/${imageId.value}.$extension"
+        return "${displayId.take(2)}/$displayId.$extension"
     }
 
     data class Request(
@@ -178,6 +180,7 @@ class ImageUploadHandler {
     sealed interface Result {
         data class Success(
             val imageId: ImageId,
+            val displayId: String,
             val relativePath: String,
         ) : Result
 
@@ -191,7 +194,7 @@ class ImageUploadHandler {
     private sealed interface WriteImageFileResult {
         data class Success(
             val tempFile: File,
-            val imageId: ImageId,
+            val displayId: String,
         ) : WriteImageFileResult
 
         data object PayloadTooLarge : WriteImageFileResult

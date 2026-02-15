@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
+import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.dataloader.MoneyUsageAssociateByImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.feature.image.ImageApiPath
@@ -111,8 +112,19 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
             userId = userId,
             moneyUsageId = moneyUsage.id,
         ).thenApplyAsync { futureResult ->
+            val domain = ServerEnv.domain
+                ?: throw IllegalStateException("DOMAIN is not configured")
+            val displayIdMap = context.diContainer.createUserImageRepository().getDisplayIdsByImageIds(
+                userId = userId,
+                imageIds = futureResult.imageIds,
+            )
             futureResult.imageIds.map { imageId ->
-                ImageApiPath.imageV1(imageId)
+                val displayId = displayIdMap[imageId]
+                    ?: throw IllegalStateException("displayId is not found: imageId=${imageId.value}")
+                ImageApiPath.imageV1AbsoluteByDisplayId(
+                    domain = domain,
+                    displayId = displayId,
+                )
             }
         }.toDataFetcher()
     }

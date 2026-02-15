@@ -313,8 +313,6 @@ public sealed interface ScreenStructure : IScreenStructure {
         val date: LocalDateTime? = null,
         val description: String? = null,
         val subCategoryId: String? = null,
-        val imageIds: List<ImageId> = emptyList(),
-        val imageUrls: List<String> = emptyList(),
     ) : ScreenStructure {
         override val direction: Screens = Screens.AddMoneyUsage
         override val stackGroupId: String? = null
@@ -334,12 +332,6 @@ public sealed interface ScreenStructure : IScreenStructure {
                     }
                     if (description != null) {
                         append(KEY_DESCRIPTION, description)
-                    }
-                    imageIds.forEach { imageId ->
-                        append(KEY_IMAGE_ID, imageId.value)
-                    }
-                    imageUrls.forEach { url ->
-                        append(KEY_IMAGE_URL, url)
                     }
                 },
             )
@@ -366,8 +358,6 @@ public sealed interface ScreenStructure : IScreenStructure {
                     date = queryParams[KEY_DATE]?.firstOrNull()?.let { LocalDateTime.parse(it) },
                     description = queryParams[KEY_DESCRIPTION]?.firstOrNull(),
                     subCategoryId = queryParams[KEY_SUB_CATEGORY_ID]?.firstOrNull(),
-                    imageIds = queryParams[KEY_IMAGE_ID].orEmpty().map(::ImageId),
-                    imageUrls = queryParams[KEY_IMAGE_URL].orEmpty(),
                 )
             }
         }

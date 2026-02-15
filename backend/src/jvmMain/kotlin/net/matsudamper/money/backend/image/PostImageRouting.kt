@@ -10,6 +10,7 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.utils.io.jvm.javaio.toInputStream
+import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.feature.image.ImageApiPath
 import net.matsudamper.money.backend.feature.image.ImageUploadHandler
@@ -108,6 +109,8 @@ internal fun Route.postImage(
             }
 
             is ImageUploadHandler.Result.Success -> {
+                val domain = ServerEnv.domain
+                    ?: throw IllegalStateException("DOMAIN is not configured")
                 call.respondText(
                     status = HttpStatusCode.Created,
                     contentType = ContentType.Application.Json,
@@ -115,7 +118,10 @@ internal fun Route.postImage(
                         ImageUploadImageResponse(
                             success = ImageUploadImageResponse.Success(
                                 imageId = uploadResult.imageId,
-                                url = ImageApiPath.imageV1(uploadResult.imageId),
+                                url = ImageApiPath.imageV1AbsoluteByDisplayId(
+                                    domain = domain,
+                                    displayId = uploadResult.displayId,
+                                ),
                             ),
                         ),
                     ),

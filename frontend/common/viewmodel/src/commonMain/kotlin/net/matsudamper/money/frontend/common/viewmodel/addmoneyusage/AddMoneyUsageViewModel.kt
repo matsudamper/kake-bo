@@ -301,9 +301,7 @@ public class AddMoneyUsageViewModel(
                         usageDate = current.date?.date ?: state.usageDate,
                         usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
                         usageDescription = current.description ?: state.usageDescription,
-                        usageImages = current.imageIds.zip(current.imageUrls)
-                            .map { (id, url) -> ViewModelState.UploadedImage(imageId = id, url = url) }
-                            .ifEmpty { state.usageImages },
+                        usageImages = listOf(),
                         usageCategorySet = if (subCategory != null) {
                             CategorySelectDialogViewModel.SelectedResult(
                                 categoryId = subCategory.category.id,
@@ -327,9 +325,7 @@ public class AddMoneyUsageViewModel(
                     usageDate = current.date?.date ?: state.usageDate,
                     usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
                     usageDescription = current.description ?: state.usageDescription,
-                    usageImages = current.imageIds.zip(current.imageUrls)
-                        .map { (id, url) -> ViewModelState.UploadedImage(imageId = id, url = url) }
-                        .ifEmpty { state.usageImages },
+                    usageImages = listOf(),
                     usageCategorySet = null,
                 )
             }
@@ -351,9 +347,7 @@ public class AddMoneyUsageViewModel(
                             it.copy(
                                 importedMailId = importedMailId,
                                 usageTitle = forwardedInfo?.subject ?: subject,
-                                usageImages = current.imageIds.zip(current.imageUrls)
-                                    .map { (id, url) -> ViewModelState.UploadedImage(imageId = id, url = url) }
-                                    .ifEmpty { it.usageImages },
+                                usageImages = listOf(),
                                 usageDate = forwardedInfo?.dateTime?.date
                                     ?: date?.date
                                     ?: Clock.System.todayIn(TimeZone.currentSystemDefault()),
@@ -372,9 +366,7 @@ public class AddMoneyUsageViewModel(
                             usageTime = suggestUsage.dateTime?.time ?: it.usageTime,
                             usageTitle = suggestUsage.title,
                             usageDescription = suggestUsage.description,
-                            usageImages = current.imageIds.zip(current.imageUrls)
-                                .map { (id, url) -> ViewModelState.UploadedImage(imageId = id, url = url) }
-                                .ifEmpty { it.usageImages },
+                            usageImages = listOf(),
                             usageCategorySet = run category@{
                                 CategorySelectDialogViewModel.SelectedResult(
                                     categoryId = suggestUsage.subCategory?.category?.id ?: return@category null,

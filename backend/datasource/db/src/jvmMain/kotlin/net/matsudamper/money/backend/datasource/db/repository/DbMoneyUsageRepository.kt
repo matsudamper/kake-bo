@@ -541,13 +541,16 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
         if (imageIds.isEmpty()) {
             return true
         }
-        val uniqueImageIds = imageIds.distinctBy { it.value }
-        val ownedImageIdMap = resolveOwnedUserImageIdMap(
-            connection = connection,
-            userId = userId,
-            imageIds = uniqueImageIds,
-        )
-        return ownedImageIdMap.size == uniqueImageIds.size
+        val uniqueImageIds = imageIds.map { it.value }.distinct()
+        val ownedImageCount = DSL.using(connection)
+            .selectCount()
+            .from(jUserImages)
+            .where(
+                jUserImages.USER_ID.eq(userId.value)
+                    .and(jUserImages.IMAGE_ID.`in`(uniqueImageIds)),
+            )
+            .fetchOne(0, Int::class.java) ?: 0
+        return ownedImageCount == uniqueImageIds.size
     }
 
     private fun getImageIdsByUsageIds(
@@ -561,14 +564,9 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
         val records = DSL.using(connection)
             .select(
                 jUsageImagesRelation.MONEY_USAGE_ID,
-                jUserImages.DISPLAY_ID,
+                jUsageImagesRelation.USER_IMAGE_ID,
             )
             .from(jUsageImagesRelation)
-            .join(jUserImages)
-            .on(
-                jUsageImagesRelation.USER_ID.eq(jUserImages.USER_ID)
-                    .and(jUsageImagesRelation.USER_IMAGE_ID.eq(jUserImages.IMAGE_ID)),
-            )
             .where(
                 jUsageImagesRelation.USER_ID.eq(userId.value)
                     .and(jUsageImagesRelation.MONEY_USAGE_ID.`in`(usageIds.map { it.id })),
@@ -581,7 +579,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
 
         return records.groupBy(
             keySelector = { MoneyUsageId(it.get(jUsageImagesRelation.MONEY_USAGE_ID)!!) },
-            valueTransform = { ImageId(it.get(jUserImages.DISPLAY_ID)!!) },
+            valueTransform = { ImageId(it.get(jUsageImagesRelation.USER_IMAGE_ID)!!) },
         )
     }
 
@@ -592,11 +590,6 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
         imageIds: List<ImageId>,
     ) {
         val context = DSL.using(connection)
-        val displayToUserImageId = resolveOwnedUserImageIdMap(
-            connection = connection,
-            userId = userId,
-            imageIds = imageIds,
-        )
         context.deleteFrom(jUsageImagesRelation)
             .where(
                 jUsageImagesRelation.USER_ID.eq(userId.value)
@@ -604,36 +597,12 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
             )
             .execute()
         imageIds.forEachIndexed { index, imageId ->
-            val userImageId = displayToUserImageId[imageId.value]
-                ?: throw IllegalArgumentException("image is not found")
             context.insertInto(jUsageImagesRelation)
                 .set(jUsageImagesRelation.USER_ID, userId.value)
                 .set(jUsageImagesRelation.MONEY_USAGE_ID, usageId.id)
-                .set(jUsageImagesRelation.USER_IMAGE_ID, userImageId)
+                .set(jUsageImagesRelation.USER_IMAGE_ID, imageId.value)
                 .set(jUsageImagesRelation.IMAGE_ORDER, index)
                 .execute()
-        }
-    }
-
-    private fun resolveOwnedUserImageIdMap(
-        connection: java.sql.Connection,
-        userId: UserId,
-        imageIds: List<ImageId>,
-    ): Map<String, Int> {
-        if (imageIds.isEmpty()) {
-            return emptyMap()
-        }
-        val uniqueDisplayIds = imageIds.map { it.value }.distinct()
-        val records = DSL.using(connection)
-            .select(jUserImages.DISPLAY_ID, jUserImages.IMAGE_ID)
-            .from(jUserImages)
-            .where(
-                jUserImages.USER_ID.eq(userId.value)
-                    .and(jUserImages.DISPLAY_ID.`in`(uniqueDisplayIds)),
-            )
-            .fetch()
-        return records.associate { record ->
-            record.get(jUserImages.DISPLAY_ID)!! to record.get(jUserImages.IMAGE_ID)!!
         }
     }
 }
