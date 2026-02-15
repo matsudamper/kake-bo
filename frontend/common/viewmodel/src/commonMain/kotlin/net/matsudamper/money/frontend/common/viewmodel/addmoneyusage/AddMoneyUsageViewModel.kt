@@ -193,27 +193,6 @@ public class AddMoneyUsageViewModel(
             }
         }
 
-        override fun onClickImageIdsChange() {
-            viewModelStateFlow.update { viewModelState ->
-                viewModelState.copy(
-                    textInputDialog = AddMoneyUsageScreenUiState.FullScreenTextInputDialog(
-                        title = "画像",
-                        default = viewModelState.usageImageIds.joinToString(separator = "\n") { it.value },
-                        onComplete = { text ->
-                            viewModelStateFlow.update { current ->
-                                current.copy(
-                                    usageImageIds = parseImageIds(text),
-                                )
-                            }
-                            dismissTextInputDialog()
-                        },
-                        canceled = { dismissTextInputDialog() },
-                        isMultiline = true,
-                    ),
-                )
-            }
-        }
-
         override fun onUploadedImageId(imageId: ImageId) {
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
@@ -463,12 +442,4 @@ public class AddMoneyUsageViewModel(
         val categorySelectDialog: CategorySelectDialogUiState? = null,
         val usageCategorySet: CategorySelectDialogViewModel.SelectedResult? = null,
     )
-
-    private fun parseImageIds(text: String): List<ImageId> {
-        return text.split("\n")
-            .map { it.trim() }
-            .filter { it.isNotEmpty() }
-            .distinct()
-            .map(::ImageId)
-    }
 }

@@ -102,8 +102,6 @@ public data class AddMoneyUsageScreenUiState(
 
         public fun onClickAmountChange()
 
-        public fun onClickImageIdsChange()
-
         public fun onUploadedImageId(imageId: ImageId)
     }
 }
@@ -267,9 +265,6 @@ public fun AddMoneyUsageScreen(
                             )
                         }
                     },
-                    clickChange = {
-                        uiState.event.onClickImageIdsChange()
-                    },
                 )
                 Spacer(Modifier.height(24.dp))
             }
@@ -333,7 +328,7 @@ private fun NumberInputDialog(
 @Composable
 private fun Section(
     modifier: Modifier = Modifier,
-    clickChange: () -> Unit,
+    clickChange: (() -> Unit)? = null,
     title: @Composable () -> Unit,
     titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
     description: @Composable () -> Unit,
@@ -351,9 +346,11 @@ private fun Section(
                 description()
             }
         }
-        TextButton(onClick = { clickChange() }) {
-            ProvideTextStyle(MaterialTheme.typography.labelMedium) {
-                Text("変更")
+        if (clickChange != null) {
+            TextButton(onClick = { clickChange() }) {
+                ProvideTextStyle(MaterialTheme.typography.labelMedium) {
+                    Text("変更")
+                }
             }
         }
     }
