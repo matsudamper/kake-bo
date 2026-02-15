@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -66,6 +67,7 @@ import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.UrlClickableText
 import net.matsudamper.money.frontend.common.ui.layout.UrlMenuDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 
 public data class MoneyUsageScreenUiState(
@@ -133,6 +135,7 @@ public data class MoneyUsageScreenUiState(
         val dateTime: String,
         val time: String,
         val imageUrls: ImmutableList<String>,
+        val isImageUploading: Boolean,
         val event: MoneyUsageEvent,
     )
 
@@ -156,6 +159,8 @@ public data class MoneyUsageScreenUiState(
         public fun onClickDescription()
 
         public fun onClickAmountChange()
+
+        public fun onClickUploadImage()
     }
 
     @Immutable
@@ -605,25 +610,40 @@ private fun MoneyUsage(
                 Text("画像")
             },
             content = {
-                if (uiState.imageUrls.isEmpty()) {
-                    Text("未設定")
-                } else {
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        uiState.imageUrls.forEach { imageUrl ->
-                            AsyncImage(
-                                model = imageUrl,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .size(180.dp)
-                                    .clickable { selectedImageUrl = imageUrl },
-                            )
+                Column {
+                    if (uiState.imageUrls.isEmpty() && !uiState.isImageUploading) {
+                        Text("未設定")
+                    } else {
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            uiState.imageUrls.forEach { imageUrl ->
+                                AsyncImage(
+                                    model = imageUrl,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(180.dp)
+                                        .clickable { selectedImageUrl = imageUrl },
+                                )
+                            }
+
+                            if (uiState.isImageUploading) {
+                                Box(
+                                    modifier = Modifier.size(180.dp),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
                         }
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ImageUploadButton(
+                        onClick = { uiState.event.onClickUploadImage() },
+                    )
                 }
             },
             onClickChange = {},

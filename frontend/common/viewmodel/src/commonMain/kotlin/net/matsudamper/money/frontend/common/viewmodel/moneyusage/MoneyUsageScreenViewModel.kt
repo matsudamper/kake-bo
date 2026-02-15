@@ -20,6 +20,7 @@ import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
+import net.matsudamper.money.frontend.common.ui.layout.image.SelectedImage
 import net.matsudamper.money.frontend.common.ui.screen.moneyusage.MoneyUsageScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
@@ -130,6 +131,7 @@ public class MoneyUsageScreenViewModel(
                                         "${subCategory.name} / ${category.name}"
                                     },
                                     imageUrls = moneyUsage.imageUrls.toImmutableList(),
+                                    isImageUploading = viewModelState.uploadingImageCount > 0,
                                     event = createMoneyUsageEvent(item = moneyUsage),
                                 ),
                                 linkedMails = moneyUsage.linkedMail.orEmpty().map { mail ->
@@ -170,6 +172,16 @@ public class MoneyUsageScreenViewModel(
         }
     }.asStateFlow()
 
+    private fun currentMoneyUsage(): MoneyUsageScreenMoneyUsage? {
+        return when (val state = viewModelStateFlow.value.apolloResponseState) {
+            is ApolloResponseState.Success -> {
+                state.value.data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage
+            }
+
+            else -> null
+        }
+    }
+
     private fun createLoadedEvent(): MoneyUsageScreenUiState.LoadedEvent {
         return object : MoneyUsageScreenUiState.LoadedEvent {
             override fun onClickDelete() {
@@ -200,13 +212,7 @@ public class MoneyUsageScreenViewModel(
             }
 
             override fun onClickCopy() {
-                val currentState = viewModelStateFlow.value
-                val moneyUsage = when (val state = currentState.apolloResponseState) {
-                    is ApolloResponseState.Success -> {
-                        state.value.data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage
-                    }
-                    else -> null
-                } ?: return
+                val moneyUsage = currentMoneyUsage() ?: return
 
                 viewModelScope.launch {
                     eventSender.send { event ->
@@ -378,6 +384,41 @@ public class MoneyUsageScreenViewModel(
                     )
                 }
             }
+
+            override fun onClickUploadImage() {
+                viewModelScope.launch {
+                    val image = eventSender.send { it.selectImage() } ?: return@launch
+
+                    viewModelStateFlow.update { state ->
+                        state.copy(uploadingImageCount = state.uploadingImageCount + 1)
+                    }
+
+                    try {
+                        val uploadResult = api.uploadImage(
+                            bytes = image.bytes,
+                            contentType = image.contentType,
+                        ) ?: return@launch
+
+                        val currentImageIds = currentMoneyUsage()?.imageIds ?: item.imageIds
+                        val updatedImageIds = (currentImageIds + uploadResult.imageId)
+                            .distinctBy { imageId -> imageId.value }
+
+                        val isSuccess = api.updateUsage(
+                            id = moneyUsageId,
+                            imageIds = updatedImageIds,
+                        )
+                        if (!isSuccess) {
+                            // TODO
+                        }
+                    } finally {
+                        viewModelStateFlow.update { state ->
+                            state.copy(
+                                uploadingImageCount = (state.uploadingImageCount - 1).coerceAtLeast(0),
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -505,6 +546,8 @@ public class MoneyUsageScreenViewModel(
     }
 
     public interface Event {
+        public suspend fun selectImage(): SelectedImage?
+
         public fun navigate(structure: ScreenStructure)
 
         public fun navigateBack()
@@ -523,5 +566,6 @@ public class MoneyUsageScreenViewModel(
         val categorySelectDialog: CategorySelectDialogUiState? = null,
         val urlMenuDialog: MoneyUsageScreenUiState.UrlMenuDialog? = null,
         val numberInputDialog: MoneyUsageScreenUiState.NumberInputDialog? = null,
+        val uploadingImageCount: Int = 0,
     )
 }

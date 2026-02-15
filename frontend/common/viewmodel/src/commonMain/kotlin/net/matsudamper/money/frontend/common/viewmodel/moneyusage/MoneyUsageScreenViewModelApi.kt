@@ -4,6 +4,7 @@ import kotlinx.datetime.LocalDateTime
 import com.apollographql.apollo.api.Optional
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenDeleteUsageMutation
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenUpdateUsageMutation
@@ -11,7 +12,18 @@ import net.matsudamper.money.frontend.graphql.type.UpdateUsageQuery
 
 public class MoneyUsageScreenViewModelApi(
     private val graphqlClient: GraphqlClient,
+    private val imageUploadClient: ImageUploadClient,
 ) {
+    public suspend fun uploadImage(
+        bytes: ByteArray,
+        contentType: String?,
+    ): ImageUploadClient.UploadResult? {
+        return imageUploadClient.upload(
+            bytes = bytes,
+            contentType = contentType,
+        )
+    }
+
     public suspend fun updateUsage(
         id: MoneyUsageId,
         title: String? = null,

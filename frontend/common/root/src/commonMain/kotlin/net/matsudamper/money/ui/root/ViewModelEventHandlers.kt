@@ -265,6 +265,8 @@ internal data class ViewModelEventHandlers(
         coroutineScope {
             handler.collect(
                 object : MoneyUsageScreenViewModel.Event {
+                    override suspend fun selectImage() = platformToolsProvider().imagePicker.pickImage()
+
                     override fun navigate(structure: ScreenStructure) {
                         navController.navigate(structure)
                     }
