@@ -1,5 +1,8 @@
 package net.matsudamper.money.frontend.common.ui.screen.addmoneyusage
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,11 +14,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
@@ -25,11 +30,14 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
+import coil3.compose.AsyncImage
+import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -40,6 +48,11 @@ import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
+
+public sealed interface ImageItem {
+    public data object Uploading : ImageItem
+    public data class Uploaded(val url: String) : ImageItem
+}
 
 public data class AddMoneyUsageScreenUiState(
     val calendarDialog: CalendarDialog?,
@@ -52,7 +65,7 @@ public data class AddMoneyUsageScreenUiState(
     val description: String,
     val category: String,
     val amount: String,
-    val imageIds: String,
+    val images: ImmutableList<ImageItem>,
     val event: Event,
     val numberInputDialog: NumberInputDialog?,
 ) {
@@ -257,7 +270,42 @@ public fun AddMoneyUsageScreen(
                     },
                     description = {
                         Column {
-                            Text(uiState.imageIds.ifBlank { "未設定" })
+                            if (uiState.images.isEmpty()) {
+                                Text("未設定")
+                            } else {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .horizontalScroll(rememberScrollState()),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    uiState.images.forEach { image ->
+                                        when (image) {
+                                            is ImageItem.Uploading -> {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(120.dp),
+                                                    contentAlignment = Alignment.Center,
+                                                ) {
+                                                    CircularProgressIndicator(
+                                                        modifier = Modifier.size(48.dp),
+                                                    )
+                                                }
+                                            }
+                                            is ImageItem.Uploaded -> {
+                                                AsyncImage(
+                                                    model = image.url,
+                                                    contentDescription = null,
+                                                    contentScale = ContentScale.Crop,
+                                                    modifier = Modifier
+                                                        .size(120.dp)
+                                                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                             Spacer(Modifier.height(8.dp))
                             ImageUploadButton(
                                 onClick = { uiState.event.onClickUploadImage() },

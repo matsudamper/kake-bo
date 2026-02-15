@@ -16,18 +16,22 @@ import kotlinx.datetime.todayIn
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.layout.image.SelectedImage
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.ImageItem
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
+import net.matsudamper.money.image.ImageApiPath
 
 public class AddMoneyUsageViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -197,16 +201,28 @@ public class AddMoneyUsageViewModel(
         override fun onClickUploadImage() {
             viewModelScope.launch {
                 val image = eventSender.send { it.selectImage() } ?: return@launch
+
+                viewModelStateFlow.update { it.copy(uploadingImageCount = it.uploadingImageCount + 1) }
+
                 val imageId = graphqlApi.uploadImage(
                     bytes = image.bytes,
                     contentType = image.contentType,
-                ) ?: return@launch
+                )
 
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        usageImageIds = (viewModelState.usageImageIds + imageId)
-                            .distinctBy { it.value },
-                    )
+                if (imageId != null) {
+                    viewModelStateFlow.update { viewModelState ->
+                        viewModelState.copy(
+                            uploadingImageCount = viewModelState.uploadingImageCount - 1,
+                            usageImages = (
+                                viewModelState.usageImages + ViewModelState.UploadedImage(
+                                    imageId = imageId,
+                                    url = ImageApiPath.imageV1(imageId),
+                                )
+                                ).distinctBy { it.imageId.value },
+                        )
+                    }
+                } else {
+                    viewModelStateFlow.update { it.copy(uploadingImageCount = it.uploadingImageCount - 1) }
                 }
             }
         }
@@ -246,7 +262,8 @@ public class AddMoneyUsageViewModel(
                 amount = viewModelStateFlow.value.usageAmount.value,
                 subCategoryId = viewModelStateFlow.value.usageCategorySet?.subCategoryId,
                 importedMailId = viewModelStateFlow.value.importedMailId,
-                imageIds = viewModelStateFlow.value.usageImageIds
+                imageIds = viewModelStateFlow.value.usageImages
+                    .map { it.imageId }
                     .takeIf { it.isNotEmpty() },
             )
 
@@ -285,8 +302,9 @@ public class AddMoneyUsageViewModel(
                         usageDate = current.date?.date ?: state.usageDate,
                         usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
                         usageDescription = current.description ?: state.usageDescription,
-                        usageImageIds = current.imageIds
-                            .ifEmpty { state.usageImageIds },
+                        usageImages = current.imageIds
+                            .map { ViewModelState.UploadedImage(imageId = it, url = ImageApiPath.imageV1(it)) }
+                            .ifEmpty { state.usageImages },
                         usageCategorySet = if (subCategory != null) {
                             CategorySelectDialogViewModel.SelectedResult(
                                 categoryId = subCategory.category.id,
@@ -310,8 +328,9 @@ public class AddMoneyUsageViewModel(
                     usageDate = current.date?.date ?: state.usageDate,
                     usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
                     usageDescription = current.description ?: state.usageDescription,
-                    usageImageIds = current.imageIds
-                        .ifEmpty { state.usageImageIds },
+                    usageImages = current.imageIds
+                        .map { ViewModelState.UploadedImage(imageId = it, url = ImageApiPath.imageV1(it)) }
+                        .ifEmpty { state.usageImages },
                     usageCategorySet = null,
                 )
             }
@@ -333,8 +352,9 @@ public class AddMoneyUsageViewModel(
                             it.copy(
                                 importedMailId = importedMailId,
                                 usageTitle = forwardedInfo?.subject ?: subject,
-                                usageImageIds = current.imageIds
-                                    .ifEmpty { it.usageImageIds },
+                                usageImages = current.imageIds
+                                    .map { id -> ViewModelState.UploadedImage(imageId = id, url = ImageApiPath.imageV1(id)) }
+                                    .ifEmpty { it.usageImages },
                                 usageDate = forwardedInfo?.dateTime?.date
                                     ?: date?.date
                                     ?: Clock.System.todayIn(TimeZone.currentSystemDefault()),
@@ -353,8 +373,9 @@ public class AddMoneyUsageViewModel(
                             usageTime = suggestUsage.dateTime?.time ?: it.usageTime,
                             usageTitle = suggestUsage.title,
                             usageDescription = suggestUsage.description,
-                            usageImageIds = current.imageIds
-                                .ifEmpty { it.usageImageIds },
+                            usageImages = current.imageIds
+                                .map { id -> ViewModelState.UploadedImage(imageId = id, url = ImageApiPath.imageV1(id)) }
+                                .ifEmpty { it.usageImages },
                             usageCategorySet = run category@{
                                 CategorySelectDialogViewModel.SelectedResult(
                                     categoryId = suggestUsage.subCategory?.category?.id ?: return@category null,
@@ -381,7 +402,7 @@ public class AddMoneyUsageViewModel(
             title = "",
             description = "",
             amount = "",
-            imageIds = "",
+            images = immutableListOf(),
             fullScreenTextInputDialog = null,
             categorySelectDialog = null,
             numberInputDialog = null,
@@ -416,10 +437,10 @@ public class AddMoneyUsageViewModel(
                             val subCategory = categorySet.subCategoryName
                             "$category / $subCategory"
                         },
-                        imageIds = viewModelState.usageImageIds
-                            .takeIf { it.isNotEmpty() }
-                            ?.let { "${it.size}件" }
-                            ?: "",
+                        images = buildList {
+                            addAll(viewModelState.usageImages.map { ImageItem.Uploaded(url = it.url) })
+                            repeat(viewModelState.uploadingImageCount) { add(ImageItem.Uploading) }
+                        }.toImmutableList(),
                         categorySelectDialog = viewModelState.categorySelectDialog,
                     )
                 }
@@ -439,7 +460,8 @@ public class AddMoneyUsageViewModel(
         val usageTime: LocalTime = LocalTime(0, 0, 0, 0),
         val usageTitle: String = "",
         val usageDescription: String = "",
-        val usageImageIds: List<ImageId> = emptyList(),
+        val uploadingImageCount: Int = 0,
+        val usageImages: List<UploadedImage> = listOf(),
         val usageAmount: NumberInputValue = NumberInputValue.default(),
         val numberInputDialog: AddMoneyUsageScreenUiState.NumberInputDialog? = null,
         val showCalendarDialog: Boolean = false,
@@ -447,5 +469,7 @@ public class AddMoneyUsageViewModel(
         val textInputDialog: AddMoneyUsageScreenUiState.FullScreenTextInputDialog? = null,
         val categorySelectDialog: CategorySelectDialogUiState? = null,
         val usageCategorySet: CategorySelectDialogViewModel.SelectedResult? = null,
-    )
+    ) {
+        data class UploadedImage(val imageId: ImageId, val url: String)
+    }
 }
