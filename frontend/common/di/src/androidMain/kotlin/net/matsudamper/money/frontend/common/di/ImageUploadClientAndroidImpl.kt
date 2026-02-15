@@ -1,11 +1,7 @@
 package net.matsudamper.money.frontend.common.di
 
 import androidx.datastore.core.DataStore
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
-import java.util.UUID
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
@@ -16,12 +12,24 @@ import net.matsudamper.money.frontend.graphql.serverHost
 import net.matsudamper.money.frontend.graphql.serverProtocol
 import net.matsudamper.money.image.ImageUploadApiPath
 import net.matsudamper.money.image.ImageUploadImageResponse
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 
 private const val UserSessionIdKey = "user_session_id"
 
 public class ImageUploadClientAndroidImpl(
     private val sessionDataStore: DataStore<Session>,
 ) : ImageUploadClient {
+    private val okHttpClient: OkHttpClient by lazy {
+        OkHttpClient.Builder()
+            .connectTimeout(5, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .build()
+    }
+
     override suspend fun upload(
         bytes: ByteArray,
         contentType: String?,
@@ -35,52 +43,39 @@ public class ImageUploadClientAndroidImpl(
 
             val protocol = serverProtocol.ifBlank { "https" }
             val requestUrl = "$protocol://$host${ImageUploadApiPath.uploadV1}"
-            val boundary = "----kakebo-${UUID.randomUUID()}"
             val resolvedContentType = contentType.orEmpty().ifBlank { "application/octet-stream" }
             val userSessionId = session?.userSessionId.orEmpty()
 
             runCatching {
-                var connection: HttpURLConnection? = null
-                try {
-                    connection = (URL(requestUrl).openConnection() as HttpURLConnection).apply {
-                        requestMethod = "POST"
-                        doOutput = true
-                        connectTimeout = 5_000
-                        readTimeout = 10_000
-                        setRequestProperty("Content-Type", "multipart/form-data; boundary=$boundary")
-                        if (userSessionId.isNotBlank()) {
-                            setRequestProperty("Cookie", "$UserSessionIdKey=$userSessionId")
-                        }
-                    }
-
-                    connection.outputStream.buffered().use { output ->
-                        output.write("--$boundary\r\n".toByteArray())
-                        output.write("Content-Disposition: form-data; name=\"file\"; filename=\"image\"\r\n".toByteArray())
-                        output.write("Content-Type: $resolvedContentType\r\n\r\n".toByteArray())
-                        output.write(bytes)
-                        output.write("\r\n--$boundary--\r\n".toByteArray())
-                        output.flush()
-                    }
-
-                    val responseBody = (
-                        if (connection.responseCode in 200..299) {
-                            connection.inputStream
-                        } else {
-                            connection.errorStream
-                        }
-                        )?.let { stream ->
-                        BufferedReader(InputStreamReader(stream)).use { it.readText() }
-                    }.orEmpty()
-
-                    val success = Json.decodeFromString<ImageUploadImageResponse>(responseBody).success
-                        ?: return@runCatching null
-                    ImageUploadClient.UploadResult(
-                        imageId = success.imageId,
-                        url = success.url,
+                val requestBody = MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart(
+                        name = "file",
+                        filename = "image",
+                        body = bytes.toRequestBody(resolvedContentType.toMediaTypeOrNull()),
                     )
-                } finally {
-                    connection?.disconnect()
+                    .build()
+
+                val request = Request.Builder()
+                    .url(requestUrl)
+                    .post(requestBody)
+                    .apply {
+                        if (userSessionId.isNotBlank()) {
+                            header("Cookie", "$UserSessionIdKey=$userSessionId")
+                        }
+                    }
+                    .build()
+
+                val responseBody = okHttpClient.newCall(request).execute().use { response ->
+                    response.body.string()
                 }
+
+                val success = Json.decodeFromString<ImageUploadImageResponse>(responseBody).success
+                    ?: return@runCatching null
+                ImageUploadClient.UploadResult(
+                    imageId = success.imageId,
+                    url = success.url,
+                )
             }.getOrNull()
         }
     }

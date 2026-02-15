@@ -25,6 +25,11 @@ kotlin {
                 implementation(libs.kotlin.serialization.json)
             }
         }
+        val androidMain by getting {
+            dependencies {
+                implementation(libs.okHttp)
+            }
+        }
     }
 }
 
