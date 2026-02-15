@@ -35,6 +35,7 @@ class ImageUploadHandler {
         ) ?: return Result.InternalServerError(IllegalStateException("Failed to reserve image ID. UUID: $displayUUID"))
         val destination = File(request.storageDirectory, relativePath)
         if (destination.exists()) {
+            request.userImageRepository.deleteImage(userId = userId, imageId = imageId)
             return Result.InternalServerError(IllegalStateException("File already exists at destination: ${destination.absolutePath}"))
         }
 
