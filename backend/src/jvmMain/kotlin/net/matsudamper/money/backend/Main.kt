@@ -68,8 +68,6 @@ class Main {
 }
 
 fun Application.myApplicationModule() {
-    val diContainer = MainDiContainer()
-
     install(ForwardedHeaders)
     install(XForwardedHeaders)
     install(Compression)
@@ -128,7 +126,7 @@ fun Application.myApplicationModule() {
                     return@respondText withTimeout(5.seconds) {
                         GraphqlHandler(
                             cookieManager = KtorCookieManager(call = call),
-                            diContainer = diContainer,
+                            diContainer = MainDiContainer(),
                         ).handle(
                             requestText = call.receiveStream().bufferedReader().readText(),
                         )
@@ -139,7 +137,7 @@ fun Application.myApplicationModule() {
                 val apiKey = call.request.headers["Authorization"]
                 withTimeout(5.seconds) {
                     val result = RegisterMailHandler(
-                        diContainer = diContainer,
+                        diContainer = MainDiContainer(),
                     ).handle(
                         request = request,
                         apiKey = apiKey,
