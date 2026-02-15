@@ -94,6 +94,11 @@ type ApiTokenAttributes {
 
 scalar ApiTokenId
 
+"""
+Built-in Boolean
+"""
+scalar Boolean
+
 type ChangeSessionNameResult {
   isSuccess: Boolean!
 
@@ -143,6 +148,8 @@ type FidoLoginInfo {
 
   domain: String!
 }
+
+scalar ImageId
 
 type ImportMailResult {
   isSuccess: Boolean!
@@ -276,8 +283,6 @@ type ImportedMailForwardedInfo {
 
 scalar ImportedMailId
 
-scalar ImageId
-
 input ImportedMailQuery {
   size: Int!
 
@@ -299,6 +304,11 @@ enum ImportedMailSortKey {
 
   DATETIME
 }
+
+"""
+Built-in Int
+"""
+scalar Int
 
 scalar LocalDateTime
 
@@ -521,6 +531,11 @@ type SessionAttributes {
 type SettingsMutation {
   updateImapConfig(config: UpdateUserImapConfigInput!): UserImapConfig
 }
+
+"""
+Built-in String
+"""
+scalar String
 
 type SubCategoriesConnection {
   nodes: [MoneyUsageSubCategory!]!
