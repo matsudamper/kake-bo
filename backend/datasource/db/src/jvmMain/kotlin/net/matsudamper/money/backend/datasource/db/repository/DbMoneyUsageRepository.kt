@@ -598,13 +598,17 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                     .and(jUsageImagesRelation.MONEY_USAGE_ID.eq(usageId.id)),
             )
             .execute()
-        imageIds.forEachIndexed { index, imageId ->
-            context.insertInto(jUsageImagesRelation)
-                .set(jUsageImagesRelation.USER_ID, userId.value)
-                .set(jUsageImagesRelation.MONEY_USAGE_ID, usageId.id)
-                .set(jUsageImagesRelation.USER_IMAGE_ID, imageId.value)
-                .set(jUsageImagesRelation.IMAGE_ORDER, index)
-                .execute()
+        if (imageIds.isEmpty()) {
+            return
         }
+        val records = imageIds.mapIndexed { index, imageId ->
+            context.newRecord(jUsageImagesRelation).apply {
+                set(jUsageImagesRelation.USER_ID, userId.value)
+                set(jUsageImagesRelation.MONEY_USAGE_ID, usageId.id)
+                set(jUsageImagesRelation.USER_IMAGE_ID, imageId.value)
+                set(jUsageImagesRelation.IMAGE_ORDER, index)
+            }
+        }
+        context.batchInsert(records).execute()
     }
 }
