@@ -1,15 +1,15 @@
 package net.matsudamper.money.frontend.common.ui.layout.image
 
 import android.content.Context
+import java.net.URI
+import kotlinx.coroutines.flow.firstOrNull
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import coil3.intercept.Interceptor
 import coil3.network.httpHeaders
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
-import kotlinx.coroutines.flow.firstOrNull
 import net.matsudamper.money.frontend.common.feature.localstore.DataStores
 import net.matsudamper.money.frontend.graphql.serverHost
-import java.net.URI
 
 private const val UserSessionIdKey = "user_session_id"
 

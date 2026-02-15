@@ -401,7 +401,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                         result = it,
                         imageIds = imageIdsMap[usageId].orEmpty(),
                     )
-                    }
+                }
             }
         }
     }

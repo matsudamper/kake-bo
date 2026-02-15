@@ -98,11 +98,13 @@ private suspend fun uploadImage(
                 output.flush()
             }
 
-            val responseBody = (if (connection.responseCode in 200..299) {
-                connection.inputStream
-            } else {
-                connection.errorStream
-            })?.let { stream ->
+            val responseBody = (
+                if (connection.responseCode in 200..299) {
+                    connection.inputStream
+                } else {
+                    connection.errorStream
+                }
+                )?.let { stream ->
                 BufferedReader(InputStreamReader(stream)).use { it.readText() }
             }.orEmpty()
 

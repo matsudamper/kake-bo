@@ -39,7 +39,6 @@ internal fun Route.postImage(
 
         val multipart = call.receiveMultipart()
 
-
         var result: ImageUploadHandler.Result? = null
         while (true) {
             val part = multipart.readPart() ?: break
