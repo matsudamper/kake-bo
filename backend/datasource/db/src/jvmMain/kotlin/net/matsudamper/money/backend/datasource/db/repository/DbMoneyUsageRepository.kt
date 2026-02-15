@@ -22,7 +22,6 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
     private val jUsage = JMoneyUsages.MONEY_USAGES
     private val jSubCategory = JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES
     private val jRelation = JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION
-    private val usageLegacyImageDisplayIdField = DSL.field(DSL.name("image_display_id"), String::class.java)
     private val usageImageTable = DSL.table(DSL.name("money_usage_images"))
     private val usageImageUserIdField = DSL.field(DSL.name("user_id"), Int::class.java)
     private val usageImageMoneyUsageIdField = DSL.field(DSL.name("money_usage_id"), Int::class.java)
@@ -111,7 +110,6 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                         .set(jUsage.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId?.id)
                         .set(jUsage.DATETIME, date)
                         .set(jUsage.AMOUNT, amount)
-                        .set(usageLegacyImageDisplayIdField, imageIds.firstOrNull()?.value)
                         .returningResult(
                             jUsage.MONEY_USAGE_ID,
                             jUsage.USER_ID,
@@ -120,7 +118,6 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                             jUsage.MONEY_USAGE_SUB_CATEGORY_ID,
                             jUsage.DATETIME,
                             jUsage.AMOUNT,
-                            usageLegacyImageDisplayIdField,
                         )
                         .fetch()
 
@@ -334,7 +331,6 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                         jUsage.MONEY_USAGE_SUB_CATEGORY_ID,
                         jUsage.DATETIME,
                         jUsage.AMOUNT,
-                        usageLegacyImageDisplayIdField,
                     )
                     .from(jUsage)
                     .where(
@@ -359,12 +355,6 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
         result: Record,
         imageIds: List<ImageId>,
     ): MoneyUsageRepository.Usage {
-        val legacyImageId = result.get(usageLegacyImageDisplayIdField)?.let { ImageId(it) }
-        val allImageIds = when {
-            imageIds.isNotEmpty() -> imageIds
-            legacyImageId != null -> listOf(legacyImageId)
-            else -> emptyList()
-        }
         return MoneyUsageRepository.Usage(
             id = MoneyUsageId(result.get(jUsage.MONEY_USAGE_ID)!!),
             userId = UserId(result.get(jUsage.USER_ID)!!),
@@ -373,7 +363,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
             subCategoryId = result.get(jUsage.MONEY_USAGE_SUB_CATEGORY_ID)?.let { MoneyUsageSubCategoryId(it) },
             date = result.get(jUsage.DATETIME)!!,
             amount = result.get(jUsage.AMOUNT)!!,
-            imageIds = allImageIds,
+            imageIds = imageIds,
         )
     }
 
@@ -392,7 +382,6 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                         jUsage.MONEY_USAGE_SUB_CATEGORY_ID,
                         jUsage.DATETIME,
                         jUsage.AMOUNT,
-                        usageLegacyImageDisplayIdField,
                     )
                     .from(jRelation)
                     .join(jUsage).on(
@@ -513,9 +502,6 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                             }
                             if (amount != null) {
                                 set(jUsage.AMOUNT, amount)
-                            }
-                            if (imageIds != null) {
-                                set(usageLegacyImageDisplayIdField, imageIds.firstOrNull()?.value)
                             }
                         }
                         .where(

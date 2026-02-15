@@ -9,9 +9,6 @@ CREATE TABLE user_images
 );
 CREATE INDEX user_image_user_id ON user_images (user_id);
 
-ALTER TABLE money_usages
-    ADD COLUMN image_display_id CHAR(36) NULL AFTER amount;
-
 CREATE TABLE money_usage_images
 (
     user_id        INT      not null,
