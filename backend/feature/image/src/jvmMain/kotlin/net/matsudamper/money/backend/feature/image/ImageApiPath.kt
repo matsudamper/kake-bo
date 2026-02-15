@@ -8,7 +8,9 @@ object ImageApiPath {
     fun imageV1AbsoluteByDisplayId(
         domain: String,
         displayId: String,
+        isSecure: Boolean,
     ): String {
-        return "https://$domain${imageV1ByDisplayId(displayId)}"
+        val schema = if (isSecure) "https" else "http"
+        return "$schema://$domain${imageV1ByDisplayId(displayId)}"
     }
 }
