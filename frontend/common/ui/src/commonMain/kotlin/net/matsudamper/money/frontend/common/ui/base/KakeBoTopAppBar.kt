@@ -15,7 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import net.matsudamper.money.frontend.common.ui.CustomColors
+import net.matsudamper.money.frontend.common.ui.LocalCustomColors
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,7 +54,7 @@ public fun KakeBoTopAppBar(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(1.dp),
-            color = CustomColors.MenuDividerColor,
+            color = LocalCustomColors.current.menuDividerColor,
         )
     }
 }

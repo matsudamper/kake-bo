@@ -1,6 +1,8 @@
 package net.matsudamper.money.frontend.common.ui
 
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
@@ -19,54 +21,84 @@ import androidx.compose.ui.unit.dp
 @Composable
 public fun AppRoot(
     fontFamilyResolver: FontFamily.Resolver = LocalFontFamilyResolver.current,
+    isDarkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
+    val customColors = if (isDarkTheme) CustomColors.Dark else CustomColors.Light
+    val colorScheme = if (isDarkTheme) darkColorScheme(customColors) else lightColorScheme(customColors)
+
     MaterialTheme(
-        colorScheme = MaterialTheme.colorScheme.copy(
-            primary = Color(0xff8BC34A),
-            // Color(0xff444654),
-            onPrimary = Color.White,
-            background = CustomColors.backgroundColor,
-            onBackground = Color.White,
-            surface = CustomColors.backgroundColor,
-            surfaceContainerHighest = CustomColors.surfaceColor,
-            onSurface = Color.White,
-            onSecondary = Color.Green,
-            // Card->Text, Button->Icon/Text
-            onSurfaceVariant = Color.White,
-            // Divider
-            outlineVariant = Color.LightGray,
-            // Card
-            surfaceVariant = CustomColors.surfaceColor,
-            surfaceContainer = CustomColors.surfaceColor,
-            error = Color(0xffFF6075),
-            surfaceContainerHigh = CustomColors.surfaceColor,
-            surfaceContainerLow = CustomColors.surfaceColor,
-            surfaceContainerLowest = CustomColors.surfaceColor,
-        ),
+        colorScheme = colorScheme,
         typography = getTypography(),
     ) {
-        BoxWithConstraints {
-            val maxWidth by rememberUpdatedState(maxWidth)
-            val isLargeScreen by remember {
-                derivedStateOf {
-                    maxWidth > 800.dp
+        CompositionLocalProvider(
+            LocalCustomColors provides customColors,
+        ) {
+            BoxWithConstraints {
+                val maxWidth by rememberUpdatedState(maxWidth)
+                val isLargeScreen by remember {
+                    derivedStateOf {
+                        maxWidth > 800.dp
+                    }
                 }
-            }
 
-            CompositionLocalProvider(
-                LocalFontFamilyResolver provides fontFamilyResolver,
-                LocalTextStyle provides LocalTextStyle.current.merge(
-                    TextStyle(
-                        fontFamily = rememberCustomFontFamily(),
-                    ),
-                ).merge(MaterialTheme.typography.bodyMedium),
-                LocalIsLargeScreen provides isLargeScreen,
-            ) {
-                content()
+                CompositionLocalProvider(
+                    LocalFontFamilyResolver provides fontFamilyResolver,
+                    LocalTextStyle provides LocalTextStyle.current.merge(
+                        TextStyle(
+                            fontFamily = rememberCustomFontFamily(),
+                        ),
+                    ).merge(MaterialTheme.typography.bodyMedium),
+                    LocalIsLargeScreen provides isLargeScreen,
+                ) {
+                    content()
+                }
             }
         }
     }
+}
+
+private fun darkColorScheme(customColors: CustomColors): ColorScheme {
+    return androidx.compose.material3.darkColorScheme(
+        primary = Color(0xff8BC34A),
+        onPrimary = Color.White,
+        background = customColors.backgroundColor,
+        onBackground = Color.White,
+        surface = customColors.backgroundColor,
+        surfaceContainerHighest = customColors.surfaceColor,
+        onSurface = Color.White,
+        onSecondary = Color.Green,
+        onSurfaceVariant = Color.White,
+        outlineVariant = Color.LightGray,
+        surfaceVariant = customColors.surfaceColor,
+        surfaceContainer = customColors.surfaceColor,
+        error = Color(0xffFF6075),
+        surfaceContainerHigh = customColors.surfaceColor,
+        surfaceContainerLow = customColors.surfaceColor,
+        surfaceContainerLowest = customColors.surfaceColor,
+    )
+}
+
+private fun lightColorScheme(customColors: CustomColors): ColorScheme {
+    return androidx.compose.material3.lightColorScheme(
+        primary = Color(0xFF558B2F),
+        onPrimary = Color.White,
+        background = customColors.backgroundColor,
+        onBackground = Color(0xFF1C1B1F),
+        surface = customColors.surfaceColor,
+        surfaceContainerHighest = Color(0xFFE0E0E0),
+        onSurface = Color(0xFF1C1B1F),
+        secondary = Color(0xFF558B2F),
+        onSecondary = Color.White,
+        onSurfaceVariant = Color(0xFF49454F),
+        outlineVariant = Color(0xFFCAC4D0),
+        surfaceVariant = Color(0xFFEEEEEE),
+        surfaceContainer = Color(0xFFF0F0F0),
+        error = Color(0xFFB3261E),
+        surfaceContainerHigh = Color(0xFFE8E8E8),
+        surfaceContainerLow = Color(0xFFF8F8F8),
+        surfaceContainerLowest = Color.White,
+    )
 }
 
 @Composable
