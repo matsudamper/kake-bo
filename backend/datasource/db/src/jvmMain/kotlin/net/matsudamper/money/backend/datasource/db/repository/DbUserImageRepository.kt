@@ -24,9 +24,8 @@ class DbUserImageRepository : UserImageRepository {
                     .set(userIdField, userId.value)
                     .set(displayIdField, imageId.value)
                     .set(imagePathField, relativePath)
-                    .onDuplicateKeyUpdate()
-                    .set(imagePathField, relativePath)
-                    .execute() >= 1
+                    .onDuplicateKeyIgnore()
+                    .execute() == 1
             }
         }.fold(
             onSuccess = { it },

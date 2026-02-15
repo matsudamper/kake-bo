@@ -5,7 +5,7 @@ CREATE TABLE user_images
     display_id       CHAR(36)                            not null,
     image_path       VARCHAR(1000)                       not null,
     created_datetime DATETIME DEFAULT CURRENT_TIMESTAMP  not null,
-    CONSTRAINT user_image_unique UNIQUE (user_id, display_id)
+    CONSTRAINT user_image_display_id_unique UNIQUE (display_id)
 );
 CREATE INDEX user_image_user_id ON user_images (user_id);
 
