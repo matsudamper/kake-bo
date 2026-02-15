@@ -277,7 +277,6 @@ public class AddMoneyUsageViewModel(
                         usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
                         usageDescription = current.description ?: state.usageDescription,
                         usageImageIds = current.imageIds
-                            .map(::ImageId)
                             .ifEmpty { state.usageImageIds },
                         usageCategorySet = if (subCategory != null) {
                             CategorySelectDialogViewModel.SelectedResult(
@@ -303,7 +302,6 @@ public class AddMoneyUsageViewModel(
                     usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
                     usageDescription = current.description ?: state.usageDescription,
                     usageImageIds = current.imageIds
-                        .map(::ImageId)
                         .ifEmpty { state.usageImageIds },
                     usageCategorySet = null,
                 )
@@ -327,7 +325,6 @@ public class AddMoneyUsageViewModel(
                                 importedMailId = importedMailId,
                                 usageTitle = forwardedInfo?.subject ?: subject,
                                 usageImageIds = current.imageIds
-                                    .map(::ImageId)
                                     .ifEmpty { it.usageImageIds },
                                 usageDate = forwardedInfo?.dateTime?.date
                                     ?: date?.date
@@ -348,7 +345,6 @@ public class AddMoneyUsageViewModel(
                             usageTitle = suggestUsage.title,
                             usageDescription = suggestUsage.description,
                             usageImageIds = current.imageIds
-                                .map(::ImageId)
                                 .ifEmpty { it.usageImageIds },
                             usageCategorySet = run category@{
                                 CategorySelectDialogViewModel.SelectedResult(

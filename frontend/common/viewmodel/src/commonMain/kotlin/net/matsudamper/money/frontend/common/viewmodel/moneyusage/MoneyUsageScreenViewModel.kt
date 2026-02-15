@@ -217,7 +217,7 @@ public class MoneyUsageScreenViewModel(
                                 date = moneyUsage.date,
                                 description = moneyUsage.description,
                                 subCategoryId = moneyUsage.moneyUsageSubCategory?.id?.id?.toString(),
-                                imageIds = moneyUsage.imageIds.map { it.value },
+                                imageIds = moneyUsage.imageIds,
                             ),
                         )
                     }

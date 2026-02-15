@@ -4,6 +4,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
+import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 
@@ -312,7 +313,7 @@ public sealed interface ScreenStructure : IScreenStructure {
         val date: LocalDateTime? = null,
         val description: String? = null,
         val subCategoryId: String? = null,
-        val imageIds: List<String> = emptyList(),
+        val imageIds: List<ImageId> = emptyList(),
     ) : ScreenStructure {
         override val direction: Screens = Screens.AddMoneyUsage
         override val stackGroupId: String? = null
@@ -334,7 +335,7 @@ public sealed interface ScreenStructure : IScreenStructure {
                         append(KEY_DESCRIPTION, description)
                     }
                     imageIds.forEach { imageId ->
-                        append(KEY_IMAGE_ID, imageId)
+                        append(KEY_IMAGE_ID, imageId.value)
                     }
                 },
             )
@@ -360,7 +361,7 @@ public sealed interface ScreenStructure : IScreenStructure {
                     date = queryParams[KEY_DATE]?.firstOrNull()?.let { LocalDateTime.parse(it) },
                     description = queryParams[KEY_DESCRIPTION]?.firstOrNull(),
                     subCategoryId = queryParams[KEY_SUB_CATEGORY_ID]?.firstOrNull(),
-                    imageIds = queryParams[KEY_IMAGE_ID].orEmpty(),
+                    imageIds = queryParams[KEY_IMAGE_ID].orEmpty().map(::ImageId),
                 )
             }
         }
