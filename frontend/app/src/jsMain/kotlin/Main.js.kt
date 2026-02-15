@@ -15,7 +15,6 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.ui.root.Content
 import org.koin.core.context.startKoin
-import org.koin.dsl.module
 import platform.PlatformToolsProvider
 
 @OptIn(ExperimentalComposeUiApi::class)
