@@ -2,6 +2,7 @@ package net.matsudamper.money.backend.feature.image
 
 import java.io.File
 import java.io.InputStream
+import java.time.YearMonth
 import java.util.UUID
 import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.element.ImageId
@@ -167,7 +168,8 @@ class ImageUploadHandler {
         displayId: String,
         extension: String,
     ): String {
-        return "${displayId.take(2)}/$displayId.$extension"
+        val yearMonth = YearMonth.now().toString()
+        return "$yearMonth/$displayId.$extension"
     }
 
     data class Request(
