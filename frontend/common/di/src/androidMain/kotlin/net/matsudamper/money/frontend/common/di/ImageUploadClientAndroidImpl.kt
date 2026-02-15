@@ -40,43 +40,47 @@ public class ImageUploadClientAndroidImpl(
             val userSessionId = session?.userSessionId.orEmpty()
 
             runCatching {
-                val connection = (URL(requestUrl).openConnection() as HttpURLConnection).apply {
-                    requestMethod = "POST"
-                    doOutput = true
-                    connectTimeout = 5_000
-                    readTimeout = 10_000
-                    setRequestProperty("Content-Type", "multipart/form-data; boundary=$boundary")
-                    if (userSessionId.isNotBlank()) {
-                        setRequestProperty("Cookie", "$UserSessionIdKey=$userSessionId")
+                var connection: HttpURLConnection? = null
+                try {
+                    connection = (URL(requestUrl).openConnection() as HttpURLConnection).apply {
+                        requestMethod = "POST"
+                        doOutput = true
+                        connectTimeout = 5_000
+                        readTimeout = 10_000
+                        setRequestProperty("Content-Type", "multipart/form-data; boundary=$boundary")
+                        if (userSessionId.isNotBlank()) {
+                            setRequestProperty("Cookie", "$UserSessionIdKey=$userSessionId")
+                        }
                     }
-                }
 
-                connection.outputStream.buffered().use { output ->
-                    output.write("--$boundary\r\n".toByteArray())
-                    output.write("Content-Disposition: form-data; name=\"file\"; filename=\"image\"\r\n".toByteArray())
-                    output.write("Content-Type: $resolvedContentType\r\n\r\n".toByteArray())
-                    output.write(bytes)
-                    output.write("\r\n--$boundary--\r\n".toByteArray())
-                    output.flush()
-                }
-
-                val responseBody = (
-                    if (connection.responseCode in 200..299) {
-                        connection.inputStream
-                    } else {
-                        connection.errorStream
+                    connection.outputStream.buffered().use { output ->
+                        output.write("--$boundary\r\n".toByteArray())
+                        output.write("Content-Disposition: form-data; name=\"file\"; filename=\"image\"\r\n".toByteArray())
+                        output.write("Content-Type: $resolvedContentType\r\n\r\n".toByteArray())
+                        output.write(bytes)
+                        output.write("\r\n--$boundary--\r\n".toByteArray())
+                        output.flush()
                     }
-                    )?.let { stream ->
-                    BufferedReader(InputStreamReader(stream)).use { it.readText() }
-                }.orEmpty()
-                connection.disconnect()
 
-                val success = Json.decodeFromString<ImageUploadImageResponse>(responseBody).success
-                    ?: return@runCatching null
-                ImageUploadClient.UploadResult(
-                    imageId = success.imageId,
-                    url = success.url,
-                )
+                    val responseBody = (
+                        if (connection.responseCode in 200..299) {
+                            connection.inputStream
+                        } else {
+                            connection.errorStream
+                        }
+                        )?.let { stream ->
+                        BufferedReader(InputStreamReader(stream)).use { it.readText() }
+                    }.orEmpty()
+
+                    val success = Json.decodeFromString<ImageUploadImageResponse>(responseBody).success
+                        ?: return@runCatching null
+                    ImageUploadClient.UploadResult(
+                        imageId = success.imageId,
+                        url = success.url,
+                    )
+                } finally {
+                    connection?.disconnect()
+                }
             }.getOrNull()
         }
     }

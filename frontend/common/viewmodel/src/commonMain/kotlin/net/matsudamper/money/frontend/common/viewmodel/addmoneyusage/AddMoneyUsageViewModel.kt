@@ -203,24 +203,25 @@ public class AddMoneyUsageViewModel(
 
                 viewModelStateFlow.update { it.copy(uploadingImageCount = it.uploadingImageCount + 1) }
 
-                val uploadResult = graphqlApi.uploadImage(
-                    bytes = image.bytes,
-                    contentType = image.contentType,
-                )
+                try {
+                    val uploadResult = graphqlApi.uploadImage(
+                        bytes = image.bytes,
+                        contentType = image.contentType,
+                    )
 
-                if (uploadResult != null) {
-                    viewModelStateFlow.update { viewModelState ->
-                        viewModelState.copy(
-                            uploadingImageCount = viewModelState.uploadingImageCount - 1,
-                            usageImages = (
-                                viewModelState.usageImages + ViewModelState.UploadedImage(
-                                    imageId = uploadResult.imageId,
-                                    url = uploadResult.url,
-                                )
-                                ).distinctBy { it.imageId.value },
-                        )
+                    if (uploadResult != null) {
+                        viewModelStateFlow.update { viewModelState ->
+                            viewModelState.copy(
+                                usageImages = (
+                                    viewModelState.usageImages + ViewModelState.UploadedImage(
+                                        imageId = uploadResult.imageId,
+                                        url = uploadResult.url,
+                                    )
+                                    ).distinctBy { it.imageId.value },
+                            )
+                        }
                     }
-                } else {
+                } finally {
                     viewModelStateFlow.update { it.copy(uploadingImageCount = it.uploadingImageCount - 1) }
                 }
             }

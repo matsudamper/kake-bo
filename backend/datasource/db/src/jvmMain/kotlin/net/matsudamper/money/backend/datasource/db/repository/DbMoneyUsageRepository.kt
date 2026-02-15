@@ -4,6 +4,7 @@ import java.lang.IllegalStateException
 import java.time.LocalDateTime
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository.OrderType
+import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JMoneyUsageImagesRelation
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
@@ -523,6 +524,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                     context.commit()
                     true
                 } catch (e: Throwable) {
+                    TraceLogger.impl().noticeThrowable(e, isError = true)
                     context.rollback()
                     false
                 }
