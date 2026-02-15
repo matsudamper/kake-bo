@@ -4,6 +4,7 @@ CREATE TABLE user_images
     user_id          INT                                 not null,
     display_id       CHAR(36)                            not null,
     image_path       VARCHAR(1000)                       not null,
+    content_type     VARCHAR(255)                        not null,
     created_datetime DATETIME DEFAULT CURRENT_TIMESTAMP  not null,
     CONSTRAINT user_image_display_id_unique UNIQUE (display_id)
 );

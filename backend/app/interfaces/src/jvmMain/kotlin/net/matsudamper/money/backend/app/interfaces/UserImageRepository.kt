@@ -9,16 +9,22 @@ interface UserImageRepository {
         val displayId: String,
     )
 
+    data class ImageData(
+        val relativePath: String,
+        val contentType: String,
+    )
+
     fun saveImage(
         userId: UserId,
         displayId: String,
         relativePath: String,
+        contentType: String,
     ): SaveImageResult?
 
-    fun getRelativePathByDisplayId(
+    fun getImageDataByDisplayId(
         userId: UserId,
         displayId: String,
-    ): String?
+    ): ImageData?
 
     fun exists(
         userId: UserId,

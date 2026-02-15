@@ -19,6 +19,7 @@ class ImageUploadHandler {
         val extension = resolveImageExtension(
             contentType = request.contentType,
         ) ?: return Result.UnsupportedMediaType
+        val contentType = request.contentType ?: return Result.UnsupportedMediaType
 
         val displayId = UUID.randomUUID().toString()
         val writeResult = writeImageFile(
@@ -44,6 +45,7 @@ class ImageUploadHandler {
                         userId = userId,
                         displayId = writeResult.displayId,
                         relativePath = relativePath,
+                        contentType = contentType,
                     )
                     if (saveResult == null) {
                         if (!destinationExisted) {

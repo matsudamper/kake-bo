@@ -14,6 +14,7 @@ class DbUserImageRepository : UserImageRepository {
         userId: UserId,
         displayId: String,
         relativePath: String,
+        contentType: String,
     ): UserImageRepository.SaveImageResult? {
         return runCatching<UserImageRepository.SaveImageResult?> {
             DbConnectionImpl.use { connection ->
@@ -23,6 +24,7 @@ class DbUserImageRepository : UserImageRepository {
                     .set(jUserImages.USER_ID, userId.value)
                     .set(jUserImages.DISPLAY_ID, displayId)
                     .set(jUserImages.IMAGE_PATH, relativePath)
+                    .set(jUserImages.CONTENT_TYPE, contentType)
                     .execute()
                 if (insertedCount != 1) {
                     return@use null
@@ -52,20 +54,31 @@ class DbUserImageRepository : UserImageRepository {
         }.getOrNull()
     }
 
-    override fun getRelativePathByDisplayId(
+    override fun getImageDataByDisplayId(
         userId: UserId,
         displayId: String,
-    ): String? {
+    ): UserImageRepository.ImageData? {
         return DbConnectionImpl.use { connection ->
             DSL.using(connection)
-                .select(jUserImages.IMAGE_PATH)
+                .select(
+                    jUserImages.IMAGE_PATH,
+                    jUserImages.CONTENT_TYPE,
+                )
                 .from(jUserImages)
                 .where(
                     jUserImages.USER_ID.eq(userId.value)
                         .and(jUserImages.DISPLAY_ID.eq(displayId)),
                 )
                 .limit(1)
-                .fetchOne(jUserImages.IMAGE_PATH)
+                .fetchOne()
+                ?.let { record ->
+                    val relativePath = record.get(jUserImages.IMAGE_PATH) ?: return@let null
+                    val contentType = record.get(jUserImages.CONTENT_TYPE) ?: return@let null
+                    UserImageRepository.ImageData(
+                        relativePath = relativePath,
+                        contentType = contentType,
+                    )
+                }
         }
     }
 

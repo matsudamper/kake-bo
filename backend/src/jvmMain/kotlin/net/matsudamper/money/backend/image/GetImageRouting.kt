@@ -2,8 +2,10 @@ package net.matsudamper.money.backend.image
 
 import kotlinx.serialization.json.Json
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
+import io.ktor.server.response.header
 import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
@@ -49,11 +51,11 @@ internal fun Route.getImage(
             return@get
         }
 
-        val relativePath = diContainer.createUserImageRepository().getRelativePathByDisplayId(
+        val imageData = diContainer.createUserImageRepository().getImageDataByDisplayId(
             userId = userId,
             displayId = displayId,
         )
-        if (relativePath == null) {
+        if (imageData == null) {
             call.respondApiError(
                 status = HttpStatusCode.NotFound,
                 message = "NotFound",
@@ -65,7 +67,7 @@ internal fun Route.getImage(
             val result = imageReadHandler.handle(
                 request = ImageReadHandler.Request(
                     displayId = displayId,
-                    relativePath = relativePath,
+                    relativePath = imageData.relativePath,
                     storageDirectory = imageUploadConfig.storageDirectory,
                 ),
             )
@@ -85,6 +87,10 @@ internal fun Route.getImage(
             }
 
             is ImageReadHandler.Result.Success -> {
+                val responseContentType = runCatching {
+                    ContentType.parse(imageData.contentType)
+                }.getOrDefault(ContentType.Application.OctetStream)
+                call.response.header(HttpHeaders.ContentType, responseContentType.toString())
                 call.respondFile(result.file)
             }
         }
