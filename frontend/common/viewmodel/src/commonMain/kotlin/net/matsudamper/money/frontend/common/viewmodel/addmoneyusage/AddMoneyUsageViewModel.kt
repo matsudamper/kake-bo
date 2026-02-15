@@ -249,6 +249,8 @@ public class AddMoneyUsageViewModel(
     }
 
     private fun addMoneyUsage() {
+        if (viewModelStateFlow.value.uploadingImageCount > 0) return
+
         val date = viewModelStateFlow.value.usageDate
 
         viewModelScope.launch {
@@ -395,6 +397,7 @@ public class AddMoneyUsageViewModel(
             description = "",
             amount = "",
             images = immutableListOf(),
+            addButtonEnabled = true,
             fullScreenTextInputDialog = null,
             categorySelectDialog = null,
             numberInputDialog = null,
@@ -433,6 +436,7 @@ public class AddMoneyUsageViewModel(
                             addAll(viewModelState.usageImages.map { ImageItem.Uploaded(url = it.url) })
                             repeat(viewModelState.uploadingImageCount) { add(ImageItem.Uploading) }
                         }.toImmutableList(),
+                        addButtonEnabled = viewModelState.uploadingImageCount == 0,
                         categorySelectDialog = viewModelState.categorySelectDialog,
                     )
                 }

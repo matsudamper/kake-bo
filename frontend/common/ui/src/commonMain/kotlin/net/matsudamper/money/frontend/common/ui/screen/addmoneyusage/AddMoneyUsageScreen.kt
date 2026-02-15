@@ -73,6 +73,7 @@ public data class AddMoneyUsageScreenUiState(
     val category: String,
     val amount: String,
     val images: ImmutableList<ImageItem>,
+    val addButtonEnabled: Boolean,
     val event: Event,
     val numberInputDialog: NumberInputDialog?,
 ) {
@@ -179,6 +180,7 @@ public fun AddMoneyUsageScreen(
                         .padding(12.dp)
                         .widthIn(max = 700.dp)
                         .fillMaxWidth(),
+                    enabled = uiState.addButtonEnabled,
                     onClick = { uiState.event.onClickAdd() },
                 ) {
                     Text("追加")
