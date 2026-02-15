@@ -60,7 +60,7 @@ class ImageUploadHandler {
             }
 
             WriteImageFileResult.Success -> {
-                request.userImageRepository.deleteImage(userId = userId, imageId = imageId)
+                request.userImageRepository.markImageAsUploaded(userId = userId, imageId = imageId)
                 Result.Success(
                     imageId = imageId,
                     displayId = displayUUID,
