@@ -1,11 +1,13 @@
 package net.matsudamper.money.backend.image
 
 import kotlinx.serialization.json.Json
+import io.ktor.client.content.LocalFileContent
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.response.header
+import io.ktor.server.response.respond
 import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
@@ -90,8 +92,13 @@ internal fun Route.getImage(
                 val responseContentType = runCatching {
                     ContentType.parse(imageData.contentType)
                 }.getOrDefault(ContentType.Application.OctetStream)
-                call.response.header(HttpHeaders.ContentType, responseContentType.toString())
-                call.respondFile(result.file)
+
+                call.respond(
+                    LocalFileContent(
+                        file = result.file,
+                        contentType = responseContentType,
+                    ),
+                )
             }
         }
     }
