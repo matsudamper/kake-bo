@@ -22,7 +22,7 @@ internal fun Route.getImage(
     imageUploadConfig: ImageUploadConfig,
     imageReadHandler: ImageReadHandler = ImageReadHandler(),
 ) {
-    get("/api/image/v1/{hash}") {
+    get("/api/image/v1/{displayId}") {
         val userId = UserSessionManagerImpl(
             cookieManager = KtorCookieManager(call = call),
             userSessionRepository = diContainer.createUserSessionRepository(),
@@ -35,23 +35,23 @@ internal fun Route.getImage(
             return@get
         }
 
-        val imageHash = call.parameters["hash"]
-        if (imageHash == null) {
+        val displayId = call.parameters["displayId"]
+        if (displayId == null) {
             call.respondApiError(
                 status = HttpStatusCode.BadRequest,
-                message = "InvalidImageHash",
+                message = "InvalidImageId",
             )
             return@get
         }
-        if (!IMAGE_HASH_REGEX.matches(imageHash)) {
+        if (!DISPLAY_ID_REGEX.matches(displayId)) {
             call.respondApiError(
                 status = HttpStatusCode.BadRequest,
-                message = "InvalidImageHash",
+                message = "InvalidImageId",
             )
             return@get
         }
 
-        val imageId = ImageId(imageHash)
+        val imageId = ImageId(displayId)
         val relativePath = userImageRepository.getRelativePath(
             userId = userId,
             imageId = imageId,
@@ -67,7 +67,7 @@ internal fun Route.getImage(
         when (
             val result = imageReadHandler.handle(
                 request = ImageReadHandler.Request(
-                    imageHash = imageHash,
+                    displayId = displayId,
                     relativePath = relativePath,
                     storageDirectory = imageUploadConfig.storageDirectory,
                 ),
@@ -109,4 +109,5 @@ private suspend fun ApplicationCall.respondApiError(
     )
 }
 
-private val IMAGE_HASH_REGEX = Regex("^[a-f0-9]{64}$")
+private val DISPLAY_ID_REGEX =
+    Regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$")

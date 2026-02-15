@@ -9,7 +9,7 @@ import org.jooq.impl.DSL
 class DbUserImageRepository : UserImageRepository {
     private val userImagesTable = DSL.table(DSL.name("user_images"))
     private val userIdField = DSL.field(DSL.name("user_id"), Int::class.java)
-    private val imageHashField = DSL.field(DSL.name("image_hash"), String::class.java)
+    private val displayIdField = DSL.field(DSL.name("display_id"), String::class.java)
     private val imagePathField = DSL.field(DSL.name("image_path"), String::class.java)
 
     override fun saveImage(
@@ -22,7 +22,7 @@ class DbUserImageRepository : UserImageRepository {
                 DSL.using(connection)
                     .insertInto(userImagesTable)
                     .set(userIdField, userId.value)
-                    .set(imageHashField, imageId.value)
+                    .set(displayIdField, imageId.value)
                     .set(imagePathField, relativePath)
                     .onDuplicateKeyUpdate()
                     .set(imagePathField, relativePath)
@@ -44,7 +44,7 @@ class DbUserImageRepository : UserImageRepository {
                 .from(userImagesTable)
                 .where(
                     userIdField.eq(userId.value)
-                        .and(imageHashField.eq(imageId.value)),
+                        .and(displayIdField.eq(imageId.value)),
                 )
                 .limit(1)
                 .fetchOne(imagePathField)
@@ -63,7 +63,7 @@ class DbUserImageRepository : UserImageRepository {
                         .from(userImagesTable)
                         .where(
                             userIdField.eq(userId.value)
-                                .and(imageHashField.eq(imageId.value)),
+                                .and(displayIdField.eq(imageId.value)),
                         ),
                 )
         }

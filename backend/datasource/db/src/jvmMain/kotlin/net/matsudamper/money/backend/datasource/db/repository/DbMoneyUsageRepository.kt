@@ -22,15 +22,16 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
     private val jUsage = JMoneyUsages.MONEY_USAGES
     private val jSubCategory = JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES
     private val jRelation = JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION
-    private val usageLegacyImageHashField = DSL.field(DSL.name("image_hash"), String::class.java)
+    private val usageLegacyImageDisplayIdField = DSL.field(DSL.name("image_display_id"), String::class.java)
     private val usageImageTable = DSL.table(DSL.name("money_usage_images"))
     private val usageImageUserIdField = DSL.field(DSL.name("user_id"), Int::class.java)
     private val usageImageMoneyUsageIdField = DSL.field(DSL.name("money_usage_id"), Int::class.java)
-    private val usageImageRelationHashField = DSL.field(DSL.name("image_hash"), String::class.java)
+    private val usageImageRelationUserImageIdField = DSL.field(DSL.name("user_image_id"), Int::class.java)
     private val usageImageOrderField = DSL.field(DSL.name("image_order"), Int::class.java)
     private val userImagesTable = DSL.table(DSL.name("user_images"))
+    private val userImagesIdField = DSL.field(DSL.name("image_id"), Int::class.java)
     private val userImagesUserIdField = DSL.field(DSL.name("user_id"), Int::class.java)
-    private val userImagesImageHashField = DSL.field(DSL.name("image_hash"), String::class.java)
+    private val userImagesDisplayIdField = DSL.field(DSL.name("display_id"), String::class.java)
 
     override fun addMailRelation(
         userId: UserId,
@@ -110,7 +111,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                         .set(jUsage.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId?.id)
                         .set(jUsage.DATETIME, date)
                         .set(jUsage.AMOUNT, amount)
-                        .set(usageLegacyImageHashField, imageIds.firstOrNull()?.value)
+                        .set(usageLegacyImageDisplayIdField, imageIds.firstOrNull()?.value)
                         .returningResult(
                             jUsage.MONEY_USAGE_ID,
                             jUsage.USER_ID,
@@ -119,7 +120,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                             jUsage.MONEY_USAGE_SUB_CATEGORY_ID,
                             jUsage.DATETIME,
                             jUsage.AMOUNT,
-                            usageLegacyImageHashField,
+                            usageLegacyImageDisplayIdField,
                         )
                         .fetch()
 
@@ -333,7 +334,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                         jUsage.MONEY_USAGE_SUB_CATEGORY_ID,
                         jUsage.DATETIME,
                         jUsage.AMOUNT,
-                        usageLegacyImageHashField,
+                        usageLegacyImageDisplayIdField,
                     )
                     .from(jUsage)
                     .where(
@@ -358,7 +359,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
         result: Record,
         imageIds: List<ImageId>,
     ): MoneyUsageRepository.Usage {
-        val legacyImageId = result.get(usageLegacyImageHashField)?.let { ImageId(it) }
+        val legacyImageId = result.get(usageLegacyImageDisplayIdField)?.let { ImageId(it) }
         val allImageIds = when {
             imageIds.isNotEmpty() -> imageIds
             legacyImageId != null -> listOf(legacyImageId)
@@ -391,7 +392,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                         jUsage.MONEY_USAGE_SUB_CATEGORY_ID,
                         jUsage.DATETIME,
                         jUsage.AMOUNT,
-                        usageLegacyImageHashField,
+                        usageLegacyImageDisplayIdField,
                     )
                     .from(jRelation)
                     .join(jUsage).on(
@@ -514,7 +515,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                                 set(jUsage.AMOUNT, amount)
                             }
                             if (imageIds != null) {
-                                set(usageLegacyImageHashField, imageIds.firstOrNull()?.value)
+                                set(usageLegacyImageDisplayIdField, imageIds.firstOrNull()?.value)
                             }
                         }
                         .where(
@@ -560,16 +561,12 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
             return true
         }
         val uniqueImageIds = imageIds.distinctBy { it.value }
-        val context = DSL.using(connection)
-        val count = context.selectCount()
-                .from(userImagesTable)
-                .where(
-                    userImagesUserIdField.eq(userId.value)
-                        .and(userImagesImageHashField.`in`(uniqueImageIds.map { it.value })),
-                )
-                .fetchOne(0, Int::class.java)
-                ?: 0
-        return count == uniqueImageIds.size
+        val ownedImageIdMap = resolveOwnedUserImageIdMap(
+            connection = connection,
+            userId = userId,
+            imageIds = uniqueImageIds,
+        )
+        return ownedImageIdMap.size == uniqueImageIds.size
     }
 
     private fun getImageIdsByUsageIds(
@@ -583,9 +580,14 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
         val records = DSL.using(connection)
             .select(
                 usageImageMoneyUsageIdField,
-                usageImageRelationHashField,
+                userImagesDisplayIdField,
             )
             .from(usageImageTable)
+            .join(userImagesTable)
+            .on(
+                usageImageUserIdField.eq(userImagesUserIdField)
+                    .and(usageImageRelationUserImageIdField.eq(userImagesIdField)),
+            )
             .where(
                 usageImageUserIdField.eq(userId.value)
                     .and(usageImageMoneyUsageIdField.`in`(usageIds.map { it.id })),
@@ -598,7 +600,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
 
         return records.groupBy(
             keySelector = { MoneyUsageId(it.get(usageImageMoneyUsageIdField)!!) },
-            valueTransform = { ImageId(it.get(usageImageRelationHashField)!!) },
+            valueTransform = { ImageId(it.get(userImagesDisplayIdField)!!) },
         )
     }
 
@@ -609,6 +611,11 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
         imageIds: List<ImageId>,
     ) {
         val context = DSL.using(connection)
+        val displayToUserImageId = resolveOwnedUserImageIdMap(
+            connection = connection,
+            userId = userId,
+            imageIds = imageIds,
+        )
         context.deleteFrom(usageImageTable)
             .where(
                 usageImageUserIdField.eq(userId.value)
@@ -616,12 +623,36 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
             )
             .execute()
         imageIds.forEachIndexed { index, imageId ->
+            val userImageId = displayToUserImageId[imageId.value]
+                ?: throw IllegalArgumentException("image is not found")
             context.insertInto(usageImageTable)
                 .set(usageImageUserIdField, userId.value)
                 .set(usageImageMoneyUsageIdField, usageId.id)
-                .set(usageImageRelationHashField, imageId.value)
+                .set(usageImageRelationUserImageIdField, userImageId)
                 .set(usageImageOrderField, index)
                 .execute()
+        }
+    }
+
+    private fun resolveOwnedUserImageIdMap(
+        connection: java.sql.Connection,
+        userId: UserId,
+        imageIds: List<ImageId>,
+    ): Map<String, Int> {
+        if (imageIds.isEmpty()) {
+            return emptyMap()
+        }
+        val uniqueDisplayIds = imageIds.map { it.value }.distinct()
+        val records = DSL.using(connection)
+            .select(userImagesDisplayIdField, userImagesIdField)
+            .from(userImagesTable)
+            .where(
+                userImagesUserIdField.eq(userId.value)
+                    .and(userImagesDisplayIdField.`in`(uniqueDisplayIds)),
+            )
+            .fetch()
+        return records.associate { record ->
+            record.get(userImagesDisplayIdField)!! to record.get(userImagesIdField)!!
         }
     }
 }

@@ -4,8 +4,8 @@ import java.io.File
 
 class ImageReadHandler {
     fun handle(request: Request): Result {
-        if (!isValidImageHash(request.imageHash)) {
-            return Result.BadRequest(message = "InvalidImageHash")
+        if (!isValidDisplayId(request.displayId)) {
+            return Result.BadRequest(message = "InvalidImageId")
         }
 
         val file = resolveImageFile(
@@ -35,8 +35,8 @@ class ImageReadHandler {
         return if (startsWithRoot) file else null
     }
 
-    private fun isValidImageHash(imageHash: String): Boolean {
-        return IMAGE_HASH_REGEX.matches(imageHash)
+    private fun isValidDisplayId(displayId: String): Boolean {
+        return UUID_V4_REGEX.matches(displayId)
     }
 
     private fun isValidRelativePath(relativePath: String): Boolean {
@@ -48,7 +48,7 @@ class ImageReadHandler {
     }
 
     data class Request(
-        val imageHash: String,
+        val displayId: String,
         val relativePath: String,
         val storageDirectory: File,
     )
@@ -60,6 +60,7 @@ class ImageReadHandler {
     }
 
     private companion object {
-        private val IMAGE_HASH_REGEX = Regex("^[a-f0-9]{64}$")
+        private val UUID_V4_REGEX =
+            Regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$")
     }
 }

@@ -2,7 +2,7 @@ package net.matsudamper.money.backend.feature.image
 
 import java.io.File
 import java.io.InputStream
-import java.security.MessageDigest
+import java.util.UUID
 import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.UserId
@@ -24,6 +24,7 @@ class ImageUploadHandler {
             inputStream = request.inputStream,
             storageDirectory = request.storageDirectory,
             maxUploadBytes = request.maxUploadBytes,
+            imageId = ImageId(UUID.randomUUID().toString()),
         )
         return when (writeResult) {
             WriteImageFileResult.Empty -> Result.BadRequest(message = "EmptyFile")
@@ -65,6 +66,7 @@ class ImageUploadHandler {
         inputStream: InputStream,
         storageDirectory: File,
         maxUploadBytes: Long,
+        imageId: ImageId,
     ): WriteImageFileResult {
         val tempFile = runCatching {
             File.createTempFile("upload_", ".tmp", storageDirectory)
@@ -73,7 +75,6 @@ class ImageUploadHandler {
         }
         var totalSize = 0L
         var isPayloadTooLarge = false
-        val digest = MessageDigest.getInstance("SHA-256")
 
         val writeResult = runCatching {
             tempFile.outputStream().buffered().use { output ->
@@ -88,7 +89,6 @@ class ImageUploadHandler {
                         isPayloadTooLarge = true
                         break
                     }
-                    digest.update(buffer, 0, readSize)
                     output.write(buffer, 0, readSize)
                 }
             }
@@ -110,7 +110,7 @@ class ImageUploadHandler {
 
         return WriteImageFileResult.Success(
             tempFile = tempFile,
-            imageId = ImageId(digest.digest().toHexString()),
+            imageId = imageId,
         )
     }
 
@@ -197,11 +197,5 @@ class ImageUploadHandler {
         data object PayloadTooLarge : WriteImageFileResult
         data object Empty : WriteImageFileResult
         data object SystemFailure : WriteImageFileResult
-    }
-}
-
-private fun ByteArray.toHexString(): String {
-    return joinToString(separator = "") { byte ->
-        "%02x".format(byte.toInt() and 0xff)
     }
 }
