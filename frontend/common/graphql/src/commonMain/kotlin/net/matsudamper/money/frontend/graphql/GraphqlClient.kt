@@ -16,6 +16,7 @@ import com.apollographql.apollo.network.http.DefaultHttpEngine
 import com.apollographql.apollo.network.http.HttpInterceptor
 import net.matsudamper.money.element.ApiTokenId
 import net.matsudamper.money.element.FidoId
+import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
@@ -25,6 +26,7 @@ import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.graphql.type.ApiTokenId as ApolloApiTokenId
 import net.matsudamper.money.frontend.graphql.type.FidoId as ApolloFidoId
+import net.matsudamper.money.frontend.graphql.type.ImageId as ApolloImageId
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterConditionId as ApolloImportedMailCategoryFilterConditionId
 import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterId as ApolloImportedMailCategoryFilterId
 import net.matsudamper.money.frontend.graphql.type.ImportedMailId as ApolloImportedMailId
@@ -176,6 +178,17 @@ class GraphqlClientImpl(
                 },
                 deserialize = { value ->
                     MoneyUsageCategoryId(value)
+                },
+            ),
+        )
+        .addCustomScalarAdapter(
+            ApolloImageId.type,
+            CustomIntAdapter(
+                serialize = {
+                    it.value
+                },
+                deserialize = { value ->
+                    ImageId(value)
                 },
             ),
         )

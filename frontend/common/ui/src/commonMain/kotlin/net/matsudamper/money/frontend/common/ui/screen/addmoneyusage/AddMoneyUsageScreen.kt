@@ -1,7 +1,12 @@
 package net.matsudamper.money.frontend.common.ui.screen.addmoneyusage
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,11 +16,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
@@ -23,13 +30,20 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
+import coil3.compose.AsyncImage
+import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -38,7 +52,14 @@ import net.matsudamper.money.frontend.common.ui.layout.NumberInput
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
+import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
+
+public sealed interface ImageItem {
+    public data object Uploading : ImageItem
+    public data class Uploaded(val url: String) : ImageItem
+}
 
 public data class AddMoneyUsageScreenUiState(
     val calendarDialog: CalendarDialog?,
@@ -51,6 +72,8 @@ public data class AddMoneyUsageScreenUiState(
     val description: String,
     val category: String,
     val amount: String,
+    val images: ImmutableList<ImageItem>,
+    val addButtonEnabled: Boolean,
     val event: Event,
     val numberInputDialog: NumberInputDialog?,
 ) {
@@ -98,15 +121,20 @@ public data class AddMoneyUsageScreenUiState(
         public fun onClickCategoryChange()
 
         public fun onClickAmountChange()
+
+        public fun onClickUploadImage()
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 public fun AddMoneyUsageScreen(
     modifier: Modifier = Modifier,
     uiState: AddMoneyUsageScreenUiState,
     windowInsets: PaddingValues,
 ) {
+    var selectedImageUrl by remember { mutableStateOf<String?>(null) }
+
     if (uiState.fullScreenTextInputDialog != null) {
         FullScreenTextInput(
             title = uiState.fullScreenTextInputDialog.title,
@@ -152,6 +180,7 @@ public fun AddMoneyUsageScreen(
                         .padding(12.dp)
                         .widthIn(max = 700.dp)
                         .fillMaxWidth(),
+                    enabled = uiState.addButtonEnabled,
                     onClick = { uiState.event.onClickAdd() },
                 ) {
                     Text("追加")
@@ -246,6 +275,57 @@ public fun AddMoneyUsageScreen(
                         uiState.event.onClickDescriptionChange()
                     },
                 )
+                HorizontalDivider(Modifier.fillMaxWidth().height(1.dp))
+                Section(
+                    title = {
+                        Text("画像")
+                    },
+                    description = {
+                        Column {
+                            if (uiState.images.isEmpty()) {
+                                Text("未設定")
+                            } else {
+                                FlowRow(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    uiState.images.forEach { image ->
+                                        when (image) {
+                                            is ImageItem.Uploading -> {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .size(120.dp),
+                                                    contentAlignment = Alignment.Center,
+                                                ) {
+                                                    CircularProgressIndicator(
+                                                        modifier = Modifier.size(48.dp),
+                                                    )
+                                                }
+                                            }
+                                            is ImageItem.Uploaded -> {
+                                                AsyncImage(
+                                                    model = image.url,
+                                                    contentDescription = null,
+                                                    contentScale = ContentScale.Crop,
+                                                    modifier = Modifier
+                                                        .size(120.dp)
+                                                        .clickable { selectedImageUrl = image.url }
+                                                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            Spacer(Modifier.height(8.dp))
+                            ImageUploadButton(
+                                onClick = { uiState.event.onClickUploadImage() },
+                            )
+                        }
+                    },
+                )
                 Spacer(Modifier.height(24.dp))
             }
         }
@@ -287,6 +367,13 @@ public fun AddMoneyUsageScreen(
             dismissRequest = { uiState.numberInputDialog.dismissRequest() },
         )
     }
+
+    selectedImageUrl?.let { imageUrl ->
+        ZoomableImageDialog(
+            imageUrl = imageUrl,
+            onDismissRequest = { selectedImageUrl = null },
+        )
+    }
 }
 
 @Composable
@@ -308,7 +395,7 @@ private fun NumberInputDialog(
 @Composable
 private fun Section(
     modifier: Modifier = Modifier,
-    clickChange: () -> Unit,
+    clickChange: (() -> Unit)? = null,
     title: @Composable () -> Unit,
     titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
     description: @Composable () -> Unit,
@@ -326,9 +413,11 @@ private fun Section(
                 description()
             }
         }
-        TextButton(onClick = { clickChange() }) {
-            ProvideTextStyle(MaterialTheme.typography.labelMedium) {
-                Text("変更")
+        if (clickChange != null) {
+            TextButton(onClick = { clickChange() }) {
+                ProvideTextStyle(MaterialTheme.typography.labelMedium) {
+                    Text("変更")
+                }
             }
         }
     }

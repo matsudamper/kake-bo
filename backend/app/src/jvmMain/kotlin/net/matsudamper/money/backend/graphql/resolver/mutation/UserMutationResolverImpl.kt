@@ -550,6 +550,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                     subCategoryId = usage.subCategoryId,
                     amount = usage.amount,
                     date = usage.date,
+                    imageIds = usage.imageIds.orEmpty(),
                 )
             when (result) {
                 is MoneyUsageRepository.AddResult.Failed -> {
@@ -791,6 +792,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                 amount = query.amount,
                 date = query.date,
                 subCategoryId = query.subCategoryId,
+                imageIds = query.imageIds,
             )
 
             if (isSuccess.not()) {

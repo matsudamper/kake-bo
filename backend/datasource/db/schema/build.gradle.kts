@@ -2,6 +2,7 @@ import java.util.Properties
 import org.jooq.codegen.GenerationTool
 import org.jooq.meta.jaxb.Configuration
 import org.jooq.meta.jaxb.Database
+import org.jooq.meta.jaxb.ForcedType
 import org.jooq.meta.jaxb.Generate
 import org.jooq.meta.jaxb.Generator
 import org.jooq.meta.jaxb.Jdbc
@@ -83,7 +84,12 @@ tasks.register("generateDbCode") {
                         .withDatabase(
                             Database()
                                 .withName("org.jooq.meta.mariadb.MariaDBDatabase")
-                                .withInputSchema("money"),
+                                .withInputSchema("money")
+                                .withForcedTypes(
+                                    ForcedType()
+                                        .withName("BOOLEAN")
+                                        .withIncludeTypes("TINYINT\\(1\\)"),
+                                ),
                         ),
                 ),
         )

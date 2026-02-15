@@ -222,6 +222,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                             userId = usage.userId,
                             subCategoryId = usage.subCategoryId,
                             date = usage.date,
+                            imageIds = usage.imageIds,
                         ),
                     )
                 }

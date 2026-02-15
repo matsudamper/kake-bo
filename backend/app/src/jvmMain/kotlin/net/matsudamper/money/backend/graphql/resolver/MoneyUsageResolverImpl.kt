@@ -12,6 +12,7 @@ import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.UserId
 import net.matsudamper.money.graphql.model.MoneyUsageResolver
+import net.matsudamper.money.graphql.model.QlImage
 import net.matsudamper.money.graphql.model.QlImportedMail
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
@@ -78,6 +79,24 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
             moneyUsageId = moneyUsage.id,
         ).thenApplyAsync { futureResult ->
             futureResult.amount
+        }.toDataFetcher()
+    }
+
+    override fun images(
+        moneyUsage: QlMoneyUsage,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<List<QlImage>>> {
+        val context = getContext(env)
+        val userId = context.verifyUserSessionAndGetUserId()
+        return getMoneyUsageFutureResult(
+            context = context,
+            env = env,
+            userId = userId,
+            moneyUsageId = moneyUsage.id,
+        ).thenApplyAsync { futureResult ->
+            futureResult.imageIds.map { imageId ->
+                QlImage(id = imageId)
+            }
         }.toDataFetcher()
     }
 

@@ -1,4 +1,5 @@
 scalar UserId
+scalar ImageId
 scalar MailId
 scalar ImportedMailId
 scalar MoneyUsageId

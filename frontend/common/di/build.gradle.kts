@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.kotlin.serialization)
     id("net.matsudamper.money.buildlogic.androidLibrary")
 }
 
@@ -13,6 +14,7 @@ kotlin {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
             dependencies {
+                implementation(projects.shared)
                 implementation(projects.frontend.common.base)
                 implementation(projects.frontend.common.feature.webauth)
                 implementation(projects.frontend.common.feature.localstore)
@@ -20,6 +22,12 @@ kotlin {
                 implementation(projects.frontend.common.usecase)
 
                 implementation(libs.koinCore)
+                implementation(libs.kotlin.serialization.json)
+            }
+        }
+        val androidMain by getting {
+            dependencies {
+                implementation(libs.okHttp)
             }
         }
     }

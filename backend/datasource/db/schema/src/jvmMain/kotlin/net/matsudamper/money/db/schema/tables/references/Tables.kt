@@ -13,9 +13,11 @@ import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditions
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterDatasourceType
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilters
 import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
+import net.matsudamper.money.db.schema.tables.JMoneyUsageImagesRelation
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
+import net.matsudamper.money.db.schema.tables.JUserImages
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
 import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
@@ -67,6 +69,11 @@ val CATEGORY_MAIL_FILTERS: JCategoryMailFilters = JCategoryMailFilters.CATEGORY_
 val MONEY_USAGE_CATEGORIES: JMoneyUsageCategories = JMoneyUsageCategories.MONEY_USAGE_CATEGORIES
 
 /**
+ * The table <code>money.money_usage_images_relation</code>.
+ */
+val MONEY_USAGE_IMAGES_RELATION: JMoneyUsageImagesRelation = JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION
+
+/**
  * The table <code>money.money_usage_sub_categories</code>.
  */
 val MONEY_USAGE_SUB_CATEGORIES: JMoneyUsageSubCategories = JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES
@@ -80,6 +87,11 @@ val MONEY_USAGES: JMoneyUsages = JMoneyUsages.MONEY_USAGES
  * The table <code>money.money_usages_mails_relation</code>.
  */
 val MONEY_USAGES_MAILS_RELATION: JMoneyUsagesMailsRelation = JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION
+
+/**
+ * The table <code>money.user_images</code>.
+ */
+val USER_IMAGES: JUserImages = JUserImages.USER_IMAGES
 
 /**
  * The table <code>money.user_imap_settings</code>.

@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend.app.interfaces
 
 import java.time.LocalDateTime
+import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
@@ -21,6 +22,7 @@ interface MoneyUsageRepository {
         subCategoryId: MoneyUsageSubCategoryId?,
         date: LocalDateTime,
         amount: Int,
+        imageIds: List<ImageId>,
     ): AddResult
 
     fun getMoneyUsageByQuery(
@@ -64,6 +66,7 @@ interface MoneyUsageRepository {
         subCategoryId: MoneyUsageSubCategoryId?,
         date: LocalDateTime?,
         amount: Int?,
+        imageIds: List<ImageId>?,
     ): Boolean
 
     sealed interface AddResult {
@@ -80,6 +83,7 @@ interface MoneyUsageRepository {
         val subCategoryId: MoneyUsageSubCategoryId?,
         val date: LocalDateTime,
         val amount: Int,
+        val imageIds: List<ImageId>,
     )
 
     sealed interface GetMoneyUsageByQueryResult {
