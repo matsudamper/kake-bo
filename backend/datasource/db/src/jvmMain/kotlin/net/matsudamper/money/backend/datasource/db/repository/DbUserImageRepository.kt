@@ -2,15 +2,13 @@ package net.matsudamper.money.backend.datasource.db.repository
 
 import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
+import net.matsudamper.money.db.schema.tables.JUserImages
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 
 class DbUserImageRepository : UserImageRepository {
-    private val userImagesTable = DSL.table(DSL.name("user_images"))
-    private val userIdField = DSL.field(DSL.name("user_id"), Int::class.java)
-    private val displayIdField = DSL.field(DSL.name("display_id"), String::class.java)
-    private val imagePathField = DSL.field(DSL.name("image_path"), String::class.java)
+    private val jUserImages = JUserImages.USER_IMAGES
 
     override fun saveImage(
         userId: UserId,
@@ -20,10 +18,10 @@ class DbUserImageRepository : UserImageRepository {
         return runCatching {
             DbConnectionImpl.use { connection ->
                 DSL.using(connection)
-                    .insertInto(userImagesTable)
-                    .set(userIdField, userId.value)
-                    .set(displayIdField, imageId.value)
-                    .set(imagePathField, relativePath)
+                    .insertInto(jUserImages)
+                    .set(jUserImages.USER_ID, userId.value)
+                    .set(jUserImages.DISPLAY_ID, imageId.value)
+                    .set(jUserImages.IMAGE_PATH, relativePath)
                     .onDuplicateKeyIgnore()
                     .execute() == 1
             }
@@ -39,14 +37,14 @@ class DbUserImageRepository : UserImageRepository {
     ): String? {
         return DbConnectionImpl.use { connection ->
             DSL.using(connection)
-                .select(imagePathField)
-                .from(userImagesTable)
+                .select(jUserImages.IMAGE_PATH)
+                .from(jUserImages)
                 .where(
-                    userIdField.eq(userId.value)
-                        .and(displayIdField.eq(imageId.value)),
+                    jUserImages.USER_ID.eq(userId.value)
+                        .and(jUserImages.DISPLAY_ID.eq(imageId.value)),
                 )
                 .limit(1)
-                .fetchOne(imagePathField)
+                .fetchOne(jUserImages.IMAGE_PATH)
         }
     }
 
@@ -59,10 +57,10 @@ class DbUserImageRepository : UserImageRepository {
                 .fetchExists(
                     DSL.using(connection)
                         .selectOne()
-                        .from(userImagesTable)
+                        .from(jUserImages)
                         .where(
-                            userIdField.eq(userId.value)
-                                .and(displayIdField.eq(imageId.value)),
+                            jUserImages.USER_ID.eq(userId.value)
+                                .and(jUserImages.DISPLAY_ID.eq(imageId.value)),
                         ),
                 )
         }

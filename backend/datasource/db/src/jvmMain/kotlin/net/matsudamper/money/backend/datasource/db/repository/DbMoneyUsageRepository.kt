@@ -5,9 +5,11 @@ import java.time.LocalDateTime
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository.OrderType
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
+import net.matsudamper.money.db.schema.tables.JMoneyUsageImagesRelation
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
+import net.matsudamper.money.db.schema.tables.JUserImages
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
@@ -22,15 +24,8 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
     private val jUsage = JMoneyUsages.MONEY_USAGES
     private val jSubCategory = JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES
     private val jRelation = JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION
-    private val usageImageTable = DSL.table(DSL.name("money_usage_images_relation"))
-    private val usageImageUserIdField = DSL.field(DSL.name("user_id"), Int::class.java)
-    private val usageImageMoneyUsageIdField = DSL.field(DSL.name("money_usage_id"), Int::class.java)
-    private val usageImageRelationUserImageIdField = DSL.field(DSL.name("user_image_id"), Int::class.java)
-    private val usageImageOrderField = DSL.field(DSL.name("image_order"), Int::class.java)
-    private val userImagesTable = DSL.table(DSL.name("user_images"))
-    private val userImagesIdField = DSL.field(DSL.name("image_id"), Int::class.java)
-    private val userImagesUserIdField = DSL.field(DSL.name("user_id"), Int::class.java)
-    private val userImagesDisplayIdField = DSL.field(DSL.name("display_id"), String::class.java)
+    private val jUsageImagesRelation = JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION
+    private val jUserImages = JUserImages.USER_IMAGES
 
     override fun addMailRelation(
         userId: UserId,
@@ -445,11 +440,11 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                         .execute()
 
                     context
-                        .deleteFrom(usageImageTable)
+                        .deleteFrom(jUsageImagesRelation)
                         .where(
                             DSL.value(true)
-                                .and(usageImageUserIdField.eq(userId.value))
-                                .and(usageImageMoneyUsageIdField.eq(usageId.id)),
+                                .and(jUsageImagesRelation.USER_ID.eq(userId.value))
+                                .and(jUsageImagesRelation.MONEY_USAGE_ID.eq(usageId.id)),
                         )
                         .execute()
 
@@ -565,28 +560,28 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
         }
         val records = DSL.using(connection)
             .select(
-                usageImageMoneyUsageIdField,
-                userImagesDisplayIdField,
+                jUsageImagesRelation.MONEY_USAGE_ID,
+                jUserImages.DISPLAY_ID,
             )
-            .from(usageImageTable)
-            .join(userImagesTable)
+            .from(jUsageImagesRelation)
+            .join(jUserImages)
             .on(
-                usageImageUserIdField.eq(userImagesUserIdField)
-                    .and(usageImageRelationUserImageIdField.eq(userImagesIdField)),
+                jUsageImagesRelation.USER_ID.eq(jUserImages.USER_ID)
+                    .and(jUsageImagesRelation.USER_IMAGE_ID.eq(jUserImages.IMAGE_ID)),
             )
             .where(
-                usageImageUserIdField.eq(userId.value)
-                    .and(usageImageMoneyUsageIdField.`in`(usageIds.map { it.id })),
+                jUsageImagesRelation.USER_ID.eq(userId.value)
+                    .and(jUsageImagesRelation.MONEY_USAGE_ID.`in`(usageIds.map { it.id })),
             )
             .orderBy(
-                usageImageMoneyUsageIdField.asc(),
-                usageImageOrderField.asc(),
+                jUsageImagesRelation.MONEY_USAGE_ID.asc(),
+                jUsageImagesRelation.IMAGE_ORDER.asc(),
             )
             .fetch()
 
         return records.groupBy(
-            keySelector = { MoneyUsageId(it.get(usageImageMoneyUsageIdField)!!) },
-            valueTransform = { ImageId(it.get(userImagesDisplayIdField)!!) },
+            keySelector = { MoneyUsageId(it.get(jUsageImagesRelation.MONEY_USAGE_ID)!!) },
+            valueTransform = { ImageId(it.get(jUserImages.DISPLAY_ID)!!) },
         )
     }
 
@@ -602,20 +597,20 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
             userId = userId,
             imageIds = imageIds,
         )
-        context.deleteFrom(usageImageTable)
+        context.deleteFrom(jUsageImagesRelation)
             .where(
-                usageImageUserIdField.eq(userId.value)
-                    .and(usageImageMoneyUsageIdField.eq(usageId.id)),
+                jUsageImagesRelation.USER_ID.eq(userId.value)
+                    .and(jUsageImagesRelation.MONEY_USAGE_ID.eq(usageId.id)),
             )
             .execute()
         imageIds.forEachIndexed { index, imageId ->
             val userImageId = displayToUserImageId[imageId.value]
                 ?: throw IllegalArgumentException("image is not found")
-            context.insertInto(usageImageTable)
-                .set(usageImageUserIdField, userId.value)
-                .set(usageImageMoneyUsageIdField, usageId.id)
-                .set(usageImageRelationUserImageIdField, userImageId)
-                .set(usageImageOrderField, index)
+            context.insertInto(jUsageImagesRelation)
+                .set(jUsageImagesRelation.USER_ID, userId.value)
+                .set(jUsageImagesRelation.MONEY_USAGE_ID, usageId.id)
+                .set(jUsageImagesRelation.USER_IMAGE_ID, userImageId)
+                .set(jUsageImagesRelation.IMAGE_ORDER, index)
                 .execute()
         }
     }
@@ -630,15 +625,15 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
         }
         val uniqueDisplayIds = imageIds.map { it.value }.distinct()
         val records = DSL.using(connection)
-            .select(userImagesDisplayIdField, userImagesIdField)
-            .from(userImagesTable)
+            .select(jUserImages.DISPLAY_ID, jUserImages.IMAGE_ID)
+            .from(jUserImages)
             .where(
-                userImagesUserIdField.eq(userId.value)
-                    .and(userImagesDisplayIdField.`in`(uniqueDisplayIds)),
+                jUserImages.USER_ID.eq(userId.value)
+                    .and(jUserImages.DISPLAY_ID.`in`(uniqueDisplayIds)),
             )
             .fetch()
         return records.associate { record ->
-            record.get(userImagesDisplayIdField)!! to record.get(userImagesIdField)!!
+            record.get(jUserImages.DISPLAY_ID)!! to record.get(jUserImages.IMAGE_ID)!!
         }
     }
 }
