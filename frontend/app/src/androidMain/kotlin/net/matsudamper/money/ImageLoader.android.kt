@@ -2,6 +2,8 @@ package net.matsudamper.money
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import java.net.URI
+import kotlinx.coroutines.flow.firstOrNull
 import coil3.EventListener
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
@@ -11,8 +13,6 @@ import coil3.network.okhttp.OkHttpNetworkFetcherFactory
 import coil3.request.ErrorResult
 import coil3.request.ImageRequest
 import coil3.request.SuccessResult
-import java.net.URI
-import kotlinx.coroutines.flow.firstOrNull
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.feature.localstore.generated.Session
 import net.matsudamper.money.frontend.graphql.serverHost

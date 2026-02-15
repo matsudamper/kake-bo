@@ -52,9 +52,9 @@ public class MoneyUsageScreenViewModel(
             override fun selected(result: CategorySelectDialogViewModel.SelectedResult) {
                 viewModelScope.launch {
                     val isSuccess = api.updateUsage(
-                            id = moneyUsageId,
-                            subCategoryId = result.subCategoryId,
-                        )
+                        id = moneyUsageId,
+                        subCategoryId = result.subCategoryId,
+                    )
                     if (isSuccess) {
                         viewModel.dismissDialog()
                     } else {
@@ -245,9 +245,9 @@ public class MoneyUsageScreenViewModel(
                             onComplete = { text ->
                                 viewModelScope.launch {
                                     val isSuccess = api.updateUsage(
-                                            id = moneyUsageId,
-                                            title = text,
-                                        )
+                                        id = moneyUsageId,
+                                        title = text,
+                                    )
                                     if (isSuccess) {
                                         dismissTextInputDialog()
                                     } else {
@@ -278,9 +278,9 @@ public class MoneyUsageScreenViewModel(
                             onSelectedDate = { date ->
                                 viewModelScope.launch {
                                     val isSuccess = api.updateUsage(
-                                            id = moneyUsageId,
-                                            date = LocalDateTime(date, item.date.time),
-                                        )
+                                        id = moneyUsageId,
+                                        date = LocalDateTime(date, item.date.time),
+                                    )
                                     if (isSuccess) {
                                         dismissCalendarDialog()
                                     } else {
@@ -302,9 +302,9 @@ public class MoneyUsageScreenViewModel(
                             onSelectedTime = { time ->
                                 viewModelScope.launch {
                                     val isSuccess = api.updateUsage(
-                                            id = moneyUsageId,
-                                            date = LocalDateTime(item.date.date, time),
-                                        )
+                                        id = moneyUsageId,
+                                        date = LocalDateTime(item.date.date, time),
+                                    )
                                     if (isSuccess) {
                                         dismissTimePickerDialog()
                                     } else {
@@ -340,10 +340,10 @@ public class MoneyUsageScreenViewModel(
                             value ?: return@NumberInputDialog
                             viewModelScope.launch {
                                 val isSuccess = runCatching {
-                                        api.updateUsage(
-                                            id = moneyUsageId,
-                                            amount = value.value,
-                                        )
+                                    api.updateUsage(
+                                        id = moneyUsageId,
+                                        amount = value.value,
+                                    )
                                 }.fold(
                                     onSuccess = { it },
                                     onFailure = { false },
@@ -371,9 +371,9 @@ public class MoneyUsageScreenViewModel(
                             onComplete = { text ->
                                 viewModelScope.launch {
                                     val isSuccess = api.updateUsage(
-                                            id = moneyUsageId,
-                                            description = text,
-                                        )
+                                        id = moneyUsageId,
+                                        description = text,
+                                    )
                                     if (isSuccess) {
                                         dismissTextInputDialog()
                                     } else {
