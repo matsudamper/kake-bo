@@ -10,7 +10,6 @@ import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.utils.io.jvm.javaio.toInputStream
-import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.feature.image.ImageUploadHandler
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
@@ -20,7 +19,6 @@ import net.matsudamper.money.image.ImageUploadImageResponse
 
 internal fun Route.postImage(
     diContainer: DiContainer,
-    userImageRepository: UserImageRepository,
     config: ImageUploadConfig,
     imageUploadHandler: ImageUploadHandler = ImageUploadHandler(),
 ) {
@@ -61,7 +59,7 @@ internal fun Route.postImage(
                 imageUploadHandler.handle(
                     request = ImageUploadHandler.Request(
                         userId = userId,
-                        userImageRepository = userImageRepository,
+                        userImageRepository = diContainer.createUserImageRepository(),
                         storageDirectory = config.storageDirectory,
                         maxUploadBytes = config.maxUploadBytes,
                         contentType = part.contentType?.withoutParameters()?.toString(),

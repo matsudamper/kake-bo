@@ -8,7 +8,6 @@ import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
-import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.feature.image.ImageReadHandler
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
@@ -19,7 +18,6 @@ import net.matsudamper.money.image.ImageUploadImageResponse
 
 internal fun Route.getImage(
     diContainer: DiContainer,
-    userImageRepository: UserImageRepository,
     imageUploadConfig: ImageUploadConfig,
     imageReadHandler: ImageReadHandler = ImageReadHandler(),
 ) {
@@ -53,7 +51,7 @@ internal fun Route.getImage(
         }
 
         val imageId = ImageId(displayId)
-        val relativePath = userImageRepository.getRelativePath(
+        val relativePath = diContainer.createUserImageRepository().getRelativePath(
             userId = userId,
             imageId = imageId,
         )

@@ -170,16 +170,14 @@ fun Application.myApplicationModule() {
             }
         }
         postImage(
-            diContainer = diContainer,
-            userImageRepository = diContainer.createUserImageRepository(),
+            diContainer = MainDiContainer(),
             config = ImageUploadConfig(
                 storageDirectory = File(ServerEnv.imageStoragePath),
                 maxUploadBytes = ServerEnv.imageUploadMaxBytes,
             ),
         )
         getImage(
-            diContainer = diContainer,
-            userImageRepository = diContainer.createUserImageRepository(),
+            diContainer = MainDiContainer(),
             imageUploadConfig = ImageUploadConfig(
                 storageDirectory = File(ServerEnv.imageStoragePath),
                 maxUploadBytes = ServerEnv.imageUploadMaxBytes,
