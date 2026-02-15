@@ -19,33 +19,17 @@ class DbUserImageRepository : UserImageRepository {
         return runCatching<ImageId?> {
             DbConnectionImpl.use { connection ->
                 val context = DSL.using(connection)
-                val insertedCount = context
+                context
                     .insertInto(jUserImages)
                     .set(jUserImages.USER_ID, userId.value)
                     .set(jUserImages.DISPLAY_ID, displayId)
                     .set(jUserImages.IMAGE_PATH, relativePath)
                     .set(jUserImages.CONTENT_TYPE, contentType)
                     .set(jUserImages.UPLOADED, false)
-                    .execute()
-                if (insertedCount != 1) {
-                    return@use null
-                }
-                context
-                    .select(
-                        jUserImages.USER_IMAGE_ID,
-                    )
-                    .from(jUserImages)
-                    .where(
-                        jUserImages.USER_ID.eq(userId.value)
-                            .and(jUserImages.DISPLAY_ID.eq(displayId)),
-                    )
-                    .orderBy(jUserImages.USER_IMAGE_ID.desc())
-                    .limit(1)
+                    .returningResult(jUserImages.USER_IMAGE_ID)
                     .fetchOne()
-                    ?.let { record ->
-                        record.get(jUserImages.USER_IMAGE_ID)
-                            ?.let { ImageId(it) }
-                    }
+                    ?.get(jUserImages.USER_IMAGE_ID)
+                    ?.let { ImageId(it) }
             }
         }.getOrNull()
     }
