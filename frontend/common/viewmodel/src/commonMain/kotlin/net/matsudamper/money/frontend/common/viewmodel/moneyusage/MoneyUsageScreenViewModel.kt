@@ -8,6 +8,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.LocalDateTime
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.cache.normalized.FetchPolicy
@@ -43,15 +45,16 @@ public class MoneyUsageScreenViewModel(
 
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
+    private val updateImageMutex = Mutex()
 
     private val categorySelectDialogViewModel = object {
         private val event: CategorySelectDialogViewModel.Event = object : CategorySelectDialogViewModel.Event {
             override fun selected(result: CategorySelectDialogViewModel.SelectedResult) {
                 viewModelScope.launch {
                     val isSuccess = api.updateUsage(
-                        id = moneyUsageId,
-                        subCategoryId = result.subCategoryId,
-                    )
+                            id = moneyUsageId,
+                            subCategoryId = result.subCategoryId,
+                        )
                     if (isSuccess) {
                         viewModel.dismissDialog()
                     } else {
@@ -242,9 +245,9 @@ public class MoneyUsageScreenViewModel(
                             onComplete = { text ->
                                 viewModelScope.launch {
                                     val isSuccess = api.updateUsage(
-                                        id = moneyUsageId,
-                                        title = text,
-                                    )
+                                            id = moneyUsageId,
+                                            title = text,
+                                        )
                                     if (isSuccess) {
                                         dismissTextInputDialog()
                                     } else {
@@ -275,9 +278,9 @@ public class MoneyUsageScreenViewModel(
                             onSelectedDate = { date ->
                                 viewModelScope.launch {
                                     val isSuccess = api.updateUsage(
-                                        id = moneyUsageId,
-                                        date = LocalDateTime(date, item.date.time),
-                                    )
+                                            id = moneyUsageId,
+                                            date = LocalDateTime(date, item.date.time),
+                                        )
                                     if (isSuccess) {
                                         dismissCalendarDialog()
                                     } else {
@@ -299,9 +302,9 @@ public class MoneyUsageScreenViewModel(
                             onSelectedTime = { time ->
                                 viewModelScope.launch {
                                     val isSuccess = api.updateUsage(
-                                        id = moneyUsageId,
-                                        date = LocalDateTime(item.date.date, time),
-                                    )
+                                            id = moneyUsageId,
+                                            date = LocalDateTime(item.date.date, time),
+                                        )
                                     if (isSuccess) {
                                         dismissTimePickerDialog()
                                     } else {
@@ -337,10 +340,10 @@ public class MoneyUsageScreenViewModel(
                             value ?: return@NumberInputDialog
                             viewModelScope.launch {
                                 val isSuccess = runCatching {
-                                    api.updateUsage(
-                                        id = moneyUsageId,
-                                        amount = value.value,
-                                    )
+                                        api.updateUsage(
+                                            id = moneyUsageId,
+                                            amount = value.value,
+                                        )
                                 }.fold(
                                     onSuccess = { it },
                                     onFailure = { false },
@@ -368,9 +371,9 @@ public class MoneyUsageScreenViewModel(
                             onComplete = { text ->
                                 viewModelScope.launch {
                                     val isSuccess = api.updateUsage(
-                                        id = moneyUsageId,
-                                        description = text,
-                                    )
+                                            id = moneyUsageId,
+                                            description = text,
+                                        )
                                     if (isSuccess) {
                                         dismissTextInputDialog()
                                     } else {
@@ -399,16 +402,18 @@ public class MoneyUsageScreenViewModel(
                             contentType = image.contentType,
                         ) ?: return@launch
 
-                        val currentImageIds = currentMoneyUsage()?.imageIds ?: item.imageIds
-                        val updatedImageIds = (currentImageIds + uploadResult.imageId)
-                            .distinctBy { imageId -> imageId.value }
+                        updateImageMutex.withLock {
+                            val currentImageIds = currentMoneyUsage()?.imageIds ?: item.imageIds
+                            val updatedImageIds = (currentImageIds + uploadResult.imageId)
+                                .distinctBy { imageId -> imageId.value }
 
-                        val isSuccess = api.updateUsage(
-                            id = moneyUsageId,
-                            imageIds = updatedImageIds,
-                        )
-                        if (!isSuccess) {
-                            eventSender.send { it.showToast("画像のアップロードに失敗しました") }
+                            val isSuccess = api.updateUsage(
+                                id = moneyUsageId,
+                                imageIds = updatedImageIds,
+                            )
+                            if (!isSuccess) {
+                                eventSender.send { it.showToast("画像のアップロードに失敗しました") }
+                            }
                         }
                     } finally {
                         viewModelStateFlow.update { state ->
