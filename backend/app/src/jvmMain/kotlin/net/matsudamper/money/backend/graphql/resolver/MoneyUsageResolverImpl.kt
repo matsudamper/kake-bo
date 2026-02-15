@@ -5,16 +5,14 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
-import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.dataloader.MoneyUsageAssociateByImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
-import net.matsudamper.money.backend.feature.image.ImageApiPath
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
-import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.UserId
 import net.matsudamper.money.graphql.model.MoneyUsageResolver
+import net.matsudamper.money.graphql.model.QlImage
 import net.matsudamper.money.graphql.model.QlImportedMail
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
@@ -84,10 +82,10 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
         }.toDataFetcher()
     }
 
-    override fun imageIds(
+    override fun images(
         moneyUsage: QlMoneyUsage,
         env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<List<ImageId>>> {
+    ): CompletionStage<DataFetcherResult<List<QlImage>>> {
         val context = getContext(env)
         val userId = context.verifyUserSessionAndGetUserId()
         return getMoneyUsageFutureResult(
@@ -96,35 +94,8 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
             userId = userId,
             moneyUsageId = moneyUsage.id,
         ).thenApplyAsync { futureResult ->
-            futureResult.imageIds
-        }.toDataFetcher()
-    }
-
-    override fun imageUrls(
-        moneyUsage: QlMoneyUsage,
-        env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<List<String>>> {
-        val context = getContext(env)
-        val userId = context.verifyUserSessionAndGetUserId()
-        return getMoneyUsageFutureResult(
-            context = context,
-            env = env,
-            userId = userId,
-            moneyUsageId = moneyUsage.id,
-        ).thenApplyAsync { futureResult ->
-            val domain = ServerEnv.domain
-                ?: throw IllegalStateException("DOMAIN is not configured")
-            val displayIdMap = context.diContainer.createUserImageRepository().getDisplayIdsByImageIds(
-                userId = userId,
-                imageIds = futureResult.imageIds,
-            )
             futureResult.imageIds.map { imageId ->
-                val displayId = displayIdMap[imageId]
-                    ?: throw IllegalStateException("displayId is not found: imageId=${imageId.value}")
-                ImageApiPath.imageV1AbsoluteByDisplayId(
-                    domain = domain,
-                    displayId = displayId,
-                )
+                QlImage(id = imageId)
             }
         }.toDataFetcher()
     }
