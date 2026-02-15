@@ -8,7 +8,9 @@ CREATE TABLE user_images
     created_datetime DATETIME DEFAULT CURRENT_TIMESTAMP not null,
     uploaded         boolean                            not null,
     CONSTRAINT user_image_display_id_unique UNIQUE (display_id),
-    INDEX user_image_user_id (user_id)
+    CONSTRAINT image_path_unique UNIQUE (image_path),
+    INDEX user_image_user_id (user_id),
+    INDEX display_id (display_id)
 );
 
 CREATE TABLE money_usage_images_relation
