@@ -4,11 +4,6 @@ import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.UserId
 
 interface UserImageRepository {
-    data class SaveImageResult(
-        val imageId: ImageId,
-        val displayId: String,
-    )
-
     data class ImageData(
         val relativePath: String,
         val contentType: String,
@@ -19,7 +14,17 @@ interface UserImageRepository {
         displayId: String,
         relativePath: String,
         contentType: String,
-    ): SaveImageResult?
+    ): ImageId?
+
+    fun markImageAsUploaded(
+        userId: UserId,
+        imageId: ImageId,
+    )
+
+    fun deleteImage(
+        userId: UserId,
+        imageId: ImageId,
+    )
 
     fun getImageDataByDisplayId(
         userId: UserId,

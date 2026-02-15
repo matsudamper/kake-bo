@@ -11,6 +11,7 @@ import io.ktor.server.routing.Route
 import io.ktor.server.routing.post
 import io.ktor.utils.io.jvm.javaio.toInputStream
 import net.matsudamper.money.backend.base.ServerEnv
+import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.feature.image.ImageApiPath
 import net.matsudamper.money.backend.feature.image.ImageUploadHandler
@@ -18,6 +19,7 @@ import net.matsudamper.money.backend.feature.session.KtorCookieManager
 import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
 import net.matsudamper.money.image.ImageUploadApiPath
 import net.matsudamper.money.image.ImageUploadImageResponse
+import net.matsudamper.money.image.ImageUploadImageResponse.Success
 
 internal fun Route.postImage(
     diContainer: DiContainer,
@@ -94,7 +96,8 @@ internal fun Route.postImage(
                 )
             }
 
-            ImageUploadHandler.Result.InternalServerError -> {
+            is ImageUploadHandler.Result.InternalServerError -> {
+                TraceLogger.impl().noticeThrowable(uploadResult.e, true)
                 call.respondApiError(
                     status = HttpStatusCode.InternalServerError,
                     message = "InternalServerError",
@@ -116,7 +119,7 @@ internal fun Route.postImage(
                     contentType = ContentType.Application.Json,
                     text = Json.encodeToString(
                         ImageUploadImageResponse(
-                            success = ImageUploadImageResponse.Success(
+                            success = Success(
                                 imageId = uploadResult.imageId,
                                 url = ImageApiPath.imageV1AbsoluteByDisplayId(
                                     domain = domain,

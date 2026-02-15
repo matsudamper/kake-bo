@@ -96,9 +96,19 @@ open class JUserImages(
     val IMAGE_PATH: TableField<JUserImagesRecord, String?> = createField(DSL.name("image_path"), SQLDataType.VARCHAR(1000).nullable(false), this, "")
 
     /**
+     * The column <code>money.user_images.content_type</code>.
+     */
+    val CONTENT_TYPE: TableField<JUserImagesRecord, String?> = createField(DSL.name("content_type"), SQLDataType.VARCHAR(255).nullable(false), this, "")
+
+    /**
      * The column <code>money.user_images.created_datetime</code>.
      */
     val CREATED_DATETIME: TableField<JUserImagesRecord, LocalDateTime?> = createField(DSL.name("created_datetime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field(DSL.raw("current_timestamp()"), SQLDataType.LOCALDATETIME)), this, "")
+
+    /**
+     * The column <code>money.user_images.uploaded</code>.
+     */
+    val UPLOADED: TableField<JUserImagesRecord, Boolean?> = createField(DSL.name("uploaded"), SQLDataType.BOOLEAN.nullable(false), this, "")
 
     private constructor(alias: Name, aliased: Table<JUserImagesRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<JUserImagesRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)

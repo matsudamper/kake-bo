@@ -15,8 +15,8 @@ class DbUserImageRepository : UserImageRepository {
         displayId: String,
         relativePath: String,
         contentType: String,
-    ): UserImageRepository.SaveImageResult? {
-        return runCatching<UserImageRepository.SaveImageResult?> {
+    ): ImageId? {
+        return runCatching<ImageId?> {
             DbConnectionImpl.use { connection ->
                 val context = DSL.using(connection)
                 val insertedCount = context
@@ -25,6 +25,7 @@ class DbUserImageRepository : UserImageRepository {
                     .set(jUserImages.DISPLAY_ID, displayId)
                     .set(jUserImages.IMAGE_PATH, relativePath)
                     .set(jUserImages.CONTENT_TYPE, contentType)
+                    .set(jUserImages.UPLOADED, false)
                     .execute()
                 if (insertedCount != 1) {
                     return@use null
@@ -32,7 +33,6 @@ class DbUserImageRepository : UserImageRepository {
                 context
                     .select(
                         jUserImages.IMAGE_ID,
-                        jUserImages.DISPLAY_ID,
                     )
                     .from(jUserImages)
                     .where(
@@ -43,15 +43,35 @@ class DbUserImageRepository : UserImageRepository {
                     .limit(1)
                     .fetchOne()
                     ?.let { record ->
-                        val imageId = record.get(jUserImages.IMAGE_ID) ?: return@let null
-                        val savedDisplayId = record.get(jUserImages.DISPLAY_ID) ?: return@let null
-                        UserImageRepository.SaveImageResult(
-                            imageId = ImageId(imageId),
-                            displayId = savedDisplayId,
-                        )
+                        record.get(jUserImages.IMAGE_ID)
+                            ?.let { ImageId(it) }
                     }
             }
         }.getOrNull()
+    }
+
+    override fun deleteImage(
+        userId: UserId,
+        imageId: ImageId,
+    ) {
+        DbConnectionImpl.use { connection ->
+            DSL.using(connection)
+                .deleteFrom(jUserImages)
+                .where(jUserImages.IMAGE_ID.eq(imageId.value))
+                .and(jUserImages.USER_ID.eq(userId.value))
+                .execute()
+        }
+    }
+
+    override fun markImageAsUploaded(userId: UserId, imageId: ImageId) {
+        DbConnectionImpl.use { connection ->
+            DSL.using(connection)
+                .update(jUserImages)
+                .set(jUserImages.UPLOADED, true)
+                .where(jUserImages.IMAGE_ID.eq(imageId.value))
+                .and(jUserImages.USER_ID.eq(userId.value))
+                .execute()
+        }
     }
 
     override fun getImageDataByDisplayId(
@@ -72,11 +92,9 @@ class DbUserImageRepository : UserImageRepository {
                 .limit(1)
                 .fetchOne()
                 ?.let { record ->
-                    val relativePath = record.get(jUserImages.IMAGE_PATH) ?: return@let null
-                    val contentType = record.get(jUserImages.CONTENT_TYPE) ?: return@let null
                     UserImageRepository.ImageData(
-                        relativePath = relativePath,
-                        contentType = contentType,
+                        relativePath = record.get(jUserImages.IMAGE_PATH)!!,
+                        contentType = record.get(jUserImages.CONTENT_TYPE)!!,
                     )
                 }
         }

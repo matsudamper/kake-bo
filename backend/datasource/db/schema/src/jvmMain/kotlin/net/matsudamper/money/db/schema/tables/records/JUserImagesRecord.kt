@@ -34,9 +34,17 @@ open class JUserImagesRecord() : UpdatableRecordImpl<JUserImagesRecord>(JUserIma
         set(value): Unit = set(3, value)
         get(): String? = get(3) as String?
 
-    open var createdDatetime: LocalDateTime?
+    open var contentType: String?
         set(value): Unit = set(4, value)
-        get(): LocalDateTime? = get(4) as LocalDateTime?
+        get(): String? = get(4) as String?
+
+    open var createdDatetime: LocalDateTime?
+        set(value): Unit = set(5, value)
+        get(): LocalDateTime? = get(5) as LocalDateTime?
+
+    open var uploaded: Boolean?
+        set(value): Unit = set(6, value)
+        get(): Boolean? = get(6) as Boolean?
 
     // -------------------------------------------------------------------------
     // Primary key information
@@ -47,12 +55,14 @@ open class JUserImagesRecord() : UpdatableRecordImpl<JUserImagesRecord>(JUserIma
     /**
      * Create a detached, initialised JUserImagesRecord
      */
-    constructor(imageId: Int? = null, userId: Int? = null, displayId: String? = null, imagePath: String? = null, createdDatetime: LocalDateTime? = null): this() {
+    constructor(imageId: Int? = null, userId: Int? = null, displayId: String? = null, imagePath: String? = null, contentType: String? = null, createdDatetime: LocalDateTime? = null, uploaded: Boolean? = null): this() {
         this.imageId = imageId
         this.userId = userId
         this.displayId = displayId
         this.imagePath = imagePath
+        this.contentType = contentType
         this.createdDatetime = createdDatetime
+        this.uploaded = uploaded
         resetTouchedOnNotNull()
     }
 }

@@ -14,7 +14,7 @@ class ImageUploadHandler {
         val userId = request.userId ?: return Result.Unauthorized
 
         if (!request.storageDirectory.exists() && !request.storageDirectory.mkdirs()) {
-            return Result.InternalServerError
+            return Result.InternalServerError(IllegalStateException("Failed to create storage directory: ${request.storageDirectory.absolutePath}"))
         }
 
         val extension = resolveImageExtension(
@@ -22,67 +22,72 @@ class ImageUploadHandler {
         ) ?: return Result.UnsupportedMediaType
         val contentType = request.contentType ?: return Result.UnsupportedMediaType
 
-        val displayId = UUID.randomUUID().toString()
+        val displayUUID = UUID.randomUUID().toString()
+        val relativePath = createRelativePath(
+            displayId = displayUUID,
+            extension = extension,
+        )
+        val imageId = request.userImageRepository.saveImage(
+            userId = userId,
+            displayId = displayUUID,
+            relativePath = relativePath,
+            contentType = contentType,
+        ) ?: return Result.InternalServerError(IllegalStateException("Failed to reserve image ID. UUID: $displayUUID"))
+        val destination = File(request.storageDirectory, relativePath)
+        if (destination.exists()) {
+            return Result.InternalServerError(IllegalStateException("File already exists at destination: ${destination.absolutePath}"))
+        }
+
         val writeResult = writeImageFile(
             inputStream = request.inputStream,
-            storageDirectory = request.storageDirectory,
+            destination = destination,
             maxUploadBytes = request.maxUploadBytes,
-            displayId = displayId,
         )
         return when (writeResult) {
-            WriteImageFileResult.Empty -> Result.BadRequest(message = "EmptyFile")
-            WriteImageFileResult.PayloadTooLarge -> Result.PayloadTooLarge
-            is WriteImageFileResult.Success -> {
-                val relativePath = createRelativePath(
-                    displayId = writeResult.displayId,
-                    extension = extension,
-                )
-                val destination = File(request.storageDirectory, relativePath)
-                val destinationExisted = destination.exists()
-                if (!moveTempFile(tempFile = writeResult.tempFile, destination = destination)) {
-                    Result.InternalServerError
-                } else {
-                    val saveResult = request.userImageRepository.saveImage(
-                        userId = userId,
-                        displayId = writeResult.displayId,
-                        relativePath = relativePath,
-                        contentType = contentType,
-                    )
-                    if (saveResult == null) {
-                        if (!destinationExisted) {
-                            destination.delete()
-                        }
-                        return Result.InternalServerError
-                    }
-
-                    Result.Success(
-                        imageId = saveResult.imageId,
-                        displayId = saveResult.displayId,
-                        relativePath = relativePath,
-                    )
-                }
+            WriteImageFileResult.Empty -> {
+                request.userImageRepository.deleteImage(userId = userId, imageId = imageId)
+                Result.BadRequest(message = "EmptyFile")
             }
 
-            WriteImageFileResult.SystemFailure -> Result.InternalServerError
+            WriteImageFileResult.PayloadTooLarge -> {
+                request.userImageRepository.deleteImage(userId = userId, imageId = imageId)
+                Result.PayloadTooLarge
+            }
+
+            WriteImageFileResult.SystemFailure -> {
+                request.userImageRepository.deleteImage(userId = userId, imageId = imageId)
+                Result.InternalServerError(IllegalStateException("Failed to write image file to destination: ${destination.absolutePath}"))
+            }
+
+            WriteImageFileResult.Success -> {
+                request.userImageRepository.deleteImage(userId = userId, imageId = imageId)
+                Result.Success(
+                    imageId = imageId,
+                    displayId = displayUUID,
+                    relativePath = relativePath,
+                )
+            }
         }
     }
 
     private fun writeImageFile(
         inputStream: InputStream,
-        storageDirectory: File,
+        destination: File,
         maxUploadBytes: Long,
-        displayId: String,
     ): WriteImageFileResult {
-        val tempFile = runCatching {
-            File.createTempFile("upload_", ".tmp", storageDirectory)
-        }.getOrElse {
+        if (destination.exists()) {
+            return WriteImageFileResult.Success
+        }
+        val parent = destination.parentFile
+        if (parent != null && !parent.exists() && !parent.mkdirs()) {
             return WriteImageFileResult.SystemFailure
         }
+
         var totalSize = 0L
         var isPayloadTooLarge = false
 
         val writeResult = runCatching {
-            tempFile.outputStream().buffered().use { output ->
+            destination.outputStream().buffered().use { output ->
                 val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
                 while (true) {
                     val readSize = inputStream.read(buffer)
@@ -99,54 +104,21 @@ class ImageUploadHandler {
             }
         }
         if (writeResult.isFailure) {
-            tempFile.delete()
+            destination.delete()
             return WriteImageFileResult.SystemFailure
         }
 
         if (isPayloadTooLarge) {
-            tempFile.delete()
+            destination.delete()
             return WriteImageFileResult.PayloadTooLarge
         }
 
         if (totalSize <= 0L) {
-            tempFile.delete()
+            destination.delete()
             return WriteImageFileResult.Empty
         }
 
-        return WriteImageFileResult.Success(
-            tempFile = tempFile,
-            displayId = displayId,
-        )
-    }
-
-    private fun moveTempFile(
-        tempFile: File,
-        destination: File,
-    ): Boolean {
-        if (destination.exists()) {
-            tempFile.delete()
-            return true
-        }
-
-        val parent = destination.parentFile
-        if (parent != null && !parent.exists() && !parent.mkdirs()) {
-            tempFile.delete()
-            return false
-        }
-
-        return runCatching {
-            if (tempFile.renameTo(destination)) {
-                true
-            } else {
-                tempFile.copyTo(destination, overwrite = false)
-                tempFile.delete()
-                true
-            }
-        }.getOrElse {
-            destination.delete()
-            tempFile.delete()
-            false
-        }
+        return WriteImageFileResult.Success
     }
 
     private fun resolveImageExtension(
@@ -192,15 +164,11 @@ class ImageUploadHandler {
         data class BadRequest(val message: String) : Result
         data object PayloadTooLarge : Result
         data object UnsupportedMediaType : Result
-        data object InternalServerError : Result
+        data class InternalServerError(val e: Throwable) : Result
     }
 
     private sealed interface WriteImageFileResult {
-        data class Success(
-            val tempFile: File,
-            val displayId: String,
-        ) : WriteImageFileResult
-
+        data object Success : WriteImageFileResult
         data object PayloadTooLarge : WriteImageFileResult
         data object Empty : WriteImageFileResult
         data object SystemFailure : WriteImageFileResult
