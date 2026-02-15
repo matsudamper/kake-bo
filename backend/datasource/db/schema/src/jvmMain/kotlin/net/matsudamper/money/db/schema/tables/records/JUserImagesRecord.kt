@@ -18,7 +18,7 @@ import org.jooq.impl.UpdatableRecordImpl
 @Suppress("warnings")
 open class JUserImagesRecord() : UpdatableRecordImpl<JUserImagesRecord>(JUserImages.USER_IMAGES) {
 
-    open var imageId: Int?
+    open var userImageId: Int?
         set(value): Unit = set(0, value)
         get(): Int? = get(0) as Int?
 
@@ -55,8 +55,8 @@ open class JUserImagesRecord() : UpdatableRecordImpl<JUserImagesRecord>(JUserIma
     /**
      * Create a detached, initialised JUserImagesRecord
      */
-    constructor(imageId: Int? = null, userId: Int? = null, displayId: String? = null, imagePath: String? = null, contentType: String? = null, createdDatetime: LocalDateTime? = null, uploaded: Boolean? = null): this() {
-        this.imageId = imageId
+    constructor(userImageId: Int? = null, userId: Int? = null, displayId: String? = null, imagePath: String? = null, contentType: String? = null, createdDatetime: LocalDateTime? = null, uploaded: Boolean? = null): this() {
+        this.userImageId = userImageId
         this.userId = userId
         this.displayId = displayId
         this.imagePath = imagePath

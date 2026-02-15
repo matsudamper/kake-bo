@@ -32,18 +32,18 @@ class DbUserImageRepository : UserImageRepository {
                 }
                 context
                     .select(
-                        jUserImages.IMAGE_ID,
+                        jUserImages.USER_IMAGE_ID,
                     )
                     .from(jUserImages)
                     .where(
                         jUserImages.USER_ID.eq(userId.value)
                             .and(jUserImages.DISPLAY_ID.eq(displayId)),
                     )
-                    .orderBy(jUserImages.IMAGE_ID.desc())
+                    .orderBy(jUserImages.USER_IMAGE_ID.desc())
                     .limit(1)
                     .fetchOne()
                     ?.let { record ->
-                        record.get(jUserImages.IMAGE_ID)
+                        record.get(jUserImages.USER_IMAGE_ID)
                             ?.let { ImageId(it) }
                     }
             }
@@ -57,7 +57,7 @@ class DbUserImageRepository : UserImageRepository {
         DbConnectionImpl.use { connection ->
             DSL.using(connection)
                 .deleteFrom(jUserImages)
-                .where(jUserImages.IMAGE_ID.eq(imageId.value))
+                .where(jUserImages.USER_IMAGE_ID.eq(imageId.value))
                 .and(jUserImages.USER_ID.eq(userId.value))
                 .execute()
         }
@@ -68,7 +68,7 @@ class DbUserImageRepository : UserImageRepository {
             DSL.using(connection)
                 .update(jUserImages)
                 .set(jUserImages.UPLOADED, true)
-                .where(jUserImages.IMAGE_ID.eq(imageId.value))
+                .where(jUserImages.USER_IMAGE_ID.eq(imageId.value))
                 .and(jUserImages.USER_ID.eq(userId.value))
                 .execute()
         }
@@ -112,7 +112,7 @@ class DbUserImageRepository : UserImageRepository {
                         .from(jUserImages)
                         .where(
                             jUserImages.USER_ID.eq(userId.value)
-                                .and(jUserImages.IMAGE_ID.eq(imageId.value)),
+                                .and(jUserImages.USER_IMAGE_ID.eq(imageId.value)),
                         ),
                 )
         }
@@ -129,17 +129,17 @@ class DbUserImageRepository : UserImageRepository {
         return DbConnectionImpl.use { connection ->
             DSL.using(connection)
                 .select(
-                    jUserImages.IMAGE_ID,
+                    jUserImages.USER_IMAGE_ID,
                     jUserImages.DISPLAY_ID,
                 )
                 .from(jUserImages)
                 .where(
                     jUserImages.USER_ID.eq(userId.value)
-                        .and(jUserImages.IMAGE_ID.`in`(uniqueImageIds)),
+                        .and(jUserImages.USER_IMAGE_ID.`in`(uniqueImageIds)),
                 )
                 .fetch()
                 .associate { record ->
-                    ImageId(record.get(jUserImages.IMAGE_ID)!!) to record.get(jUserImages.DISPLAY_ID)!!
+                    ImageId(record.get(jUserImages.USER_IMAGE_ID)!!) to record.get(jUserImages.DISPLAY_ID)!!
                 }
         }
     }

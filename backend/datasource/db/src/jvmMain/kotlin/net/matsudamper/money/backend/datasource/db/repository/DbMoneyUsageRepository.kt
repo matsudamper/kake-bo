@@ -549,7 +549,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
             .from(jUserImages)
             .where(
                 jUserImages.USER_ID.eq(userId.value)
-                    .and(jUserImages.IMAGE_ID.`in`(uniqueImageIds)),
+                    .and(jUserImages.USER_IMAGE_ID.`in`(uniqueImageIds)),
             )
             .fetchOne(0, Int::class.java) ?: 0
         return ownedImageCount == uniqueImageIds.size

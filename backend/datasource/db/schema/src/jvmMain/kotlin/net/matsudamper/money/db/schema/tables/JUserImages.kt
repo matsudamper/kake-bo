@@ -76,9 +76,9 @@ open class JUserImages(
     override fun getRecordType(): Class<JUserImagesRecord> = JUserImagesRecord::class.java
 
     /**
-     * The column <code>money.user_images.image_id</code>.
+     * The column <code>money.user_images.user_image_id</code>.
      */
-    val IMAGE_ID: TableField<JUserImagesRecord, Int?> = createField(DSL.name("image_id"), SQLDataType.INTEGER.nullable(false).identity(true), this, "")
+    val USER_IMAGE_ID: TableField<JUserImagesRecord, Int?> = createField(DSL.name("user_image_id"), SQLDataType.INTEGER.nullable(false).identity(true), this, "")
 
     /**
      * The column <code>money.user_images.user_id</code>.

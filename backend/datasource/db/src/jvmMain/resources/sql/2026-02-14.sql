@@ -1,6 +1,6 @@
 CREATE TABLE user_images
 (
-    image_id         INT PRIMARY KEY AUTO_INCREMENT,
+    user_image_id    INT PRIMARY KEY AUTO_INCREMENT,
     user_id          INT                                not null,
     display_id       CHAR(36)                           not null,
     image_path       VARCHAR(1000)                      not null,
@@ -21,4 +21,3 @@ CREATE TABLE money_usage_images_relation
     INDEX user_money_usage_id (user_id, money_usage_id),
     INDEX user_image_id (user_id, user_image_id)
 );
-
