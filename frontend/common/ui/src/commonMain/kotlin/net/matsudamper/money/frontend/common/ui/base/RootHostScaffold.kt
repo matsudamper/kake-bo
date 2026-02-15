@@ -38,7 +38,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.ui.CustomColors
+import net.matsudamper.money.frontend.common.ui.LocalCustomColors
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
@@ -172,7 +172,7 @@ private fun RootHostScaffoldContent(
                     modifier = Modifier
                         .width(1.dp)
                         .fillMaxHeight(),
-                    color = CustomColors.MenuDividerColor,
+                    color = LocalCustomColors.current.menuDividerColor,
                 )
             }
             Box(
