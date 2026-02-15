@@ -561,7 +561,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
         usageIds: List<MoneyUsageId>,
     ): Map<MoneyUsageId, List<ImageId>> {
         if (usageIds.isEmpty()) {
-            return emptyMap()
+            return mapOf()
         }
         val records = DSL.using(connection)
             .select(

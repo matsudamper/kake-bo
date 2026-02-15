@@ -107,7 +107,7 @@ class DbUserImageRepository : UserImageRepository {
         imageIds: List<ImageId>,
     ): Map<ImageId, String> {
         if (imageIds.isEmpty()) {
-            return emptyMap()
+            return mapOf()
         }
         val uniqueImageIds = imageIds.map { it.value }.distinct()
         return DbConnectionImpl.use { connection ->
