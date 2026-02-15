@@ -16,6 +16,7 @@ import net.matsudamper.money.graphql.model.MoneyUsageResolver
 import net.matsudamper.money.graphql.model.QlImportedMail
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
+import net.matsudamper.money.image.ImageApiPath
 
 class MoneyUsageResolverImpl : MoneyUsageResolver {
     override fun title(
@@ -111,7 +112,7 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
             moneyUsageId = moneyUsage.id,
         ).thenApplyAsync { futureResult ->
             futureResult.imageIds.map { imageId ->
-                "/api/image/v1/${imageId.value}"
+                ImageApiPath.imageV1(imageId)
             }
         }.toDataFetcher()
     }

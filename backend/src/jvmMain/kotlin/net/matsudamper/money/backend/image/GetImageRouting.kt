@@ -14,6 +14,7 @@ import net.matsudamper.money.backend.feature.image.ImageReadHandler
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
 import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
 import net.matsudamper.money.element.ImageId
+import net.matsudamper.money.image.ImageApiPath
 import net.matsudamper.money.image.ImageUploadImageResponse
 
 internal fun Route.getImage(
@@ -22,7 +23,7 @@ internal fun Route.getImage(
     imageUploadConfig: ImageUploadConfig,
     imageReadHandler: ImageReadHandler = ImageReadHandler(),
 ) {
-    get("/api/image/v1/{displayId}") {
+    get(ImageApiPath.imageV1("{displayId}")) {
         val userId = UserSessionManagerImpl(
             cookieManager = KtorCookieManager(call = call),
             userSessionRepository = diContainer.createUserSessionRepository(),

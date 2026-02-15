@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
+import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -37,6 +38,7 @@ import net.matsudamper.money.frontend.common.ui.layout.CalendarDialog
 import net.matsudamper.money.frontend.common.ui.layout.NumberInput
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
+import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
 
@@ -101,6 +103,8 @@ public data class AddMoneyUsageScreenUiState(
         public fun onClickAmountChange()
 
         public fun onClickImageIdsChange()
+
+        public fun onUploadedImageId(imageId: ImageId)
     }
 }
 
@@ -255,7 +259,13 @@ public fun AddMoneyUsageScreen(
                         Text("画像")
                     },
                     description = {
-                        Text(uiState.imageIds.ifBlank { "未設定" })
+                        Column {
+                            Text(uiState.imageIds.ifBlank { "未設定" })
+                            Spacer(Modifier.height(8.dp))
+                            ImageUploadButton(
+                                onUploaded = { imageId -> uiState.event.onUploadedImageId(imageId) },
+                            )
+                        }
                     },
                     clickChange = {
                         uiState.event.onClickImageIdsChange()

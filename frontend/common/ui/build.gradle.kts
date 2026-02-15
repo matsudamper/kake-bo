@@ -14,9 +14,11 @@ kotlin {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
             dependencies {
+                implementation(projects.shared)
                 implementation(projects.frontend.common.base)
                 implementation(projects.frontend.common.navigation)
                 implementation(libs.kotlin.datetime)
+                implementation(libs.kotlin.serialization.json)
                 implementation(libs.coilCompose)
                 implementation(compose.runtime)
                 implementation(compose.foundation)

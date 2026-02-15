@@ -15,6 +15,7 @@ import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.feature.image.ImageUploadHandler
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
 import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
+import net.matsudamper.money.image.ImageApiPath
 import net.matsudamper.money.image.ImageUploadImageResponse
 
 internal fun Route.postImage(
@@ -23,7 +24,7 @@ internal fun Route.postImage(
     config: ImageUploadConfig,
     imageUploadHandler: ImageUploadHandler = ImageUploadHandler(),
 ) {
-    post("/api/image/upload/v1") {
+    post(ImageApiPath.uploadV1) {
         val userId = UserSessionManagerImpl(
             cookieManager = KtorCookieManager(call = call),
             userSessionRepository = diContainer.createUserSessionRepository(),
@@ -116,7 +117,7 @@ internal fun Route.postImage(
                         ImageUploadImageResponse(
                             success = ImageUploadImageResponse.Success(
                                 imageId = uploadResult.imageId,
-                                url = "/api/image/v1/${uploadResult.imageId.value}",
+                                url = ImageApiPath.imageV1(uploadResult.imageId),
                             ),
                         ),
                     ),

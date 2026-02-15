@@ -214,6 +214,15 @@ public class AddMoneyUsageViewModel(
             }
         }
 
+        override fun onUploadedImageId(imageId: ImageId) {
+            viewModelStateFlow.update { viewModelState ->
+                viewModelState.copy(
+                    usageImageIds = (viewModelState.usageImageIds + imageId)
+                        .distinctBy { it.value },
+                )
+            }
+        }
+
         private fun dismissTextInputDialog() {
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
@@ -423,7 +432,10 @@ public class AddMoneyUsageViewModel(
                             val subCategory = categorySet.subCategoryName
                             "$category / $subCategory"
                         },
-                        imageIds = viewModelState.usageImageIds.joinToString(separator = "\n") { it.value },
+                        imageIds = viewModelState.usageImageIds
+                            .takeIf { it.isNotEmpty() }
+                            ?.let { "${it.size}件" }
+                            ?: "",
                         categorySelectDialog = viewModelState.categorySelectDialog,
                     )
                 }
