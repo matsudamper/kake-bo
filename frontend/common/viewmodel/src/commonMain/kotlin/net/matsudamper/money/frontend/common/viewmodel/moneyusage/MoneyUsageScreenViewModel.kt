@@ -218,6 +218,7 @@ public class MoneyUsageScreenViewModel(
                                 description = moneyUsage.description,
                                 subCategoryId = moneyUsage.moneyUsageSubCategory?.id?.id?.toString(),
                                 imageIds = moneyUsage.imageIds,
+                                imageUrls = moneyUsage.imageUrls,
                             ),
                         )
                     }

@@ -3,7 +3,6 @@ package net.matsudamper.money.frontend.common.di
 import kotlinx.browser.window
 import kotlinx.coroutines.await
 import kotlinx.serialization.json.Json
-import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.image.ImageApiPath
 import net.matsudamper.money.image.ImageUploadImageResponse
@@ -16,7 +15,7 @@ public class ImageUploadClientJsImpl : ImageUploadClient {
     override suspend fun upload(
         bytes: ByteArray,
         contentType: String?,
-    ): ImageId? {
+    ): ImageUploadClient.UploadResult? {
         if (bytes.isEmpty()) return null
 
         val int8Array = Int8Array(bytes.size)
@@ -38,7 +37,11 @@ public class ImageUploadClientJsImpl : ImageUploadClient {
         return runCatching {
             val response = window.fetch(ImageApiPath.uploadV1, init).await()
             val body = response.text().await()
-            Json.decodeFromString<ImageUploadImageResponse>(body).success?.imageId
+            val success = Json.decodeFromString<ImageUploadImageResponse>(body).success ?: return@runCatching null
+            ImageUploadClient.UploadResult(
+                imageId = success.imageId,
+                url = success.url,
+            )
         }.getOrNull()
     }
 }

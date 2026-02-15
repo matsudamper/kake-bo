@@ -10,7 +10,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.frontend.common.feature.localstore.generated.Session
 import net.matsudamper.money.frontend.graphql.serverHost
@@ -26,7 +25,7 @@ public class ImageUploadClientAndroidImpl(
     override suspend fun upload(
         bytes: ByteArray,
         contentType: String?,
-    ): ImageId? {
+    ): ImageUploadClient.UploadResult? {
         return withContext(Dispatchers.IO) {
             if (bytes.isEmpty()) return@withContext null
 
@@ -72,7 +71,12 @@ public class ImageUploadClientAndroidImpl(
                 }.orEmpty()
                 connection.disconnect()
 
-                Json.decodeFromString<ImageUploadImageResponse>(responseBody).success?.imageId
+                val success = Json.decodeFromString<ImageUploadImageResponse>(responseBody).success
+                    ?: return@runCatching null
+                ImageUploadClient.UploadResult(
+                    imageId = success.imageId,
+                    url = success.url,
+                )
             }.getOrNull()
         }
     }

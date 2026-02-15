@@ -22,7 +22,7 @@ public class AddMoneyUsageScreenApi(
     public suspend fun uploadImage(
         bytes: ByteArray,
         contentType: String?,
-    ): ImageId? {
+    ): ImageUploadClient.UploadResult? {
         return imageUploadClient.upload(
             bytes = bytes,
             contentType = contentType,
