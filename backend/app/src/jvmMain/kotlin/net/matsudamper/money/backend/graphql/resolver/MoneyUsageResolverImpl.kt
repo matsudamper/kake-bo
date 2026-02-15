@@ -124,7 +124,6 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
                 ImageApiPath.imageV1AbsoluteByDisplayId(
                     domain = domain,
                     displayId = displayId,
-                    isSecure = ServerEnv.isSecure,
                 )
             }
         }.toDataFetcher()

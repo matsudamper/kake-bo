@@ -124,7 +124,6 @@ internal fun Route.postImage(
                                 url = ImageApiPath.imageV1AbsoluteByDisplayId(
                                     domain = domain,
                                     displayId = uploadResult.displayId,
-                                    isSecure = ServerEnv.isSecure,
                                 ),
                             ),
                         ),
