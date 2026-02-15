@@ -42,13 +42,6 @@ internal fun Route.getImage(
             )
             return@get
         }
-        if (!DISPLAY_ID_REGEX.matches(displayId)) {
-            call.respondApiError(
-                status = HttpStatusCode.BadRequest,
-                message = "InvalidImageId",
-            )
-            return@get
-        }
 
         val imageData = diContainer.createUserImageRepository().getImageDataByDisplayId(
             userId = userId,
@@ -115,6 +108,3 @@ private suspend fun ApplicationCall.respondApiError(
         ),
     )
 }
-
-private val DISPLAY_ID_REGEX =
-    Regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-4[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$")
