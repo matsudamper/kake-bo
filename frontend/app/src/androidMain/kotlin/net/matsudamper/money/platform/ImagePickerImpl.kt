@@ -25,7 +25,8 @@ internal class ImagePickerImpl(
 
         val bytes = try {
             componentActivity.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
+            e.printStackTrace()
             current.resume(null)
             return@registerForActivityResult
         }
