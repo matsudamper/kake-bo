@@ -9,7 +9,7 @@ CREATE TABLE user_images
 );
 CREATE INDEX user_image_user_id ON user_images (user_id);
 
-CREATE TABLE money_usage_images
+CREATE TABLE money_usage_images_relation
 (
     user_id        INT      not null,
     money_usage_id INT      not null,

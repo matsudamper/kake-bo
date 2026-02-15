@@ -22,7 +22,7 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
     private val jUsage = JMoneyUsages.MONEY_USAGES
     private val jSubCategory = JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES
     private val jRelation = JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION
-    private val usageImageTable = DSL.table(DSL.name("money_usage_images"))
+    private val usageImageTable = DSL.table(DSL.name("money_usage_images_relation"))
     private val usageImageUserIdField = DSL.field(DSL.name("user_id"), Int::class.java)
     private val usageImageMoneyUsageIdField = DSL.field(DSL.name("money_usage_id"), Int::class.java)
     private val usageImageRelationUserImageIdField = DSL.field(DSL.name("user_image_id"), Int::class.java)
