@@ -6,9 +6,9 @@ CREATE TABLE user_images
     image_path       VARCHAR(1000)                       not null,
     content_type     VARCHAR(255)                        not null,
     created_datetime DATETIME DEFAULT CURRENT_TIMESTAMP  not null,
-    CONSTRAINT user_image_display_id_unique UNIQUE (display_id)
+    CONSTRAINT user_image_display_id_unique UNIQUE (display_id),
+    INDEX user_image_user_id (user_id)
 );
-CREATE INDEX user_image_user_id ON user_images (user_id);
 
 CREATE TABLE money_usage_images_relation
 (
