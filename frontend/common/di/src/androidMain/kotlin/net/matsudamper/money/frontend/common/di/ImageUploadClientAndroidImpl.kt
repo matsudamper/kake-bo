@@ -1,6 +1,6 @@
-package net.matsudamper.money.frontend.common.viewmodel.addmoneyusage
+package net.matsudamper.money.frontend.common.di
 
-import android.content.Context
+import androidx.datastore.core.DataStore
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.net.HttpURLConnection
@@ -11,29 +11,26 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import net.matsudamper.money.element.ImageId
-import net.matsudamper.money.frontend.common.feature.localstore.DataStores
+import net.matsudamper.money.frontend.common.base.ImageUploadClient
+import net.matsudamper.money.frontend.common.feature.localstore.generated.Session
 import net.matsudamper.money.frontend.graphql.serverHost
 import net.matsudamper.money.frontend.graphql.serverProtocol
 import net.matsudamper.money.image.ImageApiPath
 import net.matsudamper.money.image.ImageUploadImageResponse
 
 private const val UserSessionIdKey = "user_session_id"
-private var applicationContext: Context? = null
 
-public fun initializeImageUploadClient(context: Context) {
-    applicationContext = context.applicationContext
-}
-
-internal actual object ImageUploadClient {
-    actual suspend fun upload(
+public class ImageUploadClientAndroidImpl(
+    private val sessionDataStore: DataStore<Session>,
+) : ImageUploadClient {
+    override suspend fun upload(
         bytes: ByteArray,
         contentType: String?,
     ): ImageId? {
         return withContext(Dispatchers.IO) {
             if (bytes.isEmpty()) return@withContext null
 
-            val context = applicationContext ?: return@withContext null
-            val session = DataStores.create(context).sessionDataStore.data.firstOrNull()
+            val session = sessionDataStore.data.firstOrNull()
             val host = session?.serverHost.orEmpty().ifEmpty { serverHost }
             if (host.isBlank()) return@withContext null
 

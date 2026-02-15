@@ -31,7 +31,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 public class AddMoneyUsageViewModel(
     scopedObjectFeature: ScopedObjectFeature,
-    private val graphqlApi: AddMoneyUsageScreenApi,
+    public val graphqlApi: AddMoneyUsageScreenApi,
     private val graphqlClient: GraphqlClient,
 ) : CommonViewModel(scopedObjectFeature) {
     private val eventSender = EventSender<Event>()

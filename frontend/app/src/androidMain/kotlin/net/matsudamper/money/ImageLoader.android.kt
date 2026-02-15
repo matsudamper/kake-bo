@@ -1,6 +1,7 @@
-package net.matsudamper.money.frontend.common.ui.layout.image
+package net.matsudamper.money
 
 import android.content.Context
+import androidx.datastore.core.DataStore
 import java.net.URI
 import kotlinx.coroutines.flow.firstOrNull
 import coil3.ImageLoader
@@ -8,17 +9,17 @@ import coil3.SingletonImageLoader
 import coil3.intercept.Interceptor
 import coil3.network.httpHeaders
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
-import net.matsudamper.money.frontend.common.feature.localstore.DataStores
+import net.matsudamper.money.frontend.common.feature.localstore.generated.Session
 import net.matsudamper.money.frontend.graphql.serverHost
 
 private const val UserSessionIdKey = "user_session_id"
 
-public fun initializeImageLoader(context: Context) {
-    val appContext = context.applicationContext
-    val sessionDataStore = DataStores.create(appContext).sessionDataStore
-
+internal fun initializeImageLoader(
+    context: Context,
+    sessionDataStore: DataStore<Session>,
+) {
     SingletonImageLoader.setSafe { _ ->
-        ImageLoader.Builder(appContext)
+        ImageLoader.Builder(context)
             .components {
                 add(OkHttpNetworkFetcherFactory())
                 add(

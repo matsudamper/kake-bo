@@ -1,9 +1,10 @@
-package net.matsudamper.money.frontend.common.viewmodel.addmoneyusage
+package net.matsudamper.money.frontend.common.di
 
 import kotlinx.browser.window
 import kotlinx.coroutines.await
 import kotlinx.serialization.json.Json
 import net.matsudamper.money.element.ImageId
+import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.image.ImageApiPath
 import net.matsudamper.money.image.ImageUploadImageResponse
 import org.khronos.webgl.Int8Array
@@ -11,8 +12,8 @@ import org.w3c.files.Blob
 import org.w3c.files.BlobPropertyBag
 import org.w3c.xhr.FormData
 
-internal actual object ImageUploadClient {
-    actual suspend fun upload(
+public class ImageUploadClientJsImpl : ImageUploadClient {
+    override suspend fun upload(
         bytes: ByteArray,
         contentType: String?,
     ): ImageId? {

@@ -13,6 +13,7 @@ import com.apollographql.apollo.interceptor.ApolloInterceptor
 import com.apollographql.apollo.interceptor.ApolloInterceptorChain
 import com.apollographql.apollo.network.http.HttpInfo
 import com.apollographql.apollo.network.http.LoggingInterceptor
+import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.feature.localstore.DataStores
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
@@ -28,6 +29,12 @@ internal actual val factory: Factory = object : Factory() {
     override fun createWebAuthModule(scope: Scope): WebAuthModel {
         return WebAuthModelAndroidImpl(
             context = scope.get(),
+        )
+    }
+
+    override fun createPhotoUploadClient(scope: Scope): ImageUploadClient {
+        return ImageUploadClientAndroidImpl(
+            sessionDataStore = scope.get<DataStores>().sessionDataStore,
         )
     }
 
