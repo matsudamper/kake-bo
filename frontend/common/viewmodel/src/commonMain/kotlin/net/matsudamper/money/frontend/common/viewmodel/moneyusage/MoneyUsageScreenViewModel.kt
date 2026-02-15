@@ -133,7 +133,7 @@ public class MoneyUsageScreenViewModel(
                                         val category = subCategory.category
                                         "${subCategory.name} / ${category.name}"
                                     },
-                                    imageUrls = moneyUsage.imageUrls.toImmutableList(),
+                                    imageUrls = moneyUsage.images.map { it.url }.toImmutableList(),
                                     isImageUploading = viewModelState.uploadingImageCount > 0,
                                     event = createMoneyUsageEvent(item = moneyUsage),
                                 ),
@@ -403,7 +403,7 @@ public class MoneyUsageScreenViewModel(
                         ) ?: return@launch
 
                         updateImageMutex.withLock {
-                            val currentImageIds = currentMoneyUsage()?.imageIds ?: item.imageIds
+                            val currentImageIds = currentMoneyUsage()?.images?.map { it.id } ?: item.images.map { it.id }
                             val updatedImageIds = (currentImageIds + uploadResult.imageId)
                                 .distinctBy { imageId -> imageId.value }
 

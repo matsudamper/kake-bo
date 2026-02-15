@@ -149,6 +149,12 @@ type FidoLoginInfo {
   domain: String!
 }
 
+type Image {
+  id: ImageId!
+
+  url: String!
+}
+
 scalar ImageId
 
 type ImportMailResult {
@@ -336,9 +342,7 @@ type MoneyUsage {
 
   amount: Int!
 
-  imageIds: [ImageId!]!
-
-  imageUrls: [String!]!
+  images: [Image!]!
 
   linkedMail: [ImportedMail!]
 
