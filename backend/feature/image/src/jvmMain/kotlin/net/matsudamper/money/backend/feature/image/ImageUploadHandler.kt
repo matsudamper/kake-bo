@@ -75,9 +75,6 @@ class ImageUploadHandler {
         destination: File,
         maxUploadBytes: Long,
     ): WriteImageFileResult {
-        if (destination.exists()) {
-            return WriteImageFileResult.Success
-        }
         val parent = destination.parentFile
         if (parent != null && !parent.exists() && !parent.mkdirs()) {
             return WriteImageFileResult.SystemFailure
