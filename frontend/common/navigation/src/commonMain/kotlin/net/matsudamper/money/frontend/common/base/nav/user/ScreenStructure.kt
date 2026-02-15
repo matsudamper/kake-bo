@@ -344,8 +344,6 @@ public sealed interface ScreenStructure : IScreenStructure {
             private const val KEY_DATE = "date"
             private const val KEY_DESCRIPTION = "description"
             private const val KEY_SUB_CATEGORY_ID = "sub_category_id"
-            private const val KEY_IMAGE_ID = "image_id"
-            private const val KEY_IMAGE_URL = "image_url"
 
             public fun fromQueryParams(queryParams: Map<String, List<String>>): AddMoneyUsage {
                 return AddMoneyUsage(
