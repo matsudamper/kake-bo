@@ -2,16 +2,21 @@ package net.matsudamper.money.frontend.common.ui.screen.moneyusage
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -38,12 +43,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
+import coil3.compose.AsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
@@ -60,6 +67,8 @@ import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.UrlClickableText
 import net.matsudamper.money.frontend.common.ui.layout.UrlMenuDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
+import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 
 public data class MoneyUsageScreenUiState(
     val event: Event,
@@ -125,6 +134,8 @@ public data class MoneyUsageScreenUiState(
         val category: String,
         val dateTime: String,
         val time: String,
+        val imageUrls: ImmutableList<String>,
+        val isImageUploading: Boolean,
         val event: MoneyUsageEvent,
     )
 
@@ -148,6 +159,8 @@ public data class MoneyUsageScreenUiState(
         public fun onClickDescription()
 
         public fun onClickAmountChange()
+
+        public fun onClickUploadImage()
     }
 
     @Immutable
@@ -500,11 +513,14 @@ private fun MailContent(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun MoneyUsage(
     modifier: Modifier = Modifier,
     uiState: MoneyUsageScreenUiState.MoneyUsage,
 ) {
+    var selectedImageUrl by remember { mutableStateOf<String?>(null) }
+
     Column(modifier = modifier) {
         MoneyUsageSection(
             title = {
@@ -587,6 +603,58 @@ private fun MoneyUsage(
                 uiState.event.onClickDescription()
             },
         )
+        MoneyUsageSection(
+            multiline = true,
+            showChangeButton = false,
+            title = {
+                Text("画像")
+            },
+            content = {
+                Column {
+                    if (uiState.imageUrls.isEmpty() && !uiState.isImageUploading) {
+                        Text("未設定")
+                    } else {
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            uiState.imageUrls.forEach { imageUrl ->
+                                AsyncImage(
+                                    model = imageUrl,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(180.dp)
+                                        .clickable { selectedImageUrl = imageUrl },
+                                )
+                            }
+
+                            if (uiState.isImageUploading) {
+                                Box(
+                                    modifier = Modifier.size(180.dp),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    ImageUploadButton(
+                        onClick = { uiState.event.onClickUploadImage() },
+                    )
+                }
+            },
+            onClickChange = {},
+        )
+    }
+
+    selectedImageUrl?.let { imageUrl ->
+        ZoomableImageDialog(
+            imageUrl = imageUrl,
+            onDismissRequest = { selectedImageUrl = null },
+        )
     }
 }
 
@@ -594,6 +662,7 @@ private fun MoneyUsage(
 private fun MoneyUsageSection(
     modifier: Modifier = Modifier,
     multiline: Boolean = false,
+    showChangeButton: Boolean = true,
     title: @Composable () -> Unit,
     onClickChange: () -> Unit,
     content: @Composable () -> Unit,
@@ -623,19 +692,21 @@ private fun MoneyUsageSection(
                 }
             }
 
-            OutlinedButton(
-                modifier = Modifier.align(
-                    if (multiline) {
-                        Alignment.Bottom
-                    } else {
-                        Alignment.CenterVertically
+            if (showChangeButton) {
+                OutlinedButton(
+                    modifier = Modifier.align(
+                        if (multiline) {
+                            Alignment.Bottom
+                        } else {
+                            Alignment.CenterVertically
+                        },
+                    ),
+                    onClick = {
+                        onClickChange()
                     },
-                ),
-                onClick = {
-                    onClickChange()
-                },
-            ) {
-                Text("変更")
+                ) {
+                    Text("変更")
+                }
             }
         }
     }

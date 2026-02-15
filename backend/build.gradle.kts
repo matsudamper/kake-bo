@@ -27,6 +27,9 @@ kotlin {
                 implementation(projects.backend.base)
                 implementation(projects.backend.graphql)
                 implementation(projects.backend.app)
+                implementation(projects.backend.app.interfaces)
+                implementation(projects.backend.feature.image)
+                implementation(projects.backend.feature.session)
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.jackson.jsr310)

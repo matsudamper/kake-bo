@@ -9,9 +9,11 @@ import net.matsudamper.money.db.schema.tables.JApiTokens
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditions
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilters
 import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
+import net.matsudamper.money.db.schema.tables.JMoneyUsageImagesRelation
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
+import net.matsudamper.money.db.schema.tables.JUserImages
 import net.matsudamper.money.db.schema.tables.JUserMails
 import net.matsudamper.money.db.schema.tables.JUserSessions
 import net.matsudamper.money.db.schema.tables.JUsers
@@ -37,9 +39,12 @@ val MONEY_USAGE_CATEGORIES_USER_ID: Index = Internal.createIndex(DSL.name("user_
 val MONEY_USAGE_SUB_CATEGORIES_USER_ID: Index = Internal.createIndex(DSL.name("user_id"), JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES, arrayOf(JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES.USER_ID), false)
 val USER_MAILS_USER_ID: Index = Internal.createIndex(DSL.name("user_id"), JUserMails.USER_MAILS, arrayOf(JUserMails.USER_MAILS.USER_ID), false)
 val USER_SESSIONS_USER_ID: Index = Internal.createIndex(DSL.name("user_id"), JUserSessions.USER_SESSIONS, arrayOf(JUserSessions.USER_SESSIONS.USER_ID), false)
+val MONEY_USAGE_IMAGES_RELATION_USER_IMAGE_ID: Index = Internal.createIndex(DSL.name("user_image_id"), JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION, arrayOf(JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION.USER_ID, JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION.USER_IMAGE_ID), false)
+val USER_IMAGES_USER_IMAGE_USER_ID: Index = Internal.createIndex(DSL.name("user_image_user_id"), JUserImages.USER_IMAGES, arrayOf(JUserImages.USER_IMAGES.USER_ID), false)
 val MONEY_USAGES_USER_INDEX: Index = Internal.createIndex(DSL.name("user_index"), JMoneyUsages.MONEY_USAGES, arrayOf(JMoneyUsages.MONEY_USAGES.MONEY_USAGE_ID, JMoneyUsages.MONEY_USAGES.USER_ID), false)
 val MONEY_USAGE_CATEGORIES_USER_INDEX: Index = Internal.createIndex(DSL.name("user_index"), JMoneyUsageCategories.MONEY_USAGE_CATEGORIES, arrayOf(JMoneyUsageCategories.MONEY_USAGE_CATEGORIES.MONEY_USAGE_CATEGORY_ID, JMoneyUsageCategories.MONEY_USAGE_CATEGORIES.USER_ID), false)
 val MONEY_USAGE_SUB_CATEGORIES_USER_INDEX: Index = Internal.createIndex(DSL.name("user_index"), JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES, arrayOf(JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES.MONEY_USAGE_SUB_CATEGORY_ID, JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES.USER_ID), false)
 val USER_MAILS_USER_INDEX: Index = Internal.createIndex(DSL.name("user_index"), JUserMails.USER_MAILS, arrayOf(JUserMails.USER_MAILS.USER_MAIL_ID, JUserMails.USER_MAILS.USER_ID), false)
 val MONEY_USAGES_MAILS_RELATION_USER_MAIL_ID: Index = Internal.createIndex(DSL.name("user_mail_id"), JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION, arrayOf(JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION.USER_ID, JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION.USER_MAIL_ID), false)
+val MONEY_USAGE_IMAGES_RELATION_USER_MONEY_USAGE_ID: Index = Internal.createIndex(DSL.name("user_money_usage_id"), JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION, arrayOf(JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION.USER_ID, JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION.MONEY_USAGE_ID), false)
 val USERS_USER_NAME: Index = Internal.createIndex(DSL.name("user_name"), JUsers.USERS, arrayOf(JUsers.USERS.USER_NAME), false)

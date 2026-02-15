@@ -32,6 +32,7 @@ apollo {
     service("money") {
         packageName.set("net.matsudamper.money.frontend.graphql")
         mapScalar("MailId", "net.matsudamper.money.element.MailId")
+        mapScalar("ImageId", "net.matsudamper.money.element.ImageId")
         mapScalar("FidoId", "net.matsudamper.money.element.FidoId")
         mapScalar("ApiTokenId", "net.matsudamper.money.element.ApiTokenId")
         mapScalar("ImportedMailId", "net.matsudamper.money.element.ImportedMailId")

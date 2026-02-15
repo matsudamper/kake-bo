@@ -26,12 +26,14 @@ kotlin {
                 implementation(projects.frontend.common.ui)
                 implementation(projects.frontend.common.viewmodel)
                 implementation(projects.frontend.common.graphql)
+                implementation(projects.frontend.common.feature.localstore)
 
                 implementation(compose.foundation)
                 implementation(compose.material3)
                 implementation(compose.runtime)
 
                 implementation(libs.koinCore)
+                implementation(libs.coilRuntime)
             }
         }
         val androidMain by getting {
@@ -44,6 +46,7 @@ kotlin {
                 implementation(libs.androidActivityActivityCompose)
                 implementation(libs.androidAppCompatAppCompat)
                 implementation(libs.kotlin.datetime)
+                implementation(libs.coilNetworkOkhttp)
             }
         }
         val jsMain by getting {

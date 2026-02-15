@@ -14,4 +14,5 @@ internal class PlatFormToolsImpl(
     override val clipboardManager: ClipboardManager = ClipboardManagerImpl(componentActivity)
     override val applicationNotificationManager: ApplicationNotificationManager = ApplicationNotificationManagerImpl(componentActivity)
     override val backPressDispatcher: BackPressDispatcher = BackPressDispatcherImpl(componentActivity)
+    override val imagePicker = ImagePickerImpl(componentActivity)
 }

@@ -26,6 +26,7 @@ internal fun AddMoneyUsageScreenContainer(
             scopedObjectFeature = viewModelFeature,
             graphqlApi = AddMoneyUsageScreenApi(
                 graphqlClient = koin.get(),
+                imageUploadClient = koin.get(),
             ),
             graphqlClient = koin.get(),
         )

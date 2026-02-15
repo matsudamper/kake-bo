@@ -13,6 +13,7 @@ import net.matsudamper.money.backend.app.interfaces.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.app.interfaces.UserConfigRepository
+import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.backend.app.interfaces.UserLoginRepository
 import net.matsudamper.money.backend.app.interfaces.UserRepository
 import net.matsudamper.money.backend.app.interfaces.UserSessionRepository
@@ -32,6 +33,7 @@ import net.matsudamper.money.backend.datasource.db.repository.DbMoneyUsageCatego
 import net.matsudamper.money.backend.datasource.db.repository.DbMoneyUsageRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbMoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbUserConfigRepository
+import net.matsudamper.money.backend.datasource.db.repository.DbUserImageRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbUserLoginRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbUserRepository
 import net.matsudamper.money.backend.datasource.session.UserSessionRepositoryProvider
@@ -62,6 +64,8 @@ interface DiContainer {
     fun createMoneyUsageAnalyticsRepository(): MoneyUsageAnalyticsRepository
 
     fun createUserNameRepository(): UserRepository
+
+    fun createUserImageRepository(): UserImageRepository
 
     fun createFidoRepository(): FidoRepository
 
@@ -155,6 +159,12 @@ class MainDiContainer : DiContainer {
 
     override fun createUserNameRepository(): UserRepository {
         return userRepository
+    }
+
+    private val userImageRepository = DbUserImageRepository()
+
+    override fun createUserImageRepository(): UserImageRepository {
+        return userImageRepository
     }
 
     private val fidoRepository = DbFidoRepository(dbConnection = DbConnectionImpl)
