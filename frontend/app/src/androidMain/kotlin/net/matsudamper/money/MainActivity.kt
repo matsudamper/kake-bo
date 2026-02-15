@@ -36,6 +36,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         val globalEventSender = EventSender<GlobalEvent>()
+        val platformTools = PlatFormToolsImpl(this)
         val initialStructure = getScreenStructure(intent) ?: ScreenStructure.Splash
         setContent {
             MoneyCompositionLocalProvider(
@@ -52,7 +53,7 @@ class MainActivity : ComponentActivity() {
                     Content(
                         modifier = Modifier.fillMaxSize(),
                         globalEventSender = globalEventSender,
-                        platformToolsProvider = { PlatFormToolsImpl(this) },
+                        platformToolsProvider = { platformTools },
                         navController = navController,
                         onBack = {
                             if (navController.canGoBack) {

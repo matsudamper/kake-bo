@@ -4,6 +4,7 @@ import android.app.Application
 import net.matsudamper.money.frontend.common.di.AndroidModule
 import net.matsudamper.money.frontend.common.di.DefaultModule
 import net.matsudamper.money.frontend.common.ui.layout.image.initializeImageLoader
+import net.matsudamper.money.frontend.common.viewmodel.addmoneyusage.initializeImageUploadClient
 import org.koin.core.context.startKoin
 
 class Application : Application() {
@@ -16,5 +17,6 @@ class Application : Application() {
             modules(DefaultModule.module)
         }
         initializeImageLoader(this)
+        initializeImageUploadClient(this)
     }
 }

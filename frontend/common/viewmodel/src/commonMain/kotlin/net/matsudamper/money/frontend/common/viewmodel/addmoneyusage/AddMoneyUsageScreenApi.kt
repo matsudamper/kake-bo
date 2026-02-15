@@ -17,6 +17,16 @@ import net.matsudamper.money.frontend.graphql.type.AddUsageQuery
 public class AddMoneyUsageScreenApi(
     private val graphqlClient: GraphqlClient,
 ) {
+    public suspend fun uploadImage(
+        bytes: ByteArray,
+        contentType: String?,
+    ): ImageId? {
+        return ImageUploadClient.upload(
+            bytes = bytes,
+            contentType = contentType,
+        )
+    }
+
     public suspend fun addMoneyUsage(
         title: String,
         description: String,

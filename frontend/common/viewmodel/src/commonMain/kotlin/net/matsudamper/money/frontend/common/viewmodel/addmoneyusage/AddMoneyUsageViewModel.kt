@@ -20,6 +20,7 @@ import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
+import net.matsudamper.money.frontend.common.ui.layout.image.SelectedImage
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
@@ -193,12 +194,20 @@ public class AddMoneyUsageViewModel(
             }
         }
 
-        override fun onUploadedImageId(imageId: ImageId) {
-            viewModelStateFlow.update { viewModelState ->
-                viewModelState.copy(
-                    usageImageIds = (viewModelState.usageImageIds + imageId)
-                        .distinctBy { it.value },
-                )
+        override fun onClickUploadImage() {
+            viewModelScope.launch {
+                val image = eventSender.send { it.selectImage() } ?: return@launch
+                val imageId = graphqlApi.uploadImage(
+                    bytes = image.bytes,
+                    contentType = image.contentType,
+                ) ?: return@launch
+
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        usageImageIds = (viewModelState.usageImageIds + imageId)
+                            .distinctBy { it.value },
+                    )
+                }
             }
         }
 
@@ -419,6 +428,7 @@ public class AddMoneyUsageViewModel(
     }.asStateFlow()
 
     public interface Event {
+        public suspend fun selectImage(): SelectedImage?
         public fun navigate(structure: ScreenStructure)
         public fun back()
     }

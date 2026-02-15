@@ -25,6 +25,7 @@ kotlin {
                 implementation(compose.foundation)
                 implementation(compose.material3)
                 implementation(libs.kotlin.datetime)
+                implementation(libs.kotlin.serialization.json)
                 implementation(libs.apolloRuntime)
 
                 implementation(libs.koinCore)
@@ -32,6 +33,7 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
+                implementation(projects.frontend.common.feature.localstore)
             }
         }
         val jsMain by getting {

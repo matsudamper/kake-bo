@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
-import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -102,7 +101,7 @@ public data class AddMoneyUsageScreenUiState(
 
         public fun onClickAmountChange()
 
-        public fun onUploadedImageId(imageId: ImageId)
+        public fun onClickUploadImage()
     }
 }
 
@@ -261,7 +260,7 @@ public fun AddMoneyUsageScreen(
                             Text(uiState.imageIds.ifBlank { "未設定" })
                             Spacer(Modifier.height(8.dp))
                             ImageUploadButton(
-                                onUploaded = { imageId -> uiState.event.onUploadedImageId(imageId) },
+                                onClick = { uiState.event.onClickUploadImage() },
                             )
                         }
                     },

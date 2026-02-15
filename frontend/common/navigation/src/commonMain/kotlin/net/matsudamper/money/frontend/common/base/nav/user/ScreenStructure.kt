@@ -2,9 +2,9 @@ package net.matsudamper.money.frontend.common.base.nav.user
 
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
+import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
-import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 
