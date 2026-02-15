@@ -4,7 +4,7 @@ import kotlinx.browser.window
 import kotlinx.coroutines.await
 import kotlinx.serialization.json.Json
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
-import net.matsudamper.money.image.ImageApiPath
+import net.matsudamper.money.image.ImageUploadApiPath
 import net.matsudamper.money.image.ImageUploadImageResponse
 import org.khronos.webgl.Int8Array
 import org.w3c.files.Blob
@@ -35,7 +35,7 @@ public class ImageUploadClientJsImpl : ImageUploadClient {
         init.credentials = "include"
 
         return runCatching {
-            val response = window.fetch(ImageApiPath.uploadV1, init).await()
+            val response = window.fetch(ImageUploadApiPath.uploadV1, init).await()
             val body = response.text().await()
             val success = Json.decodeFromString<ImageUploadImageResponse>(body).success ?: return@runCatching null
             ImageUploadClient.UploadResult(

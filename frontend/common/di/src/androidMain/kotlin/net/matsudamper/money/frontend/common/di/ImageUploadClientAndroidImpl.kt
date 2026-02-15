@@ -14,7 +14,7 @@ import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.frontend.common.feature.localstore.generated.Session
 import net.matsudamper.money.frontend.graphql.serverHost
 import net.matsudamper.money.frontend.graphql.serverProtocol
-import net.matsudamper.money.image.ImageApiPath
+import net.matsudamper.money.image.ImageUploadApiPath
 import net.matsudamper.money.image.ImageUploadImageResponse
 
 private const val UserSessionIdKey = "user_session_id"
@@ -34,7 +34,7 @@ public class ImageUploadClientAndroidImpl(
             if (host.isBlank()) return@withContext null
 
             val protocol = serverProtocol.ifBlank { "https" }
-            val requestUrl = "$protocol://$host${ImageApiPath.uploadV1}"
+            val requestUrl = "$protocol://$host${ImageUploadApiPath.uploadV1}"
             val boundary = "----kakebo-${UUID.randomUUID()}"
             val resolvedContentType = contentType.orEmpty().ifBlank { "application/octet-stream" }
             val userSessionId = session?.userSessionId.orEmpty()

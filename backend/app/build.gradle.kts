@@ -18,6 +18,7 @@ kotlin {
                 implementation(projects.backend.graphql)
                 implementation(projects.backend.feature.serviceMailParser)
                 implementation(projects.backend.feature.fido)
+                implementation(projects.backend.feature.image)
                 implementation(projects.backend.feature.session)
 
                 implementation(kotlin("stdlib"))

@@ -7,6 +7,7 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.MoneyUsageAssociateByImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
+import net.matsudamper.money.backend.feature.image.ImageApiPath
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.element.ImageId
@@ -16,7 +17,6 @@ import net.matsudamper.money.graphql.model.MoneyUsageResolver
 import net.matsudamper.money.graphql.model.QlImportedMail
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
-import net.matsudamper.money.image.ImageApiPath
 
 class MoneyUsageResolverImpl : MoneyUsageResolver {
     override fun title(
