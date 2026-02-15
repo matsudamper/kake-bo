@@ -63,6 +63,7 @@ import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.UrlClickableText
 import net.matsudamper.money.frontend.common.ui.layout.UrlMenuDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 
 public data class MoneyUsageScreenUiState(
     val event: Event,
@@ -509,6 +510,8 @@ private fun MoneyUsage(
     modifier: Modifier = Modifier,
     uiState: MoneyUsageScreenUiState.MoneyUsage,
 ) {
+    var selectedImageUrl by remember { mutableStateOf<String?>(null) }
+
     Column(modifier = modifier) {
         MoneyUsageSection(
             title = {
@@ -611,13 +614,21 @@ private fun MoneyUsage(
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(180.dp),
+                                    .height(180.dp)
+                                    .clickable { selectedImageUrl = imageUrl },
                             )
                         }
                     }
                 }
             },
             onClickChange = {},
+        )
+    }
+
+    selectedImageUrl?.let { imageUrl ->
+        ZoomableImageDialog(
+            imageUrl = imageUrl,
+            onDismissRequest = { selectedImageUrl = null },
         )
     }
 }

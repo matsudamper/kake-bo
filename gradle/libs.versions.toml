@@ -15,6 +15,7 @@ jooq = "3.20.11"
 nav3 = "1.0.1"
 jetbrainsNav3 = "1.0.0-alpha06"
 coil3 = "3.0.4"
+zoomable = "2.9.0"
 
 [plugins]
 apollo = { id = "com.apollographql.apollo", version.ref = "apollo" }
@@ -109,6 +110,7 @@ coilRuntime = { module = "io.coil-kt.coil3:coil", version.ref = "coil3" }
 coilCompose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3" }
 coilNetworkKtor3 = { module = "io.coil-kt.coil3:coil-network-ktor3", version.ref = "coil3" }
 coilNetworkOkhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil3" }
+zoomable = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
 
 # Log
 log4j-api = { module = "org.slf4j:slf4j-api", version.require = "2.0.17" }

@@ -46,6 +46,7 @@ kotlin {
 
                 implementation(libs.androidActivityActivityCompose)
                 implementation(libs.coilNetworkOkhttp)
+                implementation(libs.zoomable)
             }
         }
         val commonTest by getting {

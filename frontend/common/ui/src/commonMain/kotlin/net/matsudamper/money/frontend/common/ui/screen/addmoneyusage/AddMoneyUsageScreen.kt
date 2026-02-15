@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.ui.screen.addmoneyusage
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,12 +29,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import coil3.compose.AsyncImage
@@ -47,6 +52,7 @@ import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
+import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
 
 public sealed interface ImageItem {
@@ -124,6 +130,8 @@ public fun AddMoneyUsageScreen(
     uiState: AddMoneyUsageScreenUiState,
     windowInsets: PaddingValues,
 ) {
+    var selectedImageUrl by remember { mutableStateOf<String?>(null) }
+
     if (uiState.fullScreenTextInputDialog != null) {
         FullScreenTextInput(
             title = uiState.fullScreenTextInputDialog.title,
@@ -299,6 +307,7 @@ public fun AddMoneyUsageScreen(
                                                     contentScale = ContentScale.Crop,
                                                     modifier = Modifier
                                                         .size(120.dp)
+                                                        .clickable { selectedImageUrl = image.url }
                                                         .background(MaterialTheme.colorScheme.surfaceVariant),
                                                 )
                                             }
@@ -352,6 +361,13 @@ public fun AddMoneyUsageScreen(
             value = uiState.numberInputDialog.value,
             onChangeValue = { uiState.numberInputDialog.onChangeValue(it) },
             dismissRequest = { uiState.numberInputDialog.dismissRequest() },
+        )
+    }
+
+    selectedImageUrl?.let { imageUrl ->
+        ZoomableImageDialog(
+            imageUrl = imageUrl,
+            onDismissRequest = { selectedImageUrl = null },
         )
     }
 }
