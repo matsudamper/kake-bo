@@ -17,10 +17,11 @@ class ImageUploadHandler {
             return Result.InternalServerError(IllegalStateException("Failed to create storage directory: ${request.storageDirectory.absolutePath}"))
         }
 
+        val unsupportedMediaType = Result.UnsupportedMediaType(mediaType = request.contentType ?: "null")
         val extension = resolveImageExtension(
             contentType = request.contentType,
-        ) ?: return Result.UnsupportedMediaType
-        val contentType = request.contentType ?: return Result.UnsupportedMediaType
+        ) ?: return unsupportedMediaType
+        val contentType = request.contentType ?: return unsupportedMediaType
 
         val displayUUID = UUID.randomUUID().toString()
         val relativePath = createRelativePath(
@@ -161,7 +162,7 @@ class ImageUploadHandler {
         data object Unauthorized : Result
         data class BadRequest(val message: String) : Result
         data object PayloadTooLarge : Result
-        data object UnsupportedMediaType : Result
+        data class UnsupportedMediaType(val mediaType: String) : Result
         data class InternalServerError(val e: Throwable) : Result
     }
 

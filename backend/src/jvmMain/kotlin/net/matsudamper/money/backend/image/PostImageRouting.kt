@@ -131,10 +131,10 @@ internal fun Route.postImage(
                 )
             }
 
-            ImageUploadHandler.Result.UnsupportedMediaType -> {
+            is ImageUploadHandler.Result.UnsupportedMediaType -> {
                 call.respondApiError(
                     status = HttpStatusCode.UnsupportedMediaType,
-                    message = "UnsupportedMediaType",
+                    message = "UnsupportedMediaType: ${uploadResult.mediaType}",
                 )
             }
         }
@@ -145,6 +145,7 @@ private suspend fun ApplicationCall.respondApiError(
     status: HttpStatusCode,
     message: String,
 ) {
+    TraceLogger.impl().noticeInfo("error: $message")
     respondText(
         status = status,
         contentType = ContentType.Application.Json,
