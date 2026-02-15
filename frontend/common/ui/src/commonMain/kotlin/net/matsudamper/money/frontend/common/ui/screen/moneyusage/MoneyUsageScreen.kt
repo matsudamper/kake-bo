@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -505,6 +507,7 @@ private fun MailContent(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun MoneyUsage(
     modifier: Modifier = Modifier,
@@ -604,7 +607,9 @@ private fun MoneyUsage(
                 if (uiState.imageUrls.isEmpty()) {
                     Text("未設定")
                 } else {
-                    Column(
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         uiState.imageUrls.forEach { imageUrl ->
@@ -613,7 +618,7 @@ private fun MoneyUsage(
                                 contentDescription = null,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
-                                    .fillMaxWidth()
+                                    .fillMaxWidth(0.48f)
                                     .height(180.dp)
                                     .clickable { selectedImageUrl = imageUrl },
                             )

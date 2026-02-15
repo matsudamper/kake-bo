@@ -2,10 +2,11 @@ package net.matsudamper.money.frontend.common.ui.screen.addmoneyusage
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -124,6 +125,7 @@ public data class AddMoneyUsageScreenUiState(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 public fun AddMoneyUsageScreen(
     modifier: Modifier = Modifier,
@@ -281,11 +283,11 @@ public fun AddMoneyUsageScreen(
                             if (uiState.images.isEmpty()) {
                                 Text("未設定")
                             } else {
-                                Row(
+                                FlowRow(
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .horizontalScroll(rememberScrollState()),
+                                        .fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
                                 ) {
                                     uiState.images.forEach { image ->
                                         when (image) {
