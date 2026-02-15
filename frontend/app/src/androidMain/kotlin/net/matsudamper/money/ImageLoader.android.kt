@@ -2,17 +2,23 @@ package net.matsudamper.money
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import java.net.URI
-import kotlinx.coroutines.flow.firstOrNull
+import coil3.EventListener
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import coil3.intercept.Interceptor
 import coil3.network.httpHeaders
 import coil3.network.okhttp.OkHttpNetworkFetcherFactory
+import coil3.request.ErrorResult
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
+import java.net.URI
+import kotlinx.coroutines.flow.firstOrNull
+import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.feature.localstore.generated.Session
 import net.matsudamper.money.frontend.graphql.serverHost
 
 private const val UserSessionIdKey = "user_session_id"
+private const val ImageLoaderLogTag = "ImageLoader"
 
 internal fun initializeImageLoader(
     context: Context,
@@ -20,6 +26,24 @@ internal fun initializeImageLoader(
 ) {
     SingletonImageLoader.setSafe { _ ->
         ImageLoader.Builder(context)
+            .eventListenerFactory {
+                object : EventListener() {
+                    override fun onStart(request: ImageRequest) {
+                        Logger.i(ImageLoaderLogTag, "--> load image: ${request.data}")
+                    }
+
+                    override fun onSuccess(request: ImageRequest, result: SuccessResult) {
+                        Logger.i(ImageLoaderLogTag, "<-- load success: ${request.data} (source=${result.dataSource})")
+                    }
+
+                    override fun onError(request: ImageRequest, result: ErrorResult) {
+                        Logger.e(
+                            ImageLoaderLogTag,
+                            "<-- load failed: ${request.data} (error=${result.throwable.message ?: result.throwable::class.simpleName})",
+                        )
+                    }
+                }
+            }
             .components {
                 add(OkHttpNetworkFetcherFactory())
                 add(
