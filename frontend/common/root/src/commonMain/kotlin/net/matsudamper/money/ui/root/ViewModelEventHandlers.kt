@@ -283,6 +283,10 @@ internal data class ViewModelEventHandlers(
                         platformToolsProvider().clipboardManager.copy(text)
                     }
 
+                    override fun showToast(text: String) {
+                        platformToolsProvider().applicationNotificationManager.notify(text)
+                    }
+
                     override fun openUrl(text: String) {
                         platformToolsProvider().urlOpener.open(text)
                     }

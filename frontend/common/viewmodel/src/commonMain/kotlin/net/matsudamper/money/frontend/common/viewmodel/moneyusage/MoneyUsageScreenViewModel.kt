@@ -408,7 +408,7 @@ public class MoneyUsageScreenViewModel(
                             imageIds = updatedImageIds,
                         )
                         if (!isSuccess) {
-                            // TODO
+                            eventSender.send { it.showToast("画像のアップロードに失敗しました") }
                         }
                     } finally {
                         viewModelStateFlow.update { state ->
@@ -555,6 +555,7 @@ public class MoneyUsageScreenViewModel(
         public fun openUrl(text: String)
 
         public fun copyUrl(text: String)
+        public fun showToast(text: String)
     }
 
     private data class ViewModelState(
