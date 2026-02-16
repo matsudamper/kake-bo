@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.graphql.resolver.mutation
 
+import java.io.File
 import java.time.ZoneOffset
 import java.util.Base64
 import java.util.concurrent.CompletableFuture
@@ -15,8 +16,10 @@ import net.matsudamper.money.backend.app.interfaces.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.app.interfaces.UserLoginRepository
+import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.base.ServerVariables
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
+import net.matsudamper.money.backend.feature.image.ImageDeleteHandler
 import net.matsudamper.money.backend.fido.Auth4JModel
 import net.matsudamper.money.backend.fido.AuthenticatorConverter
 import net.matsudamper.money.backend.graphql.GraphQlContext
@@ -33,6 +36,7 @@ import net.matsudamper.money.backend.logic.IPasswordManager
 import net.matsudamper.money.backend.logic.PasswordManager
 import net.matsudamper.money.element.ApiTokenId
 import net.matsudamper.money.element.FidoId
+import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
@@ -771,6 +775,34 @@ class UserMutationResolverImpl : UserMutationResolver {
                 usageId = id,
             )
             isSuccess
+        }.toDataFetcher()
+    }
+
+    override fun deleteMoneyUsageImage(
+        userMutation: QlUserMutation,
+        usageId: MoneyUsageId,
+        imageId: ImageId,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+
+        return CompletableFuture.allOf().thenApplyAsync {
+            val result = ImageDeleteHandler().handle(
+                ImageDeleteHandler.Request(
+                    userId = userId,
+                    imageId = imageId,
+                    moneyUsageId = usageId,
+                    userImageRepository = context.diContainer.createUserImageRepository(),
+                    storageDirectory = File(ServerEnv.imageStoragePath),
+                ),
+            )
+            when (result) {
+                is ImageDeleteHandler.Result.Success -> true
+                is ImageDeleteHandler.Result.NotFound -> false
+                is ImageDeleteHandler.Result.Unauthorized -> false
+                is ImageDeleteHandler.Result.InternalServerError -> false
+            }
         }.toDataFetcher()
     }
 

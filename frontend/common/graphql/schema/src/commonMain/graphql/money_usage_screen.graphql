@@ -20,6 +20,12 @@ mutation MoneyUsageScreenDeleteUsage($id: MoneyUsageId!) {
     }
 }
 
+mutation MoneyUsageScreenDeleteImage($usageId: MoneyUsageId!, $imageId: ImageId!) {
+    userMutation {
+        deleteMoneyUsageImage(usageId: $usageId, imageId: $imageId)
+    }
+}
+
 fragment MoneyUsageScreenMoneyUsage on MoneyUsage {
     id
     title

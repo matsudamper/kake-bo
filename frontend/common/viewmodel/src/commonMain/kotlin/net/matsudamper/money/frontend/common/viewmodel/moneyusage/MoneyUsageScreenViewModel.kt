@@ -16,6 +16,7 @@ import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import com.apollographql.apollo.cache.normalized.isFromCache
 import com.apollographql.apollo.cache.normalized.watch
+import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
@@ -133,7 +134,12 @@ public class MoneyUsageScreenViewModel(
                                         val category = subCategory.category
                                         "${subCategory.name} / ${category.name}"
                                     },
-                                    imageUrls = moneyUsage.images.map { it.url }.toImmutableList(),
+                                    images = moneyUsage.images.map { image ->
+                                        MoneyUsageScreenUiState.ImageItem(
+                                            url = image.url,
+                                            event = createImageItemEvent(imageId = image.id),
+                                        )
+                                    }.toImmutableList(),
                                     isImageUploading = viewModelState.uploadingImageCount > 0,
                                     event = createMoneyUsageEvent(item = moneyUsage),
                                 ),
@@ -422,6 +428,35 @@ public class MoneyUsageScreenViewModel(
                             )
                         }
                     }
+                }
+            }
+        }
+    }
+
+    private fun createImageItemEvent(imageId: ImageId): MoneyUsageScreenUiState.ImageItemEvent {
+        return object : MoneyUsageScreenUiState.ImageItemEvent {
+            override fun onClickDelete() {
+                viewModelStateFlow.update { viewModelState ->
+                    viewModelState.copy(
+                        confirmDialog = MoneyUsageScreenUiState.ConfirmDialog(
+                            title = "画像を削除しますか？",
+                            description = null,
+                            onConfirm = {
+                                viewModelScope.launch {
+                                    val isSuccess = api.deleteImage(
+                                        usageId = moneyUsageId,
+                                        imageId = imageId,
+                                    )
+                                    if (isSuccess) {
+                                        dismissConfirmDialog()
+                                    } else {
+                                        // TODO
+                                    }
+                                }
+                            },
+                            onDismiss = { dismissConfirmDialog() },
+                        ),
+                    )
                 }
             }
         }

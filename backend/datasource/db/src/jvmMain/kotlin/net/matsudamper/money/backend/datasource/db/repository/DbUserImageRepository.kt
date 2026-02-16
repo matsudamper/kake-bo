@@ -2,13 +2,16 @@ package net.matsudamper.money.backend.datasource.db.repository
 
 import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
+import net.matsudamper.money.db.schema.tables.JMoneyUsageImagesRelation
 import net.matsudamper.money.db.schema.tables.JUserImages
 import net.matsudamper.money.element.ImageId
+import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 
 class DbUserImageRepository : UserImageRepository {
     private val jUserImages = JUserImages.USER_IMAGES
+    private val jUsageImagesRelation = JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION
 
     override fun saveImage(
         userId: UserId,
@@ -39,11 +42,28 @@ class DbUserImageRepository : UserImageRepository {
         imageId: ImageId,
     ) {
         DbConnectionImpl.use { connection ->
-            DSL.using(connection)
-                .deleteFrom(jUserImages)
-                .where(jUserImages.USER_IMAGE_ID.eq(imageId.value))
-                .and(jUserImages.USER_ID.eq(userId.value))
-                .execute()
+            val context = DSL.using(connection)
+            context.startTransaction()
+            try {
+                context
+                    .deleteFrom(jUsageImagesRelation)
+                    .where(
+                        jUsageImagesRelation.USER_ID.eq(userId.value)
+                            .and(jUsageImagesRelation.USER_IMAGE_ID.eq(imageId.value)),
+                    )
+                    .execute()
+                context
+                    .deleteFrom(jUserImages)
+                    .where(
+                        jUserImages.USER_IMAGE_ID.eq(imageId.value)
+                            .and(jUserImages.USER_ID.eq(userId.value)),
+                    )
+                    .execute()
+                context.commit()
+            } catch (e: Throwable) {
+                context.rollback()
+                throw e
+            }
         }
     }
 
@@ -99,6 +119,57 @@ class DbUserImageRepository : UserImageRepository {
                                 .and(jUserImages.USER_IMAGE_ID.eq(imageId.value)),
                         ),
                 )
+        }
+    }
+
+    override fun getRelativePath(
+        userId: UserId,
+        imageId: ImageId,
+    ): String? {
+        return DbConnectionImpl.use { connection ->
+            DSL.using(connection)
+                .select(jUserImages.IMAGE_PATH)
+                .from(jUserImages)
+                .where(
+                    jUserImages.USER_ID.eq(userId.value)
+                        .and(jUserImages.USER_IMAGE_ID.eq(imageId.value)),
+                )
+                .limit(1)
+                .fetchOne()
+                ?.get(jUserImages.IMAGE_PATH)
+        }
+    }
+
+    override fun countImageUsageRelations(
+        userId: UserId,
+        imageId: ImageId,
+    ): Int {
+        return DbConnectionImpl.use { connection ->
+            DSL.using(connection)
+                .selectCount()
+                .from(jUsageImagesRelation)
+                .where(
+                    jUsageImagesRelation.USER_ID.eq(userId.value)
+                        .and(jUsageImagesRelation.USER_IMAGE_ID.eq(imageId.value)),
+                )
+                .fetchOne(0, Int::class.java) ?: 0
+        }
+    }
+
+    override fun deleteImageUsageRelation(
+        userId: UserId,
+        moneyUsageId: MoneyUsageId,
+        imageId: ImageId,
+    ) {
+        DbConnectionImpl.use { connection ->
+            DSL.using(connection)
+                .deleteFrom(jUsageImagesRelation)
+                .where(
+                    jUsageImagesRelation.USER_ID.eq(userId.value)
+                        .and(jUsageImagesRelation.MONEY_USAGE_ID.eq(moneyUsageId.id))
+                        .and(jUsageImagesRelation.USER_IMAGE_ID.eq(imageId.value)),
+                )
+                .execute()
         }
     }
 

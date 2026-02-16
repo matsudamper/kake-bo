@@ -23,6 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -134,10 +135,20 @@ public data class MoneyUsageScreenUiState(
         val category: String,
         val dateTime: String,
         val time: String,
-        val imageUrls: ImmutableList<String>,
+        val images: ImmutableList<ImageItem>,
         val isImageUploading: Boolean,
         val event: MoneyUsageEvent,
     )
+
+    public data class ImageItem(
+        val url: String,
+        val event: ImageItemEvent,
+    )
+
+    @Immutable
+    public interface ImageItemEvent {
+        public fun onClickDelete()
+    }
 
     public data class MailItem(
         val subject: String,
@@ -611,7 +622,7 @@ private fun MoneyUsage(
             },
             content = {
                 Column {
-                    if (uiState.imageUrls.isEmpty() && !uiState.isImageUploading) {
+                    if (uiState.images.isEmpty() && !uiState.isImageUploading) {
                         Text("未設定")
                     } else {
                         FlowRow(
@@ -619,15 +630,27 @@ private fun MoneyUsage(
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            uiState.imageUrls.forEach { imageUrl ->
-                                AsyncImage(
-                                    model = imageUrl,
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .size(180.dp)
-                                        .clickable { selectedImageUrl = imageUrl },
-                                )
+                            uiState.images.forEach { imageItem ->
+                                Box(modifier = Modifier.size(180.dp)) {
+                                    AsyncImage(
+                                        model = imageItem.url,
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .clickable { selectedImageUrl = imageItem.url },
+                                    )
+                                    IconButton(
+                                        modifier = Modifier.align(Alignment.TopEnd),
+                                        onClick = { imageItem.event.onClickDelete() },
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Close,
+                                            contentDescription = "削除",
+                                            tint = MaterialTheme.colorScheme.onSurface,
+                                        )
+                                    }
+                                }
                             }
 
                             if (uiState.isImageUploading) {
