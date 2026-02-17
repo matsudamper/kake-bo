@@ -60,6 +60,7 @@ public fun PieChart(
     showLegend: Boolean = true,
 ) {
     val totalValue = items.sumOf { it.value }.toFloat()
+    val outlineColor = MaterialTheme.colorScheme.surface
 
     Column(modifier = modifier) {
         if (title != null) {
@@ -101,7 +102,7 @@ public fun PieChart(
 
                 // Draw outline
                 drawArc(
-                    color = Color.White,
+                    color = outlineColor,
                     startAngle = startAngle,
                     sweepAngle = sweepAngle,
                     useCenter = true,

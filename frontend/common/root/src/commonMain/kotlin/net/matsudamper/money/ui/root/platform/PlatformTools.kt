@@ -5,4 +5,5 @@ public interface PlatformTools {
     public val clipboardManager: ClipboardManager
     public val applicationNotificationManager: ApplicationNotificationManager
     public val backPressDispatcher: BackPressDispatcher
+    public val imagePicker: ImagePicker
 }

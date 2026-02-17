@@ -247,6 +247,8 @@ internal data class ViewModelEventHandlers(
         coroutineScope {
             handler.collect(
                 object : AddMoneyUsageViewModel.Event {
+                    override suspend fun selectImage() = platformToolsProvider().imagePicker.pickImage()
+
                     override fun navigate(structure: ScreenStructure) {
                         navController.navigate(structure)
                     }
@@ -263,6 +265,8 @@ internal data class ViewModelEventHandlers(
         coroutineScope {
             handler.collect(
                 object : MoneyUsageScreenViewModel.Event {
+                    override suspend fun selectImage() = platformToolsProvider().imagePicker.pickImage()
+
                     override fun navigate(structure: ScreenStructure) {
                         navController.navigate(structure)
                     }
@@ -277,6 +281,10 @@ internal data class ViewModelEventHandlers(
 
                     override fun copyUrl(text: String) {
                         platformToolsProvider().clipboardManager.copy(text)
+                    }
+
+                    override fun showToast(text: String) {
+                        platformToolsProvider().applicationNotificationManager.notify(text)
                     }
 
                     override fun openUrl(text: String) {

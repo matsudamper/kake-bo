@@ -18,6 +18,7 @@ import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.di.MainDiContainer
+import net.matsudamper.money.backend.graphql.resolver.ImageResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageCategoryResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageResolverImpl
 import net.matsudamper.money.backend.graphql.resolver.MoneyUsageSubCategoryResolverImpl
@@ -41,6 +42,7 @@ import net.matsudamper.money.backend.graphql.resolver.user.UserResolverImpl
 import net.matsudamper.money.backend.graphql.schema.GraphqlSchemaModule
 import net.matsudamper.money.element.ApiTokenId
 import net.matsudamper.money.element.FidoId
+import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
@@ -147,6 +149,11 @@ object MoneyGraphQlSchema {
                     deserialize = { ApiTokenId(it) },
                     serialize = { it.value },
                 ),
+                createIntScalarType(
+                    name = "ImageId",
+                    deserialize = { ImageId(it) },
+                    serialize = { it.value },
+                ),
                 GraphQLScalarType.newScalar(ExtendedScalars.DateTime)
                     .name("OffsetDateTime")
                     .build(),
@@ -156,6 +163,7 @@ object MoneyGraphQlSchema {
                     .build(),
             )
             .resolvers(
+                ImageResolverImpl(),
                 QueryResolverImpl(),
                 ImportedMailCategoryConditionResolverImpl(),
                 MutationResolverImpl(),

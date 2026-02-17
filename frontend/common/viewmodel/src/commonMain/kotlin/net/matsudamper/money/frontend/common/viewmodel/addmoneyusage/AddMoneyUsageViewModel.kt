@@ -13,13 +13,18 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
+import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
+import net.matsudamper.money.frontend.common.ui.layout.image.SelectedImage
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.ImageItem
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -29,7 +34,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 public class AddMoneyUsageViewModel(
     scopedObjectFeature: ScopedObjectFeature,
-    private val graphqlApi: AddMoneyUsageScreenApi,
+    public val graphqlApi: AddMoneyUsageScreenApi,
     private val graphqlClient: GraphqlClient,
 ) : CommonViewModel(scopedObjectFeature) {
     private val eventSender = EventSender<Event>()
@@ -192,6 +197,36 @@ public class AddMoneyUsageViewModel(
             }
         }
 
+        override fun onClickUploadImage() {
+            viewModelScope.launch {
+                val image = eventSender.send { it.selectImage() } ?: return@launch
+
+                viewModelStateFlow.update { it.copy(uploadingImageCount = it.uploadingImageCount + 1) }
+
+                try {
+                    val uploadResult = graphqlApi.uploadImage(
+                        bytes = image.bytes,
+                        contentType = image.contentType,
+                    )
+
+                    if (uploadResult != null) {
+                        viewModelStateFlow.update { viewModelState ->
+                            viewModelState.copy(
+                                usageImages = (
+                                    viewModelState.usageImages + ViewModelState.UploadedImage(
+                                        imageId = uploadResult.imageId,
+                                        url = uploadResult.url,
+                                    )
+                                    ).distinctBy { it.imageId.value },
+                            )
+                        }
+                    }
+                } finally {
+                    viewModelStateFlow.update { it.copy(uploadingImageCount = it.uploadingImageCount - 1) }
+                }
+            }
+        }
+
         private fun dismissTextInputDialog() {
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
@@ -214,6 +249,8 @@ public class AddMoneyUsageViewModel(
     }
 
     private fun addMoneyUsage() {
+        if (viewModelStateFlow.value.uploadingImageCount > 0) return
+
         val date = viewModelStateFlow.value.usageDate
 
         viewModelScope.launch {
@@ -227,6 +264,9 @@ public class AddMoneyUsageViewModel(
                 amount = viewModelStateFlow.value.usageAmount.value,
                 subCategoryId = viewModelStateFlow.value.usageCategorySet?.subCategoryId,
                 importedMailId = viewModelStateFlow.value.importedMailId,
+                imageIds = viewModelStateFlow.value.usageImages
+                    .map { it.imageId }
+                    .takeIf { it.isNotEmpty() },
             )
 
             // TODO Toast
@@ -264,6 +304,7 @@ public class AddMoneyUsageViewModel(
                         usageDate = current.date?.date ?: state.usageDate,
                         usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
                         usageDescription = current.description ?: state.usageDescription,
+                        usageImages = listOf(),
                         usageCategorySet = if (subCategory != null) {
                             CategorySelectDialogViewModel.SelectedResult(
                                 categoryId = subCategory.category.id,
@@ -287,6 +328,7 @@ public class AddMoneyUsageViewModel(
                     usageDate = current.date?.date ?: state.usageDate,
                     usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
                     usageDescription = current.description ?: state.usageDescription,
+                    usageImages = listOf(),
                     usageCategorySet = null,
                 )
             }
@@ -308,6 +350,7 @@ public class AddMoneyUsageViewModel(
                             it.copy(
                                 importedMailId = importedMailId,
                                 usageTitle = forwardedInfo?.subject ?: subject,
+                                usageImages = listOf(),
                                 usageDate = forwardedInfo?.dateTime?.date
                                     ?: date?.date
                                     ?: Clock.System.todayIn(TimeZone.currentSystemDefault()),
@@ -326,6 +369,7 @@ public class AddMoneyUsageViewModel(
                             usageTime = suggestUsage.dateTime?.time ?: it.usageTime,
                             usageTitle = suggestUsage.title,
                             usageDescription = suggestUsage.description,
+                            usageImages = listOf(),
                             usageCategorySet = run category@{
                                 CategorySelectDialogViewModel.SelectedResult(
                                     categoryId = suggestUsage.subCategory?.category?.id ?: return@category null,
@@ -352,6 +396,8 @@ public class AddMoneyUsageViewModel(
             title = "",
             description = "",
             amount = "",
+            images = immutableListOf(),
+            addButtonEnabled = true,
             fullScreenTextInputDialog = null,
             categorySelectDialog = null,
             numberInputDialog = null,
@@ -386,6 +432,11 @@ public class AddMoneyUsageViewModel(
                             val subCategory = categorySet.subCategoryName
                             "$category / $subCategory"
                         },
+                        images = buildList {
+                            addAll(viewModelState.usageImages.map { ImageItem.Uploaded(url = it.url) })
+                            repeat(viewModelState.uploadingImageCount) { add(ImageItem.Uploading) }
+                        }.toImmutableList(),
+                        addButtonEnabled = viewModelState.uploadingImageCount == 0,
                         categorySelectDialog = viewModelState.categorySelectDialog,
                     )
                 }
@@ -394,6 +445,7 @@ public class AddMoneyUsageViewModel(
     }.asStateFlow()
 
     public interface Event {
+        public suspend fun selectImage(): SelectedImage?
         public fun navigate(structure: ScreenStructure)
         public fun back()
     }
@@ -404,6 +456,8 @@ public class AddMoneyUsageViewModel(
         val usageTime: LocalTime = LocalTime(0, 0, 0, 0),
         val usageTitle: String = "",
         val usageDescription: String = "",
+        val uploadingImageCount: Int = 0,
+        val usageImages: List<UploadedImage> = listOf(),
         val usageAmount: NumberInputValue = NumberInputValue.default(),
         val numberInputDialog: AddMoneyUsageScreenUiState.NumberInputDialog? = null,
         val showCalendarDialog: Boolean = false,
@@ -411,5 +465,7 @@ public class AddMoneyUsageViewModel(
         val textInputDialog: AddMoneyUsageScreenUiState.FullScreenTextInputDialog? = null,
         val categorySelectDialog: CategorySelectDialogUiState? = null,
         val usageCategorySet: CategorySelectDialogViewModel.SelectedResult? = null,
-    )
+    ) {
+        data class UploadedImage(val imageId: ImageId, val url: String)
+    }
 }

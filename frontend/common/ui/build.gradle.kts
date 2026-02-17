@@ -14,9 +14,12 @@ kotlin {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val commonMain by getting {
             dependencies {
+                implementation(projects.shared)
                 implementation(projects.frontend.common.base)
                 implementation(projects.frontend.common.navigation)
                 implementation(libs.kotlin.datetime)
+                implementation(libs.kotlin.serialization.json)
+                implementation(libs.coilCompose)
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material3)
@@ -25,6 +28,7 @@ kotlin {
         }
         val jsMain by getting {
             dependencies {
+                implementation(libs.coilNetworkKtor3)
                 implementation(libs.ktorClientJs)
                 implementation(libs.ktorClientLogging)
             }
@@ -32,6 +36,8 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation(projects.frontend.common.base)
+                implementation(projects.frontend.common.feature.localstore)
+                implementation(projects.frontend.common.graphql)
                 implementation(libs.kotlin.datetime)
                 implementation(compose.runtime)
                 implementation(compose.foundation)
@@ -39,6 +45,8 @@ kotlin {
                 implementation(compose.components.uiToolingPreview)
 
                 implementation(libs.androidActivityActivityCompose)
+                implementation(libs.coilNetworkOkhttp)
+                implementation(libs.zoomable)
             }
         }
         val commonTest by getting {

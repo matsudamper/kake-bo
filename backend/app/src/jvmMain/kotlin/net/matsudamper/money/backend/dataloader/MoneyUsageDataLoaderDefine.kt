@@ -3,6 +3,7 @@ package net.matsudamper.money.backend.dataloader
 import java.time.LocalDateTime
 import java.util.concurrent.CompletableFuture
 import net.matsudamper.money.backend.di.DiContainer
+import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.UserId
@@ -41,6 +42,7 @@ class MoneyUsageDataLoaderDefine(
                                                 date = it.date,
                                                 title = it.title,
                                                 description = it.description,
+                                                imageIds = it.imageIds,
                                             )
                                     }
                                 },
@@ -68,5 +70,6 @@ class MoneyUsageDataLoaderDefine(
         val subCategoryId: MoneyUsageSubCategoryId?,
         val amount: Int,
         val userId: UserId,
+        val imageIds: List<ImageId>,
     )
 }

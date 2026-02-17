@@ -54,7 +54,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
@@ -475,7 +474,7 @@ private fun CardSection(
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
                 .height(1.dp),
-            color = Color.White,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         Column(
             modifier = Modifier.padding(horizontal = textHorizontalPadding),

@@ -26,6 +26,10 @@ fragment MoneyUsageScreenMoneyUsage on MoneyUsage {
     amount
     date
     description
+    images {
+        id
+        url
+    }
     linkedMail {
         id
         from
