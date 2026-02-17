@@ -62,7 +62,7 @@ internal class ImagePickerImpl(
         val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
         return try {
             val output = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, WEBP_QUALITY, output)
+            bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSLESS, WEBP_QUALITY, output)
             output.toByteArray()
         } finally {
             bitmap.recycle()
@@ -70,7 +70,7 @@ internal class ImagePickerImpl(
     }
 
     companion object {
-        private const val WEBP_QUALITY = 90
+        private const val WEBP_QUALITY = 100
     }
 
     override suspend fun pickImage(): SelectedImage? = suspendCancellableCoroutine { continuation ->
