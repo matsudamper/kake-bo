@@ -1,6 +1,8 @@
 package net.matsudamper.money.frontend.common.ui
 
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,6 +30,7 @@ public class StickyHeaderState(
 ) {
     internal var headerHeight by mutableStateOf(0)
     internal var scrolled by mutableStateOf(0f)
+    internal var listState: ScrollableState? by mutableStateOf(null)
 }
 
 private class NestedScrollConnectionImpl(
@@ -85,6 +88,47 @@ public fun Modifier.stickyHeaderScrollable(
                     stickyHeaderState = state,
                 )
             },
+        )
+    }
+}
+
+public fun Modifier.stickyHeaderContentScrollable(
+    state: StickyHeaderState,
+): Modifier {
+    return this.composed {
+        val scrollableState = remember(state) {
+            ScrollableState { delta ->
+                val listState = state.listState
+                // enterAlways=false かつ下スクロール時にリストが上にスクロール済みなら先にリストをスクロール
+                if (!state.enterAlways && delta > 0 && listState != null && listState.canScrollBackward) {
+                    val consumedByList = listState.dispatchRawDelta(delta)
+                    val remaining = delta - consumedByList
+                    val newScrolled = (state.scrolled + remaining)
+                        .coerceAtLeast(-state.headerHeight.toFloat())
+                        .coerceAtMost(0f)
+                    val consumedByHeader = newScrolled - state.scrolled
+                    state.scrolled = newScrolled
+                    consumedByList + consumedByHeader
+                } else {
+                    // ヘッダーの折りたたみ/展開を先に処理し、残りをリストに転送
+                    val newScrolled = (state.scrolled + delta)
+                        .coerceAtLeast(-state.headerHeight.toFloat())
+                        .coerceAtMost(0f)
+                    val consumedByHeader = newScrolled - state.scrolled
+                    state.scrolled = newScrolled
+                    val remaining = delta - consumedByHeader
+                    val consumedByList = if (listState != null && remaining != 0f) {
+                        listState.dispatchRawDelta(remaining)
+                    } else {
+                        0f
+                    }
+                    consumedByHeader + consumedByList
+                }
+            }
+        }
+        scrollable(
+            state = scrollableState,
+            orientation = Orientation.Vertical,
         )
     }
 }
