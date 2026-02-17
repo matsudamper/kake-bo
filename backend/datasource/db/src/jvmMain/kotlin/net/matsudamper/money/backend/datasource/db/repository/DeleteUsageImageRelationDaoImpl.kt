@@ -46,7 +46,7 @@ class DeleteUsageImageRelationDaoImpl : DeleteUsageImageRelationDao {
                                     .and(userImages.USER_IMAGE_ID.eq(imageId.value)),
                             )
                             .fetchOne()
-                            ?.get(userImages.DISPLAY_ID) ?: throw IllegalStateException("ユーザー画像が見つかりませんでした: userId=${userId.value}, imageId=${imageId.value}")
+                            ?.get(userImages.IMAGE_PATH) ?: throw IllegalStateException("ユーザー画像が見つかりませんでした: userId=${userId.value}, imageId=${imageId.value}")
 
                         val imageFile = File(ServerEnv.imageStoragePath, path)
                         if (imageFile.exists().not()) throw IOException("ファイルが見つかりませんでした: $imageFile")
