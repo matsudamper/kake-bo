@@ -15,6 +15,7 @@ class MailLinkScreenGraphqlApi(
     suspend fun getMail(
         cursor: String?,
         isLinked: Boolean?,
+        text: String?,
     ): ApolloResponse<ImportedMailListScreenMailPagingQuery.Data>? {
         return runCatching {
             graphqlClient.apolloClient
@@ -24,6 +25,7 @@ class MailLinkScreenGraphqlApi(
                             cursor = Optional.present(cursor),
                             filter = ImportedMailQueryFilter(
                                 isLinked = Optional.present(isLinked),
+                                text = Optional.present(text),
                             ),
                             sortedBy = ImportedMailSortKey.DATETIME,
                             isAsc = false,

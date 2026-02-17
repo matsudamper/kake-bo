@@ -26,14 +26,21 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -47,6 +54,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -240,90 +248,118 @@ private fun Filter(
     uiState: ImportedMailListScreenUiState.Filters,
     contentPadding: PaddingValues,
 ) {
-    Row(
-        modifier = modifier
-            .horizontalScroll(rememberScrollState())
-            .padding(
-                top = contentPadding.calculateTopPadding(),
-                bottom = contentPadding.calculateBottomPadding(),
-            ),
-    ) {
-        Spacer(Modifier.width(contentPadding.calculateStartPadding(LayoutDirection.Ltr)))
+    Column(modifier = modifier) {
+        OutlinedTextField(
+            modifier = Modifier.fillMaxWidth()
+                .padding(
+                    start = contentPadding.calculateStartPadding(LayoutDirection.Ltr),
+                    end = contentPadding.calculateEndPadding(LayoutDirection.Ltr),
+                    top = contentPadding.calculateTopPadding(),
+                ),
+            value = uiState.textSearch.text,
+            onValueChange = uiState.textSearch.onTextChanged,
+            placeholder = {
+                Text(
+                    text = "メールを検索",
+                    fontFamily = rememberCustomFontFamily(),
+                )
+            },
+            singleLine = true,
+            trailingIcon = {
+                IconButton(onClick = uiState.textSearch.onSearch) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null,
+                    )
+                }
+            },
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(onSearch = { uiState.textSearch.onSearch() }),
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth()
+                .horizontalScroll(rememberScrollState())
+                .padding(
+                    bottom = contentPadding.calculateBottomPadding(),
+                ),
+        ) {
+            Spacer(Modifier.width(contentPadding.calculateStartPadding(LayoutDirection.Ltr)))
 
-        Box {
-            var visiblePopup by remember { mutableStateOf(false) }
-            FilterChip(
-                selected = when (uiState.link.status) {
-                    ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> false
-                    ImportedMailListScreenUiState.Filters.LinkStatus.Linked,
-                    ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked,
-                    -> true
-                },
-                onClick = {
-                    when (uiState.link.status) {
-                        ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> {
-                            visiblePopup = true
-                        }
-
+            Box {
+                var visiblePopup by remember { mutableStateOf(false) }
+                FilterChip(
+                    selected = when (uiState.link.status) {
+                        ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> false
                         ImportedMailListScreenUiState.Filters.LinkStatus.Linked,
                         ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked,
-                        -> {
-                            uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.Undefined)
-                        }
-                    }
-                },
-                label = {
-                    Text(
-                        text = "連携状態:" +
-                            when (uiState.link.status) {
-                                ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> "全て"
-                                ImportedMailListScreenUiState.Filters.LinkStatus.Linked -> "連携済み"
-                                ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked -> "未連携"
-                            },
-                        style = MaterialTheme.typography.labelMedium,
-                    )
-                },
-            )
-            if (visiblePopup) {
-                Popup(
-                    alignment = Alignment.BottomStart,
-                    onDismissRequest = {
-                        visiblePopup = false
+                        -> true
                     },
-                    properties = PopupProperties(focusable = true),
-                ) {
-                    Card(
-                        elevation = CardDefaults.cardElevation(
-                            defaultElevation = 8.dp,
-                        ),
+                    onClick = {
+                        when (uiState.link.status) {
+                            ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> {
+                                visiblePopup = true
+                            }
+
+                            ImportedMailListScreenUiState.Filters.LinkStatus.Linked,
+                            ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked,
+                            -> {
+                                uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.Undefined)
+                            }
+                        }
+                    },
+                    label = {
+                        Text(
+                            text = "連携状態:" +
+                                when (uiState.link.status) {
+                                    ImportedMailListScreenUiState.Filters.LinkStatus.Undefined -> "全て"
+                                    ImportedMailListScreenUiState.Filters.LinkStatus.Linked -> "連携済み"
+                                    ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked -> "未連携"
+                                },
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                    },
+                )
+                if (visiblePopup) {
+                    Popup(
+                        alignment = Alignment.BottomStart,
+                        onDismissRequest = {
+                            visiblePopup = false
+                        },
+                        properties = PopupProperties(focusable = true),
                     ) {
-                        Column(
-                            modifier = Modifier.width(IntrinsicSize.Max),
+                        Card(
+                            elevation = CardDefaults.cardElevation(
+                                defaultElevation = 8.dp,
+                            ),
                         ) {
-                            Text(
-                                modifier = Modifier.fillMaxWidth()
-                                    .clickable {
-                                        visiblePopup = false
-                                        uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.Linked)
-                                    }
-                                    .padding(12.dp),
-                                text = "連携済み",
-                            )
-                            Text(
-                                modifier = Modifier.fillMaxWidth()
-                                    .clickable {
-                                        visiblePopup = false
-                                        uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked)
-                                    }
-                                    .padding(12.dp),
-                                text = "未連携",
-                            )
+                            Column(
+                                modifier = Modifier.width(IntrinsicSize.Max),
+                            ) {
+                                Text(
+                                    modifier = Modifier.fillMaxWidth()
+                                        .clickable {
+                                            visiblePopup = false
+                                            uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.Linked)
+                                        }
+                                        .padding(12.dp),
+                                    text = "連携済み",
+                                )
+                                Text(
+                                    modifier = Modifier.fillMaxWidth()
+                                        .clickable {
+                                            visiblePopup = false
+                                            uiState.link.updateState(ImportedMailListScreenUiState.Filters.LinkStatus.NotLinked)
+                                        }
+                                        .padding(12.dp),
+                                    text = "未連携",
+                                )
+                            }
                         }
                     }
                 }
             }
+            Spacer(Modifier.width(contentPadding.calculateEndPadding(LayoutDirection.Ltr)))
         }
-        Spacer(Modifier.width(contentPadding.calculateEndPadding(LayoutDirection.Ltr)))
     }
 }
 

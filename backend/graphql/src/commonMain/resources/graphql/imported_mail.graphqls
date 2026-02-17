@@ -19,6 +19,7 @@ enum ImportedMailSortKey {
 
 input ImportedMailQueryFilter {
     isLinked: Boolean
+    text: String
 }
 
 type ImportedMailConnection {
