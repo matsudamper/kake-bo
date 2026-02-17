@@ -50,7 +50,7 @@ class DeleteUsageImageRelationDaoImpl : DeleteUsageImageRelationDao {
 
                         val imageFile = File(ServerEnv.imageStoragePath, path)
                         if (imageFile.exists()) {
-                            val deleted = File(ServerEnv.imageStoragePath, path).delete()
+                            val deleted = imageFile.delete()
                             if (deleted.not()) throw IOException("ファイルの削除に失敗しました: $imageFile")
                         }
 
