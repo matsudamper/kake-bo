@@ -60,7 +60,6 @@ public class StickyHeaderState(
             consumedByHeader + consumedByList
         }
     }
-
 }
 
 private class NestedScrollConnectionImpl(
