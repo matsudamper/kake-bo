@@ -43,26 +43,22 @@ class DbUserImageRepository : UserImageRepository {
     ) {
         DbConnectionImpl.use { connection ->
             val context = DSL.using(connection)
-            context.startTransaction()
-            try {
-                context
+            context.transaction { txConfig ->
+                val txCtx = DSL.using(txConfig)
+                txCtx
                     .deleteFrom(jUsageImagesRelation)
                     .where(
                         jUsageImagesRelation.USER_ID.eq(userId.value)
                             .and(jUsageImagesRelation.USER_IMAGE_ID.eq(imageId.value)),
                     )
                     .execute()
-                context
+                txCtx
                     .deleteFrom(jUserImages)
                     .where(
                         jUserImages.USER_IMAGE_ID.eq(imageId.value)
                             .and(jUserImages.USER_ID.eq(userId.value)),
                     )
                     .execute()
-                context.commit()
-            } catch (e: Throwable) {
-                context.rollback()
-                throw e
             }
         }
     }
