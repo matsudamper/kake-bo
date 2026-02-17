@@ -32,7 +32,10 @@ class ImageDeleteHandler {
                 imageId = request.imageId,
             ) ?: return Result.NotFound
 
-            File(request.storageDirectory, relativePath).delete()
+            val deleted = File(request.storageDirectory, relativePath).delete()
+            if (!deleted) {
+                throw IllegalStateException("ファイルの削除に失敗しました: $relativePath")
+            }
 
             request.userImageRepository.deleteImage(
                 userId = userId,
