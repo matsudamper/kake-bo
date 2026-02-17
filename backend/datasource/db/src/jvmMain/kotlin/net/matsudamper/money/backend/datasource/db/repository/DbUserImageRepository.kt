@@ -36,29 +36,17 @@ class DbUserImageRepository : UserImageRepository {
         }.getOrNull()
     }
 
-    override fun deleteImage(
+    override fun deleteReserveImage(
         userId: UserId,
         imageId: ImageId,
     ) {
         DbConnectionImpl.use { connection ->
-            val context = DSL.using(connection)
-            context.transaction { txConfig ->
-                val txCtx = DSL.using(txConfig)
-                txCtx
-                    .deleteFrom(jUsageImagesRelation)
-                    .where(
-                        jUsageImagesRelation.USER_ID.eq(userId.value)
-                            .and(jUsageImagesRelation.USER_IMAGE_ID.eq(imageId.value)),
-                    )
-                    .execute()
-                txCtx
-                    .deleteFrom(jUserImages)
-                    .where(
-                        jUserImages.USER_IMAGE_ID.eq(imageId.value)
-                            .and(jUserImages.USER_ID.eq(userId.value)),
-                    )
-                    .execute()
-            }
+            DSL.using(connection)
+                .deleteFrom(jUserImages)
+                .where(jUserImages.USER_IMAGE_ID.eq(imageId.value))
+                .and(jUserImages.USER_ID.eq(userId.value))
+                .and(jUserImages.UPLOADED.eq(false))
+                .execute()
         }
     }
 

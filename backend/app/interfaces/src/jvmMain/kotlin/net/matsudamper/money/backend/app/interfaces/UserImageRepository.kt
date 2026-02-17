@@ -21,7 +21,7 @@ interface UserImageRepository {
         imageId: ImageId,
     )
 
-    fun deleteImage(
+    fun deleteReserveImage(
         userId: UserId,
         imageId: ImageId,
     )

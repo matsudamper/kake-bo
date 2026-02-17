@@ -36,7 +36,7 @@ class ImageUploadHandler {
         ) ?: return Result.InternalServerError(IllegalStateException("Failed to reserve image ID. UUID: $displayUUID"))
         val destination = File(request.storageDirectory, relativePath)
         if (destination.exists()) {
-            request.userImageRepository.deleteImage(userId = userId, imageId = imageId)
+            request.userImageRepository.deleteReserveImage(userId = userId, imageId = imageId)
             return Result.InternalServerError(IllegalStateException("File already exists at destination: ${destination.absolutePath}"))
         }
 
@@ -47,17 +47,17 @@ class ImageUploadHandler {
         )
         return when (writeResult) {
             WriteImageFileResult.Empty -> {
-                request.userImageRepository.deleteImage(userId = userId, imageId = imageId)
+                request.userImageRepository.deleteReserveImage(userId = userId, imageId = imageId)
                 Result.BadRequest(message = "EmptyFile")
             }
 
             WriteImageFileResult.PayloadTooLarge -> {
-                request.userImageRepository.deleteImage(userId = userId, imageId = imageId)
+                request.userImageRepository.deleteReserveImage(userId = userId, imageId = imageId)
                 Result.PayloadTooLarge
             }
 
             WriteImageFileResult.SystemFailure -> {
-                request.userImageRepository.deleteImage(userId = userId, imageId = imageId)
+                request.userImageRepository.deleteReserveImage(userId = userId, imageId = imageId)
                 Result.InternalServerError(IllegalStateException("Failed to write image file to destination: ${destination.absolutePath}"))
             }
 
