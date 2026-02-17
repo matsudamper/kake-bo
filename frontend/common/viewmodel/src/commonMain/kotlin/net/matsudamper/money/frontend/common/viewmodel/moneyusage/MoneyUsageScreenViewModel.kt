@@ -451,7 +451,9 @@ public class MoneyUsageScreenViewModel(
                                         dismissConfirmDialog()
                                         fetch(policy = FetchPolicy.NetworkOnly)
                                     } else {
-                                        // TODO
+                                        eventSender.send {
+                                            it.showToast("画像の削除に失敗しました")
+                                        }
                                     }
                                 }
                             },
