@@ -13,8 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatterBuilder
-import java.time.temporal.ChronoField
+import java.time.format.DateTimeFormatter
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
@@ -89,16 +88,8 @@ class MainActivity : ComponentActivity() {
                 val description = queries["description"].orEmpty()
                 val date = run {
                     val dateString = queries["date"]
-                    val formatter = DateTimeFormatterBuilder()
-                        .appendPattern("yyyy-MM-dd")
-                        .optionalStart()
-                        .appendLiteral(':')
-                        .appendPattern("HH-mm-ss")
-                        .optionalEnd()
-                        .parseDefaulting(ChronoField.HOUR_OF_DAY, 0)
-                        .parseDefaulting(ChronoField.MINUTE_OF_HOUR, 0)
-                        .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 0)
-                        .toFormatter()
+
+                    val formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
 
                     runCatching {
                         LocalDateTime.parse(dateString, formatter)

@@ -91,6 +91,7 @@ public sealed interface ScreenStructure : IScreenStructure {
             @Serializable
             public data class Imported(
                 public val isLinked: Boolean?,
+                public val text: String?,
             ) : Add {
                 override val direction: Screens = Screens.ImportedMailList
                 override val sameScreenId: String = "ScreenStructure#Root#Add#Imported"
@@ -100,6 +101,9 @@ public sealed interface ScreenStructure : IScreenStructure {
                         if (isLinked != null) {
                             append(KEY_IS_LINKED, isLinked.toString())
                         }
+                        if (text != null) {
+                            append(KEY_TEXT, text)
+                        }
                     }
 
                     return direction.placeholderUrl.plus(urlParam)
@@ -107,6 +111,7 @@ public sealed interface ScreenStructure : IScreenStructure {
 
                 public companion object {
                     private const val KEY_IS_LINKED = "is_linked"
+                    private const val KEY_TEXT = "text"
 
                     @Suppress("UNUSED_PARAMETER")
                     public fun create(
@@ -117,6 +122,8 @@ public sealed interface ScreenStructure : IScreenStructure {
                             isLinked = queryParams[KEY_IS_LINKED]
                                 ?.firstOrNull()
                                 ?.toBooleanStrictOrNull(),
+                            text = queryParams[KEY_TEXT]
+                                ?.firstOrNull(),
                         )
                     }
                 }
