@@ -33,6 +33,7 @@ import net.matsudamper.money.backend.logic.IPasswordManager
 import net.matsudamper.money.backend.logic.PasswordManager
 import net.matsudamper.money.element.ApiTokenId
 import net.matsudamper.money.element.FidoId
+import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
@@ -771,6 +772,24 @@ class UserMutationResolverImpl : UserMutationResolver {
                 usageId = id,
             )
             isSuccess
+        }.toDataFetcher()
+    }
+
+    override fun deleteMoneyUsageImage(
+        userMutation: QlUserMutation,
+        usageId: MoneyUsageId,
+        imageId: ImageId,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+
+        return CompletableFuture.allOf().thenApplyAsync {
+            context.diContainer.createDeleteUsageImageRelationDao().delete(
+                userId = userId,
+                moneyUsageId = usageId,
+                imageId = imageId,
+            )
         }.toDataFetcher()
     }
 

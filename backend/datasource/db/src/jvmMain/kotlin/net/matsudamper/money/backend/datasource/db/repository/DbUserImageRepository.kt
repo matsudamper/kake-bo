@@ -2,6 +2,7 @@ package net.matsudamper.money.backend.datasource.db.repository
 
 import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
+import net.matsudamper.money.db.schema.tables.JMoneyUsageImagesRelation
 import net.matsudamper.money.db.schema.tables.JUserImages
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.UserId
@@ -9,6 +10,7 @@ import org.jooq.impl.DSL
 
 class DbUserImageRepository : UserImageRepository {
     private val jUserImages = JUserImages.USER_IMAGES
+    private val jUsageImagesRelation = JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION
 
     override fun saveImage(
         userId: UserId,
@@ -34,7 +36,7 @@ class DbUserImageRepository : UserImageRepository {
         }.getOrNull()
     }
 
-    override fun deleteImage(
+    override fun deleteReserveImage(
         userId: UserId,
         imageId: ImageId,
     ) {
@@ -43,6 +45,7 @@ class DbUserImageRepository : UserImageRepository {
                 .deleteFrom(jUserImages)
                 .where(jUserImages.USER_IMAGE_ID.eq(imageId.value))
                 .and(jUserImages.USER_ID.eq(userId.value))
+                .and(jUserImages.UPLOADED.eq(false))
                 .execute()
         }
     }

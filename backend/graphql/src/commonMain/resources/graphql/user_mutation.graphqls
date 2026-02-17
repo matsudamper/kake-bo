@@ -11,6 +11,7 @@ type UserMutation {
     addUsage(usage: AddUsageQuery!): MoneyUsage!
     updateUsage(query: UpdateUsageQuery!): MoneyUsage!
     deleteUsage(id: MoneyUsageId!): Boolean!
+    deleteMoneyUsageImage(usageId: MoneyUsageId!, imageId: ImageId!): Boolean!
 
     addCategory(input: AddCategoryInput!) : AddCategoryResult!
     updateCategory(id: MoneyUsageCategoryId!, query: UpdateCategoryQuery!): MoneyUsageCategory!
