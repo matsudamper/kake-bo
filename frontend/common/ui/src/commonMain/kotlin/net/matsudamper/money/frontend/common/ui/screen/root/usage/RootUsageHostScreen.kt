@@ -59,7 +59,6 @@ import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 import net.matsudamper.money.frontend.common.ui.stickyHeader
-import net.matsudamper.money.frontend.common.ui.stickyHeaderContentScrollable
 
 public data class RootUsageHostScreenUiState(
     val type: Type,
@@ -198,9 +197,7 @@ public fun RootUsageHostScreen(
         content = {
             Column {
                 Column(
-                    modifier = Modifier
-                        .stickyHeader(stickyHeaderState)
-                        .stickyHeaderContentScrollable(stickyHeaderState),
+                    modifier = Modifier.stickyHeader(stickyHeaderState),
                 ) {
                     val header = uiState.header
                     if (header is RootUsageHostScreenUiState.Header.Calendar) {
