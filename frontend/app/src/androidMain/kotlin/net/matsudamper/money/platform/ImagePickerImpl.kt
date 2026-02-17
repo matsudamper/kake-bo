@@ -1,7 +1,10 @@
 package net.matsudamper.money.platform
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
+import java.io.ByteArrayOutputStream
 import kotlin.coroutines.resume
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -34,15 +37,40 @@ internal class ImagePickerImpl(
             current.resume(null)
             return@registerForActivityResult
         }
-        val contentType = componentActivity.contentResolver.getType(uri)
-            .orEmpty()
-            .ifBlank { "application/octet-stream" }
-        current.resume(
-            SelectedImage(
-                bytes = bytes,
-                contentType = contentType,
-            ),
-        )
+        val webpBytes = convertToWebp(bytes)
+        if (webpBytes != null) {
+            current.resume(
+                SelectedImage(
+                    bytes = webpBytes,
+                    contentType = "image/webp",
+                ),
+            )
+        } else {
+            val contentType = componentActivity.contentResolver.getType(uri)
+                .orEmpty()
+                .ifBlank { "application/octet-stream" }
+            current.resume(
+                SelectedImage(
+                    bytes = bytes,
+                    contentType = contentType,
+                ),
+            )
+        }
+    }
+
+    private fun convertToWebp(bytes: ByteArray): ByteArray? {
+        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
+        return try {
+            val output = ByteArrayOutputStream()
+            bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSY, WEBP_QUALITY, output)
+            output.toByteArray()
+        } finally {
+            bitmap.recycle()
+        }
+    }
+
+    companion object {
+        private const val WEBP_QUALITY = 90
     }
 
     override suspend fun pickImage(): SelectedImage? = suspendCancellableCoroutine { continuation ->
