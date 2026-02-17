@@ -302,6 +302,7 @@ public class AddMoneyUsageViewModel(
                     state.copy(
                         usageTitle = current.title ?: state.usageTitle,
                         usageDate = current.date?.date ?: state.usageDate,
+                        usageTime = current.date?.time ?: state.usageTime,
                         usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
                         usageDescription = current.description ?: state.usageDescription,
                         usageImages = listOf(),
@@ -326,6 +327,7 @@ public class AddMoneyUsageViewModel(
                 state.copy(
                     usageTitle = current.title ?: state.usageTitle,
                     usageDate = current.date?.date ?: state.usageDate,
+                    usageTime = current.date?.time ?: state.usageTime,
                     usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
                     usageDescription = current.description ?: state.usageDescription,
                     usageImages = listOf(),
