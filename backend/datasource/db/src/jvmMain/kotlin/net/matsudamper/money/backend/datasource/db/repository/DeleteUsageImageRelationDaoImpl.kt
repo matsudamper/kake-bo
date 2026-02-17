@@ -35,7 +35,7 @@ class DeleteUsageImageRelationDaoImpl : DeleteUsageImageRelationDao {
                             .limit(1)
                             .execute()
 
-                        if (relationDeleteCount >= 0) return@TransactionalRunnable
+                        if (relationDeleteCount <= 0) return@TransactionalRunnable
 
                         val userImages = JUserImages.USER_IMAGES
                         val path = DSL.using(connection)
