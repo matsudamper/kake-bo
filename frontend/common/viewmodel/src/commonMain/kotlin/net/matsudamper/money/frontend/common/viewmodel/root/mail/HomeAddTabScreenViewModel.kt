@@ -46,7 +46,7 @@ public class HomeAddTabScreenViewModel(
                         navigateEventSender.send {
                             it.navigate(
                                 viewModelStateFlow.value.lastImportedMailStructure
-                                    ?: ScreenStructure.Root.Add.Imported(isLinked = false),
+                                    ?: ScreenStructure.Root.Add.Imported(isLinked = false, text = null),
                             )
                         }
                     }

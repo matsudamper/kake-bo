@@ -199,11 +199,13 @@ public class AddMoneyUsageViewModel(
 
         override fun onClickUploadImage() {
             viewModelScope.launch {
-                val image = eventSender.send { it.selectImage() } ?: return@launch
-
-                viewModelStateFlow.update { it.copy(uploadingImageCount = it.uploadingImageCount + 1) }
-
                 try {
+                    viewModelStateFlow.update {
+                        it.copy(
+                            uploadingImageCount = it.uploadingImageCount + 1,
+                        )
+                    }
+                    val image = eventSender.send { it.selectImage() } ?: return@launch
                     val uploadResult = graphqlApi.uploadImage(
                         bytes = image.bytes,
                         contentType = image.contentType,
@@ -222,7 +224,11 @@ public class AddMoneyUsageViewModel(
                         }
                     }
                 } finally {
-                    viewModelStateFlow.update { it.copy(uploadingImageCount = it.uploadingImageCount - 1) }
+                    viewModelStateFlow.update {
+                        it.copy(
+                            uploadingImageCount = it.uploadingImageCount - 1,
+                        )
+                    }
                 }
             }
         }
@@ -302,6 +308,7 @@ public class AddMoneyUsageViewModel(
                     state.copy(
                         usageTitle = current.title ?: state.usageTitle,
                         usageDate = current.date?.date ?: state.usageDate,
+                        usageTime = current.date?.time ?: state.usageTime,
                         usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
                         usageDescription = current.description ?: state.usageDescription,
                         usageImages = listOf(),
@@ -326,6 +333,7 @@ public class AddMoneyUsageViewModel(
                 state.copy(
                     usageTitle = current.title ?: state.usageTitle,
                     usageDate = current.date?.date ?: state.usageDate,
+                    usageTime = current.date?.time ?: state.usageTime,
                     usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
                     usageDescription = current.description ?: state.usageDescription,
                     usageImages = listOf(),

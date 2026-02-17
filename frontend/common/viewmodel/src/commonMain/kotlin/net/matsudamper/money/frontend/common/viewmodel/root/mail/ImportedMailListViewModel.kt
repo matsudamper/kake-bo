@@ -36,6 +36,7 @@ public class ImportedMailListViewModel(
     public val eventHandler: EventHandler<MailLinkViewModelEvent> = viewModelEventSender.asHandler()
 
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
+    private val searchInputTextFlow = MutableStateFlow("")
     private val composeOperation = Channel<(ImportedMailListScreenUiState.Operation) -> Unit>(Channel.BUFFERED)
     public val rootUiStateFlow: StateFlow<ImportedMailListScreenUiState> = MutableStateFlow(
         ImportedMailListScreenUiState(
@@ -44,6 +45,11 @@ public class ImportedMailListViewModel(
                 link = ImportedMailListScreenUiState.Filters.Link(
                     status = LinkStatus.Undefined,
                     updateState = { updateLinkStatus(it) },
+                ),
+                textSearch = ImportedMailListScreenUiState.Filters.TextSearch(
+                    text = "",
+                    onTextChanged = { searchInputTextFlow.value = it },
+                    onSearch = { searchText() },
                 ),
             ),
             event = object : ImportedMailListScreenUiState.Event {
@@ -128,13 +134,50 @@ public class ImportedMailListViewModel(
                 }
             }
         }
+        viewModelScope.launch {
+            searchInputTextFlow.collect { text ->
+                uiStateFlow.update { uiState ->
+                    uiState.copy(
+                        filters = uiState.filters.copy(
+                            textSearch = uiState.filters.textSearch.copy(
+                                text = text,
+                            ),
+                        ),
+                    )
+                }
+            }
+        }
     }.asStateFlow()
 
     public fun updateQuery(screen: ScreenStructure.Root.Add.Imported) {
         val newQuery = ViewModelState.Query(
             isLinked = screen.isLinked,
+            text = screen.text,
         )
+        searchInputTextFlow.value = screen.text.orEmpty()
         if (newQuery == viewModelStateFlow.value.mailState.query) {
+            return
+        }
+        viewModelStateFlow.update {
+            it.copy(
+                mailState = ViewModelState.MailState(
+                    query = newQuery,
+                ),
+            )
+        }
+        fetch()
+    }
+
+    private fun searchText() {
+        val text = searchInputTextFlow.value.ifBlank { null }
+        val currentQuery = viewModelStateFlow.value.mailState.query
+        val newQuery = currentQuery.copy(text = text)
+        viewModelScope.launch {
+            viewModelEventSender.send {
+                it.changeQuery(isLinked = currentQuery.isLinked, text = text)
+            }
+        }
+        if (newQuery == currentQuery) {
             return
         }
         viewModelStateFlow.update {
@@ -153,15 +196,16 @@ public class ImportedMailListViewModel(
             LinkStatus.Linked -> true
             LinkStatus.NotLinked -> false
         }
-        val newQuery = viewModelStateFlow.value.mailState.query.copy(
+        val currentQuery = viewModelStateFlow.value.mailState.query
+        val newQuery = currentQuery.copy(
             isLinked = isLinked,
         )
         viewModelScope.launch {
             viewModelEventSender.send {
-                it.changeQuery(isLinked = isLinked)
+                it.changeQuery(isLinked = isLinked, text = currentQuery.text)
             }
         }
-        if (newQuery == viewModelStateFlow.value.mailState.query) {
+        if (newQuery == currentQuery) {
             return
         }
         viewModelStateFlow.update {
@@ -214,6 +258,7 @@ public class ImportedMailListViewModel(
                         graphqlApi.getMail(
                             cursor = mailState.cursor,
                             isLinked = mailState.query.isLinked,
+                            text = mailState.query.text,
                         )
                     }
                 }.getOrNull() ?: return@launch
@@ -255,6 +300,7 @@ public class ImportedMailListViewModel(
 
         data class Query(
             val isLinked: Boolean? = null,
+            val text: String? = null,
         )
     }
 }
@@ -263,7 +309,7 @@ public class ImportedMailListViewModel(
 public interface MailLinkViewModelEvent {
     public fun globalToast(message: String)
 
-    public fun changeQuery(isLinked: Boolean?)
+    public fun changeQuery(isLinked: Boolean?, text: String?)
 
     public fun navigateToMailDetail(id: ImportedMailId)
 

@@ -9,6 +9,7 @@ interface ImportedMailRepository {
     fun getCount(
         userId: UserId,
         isLinked: Boolean?,
+        text: String?,
     ): Int?
 
     fun getMail(
@@ -23,6 +24,7 @@ interface ImportedMailRepository {
         isAsc: Boolean,
         sortedKey: MailSortedKey,
         isLinked: Boolean?,
+        text: String?,
     ): MailPagingResult
 
     fun getMails(

@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -143,6 +144,14 @@ public fun RootUsageCalendarScreen(
                 is RootUsageCalendarScreenUiState.LoadingState.Loaded -> {
                     var buttonSize: IntSize by remember { mutableStateOf(IntSize.Zero) }
                     val lazyGridState = rememberLazyGridState()
+                    DisposableEffect(lazyGridState, stickyHeaderState) {
+                        stickyHeaderState.listState = lazyGridState
+                        onDispose {
+                            if (stickyHeaderState.listState === lazyGridState) {
+                                stickyHeaderState.listState = null
+                            }
+                        }
+                    }
                     LoadedContent(
                         modifier = Modifier.fillMaxSize(),
                         uiState = uiState.loadingState,
