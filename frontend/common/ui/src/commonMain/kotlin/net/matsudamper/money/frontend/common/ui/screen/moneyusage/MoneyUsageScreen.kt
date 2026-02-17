@@ -1,6 +1,8 @@
 package net.matsudamper.money.frontend.common.ui.screen.moneyusage
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,11 +25,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,6 +47,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.isSecondaryPressed
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -631,6 +637,8 @@ private fun MoneyUsage(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             uiState.images.forEach { imageItem ->
+                                var showDeleteDialog by remember { mutableStateOf(false) }
+                                var showPopupMenu by remember { mutableStateOf(false) }
                                 Box(modifier = Modifier.size(180.dp)) {
                                     AsyncImage(
                                         model = imageItem.url,
@@ -638,18 +646,51 @@ private fun MoneyUsage(
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
                                             .fillMaxSize()
-                                            .clickable { selectedImageUrl = imageItem.url },
+                                            .clickable { selectedImageUrl = imageItem.url }
+                                            .pointerInput(Unit) {
+                                                detectTapGestures(
+                                                    onTap = { selectedImageUrl = imageItem.url },
+                                                    onLongPress = { showPopupMenu = true },
+                                                )
+                                            }
+                                            .pointerInput(Unit) {
+                                                awaitEachGesture {
+                                                    val pressEvent = awaitPointerEvent()
+                                                    if (pressEvent.type != PointerEventType.Press) return@awaitEachGesture
+                                                    if (!pressEvent.buttons.isSecondaryPressed) return@awaitEachGesture
+
+                                                    val releaseEvent = awaitPointerEvent()
+                                                    if (releaseEvent.type != PointerEventType.Release) return@awaitEachGesture
+                                                    if (pressEvent.buttons.isSecondaryPressed) return@awaitEachGesture
+
+                                                    showPopupMenu = true
+                                                }
+                                            },
                                     )
-                                    IconButton(
-                                        modifier = Modifier.align(Alignment.TopEnd),
-                                        onClick = { imageItem.event.onClickDelete() },
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Close,
-                                            contentDescription = "削除",
-                                            tint = MaterialTheme.colorScheme.onSurface,
-                                        )
-                                    }
+                                }
+                                DropdownMenu(
+                                    expanded = showPopupMenu,
+                                    onDismissRequest = { showPopupMenu = false },
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("削除") },
+                                        onClick = {
+                                            showDeleteDialog = true
+                                        },
+                                    )
+                                }
+                                if (showDeleteDialog) {
+                                    AlertDialog(
+                                        title = { Text("画像を削除しますか？") },
+                                        description = { Text("この操作は取り消せません。") },
+                                        positiveButton = { Text("削除") },
+                                        negativeButton = { Text("キャンセル") },
+                                        onClickPositive = {
+                                            imageItem.event.onClickDelete()
+                                        },
+                                        onClickNegative = { showDeleteDialog = false },
+                                        onDismissRequest = { showDeleteDialog = false },
+                                    )
                                 }
                             }
 
