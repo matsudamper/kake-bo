@@ -668,29 +668,29 @@ private fun MoneyUsage(
                                                 }
                                             },
                                     )
-                                }
-                                DropdownMenu(
-                                    expanded = showPopupMenu,
-                                    onDismissRequest = { showPopupMenu = false },
-                                ) {
-                                    DropdownMenuItem(
-                                        text = { Text("削除") },
-                                        onClick = {
-                                            imageItem.event.onClickDelete()
-                                        },
-                                    )
-                                }
-                                if (showDeleteDialog) {
-                                    AlertDialog(
-                                        title = { Text("画像を削除しますか？") },
-                                        description = { Text("この操作は取り消せません。") },
-                                        positiveButton = { Text("削除") },
-                                        negativeButton = { Text("キャンセル") },
-                                        onClickPositive = {
-                                        },
-                                        onClickNegative = { showDeleteDialog = false },
-                                        onDismissRequest = { showDeleteDialog = false },
-                                    )
+                                    DropdownMenu(
+                                        expanded = showPopupMenu,
+                                        onDismissRequest = { showPopupMenu = false },
+                                    ) {
+                                        DropdownMenuItem(
+                                            text = { Text("削除") },
+                                            onClick = {
+                                                imageItem.event.onClickDelete()
+                                            },
+                                        )
+                                    }
+                                    if (showDeleteDialog) {
+                                        AlertDialog(
+                                            title = { Text("画像を削除しますか？") },
+                                            description = { Text("この操作は取り消せません。") },
+                                            positiveButton = { Text("削除") },
+                                            negativeButton = { Text("キャンセル") },
+                                            onClickPositive = {
+                                            },
+                                            onClickNegative = { showDeleteDialog = false },
+                                            onDismissRequest = { showDeleteDialog = false },
+                                        )
+                                    }
                                 }
                             }
 
