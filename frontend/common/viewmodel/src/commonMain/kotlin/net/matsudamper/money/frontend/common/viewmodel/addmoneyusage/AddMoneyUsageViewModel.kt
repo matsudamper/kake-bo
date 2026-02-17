@@ -215,11 +215,11 @@ public class AddMoneyUsageViewModel(
                         viewModelStateFlow.update { viewModelState ->
                             viewModelState.copy(
                                 usageImages = (
-                                        viewModelState.usageImages + ViewModelState.UploadedImage(
-                                            imageId = uploadResult.imageId,
-                                            url = uploadResult.url,
-                                        )
-                                        ).distinctBy { it.imageId.value },
+                                    viewModelState.usageImages + ViewModelState.UploadedImage(
+                                        imageId = uploadResult.imageId,
+                                        url = uploadResult.url,
+                                    )
+                                    ).distinctBy { it.imageId.value },
                             )
                         }
                     }
