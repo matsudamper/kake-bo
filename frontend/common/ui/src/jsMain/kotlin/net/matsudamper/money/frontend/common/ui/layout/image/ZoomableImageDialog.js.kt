@@ -2,7 +2,7 @@ package net.matsudamper.money.frontend.common.ui.layout.image
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -29,7 +29,7 @@ public actual fun ZoomableImageDialog(
             dismissOnClickOutside = true,
         ),
     ) {
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .clickable(
@@ -37,29 +37,27 @@ public actual fun ZoomableImageDialog(
                     indication = null,
                     onClick = onDismissRequest,
                 ),
-            contentAlignment = Alignment.Center,
         ) {
+            TextButton(
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(12.dp),
+                onClick = onDismissRequest,
+            ) {
+                Text("閉じる")
+            }
             AsyncImage(
                 model = imageUrl,
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
                 modifier = Modifier
-                    .fillMaxSize()
+                    .align(Alignment.CenterHorizontally)
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null,
                         onClick = {},
                     ),
             )
-
-            TextButton(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(12.dp),
-                onClick = onDismissRequest,
-            ) {
-                Text("閉じる")
-            }
         }
     }
 }
