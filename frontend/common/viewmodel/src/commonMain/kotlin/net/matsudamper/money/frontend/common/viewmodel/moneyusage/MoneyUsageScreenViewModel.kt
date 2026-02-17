@@ -449,6 +449,7 @@ public class MoneyUsageScreenViewModel(
                                     )
                                     if (isSuccess) {
                                         dismissConfirmDialog()
+                                        fetch()
                                     } else {
                                         // TODO
                                     }
