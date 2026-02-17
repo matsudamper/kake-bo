@@ -6,40 +6,44 @@ import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.UserId
 
-class ImageDeleteHandler {
+class ImageDeleteUseCase {
 
-    fun handle(request: Request): Result {
-        val userId = request.userId ?: return Result.Unauthorized
-
+    fun delete(
+        userId: UserId,
+        imageId: ImageId,
+        moneyUsageId: MoneyUsageId,
+        userImageRepository: UserImageRepository,
+        storageDirectory: File,
+    ): Result {
         return runCatching {
-            request.userImageRepository.deleteImageUsageRelation(
+            userImageRepository.deleteImageUsageRelation(
                 userId = userId,
-                moneyUsageId = request.moneyUsageId,
-                imageId = request.imageId,
+                moneyUsageId = moneyUsageId,
+                imageId = imageId,
             )
 
-            val remainingRelationCount = request.userImageRepository.countImageUsageRelations(
+            val remainingRelationCount = userImageRepository.countImageUsageRelations(
                 userId = userId,
-                imageId = request.imageId,
+                imageId = imageId,
             )
 
             if (remainingRelationCount > 0) {
                 return Result.Success
             }
 
-            val relativePath = request.userImageRepository.getRelativePath(
+            val relativePath = userImageRepository.getRelativePath(
                 userId = userId,
-                imageId = request.imageId,
+                imageId = imageId,
             ) ?: return Result.NotFound
 
-            val deleted = File(request.storageDirectory, relativePath).delete()
+            val deleted = File(storageDirectory, relativePath).delete()
             if (!deleted) {
                 throw IllegalStateException("ファイルの削除に失敗しました: $relativePath")
             }
 
-            request.userImageRepository.deleteImage(
+            userImageRepository.deleteImage(
                 userId = userId,
-                imageId = request.imageId,
+                imageId = imageId,
             )
 
             Result.Success
@@ -49,17 +53,8 @@ class ImageDeleteHandler {
         )
     }
 
-    data class Request(
-        val userId: UserId?,
-        val imageId: ImageId,
-        val moneyUsageId: MoneyUsageId,
-        val userImageRepository: UserImageRepository,
-        val storageDirectory: File,
-    )
-
     sealed interface Result {
         data object Success : Result
-        data object Unauthorized : Result
         data object NotFound : Result
         data class InternalServerError(val e: Throwable) : Result
     }
