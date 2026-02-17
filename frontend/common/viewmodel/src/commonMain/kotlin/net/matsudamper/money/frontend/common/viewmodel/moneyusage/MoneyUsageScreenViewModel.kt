@@ -449,7 +449,7 @@ public class MoneyUsageScreenViewModel(
                                     )
                                     if (isSuccess) {
                                         dismissConfirmDialog()
-                                        fetch()
+                                        fetch(policy = FetchPolicy.NetworkOnly)
                                     } else {
                                         // TODO
                                     }
@@ -466,12 +466,12 @@ public class MoneyUsageScreenViewModel(
     private val apolloClient = graphqlClient.apolloClient
     private var fetchJob: Job = Job()
 
-    private fun fetch() {
+    private fun fetch(policy: FetchPolicy = FetchPolicy.CacheAndNetwork) {
         fetchJob.cancel()
         fetchJob = viewModelScope.launch {
             apolloClient
                 .query(MoneyUsageScreenQuery(id = moneyUsageId))
-                .fetchPolicy(FetchPolicy.CacheAndNetwork)
+                .fetchPolicy(policy)
                 .watch()
                 .catch {
                     it.printStackTrace()
