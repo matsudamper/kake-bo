@@ -40,9 +40,4 @@ interface UserImageRepository {
         userId: UserId,
         imageIds: List<ImageId>,
     ): Map<ImageId, String>
-
-    fun getRelativePath(
-        userId: UserId,
-        imageId: ImageId,
-    ): String?
 }

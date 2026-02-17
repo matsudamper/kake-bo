@@ -117,24 +117,6 @@ class DbUserImageRepository : UserImageRepository {
         }
     }
 
-    override fun getRelativePath(
-        userId: UserId,
-        imageId: ImageId,
-    ): String? {
-        return DbConnectionImpl.use { connection ->
-            DSL.using(connection)
-                .select(jUserImages.IMAGE_PATH)
-                .from(jUserImages)
-                .where(
-                    jUserImages.USER_ID.eq(userId.value)
-                        .and(jUserImages.USER_IMAGE_ID.eq(imageId.value)),
-                )
-                .limit(1)
-                .fetchOne()
-                ?.get(jUserImages.IMAGE_PATH)
-        }
-    }
-
     override fun getDisplayIdsByImageIds(
         userId: UserId,
         imageIds: List<ImageId>,
