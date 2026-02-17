@@ -657,13 +657,14 @@ private fun MoneyUsage(
                                                 awaitEachGesture {
                                                     val pressEvent = awaitPointerEvent()
                                                     if (pressEvent.type != PointerEventType.Press) return@awaitEachGesture
-                                                    if (!pressEvent.buttons.isSecondaryPressed) return@awaitEachGesture
+                                                    if (pressEvent.buttons.isSecondaryPressed.not()) return@awaitEachGesture
 
-                                                    val releaseEvent = awaitPointerEvent()
-                                                    if (releaseEvent.type != PointerEventType.Release) return@awaitEachGesture
-                                                    if (pressEvent.buttons.isSecondaryPressed) return@awaitEachGesture
-
-                                                    showPopupMenu = true
+                                                    while (true) {
+                                                        val releaseEvent = awaitPointerEvent()
+                                                        if (releaseEvent.type != PointerEventType.Release) continue
+                                                        if (pressEvent.buttons.isSecondaryPressed.not()) return@awaitEachGesture
+                                                        showPopupMenu = true
+                                                    }
                                                 }
                                             },
                                     )
