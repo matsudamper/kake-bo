@@ -30,6 +30,7 @@ import net.matsudamper.money.frontend.graphql.CalendarDateListScreenPagingQuery
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryFilter
+import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryOrderType
 
 public class CalendarDateListViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -138,6 +139,7 @@ public class CalendarDateListViewModel(
                 cursor = Optional.present(cursor),
                 size = 50,
                 isAsc = true,
+                orderType = Optional.present(MoneyUsagesQueryOrderType.DATE),
                 filter = Optional.present(
                     MoneyUsagesQueryFilter(
                         sinceDateTime = Optional.present(

@@ -18,10 +18,17 @@ public data class ImportedMailListScreenUiState(
 
     public data class Filters(
         val link: Link,
+        val textSearch: TextSearch,
     ) {
         public data class Link(
             val status: LinkStatus,
             val updateState: (LinkStatus) -> Unit,
+        )
+
+        public data class TextSearch(
+            val text: String,
+            val onTextChanged: (String) -> Unit,
+            val onSearch: () -> Unit,
         )
 
         public enum class LinkStatus {

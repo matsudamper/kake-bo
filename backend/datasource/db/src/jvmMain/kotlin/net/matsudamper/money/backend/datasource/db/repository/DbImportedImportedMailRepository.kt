@@ -57,6 +57,7 @@ class DbImportedImportedMailRepository(
     override fun getCount(
         userId: UserId,
         isLinked: Boolean?,
+        text: String?,
     ): Int? {
         return dbConnection.use { connection ->
             val result = DSL.using(connection)
@@ -74,7 +75,8 @@ class DbImportedImportedMailRepository(
                                 false -> relation.MONEY_USAGE_ID.isNull
                                 null -> DSL.value(true)
                             },
-                        ),
+                        )
+                        .and(textSearchCondition(text)),
                 )
                 .fetchOne()
 
@@ -112,6 +114,7 @@ class DbImportedImportedMailRepository(
         isAsc: Boolean,
         sortedKey: ImportedMailRepository.MailSortedKey,
         isLinked: Boolean?,
+        text: String?,
     ): ImportedMailRepository.MailPagingResult {
         return dbConnection.use { connection ->
             val result = DSL.using(connection)
@@ -140,6 +143,7 @@ class DbImportedImportedMailRepository(
                                 null -> DSL.value(true)
                             },
                         )
+                        .and(textSearchCondition(text))
                         .and(
                             if (pagingInfo == null) {
                                 DSL.value(true)
@@ -285,6 +289,15 @@ class DbImportedImportedMailRepository(
                     )
             }
         }
+    }
+
+    private fun textSearchCondition(text: String?): org.jooq.Condition {
+        if (text.isNullOrBlank()) return DSL.noCondition()
+        val pattern = "%$text%"
+        return userMails.SUBJECT.like(pattern)
+            .or(userMails.FROM_MAIL.like(pattern))
+            .or(userMails.PLAIN.like(pattern))
+            .or(userMails.HTML.like(pattern))
     }
 
     override fun deleteMail(
