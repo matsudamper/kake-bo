@@ -26,6 +26,7 @@ public actual fun ZoomableImageDialog(
         onDismissRequest = onDismissRequest,
         properties = DialogProperties(
             usePlatformDefaultWidth = false,
+            dismissOnClickOutside = true,
         ),
     ) {
         Box(
