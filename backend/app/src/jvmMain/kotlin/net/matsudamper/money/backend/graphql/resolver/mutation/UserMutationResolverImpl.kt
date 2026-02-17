@@ -1,6 +1,5 @@
 package net.matsudamper.money.backend.graphql.resolver.mutation
 
-import java.io.File
 import java.time.ZoneOffset
 import java.util.Base64
 import java.util.concurrent.CompletableFuture
@@ -16,10 +15,8 @@ import net.matsudamper.money.backend.app.interfaces.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.app.interfaces.UserLoginRepository
-import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.base.ServerVariables
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterDataLoaderDefine
-import net.matsudamper.money.backend.feature.image.ImageDeleteUseCase
 import net.matsudamper.money.backend.fido.Auth4JModel
 import net.matsudamper.money.backend.fido.AuthenticatorConverter
 import net.matsudamper.money.backend.graphql.GraphQlContext
@@ -311,7 +308,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                     is ImportMailUseCase.Result.Success -> true
                     is ImportMailUseCase.Result.Failure,
                     is ImportMailUseCase.Result.ImapConfigNotFound,
-                        -> false
+                    -> false
                 },
             )
         }.toDataFetcher()
@@ -788,19 +785,11 @@ class UserMutationResolverImpl : UserMutationResolver {
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.allOf().thenApplyAsync {
-            val result = ImageDeleteUseCase().delete(
+            context.diContainer.createDeleteUsageImageRelationDao().delete(
                 userId = userId,
-                imageId = imageId,
                 moneyUsageId = usageId,
-                userImageRepository = context.diContainer.createUserImageRepository(),
-                storageDirectory = File(ServerEnv.imageStoragePath),
+                imageId = imageId,
             )
-            when (result) {
-                is ImageDeleteUseCase.Result.Success -> true
-                is ImageDeleteUseCase.Result.NotFound,
-                is ImageDeleteUseCase.Result.InternalServerError,
-                    -> false
-            }
         }.toDataFetcher()
     }
 

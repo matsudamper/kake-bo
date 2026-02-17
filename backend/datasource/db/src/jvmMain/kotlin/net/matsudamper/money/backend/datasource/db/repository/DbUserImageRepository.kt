@@ -5,7 +5,6 @@ import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JMoneyUsageImagesRelation
 import net.matsudamper.money.db.schema.tables.JUserImages
 import net.matsudamper.money.element.ImageId
-import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.UserId
 import org.jooq.impl.DSL
 
@@ -133,39 +132,6 @@ class DbUserImageRepository : UserImageRepository {
                 .limit(1)
                 .fetchOne()
                 ?.get(jUserImages.IMAGE_PATH)
-        }
-    }
-
-    override fun countImageUsageRelations(
-        userId: UserId,
-        imageId: ImageId,
-    ): Int {
-        return DbConnectionImpl.use { connection ->
-            DSL.using(connection)
-                .selectCount()
-                .from(jUsageImagesRelation)
-                .where(
-                    jUsageImagesRelation.USER_ID.eq(userId.value)
-                        .and(jUsageImagesRelation.USER_IMAGE_ID.eq(imageId.value)),
-                )
-                .fetchOne(0, Int::class.java) ?: 0
-        }
-    }
-
-    override fun deleteImageUsageRelation(
-        userId: UserId,
-        moneyUsageId: MoneyUsageId,
-        imageId: ImageId,
-    ) {
-        DbConnectionImpl.use { connection ->
-            DSL.using(connection)
-                .deleteFrom(jUsageImagesRelation)
-                .where(
-                    jUsageImagesRelation.USER_ID.eq(userId.value)
-                        .and(jUsageImagesRelation.MONEY_USAGE_ID.eq(moneyUsageId.id))
-                        .and(jUsageImagesRelation.USER_IMAGE_ID.eq(imageId.value)),
-                )
-                .execute()
         }
     }
 

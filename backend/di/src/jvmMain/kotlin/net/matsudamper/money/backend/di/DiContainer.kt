@@ -4,6 +4,7 @@ import net.matsudamper.money.backend.app.interfaces.AdminRepository
 import net.matsudamper.money.backend.app.interfaces.AdminSessionRepository
 import net.matsudamper.money.backend.app.interfaces.ApiTokenRepository
 import net.matsudamper.money.backend.app.interfaces.ChallengeRepository
+import net.matsudamper.money.backend.app.interfaces.DeleteUsageImageRelationDao
 import net.matsudamper.money.backend.app.interfaces.FidoRepository
 import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
 import net.matsudamper.money.backend.app.interfaces.MailFilterRepository
@@ -36,6 +37,7 @@ import net.matsudamper.money.backend.datasource.db.repository.DbUserConfigReposi
 import net.matsudamper.money.backend.datasource.db.repository.DbUserImageRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbUserLoginRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbUserRepository
+import net.matsudamper.money.backend.datasource.db.repository.DeleteUsageImageRelationDaoImpl
 import net.matsudamper.money.backend.datasource.session.UserSessionRepositoryProvider
 import net.matsudamper.money.backend.mail.MailRepositoryImpl
 
@@ -70,6 +72,8 @@ interface DiContainer {
     fun createFidoRepository(): FidoRepository
 
     fun createChallengeRepository(): ChallengeRepository
+
+    fun createDeleteUsageImageRelationDao(): DeleteUsageImageRelationDao
 
     fun createAdminUserSessionRepository(): AdminSessionRepository
 
@@ -165,6 +169,12 @@ class MainDiContainer : DiContainer {
 
     override fun createUserImageRepository(): UserImageRepository {
         return userImageRepository
+    }
+
+    private val deleteUsageImageRelationDao = DeleteUsageImageRelationDaoImpl()
+
+    override fun createDeleteUsageImageRelationDao(): DeleteUsageImageRelationDao {
+        return deleteUsageImageRelationDao
     }
 
     private val fidoRepository = DbFidoRepository(dbConnection = DbConnectionImpl)

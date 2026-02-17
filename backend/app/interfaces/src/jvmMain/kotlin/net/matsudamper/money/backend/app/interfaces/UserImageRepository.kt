@@ -1,7 +1,6 @@
 package net.matsudamper.money.backend.app.interfaces
 
 import net.matsudamper.money.element.ImageId
-import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.UserId
 
 interface UserImageRepository {
@@ -46,15 +45,4 @@ interface UserImageRepository {
         userId: UserId,
         imageId: ImageId,
     ): String?
-
-    fun countImageUsageRelations(
-        userId: UserId,
-        imageId: ImageId,
-    ): Int
-
-    fun deleteImageUsageRelation(
-        userId: UserId,
-        moneyUsageId: MoneyUsageId,
-        imageId: ImageId,
-    )
 }
