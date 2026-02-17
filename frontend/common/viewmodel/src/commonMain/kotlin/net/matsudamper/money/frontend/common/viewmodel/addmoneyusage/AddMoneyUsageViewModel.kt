@@ -199,11 +199,13 @@ public class AddMoneyUsageViewModel(
 
         override fun onClickUploadImage() {
             viewModelScope.launch {
-                val image = eventSender.send { it.selectImage() } ?: return@launch
-
-                viewModelStateFlow.update { it.copy(uploadingImageCount = it.uploadingImageCount + 1) }
-
                 try {
+                    viewModelStateFlow.update {
+                        it.copy(
+                            uploadingImageCount = it.uploadingImageCount + 1,
+                        )
+                    }
+                    val image = eventSender.send { it.selectImage() } ?: return@launch
                     val uploadResult = graphqlApi.uploadImage(
                         bytes = image.bytes,
                         contentType = image.contentType,
@@ -213,16 +215,20 @@ public class AddMoneyUsageViewModel(
                         viewModelStateFlow.update { viewModelState ->
                             viewModelState.copy(
                                 usageImages = (
-                                    viewModelState.usageImages + ViewModelState.UploadedImage(
-                                        imageId = uploadResult.imageId,
-                                        url = uploadResult.url,
-                                    )
-                                    ).distinctBy { it.imageId.value },
+                                        viewModelState.usageImages + ViewModelState.UploadedImage(
+                                            imageId = uploadResult.imageId,
+                                            url = uploadResult.url,
+                                        )
+                                        ).distinctBy { it.imageId.value },
                             )
                         }
                     }
                 } finally {
-                    viewModelStateFlow.update { it.copy(uploadingImageCount = it.uploadingImageCount - 1) }
+                    viewModelStateFlow.update {
+                        it.copy(
+                            uploadingImageCount = it.uploadingImageCount - 1,
+                        )
+                    }
                 }
             }
         }
