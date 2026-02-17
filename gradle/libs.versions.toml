@@ -128,7 +128,7 @@ graphqlJavaKickstart-JavaTools = { module = "com.graphql-java-kickstart:graphql-
 androidxDatastoreDatastore = { module = "androidx.datastore:datastore", version.require = "1.2.0" }
 
 # Other
-jedis = { module = "redis.clients:jedis", version.require = "7.2.1" }
+jedis = { module = "redis.clients:jedis", version.require = "7.3.0" }
 jsoup = { module = "org.jsoup:jsoup", version.require = "1.22.1" }
 hikariCP = { module = "com.zaxxer:HikariCP", version.require = "7.0.2" }
 mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.7" }
