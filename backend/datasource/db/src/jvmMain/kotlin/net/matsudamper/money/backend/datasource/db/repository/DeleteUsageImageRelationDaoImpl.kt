@@ -54,7 +54,6 @@ class DeleteUsageImageRelationDaoImpl : DeleteUsageImageRelationDao {
                         val deleted = imageFile.delete()
                         if (deleted.not()) throw IOException("ファイルの削除に失敗しました: $imageFile")
 
-
                         DSL.using(connection)
                             .deleteFrom(userImages)
                             .where(

@@ -675,7 +675,7 @@ private fun MoneyUsage(
                                     DropdownMenuItem(
                                         text = { Text("削除") },
                                         onClick = {
-                                            showDeleteDialog = true
+                                            imageItem.event.onClickDelete()
                                         },
                                     )
                                 }
@@ -686,7 +686,6 @@ private fun MoneyUsage(
                                         positiveButton = { Text("削除") },
                                         negativeButton = { Text("キャンセル") },
                                         onClickPositive = {
-                                            imageItem.event.onClickDelete()
                                         },
                                         onClickNegative = { showDeleteDialog = false },
                                         onDismissRequest = { showDeleteDialog = false },

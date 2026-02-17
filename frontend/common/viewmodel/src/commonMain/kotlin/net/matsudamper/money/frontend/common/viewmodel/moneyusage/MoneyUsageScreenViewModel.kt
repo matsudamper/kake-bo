@@ -436,30 +436,19 @@ public class MoneyUsageScreenViewModel(
     private fun createImageItemEvent(imageId: ImageId): MoneyUsageScreenUiState.ImageItemEvent {
         return object : MoneyUsageScreenUiState.ImageItemEvent {
             override fun onClickDelete() {
-                viewModelStateFlow.update { viewModelState ->
-                    viewModelState.copy(
-                        confirmDialog = MoneyUsageScreenUiState.ConfirmDialog(
-                            title = "画像を削除しますか？",
-                            description = null,
-                            onConfirm = {
-                                viewModelScope.launch {
-                                    val isSuccess = api.deleteImage(
-                                        usageId = moneyUsageId,
-                                        imageId = imageId,
-                                    )
-                                    if (isSuccess) {
-                                        dismissConfirmDialog()
-                                        fetch(policy = FetchPolicy.NetworkOnly)
-                                    } else {
-                                        eventSender.send {
-                                            it.showToast("画像の削除に失敗しました")
-                                        }
-                                    }
-                                }
-                            },
-                            onDismiss = { dismissConfirmDialog() },
-                        ),
+                viewModelScope.launch {
+                    val isSuccess = api.deleteImage(
+                        usageId = moneyUsageId,
+                        imageId = imageId,
                     )
+                    if (isSuccess) {
+                        dismissConfirmDialog()
+                        fetch(policy = FetchPolicy.NetworkOnly)
+                    } else {
+                        eventSender.send {
+                            it.showToast("画像の削除に失敗しました")
+                        }
+                    }
                 }
             }
         }
