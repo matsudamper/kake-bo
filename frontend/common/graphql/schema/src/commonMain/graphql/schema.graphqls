@@ -20,6 +20,16 @@ input AddImportedMailCategoryFilterInput {
   title: String!
 }
 
+input AddMoneyUsagePresetInput {
+  name: String!
+
+  subCategoryId: MoneyUsageSubCategoryId
+}
+
+type AddMoneyUsagePresetResult {
+  preset: MoneyUsagePreset!
+}
+
 enum AddSubCategoryError {
   CATEGORY_NOT_FOUND
 }
@@ -403,6 +413,16 @@ scalar MoneyUsageCategoryId
 
 scalar MoneyUsageId
 
+type MoneyUsagePreset {
+  id: MoneyUsagePresetId!
+
+  name: String!
+
+  subCategory: MoneyUsageSubCategory
+}
+
+scalar MoneyUsagePresetId
+
 type MoneyUsageSubCategory {
   id: MoneyUsageSubCategoryId!
 
@@ -577,6 +597,18 @@ input UpdateImportedMailCategoryFilterInput {
   operator: ImportedMailFilterCategoryConditionOperator
 }
 
+input UpdateMoneyUsagePresetInput {
+  id: MoneyUsagePresetId!
+
+  name: String
+
+  subCategoryId: MoneyUsageSubCategoryId
+}
+
+type UpdateMoneyUsagePresetResult {
+  preset: MoneyUsagePreset!
+}
+
 input UpdateSubCategoryQuery {
   name: String
 }
@@ -633,6 +665,10 @@ type User {
   importedMailCategoryFilters(query: ImportedMailCategoryFiltersQuery!): ImportedMailCategoryFiltersConnection
 
   importedMailCategoryFilter(id: ImportedMailCategoryFilterId!): ImportedMailCategoryFilter
+
+  moneyUsagePresets: [MoneyUsagePreset!]!
+
+  moneyUsagePreset(id: MoneyUsagePresetId!): MoneyUsagePreset
 }
 
 input UserFidoLoginInput {
@@ -759,6 +795,12 @@ type UserMutation {
   registerApiToken(name: String!): RegisterApiTokenResult!
 
   deleteApiToken(id: ApiTokenId!): DeleteApiTokenResult!
+
+  addMoneyUsagePreset(input: AddMoneyUsagePresetInput!): AddMoneyUsagePresetResult!
+
+  updateMoneyUsagePreset(input: UpdateMoneyUsagePresetInput!): UpdateMoneyUsagePresetResult!
+
+  deleteMoneyUsagePreset(id: MoneyUsagePresetId!): Boolean!
 }
 
 type UserSettings {
