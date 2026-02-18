@@ -51,6 +51,14 @@ public class HomeAddTabScreenViewModel(
                         }
                     }
                 }
+
+                override fun onClickPresetButton() {
+                    viewModelScope.launch {
+                        navigateEventSender.send {
+                            it.navigate(ScreenStructure.Root.Add.Preset)
+                        }
+                    }
+                }
             },
         ),
     )

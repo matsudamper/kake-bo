@@ -29,6 +29,8 @@ import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportMailScree
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.MailImportScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.mail.PresetDetailScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.mail.PresetListScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.RootSettingScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalendarPagerHostScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalendarPagerHostScreenUiState
@@ -48,6 +50,9 @@ import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.RootHom
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.RootHomeMonthlyScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.category.RootHomeMonthlyCategoryScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.subcategory.RootHomeMonthlySubCategoryScreenViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.mail.PresetDetailViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.mail.PresetListViewModel
+import net.matsudamper.money.frontend.common.viewmodel.settings.PresetScreenApi
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 private enum class SavedStateHolderKey {
@@ -309,6 +314,46 @@ internal fun RootNavContent(
                     is ScreenStructure.Root.Add.Imported -> {
                         ImportedMailListScreen(
                             uiState = importMailScreenUiStateProvider(current),
+                            windowInsets = windowInsets,
+                        )
+                    }
+
+                    is ScreenStructure.Root.Add.Preset -> {
+                        val viewModel = LocalScopedObjectStore.current.putOrGet<PresetListViewModel>(Unit) {
+                            PresetListViewModel(
+                                scopedObjectFeature = it,
+                                api = PresetScreenApi(
+                                    apolloClient = koin.get<GraphqlClient>().apolloClient,
+                                ),
+                                navController = navController,
+                            )
+                        }
+                        LaunchedEffect(viewModel.globalEventHandler) {
+                            viewModel.globalEventHandler.collect(globalEvent)
+                        }
+                        PresetListScreen(
+                            uiState = viewModel.uiStateFlow.collectAsState().value,
+                            windowInsets = windowInsets,
+                        )
+                    }
+
+                    is ScreenStructure.Root.Add.PresetDetail -> {
+                        val viewModel = LocalScopedObjectStore.current.putOrGet<PresetDetailViewModel>(current.id) {
+                            PresetDetailViewModel(
+                                scopedObjectFeature = it,
+                                presetId = current.id,
+                                api = PresetScreenApi(
+                                    apolloClient = koin.get<GraphqlClient>().apolloClient,
+                                ),
+                                navController = navController,
+                                graphqlClient = koin.get<GraphqlClient>(),
+                            )
+                        }
+                        LaunchedEffect(viewModel.globalEventHandler) {
+                            viewModel.globalEventHandler.collect(globalEvent)
+                        }
+                        PresetDetailScreen(
+                            uiState = viewModel.uiStateFlow.collectAsState().value,
                             windowInsets = windowInsets,
                         )
                     }
