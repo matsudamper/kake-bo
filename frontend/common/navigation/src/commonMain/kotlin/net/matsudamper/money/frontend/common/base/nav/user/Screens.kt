@@ -66,6 +66,14 @@ public enum class Screens : Direction {
         override val title: String = "TextFieldテスト"
         override val placeholderUrl: String = "/settings/textfield-test"
     },
+    AddPresets {
+        override val title: String = "プリセット"
+        override val placeholderUrl: String = "/add/presets"
+    },
+    AddPresetDetail {
+        override val title: String = "プリセット詳細"
+        override val placeholderUrl: String = "/add/presets/{id}"
+    },
 
     UsageList {
         override val title: String = "リスト"
