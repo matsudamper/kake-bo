@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.ui.screen.root.usage
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
@@ -10,7 +11,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -33,14 +36,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import coil3.compose.AsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffold
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
+import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 
 public data class CalendarDateListScreenUiState(
     val title: String,
@@ -63,7 +69,12 @@ public data class CalendarDateListScreenUiState(
         val date: String,
         val amount: String,
         val category: String?,
+        val images: ImmutableList<ImageItem>,
         val event: ItemEvent,
+    )
+
+    public data class ImageItem(
+        val url: String,
     )
 
     @Immutable
@@ -169,6 +180,14 @@ private fun LoadedContent(
         state = lazyListState,
     ) {
         items(uiState.items) { item ->
+            var selectedImageUrl by remember { mutableStateOf<String?>(null) }
+            val currentSelectedImageUrl = selectedImageUrl
+            if (currentSelectedImageUrl != null) {
+                ZoomableImageDialog(
+                    imageUrl = currentSelectedImageUrl,
+                    onDismissRequest = { selectedImageUrl = null },
+                )
+            }
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -211,6 +230,26 @@ private fun LoadedContent(
                         }
                         item {
                             Text(text = item.category.orEmpty())
+                        }
+                    }
+                }
+                if (item.images.isNotEmpty()) {
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp)
+                            .padding(bottom = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        items(item.images) { imageItem ->
+                            AsyncImage(
+                                model = imageItem.url,
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .clickable { selectedImageUrl = imageItem.url },
+                            )
                         }
                     }
                 }

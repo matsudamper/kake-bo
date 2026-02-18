@@ -93,6 +93,9 @@ public class CalendarDateListViewModel(
                             val subCategory = result.moneyUsageSubCategory ?: return@category null
                             "${subCategory.category.name} / ${subCategory.name}"
                         },
+                        images = result.images.map { image ->
+                            CalendarDateListScreenUiState.ImageItem(url = image.url)
+                        }.toImmutableList(),
                         event = object : CalendarDateListScreenUiState.ItemEvent {
                             override fun onClick() {
                                 viewModelScope.launch {

@@ -8,6 +8,10 @@ query CalendarDateListScreenPaging($query: MoneyUsagesQuery!) {
                 amount
                 date
                 title
+                images {
+                    id
+                    url
+                }
                 moneyUsageSubCategory {
                     id
                     name
