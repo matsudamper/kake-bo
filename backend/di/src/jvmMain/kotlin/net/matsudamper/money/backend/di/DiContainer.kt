@@ -11,6 +11,7 @@ import net.matsudamper.money.backend.app.interfaces.MailFilterRepository
 import net.matsudamper.money.backend.app.interfaces.MailRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageAnalyticsRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageCategoryRepository
+import net.matsudamper.money.backend.app.interfaces.MoneyUsagePresetRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.app.interfaces.UserConfigRepository
@@ -31,6 +32,7 @@ import net.matsudamper.money.backend.datasource.db.repository.DbImportedImported
 import net.matsudamper.money.backend.datasource.db.repository.DbMailFilterRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbMoneyUsageAnalyticsRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbMoneyUsageCategoryRepository
+import net.matsudamper.money.backend.datasource.db.repository.DbMoneyUsagePresetRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbMoneyUsageRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbMoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbUserConfigRepository
@@ -58,6 +60,8 @@ interface DiContainer {
     fun createMoneyUsageCategoryRepository(): MoneyUsageCategoryRepository
 
     fun createMoneyUsageSubCategoryRepository(): MoneyUsageSubCategoryRepository
+
+    fun createMoneyUsagePresetRepository(): MoneyUsagePresetRepository
 
     fun createMoneyUsageRepository(): MoneyUsageRepository
 
@@ -139,6 +143,12 @@ class MainDiContainer : DiContainer {
 
     override fun createMoneyUsageCategoryRepository(): MoneyUsageCategoryRepository {
         return moneyUsageCategoryRepository
+    }
+
+    private val moneyUsagePresetRepository = DbMoneyUsagePresetRepository()
+
+    override fun createMoneyUsagePresetRepository(): MoneyUsagePresetRepository {
+        return moneyUsagePresetRepository
     }
 
     private val moneyUsageSubCategoryRepository = DbMoneyUsageSubCategoryRepository()
