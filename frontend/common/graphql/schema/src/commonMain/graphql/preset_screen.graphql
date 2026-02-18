@@ -1,0 +1,33 @@
+query GetMoneyUsagePresets {
+    user {
+        moneyUsagePresets {
+            id
+            name
+            subCategory {
+                id
+                name
+            }
+        }
+    }
+}
+
+mutation AddMoneyUsagePreset($input: AddMoneyUsagePresetInput!) {
+    userMutation {
+        addMoneyUsagePreset(input: $input) {
+            preset {
+                id
+                name
+                subCategory {
+                    id
+                    name
+                }
+            }
+        }
+    }
+}
+
+mutation DeleteMoneyUsagePreset($id: MoneyUsagePresetId!) {
+    userMutation {
+        deleteMoneyUsagePreset(id: $id)
+    }
+}
