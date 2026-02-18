@@ -305,15 +305,29 @@ public fun AddMoneyUsageScreen(
                                                 }
                                             }
                                             is ImageItem.Uploaded -> {
-                                                AsyncImage(
-                                                    model = image.url,
-                                                    contentDescription = null,
-                                                    contentScale = ContentScale.Crop,
+                                                Box(
                                                     modifier = Modifier
                                                         .size(120.dp)
-                                                        .clickable { selectedImageUrl = image.url }
                                                         .background(MaterialTheme.colorScheme.surfaceVariant),
-                                                )
+                                                    contentAlignment = Alignment.Center,
+                                                ) {
+                                                    var isImageLoading by remember { mutableStateOf(true) }
+                                                    AsyncImage(
+                                                        model = image.url,
+                                                        contentDescription = null,
+                                                        contentScale = ContentScale.Crop,
+                                                        onSuccess = { isImageLoading = false },
+                                                        onError = { isImageLoading = false },
+                                                        modifier = Modifier
+                                                            .fillMaxSize()
+                                                            .clickable { selectedImageUrl = image.url },
+                                                    )
+                                                    if (isImageLoading) {
+                                                        CircularProgressIndicator(
+                                                            modifier = Modifier.size(36.dp),
+                                                        )
+                                                    }
+                                                }
                                             }
                                         }
                                     }

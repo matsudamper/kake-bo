@@ -639,11 +639,17 @@ private fun MoneyUsage(
                             uiState.images.forEach { imageItem ->
                                 var showDeleteDialog by remember { mutableStateOf(false) }
                                 var showPopupMenu by remember { mutableStateOf(false) }
-                                Box(modifier = Modifier.size(180.dp)) {
+                                Box(
+                                    modifier = Modifier.size(180.dp),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    var isImageLoading by remember { mutableStateOf(true) }
                                     AsyncImage(
                                         model = imageItem.url,
                                         contentDescription = null,
                                         contentScale = ContentScale.Crop,
+                                        onSuccess = { isImageLoading = false },
+                                        onError = { isImageLoading = false },
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .clickable { selectedImageUrl = imageItem.url }
@@ -668,6 +674,9 @@ private fun MoneyUsage(
                                                 }
                                             },
                                     )
+                                    if (isImageLoading) {
+                                        CircularProgressIndicator()
+                                    }
                                     DropdownMenu(
                                         expanded = showPopupMenu,
                                         onDismissRequest = { showPopupMenu = false },

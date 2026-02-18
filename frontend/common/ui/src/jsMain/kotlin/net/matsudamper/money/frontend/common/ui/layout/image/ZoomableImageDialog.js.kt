@@ -2,13 +2,18 @@ package net.matsudamper.money.frontend.common.ui.layout.image
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -46,18 +51,31 @@ public actual fun ZoomableImageDialog(
             ) {
                 Text("閉じる")
             }
-            AsyncImage(
-                model = imageUrl,
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
+            Box(
                 modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = {},
-                    ),
-            )
+                    .weight(1f)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                var isImageLoading by remember { mutableStateOf(true) }
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    onSuccess = { isImageLoading = false },
+                    onError = { isImageLoading = false },
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = {},
+                        ),
+                )
+                if (isImageLoading) {
+                    CircularProgressIndicator()
+                }
+            }
         }
     }
 }

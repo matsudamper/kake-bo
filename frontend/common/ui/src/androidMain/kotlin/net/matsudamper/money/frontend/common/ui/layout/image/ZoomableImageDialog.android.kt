@@ -4,9 +4,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -46,13 +50,16 @@ public actual fun ZoomableImageDialog(
                 ),
             contentAlignment = Alignment.Center,
         ) {
+            var isImageLoading by remember { mutableStateOf(true) }
             AsyncImage(
                 model = imageUrl,
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
                 onSuccess = { successState ->
                     zoomState.setContentSize(successState.painter.intrinsicSize)
+                    isImageLoading = false
                 },
+                onError = { isImageLoading = false },
                 modifier = Modifier
                     .fillMaxSize()
                     .clickable(
@@ -62,6 +69,9 @@ public actual fun ZoomableImageDialog(
                     )
                     .zoomable(zoomState),
             )
+            if (isImageLoading) {
+                CircularProgressIndicator()
+            }
         }
     }
 }
