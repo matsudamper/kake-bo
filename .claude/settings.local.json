@@ -7,7 +7,9 @@
       "Bash(./gradlew:*)",
       "Bash(grep:*)"
     ],
-    "deny": [],
+    "deny": [
+      "Bash(cmd:*)"
+    ],
     "ask": []
   }
 }
