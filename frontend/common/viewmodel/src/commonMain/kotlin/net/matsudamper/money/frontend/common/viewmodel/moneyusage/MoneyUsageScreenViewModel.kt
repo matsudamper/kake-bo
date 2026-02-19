@@ -405,9 +405,10 @@ public class MoneyUsageScreenViewModel(
 
                     try {
                         images.forEach { image ->
+                            val selectedImageData = image.await() ?: return@forEach
                             val uploadResult = api.uploadImage(
-                                bytes = image.bytes,
-                                contentType = image.contentType,
+                                bytes = selectedImageData.bytes,
+                                contentType = selectedImageData.contentType,
                             ) ?: return@forEach
 
                             updateImageMutex.withLock {
