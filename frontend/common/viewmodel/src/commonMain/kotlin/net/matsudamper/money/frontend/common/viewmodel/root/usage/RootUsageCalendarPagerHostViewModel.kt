@@ -67,7 +67,7 @@ public class RootUsageCalendarPagerHostViewModel(
             hostScreenUiState = rootUsageHostViewModel.uiStateFlow.value,
             event = object : RootUsageCalendarPagerHostScreenUiState.Event {
                 override fun onPageChanged(page: RootUsageCalendarPagerHostScreenUiState.Page) {
-                    navController.navigate(
+                    navController.navigateReplace(
                         ScreenStructure.Root.Usage.Calendar(
                             yearMonth = page.navigation.yearMonth,
                         ),
