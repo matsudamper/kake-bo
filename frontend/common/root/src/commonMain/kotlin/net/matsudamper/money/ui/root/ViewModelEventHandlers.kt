@@ -360,7 +360,7 @@ internal data class ViewModelEventHandlers(
             handler.collect(
                 object : RootUsageCalendarPagerHostViewModel.Event {
                     override fun navigate(screenStructure: ScreenStructure) {
-                        navController.navigate(screenStructure)
+                        navController.navigateReplace(screenStructure)
                     }
                 },
             )
