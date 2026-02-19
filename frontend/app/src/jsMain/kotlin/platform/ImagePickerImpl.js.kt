@@ -11,36 +11,46 @@ import org.khronos.webgl.Int8Array
 import org.w3c.dom.HTMLInputElement
 
 internal class ImagePickerImpl : ImagePicker {
-    override suspend fun pickImage(): SelectedImage? = suspendCancellableCoroutine { continuation ->
+    override suspend fun pickImages(): List<SelectedImage> = suspendCancellableCoroutine { continuation ->
         val input = document.createElement("input") as HTMLInputElement
         input.type = "file"
         input.accept = "image/*"
+        input.multiple = true
         input.onchange = { _ ->
-            val file = input.files?.item(0)
-            if (file == null) {
+            val files = input.files
+            if (files == null || files.length == 0) {
                 if (continuation.isActive) {
-                    continuation.resume(null)
+                    continuation.resume(emptyList())
                 }
             } else {
-                val promise = file.asDynamic().arrayBuffer()
-                    .unsafeCast<Promise<ArrayBuffer>>()
-                promise.then { buffer ->
+                val promises = (0 until files.length).mapNotNull { index ->
+                    files.item(index)?.let { file ->
+                        file.asDynamic().arrayBuffer()
+                            .unsafeCast<Promise<ArrayBuffer>>()
+                            .then { buffer ->
+                                val bytes = toByteArray(buffer)
+                                if (bytes.isNotEmpty()) {
+                                    SelectedImage(
+                                        bytes = bytes,
+                                        contentType = file.type.ifBlank { "application/octet-stream" },
+                                    )
+                                } else {
+                                    null
+                                }
+                            }
+                    }
+                }
+                Promise.all(promises.toTypedArray()).then { selectedImages ->
                     if (continuation.isActive) {
-                        val bytes = toByteArray(buffer)
                         continuation.resume(
-                            if (bytes.isNotEmpty()) {
-                                SelectedImage(
-                                    bytes = bytes,
-                                    contentType = file.type.ifBlank { "application/octet-stream" },
-                                )
-                            } else {
-                                null
-                            },
+                            selectedImages
+                                .unsafeCast<Array<SelectedImage?>>()
+                                .filterNotNull(),
                         )
                     }
                 }.catch {
                     if (continuation.isActive) {
-                        continuation.resume(null)
+                        continuation.resume(emptyList())
                     }
                 }
             }

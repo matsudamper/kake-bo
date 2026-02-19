@@ -396,35 +396,38 @@ public class MoneyUsageScreenViewModel(
 
             override fun onClickUploadImage() {
                 viewModelScope.launch {
-                    val image = eventSender.send { it.selectImage() } ?: return@launch
+                    val images = eventSender.send { it.selectImages() }
+                    if (images.isEmpty()) return@launch
 
                     viewModelStateFlow.update { state ->
-                        state.copy(uploadingImageCount = state.uploadingImageCount + 1)
+                        state.copy(uploadingImageCount = state.uploadingImageCount + images.size)
                     }
 
                     try {
-                        val uploadResult = api.uploadImage(
-                            bytes = image.bytes,
-                            contentType = image.contentType,
-                        ) ?: return@launch
+                        images.forEach { image ->
+                            val uploadResult = api.uploadImage(
+                                bytes = image.bytes,
+                                contentType = image.contentType,
+                            ) ?: return@forEach
 
-                        updateImageMutex.withLock {
-                            val currentImageIds = currentMoneyUsage()?.images?.map { it.id } ?: item.images.map { it.id }
-                            val updatedImageIds = (currentImageIds + uploadResult.imageId)
-                                .distinctBy { imageId -> imageId.value }
+                            updateImageMutex.withLock {
+                                val currentImageIds = currentMoneyUsage()?.images?.map { it.id } ?: item.images.map { it.id }
+                                val updatedImageIds = (currentImageIds + uploadResult.imageId)
+                                    .distinctBy { imageId -> imageId.value }
 
-                            val isSuccess = api.updateUsage(
-                                id = moneyUsageId,
-                                imageIds = updatedImageIds,
-                            )
-                            if (!isSuccess) {
-                                eventSender.send { it.showToast("画像のアップロードに失敗しました") }
+                                val isSuccess = api.updateUsage(
+                                    id = moneyUsageId,
+                                    imageIds = updatedImageIds,
+                                )
+                                if (!isSuccess) {
+                                    eventSender.send { it.showToast("画像のアップロードに失敗しました") }
+                                }
                             }
                         }
                     } finally {
                         viewModelStateFlow.update { state ->
                             state.copy(
-                                uploadingImageCount = (state.uploadingImageCount - 1).coerceAtLeast(0),
+                                uploadingImageCount = (state.uploadingImageCount - images.size).coerceAtLeast(0),
                             )
                         }
                     }
@@ -578,7 +581,7 @@ public class MoneyUsageScreenViewModel(
     }
 
     public interface Event {
-        public suspend fun selectImage(): SelectedImage?
+        public suspend fun selectImages(): List<SelectedImage>
 
         public fun navigate(structure: ScreenStructure)
 

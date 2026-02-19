@@ -18,43 +18,42 @@ import net.matsudamper.money.ui.root.platform.ImagePicker
 internal class ImagePickerImpl(
     private val componentActivity: ComponentActivity,
 ) : ImagePicker {
-    private val channel = MutableSharedFlow<Uri?>(
+    private val channel = MutableSharedFlow<List<Uri>>(
         replay = 0,
         extraBufferCapacity = 1,
         onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
     private val launcher = componentActivity.registerForActivityResult(
-        ActivityResultContracts.GetContent(),
-    ) { uri ->
-        channel.tryEmit(uri)
+        ActivityResultContracts.GetMultipleContents(),
+    ) { uris ->
+        channel.tryEmit(uris)
     }
 
-    override suspend fun pickImage(): SelectedImage? {
-        channel.tryEmit(null)
-        val uri = channel
+    override suspend fun pickImages(): List<SelectedImage> {
+        channel.tryEmit(emptyList())
+        val uris = channel
             .onStart { launcher.launch("image/*") }
             .first()
-            ?: return null
 
-        val bytes = try {
-            withContext(Dispatchers.IO) {
-                componentActivity.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+        return uris.mapNotNull { uri ->
+            val bytes = try {
+                withContext(Dispatchers.IO) {
+                    componentActivity.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                }
+            } catch (e: Throwable) {
+                e.printStackTrace()
+                null
             }
-        } catch (e: Throwable) {
-            e.printStackTrace()
-            return null
-        }
-        if (bytes == null || bytes.isEmpty()) {
-            return null
-        }
-        val webpBytes = convertToWebp(bytes)
-        if (webpBytes != null) {
-            return SelectedImage(
+            val imageBytes = bytes ?: return@mapNotNull null
+            if (imageBytes.isEmpty()) {
+                return@mapNotNull null
+            }
+            val webpBytes = convertToWebp(imageBytes) ?: return@mapNotNull null
+            SelectedImage(
                 bytes = webpBytes,
                 contentType = "image/webp",
             )
         }
-        return null
     }
 
     private suspend fun convertToWebp(bytes: ByteArray): ByteArray? {
