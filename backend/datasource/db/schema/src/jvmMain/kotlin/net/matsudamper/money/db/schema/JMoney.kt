@@ -15,6 +15,7 @@ import net.matsudamper.money.db.schema.tables.JCategoryMailFilterDatasourceType
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilters
 import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsageImagesRelation
+import net.matsudamper.money.db.schema.tables.JMoneyUsagePresets
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
@@ -93,6 +94,11 @@ open class JMoney : SchemaImpl(DSL.name("money"), DefaultCatalog.DEFAULT_CATALOG
     val MONEY_USAGE_IMAGES_RELATION: JMoneyUsageImagesRelation get() = JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION
 
     /**
+     * The table <code>money.money_usage_presets</code>.
+     */
+    val MONEY_USAGE_PRESETS: JMoneyUsagePresets get() = JMoneyUsagePresets.MONEY_USAGE_PRESETS
+
+    /**
      * The table <code>money.money_usage_sub_categories</code>.
      */
     val MONEY_USAGE_SUB_CATEGORIES: JMoneyUsageSubCategories get() = JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES
@@ -159,6 +165,7 @@ open class JMoney : SchemaImpl(DSL.name("money"), DefaultCatalog.DEFAULT_CATALOG
         JCategoryMailFilters.CATEGORY_MAIL_FILTERS,
         JMoneyUsageCategories.MONEY_USAGE_CATEGORIES,
         JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION,
+        JMoneyUsagePresets.MONEY_USAGE_PRESETS,
         JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES,
         JMoneyUsages.MONEY_USAGES,
         JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION,

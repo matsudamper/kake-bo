@@ -6,6 +6,7 @@ import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.element.MoneyUsagePresetId
 
 public sealed interface ScreenStructure : IScreenStructure {
     public sealed interface Root : ScreenStructure {
@@ -133,6 +134,24 @@ public sealed interface ScreenStructure : IScreenStructure {
             public data object Import : Add {
                 override val direction: Screens = Screens.MailImport
                 override val sameScreenId: String = "ScreenStructure#Root#Add#Import"
+            }
+
+            @Serializable
+            public data object Preset : Add {
+                override val direction: Screens = Screens.AddPresets
+                override val sameScreenId: String = "ScreenStructure#Root#Add#Preset"
+            }
+
+            @Serializable
+            public data class PresetDetail(
+                public val id: MoneyUsagePresetId,
+            ) : Add {
+                override val direction: Screens = Screens.AddPresetDetail
+                override val sameScreenId: String = "ScreenStructure#Root#Add#PresetDetail($id)"
+
+                override fun createUrl(): String {
+                    return direction.placeholderUrl.replace("{id}", id.value.toString())
+                }
             }
         }
 

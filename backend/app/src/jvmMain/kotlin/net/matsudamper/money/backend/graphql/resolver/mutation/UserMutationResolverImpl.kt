@@ -12,6 +12,7 @@ import kotlinx.coroutines.runBlocking
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageCategoryRepository
+import net.matsudamper.money.backend.app.interfaces.MoneyUsagePresetRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.app.interfaces.UserLoginRepository
@@ -40,12 +41,15 @@ import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.element.MoneyUsagePresetId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.UserId
 import net.matsudamper.money.graphql.model.QlAddCategoryInput
 import net.matsudamper.money.graphql.model.QlAddCategoryResult
 import net.matsudamper.money.graphql.model.QlAddImportedMailCategoryFilterConditionInput
 import net.matsudamper.money.graphql.model.QlAddImportedMailCategoryFilterInput
+import net.matsudamper.money.graphql.model.QlAddMoneyUsagePresetInput
+import net.matsudamper.money.graphql.model.QlAddMoneyUsagePresetResult
 import net.matsudamper.money.graphql.model.QlAddSubCategoryError
 import net.matsudamper.money.graphql.model.QlAddSubCategoryInput
 import net.matsudamper.money.graphql.model.QlAddSubCategoryResult
@@ -61,6 +65,7 @@ import net.matsudamper.money.graphql.model.QlImportedMailCategoryCondition
 import net.matsudamper.money.graphql.model.QlImportedMailCategoryFilter
 import net.matsudamper.money.graphql.model.QlMoneyUsage
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
+import net.matsudamper.money.graphql.model.QlMoneyUsagePreset
 import net.matsudamper.money.graphql.model.QlMoneyUsageSubCategory
 import net.matsudamper.money.graphql.model.QlRegisterApiTokenResult
 import net.matsudamper.money.graphql.model.QlRegisterFidoInput
@@ -71,6 +76,8 @@ import net.matsudamper.money.graphql.model.QlSettingsMutation
 import net.matsudamper.money.graphql.model.QlUpdateCategoryQuery
 import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterConditionInput
 import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterInput
+import net.matsudamper.money.graphql.model.QlUpdateMoneyUsagePresetInput
+import net.matsudamper.money.graphql.model.QlUpdateMoneyUsagePresetResult
 import net.matsudamper.money.graphql.model.QlUpdateSubCategoryQuery
 import net.matsudamper.money.graphql.model.QlUpdateUsageQuery
 import net.matsudamper.money.graphql.model.QlUserFidoLoginInput
@@ -867,6 +874,81 @@ class UserMutationResolverImpl : UserMutationResolver {
             )
         }.toDataFetcher()
     }
+
+    override fun addMoneyUsagePreset(
+        userMutation: QlUserMutation,
+        input: QlAddMoneyUsagePresetInput,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlAddMoneyUsagePresetResult>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+        return CompletableFuture.supplyAsync {
+            val addResult = context.diContainer.createMoneyUsagePresetRepository()
+                .addPreset(
+                    userId = userId,
+                    name = input.name,
+                    subCategoryId = input.subCategoryId,
+                )
+            when (addResult) {
+                is MoneyUsagePresetRepository.AddPresetResult.Failed -> throw addResult.error
+                is MoneyUsagePresetRepository.AddPresetResult.Success -> {
+                    QlAddMoneyUsagePresetResult(
+                        preset = QlMoneyUsagePreset(
+                            id = addResult.result.presetId,
+                            name = addResult.result.name,
+                            subCategory = addResult.result.subCategoryId?.let { QlMoneyUsageSubCategory(id = it) },
+                        ),
+                    )
+                }
+            }
+        }.toDataFetcher()
+    }
+
+    override fun updateMoneyUsagePreset(
+        userMutation: QlUserMutation,
+        input: QlUpdateMoneyUsagePresetInput,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlUpdateMoneyUsagePresetResult>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+        val updateSubCategoryId = isUpdateMoneyUsagePresetSubCategoryIdSpecified(env)
+        return CompletableFuture.supplyAsync {
+            val updateResult = context.diContainer.createMoneyUsagePresetRepository()
+                .updatePreset(
+                    userId = userId,
+                    presetId = input.id,
+                    name = input.name,
+                    subCategoryId = input.subCategoryId,
+                    updateSubCategoryId = updateSubCategoryId,
+                ) ?: throw IllegalStateException("update money usage preset failed")
+
+            QlUpdateMoneyUsagePresetResult(
+                preset = QlMoneyUsagePreset(
+                    id = updateResult.presetId,
+                    name = updateResult.name,
+                    subCategory = updateResult.subCategoryId?.let { QlMoneyUsageSubCategory(id = it) },
+                ),
+            )
+        }.toDataFetcher()
+    }
+
+    override fun deleteMoneyUsagePreset(
+        userMutation: QlUserMutation,
+        id: MoneyUsagePresetId,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+        return CompletableFuture.supplyAsync {
+            context.diContainer.createMoneyUsagePresetRepository()
+                .deletePreset(userId = userId, presetId = id)
+        }.toDataFetcher()
+    }
+}
+
+private fun isUpdateMoneyUsagePresetSubCategoryIdSpecified(env: DataFetchingEnvironment): Boolean {
+    val input = env.arguments["input"] as? Map<*, *> ?: return false
+    return input.containsKey("subCategoryId")
 }
 
 @OptIn(ExperimentalContracts::class)

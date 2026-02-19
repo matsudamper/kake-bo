@@ -1,0 +1,26 @@
+scalar MoneyUsagePresetId
+
+type MoneyUsagePreset {
+    id: MoneyUsagePresetId!
+    name: String!
+    subCategory: MoneyUsageSubCategory
+}
+
+input AddMoneyUsagePresetInput {
+    name: String!
+    subCategoryId: MoneyUsageSubCategoryId
+}
+
+type AddMoneyUsagePresetResult {
+    preset: MoneyUsagePreset!
+}
+
+input UpdateMoneyUsagePresetInput {
+    id: MoneyUsagePresetId!
+    name: String
+    subCategoryId: MoneyUsageSubCategoryId
+}
+
+type UpdateMoneyUsagePresetResult {
+    preset: MoneyUsagePreset!
+}

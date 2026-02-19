@@ -14,6 +14,7 @@ import net.matsudamper.money.db.schema.tables.JCategoryMailFilterDatasourceType
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilters
 import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsageImagesRelation
+import net.matsudamper.money.db.schema.tables.JMoneyUsagePresets
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsages
 import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
@@ -34,6 +35,7 @@ import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterDatasou
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFiltersRecord
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsageCategoriesRecord
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsageImagesRelationRecord
+import net.matsudamper.money.db.schema.tables.records.JMoneyUsagePresetsRecord
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsageSubCategoriesRecord
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsagesMailsRelationRecord
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsagesRecord
@@ -67,9 +69,11 @@ val KEY_CATEGORY_MAIL_FILTER_DATASOURCE_TYPE_PRIMARY: UniqueKey<JCategoryMailFil
 val KEY_CATEGORY_MAIL_FILTERS_PRIMARY: UniqueKey<JCategoryMailFiltersRecord> = Internal.createUniqueKey(JCategoryMailFilters.CATEGORY_MAIL_FILTERS, DSL.name("KEY_category_mail_filters_PRIMARY"), arrayOf(JCategoryMailFilters.CATEGORY_MAIL_FILTERS.CATEGORY_MAIL_FILTER_ID), true)
 val KEY_MONEY_USAGE_CATEGORIES_PRIMARY: UniqueKey<JMoneyUsageCategoriesRecord> = Internal.createUniqueKey(JMoneyUsageCategories.MONEY_USAGE_CATEGORIES, DSL.name("KEY_money_usage_categories_PRIMARY"), arrayOf(JMoneyUsageCategories.MONEY_USAGE_CATEGORIES.MONEY_USAGE_CATEGORY_ID), true)
 val KEY_MONEY_USAGE_IMAGES_RELATION_PRIMARY: UniqueKey<JMoneyUsageImagesRelationRecord> = Internal.createUniqueKey(JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION, DSL.name("KEY_money_usage_images_relation_PRIMARY"), arrayOf(JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION.USER_ID, JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION.MONEY_USAGE_ID, JMoneyUsageImagesRelation.MONEY_USAGE_IMAGES_RELATION.IMAGE_ORDER), true)
+val KEY_MONEY_USAGE_PRESETS_PRIMARY: UniqueKey<JMoneyUsagePresetsRecord> = Internal.createUniqueKey(JMoneyUsagePresets.MONEY_USAGE_PRESETS, DSL.name("KEY_money_usage_presets_PRIMARY"), arrayOf(JMoneyUsagePresets.MONEY_USAGE_PRESETS.MONEY_USAGE_PRESET_ID), true)
 val KEY_MONEY_USAGE_SUB_CATEGORIES_PRIMARY: UniqueKey<JMoneyUsageSubCategoriesRecord> = Internal.createUniqueKey(JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES, DSL.name("KEY_money_usage_sub_categories_PRIMARY"), arrayOf(JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES.MONEY_USAGE_SUB_CATEGORY_ID), true)
 val KEY_MONEY_USAGES_PRIMARY: UniqueKey<JMoneyUsagesRecord> = Internal.createUniqueKey(JMoneyUsages.MONEY_USAGES, DSL.name("KEY_money_usages_PRIMARY"), arrayOf(JMoneyUsages.MONEY_USAGES.MONEY_USAGE_ID), true)
 val KEY_MONEY_USAGES_MAILS_RELATION_PRIMARY: UniqueKey<JMoneyUsagesMailsRelationRecord> = Internal.createUniqueKey(JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION, DSL.name("KEY_money_usages_mails_relation_PRIMARY"), arrayOf(JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION.MONEY_USAGE_ID, JMoneyUsagesMailsRelation.MONEY_USAGES_MAILS_RELATION.USER_MAIL_ID), true)
+val KEY_USER_IMAGES_IMAGE_PATH_UNIQUE: UniqueKey<JUserImagesRecord> = Internal.createUniqueKey(JUserImages.USER_IMAGES, DSL.name("KEY_user_images_image_path_unique"), arrayOf(JUserImages.USER_IMAGES.IMAGE_PATH), true)
 val KEY_USER_IMAGES_PRIMARY: UniqueKey<JUserImagesRecord> = Internal.createUniqueKey(JUserImages.USER_IMAGES, DSL.name("KEY_user_images_PRIMARY"), arrayOf(JUserImages.USER_IMAGES.USER_IMAGE_ID), true)
 val KEY_USER_IMAGES_USER_IMAGE_DISPLAY_ID_UNIQUE: UniqueKey<JUserImagesRecord> = Internal.createUniqueKey(JUserImages.USER_IMAGES, DSL.name("KEY_user_images_user_image_display_id_unique"), arrayOf(JUserImages.USER_IMAGES.DISPLAY_ID), true)
 val KEY_USER_IMAP_SETTINGS_PRIMARY: UniqueKey<JUserImapSettingsRecord> = Internal.createUniqueKey(JUserImapSettings.USER_IMAP_SETTINGS, DSL.name("KEY_user_imap_settings_PRIMARY"), arrayOf(JUserImapSettings.USER_IMAP_SETTINGS.USER_ID), true)

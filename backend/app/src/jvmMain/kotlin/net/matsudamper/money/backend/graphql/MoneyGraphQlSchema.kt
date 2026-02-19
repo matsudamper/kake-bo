@@ -49,6 +49,7 @@ import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.element.MoneyUsagePresetId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 
 object MoneyGraphQlSchema {
@@ -152,6 +153,11 @@ object MoneyGraphQlSchema {
                 createIntScalarType(
                     name = "ImageId",
                     deserialize = { ImageId(it) },
+                    serialize = { it.value },
+                ),
+                createIntScalarType(
+                    name = "MoneyUsagePresetId",
+                    deserialize = { MoneyUsagePresetId(it) },
                     serialize = { it.value },
                 ),
                 GraphQLScalarType.newScalar(ExtendedScalars.DateTime)

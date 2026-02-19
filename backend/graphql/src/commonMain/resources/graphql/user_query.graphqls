@@ -12,6 +12,8 @@ type User {
     moneyUsages(query: MoneyUsagesQuery!): MoneyUsagesConnection @lazy
     importedMailCategoryFilters(query: ImportedMailCategoryFiltersQuery!): ImportedMailCategoryFiltersConnection @lazy
     importedMailCategoryFilter(id: ImportedMailCategoryFilterId!): ImportedMailCategoryFilter @lazy
+    moneyUsagePresets: [MoneyUsagePreset!]! @lazy
+    moneyUsagePreset(id: MoneyUsagePresetId!): MoneyUsagePreset @lazy
 }
 
 type MoneyUsagesConnection {

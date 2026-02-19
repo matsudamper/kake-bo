@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -42,6 +43,7 @@ public data class HomeAddTabScreenUiState(
     public interface Event {
         public fun onClickImportButton()
         public fun onClickImportedButton()
+        public fun onClickPresetButton()
     }
 }
 
@@ -109,6 +111,20 @@ public fun HomeAddTabScreen(
                         modifier = Modifier.padding(8.dp),
                         onClick = {
                             uiState.event.onClickImportedButton()
+                        },
+                    )
+                }
+                item {
+                    Item(
+                        title = {
+                            Text("プリセットから追加")
+                        },
+                        icon = {
+                            Icon(Icons.Default.List, contentDescription = null)
+                        },
+                        modifier = Modifier.padding(8.dp),
+                        onClick = {
+                            uiState.event.onClickPresetButton()
                         },
                     )
                 }

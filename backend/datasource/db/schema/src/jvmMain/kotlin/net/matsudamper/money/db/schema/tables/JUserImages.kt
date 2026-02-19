@@ -11,6 +11,7 @@ import kotlin.collections.List
 
 import net.matsudamper.money.db.schema.JMoney
 import net.matsudamper.money.db.schema.indexes.USER_IMAGES_USER_IMAGE_USER_ID
+import net.matsudamper.money.db.schema.keys.KEY_USER_IMAGES_IMAGE_PATH_UNIQUE
 import net.matsudamper.money.db.schema.keys.KEY_USER_IMAGES_PRIMARY
 import net.matsudamper.money.db.schema.keys.KEY_USER_IMAGES_USER_IMAGE_DISPLAY_ID_UNIQUE
 import net.matsudamper.money.db.schema.tables.records.JUserImagesRecord
@@ -132,7 +133,7 @@ open class JUserImages(
     override fun getIndexes(): List<Index> = listOf(USER_IMAGES_USER_IMAGE_USER_ID)
     override fun getIdentity(): Identity<JUserImagesRecord, Int?> = super.getIdentity() as Identity<JUserImagesRecord, Int?>
     override fun getPrimaryKey(): UniqueKey<JUserImagesRecord> = KEY_USER_IMAGES_PRIMARY
-    override fun getUniqueKeys(): List<UniqueKey<JUserImagesRecord>> = listOf(KEY_USER_IMAGES_USER_IMAGE_DISPLAY_ID_UNIQUE)
+    override fun getUniqueKeys(): List<UniqueKey<JUserImagesRecord>> = listOf(KEY_USER_IMAGES_IMAGE_PATH_UNIQUE, KEY_USER_IMAGES_USER_IMAGE_DISPLAY_ID_UNIQUE)
     override fun `as`(alias: String): JUserImages = JUserImages(DSL.name(alias), this)
     override fun `as`(alias: Name): JUserImages = JUserImages(alias, this)
     override fun `as`(alias: Table<*>): JUserImages = JUserImages(alias.qualifiedName, this)

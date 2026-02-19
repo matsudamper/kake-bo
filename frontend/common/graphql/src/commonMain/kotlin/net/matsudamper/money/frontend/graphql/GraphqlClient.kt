@@ -23,6 +23,7 @@ import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.element.MoneyUsagePresetId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.graphql.type.ApiTokenId as ApolloApiTokenId
 import net.matsudamper.money.frontend.graphql.type.FidoId as ApolloFidoId
@@ -34,6 +35,7 @@ import net.matsudamper.money.frontend.graphql.type.Long as ApolloLong
 import net.matsudamper.money.frontend.graphql.type.MailId as ApolloMailId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageCategoryId as ApolloMoneyUsageCategoryId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageId as ApolloMoneyUsageId
+import net.matsudamper.money.frontend.graphql.type.MoneyUsagePresetId as ApolloMoneyUsagePresetId
 import net.matsudamper.money.frontend.graphql.type.MoneyUsageSubCategoryId as ApolloMoneyUsageSubCategoryId
 
 public interface GraphqlClient {
@@ -189,6 +191,17 @@ class GraphqlClientImpl(
                 },
                 deserialize = { value ->
                     ImageId(value)
+                },
+            ),
+        )
+        .addCustomScalarAdapter(
+            ApolloMoneyUsagePresetId.type,
+            CustomIntAdapter(
+                serialize = {
+                    it.value
+                },
+                deserialize = { value ->
+                    MoneyUsagePresetId(value)
                 },
             ),
         )
