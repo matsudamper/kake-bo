@@ -262,7 +262,7 @@ internal fun RootNavContent(
                 when (current) {
                     is ScreenStructure.Root.Usage.Calendar -> {
                         val uiState = usageCalendarHostUiStateProvider(current)
-                        rootScreen(uiState.hostScreenUiState) {
+                        rootScreen(uiState.hostScreenUiState.copy(type = RootUsageHostScreenUiState.Type.Calendar)) {
                             RootUsageCalendarPagerHostScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 uiState = uiState,
@@ -277,7 +277,12 @@ internal fun RootNavContent(
                     is ScreenStructure.Root.Usage.List -> {
                         usageHost.SaveableStateProvider(ScreenStructure.Root.Usage.List::class.toString()) {
                             val uiState = usageListUiStateProvider()
-                            rootScreen(uiState.hostScreenUiState) {
+                            rootScreen(
+                                uiState.hostScreenUiState.copy(
+                                    type = RootUsageHostScreenUiState.Type.List,
+                                    header = RootUsageHostScreenUiState.Header.None,
+                                ),
+                            ) {
                                 RootUsageListScreen(
                                     modifier = Modifier.fillMaxSize(),
                                     uiState = uiState,
