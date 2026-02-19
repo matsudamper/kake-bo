@@ -210,9 +210,10 @@ public class AddMoneyUsageViewModel(
 
                 try {
                     images.forEach { image ->
+                        val selectedImageData = image.await() ?: return@forEach
                         val uploadResult = graphqlApi.uploadImage(
-                            bytes = image.bytes,
-                            contentType = image.contentType,
+                            bytes = selectedImageData.bytes,
+                            contentType = selectedImageData.contentType,
                         )
 
                         if (uploadResult != null) {
