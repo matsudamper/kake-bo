@@ -10,6 +10,7 @@ import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.base.element.MailResult
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
+import net.matsudamper.money.graphql.model.GraphQlInputField
 import net.matsudamper.money.graphql.model.QlMailQuery
 import net.matsudamper.money.graphql.model.QlUserMail
 import net.matsudamper.money.graphql.model.QlUserMailAttributes
@@ -43,7 +44,7 @@ class UserMailAttributesResolverImpl : UserMailAttributesResolver {
             val port = imapConfig.port ?: return@supplyAsync createError(QlUserMailError.MailConfigNotFound)
             val userName = imapConfig.userName ?: return@supplyAsync createError(QlUserMailError.MailConfigNotFound)
             val password = imapConfig.password ?: return@supplyAsync createError(QlUserMailError.MailConfigNotFound)
-            val cursor = mailQuery.cursor?.let {
+            val cursor = mailQuery.cursor.getOrNull()?.let {
                 UserMailQueryCursor.fromString(it) ?: throw IllegalStateException("cursor parse failed: $it")
             }
 
@@ -133,5 +134,13 @@ private class UserMailQueryCursor(
                 offset = offsetValue,
             )
         }
+    }
+}
+
+
+internal fun <T> GraphQlInputField<T>.getOrNull() : T? {
+    return when(this) {
+        is GraphQlInputField.Defined<T> -> value
+        is GraphQlInputField.Undefined -> null
     }
 }

@@ -24,6 +24,7 @@ import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.converter.toDBElement
 import net.matsudamper.money.backend.graphql.converter.toDbElement
 import net.matsudamper.money.backend.graphql.exception.GraphqlExceptions
+import net.matsudamper.money.backend.graphql.resolver.getOrNull
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
 import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
@@ -444,7 +445,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                 .updateSubCategory(
                     userId = userId,
                     subCategoryId = id,
-                    name = query.name,
+                    name = query.name.getOrNull(),
                 )
             if (result) {
                 QlMoneyUsageSubCategory(
@@ -521,15 +522,15 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
         return CompletableFuture.supplyAsync {
-            if (!ColorValidator.isValid(query.color)) {
+            if (!ColorValidator.isValid(query.color.getOrNull())) {
                 throw IllegalArgumentException("category color is invalid")
             }
             val result = context.diContainer.createMoneyUsageCategoryRepository()
                 .updateCategory(
                     userId = userId,
                     categoryId = id,
-                    name = query.name,
-                    color = query.color,
+                    name = query.name.getOrNull(),
+                    color = query.color.getOrNull(),
                 )
             if (result) {
                 QlMoneyUsageCategory(
@@ -555,7 +556,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                     userId = userId,
                     title = usage.title,
                     description = usage.description,
-                    subCategoryId = usage.subCategoryId,
+                    subCategoryId = usage.subCategoryId.getOrNull(),
                     amount = usage.amount,
                     date = usage.date,
                     imageIds = usage.imageIds.orEmpty(),
@@ -566,7 +567,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                 }
 
                 is MoneyUsageRepository.AddResult.Success -> {
-                    val mailId = usage.importedMailId
+                    val mailId = usage.importedMailId.getOrNull()
                     if (mailId != null) {
                         val relationResult = moneyUsageRepository.addMailRelation(
                             userId = userId,
@@ -599,10 +600,10 @@ class UserMutationResolverImpl : UserMutationResolver {
             val isSuccess = repository.updateFilter(
                 filterId = input.id,
                 userId = userId,
-                title = input.title,
-                orderNum = input.orderNumber,
-                subCategory = input.subCategoryId,
-                operator = input.operator?.toDBElement(),
+                title = input.title.getOrNull(),
+                orderNum = input.orderNumber.getOrNull(),
+                subCategory = input.subCategoryId.getOrNull(),
+                operator = input.operator.getOrNull()?.toDBElement(),
             )
             if (isSuccess) {
                 QlImportedMailCategoryFilter(
@@ -627,9 +628,9 @@ class UserMutationResolverImpl : UserMutationResolver {
             val isSuccess = repository.addCondition(
                 userId = userId,
                 filterId = input.id,
-                condition = input.conditionType?.toDbElement(),
-                text = input.text,
-                dataSource = input.dataSourceType?.toDbElement(),
+                condition = input.conditionType.getOrNull()?.toDbElement(),
+                text = input.text.getOrNull(),
+                dataSource = input.dataSourceType.getOrNull()?.toDbElement(),
             )
             if (isSuccess.not()) {
                 return@thenApplyAsync null
@@ -653,9 +654,9 @@ class UserMutationResolverImpl : UserMutationResolver {
             val isSuccess = repository.updateCondition(
                 userId = userId,
                 conditionId = input.id,
-                conditionType = input.conditionType?.toDbElement(),
-                dataSource = input.dataSourceType?.toDbElement(),
-                text = input.text,
+                conditionType = input.conditionType.getOrNull()?.toDbElement(),
+                dataSource = input.dataSourceType.getOrNull()?.toDbElement(),
+                text = input.text.getOrNull(),
             )
             if (isSuccess.not()) return@thenApplyAsync null
 
@@ -813,11 +814,11 @@ class UserMutationResolverImpl : UserMutationResolver {
             val isSuccess = repository.updateUsage(
                 userId = userId,
                 usageId = query.id,
-                title = query.title,
-                description = query.description,
-                amount = query.amount,
-                date = query.date,
-                subCategoryId = query.subCategoryId,
+                title = query.title.getOrNull(),
+                description = query.description.getOrNull(),
+                amount = query.amount.getOrNull(),
+                date = query.date.getOrNull(),
+                subCategoryId = query.subCategoryId.getOrNull(),
                 imageIds = query.imageIds,
             )
 
@@ -887,7 +888,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                 .addPreset(
                     userId = userId,
                     name = input.name,
-                    subCategoryId = input.subCategoryId,
+                    subCategoryId = input.subCategoryId.getOrNull(),
                 )
             when (addResult) {
                 is MoneyUsagePresetRepository.AddPresetResult.Failed -> throw addResult.error
@@ -917,8 +918,8 @@ class UserMutationResolverImpl : UserMutationResolver {
                 .updatePreset(
                     userId = userId,
                     presetId = input.id,
-                    name = input.name,
-                    subCategoryId = input.subCategoryId,
+                    name = input.name.getOrNull(),
+                    subCategoryId = input.subCategoryId.getOrNull(),
                     updateSubCategoryId = updateSubCategoryId,
                 ) ?: throw IllegalStateException("update money usage preset failed")
 
