@@ -14,6 +14,7 @@ import net.matsudamper.money.backend.graphql.DataFetcherResultBuilder
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsByCategoryLocalContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsLocalContext
+import net.matsudamper.money.backend.graphql.resolver.getOrNull
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.MoneyUsageCategoryId
@@ -127,24 +128,25 @@ class UserResolverImpl : UserResolver {
         val userId = context.verifyUserSessionAndGetUserId()
 
         return CompletableFuture.supplyAsync {
+            val filter = query.filter.getOrNull()
             val results = context.diContainer.createMoneyUsageRepository()
                 .getMoneyUsageByQuery(
                     userId = userId,
                     size = query.size,
                     isAsc = query.isAsc,
-                    cursor = query.cursor?.let { MoneyUsagesCursor.fromString(it) }?.let {
+                    cursor = query.cursor.getOrNull()?.let { MoneyUsagesCursor.fromString(it) }?.let {
                         MoneyUsageRepository.GetMoneyUsageByQueryResult.Cursor(
                             lastId = it.lastId,
                             date = it.lastDate,
                             amount = it.amount,
                         )
                     },
-                    sinceDateTime = query.filter?.sinceDateTime,
-                    untilDateTime = query.filter?.untilDateTime,
-                    categoryIds = query.filter?.category.orEmpty(),
-                    subCategoryIds = query.filter?.subCategory.orEmpty(),
-                    text = query.filter?.text?.takeIf { it.isNotBlank() },
-                    orderType = when (query.orderType) {
+                    sinceDateTime = filter?.sinceDateTime?.getOrNull(),
+                    untilDateTime = filter?.untilDateTime?.getOrNull(),
+                    categoryIds = filter?.category.orEmpty(),
+                    subCategoryIds = filter?.subCategory.orEmpty(),
+                    text = filter?.text?.getOrNull()?.takeIf { it.isNotBlank() },
+                    orderType = when (query.orderType.getOrNull()) {
                         null,
                         QlMoneyUsagesQueryOrderType.DATE,
                         ->
@@ -187,7 +189,7 @@ class UserResolverImpl : UserResolver {
 
         return CompletableFuture.allOf().thenApplyAsync {
             val filterRepository = context.diContainer.createMailFilterRepository()
-            val sortType = when (query.sortType) {
+            val sortType = when (query.sortType.getOrNull()) {
                 null,
                 QlImportedMailCategoryFiltersSortType.TITLE,
                 ->
@@ -200,7 +202,7 @@ class UserResolverImpl : UserResolver {
                 isAsc = query.isAsc,
                 sortType = sortType,
                 userId = userId,
-                cursor = query.cursor?.let {
+                cursor = query.cursor.getOrNull()?.let {
                     ImportedMailCategoryFiltersCursor.fromString(it)
                 },
             ).onFailure {

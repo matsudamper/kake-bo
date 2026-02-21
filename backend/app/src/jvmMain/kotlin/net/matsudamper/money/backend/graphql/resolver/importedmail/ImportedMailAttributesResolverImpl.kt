@@ -6,6 +6,7 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
 import net.matsudamper.money.backend.graphql.GraphQlContext
+import net.matsudamper.money.backend.graphql.resolver.getOrNull
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.graphql.model.ImportedMailAttributesResolver
@@ -29,8 +30,8 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
             context.diContainer.createDbMailRepository()
                 .getCount(
                     userId = userId,
-                    isLinked = query.isLinked,
-                    text = query.text,
+                    isLinked = query.isLinked.getOrNull(),
+                    text = query.text.getOrNull(),
                 )
         }.toDataFetcher()
     }
@@ -43,19 +44,19 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
         return CompletableFuture.supplyAsync {
-            val cursor = query.cursor?.let { ImportedMailAttributesMailsQueryCursor.fromString(it) }
+            val cursor = query.cursor.getOrNull()?.let { ImportedMailAttributesMailsQueryCursor.fromString(it) }
             val mailResult = context.diContainer.createDbMailRepository()
                 .getMails(
                     userId = userId,
                     size = query.size,
-                    isLinked = query.filter.isLinked,
+                    isLinked = query.filter.isLinked.getOrNull(),
                     sortedKey = when (query.sortedBy) {
                         QlImportedMailSortKey.CREATED_DATETIME -> ImportedMailRepository.MailSortedKey.CREATE_DATETIME
                         QlImportedMailSortKey.DATETIME -> ImportedMailRepository.MailSortedKey.DATETIME
                     },
                     pagingInfo = cursor?.pagingInfo,
                     isAsc = query.isAsc,
-                    text = query.filter.text,
+                    text = query.filter.text.getOrNull(),
                 )
 
             QlImportedMailConnection(

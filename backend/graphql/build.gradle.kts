@@ -50,6 +50,7 @@ val graphqlCodegen = tasks.named<GraphQLCodegenGradleTask>("graphqlCodegen") {
     generateImmutableModels = true
     modelNamePrefix = "Ql"
     generateApisWithThrowsException = false
+    useWrapperForNullableInputTypes = true
     parentInterfaces {
         resolver = "graphql.kickstart.tools.GraphQLResolver<{{TYPE}}>"
         mutationResolver = "graphql.kickstart.tools.GraphQLMutationResolver"

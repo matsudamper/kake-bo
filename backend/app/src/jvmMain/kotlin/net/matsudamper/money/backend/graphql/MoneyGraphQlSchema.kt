@@ -3,6 +3,11 @@ package net.matsudamper.money.backend.graphql
 import java.time.LocalDateTime
 import java.util.Locale
 import java.util.jar.JarFile
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.JsonDeserializer
+import com.fasterxml.jackson.databind.Module
+import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import graphql.GraphQL
 import graphql.GraphQLContext
@@ -51,6 +56,7 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsagePresetId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.graphql.model.GraphQlInputField
 
 object MoneyGraphQlSchema {
     private val diContainer = MainDiContainer()
@@ -193,14 +199,42 @@ object MoneyGraphQlSchema {
             )
             .options(
                 @Suppress("OPT_IN_USAGE")
-                SchemaParserOptions.defaultOptions().copy(
-                    objectMapperProvider = PerFieldConfiguringObjectMapperProvider { mapper, _ ->
-                        mapper.registerModule(
-                            JavaTimeModule(),
-                        )
-                    },
-                    introspectionEnabled = ServerEnv.isDebug,
-                ),
+                run {
+                    val options = SchemaParserOptions.defaultOptions()
+                    options.copy(
+                        genericWrappers = options.genericWrappers
+                            .plus(
+                                SchemaParserOptions.GenericWrapper.withTransformer(
+                                    GraphQlInputField::class.java,
+                                    0,  // 0番目のジェネリクス型引数 T を実際の型として使う
+                                    { wrapper: GraphQlInputField<*>, _ ->
+                                        (wrapper as? GraphQlInputField.Defined<*>)?.value
+                                    },
+                                ),
+                            ),
+                        objectMapperProvider = PerFieldConfiguringObjectMapperProvider { mapper, _ ->
+                            mapper.registerModule(
+                                JavaTimeModule(),
+                            ).registerModule(
+                                SimpleModule()
+                                    .addDeserializer(
+                                        GraphQlInputField::class.java,
+                                        object : JsonDeserializer<GraphQlInputField<*>>() {
+                                            override fun deserialize(p: JsonParser, ctxt: DeserializationContext): GraphQlInputField<*> {
+                                                val value = ctxt.readValue(p, Any::class.java)
+                                                return GraphQlInputField.Defined(value)
+                                            }
+
+                                            override fun getNullValue(ctxt: DeserializationContext): GraphQlInputField<*> {
+                                                return GraphQlInputField.Defined(null)
+                                            }
+                                        },
+                                    ),
+                            )
+                        },
+                        introspectionEnabled = ServerEnv.isDebug,
+                    )
+                },
             )
             .build()
             .makeExecutableSchema()

@@ -5,6 +5,7 @@ import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.graphql.GraphQlContext
+import net.matsudamper.money.backend.graphql.resolver.getOrNull
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.graphql.model.QlSettingsMutation
 import net.matsudamper.money.graphql.model.QlUpdateUserImapConfigInput
@@ -23,10 +24,10 @@ class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
         return CompletableFuture.supplyAsync {
             userConfigRepository.updateImapConfig(
                 userId = userId,
-                host = config.host,
-                port = config.port,
-                password = config.password,
-                userName = config.userName,
+                host = config.host.getOrNull(),
+                port = config.port.getOrNull(),
+                password = config.password.getOrNull(),
+                userName = config.userName.getOrNull(),
             )
         }.thenApplyAsync { isSuccess ->
             if (isSuccess.not()) {
