@@ -22,6 +22,7 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation(project(":backend:di"))
+                implementation(projects.backend.datasource.db)
 
                 implementation(projects.shared)
                 implementation(projects.backend.base)

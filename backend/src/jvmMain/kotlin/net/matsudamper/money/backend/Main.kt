@@ -35,6 +35,7 @@ import io.ktor.server.routing.routing
 import net.matsudamper.money.backend.base.ObjectMapper
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.base.TraceLogger
+import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.backend.di.MainDiContainer
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
 import net.matsudamper.money.backend.graphql.MoneyGraphQlSchema
@@ -51,6 +52,9 @@ class Main {
 
             // Initialize
             MoneyGraphQlSchema.graphql
+            if (System.getenv("CI")?.toBooleanStrictOrNull() != true) {
+                DbConnectionImpl.warmup()
+            }
 
             val engine = embeddedServer(
                 Netty,

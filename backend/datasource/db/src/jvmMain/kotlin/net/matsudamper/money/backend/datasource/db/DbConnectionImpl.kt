@@ -18,6 +18,12 @@ object DbConnectionImpl : DbConnection {
     }
     private val dataSource by lazy { HikariDataSource(config) }
 
+    fun warmup() {
+        use { connection ->
+            connection.prepareStatement("SELECT 1").use { it.execute() }
+        }
+    }
+
     override fun <R> use(connectionBlock: (Connection) -> R): R {
         return dataSource.connection.use {
             connectionBlock(it)
