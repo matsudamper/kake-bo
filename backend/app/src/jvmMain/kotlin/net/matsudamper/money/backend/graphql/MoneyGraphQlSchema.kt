@@ -3,6 +3,7 @@ package net.matsudamper.money.backend.graphql
 import java.time.LocalDateTime
 import java.util.Locale
 import java.util.jar.JarFile
+import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import graphql.GraphQL
 import graphql.GraphQLContext
@@ -50,6 +51,7 @@ import net.matsudamper.money.element.MailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
+import net.matsudamper.money.graphql.model.GraphQlInputField
 
 object MoneyGraphQlSchema {
     private val diContainer = MainDiContainer()
@@ -187,14 +189,33 @@ object MoneyGraphQlSchema {
             )
             .options(
                 @Suppress("OPT_IN_USAGE")
-                SchemaParserOptions.defaultOptions().copy(
-                    objectMapperProvider = PerFieldConfiguringObjectMapperProvider { mapper, _ ->
-                        mapper.registerModule(
-                            JavaTimeModule(),
-                        )
-                    },
-                    introspectionEnabled = ServerEnv.isDebug,
-                ),
+                run {
+                    val options = SchemaParserOptions.defaultOptions()
+                    options.copy(
+                        genericWrappers = options.genericWrappers
+                            .plus(
+                                SchemaParserOptions.GenericWrapper.withTransformer(
+                                    GraphQlInputField::class.java,
+                                    0, // 0番目のジェネリクス型引数 T を実際の型として使う
+                                    { wrapper: GraphQlInputField<*>, _ ->
+                                        (wrapper as? GraphQlInputField.Defined<*>)?.value
+                                    },
+                                ),
+                            ),
+                        objectMapperProvider = PerFieldConfiguringObjectMapperProvider { mapper, _ ->
+                            mapper.registerModule(
+                                JavaTimeModule(),
+                            ).registerModule(
+                                SimpleModule()
+                                    .addDeserializer(
+                                        GraphQlInputField::class.java,
+                                        GraphQlInputFieldDeserializer(null),
+                                    ),
+                            )
+                        },
+                        introspectionEnabled = ServerEnv.isDebug,
+                    )
+                },
             )
             .build()
             .makeExecutableSchema()
