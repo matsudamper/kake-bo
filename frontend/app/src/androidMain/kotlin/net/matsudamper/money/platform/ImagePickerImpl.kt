@@ -1,7 +1,7 @@
 package net.matsudamper.money.platform
 
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.graphics.ImageDecoder
 import android.net.Uri
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,19 +39,13 @@ internal class ImagePickerImpl(
         return uris.map { uri ->
             SelectedImage(
                 await = {
-                    val bytes = try {
-                        withContext(Dispatchers.IO) {
-                            componentActivity.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-                        }
-                    } catch (e: Throwable) {
-                        e.printStackTrace()
-                        null
+                    val bitmap = decodeBitmapFromUri(uri) ?: return@SelectedImage null
+                    val webpBytes = try {
+                        convertToWebp(bitmap)
+                    } finally {
+                        bitmap.recycle()
                     }
-                    val imageBytes = bytes ?: return@SelectedImage null
-                    if (imageBytes.isEmpty()) {
-                        return@SelectedImage null
-                    }
-                    val webpBytes = convertToWebp(imageBytes) ?: return@SelectedImage null
+                    if (webpBytes == null) return@SelectedImage null
                     UploadedImageData(
                         bytes = webpBytes,
                         contentType = "image/webp",
@@ -61,18 +55,30 @@ internal class ImagePickerImpl(
         }
     }
 
-    private suspend fun convertToWebp(bytes: ByteArray): ByteArray? {
+    private suspend fun decodeBitmapFromUri(uri: Uri): Bitmap? {
         return withContext(Dispatchers.IO) {
-            val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return@withContext null
             try {
-                val output = ByteArrayOutputStream()
-                if (!bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSLESS, WEBP_QUALITY, output)) {
-                    null
-                } else {
-                    output.toByteArray()
+                val source = ImageDecoder.createSource(
+                    componentActivity.contentResolver,
+                    uri,
+                )
+                ImageDecoder.decodeBitmap(source) { decoder, _, _ ->
+                    decoder.allocator = ImageDecoder.ALLOCATOR_SOFTWARE
                 }
-            } finally {
-                bitmap.recycle()
+            } catch (e: Throwable) {
+                e.printStackTrace()
+                null
+            }
+        }
+    }
+
+    private suspend fun convertToWebp(bitmap: Bitmap): ByteArray? {
+        return withContext(Dispatchers.IO) {
+            val output = ByteArrayOutputStream()
+            if (!bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSLESS, WEBP_QUALITY, output)) {
+                null
+            } else {
+                output.toByteArray()
             }
         }
     }
