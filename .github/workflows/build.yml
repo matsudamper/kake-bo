@@ -49,6 +49,37 @@ jobs:
             - APKダウンロード: ${{ steps.upload_apk.outputs.artifact-url }}
             - Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       - run: ./gradlew :backend:assemble
+      - name: Backend healthz smoke test
+        run: |
+          tar -xf backend/build/distributions/backend-jvm.tar
+          set -a
+          source schema_update_local.env
+          set +a
+          ./backend/bin/backend &
+          SERVER_PID=$!
+
+          TIMEOUT=60
+          ELAPSED=0
+          until curl -sf --max-time 5 http://localhost:${PORT}/healthz > /dev/null 2>&1; do
+            if [ $ELAPSED -ge $TIMEOUT ]; then
+              echo "サーバー起動がタイムアウトしました (${TIMEOUT}秒)"
+              kill $SERVER_PID 2>/dev/null || true
+              exit 1
+            fi
+            sleep 2
+            ELAPSED=$((ELAPSED + 2))
+          done
+
+          RESPONSE=$(curl -sf --max-time 5 http://localhost:${PORT}/healthz)
+          if [ "$RESPONSE" = "ok" ]; then
+            echo "healthzチェック成功"
+          else
+            echo "healthzチェック失敗: $RESPONSE"
+            kill $SERVER_PID 2>/dev/null || true
+            exit 1
+          fi
+
+          kill $SERVER_PID 2>/dev/null || true
       - run: ./gradlew :frontend:app:jsBrowserDevelopmentWebpack
       - run: ./gradlew allTests
       - name: collect reports file
