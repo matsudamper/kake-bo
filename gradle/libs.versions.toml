@@ -27,7 +27,7 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.require = "14.0.1" }
-kobylynskyi-graphqlCodegen = { id = "io.github.kobylynskyi.graphql.codegen", version.require = "5.10.1-SNAPSHOT-20260221-213058" }
+kobylynskyi-graphqlCodegen = { id = "io.github.kobylynskyi.graphql.codegen", version.require = "5.10.1-SNAPSHOT-20260221-234451" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose" }
 protobuf = { id = "com.google.protobuf", version.require = "0.9.6" }
 

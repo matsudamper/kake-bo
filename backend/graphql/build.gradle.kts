@@ -1,5 +1,6 @@
 
 import com.kobylynskyi.graphql.codegen.model.GeneratedLanguage
+import com.kobylynskyi.graphql.codegen.model.KotlinNullableInputTypeWrapper
 import io.github.kobylynskyi.graphql.codegen.gradle.GraphQLCodegenGradleTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -50,7 +51,13 @@ val graphqlCodegen = tasks.named<GraphQLCodegenGradleTask>("graphqlCodegen") {
     generateImmutableModels = true
     modelNamePrefix = "Ql"
     generateApisWithThrowsException = false
-    useWrapperForNullableInputTypes = true
+    kotlinNullableInputTypeWrapper = object : KotlinNullableInputTypeWrapper {
+        private val fqn = "net.matsudamper.money.graphql.model.GraphQlInputField"
+        override fun getWrapperClassName(): String = fqn
+        override fun getNullValueExpression(): String = "$fqn.Defined(null)"
+        override fun getUndefinedValueExpression(): String = "$fqn.Undefined"
+        override fun getValueExpression(value: String): String = "$fqn.Defined($value)"
+    }
     parentInterfaces {
         resolver = "graphql.kickstart.tools.GraphQLResolver<{{TYPE}}>"
         mutationResolver = "graphql.kickstart.tools.GraphQLMutationResolver"
