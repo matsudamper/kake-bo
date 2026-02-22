@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
 import net.matsudamper.money.frontend.common.ui.layout.image.SelectedImage
+import net.matsudamper.money.frontend.common.ui.layout.image.UploadedImageData
 import net.matsudamper.money.ui.root.platform.ImagePicker
 
 internal class ImagePickerImpl(
@@ -35,23 +36,27 @@ internal class ImagePickerImpl(
             .onStart { launcher.launch("image/*") }
             .first()
 
-        return uris.mapNotNull { uri ->
-            val bytes = try {
-                withContext(Dispatchers.IO) {
-                    componentActivity.contentResolver.openInputStream(uri)?.use { it.readBytes() }
-                }
-            } catch (e: Throwable) {
-                e.printStackTrace()
-                null
-            }
-            val imageBytes = bytes ?: return@mapNotNull null
-            if (imageBytes.isEmpty()) {
-                return@mapNotNull null
-            }
-            val webpBytes = convertToWebp(imageBytes) ?: return@mapNotNull null
+        return uris.map { uri ->
             SelectedImage(
-                bytes = webpBytes,
-                contentType = "image/webp",
+                await = {
+                    val bytes = try {
+                        withContext(Dispatchers.IO) {
+                            componentActivity.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                        }
+                    } catch (e: Throwable) {
+                        e.printStackTrace()
+                        null
+                    }
+                    val imageBytes = bytes ?: return@SelectedImage null
+                    if (imageBytes.isEmpty()) {
+                        return@SelectedImage null
+                    }
+                    val webpBytes = convertToWebp(imageBytes) ?: return@SelectedImage null
+                    UploadedImageData(
+                        bytes = webpBytes,
+                        contentType = "image/webp",
+                    )
+                },
             )
         }
     }

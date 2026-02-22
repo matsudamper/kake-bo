@@ -5,6 +5,7 @@ import kotlin.js.Promise
 import kotlinx.browser.document
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.matsudamper.money.frontend.common.ui.layout.image.SelectedImage
+import net.matsudamper.money.frontend.common.ui.layout.image.UploadedImageData
 import net.matsudamper.money.ui.root.platform.ImagePicker
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Int8Array
@@ -31,8 +32,12 @@ internal class ImagePickerImpl : ImagePicker {
                                 val bytes = toByteArray(buffer)
                                 if (bytes.isNotEmpty()) {
                                     SelectedImage(
-                                        bytes = bytes,
-                                        contentType = file.type.ifBlank { "application/octet-stream" },
+                                        await = {
+                                            UploadedImageData(
+                                                bytes = bytes,
+                                                contentType = file.type.ifBlank { "application/octet-stream" },
+                                            )
+                                        },
                                     )
                                 } else {
                                     null

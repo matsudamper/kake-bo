@@ -41,13 +41,17 @@ pluginManagement {
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
         maven {
+            name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/matsudamper/graphql-java-codegen")
             credentials {
-                username = providers.environmentVariable("GITHUB_ACTOR").orNull ?: "matsudamper"
-                password = providers.environmentVariable("GITHUB_TOKEN").orNull ?: ""
+                username = providers.gradleProperty("gpr.user")
+                    .orElse(System.getenv("GITHUB_ACTOR"))
+                    .get()
+                password = providers.gradleProperty("gpr.key")
+                    .orElse(System.getenv("GITHUB_TOKEN"))
+                    .get()
             }
         }
-        mavenLocal()
     }
 }
 
