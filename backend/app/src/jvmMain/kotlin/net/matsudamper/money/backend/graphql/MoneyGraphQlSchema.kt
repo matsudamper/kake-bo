@@ -6,7 +6,6 @@ import java.util.jar.JarFile
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.Module
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import graphql.GraphQL
@@ -206,7 +205,7 @@ object MoneyGraphQlSchema {
                             .plus(
                                 SchemaParserOptions.GenericWrapper.withTransformer(
                                     GraphQlInputField::class.java,
-                                    0,  // 0番目のジェネリクス型引数 T を実際の型として使う
+                                    0, // 0番目のジェネリクス型引数 T を実際の型として使う
                                     { wrapper: GraphQlInputField<*>, _ ->
                                         (wrapper as? GraphQlInputField.Defined<*>)?.value
                                     },
