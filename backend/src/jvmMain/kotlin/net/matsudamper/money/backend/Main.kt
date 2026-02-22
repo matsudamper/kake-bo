@@ -53,7 +53,8 @@ class Main {
             // Initialize
             MoneyGraphQlSchema.graphql
             if (System.getenv("CI")?.toBooleanStrictOrNull() != true) {
-                DbConnectionImpl.warmup()
+                runCatching { DbConnectionImpl.warmup() }
+                    .onFailure { TraceLogger.impl().noticeThrowable(it, isError = true) }
             }
 
             val engine = embeddedServer(
