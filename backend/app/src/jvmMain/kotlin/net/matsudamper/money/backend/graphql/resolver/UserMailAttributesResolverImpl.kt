@@ -137,9 +137,8 @@ private class UserMailQueryCursor(
     }
 }
 
-
-internal fun <T> GraphQlInputField<T>.getOrNull() : T? {
-    return when(this) {
+internal fun <T> GraphQlInputField<T>.getOrNull(): T? {
+    return when (this) {
         is GraphQlInputField.Defined<T> -> value
         is GraphQlInputField.Undefined -> null
     }

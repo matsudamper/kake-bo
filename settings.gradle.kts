@@ -64,6 +64,13 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        maven {
+            url = uri("https://maven.pkg.github.com/matsudamper/graphql-java-codegen")
+            credentials {
+                username = providers.environmentVariable("GITHUB_ACTOR").orNull ?: "matsudamper"
+                password = providers.environmentVariable("GITHUB_TOKEN").orNull ?: ""
+            }
+        }
         mavenLocal()
     }
 }
