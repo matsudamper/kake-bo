@@ -118,6 +118,9 @@ fun Application.myApplicationModule() {
     }
 
     routing {
+        get("/healthz") {
+            call.respondText("ok")
+        }
         accept(ContentType.Application.Json) {
             post("/query") {
                 call.respondText(
