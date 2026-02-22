@@ -51,11 +51,11 @@ jobs:
       - run: ./gradlew :backend:assemble
       - name: Backend healthz smoke test
         run: |
-          tar -xf backend/build/distributions/backend-jvm.tar
-          set -a
-          source schema_update_local.env
-          set +a
-          ./backend/bin/backend &
+          mkdir -p backend-server
+          tar -xf backend/build/distributions/backend-jvm.tar -C backend-server --strip-components=1
+          export $(grep -v '^#' schema_update_local.env | xargs)
+          export PORT=8080
+          ./backend-server/bin/backend &
           SERVER_PID=$!
 
           TIMEOUT=60
