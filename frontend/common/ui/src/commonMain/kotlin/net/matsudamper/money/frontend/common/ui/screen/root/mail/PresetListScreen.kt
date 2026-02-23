@@ -51,7 +51,7 @@ public data class PresetListScreenUiState(
 ) {
     public sealed interface LoadingState {
         public data object Loading : LoadingState
-
+        public data object Error : LoadingState
         public data class Loaded(
             val items: ImmutableList<PresetItem>,
         ) : LoadingState
@@ -134,6 +134,24 @@ public fun PresetListScreen(
                     contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()
+                }
+            }
+
+            is PresetListScreenUiState.LoadingState.Error -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("データの取得に失敗しました")
+                        Text(
+                            modifier = Modifier
+                                .padding(top = 8.dp)
+                                .clickable { uiState.event.onResume() },
+                            text = "再試行",
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
                 }
             }
 

@@ -83,6 +83,8 @@ public class PresetListViewModel(
                 uiStateFlow.update { uiState ->
                     val loadingState = if (viewModelState.isLoading) {
                         PresetListScreenUiState.LoadingState.Loading
+                    } else if (viewModelState.isError) {
+                        PresetListScreenUiState.LoadingState.Error
                     } else {
                         PresetListScreenUiState.LoadingState.Loaded(
                             items = viewModelState.presets.map { preset ->
@@ -137,16 +139,27 @@ public class PresetListViewModel(
     private fun fetchCollect() {
         fetchJob.cancel()
         fetchJob = viewModelScope.launch {
-            viewModelStateFlow.update { it.copy(isLoading = true) }
+            viewModelStateFlow.update {
+                it.copy(
+                    isLoading = true,
+                    isError = false,
+                )
+            }
             api.getPresets()
                 .catch {
                     globalEventSender.send { it.showSnackBar("データの取得に失敗しました") }
-                    viewModelStateFlow.update { it.copy(isLoading = false) }
+                    viewModelStateFlow.update {
+                        it.copy(
+                            isLoading = false,
+                            isError = true,
+                        )
+                    }
                 }
                 .collectLatest { response ->
                     viewModelStateFlow.update {
                         it.copy(
                             isLoading = false,
+                            isError = false,
                             presets = response.data?.user?.moneyUsagePresets.orEmpty(),
                         )
                     }
@@ -157,6 +170,7 @@ public class PresetListViewModel(
     private data class ViewModelState(
         val isLoading: Boolean,
         val presets: List<GetMoneyUsagePresetsQuery.MoneyUsagePreset>,
+        val isError: Boolean,
         val showNameInput: Boolean,
     )
 }
