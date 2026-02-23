@@ -43,4 +43,3 @@ interface MoneyUsagePresetRepository {
         data class Failed(val error: Throwable) : AddPresetResult
     }
 }
-

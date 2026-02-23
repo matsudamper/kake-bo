@@ -28,11 +28,11 @@ import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
 import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
 import net.matsudamper.money.backend.lib.ChallengeModel
+import net.matsudamper.money.backend.lib.toDbUpdateValue
 import net.matsudamper.money.backend.logic.ApiTokenEncryptManager
 import net.matsudamper.money.backend.logic.ColorValidator
 import net.matsudamper.money.backend.logic.IPasswordManager
 import net.matsudamper.money.backend.logic.PasswordManager
-import net.matsudamper.money.backend.lib.toDbUpdateValue
 import net.matsudamper.money.element.ApiTokenId
 import net.matsudamper.money.element.FidoId
 import net.matsudamper.money.element.ImageId
@@ -920,7 +920,6 @@ class UserMutationResolverImpl : UserMutationResolver {
                     name = input.name.toDbUpdateValue(),
                     subCategoryId = input.subCategoryId.toDbUpdateValue(),
                 ) ?: throw IllegalStateException("update money usage preset failed")
-
 
             QlUpdateMoneyUsagePresetResult(
                 preset = QlMoneyUsagePreset(
