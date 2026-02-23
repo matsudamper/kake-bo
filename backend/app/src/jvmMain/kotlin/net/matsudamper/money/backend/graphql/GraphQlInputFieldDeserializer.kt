@@ -21,8 +21,11 @@ internal class GraphQlInputFieldDeserializer(
     }
 
     override fun deserialize(p: JsonParser, ctxt: DeserializationContext): GraphQlInputField<*> {
-        val value = if (valueType != null) ctxt.readValue(p, valueType)
-        else ctxt.readValue(p, Any::class.java)
+        val value = if (valueType != null) {
+            ctxt.readValue(p, valueType)
+        } else {
+            ctxt.readValue(p, Any::class.java)
+        }
         return GraphQlInputField.Defined(value)
     }
 
