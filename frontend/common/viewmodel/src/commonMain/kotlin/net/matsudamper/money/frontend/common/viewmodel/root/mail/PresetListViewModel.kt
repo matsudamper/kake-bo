@@ -1,8 +1,11 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.mail
 
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
@@ -45,7 +48,7 @@ public class PresetListViewModel(
             showNameInput = false,
             event = object : PresetListScreenUiState.Event {
                 override fun onResume() {
-                    fetch()
+                    fetchCollect()
                 }
 
                 override fun onClickAddButton() {
@@ -105,7 +108,7 @@ public class PresetListViewModel(
                                                     }
                                                     return@launch
                                                 }
-                                                fetch()
+                                                fetchCollect()
                                             }
                                         }
 
@@ -130,21 +133,24 @@ public class PresetListViewModel(
         }
     }.asStateFlow()
 
-    private fun fetch() {
-        viewModelScope.launch {
+    private var fetchJob: Job = Job()
+    private fun fetchCollect() {
+        fetchJob.cancel()
+        fetchJob = viewModelScope.launch {
             viewModelStateFlow.update { it.copy(isLoading = true) }
-            val data = api.getPresets()?.data
-            if (data == null) {
-                globalEventSender.send { it.showSnackBar("データの取得に失敗しました") }
-                viewModelStateFlow.update { it.copy(isLoading = false) }
-                return@launch
-            }
-            viewModelStateFlow.update {
-                it.copy(
-                    isLoading = false,
-                    presets = data.user?.moneyUsagePresets.orEmpty(),
-                )
-            }
+            api.getPresets()
+                .catch {
+                    globalEventSender.send { it.showSnackBar("データの取得に失敗しました") }
+                    viewModelStateFlow.update { it.copy(isLoading = false) }
+                }
+                .collectLatest { response ->
+                    viewModelStateFlow.update {
+                        it.copy(
+                            isLoading = false,
+                            presets = response.data?.user?.moneyUsagePresets.orEmpty(),
+                        )
+                    }
+                }
         }
     }
 
