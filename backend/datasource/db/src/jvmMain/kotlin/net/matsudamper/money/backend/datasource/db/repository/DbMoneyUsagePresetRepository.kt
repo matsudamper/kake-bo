@@ -4,6 +4,7 @@ import net.matsudamper.money.backend.app.interfaces.MoneyUsagePresetRepository
 import net.matsudamper.money.backend.app.interfaces.UpdateValue
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JMoneyUsagePresets
+import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsagePresetsRecord
 import net.matsudamper.money.element.MoneyUsagePresetId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
@@ -12,6 +13,7 @@ import org.jooq.impl.DSL
 
 class DbMoneyUsagePresetRepository : MoneyUsagePresetRepository {
     private val presets = JMoneyUsagePresets.MONEY_USAGE_PRESETS
+    private val subCategories = JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES
 
     override fun getPresets(userId: UserId): List<MoneyUsagePresetRepository.PresetResult> {
         return DbConnectionImpl.use { connection ->
@@ -46,6 +48,10 @@ class DbMoneyUsagePresetRepository : MoneyUsagePresetRepository {
     ): MoneyUsagePresetRepository.AddPresetResult {
         return runCatching {
             DbConnectionImpl.use { connection ->
+                if (subCategoryId != null && !isOwnedSubCategory(connection, userId, subCategoryId)) {
+                    throw IllegalArgumentException("subCategoryId=$subCategoryId is not owned by userId=$userId")
+                }
+
                 val result = DSL.using(connection)
                     .insertInto(presets)
                     .set(
@@ -87,6 +93,10 @@ class DbMoneyUsagePresetRepository : MoneyUsagePresetRepository {
             when (subCategoryId) {
                 is UpdateValue.NotUpdate -> Unit
                 is UpdateValue.Update -> {
+                    val updatedSubCategoryId = subCategoryId.value
+                    if (updatedSubCategoryId != null && !isOwnedSubCategory(connection, userId, updatedSubCategoryId)) {
+                        throw IllegalArgumentException("subCategoryId=$updatedSubCategoryId is not owned by userId=$userId")
+                    }
                     patchRecord.set(presets.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId.value?.id)
                     hasUpdate = true
                 }
@@ -134,6 +144,22 @@ class DbMoneyUsagePresetRepository : MoneyUsagePresetRepository {
             name = name!!,
             subCategoryId = moneyUsageSubCategoryId?.let { MoneyUsageSubCategoryId(it) },
         )
+    }
+
+    private fun isOwnedSubCategory(
+        connection: java.sql.Connection,
+        userId: UserId,
+        subCategoryId: MoneyUsageSubCategoryId,
+    ): Boolean {
+        return DSL.using(connection)
+            .select(subCategories.MONEY_USAGE_SUB_CATEGORY_ID)
+            .from(subCategories)
+            .where(
+                subCategories.USER_ID.eq(userId.value)
+                    .and(subCategories.MONEY_USAGE_SUB_CATEGORY_ID.eq(subCategoryId.id)),
+            )
+            .limit(1)
+            .fetchOne() != null
     }
 
     private fun getPreset(
