@@ -21,9 +21,8 @@ interface MoneyUsagePresetRepository {
     fun updatePreset(
         userId: UserId,
         presetId: MoneyUsagePresetId,
-        name: String?,
-        subCategoryId: MoneyUsageSubCategoryId?,
-        updateSubCategoryId: Boolean,
+        name: UpdateValue<String>,
+        subCategoryId: UpdateValue<MoneyUsageSubCategoryId?>,
     ): PresetResult?
 
     fun deletePreset(
@@ -44,3 +43,4 @@ interface MoneyUsagePresetRepository {
         data class Failed(val error: Throwable) : AddPresetResult
     }
 }
+

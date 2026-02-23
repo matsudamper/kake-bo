@@ -32,6 +32,7 @@ import net.matsudamper.money.backend.logic.ApiTokenEncryptManager
 import net.matsudamper.money.backend.logic.ColorValidator
 import net.matsudamper.money.backend.logic.IPasswordManager
 import net.matsudamper.money.backend.logic.PasswordManager
+import net.matsudamper.money.backend.lib.toDbUpdateValue
 import net.matsudamper.money.element.ApiTokenId
 import net.matsudamper.money.element.FidoId
 import net.matsudamper.money.element.ImageId
@@ -911,16 +912,15 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<QlUpdateMoneyUsagePresetResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        val updateSubCategoryId = isUpdateMoneyUsagePresetSubCategoryIdSpecified(env)
         return CompletableFuture.supplyAsync {
             val updateResult = context.diContainer.createMoneyUsagePresetRepository()
                 .updatePreset(
                     userId = userId,
                     presetId = input.id,
-                    name = input.name,
-                    subCategoryId = input.subCategoryId,
-                    updateSubCategoryId = updateSubCategoryId,
+                    name = input.name.toDbUpdateValue(),
+                    subCategoryId = input.subCategoryId.toDbUpdateValue(),
                 ) ?: throw IllegalStateException("update money usage preset failed")
+
 
             QlUpdateMoneyUsagePresetResult(
                 preset = QlMoneyUsagePreset(
@@ -944,11 +944,6 @@ class UserMutationResolverImpl : UserMutationResolver {
                 .deletePreset(userId = userId, presetId = id)
         }.toDataFetcher()
     }
-}
-
-private fun isUpdateMoneyUsagePresetSubCategoryIdSpecified(env: DataFetchingEnvironment): Boolean {
-    val input = env.arguments["input"] as? Map<*, *> ?: return false
-    return input.containsKey("subCategoryId")
 }
 
 @OptIn(ExperimentalContracts::class)

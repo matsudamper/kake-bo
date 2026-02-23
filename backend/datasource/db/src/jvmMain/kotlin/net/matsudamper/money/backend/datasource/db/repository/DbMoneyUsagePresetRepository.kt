@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend.datasource.db.repository
 
 import net.matsudamper.money.backend.app.interfaces.MoneyUsagePresetRepository
+import net.matsudamper.money.backend.app.interfaces.UpdateValue
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JMoneyUsagePresets
 import net.matsudamper.money.db.schema.tables.records.JMoneyUsagePresetsRecord
@@ -68,28 +69,27 @@ class DbMoneyUsagePresetRepository : MoneyUsagePresetRepository {
     override fun updatePreset(
         userId: UserId,
         presetId: MoneyUsagePresetId,
-        name: String?,
-        subCategoryId: MoneyUsageSubCategoryId?,
-        updateSubCategoryId: Boolean,
+        name: UpdateValue<String>,
+        subCategoryId: UpdateValue<MoneyUsageSubCategoryId?>,
     ): MoneyUsagePresetRepository.PresetResult? {
         return DbConnectionImpl.use { connection ->
-            if (name == null && !updateSubCategoryId) {
-                return@use getPreset(
-                    connection = connection,
-                    userId = userId,
-                    presetId = presetId,
-                )
-            }
-
             val updatedCount = DSL.using(connection)
                 .update(presets)
                 .set(presets.MONEY_USAGE_PRESET_ID, presetId.value)
-                .apply {
-                    if (name != null) {
-                        set(presets.NAME, name)
+                .let {
+                    when (name) {
+                        is UpdateValue.NotUpdate -> it
+                        is UpdateValue.Update -> {
+                            it.set(presets.NAME, name.value)
+                        }
                     }
-                    if (updateSubCategoryId) {
-                        set(presets.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId?.id)
+                }
+                .let {
+                    when (subCategoryId) {
+                        is UpdateValue.NotUpdate -> it
+                        is UpdateValue.Update -> {
+                            it.set(presets.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId.value?.id)
+                        }
                     }
                 }
                 .where(

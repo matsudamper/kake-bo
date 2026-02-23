@@ -17,8 +17,8 @@ type AddMoneyUsagePresetResult {
 
 input UpdateMoneyUsagePresetInput {
     id: MoneyUsagePresetId!
-    name: String
-    subCategoryId: MoneyUsageSubCategoryId
+    name: String @optional
+    subCategoryId: MoneyUsageSubCategoryId @optional
 }
 
 type UpdateMoneyUsagePresetResult {
