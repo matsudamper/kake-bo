@@ -73,41 +73,42 @@ class DbMoneyUsagePresetRepository : MoneyUsagePresetRepository {
         subCategoryId: UpdateValue<MoneyUsageSubCategoryId?>,
     ): MoneyUsagePresetRepository.PresetResult? {
         return DbConnectionImpl.use { connection ->
-            val updatedCount = DSL.using(connection)
-                .update(presets)
-                .set(presets.MONEY_USAGE_PRESET_ID, presetId.value)
-                .let {
-                    when (name) {
-                        is UpdateValue.NotUpdate -> it
-                        is UpdateValue.Update -> {
-                            it.set(presets.NAME, name.value)
-                        }
-                    }
-                }
-                .let {
-                    when (subCategoryId) {
-                        is UpdateValue.NotUpdate -> it
-                        is UpdateValue.Update -> {
-                            it.set(presets.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId.value?.id)
-                        }
-                    }
-                }
-                .where(
-                    presets.USER_ID.eq(userId.value)
-                        .and(presets.MONEY_USAGE_PRESET_ID.eq(presetId.value)),
-                )
-                .limit(1)
-                .execute()
+            val patchRecord = JMoneyUsagePresetsRecord()
+            var hasUpdate = false
 
-            if (updatedCount < 1) {
-                null
-            } else {
-                getPreset(
-                    connection = connection,
-                    userId = userId,
-                    presetId = presetId,
-                )
+            when (name) {
+                is UpdateValue.NotUpdate -> Unit
+                is UpdateValue.Update -> {
+                    patchRecord.set(presets.NAME, name.value)
+                    hasUpdate = true
+                }
             }
+
+            when (subCategoryId) {
+                is UpdateValue.NotUpdate -> Unit
+                is UpdateValue.Update -> {
+                    patchRecord.set(presets.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId.value?.id)
+                    hasUpdate = true
+                }
+            }
+
+            if (hasUpdate) {
+                DSL.using(connection)
+                    .update(presets)
+                    .set(patchRecord)
+                    .where(
+                        presets.USER_ID.eq(userId.value)
+                            .and(presets.MONEY_USAGE_PRESET_ID.eq(presetId.value)),
+                    )
+                    .limit(1)
+                    .execute()
+            }
+
+            getPreset(
+                connection = connection,
+                userId = userId,
+                presetId = presetId,
+            )
         }
     }
 
