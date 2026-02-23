@@ -31,6 +31,7 @@ public class PresetListViewModel(
             presets = listOf(),
             isLoading = true,
             showNameInput = false,
+            isError = false,
         ),
     )
 
