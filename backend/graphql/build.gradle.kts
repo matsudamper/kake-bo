@@ -1,6 +1,6 @@
-
 import com.kobylynskyi.graphql.codegen.model.GeneratedLanguage
 import io.github.kobylynskyi.graphql.codegen.gradle.GraphQLCodegenGradleTask
+import io.github.kobylynskyi.graphql.codegen.gradle.NullableInputTypeWrapperConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -55,6 +55,13 @@ val graphqlCodegen = tasks.named<GraphQLCodegenGradleTask>("graphqlCodegen") {
         mutationResolver = "graphql.kickstart.tools.GraphQLMutationResolver"
         subscriptionResolver = "graphql.kickstart.tools.GraphQLSubscriptionResolver"
         queryResolver = "graphql.kickstart.tools.GraphQLQueryResolver"
+    }
+    nullableInputTypeWrapperForDirectives = setOf("optional")
+    kotlinNullableInputTypeWrapper {
+        wrapperClassName = "net.matsudamper.money.graphql.model.GraphQlInputField"
+        nullValueExpression = "net.matsudamper.money.graphql.model.GraphQlInputField.Defined(null)"
+        undefinedValueExpression = "net.matsudamper.money.graphql.model.GraphQlInputField.Undefined"
+        valueExpression = "net.matsudamper.money.graphql.model.GraphQlInputField.Defined(%s)"
     }
     customTypesMapping = mutableMapOf(
         "UserId" to "net.matsudamper.money.element.UserId",
