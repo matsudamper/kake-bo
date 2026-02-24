@@ -45,6 +45,8 @@ class DbMoneyUsagePresetRepository : MoneyUsagePresetRepository {
         userId: UserId,
         name: String,
         subCategoryId: MoneyUsageSubCategoryId?,
+        amount: Int?,
+        description: String?,
     ): MoneyUsagePresetRepository.AddPresetResult {
         return runCatching {
             DbConnectionImpl.use { connection ->
@@ -59,6 +61,8 @@ class DbMoneyUsagePresetRepository : MoneyUsagePresetRepository {
                             userId = userId.value,
                             name = name,
                             moneyUsageSubCategoryId = subCategoryId?.id,
+                            amount = amount,
+                            description = description,
                         ),
                     )
                     .returning()
@@ -77,6 +81,8 @@ class DbMoneyUsagePresetRepository : MoneyUsagePresetRepository {
         presetId: MoneyUsagePresetId,
         name: UpdateValue<String>,
         subCategoryId: UpdateValue<MoneyUsageSubCategoryId?>,
+        amount: UpdateValue<Int?>,
+        description: UpdateValue<String?>,
     ): MoneyUsagePresetRepository.PresetResult? {
         return DbConnectionImpl.use { connection ->
             val patchRecord = JMoneyUsagePresetsRecord()
@@ -98,6 +104,22 @@ class DbMoneyUsagePresetRepository : MoneyUsagePresetRepository {
                         throw IllegalArgumentException("subCategoryId=$updatedSubCategoryId is not owned by userId=$userId")
                     }
                     patchRecord.set(presets.MONEY_USAGE_SUB_CATEGORY_ID, subCategoryId.value?.id)
+                    hasUpdate = true
+                }
+            }
+
+            when (amount) {
+                is UpdateValue.NotUpdate -> Unit
+                is UpdateValue.Update -> {
+                    patchRecord.set(presets.AMOUNT, amount.value)
+                    hasUpdate = true
+                }
+            }
+
+            when (description) {
+                is UpdateValue.NotUpdate -> Unit
+                is UpdateValue.Update -> {
+                    patchRecord.set(presets.DESCRIPTION, description.value)
                     hasUpdate = true
                 }
             }
@@ -143,6 +165,8 @@ class DbMoneyUsagePresetRepository : MoneyUsagePresetRepository {
             userId = UserId(userId!!),
             name = name!!,
             subCategoryId = moneyUsageSubCategoryId?.let { MoneyUsageSubCategoryId(it) },
+            amount = amount,
+            description = description,
         )
     }
 

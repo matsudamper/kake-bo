@@ -13,6 +13,7 @@ import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
+import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.PresetDetailScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
@@ -69,6 +70,8 @@ public class PresetDetailViewModel(
             },
             loadingState = PresetDetailScreenUiState.LoadingState.Loading,
             showNameChangeDialog = null,
+            numberInputDialog = null,
+            showDescriptionChangeDialog = null,
             categorySelectDialog = null,
             event = object : PresetDetailScreenUiState.Event {
                 override fun onResume() {
@@ -120,6 +123,72 @@ public class PresetDetailViewModel(
                     )
                 }
 
+                override fun onClickAmountChange() {
+                    val preset = viewModelStateFlow.value.preset ?: return
+                    viewModelStateFlow.update { state ->
+                        state.copy(
+                            numberInputDialog = PresetDetailScreenUiState.NumberInputDialog(
+                                value = NumberInputValue.default(preset.amount ?: 0),
+                                onChangeValue = { value ->
+                                    viewModelStateFlow.update { s ->
+                                        s.copy(
+                                            numberInputDialog = s.numberInputDialog?.copy(value = value),
+                                        )
+                                    }
+                                },
+                                dismissRequest = {
+                                    val value = viewModelStateFlow.value.numberInputDialog?.value
+                                    dismissNumberInputDialog()
+                                    if (value == null) return@NumberInputDialog
+                                    viewModelScope.launch {
+                                        val updateResult = api.updatePreset(
+                                            id = presetId,
+                                            amount = Optional.present(value.value),
+                                        )
+                                        if (updateResult?.data?.userMutation?.updateMoneyUsagePreset?.preset == null) {
+                                            showScreenError()
+                                            return@launch
+                                        }
+                                        fetch()
+                                    }
+                                },
+                            ),
+                        )
+                    }
+                }
+
+                override fun onClickDescriptionChange() {
+                    val preset = viewModelStateFlow.value.preset ?: return
+                    viewModelStateFlow.update { state ->
+                        state.copy(
+                            showDescriptionChangeDialog = PresetDetailScreenUiState.FullScreenInputDialog(
+                                defaultText = preset.description.orEmpty(),
+                                event = object : PresetDetailScreenUiState.FullScreenInputDialog.Event {
+                                    override fun onDismiss() {
+                                        dismissDescriptionChangeDialog()
+                                    }
+
+                                    override fun onCompleted(text: String) {
+                                        viewModelScope.launch {
+                                            val description = text.takeIf { it.isNotBlank() }
+                                            val updateResult = api.updatePreset(
+                                                id = presetId,
+                                                description = Optional.present(description),
+                                            )
+                                            if (updateResult?.data?.userMutation?.updateMoneyUsagePreset?.preset == null) {
+                                                showScreenError()
+                                                return@launch
+                                            }
+                                            dismissDescriptionChangeDialog()
+                                            fetch()
+                                        }
+                                    }
+                                },
+                            ),
+                        )
+                    }
+                }
+
                 override fun onClickBack() {
                     navController.back()
                 }
@@ -136,9 +205,13 @@ public class PresetDetailViewModel(
                             else -> PresetDetailScreenUiState.LoadingState.Loaded(
                                 presetName = state.preset?.name.orEmpty(),
                                 subCategoryName = state.preset?.subCategoryName ?: "未設定",
+                                amount = state.preset?.amount,
+                                description = state.preset?.description,
                             )
                         },
                         showNameChangeDialog = state.showNameChangeDialog,
+                        numberInputDialog = state.numberInputDialog,
+                        showDescriptionChangeDialog = state.showDescriptionChangeDialog,
                         categorySelectDialog = state.categorySelectDialog,
                     )
                 }
@@ -176,6 +249,8 @@ public class PresetDetailViewModel(
                         categoryName = preset.categoryName,
                         subCategoryId = preset.subCategoryId,
                         subCategoryName = preset.subCategoryName,
+                        amount = preset.amount,
+                        description = preset.description,
                     ),
                 )
             }
@@ -188,6 +263,8 @@ public class PresetDetailViewModel(
                 isLoading = false,
                 isError = true,
                 showNameChangeDialog = null,
+                numberInputDialog = null,
+                showDescriptionChangeDialog = null,
                 categorySelectDialog = null,
             )
         }
@@ -199,11 +276,25 @@ public class PresetDetailViewModel(
         }
     }
 
+    private fun dismissNumberInputDialog() {
+        viewModelStateFlow.update { state ->
+            state.copy(numberInputDialog = null)
+        }
+    }
+
+    private fun dismissDescriptionChangeDialog() {
+        viewModelStateFlow.update { state ->
+            state.copy(showDescriptionChangeDialog = null)
+        }
+    }
+
     private data class ViewModelState(
         val isLoading: Boolean = true,
         val isError: Boolean = false,
         val preset: ViewModelPreset? = null,
         val showNameChangeDialog: PresetDetailScreenUiState.FullScreenInputDialog? = null,
+        val numberInputDialog: PresetDetailScreenUiState.NumberInputDialog? = null,
+        val showDescriptionChangeDialog: PresetDetailScreenUiState.FullScreenInputDialog? = null,
         val categorySelectDialog: CategorySelectDialogUiState? = null,
     )
 
@@ -213,6 +304,8 @@ public class PresetDetailViewModel(
         val categoryName: String?,
         val subCategoryId: MoneyUsageSubCategoryId?,
         val subCategoryName: String?,
+        val amount: Int?,
+        val description: String?,
     )
 
     private fun GetMoneyUsagePresetQuery.MoneyUsagePreset.toViewModelPreset(): ViewModelPreset {
@@ -222,6 +315,8 @@ public class PresetDetailViewModel(
             categoryName = subCategory?.category?.name,
             subCategoryId = subCategory?.id,
             subCategoryName = subCategory?.name,
+            amount = amount,
+            description = description,
         )
     }
 }

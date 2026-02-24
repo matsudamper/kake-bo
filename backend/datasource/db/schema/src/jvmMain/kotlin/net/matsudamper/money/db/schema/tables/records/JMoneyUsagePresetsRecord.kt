@@ -46,6 +46,14 @@ open class JMoneyUsagePresetsRecord() : UpdatableRecordImpl<JMoneyUsagePresetsRe
         set(value): Unit = set(6, value)
         get(): LocalDateTime? = get(6) as LocalDateTime?
 
+    open var amount: Int?
+        set(value): Unit = set(7, value)
+        get(): Int? = get(7) as Int?
+
+    open var description: String?
+        set(value): Unit = set(8, value)
+        get(): String? = get(8) as String?
+
     // -------------------------------------------------------------------------
     // Primary key information
     // -------------------------------------------------------------------------
@@ -55,7 +63,7 @@ open class JMoneyUsagePresetsRecord() : UpdatableRecordImpl<JMoneyUsagePresetsRe
     /**
      * Create a detached, initialised JMoneyUsagePresetsRecord
      */
-    constructor(moneyUsagePresetId: Int? = null, userId: Int? = null, name: String? = null, moneyUsageSubCategoryId: Int? = null, orderNumber: Int? = null, createdDatetime: LocalDateTime? = null, updateDatetime: LocalDateTime? = null): this() {
+    constructor(moneyUsagePresetId: Int? = null, userId: Int? = null, name: String? = null, moneyUsageSubCategoryId: Int? = null, orderNumber: Int? = null, createdDatetime: LocalDateTime? = null, updateDatetime: LocalDateTime? = null, amount: Int? = null, description: String? = null): this() {
         this.moneyUsagePresetId = moneyUsagePresetId
         this.userId = userId
         this.name = name
@@ -63,6 +71,8 @@ open class JMoneyUsagePresetsRecord() : UpdatableRecordImpl<JMoneyUsagePresetsRe
         this.orderNumber = orderNumber
         this.createdDatetime = createdDatetime
         this.updateDatetime = updateDatetime
+        this.amount = amount
+        this.description = description
         resetTouchedOnNotNull()
     }
 }

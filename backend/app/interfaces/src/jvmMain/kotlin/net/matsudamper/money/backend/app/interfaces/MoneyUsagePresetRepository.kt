@@ -16,6 +16,8 @@ interface MoneyUsagePresetRepository {
         userId: UserId,
         name: String,
         subCategoryId: MoneyUsageSubCategoryId?,
+        amount: Int?,
+        description: String?,
     ): AddPresetResult
 
     fun updatePreset(
@@ -23,6 +25,8 @@ interface MoneyUsagePresetRepository {
         presetId: MoneyUsagePresetId,
         name: UpdateValue<String>,
         subCategoryId: UpdateValue<MoneyUsageSubCategoryId?>,
+        amount: UpdateValue<Int?>,
+        description: UpdateValue<String?>,
     ): PresetResult?
 
     fun deletePreset(
@@ -35,6 +39,8 @@ interface MoneyUsagePresetRepository {
         val userId: UserId,
         val name: String,
         val subCategoryId: MoneyUsageSubCategoryId?,
+        val amount: Int?,
+        val description: String?,
     )
 
     sealed interface AddPresetResult {
