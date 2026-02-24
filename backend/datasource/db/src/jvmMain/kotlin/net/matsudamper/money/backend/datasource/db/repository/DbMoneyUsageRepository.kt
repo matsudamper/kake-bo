@@ -94,6 +94,12 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
                 if (!isAllOwnedImages(connection = connection, userId = userId, imageIds = imageIds)) {
                     throw IllegalArgumentException("image is not found")
                 }
+                if (
+                    subCategoryId != null &&
+                    !isOwnedSubCategory(connection = connection, userId = userId, subCategoryId = subCategoryId)
+                ) {
+                    throw IllegalArgumentException("subCategory is not found")
+                }
 
                 val context = DSL.using(connection)
                 context.startTransaction()
@@ -553,6 +559,22 @@ class DbMoneyUsageRepository : MoneyUsageRepository {
             )
             .fetchOne(0, Int::class.java) ?: 0
         return ownedImageCount == uniqueImageIds.size
+    }
+
+    private fun isOwnedSubCategory(
+        connection: java.sql.Connection,
+        userId: UserId,
+        subCategoryId: MoneyUsageSubCategoryId,
+    ): Boolean {
+        val count = DSL.using(connection)
+            .selectCount()
+            .from(jSubCategory)
+            .where(
+                jSubCategory.USER_ID.eq(userId.value)
+                    .and(jSubCategory.MONEY_USAGE_SUB_CATEGORY_ID.eq(subCategoryId.id)),
+            )
+            .fetchOne(0, Int::class.java) ?: 0
+        return count == 1
     }
 
     private fun getImageIdsByUsageIds(
