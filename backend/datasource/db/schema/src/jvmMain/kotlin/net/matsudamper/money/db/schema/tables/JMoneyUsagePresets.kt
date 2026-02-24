@@ -111,6 +111,16 @@ open class JMoneyUsagePresets(
      */
     val UPDATE_DATETIME: TableField<JMoneyUsagePresetsRecord, LocalDateTime?> = createField(DSL.name("update_datetime"), SQLDataType.LOCALDATETIME(0).nullable(false).defaultValue(DSL.field(DSL.raw("current_timestamp()"), SQLDataType.LOCALDATETIME)), this, "")
 
+    /**
+     * The column <code>money.money_usage_presets.amount</code>.
+     */
+    val AMOUNT: TableField<JMoneyUsagePresetsRecord, Int?> = createField(DSL.name("amount"), SQLDataType.INTEGER.defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.INTEGER)), this, "")
+
+    /**
+     * The column <code>money.money_usage_presets.description</code>.
+     */
+    val DESCRIPTION: TableField<JMoneyUsagePresetsRecord, String?> = createField(DSL.name("description"), SQLDataType.VARCHAR(1000).defaultValue(DSL.field(DSL.raw("NULL"), SQLDataType.VARCHAR)), this, "")
+
     private constructor(alias: Name, aliased: Table<JMoneyUsagePresetsRecord>?): this(alias, null, null, null, aliased, null, null)
     private constructor(alias: Name, aliased: Table<JMoneyUsagePresetsRecord>?, parameters: Array<Field<*>?>?): this(alias, null, null, null, aliased, parameters, null)
     private constructor(alias: Name, aliased: Table<JMoneyUsagePresetsRecord>?, where: Condition?): this(alias, null, null, null, aliased, null, where)
