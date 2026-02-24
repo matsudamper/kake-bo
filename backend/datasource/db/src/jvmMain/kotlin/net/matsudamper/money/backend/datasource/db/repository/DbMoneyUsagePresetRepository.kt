@@ -61,6 +61,8 @@ class DbMoneyUsagePresetRepository : MoneyUsagePresetRepository {
                             userId = userId.value,
                             name = name,
                             moneyUsageSubCategoryId = subCategoryId?.id,
+                            amount = amount,
+                            description = description,
                         ),
                     )
                     .returning()
@@ -106,6 +108,22 @@ class DbMoneyUsagePresetRepository : MoneyUsagePresetRepository {
                 }
             }
 
+            when (amount) {
+                is UpdateValue.NotUpdate -> Unit
+                is UpdateValue.Update -> {
+                    patchRecord.set(presets.AMOUNT, amount.value)
+                    hasUpdate = true
+                }
+            }
+
+            when (description) {
+                is UpdateValue.NotUpdate -> Unit
+                is UpdateValue.Update -> {
+                    patchRecord.set(presets.DESCRIPTION, description.value)
+                    hasUpdate = true
+                }
+            }
+
             if (hasUpdate) {
                 DSL.using(connection)
                     .update(presets)
@@ -147,9 +165,8 @@ class DbMoneyUsagePresetRepository : MoneyUsagePresetRepository {
             userId = UserId(userId!!),
             name = name!!,
             subCategoryId = moneyUsageSubCategoryId?.let { MoneyUsageSubCategoryId(it) },
-            // TODO: DBコード生成後にamountとdescriptionカラムを追加
-            amount = null,
-            description = null,
+            amount = amount,
+            description = description,
         )
     }
 
