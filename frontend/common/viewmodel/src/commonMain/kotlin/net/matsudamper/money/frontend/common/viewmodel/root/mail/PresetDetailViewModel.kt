@@ -69,6 +69,8 @@ public class PresetDetailViewModel(
             },
             loadingState = PresetDetailScreenUiState.LoadingState.Loading,
             showNameChangeDialog = null,
+            showAmountChangeDialog = null,
+            showDescriptionChangeDialog = null,
             categorySelectDialog = null,
             event = object : PresetDetailScreenUiState.Event {
                 override fun onResume() {
@@ -120,6 +122,70 @@ public class PresetDetailViewModel(
                     )
                 }
 
+                override fun onClickAmountChange() {
+                    val preset = viewModelStateFlow.value.preset ?: return
+                    viewModelStateFlow.update { state ->
+                        state.copy(
+                            showAmountChangeDialog = PresetDetailScreenUiState.FullScreenInputDialog(
+                                defaultText = preset.amount?.toString().orEmpty(),
+                                event = object : PresetDetailScreenUiState.FullScreenInputDialog.Event {
+                                    override fun onDismiss() {
+                                        dismissAmountChangeDialog()
+                                    }
+
+                                    override fun onCompleted(text: String) {
+                                        viewModelScope.launch {
+                                            val amount = text.takeIf { it.isNotBlank() }?.toIntOrNull()
+                                            val updateResult = api.updatePreset(
+                                                id = presetId,
+                                                amount = Optional.present(amount),
+                                            )
+                                            if (updateResult?.data?.userMutation?.updateMoneyUsagePreset?.preset == null) {
+                                                showScreenError()
+                                                return@launch
+                                            }
+                                            dismissAmountChangeDialog()
+                                            fetch()
+                                        }
+                                    }
+                                },
+                            ),
+                        )
+                    }
+                }
+
+                override fun onClickDescriptionChange() {
+                    val preset = viewModelStateFlow.value.preset ?: return
+                    viewModelStateFlow.update { state ->
+                        state.copy(
+                            showDescriptionChangeDialog = PresetDetailScreenUiState.FullScreenInputDialog(
+                                defaultText = preset.description.orEmpty(),
+                                event = object : PresetDetailScreenUiState.FullScreenInputDialog.Event {
+                                    override fun onDismiss() {
+                                        dismissDescriptionChangeDialog()
+                                    }
+
+                                    override fun onCompleted(text: String) {
+                                        viewModelScope.launch {
+                                            val description = text.takeIf { it.isNotBlank() }
+                                            val updateResult = api.updatePreset(
+                                                id = presetId,
+                                                description = Optional.present(description),
+                                            )
+                                            if (updateResult?.data?.userMutation?.updateMoneyUsagePreset?.preset == null) {
+                                                showScreenError()
+                                                return@launch
+                                            }
+                                            dismissDescriptionChangeDialog()
+                                            fetch()
+                                        }
+                                    }
+                                },
+                            ),
+                        )
+                    }
+                }
+
                 override fun onClickBack() {
                     navController.back()
                 }
@@ -136,9 +202,13 @@ public class PresetDetailViewModel(
                             else -> PresetDetailScreenUiState.LoadingState.Loaded(
                                 presetName = state.preset?.name.orEmpty(),
                                 subCategoryName = state.preset?.subCategoryName ?: "未設定",
+                                amount = state.preset?.amount,
+                                description = state.preset?.description,
                             )
                         },
                         showNameChangeDialog = state.showNameChangeDialog,
+                        showAmountChangeDialog = state.showAmountChangeDialog,
+                        showDescriptionChangeDialog = state.showDescriptionChangeDialog,
                         categorySelectDialog = state.categorySelectDialog,
                     )
                 }
@@ -176,6 +246,8 @@ public class PresetDetailViewModel(
                         categoryName = preset.categoryName,
                         subCategoryId = preset.subCategoryId,
                         subCategoryName = preset.subCategoryName,
+                        amount = preset.amount,
+                        description = preset.description,
                     ),
                 )
             }
@@ -188,6 +260,8 @@ public class PresetDetailViewModel(
                 isLoading = false,
                 isError = true,
                 showNameChangeDialog = null,
+                showAmountChangeDialog = null,
+                showDescriptionChangeDialog = null,
                 categorySelectDialog = null,
             )
         }
@@ -199,11 +273,25 @@ public class PresetDetailViewModel(
         }
     }
 
+    private fun dismissAmountChangeDialog() {
+        viewModelStateFlow.update { state ->
+            state.copy(showAmountChangeDialog = null)
+        }
+    }
+
+    private fun dismissDescriptionChangeDialog() {
+        viewModelStateFlow.update { state ->
+            state.copy(showDescriptionChangeDialog = null)
+        }
+    }
+
     private data class ViewModelState(
         val isLoading: Boolean = true,
         val isError: Boolean = false,
         val preset: ViewModelPreset? = null,
         val showNameChangeDialog: PresetDetailScreenUiState.FullScreenInputDialog? = null,
+        val showAmountChangeDialog: PresetDetailScreenUiState.FullScreenInputDialog? = null,
+        val showDescriptionChangeDialog: PresetDetailScreenUiState.FullScreenInputDialog? = null,
         val categorySelectDialog: CategorySelectDialogUiState? = null,
     )
 
@@ -213,6 +301,8 @@ public class PresetDetailViewModel(
         val categoryName: String?,
         val subCategoryId: MoneyUsageSubCategoryId?,
         val subCategoryName: String?,
+        val amount: Int?,
+        val description: String?,
     )
 
     private fun GetMoneyUsagePresetQuery.MoneyUsagePreset.toViewModelPreset(): ViewModelPreset {
@@ -222,6 +312,8 @@ public class PresetDetailViewModel(
             categoryName = subCategory?.category?.name,
             subCategoryId = subCategory?.id,
             subCategoryName = subCategory?.name,
+            amount = amount,
+            description = description,
         )
     }
 }

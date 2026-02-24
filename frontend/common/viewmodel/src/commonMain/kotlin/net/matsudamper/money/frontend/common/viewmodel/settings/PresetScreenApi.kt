@@ -41,6 +41,8 @@ public class PresetScreenApi(
     public suspend fun addPreset(
         name: String,
         subCategoryId: MoneyUsageSubCategoryId?,
+        amount: Int?,
+        description: String?,
     ): ApolloResponse<AddMoneyUsagePresetMutation.Data>? {
         return runCatching {
             apolloClient
@@ -49,6 +51,8 @@ public class PresetScreenApi(
                         input = AddMoneyUsagePresetInput(
                             name = name,
                             subCategoryId = Optional.present(subCategoryId),
+                            amount = Optional.present(amount),
+                            description = Optional.present(description),
                         ),
                     ),
                 )
@@ -72,6 +76,8 @@ public class PresetScreenApi(
         id: MoneyUsagePresetId,
         name: Optional<String?> = Optional.Absent,
         subCategoryId: Optional<MoneyUsageSubCategoryId?> = Optional.Absent,
+        amount: Optional<Int?> = Optional.Absent,
+        description: Optional<String?> = Optional.Absent,
     ): ApolloResponse<UpdateMoneyUsagePresetMutation.Data>? {
         return runCatching {
             apolloClient
@@ -81,6 +87,8 @@ public class PresetScreenApi(
                             id = id,
                             name = name,
                             subCategoryId = subCategoryId,
+                            amount = amount,
+                            description = description,
                         ),
                     ),
                 )

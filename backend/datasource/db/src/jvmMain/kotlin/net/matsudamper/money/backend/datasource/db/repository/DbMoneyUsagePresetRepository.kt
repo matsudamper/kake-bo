@@ -45,6 +45,8 @@ class DbMoneyUsagePresetRepository : MoneyUsagePresetRepository {
         userId: UserId,
         name: String,
         subCategoryId: MoneyUsageSubCategoryId?,
+        amount: Int?,
+        description: String?,
     ): MoneyUsagePresetRepository.AddPresetResult {
         return runCatching {
             DbConnectionImpl.use { connection ->
@@ -77,6 +79,8 @@ class DbMoneyUsagePresetRepository : MoneyUsagePresetRepository {
         presetId: MoneyUsagePresetId,
         name: UpdateValue<String>,
         subCategoryId: UpdateValue<MoneyUsageSubCategoryId?>,
+        amount: UpdateValue<Int?>,
+        description: UpdateValue<String?>,
     ): MoneyUsagePresetRepository.PresetResult? {
         return DbConnectionImpl.use { connection ->
             val patchRecord = JMoneyUsagePresetsRecord()
@@ -143,6 +147,9 @@ class DbMoneyUsagePresetRepository : MoneyUsagePresetRepository {
             userId = UserId(userId!!),
             name = name!!,
             subCategoryId = moneyUsageSubCategoryId?.let { MoneyUsageSubCategoryId(it) },
+            // TODO: DBコード生成後にamountとdescriptionカラムを追加
+            amount = null,
+            description = null,
         )
     }
 

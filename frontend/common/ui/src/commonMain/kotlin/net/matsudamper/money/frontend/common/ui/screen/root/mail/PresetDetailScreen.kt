@@ -38,6 +38,8 @@ public data class PresetDetailScreenUiState(
     val kakeboScaffoldListener: KakeboScaffoldListener,
     val loadingState: LoadingState,
     val showNameChangeDialog: FullScreenInputDialog?,
+    val showAmountChangeDialog: FullScreenInputDialog?,
+    val showDescriptionChangeDialog: FullScreenInputDialog?,
     val categorySelectDialog: CategorySelectDialogUiState?,
     val event: Event,
 ) {
@@ -61,6 +63,8 @@ public data class PresetDetailScreenUiState(
         public data class Loaded(
             val presetName: String,
             val subCategoryName: String,
+            val amount: Int?,
+            val description: String?,
         ) : LoadingState
     }
 
@@ -72,6 +76,10 @@ public data class PresetDetailScreenUiState(
         public fun onClickPresetNameChange()
 
         public fun onClickSubCategoryChange()
+
+        public fun onClickAmountChange()
+
+        public fun onClickDescriptionChange()
 
         public fun onClickBack()
     }
@@ -90,6 +98,22 @@ public fun PresetDetailScreen(
     uiState.showNameChangeDialog?.let { dialog ->
         FullScreenTextInput(
             title = "プリセット名変更",
+            onComplete = { dialog.event.onCompleted(it) },
+            canceled = { dialog.event.onDismiss() },
+            default = dialog.defaultText,
+        )
+    }
+    uiState.showAmountChangeDialog?.let { dialog ->
+        FullScreenTextInput(
+            title = "金額変更",
+            onComplete = { dialog.event.onCompleted(it) },
+            canceled = { dialog.event.onDismiss() },
+            default = dialog.defaultText,
+        )
+    }
+    uiState.showDescriptionChangeDialog?.let { dialog ->
+        FullScreenTextInput(
+            title = "概要変更",
             onComplete = { dialog.event.onCompleted(it) },
             canceled = { dialog.event.onDismiss() },
             default = dialog.defaultText,
@@ -171,6 +195,16 @@ public fun PresetDetailScreen(
                             title = "サブカテゴリ",
                             value = state.subCategoryName,
                             onClick = { uiState.event.onClickSubCategoryChange() },
+                        )
+                        SettingItem(
+                            title = "金額",
+                            value = state.amount?.toString() ?: "未設定",
+                            onClick = { uiState.event.onClickAmountChange() },
+                        )
+                        SettingItem(
+                            title = "概要",
+                            value = state.description ?: "未設定",
+                            onClick = { uiState.event.onClickDescriptionChange() },
                         )
                     }
                 }

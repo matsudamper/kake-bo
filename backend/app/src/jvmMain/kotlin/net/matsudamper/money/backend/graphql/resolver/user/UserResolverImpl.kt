@@ -260,6 +260,8 @@ class UserResolverImpl : UserResolver {
                     id = preset.presetId,
                     name = preset.name,
                     subCategory = preset.subCategoryId?.let { QlMoneyUsageSubCategory(id = it) },
+                    amount = preset.amount,
+                    description = preset.description,
                 )
             }
         }.toDataFetcher()
@@ -280,6 +282,8 @@ class UserResolverImpl : UserResolver {
                 id = result.presetId,
                 name = result.name,
                 subCategory = result.subCategoryId?.let { QlMoneyUsageSubCategory(id = it) },
+                amount = result.amount,
+                description = result.description,
             )
         }.toDataFetcher()
     }

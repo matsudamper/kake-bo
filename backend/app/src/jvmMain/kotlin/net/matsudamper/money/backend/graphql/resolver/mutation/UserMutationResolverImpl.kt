@@ -889,6 +889,8 @@ class UserMutationResolverImpl : UserMutationResolver {
                     userId = userId,
                     name = input.name,
                     subCategoryId = input.subCategoryId,
+                    amount = input.amount,
+                    description = input.description,
                 )
             when (addResult) {
                 is MoneyUsagePresetRepository.AddPresetResult.Failed -> throw addResult.error
@@ -898,6 +900,8 @@ class UserMutationResolverImpl : UserMutationResolver {
                             id = addResult.result.presetId,
                             name = addResult.result.name,
                             subCategory = addResult.result.subCategoryId?.let { QlMoneyUsageSubCategory(id = it) },
+                            amount = addResult.result.amount,
+                            description = addResult.result.description,
                         ),
                     )
                 }
@@ -919,6 +923,8 @@ class UserMutationResolverImpl : UserMutationResolver {
                     presetId = input.id,
                     name = input.name.toDbUpdateValue(),
                     subCategoryId = input.subCategoryId.toDbUpdateValue(),
+                    amount = input.amount.toDbUpdateValue(),
+                    description = input.description.toDbUpdateValue(),
                 ) ?: throw IllegalStateException("update money usage preset failed")
 
             QlUpdateMoneyUsagePresetResult(
@@ -926,6 +932,8 @@ class UserMutationResolverImpl : UserMutationResolver {
                     id = updateResult.presetId,
                     name = updateResult.name,
                     subCategory = updateResult.subCategoryId?.let { QlMoneyUsageSubCategory(id = it) },
+                    amount = updateResult.amount,
+                    description = updateResult.description,
                 ),
             )
         }.toDataFetcher()
