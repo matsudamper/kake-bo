@@ -35,16 +35,14 @@ query GetMoneyUsagePreset($id: MoneyUsagePresetId!) {
 mutation AddMoneyUsagePreset($input: AddMoneyUsagePresetInput!) {
     userMutation {
         addMoneyUsagePreset(input: $input) {
-            preset {
+            id
+            name
+            subCategory {
                 id
                 name
-                subCategory {
-                    id
-                    name
-                }
-                amount
-                description
             }
+            amount
+            description
         }
     }
 }
@@ -52,20 +50,18 @@ mutation AddMoneyUsagePreset($input: AddMoneyUsagePresetInput!) {
 mutation UpdateMoneyUsagePreset($input: UpdateMoneyUsagePresetInput!) {
     userMutation {
         updateMoneyUsagePreset(input: $input) {
-            preset {
+            id
+            name
+            subCategory {
                 id
                 name
-                subCategory {
+                category {
                     id
                     name
-                    category {
-                        id
-                        name
-                    }
                 }
-                amount
-                description
             }
+            amount
+            description
         }
     }
 }

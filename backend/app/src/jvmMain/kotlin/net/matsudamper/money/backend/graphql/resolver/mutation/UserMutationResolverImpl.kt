@@ -50,7 +50,6 @@ import net.matsudamper.money.graphql.model.QlAddCategoryResult
 import net.matsudamper.money.graphql.model.QlAddImportedMailCategoryFilterConditionInput
 import net.matsudamper.money.graphql.model.QlAddImportedMailCategoryFilterInput
 import net.matsudamper.money.graphql.model.QlAddMoneyUsagePresetInput
-import net.matsudamper.money.graphql.model.QlAddMoneyUsagePresetResult
 import net.matsudamper.money.graphql.model.QlAddSubCategoryError
 import net.matsudamper.money.graphql.model.QlAddSubCategoryInput
 import net.matsudamper.money.graphql.model.QlAddSubCategoryResult
@@ -78,7 +77,6 @@ import net.matsudamper.money.graphql.model.QlUpdateCategoryQuery
 import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterConditionInput
 import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterInput
 import net.matsudamper.money.graphql.model.QlUpdateMoneyUsagePresetInput
-import net.matsudamper.money.graphql.model.QlUpdateMoneyUsagePresetResult
 import net.matsudamper.money.graphql.model.QlUpdateSubCategoryQuery
 import net.matsudamper.money.graphql.model.QlUpdateUsageQuery
 import net.matsudamper.money.graphql.model.QlUserFidoLoginInput
@@ -880,7 +878,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         userMutation: QlUserMutation,
         input: QlAddMoneyUsagePresetInput,
         env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<QlAddMoneyUsagePresetResult>> {
+    ): CompletionStage<DataFetcherResult<QlMoneyUsagePreset>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
         return CompletableFuture.supplyAsync {
@@ -895,14 +893,12 @@ class UserMutationResolverImpl : UserMutationResolver {
             when (addResult) {
                 is MoneyUsagePresetRepository.AddPresetResult.Failed -> throw addResult.error
                 is MoneyUsagePresetRepository.AddPresetResult.Success -> {
-                    QlAddMoneyUsagePresetResult(
-                        preset = QlMoneyUsagePreset(
-                            id = addResult.result.presetId,
-                            name = addResult.result.name,
-                            subCategory = addResult.result.subCategoryId?.let { QlMoneyUsageSubCategory(id = it) },
-                            amount = addResult.result.amount,
-                            description = addResult.result.description,
-                        ),
+                    QlMoneyUsagePreset(
+                        id = addResult.result.presetId,
+                        name = addResult.result.name,
+                        subCategory = addResult.result.subCategoryId?.let { QlMoneyUsageSubCategory(id = it) },
+                        amount = addResult.result.amount,
+                        description = addResult.result.description,
                     )
                 }
             }
@@ -913,7 +909,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         userMutation: QlUserMutation,
         input: QlUpdateMoneyUsagePresetInput,
         env: DataFetchingEnvironment,
-    ): CompletionStage<DataFetcherResult<QlUpdateMoneyUsagePresetResult>> {
+    ): CompletionStage<DataFetcherResult<QlMoneyUsagePreset>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
         return CompletableFuture.supplyAsync {
@@ -927,14 +923,12 @@ class UserMutationResolverImpl : UserMutationResolver {
                     description = input.description.toDbUpdateValue(),
                 ) ?: throw IllegalStateException("update money usage preset failed")
 
-            QlUpdateMoneyUsagePresetResult(
-                preset = QlMoneyUsagePreset(
-                    id = updateResult.presetId,
-                    name = updateResult.name,
-                    subCategory = updateResult.subCategoryId?.let { QlMoneyUsageSubCategory(id = it) },
-                    amount = updateResult.amount,
-                    description = updateResult.description,
-                ),
+            QlMoneyUsagePreset(
+                id = updateResult.presetId,
+                name = updateResult.name,
+                subCategory = updateResult.subCategoryId?.let { QlMoneyUsageSubCategory(id = it) },
+                amount = updateResult.amount,
+                description = updateResult.description,
             )
         }.toDataFetcher()
     }
