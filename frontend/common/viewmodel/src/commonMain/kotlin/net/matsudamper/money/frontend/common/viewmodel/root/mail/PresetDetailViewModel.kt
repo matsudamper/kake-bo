@@ -13,6 +13,7 @@ import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
+import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.PresetDetailScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
@@ -69,7 +70,7 @@ public class PresetDetailViewModel(
             },
             loadingState = PresetDetailScreenUiState.LoadingState.Loading,
             showNameChangeDialog = null,
-            showAmountChangeDialog = null,
+            numberInputDialog = null,
             showDescriptionChangeDialog = null,
             categorySelectDialog = null,
             event = object : PresetDetailScreenUiState.Event {
@@ -126,27 +127,29 @@ public class PresetDetailViewModel(
                     val preset = viewModelStateFlow.value.preset ?: return
                     viewModelStateFlow.update { state ->
                         state.copy(
-                            showAmountChangeDialog = PresetDetailScreenUiState.FullScreenInputDialog(
-                                defaultText = preset.amount?.toString().orEmpty(),
-                                event = object : PresetDetailScreenUiState.FullScreenInputDialog.Event {
-                                    override fun onDismiss() {
-                                        dismissAmountChangeDialog()
+                            numberInputDialog = PresetDetailScreenUiState.NumberInputDialog(
+                                value = NumberInputValue.default(preset.amount ?: 0),
+                                onChangeValue = { value ->
+                                    viewModelStateFlow.update { s ->
+                                        s.copy(
+                                            numberInputDialog = s.numberInputDialog?.copy(value = value),
+                                        )
                                     }
-
-                                    override fun onCompleted(text: String) {
-                                        viewModelScope.launch {
-                                            val amount = text.takeIf { it.isNotBlank() }?.toIntOrNull()
-                                            val updateResult = api.updatePreset(
-                                                id = presetId,
-                                                amount = Optional.present(amount),
-                                            )
-                                            if (updateResult?.data?.userMutation?.updateMoneyUsagePreset?.preset == null) {
-                                                showScreenError()
-                                                return@launch
-                                            }
-                                            dismissAmountChangeDialog()
-                                            fetch()
+                                },
+                                dismissRequest = {
+                                    val value = viewModelStateFlow.value.numberInputDialog?.value
+                                    dismissNumberInputDialog()
+                                    if (value == null) return@NumberInputDialog
+                                    viewModelScope.launch {
+                                        val updateResult = api.updatePreset(
+                                            id = presetId,
+                                            amount = Optional.present(value.value),
+                                        )
+                                        if (updateResult?.data?.userMutation?.updateMoneyUsagePreset?.preset == null) {
+                                            showScreenError()
+                                            return@launch
                                         }
+                                        fetch()
                                     }
                                 },
                             ),
@@ -207,7 +210,7 @@ public class PresetDetailViewModel(
                             )
                         },
                         showNameChangeDialog = state.showNameChangeDialog,
-                        showAmountChangeDialog = state.showAmountChangeDialog,
+                        numberInputDialog = state.numberInputDialog,
                         showDescriptionChangeDialog = state.showDescriptionChangeDialog,
                         categorySelectDialog = state.categorySelectDialog,
                     )
@@ -260,7 +263,7 @@ public class PresetDetailViewModel(
                 isLoading = false,
                 isError = true,
                 showNameChangeDialog = null,
-                showAmountChangeDialog = null,
+                numberInputDialog = null,
                 showDescriptionChangeDialog = null,
                 categorySelectDialog = null,
             )
@@ -273,9 +276,9 @@ public class PresetDetailViewModel(
         }
     }
 
-    private fun dismissAmountChangeDialog() {
+    private fun dismissNumberInputDialog() {
         viewModelStateFlow.update { state ->
-            state.copy(showAmountChangeDialog = null)
+            state.copy(numberInputDialog = null)
         }
     }
 
@@ -290,7 +293,7 @@ public class PresetDetailViewModel(
         val isError: Boolean = false,
         val preset: ViewModelPreset? = null,
         val showNameChangeDialog: PresetDetailScreenUiState.FullScreenInputDialog? = null,
-        val showAmountChangeDialog: PresetDetailScreenUiState.FullScreenInputDialog? = null,
+        val numberInputDialog: PresetDetailScreenUiState.NumberInputDialog? = null,
         val showDescriptionChangeDialog: PresetDetailScreenUiState.FullScreenInputDialog? = null,
         val categorySelectDialog: CategorySelectDialogUiState? = null,
     )

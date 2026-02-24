@@ -25,12 +25,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
+import net.matsudamper.money.frontend.common.ui.layout.NumberInput
+import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingScaffold
 
@@ -38,11 +41,17 @@ public data class PresetDetailScreenUiState(
     val kakeboScaffoldListener: KakeboScaffoldListener,
     val loadingState: LoadingState,
     val showNameChangeDialog: FullScreenInputDialog?,
-    val showAmountChangeDialog: FullScreenInputDialog?,
+    val numberInputDialog: NumberInputDialog?,
     val showDescriptionChangeDialog: FullScreenInputDialog?,
     val categorySelectDialog: CategorySelectDialogUiState?,
     val event: Event,
 ) {
+    public data class NumberInputDialog(
+        val value: NumberInputValue,
+        val onChangeValue: (NumberInputValue) -> Unit,
+        val dismissRequest: () -> Unit,
+    )
+
     public data class FullScreenInputDialog(
         val defaultText: String,
         val event: Event,
@@ -103,13 +112,14 @@ public fun PresetDetailScreen(
             default = dialog.defaultText,
         )
     }
-    uiState.showAmountChangeDialog?.let { dialog ->
-        FullScreenTextInput(
-            title = "金額変更",
-            onComplete = { dialog.event.onCompleted(it) },
-            canceled = { dialog.event.onDismiss() },
-            default = dialog.defaultText,
-        )
+    uiState.numberInputDialog?.let { dialog ->
+        Dialog(onDismissRequest = { dialog.dismissRequest() }) {
+            NumberInput(
+                value = dialog.value,
+                onChangeValue = { dialog.onChangeValue(it) },
+                dismissRequest = { dialog.dismissRequest() },
+            )
+        }
     }
     uiState.showDescriptionChangeDialog?.let { dialog ->
         FullScreenTextInput(
