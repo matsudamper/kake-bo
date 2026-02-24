@@ -125,6 +125,7 @@ public class ImportedMailScreenViewModel(
             ),
             usage = mail.usages.map {
                 MailScreenUiState.LinkedUsage(
+                    id = it.id.toString(),
                     title = it.title,
                     amount = run amount@{
                         val splitAmount = Formatter.formatMoney(it.amount)
@@ -154,6 +155,7 @@ public class ImportedMailScreenViewModel(
             }.toImmutableList(),
             usageSuggest = mail.suggestUsages.mapIndexed { index, suggestUsage ->
                 MailScreenUiState.UsageSuggest(
+                    id = index.toString(),
                     title = suggestUsage.title,
                     serviceName = suggestUsage.serviceName.orEmpty(),
                     amount = run amount@{

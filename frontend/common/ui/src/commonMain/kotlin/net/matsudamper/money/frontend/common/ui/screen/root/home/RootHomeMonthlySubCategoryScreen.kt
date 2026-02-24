@@ -121,7 +121,7 @@ private fun LoadedContent(
                     sortOrderType = uiState.sortOrder,
                 )
             }
-            items(loadingState.items) { item ->
+            items(loadingState.items, key = { it.id }) { item ->
                 ListItem(
                     item = item,
                     modifier = Modifier

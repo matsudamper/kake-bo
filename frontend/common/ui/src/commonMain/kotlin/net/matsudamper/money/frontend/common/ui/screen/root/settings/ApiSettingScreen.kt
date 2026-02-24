@@ -91,6 +91,7 @@ public data class ApiSettingScreenUiState(
     }
 
     public data class Token(
+        val id: String,
         val name: String,
         val expiresAt: String,
         val event: Event,
@@ -283,7 +284,7 @@ private fun Content(
                 bottom = paddingValues.calculateBottomPadding(),
             ),
         ) {
-            items(uiState.tokens) { token ->
+            items(uiState.tokens, key = { it.id }) { token ->
                 Card(
                     modifier = Modifier.fillMaxWidth()
                         .padding(8.dp),

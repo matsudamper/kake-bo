@@ -55,6 +55,7 @@ public data class SettingCategoriesScreenUiState(
     }
 
     public data class CategoryItem(
+        val id: String,
         val name: String,
         val color: Color?,
         val event: Event,
@@ -158,7 +159,7 @@ public fun MainContent(
                         item {
                             Spacer(Modifier.height(24.dp))
                         }
-                        items(state.item) { item ->
+                        items(state.item, key = { it.id }) { item ->
                             SettingListMenuItemButton(
                                 modifier = Modifier
                                     .fillMaxWidth(),

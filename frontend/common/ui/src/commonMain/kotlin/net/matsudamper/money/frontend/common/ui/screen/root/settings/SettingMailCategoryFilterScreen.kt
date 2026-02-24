@@ -59,6 +59,7 @@ public data class SettingMailCategoryFilterScreenUiState(
     }
 
     public data class Item(
+        val id: String,
         val title: String,
         val event: ItemEvent,
     )
@@ -185,7 +186,7 @@ private fun LoadedContent(
                 bottom = contentPadding.calculateBottomPadding() + fabSize + fabPadding * 2,
             ),
         ) {
-            items(uiState.filters) { item ->
+            items(uiState.filters, key = { it.id }) { item ->
                 SettingListMenuItemButton(onClick = { item.event.onClick() }) {
                     Text(item.title)
                 }

@@ -252,6 +252,7 @@ public class SettingCategoryViewModel(
 
     private fun createItemUiState(item: CategorySettingScreenSubCategoriesPagingQuery.Node): SettingCategoryScreenUiState.SubCategoryItem {
         return SettingCategoryScreenUiState.SubCategoryItem(
+            id = item.id.toString(),
             name = item.name,
             event = object : SettingCategoryScreenUiState.SubCategoryItem.Event {
                 override fun onClick() {

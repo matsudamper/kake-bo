@@ -143,6 +143,7 @@ public class ApiSettingScreenViewModel(
                             ApiSettingScreenUiState.LoadingState.Loaded(
                                 tokens = viewModelState.tokens.map { token ->
                                     ApiSettingScreenUiState.Token(
+                                        id = token.id.toString(),
                                         name = token.name,
                                         expiresAt = run expire@{
                                             val expire = token.expiresAt ?: return@expire "期限なし"

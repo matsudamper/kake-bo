@@ -75,6 +75,7 @@ public data class LoginSettingScreenUiState(
     }
 
     public data class Session(
+        val id: String,
         val name: String,
         val lastAccess: String,
         val event: Event,
@@ -96,6 +97,7 @@ public data class LoginSettingScreenUiState(
     )
 
     public data class Fido(
+        val id: String,
         val name: String,
         val event: Event,
     ) {
@@ -303,7 +305,7 @@ private fun FidoSection(
             modifier = Modifier.fillMaxWidth()
                 .weight(1f),
         ) {
-            items(fidoList) { fido ->
+            items(fidoList, key = { it.id }) { fido ->
                 Surface(
                     modifier = Modifier.fillMaxWidth()
                         .padding(top = 8.dp),
@@ -386,7 +388,7 @@ private fun SessionSection(
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
             )
         }
-        items(sessionList) { session ->
+        items(sessionList, key = { it.id }) { session ->
             SessionItem(
                 session = session,
                 modifier = Modifier.fillMaxWidth()

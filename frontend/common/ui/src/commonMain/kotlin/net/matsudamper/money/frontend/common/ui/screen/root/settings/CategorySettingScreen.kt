@@ -90,6 +90,7 @@ public data class SettingCategoryScreenUiState(
     }
 
     public data class SubCategoryItem(
+        val id: String,
         val name: String,
         val event: Event,
     ) {
@@ -283,6 +284,7 @@ private fun LoadedContent(
             }
             items(
                 items = loadedState.item,
+                key = { it.id },
             ) { item ->
                 SubCategoryItem(
                     modifier = Modifier

@@ -107,6 +107,7 @@ public class SettingCategoriesViewModel(
                         SettingCategoriesScreenUiState.LoadingState.Loaded(
                             item = items.map { item ->
                                 SettingCategoriesScreenUiState.CategoryItem(
+                                    id = item.id.toString(),
                                     name = item.name,
                                     color = item.color?.let(ColorUtil::parseHexColor),
                                     event = object : SettingCategoriesScreenUiState.CategoryItem.Event {

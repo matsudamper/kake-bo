@@ -29,6 +29,7 @@ public data class CategorySelectDialogUiState(
     }
 
     public data class Category(
+        val id: String,
         val name: String,
         val isSelected: Boolean,
         val onSelected: () -> Unit,

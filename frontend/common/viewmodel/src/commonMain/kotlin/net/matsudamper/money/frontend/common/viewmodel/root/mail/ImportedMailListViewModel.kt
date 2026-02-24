@@ -92,6 +92,7 @@ public class ImportedMailListViewModel(
                             showLastLoading = viewModelState.mailState.finishLoadingToEnd.not(),
                             listItems = viewModelState.mailState.mails.map { mail ->
                                 ImportedMailListScreenUiState.ListItem(
+                                    id = mail.id.toString(),
                                     mail = ImportedMailListScreenUiState.ImportedMail(
                                         mailFrom = mail.from,
                                         mailSubject = mail.subject,

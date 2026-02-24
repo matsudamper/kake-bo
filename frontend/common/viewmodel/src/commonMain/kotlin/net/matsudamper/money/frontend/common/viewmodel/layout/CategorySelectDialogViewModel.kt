@@ -254,6 +254,7 @@ internal class CategorySelectDialogViewModel(
                             } else {
                                 response.nodes.map { item ->
                                     CategorySelectDialogUiState.Category(
+                                        id = item.id.toString(),
                                         name = item.name,
                                         isSelected = item.id == categorySet.category?.id,
                                         onSelected = {
@@ -306,6 +307,7 @@ internal class CategorySelectDialogViewModel(
                             } else {
                                 subCategories.nodes.map { item ->
                                     CategorySelectDialogUiState.Category(
+                                        id = item.id.toString(),
                                         name = item.name,
                                         isSelected = item.id == categorySet.subCategory?.id,
                                         onSelected = {

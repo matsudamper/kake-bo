@@ -61,7 +61,10 @@ public data class RootUsageListScreenUiState(
 
     @Immutable
     public sealed interface Item {
+        public val id: String
+
         public data class Usage(
+            override val id: String,
             val title: String,
             val date: String,
             val amount: String,
@@ -70,6 +73,7 @@ public data class RootUsageListScreenUiState(
         ) : Item
 
         public data class Title(
+            override val id: String,
             val title: String,
         ) : Item
     }
@@ -175,6 +179,7 @@ private fun LoadedContent(
         }
         items(
             items = uiState.items,
+            key = { it.id },
             contentType = { it::class },
         ) { item ->
             when (item) {

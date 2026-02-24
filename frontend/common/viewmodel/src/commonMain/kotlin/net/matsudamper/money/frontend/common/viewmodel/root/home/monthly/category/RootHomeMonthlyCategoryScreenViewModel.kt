@@ -168,6 +168,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
 
     private fun createItem(node: MonthlyCategoryScreenListQuery.Node): RootHomeMonthlyCategoryScreenUiState.Item {
         return RootHomeMonthlyCategoryScreenUiState.Item(
+            id = node.id.toString(),
             title = node.title,
             amount = "${Formatter.formatMoney(node.amount)}円",
             subCategory = node.moneyUsageSubCategory?.name.orEmpty(),

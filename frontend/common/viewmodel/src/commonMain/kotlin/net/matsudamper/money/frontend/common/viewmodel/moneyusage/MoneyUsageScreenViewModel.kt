@@ -145,6 +145,7 @@ public class MoneyUsageScreenViewModel(
                                 ),
                                 linkedMails = moneyUsage.linkedMail.orEmpty().map { mail ->
                                     MoneyUsageScreenUiState.MailItem(
+                                        id = mail.id.toString(),
                                         subject = mail.subject,
                                         from = mail.from,
                                         date = mail.dateTime.toString(),

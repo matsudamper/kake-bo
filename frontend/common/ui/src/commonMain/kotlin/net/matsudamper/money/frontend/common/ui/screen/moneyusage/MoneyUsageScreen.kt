@@ -157,6 +157,7 @@ public data class MoneyUsageScreenUiState(
     }
 
     public data class MailItem(
+        val id: String,
         val subject: String,
         val from: String,
         val date: String,
@@ -426,7 +427,7 @@ private fun LoadedContent(
                 HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
             }
             if (uiState.linkedMails.isNotEmpty()) {
-                items(uiState.linkedMails) { mail ->
+                items(uiState.linkedMails, key = { it.id }) { mail ->
                     Card(
                         modifier = Modifier.fillMaxWidth()
                             .padding(8.dp),

@@ -187,6 +187,7 @@ public class ImportedMailFilterCategoryViewModel(
                 .map { it.importedMailCategoryConditionScreenItem }
                 .map { condition ->
                     ImportedMailFilterCategoryScreenUiState.Condition(
+                        id = condition.id.toString(),
                         text = condition.text,
                         source = when (condition.dataSourceType) {
                             ImportedMailCategoryFilterDataSourceType.MailHtml -> ImportedMailFilterCategoryScreenUiState.DataSource.MailHtml

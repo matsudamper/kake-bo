@@ -98,6 +98,7 @@ public class MoneyUsagesListViewModel(
                             if (lastMonth == null || lastMonth?.month != result.date.month) {
                                 add(
                                     RootUsageListScreenUiState.Item.Title(
+                                        id = "title_${result.date.year}_${result.date.monthNumber}",
                                         title = buildString {
                                             append("${result.date.year}年")
                                             append("${result.date.monthNumber}月")
@@ -108,6 +109,7 @@ public class MoneyUsagesListViewModel(
                             }
                             add(
                                 RootUsageListScreenUiState.Item.Usage(
+                                    id = result.id.toString(),
                                     title = result.title,
                                     amount = "${Formatter.formatMoney(result.amount)}円",
                                     date = Formatter.formatDateTime(result.date),

@@ -155,6 +155,7 @@ public data class ImportedMailFilterCategoryScreenUiState(
     }
 
     public data class Condition(
+        val id: String,
         val text: String,
         val source: DataSource,
         val conditionType: ConditionType,
@@ -507,7 +508,7 @@ private fun LoadedContent(
                     }
                 }
             } else {
-                items(uiState.conditions) { item ->
+                items(uiState.conditions, key = { it.id }) { item ->
                     ConditionCard(
                         modifier = Modifier.fillMaxWidth()
                             .padding(vertical = 8.dp),
