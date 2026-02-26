@@ -33,7 +33,7 @@ jobs:
           CI: true
         run: ./gradlew :frontend:app:assembleDebug
       - id: upload_apk
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: apk
           path: frontend/app/build/outputs/apk/debug/*.apk
@@ -87,7 +87,7 @@ jobs:
         run: |
           mkdir -p .tmp/reports
           find -wholename "*/build/reports" | xargs -I {} bash -c "mkdir -p .tmp/reports/{} && cp -r {} .tmp/reports/{}"
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: reports
