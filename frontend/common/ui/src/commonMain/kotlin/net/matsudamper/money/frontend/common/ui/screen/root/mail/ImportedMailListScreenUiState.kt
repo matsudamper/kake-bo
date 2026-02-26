@@ -49,7 +49,6 @@ public data class ImportedMailListScreenUiState(
     }
 
     public data class ListItem(
-        val id: String,
         val mail: ImportedMail,
         val usages: ImmutableList<UsageItem>,
         val event: ListItemEvent,

@@ -86,7 +86,6 @@ public class CalendarDateListViewModel(
 
                 val items = nodes.map { result ->
                     CalendarDateListScreenUiState.Item(
-                        id = result.id.toString(),
                         title = result.title,
                         amount = "${Formatter.formatMoney(result.amount)}円",
                         date = Formatter.formatDateTime(result.date),
@@ -95,10 +94,7 @@ public class CalendarDateListViewModel(
                             "${subCategory.category.name} / ${subCategory.name}"
                         },
                         images = result.images.map { image ->
-                            CalendarDateListScreenUiState.ImageItem(
-                                id = image.url,
-                                url = image.url,
-                            )
+                            CalendarDateListScreenUiState.ImageItem(url = image.url)
                         }.toImmutableList(),
                         event = object : CalendarDateListScreenUiState.ItemEvent {
                             override fun onClick() {

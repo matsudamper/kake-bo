@@ -58,7 +58,6 @@ public data class RootHomeMonthlyScreenUiState(
     }
 
     public data class Item(
-        val id: String,
         val title: String,
         val amount: String,
         val date: String,
@@ -178,7 +177,7 @@ private fun LoadedContent(
                     sortOrderType = uiState.sortOrder,
                 )
             }
-            items(loadingState.items, key = { it.id }) { item ->
+            items(loadingState.items) { item ->
                 Card(
                     modifier = Modifier.padding(vertical = 2.dp),
                     onClick = {

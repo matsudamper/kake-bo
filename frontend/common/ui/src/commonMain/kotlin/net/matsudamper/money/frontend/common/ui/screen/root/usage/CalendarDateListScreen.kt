@@ -65,7 +65,6 @@ public data class CalendarDateListScreenUiState(
     }
 
     public data class Item(
-        val id: String,
         val title: String,
         val date: String,
         val amount: String,
@@ -75,7 +74,6 @@ public data class CalendarDateListScreenUiState(
     )
 
     public data class ImageItem(
-        val id: String,
         val url: String,
     )
 
@@ -181,7 +179,7 @@ private fun LoadedContent(
         modifier = modifier,
         state = lazyListState,
     ) {
-        items(uiState.items, key = { it.id }) { item ->
+        items(uiState.items) { item ->
             var selectedImageUrl by remember { mutableStateOf<String?>(null) }
             val currentSelectedImageUrl = selectedImageUrl
             if (currentSelectedImageUrl != null) {
@@ -243,7 +241,7 @@ private fun LoadedContent(
                             .padding(bottom = 12.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        items(item.images, key = { it.id }) { imageItem ->
+                        items(item.images) { imageItem ->
                             AsyncImage(
                                 model = imageItem.url,
                                 contentDescription = null,

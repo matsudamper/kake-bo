@@ -51,7 +51,6 @@ public data class RootHomeMonthlyCategoryScreenUiState(
     val sortOrder: SortSectionOrder,
 ) {
     public data class Item(
-        val id: String,
         val title: String,
         val amount: String,
         val subCategory: String,
@@ -194,7 +193,7 @@ private fun LoadedContent(
                     sortOrderType = uiState.sortOrder,
                 )
             }
-            items(loadingState.items, key = { it.id }) { item ->
+            items(loadingState.items) { item ->
                 ListItem(
                     item = item,
                     modifier = Modifier

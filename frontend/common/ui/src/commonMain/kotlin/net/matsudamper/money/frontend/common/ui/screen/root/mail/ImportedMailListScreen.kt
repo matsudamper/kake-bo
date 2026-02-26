@@ -204,7 +204,7 @@ private fun MainContent(
                     modifier = Modifier.fillMaxSize(),
                     state = lazyListState,
                 ) {
-                    items(uiState.listItems, key = { it.id }) { mail ->
+                    items(uiState.listItems) { mail ->
                         SuggestUsageItem(
                             modifier = Modifier.fillMaxWidth()
                                 .padding(

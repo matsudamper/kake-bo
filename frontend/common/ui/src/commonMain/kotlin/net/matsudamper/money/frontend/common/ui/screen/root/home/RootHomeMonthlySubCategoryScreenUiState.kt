@@ -12,7 +12,6 @@ public data class RootHomeMonthlySubCategoryScreenUiState(
     val sortOrder: SortSectionOrder,
 ) {
     public data class Item(
-        val id: String,
         val title: String,
         val amount: String,
         val category: String,

@@ -112,7 +112,6 @@ public class SettingMailCategoryFiltersViewModel(
                         SettingMailCategoryFilterScreenUiState.LoadingState.Loaded(
                             filters = viewModelState.apolloResponseStates?.data?.user?.importedMailCategoryFilters?.nodes.orEmpty().map { item ->
                                 SettingMailCategoryFilterScreenUiState.Item(
-                                    id = item.id.toString(),
                                     title = item.title,
                                     event = ItemEventListener(item),
                                 )

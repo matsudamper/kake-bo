@@ -86,7 +86,6 @@ public data class MailScreenUiState(
     )
 
     public data class LinkedUsage(
-        val id: String,
         val title: String,
         val category: String?,
         val amount: String?,
@@ -100,7 +99,6 @@ public data class MailScreenUiState(
     }
 
     public data class UsageSuggest(
-        val id: String,
         val title: String,
         val amount: String?,
         val category: String?,
@@ -306,7 +304,7 @@ private fun MainContent(
                     HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
                     Spacer(modifier = Modifier.height(12.dp))
                 }
-                items(uiState.usage, key = { it.id }) { item ->
+                items(uiState.usage) { item ->
                     LinkedMoneyUsageCard(
                         modifier = Modifier.fillMaxWidth(),
                         uiState = item,
@@ -332,7 +330,7 @@ private fun MainContent(
                     )
                 }
             } else {
-                items(uiState.usageSuggest, key = { it.id }) { item ->
+                items(uiState.usageSuggest) { item ->
                     MoneyUsageSuggestCard(
                         modifier = Modifier.fillMaxWidth(),
                         items = item,

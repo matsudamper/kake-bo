@@ -176,7 +176,6 @@ public class RootHomeMonthlyScreenViewModel(
             yearMonth = "${sinceDate.year}年${sinceDate.monthNumber}月",
             items = nodes.map { node ->
                 RootHomeMonthlyScreenUiState.Item(
-                    id = node.id.toString(),
                     title = node.title,
                     amount = "${Formatter.formatMoney(node.amount)}円",
                     date = Formatter.formatDateTime(node.date),

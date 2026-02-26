@@ -98,7 +98,6 @@ public class LoginSettingViewModel(
                             } else {
                                 fidoList.map { fido ->
                                     LoginSettingScreenUiState.Fido(
-                                        id = fido.id.toString(),
                                         name = fido.name,
                                         event = FidoEventImpl(fido),
                                     )
@@ -115,7 +114,6 @@ public class LoginSettingViewModel(
                                     .filterNot { it.name == currentSession.name }
                                     .map { session ->
                                         LoginSettingScreenUiState.Session(
-                                            id = session.name,
                                             name = session.name,
                                             lastAccess = Formatter.formatDateTime(
                                                 session.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),
@@ -127,7 +125,6 @@ public class LoginSettingViewModel(
                         },
                         currentSession = run currentSession@{
                             LoginSettingScreenUiState.Session(
-                                id = currentSession.name,
                                 name = currentSession.name,
                                 lastAccess = Formatter.formatDateTime(
                                     currentSession.lastAccess.toLocalDateTime(TimeZone.currentSystemDefault()),

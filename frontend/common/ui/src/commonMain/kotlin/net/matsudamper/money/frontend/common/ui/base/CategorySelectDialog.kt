@@ -145,7 +145,7 @@ private fun CategoryPage(
             }
         } else {
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                items(items, key = { it.id }) { item ->
+                items(items) { item ->
                     CategoryItem(
                         name = item.name,
                         isSelected = item.isSelected,
