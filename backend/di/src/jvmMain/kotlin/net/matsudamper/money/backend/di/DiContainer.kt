@@ -13,6 +13,7 @@ import net.matsudamper.money.backend.app.interfaces.MoneyUsageAnalyticsRepositor
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageRepository
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryRepository
+import net.matsudamper.money.backend.app.interfaces.RecurringUsageRuleRepository
 import net.matsudamper.money.backend.app.interfaces.UserConfigRepository
 import net.matsudamper.money.backend.app.interfaces.UserImageRepository
 import net.matsudamper.money.backend.app.interfaces.UserLoginRepository
@@ -33,6 +34,7 @@ import net.matsudamper.money.backend.datasource.db.repository.DbMoneyUsageAnalyt
 import net.matsudamper.money.backend.datasource.db.repository.DbMoneyUsageCategoryRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbMoneyUsageRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbMoneyUsageSubCategoryRepository
+import net.matsudamper.money.backend.datasource.db.repository.DbRecurringUsageRuleRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbUserConfigRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbUserImageRepository
 import net.matsudamper.money.backend.datasource.db.repository.DbUserLoginRepository
@@ -81,6 +83,8 @@ interface DiContainer {
 
     fun userLoginRepository(): UserLoginRepository
     fun createApiTokenRepository(): ApiTokenRepository
+
+    fun createRecurringUsageRuleRepository(): RecurringUsageRuleRepository
     fun traceLogger(): TraceLogger
 }
 
@@ -207,6 +211,12 @@ class MainDiContainer : DiContainer {
 
     override fun createApiTokenRepository(): ApiTokenRepository {
         return ApiTokenRepositoryImpl(dbConnection = DbConnectionImpl)
+    }
+
+    private val recurringUsageRuleRepository = DbRecurringUsageRuleRepository()
+
+    override fun createRecurringUsageRuleRepository(): RecurringUsageRuleRepository {
+        return recurringUsageRuleRepository
     }
 
     override fun traceLogger(): TraceLogger {

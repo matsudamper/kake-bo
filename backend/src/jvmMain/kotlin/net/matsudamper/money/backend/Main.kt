@@ -4,6 +4,11 @@ import java.io.File
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
 import io.ktor.http.CacheControl
@@ -56,6 +61,8 @@ class Main {
                 runCatching { DbConnectionImpl.warmup() }
                     .onFailure { TraceLogger.impl().noticeThrowable(it, isError = true) }
             }
+
+            RecurringUsageBatchRunner.start()
 
             val engine = embeddedServer(
                 Netty,
@@ -259,4 +266,22 @@ private fun getAssetLinkJson(): String {
           }
         ]
     """.trimIndent()
+}
+
+private object RecurringUsageBatchRunner {
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    fun start() {
+        scope.launch {
+            while (true) {
+                runCatching {
+                    val nowDate = java.time.LocalDate.now(java.time.ZoneOffset.UTC)
+                    MainDiContainer().createRecurringUsageRuleRepository().processDueRules(nowDate).getOrThrow()
+                }.onFailure {
+                    TraceLogger.impl().noticeThrowable(it, isError = true)
+                }
+                delay(1.hours)
+            }
+        }
+    }
 }

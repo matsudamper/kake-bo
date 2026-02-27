@@ -51,6 +51,14 @@ public class HomeAddTabScreenViewModel(
                         }
                     }
                 }
+
+                override fun onClickRecurringButton() {
+                    viewModelScope.launch {
+                        navigateEventSender.send {
+                            it.navigate(ScreenStructure.Root.Add.Recurring)
+                        }
+                    }
+                }
             },
         ),
     )

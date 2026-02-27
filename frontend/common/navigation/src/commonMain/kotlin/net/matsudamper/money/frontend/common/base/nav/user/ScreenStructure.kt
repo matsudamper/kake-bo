@@ -134,6 +134,12 @@ public sealed interface ScreenStructure : IScreenStructure {
                 override val direction: Screens = Screens.MailImport
                 override val sameScreenId: String = "ScreenStructure#Root#Add#Import"
             }
+
+            @Serializable
+            public data object Recurring : Add {
+                override val direction: Screens = Screens.AddRecurringUsage
+                override val sameScreenId: String = "ScreenStructure#Root#Add#Recurring"
+            }
         }
 
         public sealed interface Usage : Root {

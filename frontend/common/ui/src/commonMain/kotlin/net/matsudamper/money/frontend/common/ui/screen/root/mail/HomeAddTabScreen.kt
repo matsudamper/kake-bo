@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -42,6 +43,7 @@ public data class HomeAddTabScreenUiState(
     public interface Event {
         public fun onClickImportButton()
         public fun onClickImportedButton()
+        public fun onClickRecurringButton()
     }
 }
 
@@ -109,6 +111,21 @@ public fun HomeAddTabScreen(
                         modifier = Modifier.padding(8.dp),
                         onClick = {
                             uiState.event.onClickImportedButton()
+                        },
+                    )
+                }
+                item {
+                    Item(
+                        title = {
+                            Text("定期使用用途を追加")
+                        },
+                        icon = {
+                            Icon(Icons.Default.DateRange, contentDescription = null)
+                            Icon(Icons.Default.Add, contentDescription = null)
+                        },
+                        modifier = Modifier.padding(8.dp),
+                        onClick = {
+                            uiState.event.onClickRecurringButton()
                         },
                     )
                 }

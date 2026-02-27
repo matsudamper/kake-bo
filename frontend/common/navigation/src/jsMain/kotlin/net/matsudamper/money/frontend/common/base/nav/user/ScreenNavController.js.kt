@@ -105,6 +105,8 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
             ScreenStructure.Root.Add.Root
         }
 
+        Screens.AddRecurringUsage -> ScreenStructure.Root.Add.Recurring
+
         Screens.AddMoneyUsage -> {
             ScreenStructure.AddMoneyUsage.fromQueryParams(
                 queryParams = queryParams,
