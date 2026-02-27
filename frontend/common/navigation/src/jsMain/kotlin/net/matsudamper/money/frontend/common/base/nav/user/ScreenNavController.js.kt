@@ -10,6 +10,7 @@ import net.matsudamper.money.element.ImportedMailCategoryFilterId
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.element.MoneyUsagePresetId
 
 private val parser = UrlPlaceHolderParser(Screens.entries)
 
@@ -86,6 +87,15 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
         }
 
         Screens.SettingsTextFieldTest -> ScreenStructure.Root.Settings.TextFieldTest
+        Screens.AddPresets -> ScreenStructure.Root.Add.Preset
+        Screens.AddPresetDetail -> {
+            ScreenStructure.Root.Add.PresetDetail(
+                id = run id@{
+                    val id = this.pathParams["id"]?.toIntOrNull() ?: return ScreenStructure.NotFound
+                    MoneyUsagePresetId(id)
+                },
+            )
+        }
 
         Screens.UsageList -> ScreenStructure.Root.Usage.List
         Screens.UsageCalendar ->
