@@ -83,8 +83,9 @@ private fun NewScreenPreview() {
 
 | 画面 | ファイル | 関数名 |
 |---|---|---|
+| 期間分析（棒グラフ） | `screen/root/home/RootHomeTabPeriodAllContent.kt` | `PeriodAnalyticsScreenPreview` |
 | ログイン | `screen/login/LoginScreen.kt` | `LoginScreenPreview` |
-| 月次ホーム | `screen/root/home/monthly/RootHomeMonthlyScreen.kt` | `HomeMonthlyScreenPreview` |
+| 月次ホーム | `screen/root/home/monthly/RootHomeMonthlyScreen.kt` | `RootHomeMonthlyScreenPreview` |
 | 支出追加 | `screen/addmoneyusage/AddMoneyUsageScreen.kt` | `AddMoneyUsageScreenPreview` |
 | 設定 | `screen/root/settings/SettingScreen.kt` | `SettingScreenPreview` |
 | カレンダー | `screen/root/usage/RootUsageCalendarScreen.kt` | `CalendarScreenPreview` |

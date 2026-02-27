@@ -2,10 +2,9 @@
 決済メールを中心とした家計簿ソフト。
 <table>
 <tr>
-<td><img width="200" src="README/LoginScreenPreview.png" /></td>
+<td><img width="200" src="README/PeriodAnalyticsScreenPreview.png" /></td>
 <td><img width="200" src="README/HomeMonthlyScreenPreview.png" /></td>
 <td><img width="200" src="README/AddMoneyUsageScreenPreview.png" /></td>
-<td><img width="200" src="README/SettingScreenPreview.png" /></td>
 <td><img width="200" src="README/CalendarScreenPreview.png" /></td>
 </tr>
 </table>
