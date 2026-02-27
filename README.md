@@ -1,29 +1,6 @@
 # 家計簿
 決済メールを中心とした家計簿ソフト。
 
-## スクリーンショット
-
-スクリーンショットは[Paparazzi](https://github.com/cashapp/paparazzi)で生成されます。
-各画面に定義された`@Preview` composableが自動的にスクリーンショットテストの対象になります。
-
-以下のコマンドで参照画像を生成・更新できます:
-```shell
-./gradlew :frontend:common:ui:recordPaparazziDebug
-```
-
-生成された画像は `frontend/common/ui/src/test/snapshots/` に出力されます。
-`README/` フォルダの画像は最新の参照画像をコピーして更新してください。
-
-<table>
-<tr>
-<td><img width="200" src="README/LoginScreenPreview.png" /></td>
-<td><img width="200" src="README/HomeMonthlyScreenPreview.png" /></td>
-<td><img width="200" src="README/AddMoneyUsageScreenPreview.png" /></td>
-<td><img width="200" src="README/SettingScreenPreview.png" /></td>
-<td><img width="200" src="README/CalendarScreenPreview.png" /></td>
-</tr>
-</table>
-
 # 機能
 - メールサーバーからメールを取得し、パースして決済情報を登録する
   - 家計簿サービスは、API連携に対応していないものはパスワードを渡さないと詳細な情報が得られない。パスワードを他人に渡したく無いため、開発された。
