@@ -76,6 +76,7 @@ val graphqlCodegen = tasks.named<GraphQLCodegenGradleTask>("graphqlCodegen") {
         "ImportedMailCategoryFilterId" to "net.matsudamper.money.element.ImportedMailCategoryFilterId",
         "Long" to "Long",
         "MoneyUsageId" to "net.matsudamper.money.element.MoneyUsageId",
+        "MoneyUsagePresetId" to "net.matsudamper.money.element.MoneyUsagePresetId",
         "LocalDateTime" to "java.time.LocalDateTime",
         "OffsetDateTime" to "java.time.OffsetDateTime",
     )

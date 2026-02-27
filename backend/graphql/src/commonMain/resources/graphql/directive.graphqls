@@ -1,1 +1,2 @@
 directive @lazy on FIELD_DEFINITION
+directive @optional on INPUT_FIELD_DEFINITION

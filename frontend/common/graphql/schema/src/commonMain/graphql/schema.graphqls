@@ -20,6 +20,16 @@ input AddImportedMailCategoryFilterInput {
   title: String!
 }
 
+input AddMoneyUsagePresetInput {
+  name: String!
+
+  subCategoryId: MoneyUsageSubCategoryId
+
+  amount: Int
+
+  description: String
+}
+
 enum AddSubCategoryError {
   CATEGORY_NOT_FOUND
 }
@@ -403,6 +413,20 @@ scalar MoneyUsageCategoryId
 
 scalar MoneyUsageId
 
+type MoneyUsagePreset {
+  id: MoneyUsagePresetId!
+
+  name: String!
+
+  subCategory: MoneyUsageSubCategory
+
+  amount: Int
+
+  description: String
+}
+
+scalar MoneyUsagePresetId
+
 type MoneyUsageSubCategory {
   id: MoneyUsageSubCategoryId!
 
@@ -577,6 +601,18 @@ input UpdateImportedMailCategoryFilterInput {
   operator: ImportedMailFilterCategoryConditionOperator
 }
 
+input UpdateMoneyUsagePresetInput {
+  id: MoneyUsagePresetId!
+
+  name: String
+
+  subCategoryId: MoneyUsageSubCategoryId
+
+  amount: Int
+
+  description: String
+}
+
 input UpdateSubCategoryQuery {
   name: String
 }
@@ -633,6 +669,10 @@ type User {
   importedMailCategoryFilters(query: ImportedMailCategoryFiltersQuery!): ImportedMailCategoryFiltersConnection
 
   importedMailCategoryFilter(id: ImportedMailCategoryFilterId!): ImportedMailCategoryFilter
+
+  moneyUsagePresets: [MoneyUsagePreset!]!
+
+  moneyUsagePreset(id: MoneyUsagePresetId!): MoneyUsagePreset
 }
 
 input UserFidoLoginInput {
@@ -759,6 +799,12 @@ type UserMutation {
   registerApiToken(name: String!): RegisterApiTokenResult!
 
   deleteApiToken(id: ApiTokenId!): DeleteApiTokenResult!
+
+  addMoneyUsagePreset(input: AddMoneyUsagePresetInput!): MoneyUsagePreset!
+
+  updateMoneyUsagePreset(input: UpdateMoneyUsagePresetInput!): MoneyUsagePreset!
+
+  deleteMoneyUsagePreset(id: MoneyUsagePresetId!): Boolean!
 }
 
 type UserSettings {
@@ -1043,6 +1089,8 @@ Directs the executor to skip this field or fragment when the `if` argument is tr
 directive @skip ("Skipped when true." if: Boolean!) on FIELD|FRAGMENT_SPREAD|INLINE_FRAGMENT
 
 directive @lazy on FIELD_DEFINITION
+
+directive @optional on INPUT_FIELD_DEFINITION
 
 """
 Marks the field, argument, input field or enum value as deprecated
