@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.graphql.resolver.mutation
 
+import java.time.LocalDate
 import java.time.ZoneOffset
 import java.util.Base64
 import java.util.concurrent.CompletableFuture
@@ -46,6 +47,7 @@ import net.matsudamper.money.graphql.model.QlAddCategoryInput
 import net.matsudamper.money.graphql.model.QlAddCategoryResult
 import net.matsudamper.money.graphql.model.QlAddImportedMailCategoryFilterConditionInput
 import net.matsudamper.money.graphql.model.QlAddImportedMailCategoryFilterInput
+import net.matsudamper.money.graphql.model.QlAddRecurringUsageRuleInput
 import net.matsudamper.money.graphql.model.QlAddSubCategoryError
 import net.matsudamper.money.graphql.model.QlAddSubCategoryInput
 import net.matsudamper.money.graphql.model.QlAddSubCategoryResult
@@ -736,6 +738,29 @@ class UserMutationResolverImpl : UserMutationResolver {
                     base64CredentialId = base64Result.base64CredentialId,
                 ),
             )
+        }.toDataFetcher()
+    }
+
+    override fun addRecurringUsageRule(
+        userMutation: QlUserMutation,
+        input: QlAddRecurringUsageRuleInput,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<Boolean>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userId = context.verifyUserSessionAndGetUserId()
+        return CompletableFuture.supplyAsync {
+            val result = context.diContainer.createRecurringUsageRuleRepository().addRule(
+                userId = userId,
+                title = input.title,
+                description = input.description,
+                amount = input.amount,
+                subCategoryId = input.subCategoryId,
+                firstUsageDate = LocalDate.parse(input.firstUsageDate),
+                intervalIsoPeriod = input.intervalIsoPeriod,
+                leadTimeIsoPeriod = input.leadTimeIsoPeriod,
+            )
+            result.getOrThrow()
+            true
         }.toDataFetcher()
     }
 

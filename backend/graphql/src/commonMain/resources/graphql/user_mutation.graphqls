@@ -13,6 +13,9 @@ type UserMutation {
     deleteUsage(id: MoneyUsageId!): Boolean!
     deleteMoneyUsageImage(usageId: MoneyUsageId!, imageId: ImageId!): Boolean!
 
+
+    addRecurringUsageRule(input: AddRecurringUsageRuleInput!): Boolean!
+
     addCategory(input: AddCategoryInput!) : AddCategoryResult!
     updateCategory(id: MoneyUsageCategoryId!, query: UpdateCategoryQuery!): MoneyUsageCategory!
 
@@ -186,4 +189,15 @@ input UpdateUserImapConfigInput {
     port: Int
     userName: String
     password: String
+}
+
+
+input AddRecurringUsageRuleInput {
+    title: String!
+    description: String!
+    subCategoryId: MoneyUsageSubCategoryId
+    amount: Int!
+    firstUsageDate: String!
+    intervalIsoPeriod: String!
+    leadTimeIsoPeriod: String!
 }

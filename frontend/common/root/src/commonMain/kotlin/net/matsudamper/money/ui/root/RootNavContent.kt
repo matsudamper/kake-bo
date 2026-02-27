@@ -23,6 +23,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeri
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodSubCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.monthly.RootHomeMonthlyPagerHostScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.mail.AddRecurringUsageScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeAddTabScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeAddTabScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportMailScreenUiState
@@ -316,6 +317,10 @@ internal fun RootNavContent(
                             uiState = importMailScreenUiStateProvider(current),
                             windowInsets = windowInsets,
                         )
+                    }
+
+                    is ScreenStructure.Root.Add.Recurring -> {
+                        AddRecurringUsageScreen(windowInsets = windowInsets)
                     }
                 }
             }

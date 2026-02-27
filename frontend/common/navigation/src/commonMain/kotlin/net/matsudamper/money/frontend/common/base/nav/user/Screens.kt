@@ -102,6 +102,10 @@ public enum class Screens : Direction {
         override val title: String = "インポート済みメール"
         override val placeholderUrl: String = "/mail/imported"
     },
+    AddRecurringUsage {
+        override val title: String = "定期使用用途追加"
+        override val placeholderUrl: String = "/add/recurring-usage"
+    },
     Add {
         override val title: String = "登録"
         override val placeholderUrl: String = "/add"

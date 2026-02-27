@@ -180,3 +180,21 @@ VALUES (0, 0, '含む'),
        (1, 1, '含まない'),
        (2, 2, '一致する'),
        (3, 3, '一致しない');
+
+
+CREATE TABLE recurring_usage_rules
+(
+    recurring_usage_rule_id     INT PRIMARY KEY AUTO_INCREMENT,
+    user_id                     INT          not null,
+    title                       VARCHAR(500) not null,
+    description                 VARCHAR(1000) not null,
+    amount                      INT          not null,
+    money_usage_sub_category_id INT,
+    next_usage_date             DATE         not null,
+    interval_iso                VARCHAR(20)  not null,
+    lead_time_iso               VARCHAR(20)  not null,
+    created_datetime            DATETIME DEFAULT CURRENT_TIMESTAMP not null,
+    update_datetime             DATETIME DEFAULT CURRENT_TIMESTAMP not null ON UPDATE CURRENT_TIMESTAMP,
+    INDEX user_id (user_id),
+    INDEX next_usage_date (next_usage_date)
+);
