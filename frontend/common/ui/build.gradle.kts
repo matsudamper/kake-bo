@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     id("net.matsudamper.money.buildlogic.compose")
     id("net.matsudamper.money.buildlogic.androidLibrary")
+    alias(libs.plugins.paparazzi)
 }
 
 kotlin {
@@ -52,6 +53,11 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+            }
+        }
+        val androidUnitTest by getting {
+            dependencies {
+                implementation(libs.paparazzi)
             }
         }
     }

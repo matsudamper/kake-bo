@@ -26,15 +26,19 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSection
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionOrder
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionType
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 public data class RootHomeMonthlyScreenUiState(
     val loadingState: LoadingState,
@@ -237,5 +241,64 @@ private fun LoadedContent(
                 }
             }
         }
+    }
+}
+
+@Composable
+@Preview
+private fun RootHomeMonthlyScreenPreview() {
+    val noOpItemEvent = object : RootHomeMonthlyScreenUiState.ItemEvent {
+        override fun onClick() {}
+    }
+    AppRoot(isDarkTheme = false) {
+        RootHomeMonthlyScreen(
+            modifier = Modifier.fillMaxSize(),
+            uiState = RootHomeMonthlyScreenUiState(
+                loadingState = RootHomeMonthlyScreenUiState.LoadingState.Loaded(
+                    yearMonth = "2026年2月",
+                    totalAmount = "¥128,450",
+                    items = listOf(
+                        RootHomeMonthlyScreenUiState.Item(
+                            title = "Amazon.co.jp",
+                            amount = "¥3,280",
+                            date = "2026/02/25",
+                            category = "ショッピング",
+                            event = noOpItemEvent,
+                        ),
+                        RootHomeMonthlyScreenUiState.Item(
+                            title = "スーパーマーケット",
+                            amount = "¥5,430",
+                            date = "2026/02/24",
+                            category = "食費",
+                            event = noOpItemEvent,
+                        ),
+                        RootHomeMonthlyScreenUiState.Item(
+                            title = "電気料金",
+                            amount = "¥8,200",
+                            date = "2026/02/20",
+                            category = "光熱費",
+                            event = noOpItemEvent,
+                        ),
+                    ).toImmutableList(),
+                    pieChartItems = listOf(
+                        PieChartItem(color = Color(0xFF558B2F), title = "食費", value = 45000),
+                        PieChartItem(color = Color(0xFF1565C0), title = "光熱費", value = 25000),
+                        PieChartItem(color = Color(0xFFE65100), title = "ショッピング", value = 32000),
+                    ).toImmutableList(),
+                    hasMoreItem = false,
+                    event = object : RootHomeMonthlyScreenUiState.LoadedEvent {
+                        override fun loadMore() {}
+                    },
+                ),
+                event = object : RootHomeMonthlyScreenUiState.Event {
+                    override suspend fun onViewInitialized() {}
+                    override fun onSortTypeChanged(sortType: SortSectionType) {}
+                    override fun onSortOrderChanged(order: SortSectionOrder) {}
+                },
+                currentSortType = SortSectionType.Date,
+                sortOrder = SortSectionOrder.Descending,
+            ),
+            windowInsets = PaddingValues(),
+        )
     }
 }
