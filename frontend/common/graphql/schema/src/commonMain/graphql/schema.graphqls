@@ -1090,6 +1090,8 @@ directive @skip ("Skipped when true." if: Boolean!) on FIELD|FRAGMENT_SPREAD|INL
 
 directive @lazy on FIELD_DEFINITION
 
+directive @optional on INPUT_FIELD_DEFINITION
+
 """
 Marks the field, argument, input field or enum value as deprecated
 """
