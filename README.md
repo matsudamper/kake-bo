@@ -1,8 +1,5 @@
 # 家計簿
 決済メールを中心とした家計簿ソフト。
-
-## スクリーンショット
-
 <table>
 <tr>
 <td><img width="200" src="README/LoginScreenPreview.png" /></td>
