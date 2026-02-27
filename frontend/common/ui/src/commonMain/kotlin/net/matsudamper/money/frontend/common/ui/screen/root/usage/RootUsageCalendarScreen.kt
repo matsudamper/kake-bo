@@ -45,8 +45,11 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.StickyHeaderState
 import net.matsudamper.money.frontend.common.ui.stickyHeaderScrollable
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 public data class RootUsageCalendarScreenUiState(
     val event: Event,
@@ -271,4 +274,68 @@ private fun CalendarCell(
 private fun contrastTextColor(backgroundColor: Color): Color {
     val luminance = 0.299 * backgroundColor.red + 0.587 * backgroundColor.green + 0.114 * backgroundColor.blue
     return if (luminance > 0.5) Color.Black else Color.White
+}
+
+@Composable
+@Preview
+private fun RootUsageCalendarScreenPreview() {
+    val noOpDayCellEvent = object : RootUsageCalendarScreenUiState.DayCellEvent {
+        override fun onClick() {}
+    }
+    val noOpCalendarDayEvent = object : RootUsageCalendarScreenUiState.CalendarDayEvent {
+        override fun onClick() {}
+    }
+    val dayOfWeeks = listOf(
+        kotlinx.datetime.DayOfWeek.SUNDAY to "日",
+        kotlinx.datetime.DayOfWeek.MONDAY to "月",
+        kotlinx.datetime.DayOfWeek.TUESDAY to "火",
+        kotlinx.datetime.DayOfWeek.WEDNESDAY to "水",
+        kotlinx.datetime.DayOfWeek.THURSDAY to "木",
+        kotlinx.datetime.DayOfWeek.FRIDAY to "金",
+        kotlinx.datetime.DayOfWeek.SATURDAY to "土",
+    ).map { (dayOfWeek, text) ->
+        RootUsageCalendarScreenUiState.CalendarCell.DayOfWeek(
+            dayOfWeek = dayOfWeek,
+            text = text,
+        )
+    }
+    val days = (1..28).map { day ->
+        RootUsageCalendarScreenUiState.CalendarCell.Day(
+            text = day.toString(),
+            isToday = day == 27,
+            items = if (day == 25) {
+                listOf(
+                    RootUsageCalendarScreenUiState.CalendarDayItem(
+                        title = "Amazon",
+                        color = Color(0xFF558B2F),
+                        event = noOpCalendarDayEvent,
+                    ),
+                ).toImmutableList()
+            } else {
+                ImmutableList(listOf())
+            },
+            event = noOpDayCellEvent,
+        )
+    }
+    val emptyCells = List(6) { RootUsageCalendarScreenUiState.CalendarCell.Empty }
+    val calendarCells = (dayOfWeeks + emptyCells + days).toImmutableList()
+
+    AppRoot(isDarkTheme = false) {
+        RootUsageCalendarScreen(
+            modifier = Modifier.fillMaxSize(),
+            uiState = RootUsageCalendarScreenUiState(
+                event = object : RootUsageCalendarScreenUiState.Event {
+                    override suspend fun onViewInitialized() {}
+                    override fun refresh() {}
+                },
+                loadingState = RootUsageCalendarScreenUiState.LoadingState.Loaded(
+                    calendarCells = calendarCells,
+                    event = object : RootUsageCalendarScreenUiState.LoadedEvent {
+                        override fun loadMore() {}
+                    },
+                ),
+            ),
+            stickyHeaderState = StickyHeaderState(enterAlways = false),
+        )
+    }
 }

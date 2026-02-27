@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform)
     id("net.matsudamper.money.buildlogic.compose")
     id("net.matsudamper.money.buildlogic.androidLibrary")
+    alias(libs.plugins.paparazzi)
 }
 
 kotlin {
@@ -54,10 +55,30 @@ kotlin {
                 implementation(kotlin("test"))
             }
         }
+        val androidUnitTest by getting {
+            dependencies {
+                implementation(libs.paparazzi)
+                implementation(libs.composablePreviewScanner)
+            }
+        }
     }
     explicitApi()
 }
 
+val byteBuddyAgent: Configuration by configurations.creating
+
+dependencies {
+    byteBuddyAgent("net.bytebuddy:byte-buddy-agent:1.18.4")
+}
+
 android {
     namespace = "net.matsudamper.money.frontend.common.ui"
+    testOptions {
+        unitTests.all {
+            it.jvmArgs(
+                "-javaagent:${byteBuddyAgent.asPath}",
+                "-Djdk.attach.allowAttachSelf=true",
+            )
+        }
+    }
 }
