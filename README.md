@@ -4,6 +4,7 @@
 ## スクリーンショット
 
 スクリーンショットは[Paparazzi](https://github.com/cashapp/paparazzi)で生成されます。
+各画面に定義された`@Preview` composableが自動的にスクリーンショットテストの対象になります。
 
 以下のコマンドで参照画像を生成・更新できます:
 ```shell
@@ -11,14 +12,15 @@
 ```
 
 生成された画像は `frontend/common/ui/src/test/snapshots/` に出力されます。
+`README/` フォルダの画像は最新の参照画像をコピーして更新してください。
 
 <table>
 <tr>
-<td><img width="200" src="frontend/common/ui/src/test/snapshots/images/net.matsudamper.money.frontend.common.ui.screenshot_ScreenshotTest_loginScreen.png" /></td>
-<td><img width="200" src="frontend/common/ui/src/test/snapshots/images/net.matsudamper.money.frontend.common.ui.screenshot_ScreenshotTest_homeMonthlyScreen.png" /></td>
-<td><img width="200" src="frontend/common/ui/src/test/snapshots/images/net.matsudamper.money.frontend.common.ui.screenshot_ScreenshotTest_addMoneyUsageScreen.png" /></td>
-<td><img width="200" src="frontend/common/ui/src/test/snapshots/images/net.matsudamper.money.frontend.common.ui.screenshot_ScreenshotTest_settingScreen.png" /></td>
-<td><img width="200" src="frontend/common/ui/src/test/snapshots/images/net.matsudamper.money.frontend.common.ui.screenshot_ScreenshotTest_calendarScreen.png" /></td>
+<td><img width="200" src="README/LoginScreenPreview.png" /></td>
+<td><img width="200" src="README/HomeMonthlyScreenPreview.png" /></td>
+<td><img width="200" src="README/AddMoneyUsageScreenPreview.png" /></td>
+<td><img width="200" src="README/SettingScreenPreview.png" /></td>
+<td><img width="200" src="README/CalendarScreenPreview.png" /></td>
 </tr>
 </table>
 

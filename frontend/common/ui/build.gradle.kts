@@ -58,6 +58,7 @@ kotlin {
         val androidUnitTest by getting {
             dependencies {
                 implementation(libs.paparazzi)
+                implementation(libs.composablePreviewScanner)
             }
         }
     }
