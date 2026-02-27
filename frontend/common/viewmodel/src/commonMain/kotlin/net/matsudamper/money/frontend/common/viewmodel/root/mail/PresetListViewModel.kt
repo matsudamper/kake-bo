@@ -24,7 +24,7 @@ import net.matsudamper.money.frontend.graphql.GetMoneyUsagePresetsQuery
 public class PresetListViewModel(
     private val api: PresetScreenApi,
     scopedObjectFeature: ScopedObjectFeature,
-    navController: ScreenNavController,
+    private val navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow: MutableStateFlow<ViewModelState> = MutableStateFlow(
         ViewModelState(
@@ -97,37 +97,7 @@ public class PresetListViewModel(
                                     id = preset.id.toString(),
                                     name = preset.name,
                                     subCategoryName = preset.subCategory?.name,
-                                    event = object : PresetListScreenUiState.PresetItem.Event {
-                                        override fun onClick() {
-                                            navController.navigate(
-                                                ScreenStructure.AddMoneyUsage(
-                                                    title = preset.name,
-                                                    subCategoryId = preset.subCategory?.id?.id?.toString(),
-                                                ),
-                                            )
-                                        }
-
-                                        override fun onClickDelete() {
-                                            viewModelScope.launch {
-                                                val deleted = api.deletePreset(preset.id)
-                                                if (!deleted) {
-                                                    globalEventSender.send {
-                                                        it.showNativeNotification("削除に失敗しました")
-                                                    }
-                                                    return@launch
-                                                }
-                                                fetchCollect()
-                                            }
-                                        }
-
-                                        override fun onClickEdit() {
-                                            navController.navigate(
-                                                ScreenStructure.Root.Add.PresetDetail(
-                                                    id = preset.id,
-                                                ),
-                                            )
-                                        }
-                                    },
+                                    event = ItemEvent(preset),
                                 )
                             }.toImmutableList(),
                         )
@@ -170,6 +140,40 @@ public class PresetListViewModel(
                         )
                     }
                 }
+        }
+    }
+
+    private inner class ItemEvent(
+        private val preset: GetMoneyUsagePresetsQuery.MoneyUsagePreset,
+    ) : PresetListScreenUiState.PresetItem.Event {
+        override fun onClick() {
+            navController.navigate(
+                ScreenStructure.AddMoneyUsage(
+                    title = preset.name,
+                    subCategoryId = preset.subCategory?.id?.id?.toString(),
+                ),
+            )
+        }
+
+        override fun onClickDelete() {
+            viewModelScope.launch {
+                val deleted = api.deletePreset(preset.id)
+                if (!deleted) {
+                    globalEventSender.send {
+                        it.showNativeNotification("削除に失敗しました")
+                    }
+                    return@launch
+                }
+                fetchCollect()
+            }
+        }
+
+        override fun onClickEdit() {
+            navController.navigate(
+                ScreenStructure.Root.Add.PresetDetail(
+                    id = preset.id,
+                ),
+            )
         }
     }
 
