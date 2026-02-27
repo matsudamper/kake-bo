@@ -30,10 +30,6 @@ input AddMoneyUsagePresetInput {
   description: String
 }
 
-type AddMoneyUsagePresetResult {
-  preset: MoneyUsagePreset!
-}
-
 enum AddSubCategoryError {
   CATEGORY_NOT_FOUND
 }
@@ -617,10 +613,6 @@ input UpdateMoneyUsagePresetInput {
   description: String
 }
 
-type UpdateMoneyUsagePresetResult {
-  preset: MoneyUsagePreset!
-}
-
 input UpdateSubCategoryQuery {
   name: String
 }
@@ -808,9 +800,9 @@ type UserMutation {
 
   deleteApiToken(id: ApiTokenId!): DeleteApiTokenResult!
 
-  addMoneyUsagePreset(input: AddMoneyUsagePresetInput!): AddMoneyUsagePresetResult!
+  addMoneyUsagePreset(input: AddMoneyUsagePresetInput!): MoneyUsagePreset!
 
-  updateMoneyUsagePreset(input: UpdateMoneyUsagePresetInput!): UpdateMoneyUsagePresetResult!
+  updateMoneyUsagePreset(input: UpdateMoneyUsagePresetInput!): MoneyUsagePreset!
 
   deleteMoneyUsagePreset(id: MoneyUsagePresetId!): Boolean!
 }

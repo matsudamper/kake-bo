@@ -36,8 +36,8 @@ type UserMutation {
     registerApiToken(name: String!): RegisterApiTokenResult!
     deleteApiToken(id: ApiTokenId!): DeleteApiTokenResult!
 
-    addMoneyUsagePreset(input: AddMoneyUsagePresetInput!): AddMoneyUsagePresetResult!
-    updateMoneyUsagePreset(input: UpdateMoneyUsagePresetInput!): UpdateMoneyUsagePresetResult!
+    addMoneyUsagePreset(input: AddMoneyUsagePresetInput!): MoneyUsagePreset!
+    updateMoneyUsagePreset(input: UpdateMoneyUsagePresetInput!): MoneyUsagePreset!
     deleteMoneyUsagePreset(id: MoneyUsagePresetId!): Boolean!
 }
 

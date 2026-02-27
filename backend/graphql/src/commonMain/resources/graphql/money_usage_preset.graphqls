@@ -15,18 +15,10 @@ input AddMoneyUsagePresetInput {
     description: String
 }
 
-type AddMoneyUsagePresetResult {
-    preset: MoneyUsagePreset!
-}
-
 input UpdateMoneyUsagePresetInput {
     id: MoneyUsagePresetId!
     name: String @optional
     subCategoryId: MoneyUsageSubCategoryId @optional
     amount: Int @optional
     description: String @optional
-}
-
-type UpdateMoneyUsagePresetResult {
-    preset: MoneyUsagePreset!
 }

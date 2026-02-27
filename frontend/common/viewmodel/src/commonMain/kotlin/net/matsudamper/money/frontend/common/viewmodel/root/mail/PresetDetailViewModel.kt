@@ -23,6 +23,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.settings.PresetScreenApi
 import net.matsudamper.money.frontend.graphql.GetMoneyUsagePresetQuery
 import net.matsudamper.money.frontend.graphql.GraphqlClient
+import net.matsudamper.money.frontend.graphql.UpdateMoneyUsagePresetMutation
 
 public class PresetDetailViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -44,12 +45,15 @@ public class PresetDetailViewModel(
                         id = presetId,
                         subCategoryId = Optional.present(result.subCategoryId),
                     )
-                    if (updateResult?.data?.userMutation?.updateMoneyUsagePreset?.preset == null) {
+                    val updatedPreset = updateResult?.data?.userMutation?.updateMoneyUsagePreset
+                    if (updatedPreset == null) {
                         showScreenError()
                         return@launch
                     }
                     viewModel.dismissDialog()
-                    fetch()
+                    viewModelStateFlow.update { state ->
+                        state.copy(preset = updatedPreset.toViewModelPreset())
+                    }
                 }
             }
         }
@@ -82,6 +86,10 @@ public class PresetDetailViewModel(
                     fetch()
                 }
 
+                override fun onRefresh() {
+                    fetch()
+                }
+
                 override fun onClickPresetNameChange() {
                     val preset = viewModelStateFlow.value.preset ?: return
                     viewModelStateFlow.update { state ->
@@ -99,12 +107,15 @@ public class PresetDetailViewModel(
                                                 id = presetId,
                                                 name = Optional.present(text),
                                             )
-                                            if (updateResult?.data?.userMutation?.updateMoneyUsagePreset?.preset == null) {
+                                            val updatedPreset = updateResult?.data?.userMutation?.updateMoneyUsagePreset
+                                            if (updatedPreset == null) {
                                                 showScreenError()
                                                 return@launch
                                             }
                                             dismissNameChangeDialog()
-                                            fetch()
+                                            viewModelStateFlow.update { state ->
+                                                state.copy(preset = updatedPreset.toViewModelPreset())
+                                            }
                                         }
                                     }
                                 },
@@ -145,11 +156,14 @@ public class PresetDetailViewModel(
                                             id = presetId,
                                             amount = Optional.present(value.value),
                                         )
-                                        if (updateResult?.data?.userMutation?.updateMoneyUsagePreset?.preset == null) {
+                                        val updatedPreset = updateResult?.data?.userMutation?.updateMoneyUsagePreset
+                                        if (updatedPreset == null) {
                                             showScreenError()
                                             return@launch
                                         }
-                                        fetch()
+                                        viewModelStateFlow.update { state ->
+                                            state.copy(preset = updatedPreset.toViewModelPreset())
+                                        }
                                     }
                                 },
                             ),
@@ -175,12 +189,15 @@ public class PresetDetailViewModel(
                                                 id = presetId,
                                                 description = Optional.present(description),
                                             )
-                                            if (updateResult?.data?.userMutation?.updateMoneyUsagePreset?.preset == null) {
+                                            val updatedPreset = updateResult?.data?.userMutation?.updateMoneyUsagePreset
+                                            if (updatedPreset == null) {
                                                 showScreenError()
                                                 return@launch
                                             }
                                             dismissDescriptionChangeDialog()
-                                            fetch()
+                                            viewModelStateFlow.update { state ->
+                                                state.copy(preset = updatedPreset.toViewModelPreset())
+                                            }
                                         }
                                     }
                                 },
@@ -309,6 +326,18 @@ public class PresetDetailViewModel(
     )
 
     private fun GetMoneyUsagePresetQuery.MoneyUsagePreset.toViewModelPreset(): ViewModelPreset {
+        return ViewModelPreset(
+            name = name,
+            categoryId = subCategory?.category?.id,
+            categoryName = subCategory?.category?.name,
+            subCategoryId = subCategory?.id,
+            subCategoryName = subCategory?.name,
+            amount = amount,
+            description = description,
+        )
+    }
+
+    private fun UpdateMoneyUsagePresetMutation.UpdateMoneyUsagePreset.toViewModelPreset(): ViewModelPreset {
         return ViewModelPreset(
             name = name,
             categoryId = subCategory?.category?.id,

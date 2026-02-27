@@ -60,7 +60,7 @@ public class PresetListViewModel(
                     viewModelScope.launch {
                         viewModelStateFlow.update { it.copy(showNameInput = false) }
                         val result = api.addPreset(name = name, subCategoryId = null, amount = null, description = null)
-                        val preset = result?.data?.userMutation?.addMoneyUsagePreset?.preset
+                        val preset = result?.data?.userMutation?.addMoneyUsagePreset
                         if (preset == null) {
                             globalEventSender.send { it.showNativeNotification("追加に失敗しました") }
                             return@launch
@@ -71,6 +71,10 @@ public class PresetListViewModel(
                             ),
                         )
                     }
+                }
+
+                override fun onRefresh() {
+                    fetchCollect()
                 }
 
                 override fun onDismissNameInput() {
