@@ -12,9 +12,14 @@
 
 生成された画像は `frontend/common/ui/src/test/snapshots/` に出力されます。
 
-| ログイン | 月次ホーム | 使用追加 | 設定 | カレンダー |
-|---------|-----------|---------|------|-----------|
-| <img width="200" src="frontend/common/ui/src/test/snapshots/images/net.matsudamper.money.frontend.common.ui.screenshot_ScreenshotTest_loginScreen.png" /> | <img width="200" src="frontend/common/ui/src/test/snapshots/images/net.matsudamper.money.frontend.common.ui.screenshot_ScreenshotTest_homeMonthlyScreen.png" /> | <img width="200" src="frontend/common/ui/src/test/snapshots/images/net.matsudamper.money.frontend.common.ui.screenshot_ScreenshotTest_addMoneyUsageScreen.png" /> | <img width="200" src="frontend/common/ui/src/test/snapshots/images/net.matsudamper.money.frontend.common.ui.screenshot_ScreenshotTest_settingScreen.png" /> | <img width="200" src="frontend/common/ui/src/test/snapshots/images/net.matsudamper.money.frontend.common.ui.screenshot_ScreenshotTest_calendarScreen.png" /> |
+<table>
+<tr>
+<td><img width="300" src="https://github.com/matsudamper/kake-bo/assets/9250063/d4b6866e-f6ca-4f34-9139-278d01e39644" /></td>
+<td><img width="300" src="https://github.com/matsudamper/kake-bo/assets/9250063/f0cb2f32-c5b2-4048-a320-40686e619aff" /></td>
+<td><img width="300" src="https://github.com/matsudamper/kake-bo/assets/9250063/0f07e7fe-bd9e-490f-9740-85775a3a8d2f" /></td>
+<td><img width="300" src="https://github.com/matsudamper/kake-bo/assets/9250063/8b393f32-d616-4af8-ac03-e0eda886516c" /></td>
+</tr>
+</table>
 
 # 機能
 - メールサーバーからメールを取得し、パースして決済情報を登録する
