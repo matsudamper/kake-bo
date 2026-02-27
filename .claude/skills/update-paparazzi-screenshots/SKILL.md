@@ -61,7 +61,9 @@ private fun NewScreenPreview() {
 
 ### 3. README 画像を更新（必要な場合）
 
-`README/` フォルダに画像をコピーする。
+`README/` フォルダに画像をコピーし、`README.md` の `## スクリーンショット` セクション内の `<table>` に `<td><img>` を追加する。
+
+画像のファイル名は Paparazzi の出力（`frontend/common/ui/src/test/snapshots/images/`）から対応するものをコピーする。
 
 ---
 

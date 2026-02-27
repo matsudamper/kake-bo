@@ -1,6 +1,18 @@
 # 家計簿
 決済メールを中心とした家計簿ソフト。
 
+## スクリーンショット
+
+<table>
+<tr>
+<td><img width="200" src="README/LoginScreenPreview.png" /></td>
+<td><img width="200" src="README/HomeMonthlyScreenPreview.png" /></td>
+<td><img width="200" src="README/AddMoneyUsageScreenPreview.png" /></td>
+<td><img width="200" src="README/SettingScreenPreview.png" /></td>
+<td><img width="200" src="README/CalendarScreenPreview.png" /></td>
+</tr>
+</table>
+
 # 機能
 - メールサーバーからメールを取得し、パースして決済情報を登録する
   - 家計簿サービスは、API連携に対応していないものはパスワードを渡さないと詳細な情報が得られない。パスワードを他人に渡したく無いため、開発された。
