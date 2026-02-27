@@ -22,13 +22,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraph
 import net.matsudamper.money.frontend.common.ui.layout.graph.bar.BarGraphUiState
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 public data class RootHomeTabPeriodAllContentUiState(
     val loadingState: LoadingState,
@@ -171,6 +175,110 @@ private fun LargeContent(
                 )
             }
         }
+    }
+}
+
+@Composable
+@Preview
+private fun PeriodAnalyticsScreenPreview() {
+    val noOpBarEvent = object : BarGraphUiState.PeriodDataEvent {
+        override fun onClick() {}
+    }
+    val noOpMonthEvent = object : RootHomeTabPeriodAndCategoryUiState.MonthTotalItem.Event {
+        override fun onClick() {}
+    }
+    AppRoot(isDarkTheme = false) {
+        RootHomeTabPeriodAllScreen(
+            modifier = Modifier.fillMaxSize(),
+            uiState = RootHomeTabPeriodAllContentUiState(
+                loadingState = RootHomeTabPeriodAllContentUiState.LoadingState.Loaded(
+                    barGraph = BarGraphUiState(
+                        items = listOf(
+                            BarGraphUiState.PeriodData(
+                                year = 2025,
+                                month = 12,
+                                items = listOf(
+                                    BarGraphUiState.Item(color = Color(0xFF558B2F), title = "食費", value = 45000),
+                                    BarGraphUiState.Item(color = Color(0xFF1565C0), title = "光熱費", value = 20000),
+                                    BarGraphUiState.Item(color = Color(0xFFE65100), title = "ショッピング", value = 30000),
+                                ).toImmutableList(),
+                                total = 95000,
+                                event = noOpBarEvent,
+                            ),
+                            BarGraphUiState.PeriodData(
+                                year = 2026,
+                                month = 1,
+                                items = listOf(
+                                    BarGraphUiState.Item(color = Color(0xFF558B2F), title = "食費", value = 52000),
+                                    BarGraphUiState.Item(color = Color(0xFF1565C0), title = "光熱費", value = 25000),
+                                    BarGraphUiState.Item(color = Color(0xFFE65100), title = "ショッピング", value = 18000),
+                                ).toImmutableList(),
+                                total = 95000,
+                                event = noOpBarEvent,
+                            ),
+                            BarGraphUiState.PeriodData(
+                                year = 2026,
+                                month = 2,
+                                items = listOf(
+                                    BarGraphUiState.Item(color = Color(0xFF558B2F), title = "食費", value = 48000),
+                                    BarGraphUiState.Item(color = Color(0xFF1565C0), title = "光熱費", value = 22000),
+                                    BarGraphUiState.Item(color = Color(0xFFE65100), title = "ショッピング", value = 35000),
+                                ).toImmutableList(),
+                                total = 105000,
+                                event = noOpBarEvent,
+                            ),
+                        ).toImmutableList(),
+                    ),
+                    monthTotalItems = listOf(
+                        RootHomeTabPeriodAndCategoryUiState.MonthTotalItem(
+                            title = "2025/12",
+                            amount = "¥95,000",
+                            event = noOpMonthEvent,
+                        ),
+                        RootHomeTabPeriodAndCategoryUiState.MonthTotalItem(
+                            title = "2026/01",
+                            amount = "¥95,000",
+                            event = noOpMonthEvent,
+                        ),
+                        RootHomeTabPeriodAndCategoryUiState.MonthTotalItem(
+                            title = "2026/02",
+                            amount = "¥105,000",
+                            event = noOpMonthEvent,
+                        ),
+                    ).toImmutableList(),
+                    totalBarColorTextMapping = listOf(
+                        GraphTitleChipUiState(title = "食費", color = Color(0xFF558B2F), onClick = {}),
+                        GraphTitleChipUiState(title = "光熱費", color = Color(0xFF1565C0), onClick = {}),
+                        GraphTitleChipUiState(title = "ショッピング", color = Color(0xFFE65100), onClick = {}),
+                    ).toImmutableList(),
+                ),
+                rootHomeTabPeriodAndCategoryUiState = RootHomeTabPeriodAndCategoryUiState(
+                    loadingState = RootHomeTabPeriodAndCategoryUiState.LoadingState.Loaded(
+                        rangeText = "3ヶ月",
+                        between = "2025-12 ~ 2026-02",
+                        categoryType = "すべて",
+                        categoryTypes = listOf(
+                            RootHomeTabPeriodAndCategoryUiState.CategoryTypes(title = "すべて", onClick = {}),
+                        ).toImmutableList(),
+                    ),
+                    event = object : RootHomeTabPeriodAndCategoryUiState.Event {
+                        override fun onClickNextMonth() {}
+                        override fun onClickPreviousMonth() {}
+                        override fun onClickRange(range: Int) {}
+                        override fun onViewInitialized() {}
+                        override fun onClickRetry() {}
+                    },
+                ),
+                kakeboScaffoldListener = object : KakeboScaffoldListener {
+                    override fun onClickTitle() {}
+                },
+                event = object : RootHomeTabPeriodAllContentUiState.Event {
+                    override suspend fun onViewInitialized() {}
+                    override fun refresh() {}
+                },
+            ),
+            contentPadding = PaddingValues(),
+        )
     }
 }
 
