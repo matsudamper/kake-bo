@@ -44,6 +44,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import coil3.compose.AsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -55,6 +56,7 @@ import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.Full
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 public sealed interface ImageItem {
     public data object Uploading : ImageItem
@@ -420,5 +422,45 @@ private fun Section(
                 }
             }
         }
+    }
+}
+
+@Composable
+@Preview
+private fun AddMoneyUsageScreenPreview() {
+    AppRoot(isDarkTheme = false) {
+        AddMoneyUsageScreen(
+            modifier = Modifier.fillMaxSize(),
+            uiState = AddMoneyUsageScreenUiState(
+                calendarDialog = null,
+                timePickerDialog = null,
+                fullScreenTextInputDialog = null,
+                categorySelectDialog = null,
+                date = "2026/02/26",
+                time = "12:30",
+                title = "スーパーマーケット",
+                description = "食料品の購入",
+                category = "食費",
+                amount = "¥3,500",
+                images = ImmutableList(listOf()),
+                addButtonEnabled = true,
+                event = object : AddMoneyUsageScreenUiState.Event {
+                    override fun onClickAdd() {}
+                    override fun selectedCalendar(date: LocalDate) {}
+                    override fun dismissCalendar() {}
+                    override fun selectedTime(time: LocalTime) {}
+                    override fun dismissTimePicker() {}
+                    override fun onClickDateChange() {}
+                    override fun onClickTimeChange() {}
+                    override fun onClickTitleChange() {}
+                    override fun onClickDescriptionChange() {}
+                    override fun onClickCategoryChange() {}
+                    override fun onClickAmountChange() {}
+                    override fun onClickUploadImage() {}
+                },
+                numberInputDialog = null,
+            ),
+            windowInsets = PaddingValues(),
+        )
     }
 }

@@ -11,6 +11,7 @@ import net.matsudamper.money.backend.datasource.db.element.DbImportedMailFilterC
 import net.matsudamper.money.backend.datasource.db.element.toDbDefine
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilterConditions
 import net.matsudamper.money.db.schema.tables.JCategoryMailFilters
+import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionsRecord
 import net.matsudamper.money.db.schema.tables.records.JCategoryMailFiltersRecord
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
@@ -25,6 +26,7 @@ class DbMailFilterRepository(
 ) : MailFilterRepository {
     private val filters = JCategoryMailFilters.CATEGORY_MAIL_FILTERS
     private val conditions = JCategoryMailFilterConditions.CATEGORY_MAIL_FILTER_CONDITIONS
+    private val subCategories = JMoneyUsageSubCategories.MONEY_USAGE_SUB_CATEGORIES
 
     override fun addFilter(
         title: String,
@@ -226,6 +228,23 @@ class DbMailFilterRepository(
     ): Boolean {
         return runCatching {
             dbConnection.use {
+                if (subCategory != null) {
+                    val existsSubCategory = DSL.using(it)
+                        .selectCount()
+                        .from(subCategories)
+                        .where(
+                            DSL.value(true)
+                                .and(subCategories.USER_ID.eq(userId.value))
+                                .and(subCategories.MONEY_USAGE_SUB_CATEGORY_ID.eq(subCategory.id)),
+                        )
+                        .fetchOne(0, Int::class.java)
+                        ?.let { it > 0 }
+                        ?: false
+                    if (!existsSubCategory) {
+                        return@use false
+                    }
+                }
+
                 val resultCount = DSL.using(it)
                     .update(filters)
                     .set(

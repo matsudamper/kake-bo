@@ -29,10 +29,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.layout.TextField
 import net.matsudamper.money.frontend.common.ui.layout.TextFieldType
 import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 public fun LoginScreen(
@@ -252,4 +255,32 @@ private fun CustomHostDialog(
             }
         },
     )
+}
+
+@Composable
+@Preview
+private fun LoginScreenPreview() {
+    AppRoot(isDarkTheme = false) {
+        LoginScreen(
+            uiState = LoginScreenUiState(
+                userName = TextFieldValue(""),
+                password = TextFieldValue(""),
+                serverHost = null,
+                listener = object : LoginScreenUiState.Listener {
+                    override fun onClickLogin() {}
+                    override fun onClickNavigateAdmin() {}
+                    override fun onClickSecurityKeyLogin() {}
+                    override fun onClickDeviceKeyLogin() {}
+                    override fun onUserIdChanged(text: String) {}
+                    override fun onPasswordChanged(text: String) {}
+                    override fun onClickChangeHost() {}
+                    override fun onCustomHostTextChanged(text: String) {}
+                    override fun onConfirmCustomHost() {}
+                    override fun onDismissCustomHostDialog() {}
+                },
+            ),
+            modifier = Modifier.fillMaxSize(),
+            windowInsets = PaddingValues(),
+        )
+    }
 }

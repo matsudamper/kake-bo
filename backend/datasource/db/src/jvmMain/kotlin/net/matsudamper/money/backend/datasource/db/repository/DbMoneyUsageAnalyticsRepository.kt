@@ -64,6 +64,8 @@ class DbMoneyUsageAnalyticsRepository(
                     .where(
                         DSL.value(true)
                             .and(usage.USER_ID.eq(userId.value))
+                            .and(subCategories.USER_ID.eq(userId.value))
+                            .and(categories.USER_ID.eq(userId.value))
                             .and(usage.DATETIME.greaterOrEqual(sinceDateTimeAt))
                             .and(usage.DATETIME.lessThan(untilDateTimeAt))
                             .and(subCategories.MONEY_USAGE_CATEGORY_ID.`in`(categoryIds.map { it.value })),
@@ -107,6 +109,7 @@ class DbMoneyUsageAnalyticsRepository(
                     .where(
                         DSL.value(true)
                             .and(usage.USER_ID.eq(userId.value))
+                            .and(subCategories.USER_ID.eq(userId.value))
                             .and(usage.DATETIME.greaterOrEqual(sinceDateTimeAt))
                             .and(usage.DATETIME.lessThan(untilDateTimeAt))
                             .and(usage.MONEY_USAGE_SUB_CATEGORY_ID.`in`(subCategoryIds.map { it.id })),
@@ -144,6 +147,8 @@ class DbMoneyUsageAnalyticsRepository(
                     .where(
                         DSL.value(true)
                             .and(usage.USER_ID.eq(userId.value))
+                            .and(subCategories.USER_ID.eq(userId.value))
+                            .and(categories.USER_ID.eq(userId.value))
                             .and(usage.DATETIME.greaterOrEqual(sinceDateTimeAt))
                             .and(usage.DATETIME.lessThan(untilDateTimeAt)),
                     )
