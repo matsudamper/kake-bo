@@ -75,6 +75,13 @@ android {
     namespace = "net.matsudamper.money.frontend.common.ui"
     testOptions {
         unitTests.all {
+            it.useJUnit {
+                if (it.name.contains("paparazzi")) {
+                    includeCategories("net.matsudamper.money.frontend.common.ui.screenshot.PaparazziTestCategory")
+                } else {
+                    excludeCategories("net.matsudamper.money.frontend.common.ui.screenshot.PaparazziTestCategory")
+                }
+            }
             it.jvmArgs(
                 "-javaagent:${byteBuddyAgent.asPath}",
                 "-Djdk.attach.allowAttachSelf=true",

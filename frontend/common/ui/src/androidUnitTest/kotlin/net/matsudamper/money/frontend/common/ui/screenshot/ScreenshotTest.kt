@@ -4,6 +4,7 @@ import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import org.junit.Rule
 import org.junit.Test
+import org.junit.experimental.categories.Category
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import sergio.sastre.composable.preview.scanner.common.CommonComposablePreviewScanner
@@ -11,6 +12,7 @@ import sergio.sastre.composable.preview.scanner.common.CommonPreviewInfo
 import sergio.sastre.composable.preview.scanner.core.preview.ComposablePreview
 
 @RunWith(Parameterized::class)
+@Category(PaparazziTestCategory::class)
 class ScreenshotTest(
     private val preview: ComposablePreview<CommonPreviewInfo>,
 ) {
