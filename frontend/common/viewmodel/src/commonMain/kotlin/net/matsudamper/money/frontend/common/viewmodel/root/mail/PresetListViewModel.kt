@@ -94,6 +94,7 @@ public class PresetListViewModel(
                         PresetListScreenUiState.LoadingState.Loaded(
                             items = viewModelState.presets.map { preset ->
                                 PresetListScreenUiState.PresetItem(
+                                    id = preset.id.toString(),
                                     name = preset.name,
                                     subCategoryName = preset.subCategory?.name,
                                     event = object : PresetListScreenUiState.PresetItem.Event {

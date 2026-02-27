@@ -63,6 +63,7 @@ public data class PresetListScreenUiState(
     }
 
     public data class PresetItem(
+        val id: String,
         val name: String,
         val subCategoryName: String?,
         val event: Event,
@@ -187,7 +188,7 @@ public fun PresetListScreen(
                             modifier = Modifier.fillMaxSize(),
                             contentPadding = PaddingValues(bottom = fabSize + fabPadding * 2),
                         ) {
-                            items(state.items) { item ->
+                            items(state.items, key = { it.id }) { item ->
                                 var showMenu by remember { mutableStateOf(false) }
                                 Box(
                                     modifier = Modifier
