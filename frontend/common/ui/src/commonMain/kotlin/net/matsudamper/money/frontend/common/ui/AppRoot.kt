@@ -59,7 +59,7 @@ public fun AppRoot(
 }
 
 private fun darkColorScheme(customColors: CustomColors): ColorScheme {
-    return androidx.compose.material3.darkColorScheme().copy(
+    return androidx.compose.material3.lightColorScheme().copy(
         primary = Color(0xff8BC34A),
         onPrimary = Color.White,
         background = customColors.backgroundColor,
