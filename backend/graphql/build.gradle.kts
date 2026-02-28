@@ -35,6 +35,7 @@ kotlin {
 }
 
 val graphqlCodegen = tasks.named<GraphQLCodegenGradleTask>("graphqlCodegen") {
+    notCompatibleWithConfigurationCache("graphqlCodegen uses Task.project at execution time")
     graphqlSchemaPaths = file("$projectDir/src/commonMain/resources/graphql").listFiles().orEmpty()
         .filter { it.extension == "graphqls" }
         .map { it.toString() }
