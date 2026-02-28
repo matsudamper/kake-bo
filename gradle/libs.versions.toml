@@ -123,7 +123,7 @@ zoomable = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
 
 # Log
 log4j-api = { module = "org.slf4j:slf4j-api", version.require = "2.0.17" }
-logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.5.29" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.5.32" }
 logstashLogbackEncoder = { module = "net.logstash.logback:logstash-logback-encoder", version.require = "9.0" }
 
 # Graphql
