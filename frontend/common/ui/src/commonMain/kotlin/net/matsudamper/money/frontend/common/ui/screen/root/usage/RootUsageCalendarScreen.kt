@@ -276,64 +276,169 @@ private fun contrastTextColor(backgroundColor: Color): Color {
     return if (luminance > 0.5) Color.Black else Color.White
 }
 
+private val previewNoOpDayCellEvent = object : RootUsageCalendarScreenUiState.DayCellEvent {
+    override fun onClick() {}
+}
+
+private val previewNoOpCalendarDayEvent = object : RootUsageCalendarScreenUiState.CalendarDayEvent {
+    override fun onClick() {}
+}
+
+private val previewNoOpEvent = object : RootUsageCalendarScreenUiState.Event {
+    override suspend fun onViewInitialized() {}
+    override fun refresh() {}
+}
+
+private val previewNoOpLoadedEvent = object : RootUsageCalendarScreenUiState.LoadedEvent {
+    override fun loadMore() {}
+}
+
+private val previewDayOfWeeks = listOf(
+    kotlinx.datetime.DayOfWeek.SUNDAY to "日",
+    kotlinx.datetime.DayOfWeek.MONDAY to "月",
+    kotlinx.datetime.DayOfWeek.TUESDAY to "火",
+    kotlinx.datetime.DayOfWeek.WEDNESDAY to "水",
+    kotlinx.datetime.DayOfWeek.THURSDAY to "木",
+    kotlinx.datetime.DayOfWeek.FRIDAY to "金",
+    kotlinx.datetime.DayOfWeek.SATURDAY to "土",
+).map { (dayOfWeek, text) ->
+    RootUsageCalendarScreenUiState.CalendarCell.DayOfWeek(
+        dayOfWeek = dayOfWeek,
+        text = text,
+    )
+}
+
+private fun previewDayItem(
+    title: String,
+    color: Color,
+): RootUsageCalendarScreenUiState.CalendarDayItem = RootUsageCalendarScreenUiState.CalendarDayItem(
+    title = title,
+    color = color,
+    event = previewNoOpCalendarDayEvent,
+)
+
+private fun previewLoadedUiState(
+    totalDays: Int,
+    emptyCellCount: Int,
+    todayDay: Int,
+    itemsPerDay: Map<Int, List<RootUsageCalendarScreenUiState.CalendarDayItem>>,
+): RootUsageCalendarScreenUiState {
+    val days = (1..totalDays).map { day ->
+        RootUsageCalendarScreenUiState.CalendarCell.Day(
+            text = day.toString(),
+            isToday = day == todayDay,
+            items = itemsPerDay[day].orEmpty().toImmutableList(),
+            event = previewNoOpDayCellEvent,
+        )
+    }
+    val emptyCells = List(emptyCellCount) { RootUsageCalendarScreenUiState.CalendarCell.Empty }
+    val calendarCells = (previewDayOfWeeks + emptyCells + days).toImmutableList()
+    return RootUsageCalendarScreenUiState(
+        event = previewNoOpEvent,
+        loadingState = RootUsageCalendarScreenUiState.LoadingState.Loaded(
+            calendarCells = calendarCells,
+            event = previewNoOpLoadedEvent,
+        ),
+    )
+}
+
+private val previewItemsForRichCalendar = mapOf(
+    1 to listOf(previewDayItem("Netflix", Color(0xFFE53935))),
+    5 to listOf(
+        previewDayItem("Amazon", Color(0xFF1565C0)),
+        previewDayItem("Spotify", Color(0xFF2E7D32)),
+    ),
+    10 to listOf(previewDayItem("電気代", Color(0xFFEF6C00))),
+    15 to listOf(
+        previewDayItem("家賃", Color(0xFF6A1B9A)),
+        previewDayItem("水道代", Color(0xFF00695C)),
+        previewDayItem("ガス代", Color(0xFFB71C1C)),
+    ),
+    20 to listOf(previewDayItem("スーパー", Color(0xFF1B5E20))),
+    25 to listOf(previewDayItem("コンビニ", Color(0xFF4A148C))),
+)
+
 @Composable
 @Preview
 private fun RootUsageCalendarScreenPreview() {
-    val noOpDayCellEvent = object : RootUsageCalendarScreenUiState.DayCellEvent {
-        override fun onClick() {}
-    }
-    val noOpCalendarDayEvent = object : RootUsageCalendarScreenUiState.CalendarDayEvent {
-        override fun onClick() {}
-    }
-    val dayOfWeeks = listOf(
-        kotlinx.datetime.DayOfWeek.SUNDAY to "日",
-        kotlinx.datetime.DayOfWeek.MONDAY to "月",
-        kotlinx.datetime.DayOfWeek.TUESDAY to "火",
-        kotlinx.datetime.DayOfWeek.WEDNESDAY to "水",
-        kotlinx.datetime.DayOfWeek.THURSDAY to "木",
-        kotlinx.datetime.DayOfWeek.FRIDAY to "金",
-        kotlinx.datetime.DayOfWeek.SATURDAY to "土",
-    ).map { (dayOfWeek, text) ->
-        RootUsageCalendarScreenUiState.CalendarCell.DayOfWeek(
-            dayOfWeek = dayOfWeek,
-            text = text,
+    AppRoot(isDarkTheme = false) {
+        RootUsageCalendarScreen(
+            modifier = Modifier.fillMaxSize(),
+            uiState = previewLoadedUiState(
+                totalDays = 28,
+                emptyCellCount = 6,
+                todayDay = 27,
+                itemsPerDay = mapOf(
+                    25 to listOf(previewDayItem("Amazon", Color(0xFF558B2F))),
+                ),
+            ),
+            stickyHeaderState = StickyHeaderState(enterAlways = false),
         )
     }
-    val days = (1..28).map { day ->
-        RootUsageCalendarScreenUiState.CalendarCell.Day(
-            text = day.toString(),
-            isToday = day == 27,
-            items = if (day == 25) {
-                listOf(
-                    RootUsageCalendarScreenUiState.CalendarDayItem(
-                        title = "Amazon",
-                        color = Color(0xFF558B2F),
-                        event = noOpCalendarDayEvent,
-                    ),
-                ).toImmutableList()
-            } else {
-                ImmutableList(listOf())
-            },
-            event = noOpDayCellEvent,
-        )
-    }
-    val emptyCells = List(6) { RootUsageCalendarScreenUiState.CalendarCell.Empty }
-    val calendarCells = (dayOfWeeks + emptyCells + days).toImmutableList()
+}
 
+@Composable
+@Preview
+private fun RootUsageCalendarScreenDarkPreview() {
+    AppRoot(isDarkTheme = true) {
+        RootUsageCalendarScreen(
+            modifier = Modifier.fillMaxSize(),
+            uiState = previewLoadedUiState(
+                totalDays = 28,
+                emptyCellCount = 6,
+                todayDay = 27,
+                itemsPerDay = mapOf(
+                    25 to listOf(previewDayItem("Amazon", Color(0xFF558B2F))),
+                ),
+            ),
+            stickyHeaderState = StickyHeaderState(enterAlways = false),
+        )
+    }
+}
+
+@Composable
+@Preview
+private fun RootUsageCalendarScreenLoadingPreview() {
     AppRoot(isDarkTheme = false) {
         RootUsageCalendarScreen(
             modifier = Modifier.fillMaxSize(),
             uiState = RootUsageCalendarScreenUiState(
-                event = object : RootUsageCalendarScreenUiState.Event {
-                    override suspend fun onViewInitialized() {}
-                    override fun refresh() {}
-                },
-                loadingState = RootUsageCalendarScreenUiState.LoadingState.Loaded(
-                    calendarCells = calendarCells,
-                    event = object : RootUsageCalendarScreenUiState.LoadedEvent {
-                        override fun loadMore() {}
-                    },
-                ),
+                event = previewNoOpEvent,
+                loadingState = RootUsageCalendarScreenUiState.LoadingState.Loading,
+            ),
+            stickyHeaderState = StickyHeaderState(enterAlways = false),
+        )
+    }
+}
+
+@Composable
+@Preview
+private fun RootUsageCalendarScreenWithManyItemsPreview() {
+    AppRoot(isDarkTheme = false) {
+        RootUsageCalendarScreen(
+            modifier = Modifier.fillMaxSize(),
+            uiState = previewLoadedUiState(
+                totalDays = 31,
+                emptyCellCount = 3,
+                todayDay = 15,
+                itemsPerDay = previewItemsForRichCalendar,
+            ),
+            stickyHeaderState = StickyHeaderState(enterAlways = false),
+        )
+    }
+}
+
+@Composable
+@Preview
+private fun RootUsageCalendarScreenWithManyItemsDarkPreview() {
+    AppRoot(isDarkTheme = true) {
+        RootUsageCalendarScreen(
+            modifier = Modifier.fillMaxSize(),
+            uiState = previewLoadedUiState(
+                totalDays = 31,
+                emptyCellCount = 3,
+                todayDay = 15,
+                itemsPerDay = previewItemsForRichCalendar,
             ),
             stickyHeaderState = StickyHeaderState(enterAlways = false),
         )

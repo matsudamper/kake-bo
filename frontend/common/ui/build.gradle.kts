@@ -76,7 +76,10 @@ android {
     testOptions {
         unitTests.all {
             it.useJUnit {
-                if (it.name.contains("paparazzi")) {
+                val isRunningPaparazzi = gradle.startParameter.taskNames.any { taskName ->
+                    taskName.contains("paparazzi", ignoreCase = true)
+                }
+                if (isRunningPaparazzi) {
                     includeCategories("net.matsudamper.money.frontend.common.ui.screenshot.PaparazziTestCategory")
                 } else {
                     excludeCategories("net.matsudamper.money.frontend.common.ui.screenshot.PaparazziTestCategory")
