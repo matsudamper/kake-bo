@@ -32,6 +32,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LocalScrollToTopHandler
@@ -208,23 +209,25 @@ private fun MainContent(
 @Composable
 @Preview
 private fun Preview() {
-    SettingRootScreen(
-        uiState = RootSettingScreenUiState(
-            kotlinVersion = "preview",
-            kakeboScaffoldListener = object : KakeboScaffoldListener {
-                override fun onClickTitle() {}
-            },
-            event = object : RootSettingScreenUiState.Event {
-                override fun onResume() {}
-                override fun onClickImapButton() {}
-                override fun onClickCategoryButton() {}
-                override fun onClickMailFilter() {}
-                override fun onClickGitHub() {}
-                override fun onClickLoginSetting() {}
-                override fun onClickApiSetting() {}
-                override fun onClickTextFieldTest() {}
-            },
-        ),
-        windowInsets = PaddingValues(),
-    )
+    AppRoot(isDarkTheme = false) {
+        SettingRootScreen(
+            uiState = RootSettingScreenUiState(
+                kotlinVersion = "preview",
+                kakeboScaffoldListener = object : KakeboScaffoldListener {
+                    override fun onClickTitle() {}
+                },
+                event = object : RootSettingScreenUiState.Event {
+                    override fun onResume() {}
+                    override fun onClickImapButton() {}
+                    override fun onClickCategoryButton() {}
+                    override fun onClickMailFilter() {}
+                    override fun onClickGitHub() {}
+                    override fun onClickLoginSetting() {}
+                    override fun onClickApiSetting() {}
+                    override fun onClickTextFieldTest() {}
+                },
+            ),
+            windowInsets = PaddingValues(),
+        )
+    }
 }

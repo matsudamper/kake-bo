@@ -196,24 +196,57 @@ private fun PeriodAnalyticsScreenPreview() {
                         items = listOf(
                             BarGraphUiState.PeriodData(
                                 year = 2025,
+                                month = 9,
+                                items = listOf(
+                                    BarGraphUiState.Item(color = Color(0xFF558B2F), title = "食費", value = 65000),
+                                    BarGraphUiState.Item(color = Color(0xFF1565C0), title = "光熱費", value = 12000),
+                                    BarGraphUiState.Item(color = Color(0xFFE65100), title = "ショッピング", value = 45000),
+                                ).toImmutableList(),
+                                total = 122000,
+                                event = noOpBarEvent,
+                            ),
+                            BarGraphUiState.PeriodData(
+                                year = 2025,
+                                month = 10,
+                                items = listOf(
+                                    BarGraphUiState.Item(color = Color(0xFF558B2F), title = "食費", value = 42000),
+                                    BarGraphUiState.Item(color = Color(0xFF1565C0), title = "光熱費", value = 15000),
+                                    BarGraphUiState.Item(color = Color(0xFFE65100), title = "ショッピング", value = 28000),
+                                ).toImmutableList(),
+                                total = 85000,
+                                event = noOpBarEvent,
+                            ),
+                            BarGraphUiState.PeriodData(
+                                year = 2025,
+                                month = 11,
+                                items = listOf(
+                                    BarGraphUiState.Item(color = Color(0xFF558B2F), title = "食費", value = 55000),
+                                    BarGraphUiState.Item(color = Color(0xFF1565C0), title = "光熱費", value = 18000),
+                                    BarGraphUiState.Item(color = Color(0xFFE65100), title = "ショッピング", value = 67000),
+                                ).toImmutableList(),
+                                total = 140000,
+                                event = noOpBarEvent,
+                            ),
+                            BarGraphUiState.PeriodData(
+                                year = 2025,
                                 month = 12,
                                 items = listOf(
-                                    BarGraphUiState.Item(color = Color(0xFF558B2F), title = "食費", value = 45000),
+                                    BarGraphUiState.Item(color = Color(0xFF558B2F), title = "食費", value = 38000),
                                     BarGraphUiState.Item(color = Color(0xFF1565C0), title = "光熱費", value = 20000),
                                     BarGraphUiState.Item(color = Color(0xFFE65100), title = "ショッピング", value = 30000),
                                 ).toImmutableList(),
-                                total = 95000,
+                                total = 88000,
                                 event = noOpBarEvent,
                             ),
                             BarGraphUiState.PeriodData(
                                 year = 2026,
                                 month = 1,
                                 items = listOf(
-                                    BarGraphUiState.Item(color = Color(0xFF558B2F), title = "食費", value = 52000),
+                                    BarGraphUiState.Item(color = Color(0xFF558B2F), title = "食費", value = 70000),
                                     BarGraphUiState.Item(color = Color(0xFF1565C0), title = "光熱費", value = 25000),
                                     BarGraphUiState.Item(color = Color(0xFFE65100), title = "ショッピング", value = 18000),
                                 ).toImmutableList(),
-                                total = 95000,
+                                total = 113000,
                                 event = noOpBarEvent,
                             ),
                             BarGraphUiState.PeriodData(
@@ -231,13 +264,28 @@ private fun PeriodAnalyticsScreenPreview() {
                     ),
                     monthTotalItems = listOf(
                         RootHomeTabPeriodAndCategoryUiState.MonthTotalItem(
+                            title = "2025/09",
+                            amount = "¥122,000",
+                            event = noOpMonthEvent,
+                        ),
+                        RootHomeTabPeriodAndCategoryUiState.MonthTotalItem(
+                            title = "2025/10",
+                            amount = "¥85,000",
+                            event = noOpMonthEvent,
+                        ),
+                        RootHomeTabPeriodAndCategoryUiState.MonthTotalItem(
+                            title = "2025/11",
+                            amount = "¥140,000",
+                            event = noOpMonthEvent,
+                        ),
+                        RootHomeTabPeriodAndCategoryUiState.MonthTotalItem(
                             title = "2025/12",
-                            amount = "¥95,000",
+                            amount = "¥88,000",
                             event = noOpMonthEvent,
                         ),
                         RootHomeTabPeriodAndCategoryUiState.MonthTotalItem(
                             title = "2026/01",
-                            amount = "¥95,000",
+                            amount = "¥113,000",
                             event = noOpMonthEvent,
                         ),
                         RootHomeTabPeriodAndCategoryUiState.MonthTotalItem(
@@ -254,8 +302,8 @@ private fun PeriodAnalyticsScreenPreview() {
                 ),
                 rootHomeTabPeriodAndCategoryUiState = RootHomeTabPeriodAndCategoryUiState(
                     loadingState = RootHomeTabPeriodAndCategoryUiState.LoadingState.Loaded(
-                        rangeText = "3ヶ月",
-                        between = "2025-12 ~ 2026-02",
+                        rangeText = "6ヶ月",
+                        between = "2025-09 ~ 2026-02",
                         categoryType = "すべて",
                         categoryTypes = listOf(
                             RootHomeTabPeriodAndCategoryUiState.CategoryTypes(title = "すべて", onClick = {}),
