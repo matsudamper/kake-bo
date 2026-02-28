@@ -24,7 +24,7 @@ kotlin {
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material3)
-                implementation(compose.components.uiToolingPreview)
+                implementation(libs.composeUiToolingPreview)
             }
         }
         val jsMain by getting {
@@ -43,7 +43,6 @@ kotlin {
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material3)
-                implementation(compose.components.uiToolingPreview)
 
                 implementation(libs.androidActivityActivityCompose)
                 implementation(libs.coilNetworkOkhttp)
@@ -69,6 +68,7 @@ val byteBuddyAgent: Configuration by configurations.creating
 
 dependencies {
     byteBuddyAgent("net.bytebuddy:byte-buddy-agent:1.18.4")
+    debugImplementation(libs.composeUiTooling)
 }
 
 android {
