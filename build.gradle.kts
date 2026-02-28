@@ -44,9 +44,10 @@ allprojects {
     configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
         filter {
             verbose.set(true)
-            exclude { project.path == ":backend:datasource:db:schema" }
-            exclude { project.path == ":backend:graphql" }
-            exclude { project.path == ":frontend:common:graphql:schema" }
+            val currentProjectPath = project.path
+            exclude { currentProjectPath == ":backend:datasource:db:schema" }
+            exclude { currentProjectPath == ":backend:graphql" }
+            exclude { currentProjectPath == ":frontend:common:graphql:schema" }
             exclude { it.file.path.contains("generated") }
         }
     }
