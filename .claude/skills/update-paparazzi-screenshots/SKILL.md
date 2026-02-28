@@ -88,6 +88,6 @@ private fun NewScreenPreview() {
 | 月次ホーム | `screen/root/home/monthly/RootHomeMonthlyScreen.kt` | `RootHomeMonthlyScreenPreview` |
 | 支出追加 | `screen/addmoneyusage/AddMoneyUsageScreen.kt` | `AddMoneyUsageScreenPreview` |
 | 設定 | `screen/root/settings/SettingScreen.kt` | `SettingScreenPreview` |
-| カレンダー | `screen/root/usage/RootUsageCalendarScreen.kt` | `CalendarScreenPreview` |
+| カレンダー | `screen/root/usage/RootUsageCalendarScreen.kt` | `RootUsageCalendarScreenPreview`, `RootUsageCalendarScreenDarkPreview`, `RootUsageCalendarScreenLoadingPreview`, `RootUsageCalendarScreenWithManyItemsPreview`, `RootUsageCalendarScreenWithManyItemsDarkPreview` |
 
 すべて `frontend/common/ui/src/commonMain/kotlin/net/matsudamper/money/frontend/common/ui/` 配下。

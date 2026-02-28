@@ -9,6 +9,13 @@
 </tr>
 </table>
 
+> カレンダー画面には以下の複数のPreview関数が追加されています
+> - `RootUsageCalendarScreenPreview` (ライトテーマ、シンプル)
+> - `RootUsageCalendarScreenDarkPreview` (ダークテーマ、シンプル)
+> - `RootUsageCalendarScreenLoadingPreview` (ローディング状態)
+> - `RootUsageCalendarScreenWithManyItemsPreview` (ライトテーマ、複数のカラー付きアイテム)
+> - `RootUsageCalendarScreenWithManyItemsDarkPreview` (ダークテーマ、複数のカラー付きアイテム)
+
 # 機能
 - メールサーバーからメールを取得し、パースして決済情報を登録する
   - 家計簿サービスは、API連携に対応していないものはパスワードを渡さないと詳細な情報が得られない。パスワードを他人に渡したく無いため、開発された。
