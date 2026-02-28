@@ -247,10 +247,21 @@ private fun LoadedContent(
 @Composable
 @Preview
 private fun RootHomeMonthlyScreenPreview() {
+    RootHomeMonthlyScreenPreviewContent(isDarkTheme = false)
+}
+
+@Composable
+@Preview
+private fun RootHomeMonthlyScreenDarkPreview() {
+    RootHomeMonthlyScreenPreviewContent(isDarkTheme = true)
+}
+
+@Composable
+private fun RootHomeMonthlyScreenPreviewContent(isDarkTheme: Boolean) {
     val noOpItemEvent = object : RootHomeMonthlyScreenUiState.ItemEvent {
         override fun onClick() {}
     }
-    AppRoot(isDarkTheme = false) {
+    AppRoot(isDarkTheme = isDarkTheme) {
         RootHomeMonthlyScreen(
             modifier = Modifier.fillMaxSize(),
             uiState = RootHomeMonthlyScreenUiState(
