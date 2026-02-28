@@ -278,13 +278,18 @@ private fun contrastTextColor(backgroundColor: Color): Color {
 
 @Composable
 @Preview
-private fun RootUsageCalendarScreenPreview() {
+private fun Preview() {
     val noOpDayCellEvent = object : RootUsageCalendarScreenUiState.DayCellEvent {
         override fun onClick() {}
     }
     val noOpCalendarDayEvent = object : RootUsageCalendarScreenUiState.CalendarDayEvent {
         override fun onClick() {}
     }
+    fun dayItem(title: String, color: Color) = RootUsageCalendarScreenUiState.CalendarDayItem(
+        title = title,
+        color = color,
+        event = noOpCalendarDayEvent,
+    )
     val dayOfWeeks = listOf(
         kotlinx.datetime.DayOfWeek.SUNDAY to "日",
         kotlinx.datetime.DayOfWeek.MONDAY to "月",
@@ -299,28 +304,32 @@ private fun RootUsageCalendarScreenPreview() {
             text = text,
         )
     }
-    val days = (1..28).map { day ->
+    val itemsPerDay = mapOf(
+        1 to listOf(dayItem("Netflix", Color(0xFFE53935))),
+        5 to listOf(
+            dayItem("Amazon", Color(0xFF1565C0)),
+            dayItem("Spotify", Color(0xFF2E7D32)),
+        ),
+        10 to listOf(dayItem("電気代", Color(0xFFEF6C00))),
+        15 to listOf(
+            dayItem("家賃", Color(0xFF6A1B9A)),
+            dayItem("水道代", Color(0xFF00695C)),
+            dayItem("ガス代", Color(0xFFB71C1C)),
+        ),
+        20 to listOf(dayItem("スーパー", Color(0xFF1B5E20))),
+        25 to listOf(dayItem("コンビニ", Color(0xFF4A148C))),
+    )
+    val days = (1..31).map { day ->
         RootUsageCalendarScreenUiState.CalendarCell.Day(
             text = day.toString(),
-            isToday = day == 27,
-            items = if (day == 25) {
-                listOf(
-                    RootUsageCalendarScreenUiState.CalendarDayItem(
-                        title = "Amazon",
-                        color = Color(0xFF558B2F),
-                        event = noOpCalendarDayEvent,
-                    ),
-                ).toImmutableList()
-            } else {
-                ImmutableList(listOf())
-            },
+            isToday = day == 15,
+            items = itemsPerDay[day].orEmpty().toImmutableList(),
             event = noOpDayCellEvent,
         )
     }
-    val emptyCells = List(6) { RootUsageCalendarScreenUiState.CalendarCell.Empty }
+    val emptyCells = List(3) { RootUsageCalendarScreenUiState.CalendarCell.Empty }
     val calendarCells = (dayOfWeeks + emptyCells + days).toImmutableList()
-
-    AppRoot(isDarkTheme = false) {
+    AppRoot(isDarkTheme = true) {
         RootUsageCalendarScreen(
             modifier = Modifier.fillMaxSize(),
             uiState = RootUsageCalendarScreenUiState(
