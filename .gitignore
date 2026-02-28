@@ -10,6 +10,7 @@ local.properties
 link.schema.graphqls
 .graphqlconfig
 foward.config.yml
+**/src/test/snapshots/images/**
 
 .gradle
 .kotlin
