@@ -158,8 +158,4 @@ GitHub Actionsで自動ビルド・テスト（`.github/workflows/`）:
 
 ### Download Schema
 
-サーバー側の環境変数は`IS_DEBUG=true`は必須。
-
-```shell
-./gradlew :frontend:common:graphql:schema:downloadSchema
-```
+@.claude/skills/download-graphql-schema
