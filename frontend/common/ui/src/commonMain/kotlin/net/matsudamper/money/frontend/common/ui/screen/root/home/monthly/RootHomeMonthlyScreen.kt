@@ -32,10 +32,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
-import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
+import net.matsudamper.money.frontend.common.ui.screen.root.home.HomePreviewSurface
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSection
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionOrder
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionType
@@ -261,7 +261,7 @@ private fun RootHomeMonthlyScreenPreviewContent(isDarkTheme: Boolean) {
     val noOpItemEvent = object : RootHomeMonthlyScreenUiState.ItemEvent {
         override fun onClick() {}
     }
-    AppRoot(isDarkTheme = isDarkTheme) {
+    HomePreviewSurface(isDarkTheme = isDarkTheme) {
         RootHomeMonthlyScreen(
             modifier = Modifier.fillMaxSize(),
             uiState = RootHomeMonthlyScreenUiState(

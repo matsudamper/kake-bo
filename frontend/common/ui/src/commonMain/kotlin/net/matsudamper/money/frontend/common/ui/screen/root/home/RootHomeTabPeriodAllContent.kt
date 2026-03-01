@@ -27,7 +27,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
-import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
@@ -187,7 +186,7 @@ private fun PeriodAnalyticsScreenPreview() {
     val noOpMonthEvent = object : RootHomeTabPeriodAndCategoryUiState.MonthTotalItem.Event {
         override fun onClick() {}
     }
-    AppRoot(isDarkTheme = false) {
+    HomePreviewSurface(isDarkTheme = false) {
         RootHomeTabPeriodAllScreen(
             modifier = Modifier.fillMaxSize(),
             uiState = RootHomeTabPeriodAllContentUiState(
