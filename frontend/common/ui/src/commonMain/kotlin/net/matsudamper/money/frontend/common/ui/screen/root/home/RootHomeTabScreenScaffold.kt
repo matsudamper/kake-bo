@@ -3,16 +3,19 @@ package net.matsudamper.money.frontend.common.ui.screen.root.home
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
+import net.matsudamper.money.frontend.common.ui.base.UrlBar
 
 @Composable
 public fun RootHomeTabScreenScaffold(
@@ -22,6 +25,7 @@ public fun RootHomeTabScreenScaffold(
     windowInsets: PaddingValues,
     content: @Composable () -> Unit,
 ) {
+    var urlText by remember { mutableStateOf("") }
     RootScreenScaffold(
         modifier = modifier.fillMaxSize(),
         windowInsets = windowInsets,
@@ -29,22 +33,24 @@ public fun RootHomeTabScreenScaffold(
             KakeBoTopAppBar(
                 windowInsets = windowInsets,
                 title = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            modifier = Modifier.clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null,
-                            ) {
-                                kakeboScaffoldListener.onClickTitle()
-                            },
-                            text = "家計簿",
-                        )
-                        menu()
-                    }
+                    Text(
+                        modifier = Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                        ) {
+                            kakeboScaffoldListener.onClickTitle()
+                        },
+                        text = "家計簿",
+                    )
                 },
-                menu = {},
+                menu = { menu() },
+                urlBar = {
+                    UrlBar(
+                        text = urlText,
+                        onTextChange = { urlText = it },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                },
             )
         },
         content = {

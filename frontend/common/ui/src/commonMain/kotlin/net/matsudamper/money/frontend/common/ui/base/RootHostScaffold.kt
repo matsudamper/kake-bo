@@ -1,5 +1,10 @@
 package net.matsudamper.money.frontend.common.ui.base
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,9 +33,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.nav.EntryDecorator
@@ -45,6 +53,9 @@ import net.matsudamper.money.frontend.common.ui.rememberCustomFontFamily
 
 public val LocalRootScaffoldPadding: ProvidableCompositionLocal<PaddingValues> =
     staticCompositionLocalOf { PaddingValues(0.dp) }
+
+public val LocalUrlBarFocused: ProvidableCompositionLocal<MutableState<Boolean>> =
+    staticCompositionLocalOf { mutableStateOf(false) }
 
 public fun rootHostScaffoldEntryDecorator(
     navController: ScreenNavController,
@@ -107,143 +118,160 @@ private fun RootHostScaffoldContent(
     modifier: Modifier = Modifier,
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    Column(modifier) {
-        Row(
-            modifier = Modifier.weight(1f).fillMaxWidth(),
-        ) {
-            if (LocalIsLargeScreen.current) {
-                NavigationRail(
-                    modifier = Modifier.padding(top = 8.dp),
+    val urlBarFocused = remember { mutableStateOf(false) }
+    CompositionLocalProvider(LocalUrlBarFocused provides urlBarFocused) {
+        Column(modifier) {
+            Row(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+            ) {
+                if (LocalIsLargeScreen.current) {
+                    AnimatedVisibility(
+                        visible = !urlBarFocused.value,
+                        enter = expandHorizontally(expandFrom = Alignment.Start),
+                        exit = shrinkHorizontally(shrinkTowards = Alignment.Start),
+                    ) {
+                        Row {
+                            NavigationRail(
+                                modifier = Modifier.padding(top = 8.dp),
+                            ) {
+                                NavigationRailItem(
+                                    selected = currentScreen == RootScreenTab.Home,
+                                    onClick = { onClickTab(RootScreenTab.Home) },
+                                    icon = {
+                                        Icon(Icons.Default.Home, null)
+                                    },
+                                    label = {
+                                        Text(
+                                            "Home",
+                                            fontFamily = rememberCustomFontFamily(),
+                                        )
+                                    },
+                                )
+                                NavigationRailItem(
+                                    selected = currentScreen == RootScreenTab.List,
+                                    onClick = { onClickTab(RootScreenTab.List) },
+                                    icon = {
+                                        Icon(Icons.AutoMirrored.Filled.List, null)
+                                    },
+                                    label = {
+                                        Text(
+                                            "一覧",
+                                            fontFamily = rememberCustomFontFamily(),
+                                        )
+                                    },
+                                )
+                                NavigationRailItem(
+                                    selected = currentScreen == RootScreenTab.Add,
+                                    onClick = { onClickTab(RootScreenTab.Add) },
+                                    icon = {
+                                        Icon(Icons.Default.Add, null)
+                                    },
+                                    label = {
+                                        Text(
+                                            "追加",
+                                            fontFamily = rememberCustomFontFamily(),
+                                        )
+                                    },
+                                )
+                                NavigationRailItem(
+                                    selected = currentScreen == RootScreenTab.Settings,
+                                    onClick = { onClickTab(RootScreenTab.Settings) },
+                                    icon = {
+                                        Icon(Icons.Default.Settings, null)
+                                    },
+                                    label = {
+                                        Text(
+                                            "設定",
+                                            fontFamily = rememberCustomFontFamily(),
+                                        )
+                                    },
+                                )
+                            }
+                            VerticalDivider(
+                                modifier = Modifier
+                                    .width(1.dp)
+                                    .fillMaxHeight(),
+                                color = LocalCustomColors.current.menuDividerColor,
+                            )
+                        }
+                    }
+                }
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxHeight(),
                 ) {
-                    NavigationRailItem(
-                        selected = currentScreen == RootScreenTab.Home,
-                        onClick = { onClickTab(RootScreenTab.Home) },
-                        icon = {
-                            Icon(Icons.Default.Home, null)
-                        },
-                        label = {
-                            Text(
-                                "Home",
-                                fontFamily = rememberCustomFontFamily(),
-                            )
-                        },
-                    )
-                    NavigationRailItem(
-                        selected = currentScreen == RootScreenTab.List,
-                        onClick = { onClickTab(RootScreenTab.List) },
-                        icon = {
-                            Icon(Icons.AutoMirrored.Filled.List, null)
-                        },
-                        label = {
-                            Text(
-                                "一覧",
-                                fontFamily = rememberCustomFontFamily(),
-                            )
-                        },
-                    )
-                    NavigationRailItem(
-                        selected = currentScreen == RootScreenTab.Add,
-                        onClick = { onClickTab(RootScreenTab.Add) },
-                        icon = {
-                            Icon(Icons.Default.Add, null)
-                        },
-                        label = {
-                            Text(
-                                "追加",
-                                fontFamily = rememberCustomFontFamily(),
-                            )
-                        },
-                    )
-                    NavigationRailItem(
-                        selected = currentScreen == RootScreenTab.Settings,
-                        onClick = { onClickTab(RootScreenTab.Settings) },
-                        icon = {
-                            Icon(Icons.Default.Settings, null)
-                        },
-                        label = {
-                            Text(
-                                "設定",
-                                fontFamily = rememberCustomFontFamily(),
-                            )
-                        },
+                    content(
+                        windowInsets.asWindowInsets()
+                            .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+                            .asPaddingValues(),
                     )
                 }
-                VerticalDivider(
-                    modifier = Modifier
-                        .width(1.dp)
-                        .fillMaxHeight(),
-                    color = LocalCustomColors.current.menuDividerColor,
-                )
             }
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
-            ) {
-                content(
-                    windowInsets.asWindowInsets()
-                        .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
-                        .asPaddingValues(),
-                )
-            }
-        }
-        if (LocalIsLargeScreen.current.not()) {
-            NavigationBar(
-                windowInsets = windowInsets.asWindowInsets()
-                    .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal),
-            ) {
-                NavigationBarItem(
-                    selected = currentScreen == RootScreenTab.Home,
-                    onClick = { onClickTab(RootScreenTab.Home) },
-                    icon = {
-                        Icon(Icons.Default.Home, null)
-                    },
-                    label = {
-                        Text(
-                            "Home",
-                            fontFamily = rememberCustomFontFamily(),
+            if (LocalIsLargeScreen.current.not()) {
+                AnimatedVisibility(
+                    visible = !urlBarFocused.value,
+                    enter = expandVertically(expandFrom = Alignment.Bottom),
+                    exit = shrinkVertically(shrinkTowards = Alignment.Bottom),
+                ) {
+                    NavigationBar(
+                        windowInsets = windowInsets.asWindowInsets()
+                            .only(WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal),
+                    ) {
+                        NavigationBarItem(
+                            selected = currentScreen == RootScreenTab.Home,
+                            onClick = { onClickTab(RootScreenTab.Home) },
+                            icon = {
+                                Icon(Icons.Default.Home, null)
+                            },
+                            label = {
+                                Text(
+                                    "Home",
+                                    fontFamily = rememberCustomFontFamily(),
+                                )
+                            },
                         )
-                    },
-                )
-                NavigationBarItem(
-                    selected = currentScreen == RootScreenTab.List,
-                    onClick = { onClickTab(RootScreenTab.List) },
-                    icon = {
-                        Icon(Icons.AutoMirrored.Filled.List, null)
-                    },
-                    label = {
-                        Text(
-                            "一覧",
-                            fontFamily = rememberCustomFontFamily(),
+                        NavigationBarItem(
+                            selected = currentScreen == RootScreenTab.List,
+                            onClick = { onClickTab(RootScreenTab.List) },
+                            icon = {
+                                Icon(Icons.AutoMirrored.Filled.List, null)
+                            },
+                            label = {
+                                Text(
+                                    "一覧",
+                                    fontFamily = rememberCustomFontFamily(),
+                                )
+                            },
                         )
-                    },
-                )
-                NavigationBarItem(
-                    selected = currentScreen == RootScreenTab.Add,
-                    onClick = { onClickTab(RootScreenTab.Add) },
-                    icon = {
-                        Icon(Icons.Default.Add, null)
-                    },
-                    label = {
-                        Text(
-                            "追加",
-                            fontFamily = rememberCustomFontFamily(),
+                        NavigationBarItem(
+                            selected = currentScreen == RootScreenTab.Add,
+                            onClick = { onClickTab(RootScreenTab.Add) },
+                            icon = {
+                                Icon(Icons.Default.Add, null)
+                            },
+                            label = {
+                                Text(
+                                    "追加",
+                                    fontFamily = rememberCustomFontFamily(),
+                                )
+                            },
                         )
-                    },
-                )
-                NavigationBarItem(
-                    selected = currentScreen == RootScreenTab.Settings,
-                    onClick = { onClickTab(RootScreenTab.Settings) },
-                    icon = {
-                        Icon(Icons.Default.Settings, null)
-                    },
-                    label = {
-                        Text(
-                            "設定",
-                            fontFamily = rememberCustomFontFamily(),
+                        NavigationBarItem(
+                            selected = currentScreen == RootScreenTab.Settings,
+                            onClick = { onClickTab(RootScreenTab.Settings) },
+                            icon = {
+                                Icon(Icons.Default.Settings, null)
+                            },
+                            label = {
+                                Text(
+                                    "設定",
+                                    fontFamily = rememberCustomFontFamily(),
+                                )
+                            },
                         )
-                    },
-                )
+                    }
+                }
             }
         }
     }

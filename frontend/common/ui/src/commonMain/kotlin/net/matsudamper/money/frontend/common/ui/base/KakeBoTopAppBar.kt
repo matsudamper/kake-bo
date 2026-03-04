@@ -1,5 +1,8 @@
 package net.matsudamper.money.frontend.common.ui.base
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,6 +27,7 @@ public fun KakeBoTopAppBar(
     modifier: Modifier = Modifier,
     navigation: @Composable () -> Unit = {},
     menu: @Composable () -> Unit = {},
+    urlBar: (@Composable () -> Unit)? = null,
     title: @Composable () -> Unit,
     windowInsets: PaddingValues,
 ) {
@@ -37,15 +41,43 @@ public fun KakeBoTopAppBar(
             modifier = Modifier.fillMaxWidth(),
             navigationIcon = navigation,
             title = {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    title()
-                    Box(
-                        modifier = Modifier.weight(1f),
-                        contentAlignment = Alignment.CenterEnd,
+                if (urlBar != null) {
+                    val isFocused = LocalUrlBarFocused.current.value
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        menu()
+                        AnimatedVisibility(
+                            visible = !isFocused,
+                            enter = expandHorizontally(expandFrom = Alignment.Start),
+                            exit = shrinkHorizontally(shrinkTowards = Alignment.Start),
+                        ) {
+                            title()
+                        }
+                        Box(modifier = Modifier.weight(1f)) {
+                            urlBar()
+                        }
+                        AnimatedVisibility(
+                            visible = !isFocused,
+                            enter = expandHorizontally(expandFrom = Alignment.End),
+                            exit = shrinkHorizontally(shrinkTowards = Alignment.End),
+                        ) {
+                            Box(contentAlignment = Alignment.CenterEnd) {
+                                menu()
+                            }
+                        }
+                    }
+                } else {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        title()
+                        Box(
+                            modifier = Modifier.weight(1f),
+                            contentAlignment = Alignment.CenterEnd,
+                        ) {
+                            menu()
+                        }
                     }
                 }
             },
