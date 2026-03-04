@@ -1,0 +1,5 @@
+type TranslateResult {
+    translatedText: String!
+    sourceLanguage: String!
+    targetLanguage: String!
+}

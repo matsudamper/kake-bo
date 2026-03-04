@@ -24,6 +24,7 @@ import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.converter.toDBElement
 import net.matsudamper.money.backend.graphql.converter.toDbElement
 import net.matsudamper.money.backend.graphql.exception.GraphqlExceptions
+import net.matsudamper.money.backend.graphql.service.TranslateService
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
 import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
@@ -73,6 +74,7 @@ import net.matsudamper.money.graphql.model.QlRegisteredFidoInfo
 import net.matsudamper.money.graphql.model.QlRegisteredFidoResult
 import net.matsudamper.money.graphql.model.QlSession
 import net.matsudamper.money.graphql.model.QlSettingsMutation
+import net.matsudamper.money.graphql.model.QlTranslateResult
 import net.matsudamper.money.graphql.model.QlUpdateCategoryQuery
 import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterConditionInput
 import net.matsudamper.money.graphql.model.QlUpdateImportedMailCategoryFilterInput
@@ -943,6 +945,29 @@ class UserMutationResolverImpl : UserMutationResolver {
         return CompletableFuture.supplyAsync {
             context.diContainer.createMoneyUsagePresetRepository()
                 .deletePreset(userId = userId, presetId = id)
+        }.toDataFetcher()
+    }
+
+    override fun translateText(
+        userMutation: QlUserMutation,
+        text: String,
+        targetLanguage: String,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<QlTranslateResult?>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        context.verifyUserSessionAndGetUserId()
+        return CompletableFuture.supplyAsync {
+            runCatching {
+                val result = TranslateService().translate(
+                    text = text,
+                    targetLanguage = targetLanguage,
+                )
+                QlTranslateResult(
+                    translatedText = result.translatedText,
+                    sourceLanguage = result.sourceLanguage,
+                    targetLanguage = result.targetLanguage,
+                )
+            }.getOrNull()
         }.toDataFetcher()
     }
 }

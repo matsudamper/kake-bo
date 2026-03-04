@@ -19,6 +19,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ImportedMailPlainScreenQuery
+import net.matsudamper.money.frontend.graphql.TranslateTextMutation
 
 public class ImportedMailPlainViewModel(
     private val id: ImportedMailId,
@@ -30,7 +31,7 @@ public class ImportedMailPlainViewModel(
     private val viewModelEventSender = EventSender<Event>()
     public val viewModelEventHandler: EventHandler<Event> = viewModelEventSender.asHandler()
 
-    public val uiStateFlow: StateFlow<ImportedMailPlainScreenUiState> = MutableStateFlow(
+    private val uiStateMutableFlow = MutableStateFlow(
         ImportedMailPlainScreenUiState(
             loadingState = ImportedMailPlainScreenUiState.LoadingState.Loading,
             event = object : ImportedMailPlainScreenUiState.Event {
@@ -49,23 +50,36 @@ public class ImportedMailPlainViewModel(
                 override fun onClickRetry() {
                     fetch()
                 }
+
+                override fun onClickTranslate() {
+                    translate()
+                }
             },
         ),
-    ).also { uiStateFlow ->
+    )
+
+    public val uiStateFlow: StateFlow<ImportedMailPlainScreenUiState> = uiStateMutableFlow.asStateFlow()
+
+    init {
         viewModelScope.launch {
             viewModelStateFlow.collectLatest { viewModelState ->
-                val loadingState: ImportedMailPlainScreenUiState.LoadingState
-
                 val apolloResult = viewModelState.apolloResponseState
+
                 if (apolloResult == null) {
-                    loadingState = ImportedMailPlainScreenUiState.LoadingState.Loading
-                    uiStateFlow.update { it.copy(loadingState = loadingState) }
+                    uiStateMutableFlow.update {
+                        it.copy(
+                            loadingState = ImportedMailPlainScreenUiState.LoadingState.Loading,
+                        )
+                    }
                     return@collectLatest
                 }
 
                 if (apolloResult.isFailure) {
-                    loadingState = ImportedMailPlainScreenUiState.LoadingState.Error
-                    uiStateFlow.update { it.copy(loadingState = loadingState) }
+                    uiStateMutableFlow.update {
+                        it.copy(
+                            loadingState = ImportedMailPlainScreenUiState.LoadingState.Error,
+                        )
+                    }
                     return@collectLatest
                 }
 
@@ -73,29 +87,38 @@ public class ImportedMailPlainViewModel(
                 val mailData = response.data?.user?.importedMailAttributes?.mail
 
                 if (response.hasErrors() || mailData == null) {
-                    loadingState = ImportedMailPlainScreenUiState.LoadingState.Error
-                    uiStateFlow.update { it.copy(loadingState = loadingState) }
+                    uiStateMutableFlow.update {
+                        it.copy(
+                            loadingState = ImportedMailPlainScreenUiState.LoadingState.Error,
+                        )
+                    }
                     return@collectLatest
                 }
 
-                loadingState = ImportedMailPlainScreenUiState.LoadingState.Loaded(
-                    html = sequence {
-                        yield(
-                            mailData.plain
-                                ?.replace("\r\n", "<br>")
-                                ?.replace("\n", "<br>"),
-                        )
-                    }.filterNotNull().firstOrNull().orEmpty(),
-                )
+                val html = sequence {
+                    yield(
+                        mailData.plain
+                            ?.replace("\r\n", "<br>")
+                            ?.replace("\n", "<br>"),
+                    )
+                }.filterNotNull().firstOrNull().orEmpty()
 
-                uiStateFlow.update {
+                val currentTranslationState = when (val currentState = uiStateMutableFlow.value.loadingState) {
+                    is ImportedMailPlainScreenUiState.LoadingState.Loaded -> currentState.translationState
+                    else -> ImportedMailPlainScreenUiState.TranslationState.NotTranslated
+                }
+
+                uiStateMutableFlow.update {
                     it.copy(
-                        loadingState = loadingState,
+                        loadingState = ImportedMailPlainScreenUiState.LoadingState.Loaded(
+                            html = html,
+                            translationState = currentTranslationState,
+                        ),
                     )
                 }
             }
         }
-    }.asStateFlow()
+    }
 
     private fun fetch() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -112,6 +135,65 @@ public class ImportedMailPlainViewModel(
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
                     apolloResponseState = result,
+                )
+            }
+        }
+    }
+
+    private fun translate() {
+        val currentLoadedState = uiStateMutableFlow.value.loadingState as? ImportedMailPlainScreenUiState.LoadingState.Loaded
+            ?: return
+
+        val plainText = currentLoadedState.html
+            .replace("<br>", "\n")
+            .replace(Regex("<[^>]+>"), "")
+
+        uiStateMutableFlow.update {
+            it.copy(
+                loadingState = currentLoadedState.copy(
+                    translationState = ImportedMailPlainScreenUiState.TranslationState.Loading,
+                ),
+            )
+        }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = runCatching {
+                graphqlClient.apolloClient.mutation(
+                    TranslateTextMutation(
+                        text = plainText,
+                        targetLanguage = "ja",
+                    ),
+                ).execute()
+            }
+
+            val newTranslationState = result.fold(
+                onSuccess = { response ->
+                    val translateResult = response.data?.userMutation?.translateText
+                    if (translateResult != null) {
+                        val translatedHtml = translateResult.translatedText
+                            .replace("\n", "<br>")
+                        ImportedMailPlainScreenUiState.TranslationState.Translated(
+                            translatedHtml = translatedHtml,
+                            sourceLanguage = translateResult.sourceLanguage,
+                            targetLanguage = translateResult.targetLanguage,
+                        )
+                    } else {
+                        ImportedMailPlainScreenUiState.TranslationState.Error
+                    }
+                },
+                onFailure = {
+                    ImportedMailPlainScreenUiState.TranslationState.Error
+                },
+            )
+
+            val latestLoadedState = uiStateMutableFlow.value.loadingState as? ImportedMailPlainScreenUiState.LoadingState.Loaded
+                ?: return@launch
+
+            uiStateMutableFlow.update {
+                it.copy(
+                    loadingState = latestLoadedState.copy(
+                        translationState = newTranslationState,
+                    ),
                 )
             }
         }

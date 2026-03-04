@@ -39,6 +39,8 @@ type UserMutation {
     addMoneyUsagePreset(input: AddMoneyUsagePresetInput!): MoneyUsagePreset!
     updateMoneyUsagePreset(input: UpdateMoneyUsagePresetInput!): MoneyUsagePreset!
     deleteMoneyUsagePreset(id: MoneyUsagePresetId!): Boolean!
+
+    translateText(text: String!, targetLanguage: String!): TranslateResult
 }
 
 type DeleteApiTokenResult {

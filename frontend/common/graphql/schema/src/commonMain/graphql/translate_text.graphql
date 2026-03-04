@@ -1,0 +1,9 @@
+mutation TranslateText($text: String!, $targetLanguage: String!) {
+    userMutation {
+        translateText(text: $text, targetLanguage: $targetLanguage) {
+            translatedText
+            sourceLanguage
+            targetLanguage
+        }
+    }
+}

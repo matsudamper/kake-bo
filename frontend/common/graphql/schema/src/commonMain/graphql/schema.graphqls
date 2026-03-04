@@ -805,6 +805,14 @@ type UserMutation {
   updateMoneyUsagePreset(input: UpdateMoneyUsagePresetInput!): MoneyUsagePreset!
 
   deleteMoneyUsagePreset(id: MoneyUsagePresetId!): Boolean!
+
+  translateText(text: String!, targetLanguage: String!): TranslateResult
+}
+
+type TranslateResult {
+  translatedText: String!
+  sourceLanguage: String!
+  targetLanguage: String!
 }
 
 type UserSettings {
