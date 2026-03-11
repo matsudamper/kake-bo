@@ -60,7 +60,8 @@ class KtorCookieManager(
             value = value,
             expires = expires.toInstant().toGMTDate(),
             domain = host,
-            path = ".",
+            path = "/",
+            httpOnly = true,
             secure = ServerEnv.isSecure,
             extensions = mapOf(
                 "SameSite" to "Strict",
