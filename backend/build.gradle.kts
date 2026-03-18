@@ -51,6 +51,7 @@ kotlin {
                 implementation(libs.ktorServerContentNegotiation)
                 implementation(libs.ktorServerCallLogging)
                 implementation(libs.ktorServerCompression)
+                implementation(libs.ktorServerConditionalHeaders)
             }
         }
         val jvmTest by getting {

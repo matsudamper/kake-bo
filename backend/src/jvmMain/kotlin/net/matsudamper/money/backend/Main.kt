@@ -18,6 +18,7 @@ import io.ktor.server.http.content.staticFiles
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.compression.Compression
+import io.ktor.server.plugins.conditionalheaders.ConditionalHeaders
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.forwardedheaders.ForwardedHeaders
@@ -76,6 +77,7 @@ fun Application.myApplicationModule() {
     install(ForwardedHeaders)
     install(XForwardedHeaders)
     install(Compression)
+    install(ConditionalHeaders)
     install(ContentNegotiation) {
         json(
             json = ObjectMapper.kotlinxSerialization,
