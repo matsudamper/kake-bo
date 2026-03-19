@@ -151,6 +151,7 @@ public class PresetListViewModel(
                 ScreenStructure.AddMoneyUsage(
                     title = preset.name,
                     subCategoryId = preset.subCategory?.id?.id?.toString(),
+                    price = preset.amount?.toFloat(),
                 ),
             )
         }
