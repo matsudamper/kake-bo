@@ -1,12 +1,9 @@
 package net.matsudamper.money.backend
 
 import java.io.File
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
-import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -18,6 +15,7 @@ import io.ktor.server.http.content.staticFiles
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.compression.Compression
+import io.ktor.server.plugins.conditionalheaders.ConditionalHeaders
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.forwardedheaders.ForwardedHeaders
@@ -76,6 +74,7 @@ fun Application.myApplicationModule() {
     install(ForwardedHeaders)
     install(XForwardedHeaders)
     install(Compression)
+    install(ConditionalHeaders)
     install(ContentNegotiation) {
         json(
             json = ObjectMapper.kotlinxSerialization,
@@ -208,33 +207,6 @@ fun Application.myApplicationModule() {
                     "wasm" -> ContentType.Application.Wasm
                     "js" -> ContentType.Application.JavaScript
                     else -> null
-                }
-            }
-            cacheControl { file ->
-                when {
-                    file.extension == "ttf" -> {
-                        listOf(
-                            CacheControl.MaxAge(maxAgeSeconds = 30.days.inWholeSeconds.toInt()),
-                        )
-                    }
-
-                    file.toString() == "/favicon.ico" -> {
-                        listOf(
-                            CacheControl.MaxAge(maxAgeSeconds = 1.hours.inWholeSeconds.toInt()),
-                        )
-                    }
-
-                    file.toString() == "/skiko.wasm" -> {
-                        listOf(
-                            CacheControl.MaxAge(maxAgeSeconds = 1.hours.inWholeSeconds.toInt()),
-                        )
-                    }
-
-                    else -> {
-                        listOf(
-                            CacheControl.NoCache(null),
-                        )
-                    }
                 }
             }
         }
