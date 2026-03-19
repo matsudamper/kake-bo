@@ -1,12 +1,9 @@
 package net.matsudamper.money.backend
 
 import java.io.File
-import kotlin.time.Duration.Companion.days
-import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
-import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -210,33 +207,6 @@ fun Application.myApplicationModule() {
                     "wasm" -> ContentType.Application.Wasm
                     "js" -> ContentType.Application.JavaScript
                     else -> null
-                }
-            }
-            cacheControl { file ->
-                when {
-                    file.extension == "ttf" -> {
-                        listOf(
-                            CacheControl.MaxAge(maxAgeSeconds = 30.days.inWholeSeconds.toInt()),
-                        )
-                    }
-
-                    file.toString() == "/favicon.ico" -> {
-                        listOf(
-                            CacheControl.MaxAge(maxAgeSeconds = 1.hours.inWholeSeconds.toInt()),
-                        )
-                    }
-
-                    file.toString() == "/skiko.wasm" -> {
-                        listOf(
-                            CacheControl.MaxAge(maxAgeSeconds = 1.hours.inWholeSeconds.toInt()),
-                        )
-                    }
-
-                    else -> {
-                        listOf(
-                            CacheControl.NoCache(null),
-                        )
-                    }
                 }
             }
         }
