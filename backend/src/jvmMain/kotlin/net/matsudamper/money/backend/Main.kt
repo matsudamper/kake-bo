@@ -10,14 +10,10 @@ import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.content.versions
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
-import io.ktor.server.application.createApplicationPlugin
-import io.ktor.server.application.hooks.ResponseBodyReadyForSend
 import io.ktor.server.application.install
 import io.ktor.server.engine.embeddedServer
-import io.ktor.server.http.content.LocalFileContent
 import io.ktor.server.http.content.staticFiles
 import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.calllogging.CallLogging
@@ -48,16 +44,6 @@ import net.matsudamper.money.backend.image.ImageUploadConfig
 import net.matsudamper.money.backend.image.getImage
 import net.matsudamper.money.backend.image.postImage
 import org.slf4j.event.Level
-
-// ETagキャッシュをフォント・HTML・WASMなどのstaticリソースのみに制限するプラグイン
-private val staticResourceConditionalHeadersFilter = createApplicationPlugin("StaticResourceConditionalHeadersFilter") {
-    val cacheableExtensions = setOf("ttf", "wasm", "html", "ico")
-    on(ResponseBodyReadyForSend) { _, content ->
-        if (content is LocalFileContent && content.file.extension.lowercase() !in cacheableExtensions) {
-            content.versions = listOf()
-        }
-    }
-}
 
 class Main {
     companion object {
@@ -91,7 +77,6 @@ fun Application.myApplicationModule() {
     install(ForwardedHeaders)
     install(XForwardedHeaders)
     install(Compression)
-    install(staticResourceConditionalHeadersFilter)
     install(ConditionalHeaders)
     install(ContentNegotiation) {
         json(
