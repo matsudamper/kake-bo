@@ -1,7 +1,6 @@
 package net.matsudamper.money.frontend.common.base.nav.user
 
 import io.kotest.core.spec.style.DescribeSpec
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.equals.shouldBeEqual
 import io.kotest.matchers.types.shouldBeInstanceOf
 
