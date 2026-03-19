@@ -76,14 +76,10 @@ internal actual val factory: Factory = object : Factory() {
                                 ?.get("Set-Cookie")
                                 ?: return@onEach
                             for (cookie in cookies.split(";")) {
-                                val key: String
-                                val value: String
-                                run {
-                                    cookie.split("=").let {
-                                        key = it[0]
-                                        value = it[1]
-                                    }
-                                }
+                                val parts = cookie.trim().split("=", limit = 2)
+                                if (parts.size < 2) continue
+                                val key = parts[0].trim()
+                                val value = parts[1]
                                 if (key != UserSessionIdKey) continue
                                 sessionDataStore.updateData {
                                     it.toBuilder()
