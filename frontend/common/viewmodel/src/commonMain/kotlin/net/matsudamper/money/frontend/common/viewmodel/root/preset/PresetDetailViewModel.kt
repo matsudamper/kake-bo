@@ -14,7 +14,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
-import net.matsudamper.money.frontend.common.ui.screen.root.mail.PresetDetailScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.preset.PresetDetailScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
