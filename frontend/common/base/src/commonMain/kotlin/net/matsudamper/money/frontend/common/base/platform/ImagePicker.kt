@@ -5,6 +5,7 @@ public interface ImagePicker {
     public suspend fun pickImages(): List<SelectedImage>
 
     public data class SelectedImage(
+        val id: String,
         val previewBytes: ByteArray?,
         val await: suspend () -> UploadedImageData?,
     )

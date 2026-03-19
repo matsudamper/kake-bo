@@ -41,6 +41,7 @@ internal class ImagePickerImpl(
                 }.getOrNull()
             }
             ImagePicker.SelectedImage(
+                id = uri.toString(),
                 previewBytes = previewBytes,
                 await = {
                     val bitmap = decodeBitmapFromUri(uri) ?: return@SelectedImage null
