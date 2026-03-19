@@ -56,7 +56,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.home.LoginCheckUseCa
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeAddTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
-import net.matsudamper.money.ui.root.platform.PlatformTools
+import net.matsudamper.money.frontend.common.base.platform.PlatformTools
 import net.matsudamper.money.ui.root.viewmodel.LocalViewModelProviders
 import net.matsudamper.money.ui.root.viewmodel.ViewModelProviders
 

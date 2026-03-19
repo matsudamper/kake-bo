@@ -1,4 +1,4 @@
-package net.matsudamper.money.ui.root.platform
+package net.matsudamper.money.frontend.common.base.platform
 
 public interface ApplicationNotificationManager {
     public fun notify(message: String)

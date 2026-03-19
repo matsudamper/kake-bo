@@ -1,7 +1,7 @@
 package platform
 
 import kotlinx.browser.window
-import net.matsudamper.money.ui.root.platform.BackPressDispatcher
+import net.matsudamper.money.frontend.common.base.platform.BackPressDispatcher
 
 internal class BackPressDispatcherImpl : BackPressDispatcher {
     override fun onBackPressed() {

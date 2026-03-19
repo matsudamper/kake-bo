@@ -12,9 +12,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
-import net.matsudamper.money.frontend.common.ui.layout.image.SelectedImage
-import net.matsudamper.money.frontend.common.ui.layout.image.UploadedImageData
-import net.matsudamper.money.ui.root.platform.ImagePicker
+import net.matsudamper.money.frontend.common.base.platform.ImagePicker
 
 internal class ImagePickerImpl(
     private val componentActivity: ComponentActivity,
@@ -30,14 +28,20 @@ internal class ImagePickerImpl(
         channel.tryEmit(uris)
     }
 
-    override suspend fun pickImages(): List<SelectedImage> {
+    override suspend fun pickImages(): List<ImagePicker.SelectedImage> {
         channel.tryEmit(emptyList())
         val uris = channel
             .onStart { launcher.launch("image/*") }
             .first()
 
         return uris.map { uri ->
-            SelectedImage(
+            val previewBytes = withContext(Dispatchers.IO) {
+                runCatching {
+                    componentActivity.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                }.getOrNull()
+            }
+            ImagePicker.SelectedImage(
+                previewBytes = previewBytes,
                 await = {
                     val bitmap = decodeBitmapFromUri(uri) ?: return@SelectedImage null
                     val webpBytes = try {
@@ -46,7 +50,7 @@ internal class ImagePickerImpl(
                         bitmap.recycle()
                     }
                     if (webpBytes == null) return@SelectedImage null
-                    UploadedImageData(
+                    ImagePicker.UploadedImageData(
                         bytes = webpBytes,
                         contentType = "image/webp",
                     )

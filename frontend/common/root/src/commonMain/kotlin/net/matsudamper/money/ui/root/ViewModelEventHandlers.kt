@@ -36,7 +36,8 @@ import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalen
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
-import net.matsudamper.money.ui.root.platform.PlatformTools
+import net.matsudamper.money.frontend.common.base.platform.ImagePicker
+import net.matsudamper.money.frontend.common.base.platform.PlatformTools
 
 internal data class ViewModelEventHandlers(
     private val navController: ScreenNavController,
@@ -247,7 +248,7 @@ internal data class ViewModelEventHandlers(
         coroutineScope {
             handler.collect(
                 object : AddMoneyUsageViewModel.Event {
-                    override suspend fun selectImages() = platformToolsProvider().imagePicker.pickImages()
+                    override suspend fun selectImages(): List<ImagePicker.SelectedImage> = platformToolsProvider().imagePicker.pickImages()
 
                     override fun navigate(structure: ScreenStructure) {
                         navController.navigate(structure)

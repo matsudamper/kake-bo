@@ -6,7 +6,7 @@ import kotlinx.browser.document
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.matsudamper.money.frontend.common.ui.layout.image.SelectedImage
 import net.matsudamper.money.frontend.common.ui.layout.image.UploadedImageData
-import net.matsudamper.money.ui.root.platform.ImagePicker
+import net.matsudamper.money.frontend.common.base.platform.ImagePicker
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Int8Array
 import org.w3c.dom.HTMLInputElement
@@ -32,6 +32,7 @@ internal class ImagePickerImpl : ImagePicker {
                                 val bytes = toByteArray(buffer)
                                 if (bytes.isNotEmpty()) {
                                     SelectedImage(
+                                        previewBytes = bytes,
                                         await = {
                                             UploadedImageData(
                                                 bytes = bytes,
