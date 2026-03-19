@@ -21,9 +21,9 @@ import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.base.platform.ImagePicker
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
-import net.matsudamper.money.frontend.common.ui.layout.image.SelectedImage
 import net.matsudamper.money.frontend.common.ui.screen.moneyusage.MoneyUsageScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
@@ -140,7 +140,7 @@ public class MoneyUsageScreenViewModel(
                                             event = createImageItemEvent(imageId = image.id),
                                         )
                                     }.toImmutableList(),
-                                    isImageUploading = viewModelState.uploadingImageCount > 0,
+                                    uploadingImages = viewModelState.uploadingImages.map { it.previewBytes }.toImmutableList(),
                                     event = createMoneyUsageEvent(item = moneyUsage),
                                 ),
                                 linkedMails = moneyUsage.linkedMail.orEmpty().map { mail ->
@@ -399,37 +399,39 @@ public class MoneyUsageScreenViewModel(
                     val images = eventSender.send { it.selectImages() }
                     if (images.isEmpty()) return@launch
 
+                    val newUploadingImages = images.map {
+                        ViewModelState.UploadingImage(
+                            id = it.id,
+                            previewBytes = it.previewBytes,
+                        )
+                    }
                     viewModelStateFlow.update { state ->
-                        state.copy(uploadingImageCount = state.uploadingImageCount + images.size)
+                        state.copy(uploadingImages = state.uploadingImages + newUploadingImages)
                     }
 
-                    try {
-                        images.forEach { image ->
-                            val selectedImageData = image.await() ?: return@forEach
-                            val uploadResult = api.uploadImage(
-                                bytes = selectedImageData.bytes,
-                                contentType = selectedImageData.contentType,
-                            ) ?: return@forEach
+                    images.forEach { image ->
+                        val selectedImageData = image.await() ?: return@forEach
+                        val uploadResult = api.uploadImage(
+                            bytes = selectedImageData.bytes,
+                            contentType = selectedImageData.contentType,
+                        ) ?: return@forEach
 
-                            updateImageMutex.withLock {
-                                val currentImageIds = currentMoneyUsage()?.images?.map { it.id } ?: item.images.map { it.id }
-                                val updatedImageIds = (currentImageIds + uploadResult.imageId)
-                                    .distinctBy { imageId -> imageId.value }
+                        updateImageMutex.withLock {
+                            val currentImageIds = currentMoneyUsage()?.images?.map { it.id } ?: item.images.map { it.id }
+                            val updatedImageIds = (currentImageIds + uploadResult.imageId)
+                                .distinctBy { imageId -> imageId.value }
 
-                                val isSuccess = api.updateUsage(
-                                    id = moneyUsageId,
-                                    imageIds = updatedImageIds,
-                                )
-                                if (!isSuccess) {
-                                    eventSender.send { it.showToast("画像のアップロードに失敗しました") }
-                                }
+                            val isSuccess = api.updateUsage(
+                                id = moneyUsageId,
+                                imageIds = updatedImageIds,
+                            )
+                            if (!isSuccess) {
+                                eventSender.send { it.showToast("画像のアップロードに失敗しました") }
                             }
                         }
-                    } finally {
+
                         viewModelStateFlow.update { state ->
-                            state.copy(
-                                uploadingImageCount = (state.uploadingImageCount - images.size).coerceAtLeast(0),
-                            )
+                            state.copy(uploadingImages = state.uploadingImages.filterNot { it.id == image.id })
                         }
                     }
                 }
@@ -582,7 +584,7 @@ public class MoneyUsageScreenViewModel(
     }
 
     public interface Event {
-        public suspend fun selectImages(): List<SelectedImage>
+        public suspend fun selectImages(): List<ImagePicker.SelectedImage>
 
         public fun navigate(structure: ScreenStructure)
 
@@ -603,6 +605,8 @@ public class MoneyUsageScreenViewModel(
         val categorySelectDialog: CategorySelectDialogUiState? = null,
         val urlMenuDialog: MoneyUsageScreenUiState.UrlMenuDialog? = null,
         val numberInputDialog: MoneyUsageScreenUiState.NumberInputDialog? = null,
-        val uploadingImageCount: Int = 0,
-    )
+        val uploadingImages: List<UploadingImage> = listOf(),
+    ) {
+        class UploadingImage(val id: String, val previewBytes: ByteArray?)
+    }
 }

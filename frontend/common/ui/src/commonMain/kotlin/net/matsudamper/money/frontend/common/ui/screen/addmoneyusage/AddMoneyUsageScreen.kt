@@ -36,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -59,7 +60,7 @@ import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
 
 public sealed interface ImageItem {
-    public data object Uploading : ImageItem
+    public data class Uploading(val previewBytes: ByteArray?) : ImageItem
     public data class Uploaded(val url: String) : ImageItem
 }
 
@@ -297,13 +298,34 @@ public fun AddMoneyUsageScreen(
                                         when (image) {
                                             is ImageItem.Uploading -> {
                                                 Box(
-                                                    modifier = Modifier
-                                                        .size(120.dp),
+                                                    modifier = Modifier.size(120.dp),
                                                     contentAlignment = Alignment.Center,
                                                 ) {
-                                                    CircularProgressIndicator(
-                                                        modifier = Modifier.size(48.dp),
-                                                    )
+                                                    if (image.previewBytes != null) {
+                                                        AsyncImage(
+                                                            model = image.previewBytes,
+                                                            contentDescription = null,
+                                                            contentScale = ContentScale.Crop,
+                                                            modifier = Modifier
+                                                                .fillMaxSize()
+                                                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                                                        )
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .fillMaxSize()
+                                                                .background(Color.Black.copy(alpha = 0.4f)),
+                                                            contentAlignment = Alignment.Center,
+                                                        ) {
+                                                            CircularProgressIndicator(
+                                                                modifier = Modifier.size(48.dp),
+                                                                color = Color.White,
+                                                            )
+                                                        }
+                                                    } else {
+                                                        CircularProgressIndicator(
+                                                            modifier = Modifier.size(48.dp),
+                                                        )
+                                                    }
                                                 }
                                             }
                                             is ImageItem.Uploaded -> {
