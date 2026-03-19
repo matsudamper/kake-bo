@@ -1,7 +1,7 @@
 [versions]
 java = "24"
 javaToolchain = "24"
-kotlin = "2.3.10"
+kotlin = "2.3.20"
 apollo = "4.4.2"
 ktor = "3.4.0"
 activity = "1.12.4"
