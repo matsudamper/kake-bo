@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.root.mail
+package net.matsudamper.money.frontend.common.ui.screen.root.preset
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -47,50 +47,6 @@ import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
-
-public data class PresetListScreenUiState(
-    val kakeboScaffoldListener: KakeboScaffoldListener,
-    val loadingState: LoadingState,
-    val showNameInput: Boolean,
-    val event: Event,
-) {
-    public sealed interface LoadingState {
-        public data object Loading : LoadingState
-        public data object Error : LoadingState
-        public data class Loaded(
-            val items: ImmutableList<PresetItem>,
-        ) : LoadingState
-    }
-
-    public data class PresetItem(
-        val id: String,
-        val name: String,
-        val subCategoryName: String?,
-        val event: Event,
-    ) {
-        @Immutable
-        public interface Event {
-            public fun onClick()
-
-            public fun onClickEdit()
-
-            public fun onClickDelete()
-        }
-    }
-
-    @Immutable
-    public interface Event {
-        public fun onResume()
-
-        public fun onRefresh()
-
-        public fun onClickAddButton()
-
-        public fun onNameInputCompleted(name: String)
-
-        public fun onDismissNameInput()
-    }
-}
 
 @Composable
 public fun PresetListScreen(

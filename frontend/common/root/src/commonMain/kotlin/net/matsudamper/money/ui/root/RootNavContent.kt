@@ -29,8 +29,8 @@ import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportMailScree
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.ImportedMailListScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.mail.MailImportScreen
-import net.matsudamper.money.frontend.common.ui.screen.root.mail.PresetDetailScreen
-import net.matsudamper.money.frontend.common.ui.screen.root.mail.PresetListScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.preset.PresetDetailScreen
+import net.matsudamper.money.frontend.common.ui.screen.root.preset.PresetListScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.RootSettingScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalendarPagerHostScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.usage.RootUsageCalendarPagerHostScreenUiState

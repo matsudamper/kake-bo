@@ -1,14 +1,14 @@
 [versions]
 java = "24"
 javaToolchain = "24"
-kotlin = "2.3.10"
+kotlin = "2.3.20"
 apollo = "4.4.2"
-ktor = "3.4.0"
-activity = "1.12.4"
+ktor = "3.4.1"
+activity = "1.13.0"
 appcompat = "1.7.1"
 agp = "8.13.2"
-jackson = "2.21.0"
-compose = "1.10.1"
+jackson = "2.21.1"
+compose = "1.10.3"
 protoBuf = "4.34.0"
 lifecycle = "2.10.0"
 jooq = "3.20.11"
@@ -64,6 +64,7 @@ ktorServerCompression = { module = "io.ktor:ktor-server-compression", version.re
 ktorSerializationJson = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktorServerContentNegotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }
 ktorServerCallLogging = { module = "io.ktor:ktor-server-call-logging", version.ref = "ktor" }
+ktorServerConditionalHeaders = { module = "io.ktor:ktor-server-conditional-headers", version.ref = "ktor" }
 ktorClientCore = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktorClientCio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktorClientJs = { module = "io.ktor:ktor-client-js", version.ref = "ktor" }
@@ -81,26 +82,26 @@ jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin"
 jackson-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
 
 # WebAUth4J
-webauth4jCore = { module = "com.webauthn4j:webauthn4j-core", version.require = "0.31.0.RELEASE" }
+webauth4jCore = { module = "com.webauthn4j:webauthn4j-core", version.require = "0.31.1.RELEASE" }
 
-opentelemetryApi = { module = "io.opentelemetry:opentelemetry-api", version.require = "1.58.0" }
+opentelemetryApi = { module = "io.opentelemetry:opentelemetry-api", version.require = "1.60.1" }
 
 # Android
 androidActivityActivityCompose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
 androidAppCompatAppCompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
-androidxCoreKtx = { module = "androidx.core:core-ktx", version.require = "1.17.0" }
+androidxCoreKtx = { module = "androidx.core:core-ktx", version.require = "1.18.0" }
 androidxLifecycleViewModelKtx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 androidxLifecycleViewModelCompose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycle" }
 androidxLifecycleRuntimeCompose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
 androidxNavigation3Runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3" }
 androidxNavigation3Ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3" }
 jetbrainsNavigation3Ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "jetbrainsNav3" }
-androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.10.4" }
+androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.10.5" }
 composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose" }
 composeUiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose" }
 
 # Test
-kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "6.1.3" }
+kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "6.1.7" }
 paparazzi = { module = "app.cash.paparazzi:paparazzi", version.ref = "paparazzi" }
 composablePreviewScanner = { module = "io.github.sergio-sastre.ComposablePreviewScanner:android", version.ref = "composablePreviewScanner" }
 
@@ -123,7 +124,7 @@ zoomable = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }
 
 # Log
 log4j-api = { module = "org.slf4j:slf4j-api", version.require = "2.0.17" }
-logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.5.29" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.require = "1.5.32" }
 logstashLogbackEncoder = { module = "net.logstash.logback:logstash-logback-encoder", version.require = "9.0" }
 
 # Graphql
@@ -132,10 +133,10 @@ graphqlJava = { module = "com.graphql-java:graphql-java", version.require = "25.
 graphqlJavaKickstart-JavaTools = { module = "com.graphql-java-kickstart:graphql-java-tools", version.require = "14.0.1" }
 
 # DataStore
-androidxDatastoreDatastore = { module = "androidx.datastore:datastore", version.require = "1.2.0" }
+androidxDatastoreDatastore = { module = "androidx.datastore:datastore", version.require = "1.2.1" }
 
 # Other
-jedis = { module = "redis.clients:jedis", version.require = "7.3.0" }
+jedis = { module = "redis.clients:jedis", version.require = "7.4.0" }
 jsoup = { module = "org.jsoup:jsoup", version.require = "1.22.1" }
 hikariCP = { module = "com.zaxxer:HikariCP", version.require = "7.0.2" }
 mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.7" }
