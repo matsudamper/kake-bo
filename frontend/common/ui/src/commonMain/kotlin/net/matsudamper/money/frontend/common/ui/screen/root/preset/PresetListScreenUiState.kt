@@ -4,7 +4,6 @@ import androidx.compose.runtime.Immutable
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 
-
 public data class PresetListScreenUiState(
     val kakeboScaffoldListener: KakeboScaffoldListener,
     val loadingState: LoadingState,
