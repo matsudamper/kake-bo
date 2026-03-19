@@ -649,7 +649,7 @@ private fun MoneyUsage(
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .clickable { selectedImageUrl = imageItem.url }
-                                            .pointerInput(Unit) {
+                                            .pointerInput(imageItem.url) {
                                                 detectTapGestures(
                                                     onTap = { selectedImageUrl = imageItem.url },
                                                     onLongPress = { showPopupMenu = true },
