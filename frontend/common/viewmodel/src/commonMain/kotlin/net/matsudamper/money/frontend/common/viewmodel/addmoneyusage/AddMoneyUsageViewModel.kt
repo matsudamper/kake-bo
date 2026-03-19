@@ -229,7 +229,7 @@ public class AddMoneyUsageViewModel(
                                         ViewModelState.UploadedImage(
                                             imageId = uploadResult.imageId,
                                             url = uploadResult.url,
-                                        )
+                                        ),
                                     ).distinctBy { it.imageId.value },
                             )
                         }

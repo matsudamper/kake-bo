@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.base.platform
 
-
 public interface ImagePicker {
     public suspend fun pickImages(): List<SelectedImage>
 
