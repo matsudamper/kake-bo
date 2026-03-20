@@ -90,7 +90,7 @@ https://github.com/anthropics/claude-code/issues/13372
 
 コードを編集した後は必ず以下を実行してエラーを確認してください。
 
-ビルドはIN PROCESSで実行してください（`--no-daemon`オプションを使用）。
+すべてのGradleコマンドはIN PROCESSで実行してください（`--no-daemon`オプションを使用）。
 
 ```sh
 ./gradlew :backend:assemble :frontend:app:jsBrowserDevelopmentWebpack :frontend:app:assembleDebug --warn --no-daemon
@@ -101,7 +101,7 @@ https://github.com/anthropics/claude-code/issues/13372
 ビルドができたらFormatしてください。
 
 ```sh
-./gradlew ktlintFormat
+./gradlew ktlintFormat --no-daemon
 ```
 
 ## テスト
@@ -109,7 +109,7 @@ https://github.com/anthropics/claude-code/issues/13372
 テストフレームワーク: Kotest (JUnit 5), mockk
 
 ```sh
-./gradlew allTests --warn
+./gradlew allTests --warn --no-daemon
 ```
 
 ## CI/CD
@@ -123,25 +123,25 @@ GitHub Actionsで自動ビルド・テスト（`.github/workflows/`）:
 ### Backend
 
 ```shell
-./gradlew :backend:build
+./gradlew :backend:build --no-daemon
 ```
 
 ### Frontend - Android App
 
 ```shell
-./gradlew :frontend:app:assembleDebug
+./gradlew :frontend:app:assembleDebug --no-daemon
 ```
 
 ### Frontend - JS
 
 ```shell
-./gradlew :frontend:app:jsBrowserDevelopmentWebpack
+./gradlew :frontend:app:jsBrowserDevelopmentWebpack --no-daemon
 ```
 
 ### Production JS
 
 ```shell
-./gradlew :frontend:app:jsBrowserProductionWebpack
+./gradlew :frontend:app:jsBrowserProductionWebpack --no-daemon
 ```
 
 ## コード生成
@@ -149,13 +149,13 @@ GitHub Actionsで自動ビルド・テスト（`.github/workflows/`）:
 ### DB
 
 ```shell
-./gradlew generateDbCode
+./gradlew generateDbCode --no-daemon
 ```
 
 ### GraphQL (Front)
 
 ```shell
-./gradlew generateApolloSources
+./gradlew generateApolloSources --no-daemon
 ```
 
 ### Download Schema
