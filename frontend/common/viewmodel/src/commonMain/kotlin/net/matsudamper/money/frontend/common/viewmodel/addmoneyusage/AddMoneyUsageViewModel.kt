@@ -320,7 +320,7 @@ public class AddMoneyUsageViewModel(
                     state.copy(
                         usageTitle = current.title ?: state.usageTitle,
                         usageDate = current.date?.date ?: state.usageDate,
-                        usageTime = current.date?.time ?: Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time,
+                        usageTime = current.date?.time ?: state.usageTime,
                         usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
                         usageDescription = current.description ?: state.usageDescription,
                         usageImages = listOf(),
@@ -473,7 +473,7 @@ public class AddMoneyUsageViewModel(
     private data class ViewModelState(
         val importedMailId: ImportedMailId? = null,
         val usageDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
-        val usageTime: LocalTime = LocalTime(0, 0, 0, 0),
+        val usageTime: LocalTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time,
         val usageTitle: String = "",
         val usageDescription: String = "",
         val uploadingImages: List<UploadingImage> = listOf(),
