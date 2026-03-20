@@ -19,6 +19,7 @@ public fun RootHomeTabScreenScaffold(
     kakeboScaffoldListener: KakeboScaffoldListener,
     modifier: Modifier = Modifier,
     menu: @Composable () -> Unit = {},
+    actions: @Composable () -> Unit = {},
     windowInsets: PaddingValues,
     content: @Composable () -> Unit,
 ) {
@@ -44,7 +45,9 @@ public fun RootHomeTabScreenScaffold(
                         menu()
                     }
                 },
-                menu = {},
+                menu = {
+                    actions()
+                },
             )
         },
         content = {

@@ -1,5 +1,7 @@
 package net.matsudamper.money.frontend.common.di
 
+import net.matsudamper.money.frontend.common.base.AppSettingsRepository
+import net.matsudamper.money.frontend.common.base.AppSettingsRepositoryJsImpl
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModelJsImpl
@@ -24,5 +26,9 @@ internal actual val factory: Factory = object : Factory() {
             serverUrl = "$serverProtocol://$serverHost/query",
             onServerUrlChanged = {},
         )
+    }
+
+    override fun createAppSettingsRepository(scope: Scope): AppSettingsRepository {
+        return AppSettingsRepositoryJsImpl()
     }
 }
