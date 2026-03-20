@@ -90,8 +90,10 @@ https://github.com/anthropics/claude-code/issues/13372
 
 コードを編集した後は必ず以下を実行してエラーを確認してください。
 
+ビルドはIN PROCESSで実行してください（`--no-daemon`オプションを使用）。
+
 ```sh
-./gradlew :backend:assemble :frontend:app:jsBrowserDevelopmentWebpack :frontend:app:assembleDebug --warn
+./gradlew :backend:assemble :frontend:app:jsBrowserDevelopmentWebpack :frontend:app:assembleDebug --warn --no-daemon
 ```
 
 ## フォーマット
