@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.di
 
+import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.graphql.GraphqlClient
@@ -13,6 +14,7 @@ object DefaultModule {
         factory<WebAuthModel> { factory.createWebAuthModule(scope = this) }
         single<GraphqlClient> { factory.createGraphQlClient(scope = this) }
         single<ImageUploadClient> { factory.createPhotoUploadClient(scope = this) }
+        single<AppSettingsRepository> { factory.createAppSettingsRepository(scope = this) }
     }
 }
 
@@ -20,4 +22,5 @@ internal abstract class Factory {
     abstract fun createWebAuthModule(scope: Scope): WebAuthModel
     abstract fun createGraphQlClient(scope: Scope): GraphqlClient
     abstract fun createPhotoUploadClient(scope: Scope): ImageUploadClient
+    abstract fun createAppSettingsRepository(scope: Scope): AppSettingsRepository
 }
