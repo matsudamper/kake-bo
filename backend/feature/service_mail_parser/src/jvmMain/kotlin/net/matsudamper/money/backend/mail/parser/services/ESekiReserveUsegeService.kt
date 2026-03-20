@@ -28,37 +28,31 @@ internal object ESekiReserveUsegeService : MoneyUsageServices {
             .split("\r\n")
             .flatMap { it.split("\n") }
 
-        val title = run title@{
-            val index = lines.indexOfFirst { it.contains("作品名") }.takeIf { it >= 0 }
-                ?: return@title null
-
-            lines.getOrNull(index + 1)
-                ?.trimStart()
-                ?.trimEnd()
-                ?: return@title null
+        val purchaseDateText = run {
+            val index = lines.indexOfFirst { it.contains("＜購入日時＞") }.takeIf { it >= 0 }
+                ?: return@run null
+            lines.getOrNull(index + 1)?.trim()
         }
 
-        val price = run price@{
-            "合計金額(.+?)$".toRegex(RegexOption.MULTILINE)
-                .find(plain)
-                ?.groupValues?.getOrNull(1)
-                ?.mapNotNull { it.toString().toIntOrNull() }
-                ?.joinToString("")
-                ?.toIntOrNull()
+        val ticketInfoLines = run {
+            val startIndex = lines.indexOfFirst { it.contains("＜チケット情報＞") }.takeIf { it >= 0 }
+                ?: return@run listOf()
+            val endIndex = lines.withIndex()
+                .firstOrNull { (index, line) -> index > startIndex && line.contains("＜") }
+                ?.index
+                ?: lines.size
+            lines.subList(startIndex + 1, endIndex).filter { it.isNotBlank() }
         }
+
+        val title = ticketInfoLines.firstOrNull()?.trim()
 
         val parsedDate = run date@{
-            val index = lines.indexOfFirst { it.contains("上映開始時間") }.takeIf { it >= 0 }
-                ?: return@date null
+            val dateLine = ticketInfoLines.firstOrNull { line ->
+                """\d{4}/\d{2}/\d{2}""".toRegex().containsMatchIn(line)
+            } ?: return@date null
 
-            val result = """(\d+)年(\d+)月(\d+)日.*?(\d+):(\d+)""".toRegex()
-                .find(
-                    lines.getOrNull(index + 1)
-                        ?.trimStart()
-                        ?.trimEnd()
-                        ?: return@date null,
-                )
-                ?: return@date null
+            val result = """(\d{4})/(\d{2})/(\d{2}).*?(\d{2}):(\d{2})""".toRegex()
+                .find(dateLine) ?: return@date null
 
             val year = result.groupValues.getOrNull(1)?.toIntOrNull() ?: return@date null
             val month = result.groupValues.getOrNull(2)?.toIntOrNull() ?: return@date null
@@ -72,11 +66,41 @@ internal object ESekiReserveUsegeService : MoneyUsageServices {
             )
         }
 
+        val individualPrices = ticketInfoLines.mapNotNull { line ->
+            """￥(\d+)""".toRegex().find(line)?.groupValues?.getOrNull(1)?.toIntOrNull()
+        }
+
+        val totalPrice = run {
+            val index = lines.indexOfFirst { it.contains("＜合計（税込）＞") }.takeIf { it >= 0 }
+                ?: return@run null
+            """￥(\d+)""".toRegex()
+                .find(lines.getOrNull(index + 1).orEmpty())
+                ?.groupValues?.getOrNull(1)?.toIntOrNull()
+        }
+
+        val allSamePrice = individualPrices.isNotEmpty() && individualPrices.distinct().size == 1
+
+        val price = if (allSamePrice) {
+            individualPrices.first()
+        } else {
+            totalPrice
+        }
+
+        val description = buildString {
+            if (purchaseDateText != null) {
+                append(purchaseDateText)
+            }
+            if (!allSamePrice && ticketInfoLines.isNotEmpty()) {
+                if (isNotEmpty()) append("\n")
+                append(ticketInfoLines.joinToString("\n"))
+            }
+        }
+
         return listOf(
             MoneyUsage(
                 title = title ?: displayName,
                 price = price,
-                description = "",
+                description = description,
                 service = MoneyUsageServiceType.ESekiReserve,
                 dateTime = parsedDate ?: date,
             ),
