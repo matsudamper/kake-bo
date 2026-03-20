@@ -12,6 +12,7 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.datetime.todayIn
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.ImportedMailId
@@ -472,7 +473,7 @@ public class AddMoneyUsageViewModel(
     private data class ViewModelState(
         val importedMailId: ImportedMailId? = null,
         val usageDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
-        val usageTime: LocalTime = LocalTime(0, 0, 0, 0),
+        val usageTime: LocalTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).time,
         val usageTitle: String = "",
         val usageDescription: String = "",
         val uploadingImages: List<UploadingImage> = listOf(),
