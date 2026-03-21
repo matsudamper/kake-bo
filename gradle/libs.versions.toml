@@ -81,6 +81,14 @@ jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", ver
 jackson-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
 jackson-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jackson" }
 
+# Compose
+composeRuntime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose" }
+composeUi = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose" }
+composeFoundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose" }
+composeMaterial3 = { module = "org.jetbrains.compose.material3:material3", version.require = "1.9.0" }
+composeAnimation = { module = "org.jetbrains.compose.animation:animation", version.ref = "compose" }
+composeHtmlCore = { module = "org.jetbrains.compose.html:html-core", version.ref = "compose" }
+
 # WebAUth4J
 webauth4jCore = { module = "com.webauthn4j:webauthn4j-core", version.require = "0.31.1.RELEASE" }
 
@@ -97,7 +105,7 @@ androidxNavigation3Runtime = { module = "androidx.navigation3:navigation3-runtim
 androidxNavigation3Ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3" }
 jetbrainsNavigation3Ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "jetbrainsNav3" }
 androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.10.5" }
-composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "compose" }
+composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version = "1.10.0" }
 composeUiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose" }
 
 # Test

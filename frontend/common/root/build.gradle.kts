@@ -30,9 +30,9 @@ kotlin {
                 implementation(kotlin("stdlib"))
                 implementation(kotlin("reflect"))
                 implementation(libs.kotlin.serialization.json)
-                implementation(compose.foundation)
-                implementation(compose.material3)
-                implementation(compose.runtime)
+                implementation(libs.composeFoundation)
+                implementation(libs.composeMaterial3)
+                implementation(libs.composeRuntime)
 
                 implementation(libs.koinCore)
             }

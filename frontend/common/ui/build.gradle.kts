@@ -21,9 +21,9 @@ kotlin {
                 implementation(libs.kotlin.datetime)
                 implementation(libs.kotlin.serialization.json)
                 implementation(libs.coilCompose)
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.material3)
+                implementation(libs.composeRuntime)
+                implementation(libs.composeFoundation)
+                implementation(libs.composeMaterial3)
                 implementation(libs.composeUiToolingPreview)
             }
         }
@@ -40,9 +40,9 @@ kotlin {
                 implementation(projects.frontend.common.feature.localstore)
                 implementation(projects.frontend.common.graphql)
                 implementation(libs.kotlin.datetime)
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.material3)
+                implementation(libs.composeRuntime)
+                implementation(libs.composeFoundation)
+                implementation(libs.composeMaterial3)
 
                 implementation(libs.androidActivityActivityCompose)
                 implementation(libs.coilNetworkOkhttp)

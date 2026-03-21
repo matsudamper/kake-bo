@@ -28,9 +28,9 @@ kotlin {
                 implementation(projects.frontend.common.graphql)
                 implementation(projects.frontend.common.feature.localstore)
 
-                implementation(compose.foundation)
-                implementation(compose.material3)
-                implementation(compose.runtime)
+                implementation(libs.composeFoundation)
+                implementation(libs.composeMaterial3)
+                implementation(libs.composeRuntime)
 
                 implementation(libs.koinCore)
                 implementation(libs.coilRuntime)
@@ -55,7 +55,7 @@ kotlin {
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.kotlin.serialization.json)
-                implementation(compose.html.core)
+                implementation(libs.composeHtmlCore)
                 implementation(libs.androidxComposeSaveable)
             }
         }
