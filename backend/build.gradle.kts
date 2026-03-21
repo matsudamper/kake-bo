@@ -36,6 +36,9 @@ val nativeBuildArgs = listOf(
     // null を返すため、reflect-config.json に jOOQ カスタム型の配列クラスを登録している。
     "--initialize-at-run-time=org.jooq",
     "-H:+AddAllCharsets",
+    "--initialize-at-run-time=io.opentelemetry.sdk",
+    "--initialize-at-run-time=io.opentelemetry.exporter",
+    "--initialize-at-run-time=io.opentelemetry.instrumentation",
 )
 
 // foojay でダウンロードされた GraalVM toolchain から native-image のパスを導出する。
@@ -100,6 +103,8 @@ dependencies {
     implementation(libs.ktorServerCallLogging)
     implementation(libs.ktorServerCompression)
     implementation(libs.ktorServerConditionalHeaders)
+
+    implementation(libs.opentelemetryKtor3)
 
     compileOnly("org.graalvm.sdk:nativeimage:24.2.1")
 
