@@ -1,7 +1,7 @@
 package net.matsudamper.money.platform
 
 import androidx.activity.ComponentActivity
-import net.matsudamper.money.frontend.common.base.platform.ApplicationNotificationManager
+import net.matsudamper.money.ui.root.platform.ApplicationNotificationManager
 
 class ApplicationNotificationManagerImpl(
     private val componentActivity: ComponentActivity,

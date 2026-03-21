@@ -2,7 +2,7 @@ package net.matsudamper.money.platform
 
 import android.content.ClipData
 import androidx.activity.ComponentActivity
-import net.matsudamper.money.frontend.common.base.platform.ClipboardManager
+import net.matsudamper.money.ui.root.platform.ClipboardManager
 
 internal class ClipboardManagerImpl(
     private val componentActivity: ComponentActivity,
