@@ -3,7 +3,7 @@ package net.matsudamper.money.platform
 import android.content.Context
 import android.content.Intent
 import androidx.core.net.toUri
-import net.matsudamper.money.frontend.common.base.platform.UrlOpener
+import net.matsudamper.money.ui.root.platform.UrlOpener
 
 internal class UrlOpenerImpl(
     private val context: Context,
