@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.ui.screen.moneyusage
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -48,7 +47,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
@@ -144,7 +142,7 @@ public data class MoneyUsageScreenUiState(
         val dateTime: String,
         val time: String,
         val images: ImmutableList<ImageItem>,
-        val uploadingImages: ImmutableList<ByteArray?>,
+        val isImageUploading: Boolean,
         val event: MoneyUsageEvent,
     )
 
@@ -630,7 +628,7 @@ private fun MoneyUsage(
             },
             content = {
                 Column {
-                    if (uiState.images.isEmpty() && uiState.uploadingImages.isEmpty()) {
+                    if (uiState.images.isEmpty() && !uiState.isImageUploading) {
                         Text("未設定")
                     } else {
                         FlowRow(
@@ -649,7 +647,7 @@ private fun MoneyUsage(
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .clickable { selectedImageUrl = imageItem.url }
-                                            .pointerInput(imageItem.url) {
+                                            .pointerInput(Unit) {
                                                 detectTapGestures(
                                                     onTap = { selectedImageUrl = imageItem.url },
                                                     onLongPress = { showPopupMenu = true },
@@ -699,31 +697,12 @@ private fun MoneyUsage(
                                 }
                             }
 
-                            uiState.uploadingImages.forEach { previewBytes ->
+                            if (uiState.isImageUploading) {
                                 Box(
                                     modifier = Modifier.size(180.dp),
                                     contentAlignment = Alignment.Center,
                                 ) {
-                                    if (previewBytes != null) {
-                                        AsyncImage(
-                                            model = previewBytes,
-                                            contentDescription = null,
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .background(MaterialTheme.colorScheme.surfaceVariant),
-                                        )
-                                        Box(
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .background(Color.Black.copy(alpha = 0.4f)),
-                                            contentAlignment = Alignment.Center,
-                                        ) {
-                                            CircularProgressIndicator(color = Color.White)
-                                        }
-                                    } else {
-                                        CircularProgressIndicator()
-                                    }
+                                    CircularProgressIndicator()
                                 }
                             }
                         }

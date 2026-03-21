@@ -17,6 +17,7 @@ jetbrainsNav3 = "1.0.0-alpha06"
 coil3 = "3.4.0"
 zoomable = "2.11.1"
 okhttp = "5.3.2"
+graalvmNative = "0.10.6"
 paparazzi = "2.0.0-alpha04"
 composablePreviewScanner = "0.8.1"
 
@@ -33,6 +34,7 @@ kobylynskyi-graphqlCodegen = { id = "io.github.kobylynskyi.graphql.codegen", ver
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose" }
 protobuf = { id = "com.google.protobuf", version.require = "0.9.6" }
 paparazzi = { id = "app.cash.paparazzi", version.ref = "paparazzi" }
+graalvmNative = { id = "org.graalvm.buildtools.native", version.ref = "graalvmNative" }
 
 [libraries]
 kotlinRefrect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
@@ -55,7 +57,7 @@ protobufProtoc = { module = "com.google.protobuf:protoc", version.ref = "protoBu
 
 # Ktor
 ktorServerCore = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
-ktorServerEngine = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
+ktorServerEngine = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
 ktorServerStatusPages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
 ktorServerCors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
 ktorServerDefaultHeaders = { module = "io.ktor:ktor-server-default-headers", version.ref = "ktor" }
