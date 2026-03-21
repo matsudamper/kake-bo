@@ -22,9 +22,9 @@ kotlin {
                 implementation(projects.shared)
                 implementation(projects.frontend.common.base)
 
-                implementation(compose.runtime)
-                implementation(compose.ui)
-                implementation(compose.animation)
+                implementation(libs.composeRuntime)
+                implementation(libs.composeUi)
+                implementation(libs.composeAnimation)
 
                 implementation(libs.kotlin.coroutines.core)
                 implementation(libs.kotlin.datetime)
@@ -38,8 +38,8 @@ kotlin {
             dependencies {
                 implementation(projects.shared)
 
-                implementation(compose.runtime)
-                implementation(compose.ui)
+                implementation(libs.composeRuntime)
+                implementation(libs.composeUi)
 
                 implementation("io.ktor:ktor-client-logging-js:3.4.1")
                 implementation(libs.ktorClientCore)
@@ -50,8 +50,8 @@ kotlin {
             dependencies {
                 implementation(projects.shared)
 
-                implementation(compose.runtime)
-                implementation(compose.ui)
+                implementation(libs.composeRuntime)
+                implementation(libs.composeUi)
                 implementation(libs.androidxLifecycleRuntimeCompose)
                 implementation(libs.androidxLifecycleViewModelCompose)
             }
@@ -60,8 +60,8 @@ kotlin {
             dependencies {
                 implementation(projects.shared)
 
-                implementation(compose.runtime)
-                implementation(compose.ui)
+                implementation(libs.composeRuntime)
+                implementation(libs.composeUi)
                 implementation(libs.androidxLifecycleRuntimeCompose)
                 implementation(libs.androidxLifecycleViewModelCompose)
             }

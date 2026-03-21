@@ -17,8 +17,8 @@ kotlin {
             dependencies {
                 implementation(projects.shared)
 
-                implementation(compose.runtime)
-                implementation(compose.ui)
+                implementation(libs.composeRuntime)
+                implementation(libs.composeUi)
 
                 implementation(libs.kotlin.coroutines.core)
                 implementation(libs.kotlin.datetime)
@@ -30,8 +30,8 @@ kotlin {
             dependencies {
                 implementation(projects.shared)
 
-                implementation(compose.runtime)
-                implementation(compose.ui)
+                implementation(libs.composeRuntime)
+                implementation(libs.composeUi)
 
                 implementation("io.ktor:ktor-client-logging-js:3.4.1")
                 implementation(libs.ktorClientCore)
@@ -42,16 +42,16 @@ kotlin {
             dependencies {
                 implementation(projects.shared)
 
-                implementation(compose.runtime)
-                implementation(compose.ui)
+                implementation(libs.composeRuntime)
+                implementation(libs.composeUi)
             }
         }
         val androidMain by getting {
             dependencies {
                 implementation(projects.shared)
 
-                implementation(compose.runtime)
-                implementation(compose.ui)
+                implementation(libs.composeRuntime)
+                implementation(libs.composeUi)
             }
         }
         val jvmTest by getting {
