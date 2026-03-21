@@ -3,6 +3,8 @@ package net.matsudamper.money.backend.datasource.db
 import java.sql.Connection
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import io.opentelemetry.instrumentation.jdbc.datasource.JdbcTelemetry
+import net.matsudamper.money.backend.base.OpenTelemetryInitializer
 import net.matsudamper.money.backend.base.ServerEnv
 
 interface DbConnection {
@@ -16,7 +18,10 @@ object DbConnectionImpl : DbConnection {
         config.password = ServerEnv.dbPassword
         config.connectionTimeout = 5 * 1000
     }
-    private val dataSource by lazy { HikariDataSource(config) }
+    private val dataSource by lazy {
+        val hikariDataSource = HikariDataSource(config)
+        JdbcTelemetry.create(OpenTelemetryInitializer.get()).wrap(hikariDataSource)
+    }
 
     fun warmup() {
         use { connection ->

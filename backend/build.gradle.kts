@@ -36,6 +36,9 @@ val nativeBuildArgs = listOf(
     // null を返すため、reflect-config.json に jOOQ カスタム型の配列クラスを登録している。
     "--initialize-at-run-time=org.jooq",
     "-H:+AddAllCharsets",
+    "--initialize-at-run-time=io.opentelemetry.sdk",
+    "--initialize-at-run-time=io.opentelemetry.exporter",
+    "--initialize-at-run-time=io.opentelemetry.instrumentation",
     // Jackson: コアクラスはビルド時初期化、リフレクション依存部分はランタイム初期化
     "--initialize-at-build-time=com.fasterxml.jackson.core",
     "--initialize-at-build-time=com.fasterxml.jackson.databind",
@@ -109,6 +112,8 @@ dependencies {
     implementation(libs.ktorServerCallLogging)
     implementation(libs.ktorServerCompression)
     implementation(libs.ktorServerConditionalHeaders)
+
+    implementation(libs.opentelemetryKtor3)
 
     compileOnly("org.graalvm.sdk:nativeimage:24.2.1")
 

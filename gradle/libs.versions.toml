@@ -18,6 +18,8 @@ coil3 = "3.4.0"
 zoomable = "2.11.1"
 okhttp = "5.3.2"
 graalvmNative = "0.10.6"
+opentelemetry = "1.60.1"
+opentelemetryInstrumentation = "2.26.0-alpha"
 paparazzi = "2.0.0-alpha04"
 composablePreviewScanner = "0.8.1"
 
@@ -94,7 +96,11 @@ composeHtmlCore = { module = "org.jetbrains.compose.html:html-core", version.ref
 # WebAUth4J
 webauth4jCore = { module = "com.webauthn4j:webauthn4j-core", version.require = "0.31.1.RELEASE" }
 
-opentelemetryApi = { module = "io.opentelemetry:opentelemetry-api", version.require = "1.60.1" }
+opentelemetryApi = { module = "io.opentelemetry:opentelemetry-api", version.ref = "opentelemetry" }
+opentelemetrySdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }
+opentelemetryExporterOtlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp", version.ref = "opentelemetry" }
+opentelemetryKtor3 = { module = "io.opentelemetry.instrumentation:opentelemetry-ktor-3.0", version.ref = "opentelemetryInstrumentation" }
+opentelemetryJdbc = { module = "io.opentelemetry.instrumentation:opentelemetry-jdbc", version.ref = "opentelemetryInstrumentation" }
 
 # Android
 androidActivityActivityCompose = { module = "androidx.activity:activity-compose", version.ref = "activity" }

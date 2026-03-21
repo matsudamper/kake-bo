@@ -19,6 +19,8 @@ kotlin {
                 implementation(libs.jackson.kotlin)
                 implementation(libs.log4j.api)
                 implementation(libs.opentelemetryApi)
+                implementation(libs.opentelemetrySdk)
+                implementation(libs.opentelemetryExporterOtlp)
             }
         }
         val jvmTest by getting {
