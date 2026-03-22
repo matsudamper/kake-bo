@@ -30,10 +30,10 @@
         </encoder>
     </appender>
 
-    <logger name="io.netty" level="INFO">
+    <logger name="io.netty" level="INFO" additivity="false" >
         <appender-ref ref="STDOUT"/>
     </logger>
-    <logger name="com.zaxxer.hikari.pool.HikariPool" level="WARN">
+    <logger name="com.zaxxer.hikari.pool.HikariPool" level="WARN" additivity="false" >
         <appender-ref ref="STDOUT"/>
     </logger>
     <logger name="com.zaxxer.hikari.HikariConfig" level="trace" additivity="false" />
