@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.graphql
 
+import java.util.concurrent.CompletableFuture
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import graphql.schema.DataFetchingEnvironment
@@ -15,15 +16,17 @@ import net.matsudamper.money.backend.dataloader.MoneyUsageAssociateByImportedMai
 import net.matsudamper.money.backend.dataloader.MoneyUsageCategoryDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageSubCategoryDataLoaderDefine
+import net.matsudamper.money.backend.dataloader.OtelBatchLoaderScheduler
 import net.matsudamper.money.backend.dataloader.UserNameDataLoaderDefine
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
 import org.dataloader.DataLoader
+import org.dataloader.DataLoaderFactory
 import org.dataloader.DataLoaderRegistry
 
 internal class DataLoaders(
     private val diContainer: DiContainer,
-    private val dataLoaderRegistryBuilder: DataLoaderRegistry.Builder = DataLoaderRegistry.Builder(),
+    private val dataLoaderRegistryBuilder: DataLoaderRegistry.Builder,
     private val userSessionManager: UserSessionManagerImpl,
 ) {
     val importedMailDataLoader by register {
@@ -75,11 +78,13 @@ internal class DataLoaders(
 
     private fun <K : Any, V : Any> register(initializer: () -> DataLoaderDefine<K, V>): DataLoaderRegister<K, V> {
         val provider = initializer()
-
-        dataLoaderRegistryBuilder.register(
-            provider.key,
-            provider.getDataLoader(),
-        )
+        val dataLoader = DataLoaderFactory.newMappedDataLoader<K, V> { keys, _ ->
+            CompletableFuture.completedFuture(provider.load(keys))
+        }
+        val otelOptions = dataLoader.options.transform {
+            it.setBatchLoaderScheduler(OtelBatchLoaderScheduler())
+        }
+        dataLoaderRegistryBuilder.register(provider.key, dataLoader.transform { it.options(otelOptions) })
         return DataLoaderRegister(provider.key)
     }
 

@@ -1,6 +1,5 @@
 package net.matsudamper.money.backend.graphql
 
-import io.opentelemetry.instrumentation.graphql.v20_0.GraphQLTelemetry
 import java.time.LocalDateTime
 import java.util.Locale
 import com.fasterxml.jackson.databind.module.SimpleModule
@@ -19,6 +18,7 @@ import graphql.language.Value
 import graphql.scalars.ExtendedScalars
 import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
+import io.opentelemetry.instrumentation.graphql.v20_0.GraphQLTelemetry
 import net.matsudamper.money.backend.base.OpenTelemetryInitializer
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.di.MainDiContainer
@@ -214,6 +214,7 @@ object MoneyGraphQlSchema {
         .queryExecutionStrategy(AsyncExecutionStrategy())
         .instrumentation(
             ChainedInstrumentation(
+                OtelInstrumentation(),
                 GraphQLTelemetry.create(OpenTelemetryInitializer.get())
                     .createInstrumentation(),
                 IdLoggerInstrumentation(diContainer.traceLogger()),

@@ -15,7 +15,10 @@
       "Bash(xargs -I{} jar tf {})",
       "Bash(find /c/Users/matsu/.gradle/caches -name opentelemetry-ktor-3*)",
       "Bash(find /c/Users/matsu/.gradle/caches/modules-2/files-2.1/io.opentelemetry.instrumentation -name opentelemetry-ktor-3*)",
-      "Bash(jar tf:*)"
+      "Bash(jar tf:*)",
+      "Bash(find . -name *.jar -path */dataloader*)",
+      "Bash(javap:*)",
+      "Bash(echo:*)"
     ],
     "deny": [
       "Bash(cmd:*)"
