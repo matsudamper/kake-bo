@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.graphql
 
+import io.opentelemetry.instrumentation.graphql.v20_0.GraphQLTelemetry
 import java.time.LocalDateTime
 import java.util.Locale
 import com.fasterxml.jackson.databind.module.SimpleModule
@@ -10,6 +11,7 @@ import graphql.GraphQLContext
 import graphql.Scalars
 import graphql.execution.AsyncExecutionStrategy
 import graphql.execution.CoercedVariables
+import graphql.execution.instrumentation.ChainedInstrumentation
 import graphql.kickstart.tools.PerFieldConfiguringObjectMapperProvider
 import graphql.kickstart.tools.SchemaParser
 import graphql.kickstart.tools.SchemaParserOptions
@@ -17,6 +19,7 @@ import graphql.language.Value
 import graphql.scalars.ExtendedScalars
 import graphql.schema.Coercing
 import graphql.schema.GraphQLScalarType
+import net.matsudamper.money.backend.base.OpenTelemetryInitializer
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.di.MainDiContainer
 import net.matsudamper.money.backend.graphql.resolver.ImageResolverImpl
@@ -209,7 +212,13 @@ object MoneyGraphQlSchema {
 
     val graphql: GraphQL = GraphQL.newGraphQL(schema)
         .queryExecutionStrategy(AsyncExecutionStrategy())
-        .instrumentation(IdLoggerInstrumentation(diContainer.traceLogger()))
+        .instrumentation(
+            ChainedInstrumentation(
+                GraphQLTelemetry.create(OpenTelemetryInitializer.get())
+                    .createInstrumentation(),
+                IdLoggerInstrumentation(diContainer.traceLogger()),
+            ),
+        )
         .build()
 
     private fun <T> createStringScalarType(

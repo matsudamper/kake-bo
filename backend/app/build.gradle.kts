@@ -30,6 +30,8 @@ kotlin {
                 implementation(libs.kotlin.serialization.json)
                 implementation(libs.kotlin.coroutines.core)
                 implementation(libs.logback.classic)
+                implementation(libs.opentelemetryApi)
+                implementation(libs.opentelemetryGraphqlJava)
             }
         }
         val jvmTest by getting {
