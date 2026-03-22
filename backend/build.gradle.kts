@@ -39,6 +39,15 @@ val nativeBuildArgs = listOf(
     "--initialize-at-run-time=io.opentelemetry.sdk",
     "--initialize-at-run-time=io.opentelemetry.exporter",
     "--initialize-at-run-time=io.opentelemetry.instrumentation",
+    // Jackson: コアクラスはビルド時初期化、リフレクション依存部分はランタイム初期化
+    "--initialize-at-build-time=com.fasterxml.jackson.core",
+    "--initialize-at-build-time=com.fasterxml.jackson.databind",
+    "--initialize-at-build-time=com.fasterxml.jackson.annotation",
+    "--initialize-at-build-time=com.fasterxml.jackson.datatype.jsr310",
+    "--initialize-at-build-time=com.fasterxml.jackson.module.kotlin",
+    // KotlinModule が参照する Kotlin 標準ライブラリのクラス群をビルド時初期化
+    // EnumEntriesList → AbstractList$Companion と連鎖するため kotlin パッケージ全体を指定
+    "--initialize-at-build-time=kotlin",
 )
 
 // foojay でダウンロードされた GraalVM toolchain から native-image のパスを導出する。
