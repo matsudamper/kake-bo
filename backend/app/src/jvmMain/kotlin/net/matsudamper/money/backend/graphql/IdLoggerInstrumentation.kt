@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.graphql
 
+import kotlin.reflect.full.memberProperties
 import graphql.execution.instrumentation.Instrumentation
 import graphql.execution.instrumentation.InstrumentationState
 import graphql.execution.instrumentation.parameters.InstrumentationFieldFetchParameters
@@ -17,9 +18,12 @@ internal class IdLoggerInstrumentation(
         return DataFetcher { environment ->
             val source: Any? = environment.getSource<Any>()
             if (source != null) {
-                val id = runCatching {
-                    source.javaClass.getMethod("getId").invoke(source)
-                }.getOrNull()
+                val id = source::class.memberProperties
+                    .firstOrNull { it.name == "id" }
+                    ?.getter?.call(source)
+                    ?: runCatching {
+                        source.javaClass.getMethod("getId").invoke(source)
+                    }.getOrNull()
 
                 if (id != null) {
                     tracer.setAttribute("graphql.id", id.toString())
