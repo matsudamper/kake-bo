@@ -214,8 +214,10 @@ object MoneyGraphQlSchema {
         .queryExecutionStrategy(AsyncExecutionStrategy())
         .instrumentation(
             ChainedInstrumentation(
-                OtelInstrumentation(OpenTelemetryInitializer.get()),
-                GraphQLTelemetry.create(OpenTelemetryInitializer.get())
+                GraphQLTelemetry.builder(OpenTelemetryInitializer.get())
+                    .setAddOperationNameToSpanName(true)
+                    .setDataFetcherInstrumentationEnabled(true)
+                    .build()
                     .createInstrumentation(),
                 IdLoggerInstrumentation(diContainer.traceLogger()),
             ),
