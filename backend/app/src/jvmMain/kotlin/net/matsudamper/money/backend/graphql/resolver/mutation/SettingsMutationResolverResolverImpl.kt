@@ -1,10 +1,10 @@
 package net.matsudamper.money.backend.graphql.resolver.mutation
 
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.graphql.GraphQlContext
+import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.graphql.model.QlSettingsMutation
 import net.matsudamper.money.graphql.model.QlUpdateUserImapConfigInput
@@ -20,7 +20,7 @@ class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userConfigRepository = context.diContainer.createUserConfigRepository()
         val userId = context.verifyUserSessionAndGetUserId()
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             userConfigRepository.updateImapConfig(
                 userId = userId,
                 host = config.host,

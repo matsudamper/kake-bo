@@ -24,6 +24,7 @@ import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.converter.toDBElement
 import net.matsudamper.money.backend.graphql.converter.toDbElement
 import net.matsudamper.money.backend.graphql.exception.GraphqlExceptions
+import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
 import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
@@ -93,7 +94,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<QlUserLoginResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             // 連続実行や、ユーザーが存在しているかの検知を防ぐために、最低でも1秒はかかるようにする
             val loginResult = runBlocking {
                 minExecutionTime(1000) {
@@ -144,7 +145,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<Boolean>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             context.clearUserSession()
             true
         }.toDataFetcher()
@@ -159,7 +160,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val fidoRepository = context.diContainer.createFidoRepository()
         val userId = context.verifyUserSessionAndGetUserId()
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val isSuccess = fidoRepository.deleteFido(userId, id)
             QlDeleteFidoResult(
                 isSuccess = isSuccess,
@@ -176,7 +177,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val userSessionRepository = context.diContainer.createUserSessionRepository()
         val sessionInfo = context.verifyUserSessionAndGetSessionInfo()
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val isSuccess = userSessionRepository.deleteSession(
                 userId = sessionInfo.userId,
                 sessionName = name,
@@ -197,7 +198,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val userSessionRepository = context.diContainer.createUserSessionRepository()
         val sessionInfo = context.verifyUserSessionAndGetSessionInfo()
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val result = userSessionRepository.changeSessionName(
                 sessionId = sessionInfo.sessionId,
                 name = name,
@@ -223,7 +224,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val fidoRepository = context.diContainer.createFidoRepository()
         val challengeRepository = context.diContainer.createChallengeRepository()
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             runBlocking {
                 minExecutionTime(1000) {
                     val requestUserId = String(
@@ -291,7 +292,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         userMutation: QlUserMutation,
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlSettingsMutation?>> {
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             QlSettingsMutation()
         }.toDataFetcher()
     }
@@ -303,7 +304,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<QlImportMailResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val result = ImportMailUseCase(context.diContainer).insertMail(
                 userId = userId,
                 mailIds = mailIds,
@@ -328,7 +329,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val result = DeleteMailUseCase(
                 repositoryFactory = context.diContainer,
             ).delete(userId = userId, mailIds = mailIds)
@@ -370,7 +371,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<QlAddCategoryResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val addResult = context.diContainer.createMoneyUsageCategoryRepository()
                 .addCategory(
                     userId = userId,
@@ -382,7 +383,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                 }
 
                 is MoneyUsageCategoryRepository.AddCategoryResult.Success -> {
-                    return@supplyAsync QlAddCategoryResult(
+                    return@otelSupplyAsync QlAddCategoryResult(
                         QlMoneyUsageCategory(
                             id = addResult.result.moneyUsageCategoryId,
                         ),
@@ -399,7 +400,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<QlAddSubCategoryResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val addResult = context.diContainer.createMoneyUsageSubCategoryRepository()
                 .addSubCategory(
                     userId = userId,
@@ -438,7 +439,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<QlMoneyUsageSubCategory>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val result = context.diContainer.createMoneyUsageSubCategoryRepository()
                 .updateSubCategory(
                     userId = userId,
@@ -463,7 +464,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val result = context.diContainer.createMoneyUsageSubCategoryRepository()
                 .deleteSubCategory(
                     userId = userId,
@@ -487,7 +488,7 @@ class UserMutationResolverImpl : UserMutationResolver {
 
         val dataLoader = context.dataLoaders.importedMailCategoryFilterDataLoader.get(env)
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val result = context.diContainer.createMailFilterRepository()
                 .addFilter(
                     userId = userId,
@@ -495,7 +496,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                     orderNum = 0,
                 ).onFailure {
                     it.printStackTrace()
-                }.getOrNull() ?: return@supplyAsync null
+                }.getOrNull() ?: return@otelSupplyAsync null
 
             dataLoader.prime(
                 ImportedMailCategoryFilterDataLoaderDefine.Key(
@@ -519,7 +520,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<QlMoneyUsageCategory>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             if (!ColorValidator.isValid(query.color)) {
                 throw IllegalArgumentException("category color is invalid")
             }
@@ -547,7 +548,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<QlMoneyUsage>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val moneyUsageRepository = context.diContainer.createMoneyUsageRepository()
             val result = moneyUsageRepository
                 .addUsage(
@@ -577,7 +578,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                         }
                     }
 
-                    return@supplyAsync QlMoneyUsage(
+                    return@otelSupplyAsync QlMoneyUsage(
                         id = result.result.id,
                     )
                 }
@@ -710,7 +711,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val userId = context.verifyUserSessionAndGetUserId()
         val challengeRepository = context.diContainer.createChallengeRepository()
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             if (ChallengeModel(challengeRepository).validateChallenge(
                     challenge = input.challenge,
                 ).not()
@@ -854,7 +855,7 @@ class UserMutationResolverImpl : UserMutationResolver {
             name = name,
         )
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             QlRegisterApiTokenResult(
                 isSuccess = true,
                 apiToken = createTokenResult.token,
@@ -866,7 +867,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
         val repository = context.diContainer.createApiTokenRepository()
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val isSuccess = repository.deleteToken(userId = userId, apiTokenId = id)
             QlDeleteApiTokenResult(
                 isSuccess = isSuccess,
@@ -881,7 +882,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<QlMoneyUsagePreset>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val addResult = context.diContainer.createMoneyUsagePresetRepository()
                 .addPreset(
                     userId = userId,
@@ -912,7 +913,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<QlMoneyUsagePreset>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val updateResult = context.diContainer.createMoneyUsagePresetRepository()
                 .updatePreset(
                     userId = userId,
@@ -940,7 +941,7 @@ class UserMutationResolverImpl : UserMutationResolver {
     ): CompletionStage<DataFetcherResult<Boolean>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             context.diContainer.createMoneyUsagePresetRepository()
                 .deletePreset(userId = userId, presetId = id)
         }.toDataFetcher()

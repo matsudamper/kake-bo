@@ -7,6 +7,7 @@ import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.dataloader.MoneyUsageCategoryDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
+import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.graphql.model.MoneyUsageCategoryResolver
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
@@ -66,7 +67,7 @@ class MoneyUsageCategoryResolverImpl : MoneyUsageCategoryResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val result = context.diContainer.createMoneyUsageSubCategoryRepository()
                 .getSubCategory(
                     userId = userId,
