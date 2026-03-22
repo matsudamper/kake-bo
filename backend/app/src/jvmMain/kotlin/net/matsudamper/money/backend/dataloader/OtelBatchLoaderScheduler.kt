@@ -6,17 +6,18 @@ import io.opentelemetry.context.Context
 import org.dataloader.BatchLoaderEnvironment
 import org.dataloader.scheduler.BatchLoaderScheduler
 
-class OtelBatchLoaderScheduler : BatchLoaderScheduler {
+class OtelBatchLoaderScheduler(
+    private val otelContext: Context,
+) : BatchLoaderScheduler {
 
     override fun <K, V> scheduleBatchLoader(
         scheduledCall: BatchLoaderScheduler.ScheduledBatchLoaderCall<V>,
         keys: List<K>,
         environment: BatchLoaderEnvironment,
     ): CompletableFuture<List<V>> {
-        val capturedContext = Context.current()
         return CompletableFuture.supplyAsync(
             { scheduledCall.invoke().toCompletableFuture().join() },
-            capturedContext.wrap(ForkJoinPool.commonPool()),
+            otelContext.wrap(ForkJoinPool.commonPool()),
         )
     }
 
@@ -25,10 +26,9 @@ class OtelBatchLoaderScheduler : BatchLoaderScheduler {
         keys: List<K>,
         environment: BatchLoaderEnvironment,
     ): CompletableFuture<Map<K, V>> {
-        val capturedContext = Context.current()
         return CompletableFuture.supplyAsync(
             { scheduledCall.invoke().toCompletableFuture().join() },
-            capturedContext.wrap(ForkJoinPool.commonPool()),
+            otelContext.wrap(ForkJoinPool.commonPool()),
         )
     }
 
@@ -37,6 +37,8 @@ class OtelBatchLoaderScheduler : BatchLoaderScheduler {
         keys: List<K>,
         environment: BatchLoaderEnvironment,
     ) {
-        scheduledCall.invoke()
+        otelContext.makeCurrent().use {
+            scheduledCall.invoke()
+        }
     }
 }

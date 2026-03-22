@@ -4,6 +4,7 @@ import java.util.concurrent.CompletableFuture
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import graphql.schema.DataFetchingEnvironment
+import io.opentelemetry.context.Context
 import net.matsudamper.money.backend.dataloader.DataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterConditionDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterConditionsDataLoaderDefine
@@ -28,6 +29,7 @@ internal class DataLoaders(
     private val diContainer: DiContainer,
     private val dataLoaderRegistryBuilder: DataLoaderRegistry.Builder,
     private val userSessionManager: UserSessionManagerImpl,
+    private val otelContext: Context,
 ) {
     val importedMailDataLoader by register {
         ImportedMailDataLoaderDefine(diContainer)
@@ -82,7 +84,7 @@ internal class DataLoaders(
             CompletableFuture.completedFuture(provider.load(keys))
         }
         val otelOptions = dataLoader.options.transform {
-            it.setBatchLoaderScheduler(OtelBatchLoaderScheduler())
+            it.setBatchLoaderScheduler(OtelBatchLoaderScheduler(otelContext))
         }
         dataLoaderRegistryBuilder.register(provider.key, dataLoader.transform { it.options(otelOptions) })
         return DataLoaderRegister(provider.key)
