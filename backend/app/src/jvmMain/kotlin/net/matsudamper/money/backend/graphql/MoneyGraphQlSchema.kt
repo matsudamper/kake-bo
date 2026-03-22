@@ -4,6 +4,7 @@ import java.time.LocalDateTime
 import java.util.Locale
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import graphql.GraphQL
 import graphql.GraphQLContext
 import graphql.Scalars
@@ -188,6 +189,8 @@ object MoneyGraphQlSchema {
                         objectMapperProvider = PerFieldConfiguringObjectMapperProvider { mapper, _ ->
                             mapper.registerModule(
                                 JavaTimeModule(),
+                            ).registerModule(
+                                KotlinModule.Builder().build(),
                             ).registerModule(
                                 SimpleModule()
                                     .addDeserializer(
