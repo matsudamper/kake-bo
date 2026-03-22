@@ -9,12 +9,31 @@ plugins {
 }
 
 val generatedPath: String = layout.buildDirectory.dir("generated/codegen").get().asFile.path
+val generatedResourcesPath: String = layout.buildDirectory.dir("generated/resources").get().asFile.path
+
+val generateSchemaList = tasks.register("generateSchemaList") {
+    val schemaDir = file("$projectDir/src/commonMain/resources/graphql")
+    val outputFile = file("$generatedResourcesPath/graphql/schema-list.txt")
+    inputs.dir(schemaDir)
+    outputs.file(outputFile)
+    doLast {
+        outputFile.parentFile.mkdirs()
+        val fileNames = schemaDir.listFiles()
+            ?.filter { it.extension == "graphqls" }
+            ?.map { it.name }
+            ?.sorted()
+            .orEmpty()
+        outputFile.writeText(fileNames.joinToString("\n"))
+    }
+}
+
 kotlin {
     jvm()
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val jvmMain by getting {
             kotlin.srcDir(generatedPath)
+            resources.srcDir(generatedResourcesPath)
             dependencies {
                 implementation(projects.backend.base)
                 implementation(projects.shared)
@@ -85,4 +104,9 @@ val graphqlCodegen = tasks.named<GraphQLCodegenGradleTask>("graphqlCodegen") {
 
 tasks.withType<KotlinCompile> {
     dependsOn(graphqlCodegen)
+    dependsOn(generateSchemaList)
+}
+
+tasks.named("jvmProcessResources") {
+    dependsOn(generateSchemaList)
 }

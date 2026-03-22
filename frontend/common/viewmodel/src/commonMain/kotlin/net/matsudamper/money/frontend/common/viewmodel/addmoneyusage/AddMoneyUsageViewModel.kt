@@ -20,9 +20,9 @@ import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmu
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.base.platform.ImagePicker
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
+import net.matsudamper.money.frontend.common.ui.layout.image.SelectedImage
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.ImageItem
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
@@ -202,42 +202,37 @@ public class AddMoneyUsageViewModel(
                 val images = eventSender.send { it.selectImages() }
                 if (images.isEmpty()) return@launch
 
-                val newUploadingImages = images.map {
-                    ViewModelState.UploadingImage(
-                        id = it.id,
-                        previewBytes = it.previewBytes,
-                    )
-                }
                 viewModelStateFlow.update {
                     it.copy(
-                        uploadingImages = it.uploadingImages + newUploadingImages,
+                        uploadingImageCount = it.uploadingImageCount + images.size,
                     )
                 }
 
-                images.forEach { image ->
-                    val selectedImageData = image.await() ?: return@forEach
-                    val uploadResult = graphqlApi.uploadImage(
-                        bytes = selectedImageData.bytes,
-                        contentType = selectedImageData.contentType,
-                    )
+                try {
+                    images.forEach { image ->
+                        val selectedImageData = image.await() ?: return@forEach
+                        val uploadResult = graphqlApi.uploadImage(
+                            bytes = selectedImageData.bytes,
+                            contentType = selectedImageData.contentType,
+                        )
 
-                    if (uploadResult != null) {
-                        viewModelStateFlow.update { viewModelState ->
-                            viewModelState.copy(
-                                usageImages = viewModelState.usageImages
-                                    .plus(
-                                        ViewModelState.UploadedImage(
+                        if (uploadResult != null) {
+                            viewModelStateFlow.update { viewModelState ->
+                                viewModelState.copy(
+                                    usageImages = (
+                                        viewModelState.usageImages + ViewModelState.UploadedImage(
                                             imageId = uploadResult.imageId,
                                             url = uploadResult.url,
-                                        ),
-                                    ).distinctBy { it.imageId.value },
-                            )
+                                        )
+                                        ).distinctBy { it.imageId.value },
+                                )
+                            }
                         }
                     }
-
-                    viewModelStateFlow.update { state ->
-                        state.copy(
-                            uploadingImages = state.uploadingImages.filterNot { it.id == image.id },
+                } finally {
+                    viewModelStateFlow.update {
+                        it.copy(
+                            uploadingImageCount = (it.uploadingImageCount - images.size).coerceAtLeast(0),
                         )
                     }
                 }
@@ -266,7 +261,7 @@ public class AddMoneyUsageViewModel(
     }
 
     private fun addMoneyUsage() {
-        if (viewModelStateFlow.value.uploadingImages.isNotEmpty()) return
+        if (viewModelStateFlow.value.uploadingImageCount > 0) return
 
         val date = viewModelStateFlow.value.usageDate
 
@@ -453,9 +448,9 @@ public class AddMoneyUsageViewModel(
                         },
                         images = buildList {
                             addAll(viewModelState.usageImages.map { ImageItem.Uploaded(url = it.url) })
-                            addAll(viewModelState.uploadingImages.map { ImageItem.Uploading(previewBytes = it.previewBytes) })
+                            repeat(viewModelState.uploadingImageCount) { add(ImageItem.Uploading) }
                         }.toImmutableList(),
-                        addButtonEnabled = viewModelState.uploadingImages.isEmpty(),
+                        addButtonEnabled = viewModelState.uploadingImageCount == 0,
                         categorySelectDialog = viewModelState.categorySelectDialog,
                     )
                 }
@@ -464,7 +459,7 @@ public class AddMoneyUsageViewModel(
     }.asStateFlow()
 
     public interface Event {
-        public suspend fun selectImages(): List<ImagePicker.SelectedImage>
+        public suspend fun selectImages(): List<SelectedImage>
         public fun navigate(structure: ScreenStructure)
         public fun back()
     }
@@ -475,7 +470,7 @@ public class AddMoneyUsageViewModel(
         val usageTime: LocalTime = LocalTime(0, 0, 0, 0),
         val usageTitle: String = "",
         val usageDescription: String = "",
-        val uploadingImages: List<UploadingImage> = listOf(),
+        val uploadingImageCount: Int = 0,
         val usageImages: List<UploadedImage> = listOf(),
         val usageAmount: NumberInputValue = NumberInputValue.default(),
         val numberInputDialog: AddMoneyUsageScreenUiState.NumberInputDialog? = null,
@@ -486,6 +481,5 @@ public class AddMoneyUsageViewModel(
         val usageCategorySet: CategorySelectDialogViewModel.SelectedResult? = null,
     ) {
         data class UploadedImage(val imageId: ImageId, val url: String)
-        class UploadingImage(val id: String, val previewBytes: ByteArray?)
     }
 }

@@ -10,9 +10,9 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
+import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.http.content.staticFiles
-import io.ktor.server.netty.Netty
 import io.ktor.server.plugins.calllogging.CallLogging
 import io.ktor.server.plugins.compression.Compression
 import io.ktor.server.plugins.conditionalheaders.ConditionalHeaders
@@ -30,7 +30,9 @@ import io.ktor.server.routing.accept
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
+import io.opentelemetry.instrumentation.ktor.v3_0.KtorServerTelemetry
 import net.matsudamper.money.backend.base.ObjectMapper
+import net.matsudamper.money.backend.base.OpenTelemetryInitializer
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
@@ -48,6 +50,8 @@ class Main {
         fun main(args: Array<String>) {
             System.setProperty("logback.configurationFile", "logback.xml")
 
+            OpenTelemetryInitializer.initialize()
+
             // Initialize
             MoneyGraphQlSchema.graphql
             if (System.getenv("CI")?.toBooleanStrictOrNull() != true) {
@@ -56,7 +60,7 @@ class Main {
             }
 
             val engine = embeddedServer(
-                Netty,
+                CIO,
                 port = ServerEnv.port,
                 module = Application::myApplicationModule,
             )
@@ -71,6 +75,9 @@ class Main {
 }
 
 fun Application.myApplicationModule() {
+    install(KtorServerTelemetry) {
+        setOpenTelemetry(OpenTelemetryInitializer.get())
+    }
     install(ForwardedHeaders)
     install(XForwardedHeaders)
     install(Compression)

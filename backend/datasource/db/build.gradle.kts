@@ -24,6 +24,8 @@ kotlin {
 
                 implementation(libs.mariadbClient)
                 implementation(libs.hikariCP)
+
+                implementation(libs.opentelemetryJdbc)
             }
         }
         val jvmTest by getting {

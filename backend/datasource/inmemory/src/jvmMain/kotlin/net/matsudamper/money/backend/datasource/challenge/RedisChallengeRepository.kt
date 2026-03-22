@@ -5,6 +5,9 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.time.Duration
 import net.matsudamper.money.backend.app.interfaces.ChallengeRepository
+import redis.clients.jedis.ClientSetInfoConfig
+import redis.clients.jedis.DefaultJedisClientConfig
+import redis.clients.jedis.HostAndPort
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.params.SetParams
 
@@ -13,7 +16,17 @@ internal class RedisChallengeRepository(
     port: Int,
     private val index: Int,
 ) : ChallengeRepository {
-    private val jedisPool = JedisPool(host, port)
+    // Jedis 7.xではデフォルトで接続時にCLIENT SETINFOコマンドを送信する。
+    // その際、DriverInfo.BuilderがJedisMetaInfo.getArtifactId()でpom.propertiesからartifactIdを読み込むが、
+    // GraalVM native imageではこのリソース読み込みが失敗しnullが返るため、
+    // SafeEncoder.encode()で"null value cannot be sent to redis"エラーが発生する。
+    // ClientSetInfoConfig.DISABLEDを設定してCLIENT SETINFOを無効化することで回避する。
+    private val jedisPool = JedisPool(
+        HostAndPort(host, port),
+        DefaultJedisClientConfig.builder()
+            .clientSetInfoConfig(ClientSetInfoConfig.DISABLED)
+            .build(),
+    )
 
     override fun set(
         key: String,

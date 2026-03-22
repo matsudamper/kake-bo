@@ -2,9 +2,9 @@ package net.matsudamper.money.backend.graphql
 
 import java.time.LocalDateTime
 import java.util.Locale
-import java.util.jar.JarFile
 import com.fasterxml.jackson.databind.module.SimpleModule
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import graphql.GraphQL
 import graphql.GraphQLContext
 import graphql.Scalars
@@ -56,44 +56,22 @@ import net.matsudamper.money.graphql.model.GraphQlInputField
 
 object MoneyGraphQlSchema {
     private val diContainer = MainDiContainer()
-    private fun getDebugSchemaFiles(): List<String> {
-        return ClassLoader.getSystemClassLoader()
-            .getResourceAsStream("graphql")!!
-            .bufferedReader().lines()
-            .filter { it.endsWith(".graphqls") }
-            .toList()
-            .onEach {
-                println("lines -> $it")
-            }
-            .map {
-                ClassLoader.getSystemClassLoader()
-                    .getResourceAsStream("graphql/$it")!!
-                    .bufferedReader()
-                    .readText()
-            }
-    }
-
     private fun getSchemaFiles(): List<String> {
-        return runCatching {
-            val currentJarUri = GraphqlSchemaModule::class.java.protectionDomain.codeSource.location.file
-            val jarFIle = JarFile(currentJarUri)
-            JarFile(currentJarUri)
-                .entries()
-                .toList()
-                .filter { it.isDirectory.not() }
-                .filter { it.name.startsWith("graphql/") }
-                .filter { it.name.endsWith(".graphqls") }
-                .map {
-                    jarFIle.getInputStream(it).bufferedReader().readText()
-                }
-        }.getOrNull().orEmpty()
+        val schemaFileNames = GraphqlSchemaModule::class.java.classLoader
+            .getResourceAsStream("graphql/schema-list.txt")
+            ?.bufferedReader()
+            ?.readLines()
+            .orEmpty()
+        return schemaFileNames.mapNotNull { fileName ->
+            GraphqlSchemaModule::class.java.classLoader
+                .getResourceAsStream("graphql/$fileName")
+                ?.bufferedReader()
+                ?.readText()
+        }
     }
 
     private val schema by lazy {
-        val schemaFiles = run {
-            getSchemaFiles().takeIf { it.isNotEmpty() }
-                ?: getDebugSchemaFiles()
-        }
+        val schemaFiles = getSchemaFiles()
         println("==========schema==========")
         schemaFiles.forEach {
             println(it)
@@ -211,6 +189,8 @@ object MoneyGraphQlSchema {
                         objectMapperProvider = PerFieldConfiguringObjectMapperProvider { mapper, _ ->
                             mapper.registerModule(
                                 JavaTimeModule(),
+                            ).registerModule(
+                                KotlinModule.Builder().build(),
                             ).registerModule(
                                 SimpleModule()
                                     .addDeserializer(

@@ -24,6 +24,8 @@ kotlin {
                 implementation(kotlin("stdlib"))
                 implementation(libs.graphqlJava.extendedScalars)
                 implementation(libs.graphqlJava)
+                implementation(libs.jackson.databind)
+                implementation(libs.jackson.kotlin)
                 implementation(libs.jackson.jsr310)
                 implementation(libs.kotlin.serialization.json)
                 implementation(libs.kotlin.coroutines.core)
