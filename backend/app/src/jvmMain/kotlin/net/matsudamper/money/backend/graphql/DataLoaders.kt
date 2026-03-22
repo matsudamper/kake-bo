@@ -4,7 +4,9 @@ import java.util.concurrent.CompletableFuture
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import graphql.schema.DataFetchingEnvironment
+import io.opentelemetry.api.trace.StatusCode
 import io.opentelemetry.context.Context
+import net.matsudamper.money.backend.base.OpenTelemetryInitializer
 import net.matsudamper.money.backend.dataloader.DataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterConditionDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterConditionsDataLoaderDefine
@@ -80,8 +82,20 @@ internal class DataLoaders(
 
     private fun <K : Any, V : Any> register(initializer: () -> DataLoaderDefine<K, V>): DataLoaderRegister<K, V> {
         val provider = initializer()
+        val tracer = OpenTelemetryInitializer.get().getTracer("graphql-dataloader")
         val dataLoader = DataLoaderFactory.newMappedDataLoader<K, V> { keys, _ ->
-            CompletableFuture.completedFuture(provider.load(keys))
+            val span = tracer.spanBuilder("DataLoader.${provider.key}").startSpan()
+            try {
+                span.makeCurrent().use {
+                    CompletableFuture.completedFuture(provider.load(keys))
+                }
+            } catch (e: Exception) {
+                span.setStatus(StatusCode.ERROR)
+                span.recordException(e)
+                throw e
+            } finally {
+                span.end()
+            }
         }
         val otelOptions = dataLoader.options.transform {
             it.setBatchLoaderScheduler(OtelBatchLoaderScheduler(otelContext))
