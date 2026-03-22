@@ -39,6 +39,7 @@ val nativeBuildArgs = listOf(
     "--initialize-at-run-time=io.opentelemetry.sdk",
     "--initialize-at-run-time=io.opentelemetry.exporter",
     "--initialize-at-run-time=io.opentelemetry.instrumentation",
+    "--initialize-at-run-time=io.opentelemetry.extension",
     // Jackson: コアクラスはビルド時初期化、リフレクション依存部分はランタイム初期化
     "--initialize-at-build-time=com.fasterxml.jackson.core",
     "--initialize-at-build-time=com.fasterxml.jackson.databind",
@@ -114,6 +115,7 @@ dependencies {
     implementation(libs.ktorServerConditionalHeaders)
 
     implementation(libs.opentelemetryKtor3)
+    implementation(libs.opentelemetryKotlinExtension)
 
     compileOnly("org.graalvm.sdk:nativeimage:24.2.1")
 
