@@ -7,7 +7,13 @@ public object OpenTelemetryInitializer {
     private var sdk: OpenTelemetry? = null
 
     public fun initialize(): OpenTelemetry {
-        val openTelemetry = AutoConfiguredOpenTelemetrySdk.initialize()
+        val openTelemetry = AutoConfiguredOpenTelemetrySdk.builder()
+            .addPropertiesSupplier {
+                mapOf(
+                    "otel.exporter.otlp.protocol" to "http/protobuf",
+                )
+            }
+            .build()
             .openTelemetrySdk
 
         sdk = openTelemetry
