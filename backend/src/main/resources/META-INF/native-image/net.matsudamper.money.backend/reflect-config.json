@@ -604,5 +604,22 @@
     "allDeclaredConstructors": true,
     "allPublicMethods": true,
     "allDeclaredFields": true
+  },
+  {
+    "name": "redis.clients.jedis.DefaultJedisClientConfig",
+    "allPublicConstructors": true,
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "redis.clients.jedis.JedisClientConfig",
+    "allPublicMethods": true
+  },
+  {
+    "name": "redis.clients.jedis.JedisFactory",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true
   }
 ]

@@ -14,6 +14,9 @@ import net.matsudamper.money.backend.base.ObjectMapper
 import net.matsudamper.money.backend.base.ServerVariables
 import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.element.UserId
+import redis.clients.jedis.ClientSetInfoConfig
+import redis.clients.jedis.DefaultJedisClientConfig
+import redis.clients.jedis.HostAndPort
 import redis.clients.jedis.JedisPool
 import redis.clients.jedis.params.SetParams
 
@@ -22,7 +25,17 @@ internal class RedisUserSessionRepository(
     port: Int,
     private val index: Int,
 ) : UserSessionRepository {
-    private val jedisPool = JedisPool(host, port)
+    // Jedis 7.xではデフォルトで接続時にCLIENT SETINFOコマンドを送信する。
+    // その際、DriverInfo.BuilderがJedisMetaInfo.getArtifactId()でpom.propertiesからartifactIdを読み込むが、
+    // GraalVM native imageではこのリソース読み込みが失敗しnullが返るため、
+    // SafeEncoder.encode()で"null value cannot be sent to redis"エラーが発生する。
+    // ClientSetInfoConfig.DISABLEDを設定してCLIENT SETINFOを無効化することで回避する。
+    private val jedisPool = JedisPool(
+        HostAndPort(host, port),
+        DefaultJedisClientConfig.builder()
+            .clientSetInfoConfig(ClientSetInfoConfig.DISABLED)
+            .build(),
+    )
 
     override fun clearSession(sessionId: UserSessionId) {
         useJedis { jedis ->
