@@ -28,6 +28,7 @@ internal class IdLoggerInstrumentation(
                 if (id != null) {
                     tracer.setAttribute("graphql.id", id.toString())
                 }
+                tracer.setAttribute("graphql.members", source::class.memberProperties.joinToString { it.name })
             }
 
             return@DataFetcher dataFetcher?.get(environment)
