@@ -6,6 +6,7 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.MoneyUsageSubCategoryDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
+import net.matsudamper.money.backend.graphql.otelThenApplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.graphql.model.MoneyUsageSubCategoryResolver
 import net.matsudamper.money.graphql.model.QlMoneyUsageCategory
@@ -26,7 +27,7 @@ class MoneyUsageSubCategoryResolverImpl : MoneyUsageSubCategoryResolver {
                 ),
             )
 
-        return CompletableFuture.allOf(subCategoryLoader).thenApplyAsync {
+        return CompletableFuture.allOf(subCategoryLoader).otelThenApplyAsync {
             subCategoryLoader.get()!!.name
         }.toDataFetcher()
     }
@@ -46,7 +47,7 @@ class MoneyUsageSubCategoryResolverImpl : MoneyUsageSubCategoryResolver {
                 ),
             )
 
-        return CompletableFuture.allOf(subCategoryLoader).thenApplyAsync {
+        return CompletableFuture.allOf(subCategoryLoader).otelThenApplyAsync {
             QlMoneyUsageCategory(
                 id = subCategoryLoader.get()!!.categoryId,
             )

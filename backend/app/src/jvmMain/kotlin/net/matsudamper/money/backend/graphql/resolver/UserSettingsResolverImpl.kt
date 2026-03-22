@@ -9,6 +9,7 @@ import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.fido.AuthenticatorConverter
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.otelSupplyAsync
+import net.matsudamper.money.backend.graphql.otelThenApplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.lib.ChallengeModel
 import net.matsudamper.money.graphql.model.QlFidoAddInfo
@@ -46,7 +47,7 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         val userNameFuture = context.dataLoaders.userNameDataLoader.get(env)
             .load(userId)
         val challengeRepository = context.diContainer.createChallengeRepository()
-        return CompletableFuture.allOf(userNameFuture).thenApplyAsync {
+        return CompletableFuture.allOf(userNameFuture).otelThenApplyAsync {
             QlFidoAddInfo(
                 id = userId.value.toString(),
                 name = userNameFuture.get(),

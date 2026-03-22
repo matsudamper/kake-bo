@@ -5,6 +5,7 @@ import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.otelSupplyAsync
+import net.matsudamper.money.backend.graphql.otelThenApplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.graphql.model.QlSettingsMutation
 import net.matsudamper.money.graphql.model.QlUpdateUserImapConfigInput
@@ -28,11 +29,11 @@ class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
                 password = config.password,
                 userName = config.userName,
             )
-        }.thenApplyAsync { isSuccess ->
+        }.otelThenApplyAsync { isSuccess ->
             if (isSuccess.not()) {
-                return@thenApplyAsync null
+                return@otelThenApplyAsync null
             }
-            val result = userConfigRepository.getImapConfig(userId) ?: return@thenApplyAsync null
+            val result = userConfigRepository.getImapConfig(userId) ?: return@otelThenApplyAsync null
 
             QlUserImapConfig(
                 host = result.host,

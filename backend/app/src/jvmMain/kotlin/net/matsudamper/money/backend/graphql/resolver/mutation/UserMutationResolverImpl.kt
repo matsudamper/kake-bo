@@ -25,6 +25,7 @@ import net.matsudamper.money.backend.graphql.converter.toDBElement
 import net.matsudamper.money.backend.graphql.converter.toDbElement
 import net.matsudamper.money.backend.graphql.exception.GraphqlExceptions
 import net.matsudamper.money.backend.graphql.otelSupplyAsync
+import net.matsudamper.money.backend.graphql.otelThenApplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.graphql.usecase.DeleteMailUseCase
 import net.matsudamper.money.backend.graphql.usecase.ImportMailUseCase
@@ -594,7 +595,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
 
-        return CompletableFuture.allOf().thenApplyAsync {
+        return CompletableFuture.allOf().otelThenApplyAsync {
             val repository = context.diContainer.createMailFilterRepository()
             val isSuccess = repository.updateFilter(
                 filterId = input.id,
@@ -623,7 +624,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val userId = context.verifyUserSessionAndGetUserId()
         val repository = context.diContainer.createMailFilterRepository()
 
-        return CompletableFuture.allOf().thenApplyAsync {
+        return CompletableFuture.allOf().otelThenApplyAsync {
             val isSuccess = repository.addCondition(
                 userId = userId,
                 filterId = input.id,
@@ -632,7 +633,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                 dataSource = input.dataSourceType?.toDbElement(),
             )
             if (isSuccess.not()) {
-                return@thenApplyAsync null
+                return@otelThenApplyAsync null
             }
             QlImportedMailCategoryFilter(
                 id = input.id,
@@ -649,7 +650,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val userId = context.verifyUserSessionAndGetUserId()
         val repository = context.diContainer.createMailFilterRepository()
 
-        return CompletableFuture.allOf().thenApplyAsync {
+        return CompletableFuture.allOf().otelThenApplyAsync {
             val isSuccess = repository.updateCondition(
                 userId = userId,
                 conditionId = input.id,
@@ -657,7 +658,7 @@ class UserMutationResolverImpl : UserMutationResolver {
                 dataSource = input.dataSourceType?.toDbElement(),
                 text = input.text,
             )
-            if (isSuccess.not()) return@thenApplyAsync null
+            if (isSuccess.not()) return@otelThenApplyAsync null
 
             QlImportedMailCategoryCondition(
                 id = input.id,
@@ -674,7 +675,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val userId = context.verifyUserSessionAndGetUserId()
         val repository = context.diContainer.createMailFilterRepository()
 
-        return CompletableFuture.allOf().thenApplyAsync {
+        return CompletableFuture.allOf().otelThenApplyAsync {
             val isSuccess = repository.deleteFilter(
                 userId = userId,
                 filterId = id,
@@ -692,7 +693,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val userId = context.verifyUserSessionAndGetUserId()
         val repository = context.diContainer.createMailFilterRepository()
 
-        return CompletableFuture.allOf().thenApplyAsync {
+        return CompletableFuture.allOf().otelThenApplyAsync {
             val isSuccess = repository.deleteCondition(
                 userId = userId,
                 conditionId = id,
@@ -755,7 +756,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val userId = context.verifyUserSessionAndGetUserId()
         val repository = context.diContainer.createDbMailRepository()
 
-        return CompletableFuture.allOf().thenApplyAsync {
+        return CompletableFuture.allOf().otelThenApplyAsync {
             val isSuccess = repository.deleteMail(
                 userId = userId,
                 mailId = id,
@@ -773,7 +774,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val userId = context.verifyUserSessionAndGetUserId()
         val repository = context.diContainer.createMoneyUsageRepository()
 
-        return CompletableFuture.allOf().thenApplyAsync {
+        return CompletableFuture.allOf().otelThenApplyAsync {
             val isSuccess = repository.deleteUsage(
                 userId = userId,
                 usageId = id,
@@ -791,7 +792,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
 
-        return CompletableFuture.allOf().thenApplyAsync {
+        return CompletableFuture.allOf().otelThenApplyAsync {
             context.diContainer.createDeleteUsageImageRelationDao().delete(
                 userId = userId,
                 moneyUsageId = usageId,
@@ -809,7 +810,7 @@ class UserMutationResolverImpl : UserMutationResolver {
         val userId = context.verifyUserSessionAndGetUserId()
         val repository = context.diContainer.createMoneyUsageRepository()
 
-        return CompletableFuture.allOf().thenApplyAsync {
+        return CompletableFuture.allOf().otelThenApplyAsync {
             val isSuccess = repository.updateUsage(
                 userId = userId,
                 usageId = query.id,
