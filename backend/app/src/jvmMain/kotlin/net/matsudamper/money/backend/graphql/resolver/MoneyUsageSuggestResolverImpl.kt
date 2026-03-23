@@ -11,6 +11,7 @@ import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.primeChildDataLoader
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageSuggestLocalContext
+import net.matsudamper.money.backend.graphql.otelThenApplyAsync
 import net.matsudamper.money.backend.graphql.requireLocalContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.graphql.model.MoneyUsageSuggestResolver
@@ -45,7 +46,7 @@ class MoneyUsageSuggestResolverImpl : MoneyUsageSuggestResolver {
             importedMailFuture,
             filtersFuture,
             conditionsFuture,
-        ).thenApplyAsync {
+        ).otelThenApplyAsync {
             val importedMail = importedMailFuture.get()
             val filters = filtersFuture.get().sortedBy { it.orderNumber }
             val conditionsMap = conditionsFuture.get().groupBy { it.filterId }
@@ -53,7 +54,7 @@ class MoneyUsageSuggestResolverImpl : MoneyUsageSuggestResolver {
             val result = filters
                 .firstOrNull { filter ->
                     val conditions = conditionsMap[filter.importedMailCategoryFilterId].orEmpty()
-                        .takeIf { it.isNotEmpty() } ?: return@thenApplyAsync null
+                        .takeIf { it.isNotEmpty() } ?: return@otelThenApplyAsync null
 
                     val results = conditions.asSequence().map { condition ->
                         val targetText = when (condition.dataSourceType) {

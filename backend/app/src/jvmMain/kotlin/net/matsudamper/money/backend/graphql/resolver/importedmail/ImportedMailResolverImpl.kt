@@ -9,6 +9,7 @@ import net.matsudamper.money.backend.dataloader.ImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageSuggestLocalContext
+import net.matsudamper.money.backend.graphql.otelThenApplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.mail.parser.MailParser
 import net.matsudamper.money.graphql.model.ImportedMailResolver
@@ -33,7 +34,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                     userId = userId,
                     importedMailId = importedMail.id,
                 ),
-            ).thenApplyAsync { importedMailFuture ->
+            ).otelThenApplyAsync { importedMailFuture ->
                 importedMailFuture.subject
             }.toDataFetcher()
     }
@@ -51,7 +52,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                     userId = userId,
                     importedMailId = importedMail.id,
                 ),
-            ).thenApplyAsync { importedMailFuture ->
+            ).otelThenApplyAsync { importedMailFuture ->
                 importedMailFuture.from
             }.toDataFetcher()
     }
@@ -69,7 +70,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                     importedMailId = importedMail.id,
                 ),
             )
-            .thenApplyAsync { importedMailFuture ->
+            .otelThenApplyAsync { importedMailFuture ->
                 importedMailFuture.plain
             }.toDataFetcher()
     }
@@ -86,7 +87,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                     userId = userId,
                     importedMailId = importedMail.id,
                 ),
-            ).thenApplyAsync { importedMailFuture ->
+            ).otelThenApplyAsync { importedMailFuture ->
                 importedMailFuture.plain != null
             }.toDataFetcher()
     }
@@ -103,7 +104,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                     userId = userId,
                     importedMailId = importedMail.id,
                 ),
-            ).thenApplyAsync { importedMailFuture ->
+            ).otelThenApplyAsync { importedMailFuture ->
                 importedMailFuture.html
             }.toDataFetcher()
     }
@@ -120,7 +121,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                     userId = userId,
                     importedMailId = importedMail.id,
                 ),
-            ).thenApplyAsync { importedMailFuture ->
+            ).otelThenApplyAsync { importedMailFuture ->
                 importedMailFuture.html != null
             }.toDataFetcher()
     }
@@ -138,7 +139,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                     userId = userId,
                     importedMailId = importedMail.id,
                 ),
-            ).thenApplyAsync { importedMailFuture ->
+            ).otelThenApplyAsync { importedMailFuture ->
                 importedMailFuture.dateTime
             }.toDataFetcher()
     }
@@ -155,8 +156,8 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                 userId = userId,
                 importedMailId = importedMail.id,
             ),
-        ).thenApplyAsync { mailLoader ->
-            val targetMail = mailLoader ?: return@thenApplyAsync run {
+        ).otelThenApplyAsync { mailLoader ->
+            val targetMail = mailLoader ?: return@otelThenApplyAsync run {
                 DataFetcherResult.newResult<List<QlMoneyUsageSuggest>>()
                     .data(listOf())
                     .build()
@@ -200,7 +201,7 @@ class ImportedMailResolverImpl : ImportedMailResolver {
 
         val moneyUsageLoader = context.dataLoaders.moneyUsageDataLoader.get(env)
 
-        return CompletableFuture.allOf().thenApplyAsync {
+        return CompletableFuture.allOf().otelThenApplyAsync {
             val result = context.diContainer.createMoneyUsageRepository()
                 .getMails(
                     userId = userId,
@@ -258,10 +259,10 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                     userId = userId,
                     importedMailId = importedMail.id,
                 ),
-            ).thenApplyAsync { importedMailFuture ->
+            ).otelThenApplyAsync { importedMailFuture ->
                 val parsed = MailParser
-                    .forwardedInfo(importedMailFuture.plain ?: return@thenApplyAsync null)
-                    ?: return@thenApplyAsync null
+                    .forwardedInfo(importedMailFuture.plain ?: return@otelThenApplyAsync null)
+                    ?: return@otelThenApplyAsync null
                 QlImportedMailForwardedInfo(
                     from = parsed.from,
                     subject = parsed.subject,

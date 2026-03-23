@@ -10,6 +10,7 @@ import graphql.GraphQLError
 import graphql.InvalidSyntaxError
 import graphql.execution.NonNullableFieldWasNullError
 import graphql.validation.ValidationError
+import io.opentelemetry.context.Context
 import net.matsudamper.money.backend.base.CookieManager
 import net.matsudamper.money.backend.base.ObjectMapper
 import net.matsudamper.money.backend.di.DiContainer
@@ -27,6 +28,7 @@ class GraphqlHandler(
 ) {
     fun handle(requestText: String): String {
         val request = jacksonObjectMapper().readValue<GraphQlRequest>(requestText)
+        val otelContext = Context.current()
 
         val dataLoaderRegistryBuilder = DataLoaderRegistry.Builder()
         val userSessionManager = UserSessionManagerImpl(
@@ -37,6 +39,7 @@ class GraphqlHandler(
             diContainer = diContainer,
             dataLoaderRegistryBuilder = dataLoaderRegistryBuilder,
             userSessionManager = userSessionManager,
+            otelContext = otelContext,
         )
         val graphqlContext = GraphQlContext(
             cookieManager = cookieManager,

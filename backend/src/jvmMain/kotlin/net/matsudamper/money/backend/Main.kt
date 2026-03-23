@@ -30,7 +30,9 @@ import io.ktor.server.routing.accept
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
+import io.opentelemetry.instrumentation.ktor.v3_0.KtorServerTelemetry
 import net.matsudamper.money.backend.base.ObjectMapper
+import net.matsudamper.money.backend.base.OpenTelemetryInitializer
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
@@ -47,6 +49,8 @@ class Main {
         @JvmStatic
         fun main(args: Array<String>) {
             System.setProperty("logback.configurationFile", "logback.xml")
+
+            OpenTelemetryInitializer.initialize()
 
             // Initialize
             MoneyGraphQlSchema.graphql
@@ -71,6 +75,9 @@ class Main {
 }
 
 fun Application.myApplicationModule() {
+    install(KtorServerTelemetry) {
+        setOpenTelemetry(OpenTelemetryInitializer.get())
+    }
     install(ForwardedHeaders)
     install(XForwardedHeaders)
     install(Compression)

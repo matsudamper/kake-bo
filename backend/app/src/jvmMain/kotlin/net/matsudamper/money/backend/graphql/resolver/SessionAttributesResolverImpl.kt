@@ -1,11 +1,11 @@
 package net.matsudamper.money.backend.graphql.resolver
 
 import java.time.ZoneOffset
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.graphql.GraphQlContext
+import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.graphql.model.QlSession
 import net.matsudamper.money.graphql.model.QlSessionAttributes
@@ -19,7 +19,7 @@ class SessionAttributesResolverImpl : SessionAttributesResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val sessionInfo = context.verifyUserSessionAndGetSessionInfo()
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             QlSession(
                 name = sessionInfo.sessionName,
                 lastAccess = sessionInfo.latestAccess.atOffset(ZoneOffset.UTC),
@@ -35,7 +35,7 @@ class SessionAttributesResolverImpl : SessionAttributesResolver {
         val sessionInfo = context.verifyUserSessionAndGetSessionInfo()
         val userSessionRepository = context.diContainer.createUserSessionRepository()
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             userSessionRepository.getSessions(sessionInfo.userId).map { session ->
                 QlSession(
                     name = session.name,
