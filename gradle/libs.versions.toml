@@ -55,7 +55,7 @@ protobufProtoc = { module = "com.google.protobuf:protoc", version.ref = "protoBu
 
 # Ktor
 ktorServerCore = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
-ktorServerEngine = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
+ktorServerEngine = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
 ktorServerStatusPages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
 ktorServerCors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
 ktorServerDefaultHeaders = { module = "io.ktor:ktor-server-default-headers", version.ref = "ktor" }
