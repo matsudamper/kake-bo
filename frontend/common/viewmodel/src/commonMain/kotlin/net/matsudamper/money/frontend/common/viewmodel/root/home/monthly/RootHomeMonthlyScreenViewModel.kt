@@ -180,6 +180,7 @@ public class RootHomeMonthlyScreenViewModel(
                     amount = "${Formatter.formatMoney(node.amount)}円",
                     date = Formatter.formatDateTime(node.date),
                     category = node.moneyUsageSubCategory?.name.orEmpty(),
+                    imageUrls = node.images.map { it.url }.toImmutableList(),
                     event = ItemEventImpl(
                         coroutineScope = viewModelScope,
                         eventSender = eventSender,

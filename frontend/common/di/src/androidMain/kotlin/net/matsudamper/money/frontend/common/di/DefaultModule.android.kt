@@ -13,6 +13,8 @@ import com.apollographql.apollo.interceptor.ApolloInterceptor
 import com.apollographql.apollo.interceptor.ApolloInterceptorChain
 import com.apollographql.apollo.network.http.HttpInfo
 import com.apollographql.apollo.network.http.LoggingInterceptor
+import net.matsudamper.money.frontend.common.base.AppSettingsRepository
+import net.matsudamper.money.frontend.common.base.AppSettingsRepositoryAndroidImpl
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.feature.localstore.DataStores
@@ -110,5 +112,9 @@ internal actual val factory: Factory = object : Factory() {
                 activeHost = url.substringAfter("://").substringBefore("/")
             },
         )
+    }
+
+    override fun createAppSettingsRepository(scope: Scope): AppSettingsRepository {
+        return AppSettingsRepositoryAndroidImpl(context = scope.get())
     }
 }
