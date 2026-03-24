@@ -1,11 +1,11 @@
 package net.matsudamper.money.backend.graphql.resolver.importedmail
 
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.app.interfaces.ImportedMailRepository
 import net.matsudamper.money.backend.graphql.GraphQlContext
+import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.element.ImportedMailId
 import net.matsudamper.money.graphql.model.ImportedMailAttributesResolver
@@ -25,7 +25,7 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             context.diContainer.createDbMailRepository()
                 .getCount(
                     userId = userId,
@@ -42,7 +42,7 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
     ): CompletionStage<DataFetcherResult<QlImportedMailConnection>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val cursor = query.cursor?.let { ImportedMailAttributesMailsQueryCursor.fromString(it) }
             val mailResult = context.diContainer.createDbMailRepository()
                 .getMails(
@@ -81,7 +81,7 @@ public class ImportedMailAttributesResolverImpl : ImportedMailAttributesResolver
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         context.verifyUserSessionAndGetUserId()
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             QlImportedMail(
                 id = id,
             )

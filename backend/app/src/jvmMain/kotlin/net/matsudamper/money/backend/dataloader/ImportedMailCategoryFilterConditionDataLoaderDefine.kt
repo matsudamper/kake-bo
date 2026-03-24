@@ -1,8 +1,8 @@
 package net.matsudamper.money.backend.dataloader
 
-import java.util.concurrent.CompletableFuture
 import net.matsudamper.money.backend.app.interfaces.MailFilterRepository
 import net.matsudamper.money.backend.di.DiContainer
+import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.element.ImportedMailCategoryFilterConditionId
 import net.matsudamper.money.element.UserId
 import net.matsudamper.money.lib.flatten
@@ -16,7 +16,7 @@ class ImportedMailCategoryFilterConditionDataLoaderDefine(
 
     override fun getDataLoader(): DataLoader<Key, MailFilterRepository.Condition> {
         return DataLoaderFactory.newMappedDataLoader { keys, _ ->
-            CompletableFuture.supplyAsync {
+            otelSupplyAsync {
                 val repository = repositoryFactory.createMailFilterRepository()
 
                 val results = keys.groupBy { it.userId }

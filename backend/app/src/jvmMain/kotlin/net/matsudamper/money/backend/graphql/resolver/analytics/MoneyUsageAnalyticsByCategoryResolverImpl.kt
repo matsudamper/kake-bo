@@ -7,6 +7,7 @@ import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.MoneyUsageAnalyticsBySubCategoryLoaderWithCategoryId
 import net.matsudamper.money.backend.graphql.GraphQlContext
 import net.matsudamper.money.backend.graphql.localcontext.MoneyUsageAnalyticsByCategoryLocalContext
+import net.matsudamper.money.backend.graphql.otelThenApplyAsync
 import net.matsudamper.money.backend.graphql.requireLocalContext
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.graphql.model.MoneyUsageAnalyticsByCategoryResolver
@@ -33,7 +34,7 @@ class MoneyUsageAnalyticsByCategoryResolverImpl : MoneyUsageAnalyticsByCategoryR
                 untilDateTimeAt = env.localContext.query.untilDateTime,
             ),
         )
-        return CompletableFuture.allOf(future).thenApplyAsync {
+        return CompletableFuture.allOf(future).otelThenApplyAsync {
             future.get().subCategories.map {
                 QlMoneyUsageAnalyticsBySubCategory(
                     subCategory = QlMoneyUsageSubCategory(it.id),

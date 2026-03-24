@@ -8,6 +8,7 @@ import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.dataloader.MoneyUsageAssociateByImportedMailDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.graphql.GraphQlContext
+import net.matsudamper.money.backend.graphql.otelThenApplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.UserId
@@ -29,7 +30,7 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
             env = env,
             userId = userId,
             moneyUsageId = moneyUsage.id,
-        ).thenApplyAsync { futureResult ->
+        ).otelThenApplyAsync { futureResult ->
             futureResult.title
         }.toDataFetcher()
     }
@@ -45,7 +46,7 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
             env = env,
             userId = userId,
             moneyUsageId = moneyUsage.id,
-        ).thenApplyAsync { futureResult ->
+        ).otelThenApplyAsync { futureResult ->
             futureResult.description
         }.toDataFetcher()
     }
@@ -61,7 +62,7 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
             env = env,
             userId = userId,
             moneyUsageId = moneyUsage.id,
-        ).thenApplyAsync { futureResult ->
+        ).otelThenApplyAsync { futureResult ->
             futureResult.date
         }.toDataFetcher()
     }
@@ -77,7 +78,7 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
             env = env,
             userId = userId,
             moneyUsageId = moneyUsage.id,
-        ).thenApplyAsync { futureResult ->
+        ).otelThenApplyAsync { futureResult ->
             futureResult.amount
         }.toDataFetcher()
     }
@@ -93,7 +94,7 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
             env = env,
             userId = userId,
             moneyUsageId = moneyUsage.id,
-        ).thenApplyAsync { futureResult ->
+        ).otelThenApplyAsync { futureResult ->
             futureResult.imageIds.map { imageId ->
                 QlImage(id = imageId)
             }
@@ -111,8 +112,8 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
             env = env,
             userId = userId,
             moneyUsageId = moneyUsage.id,
-        ).thenApplyAsync { futureResult ->
-            val subCategoryId = futureResult.subCategoryId ?: return@thenApplyAsync null
+        ).otelThenApplyAsync { futureResult ->
+            val subCategoryId = futureResult.subCategoryId ?: return@otelThenApplyAsync null
             QlMoneyUsageSubCategory(
                 id = subCategoryId,
             )
@@ -132,8 +133,8 @@ class MoneyUsageResolverImpl : MoneyUsageResolver {
                     userId = userId,
                     moneyUsageId = moneyUsage.id,
                 ),
-            ).thenApplyAsync { relationFuture ->
-                val hoge = relationFuture ?: return@thenApplyAsync null
+            ).otelThenApplyAsync { relationFuture ->
+                val hoge = relationFuture ?: return@otelThenApplyAsync null
                 hoge.mailIdList.map { id ->
                     QlImportedMail(id = id)
                 }
