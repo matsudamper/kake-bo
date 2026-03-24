@@ -40,6 +40,10 @@ public class RootHomeMonthlyPagerHostViewModel(
             val current = viewModelStateFlow.value.showImages
             appSettingsRepository.setShowImagesInMonthlyScreen(!current)
         }
+
+        override fun onPageChanged(page: RootHomeMonthlyPagerHostScreenUiState.Page) {
+            navController.navigateReplace(page.navigation)
+        }
     }
 
     public val uiState: StateFlow<RootHomeMonthlyPagerHostScreenUiState> = MutableStateFlow(
@@ -49,11 +53,7 @@ public class RootHomeMonthlyPagerHostViewModel(
                     navController.navigateToHome()
                 }
             },
-            event = object : RootHomeMonthlyPagerHostScreenUiState.Event {
-                override fun onPageChanged(page: RootHomeMonthlyPagerHostScreenUiState.Page) {
-                    navController.navigateReplace(page.navigation)
-                }
-            },
+            event = event,
             pages = buildList {
                 val current = Clock.System.todayIn(TimeZone.currentSystemDefault())
                 val initialDate = initial.date ?: current
@@ -72,7 +72,6 @@ public class RootHomeMonthlyPagerHostViewModel(
             }.toImmutableList(),
             currentPage = betweenPageCount,
             showImages = false,
-            event = event,
         ),
     ).also { mutableUiStateFlow ->
         viewModelScope.launch {

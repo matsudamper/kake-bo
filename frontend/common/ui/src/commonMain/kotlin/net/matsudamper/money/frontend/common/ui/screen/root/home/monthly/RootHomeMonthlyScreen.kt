@@ -26,9 +26,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -233,7 +238,17 @@ private fun LoadedContent(
                             }
                             if (showImages && item.imageUrls.isNotEmpty()) {
                                 Spacer(modifier = Modifier.height(8.dp))
+                                val imageRowScrollConnection = remember {
+                                    object : NestedScrollConnection {
+                                        override fun onPostScroll(
+                                            consumed: Offset,
+                                            available: Offset,
+                                            source: NestedScrollSource,
+                                        ): Offset = available.copy(y = 0f)
+                                    }
+                                }
                                 LazyRow(
+                                    modifier = Modifier.nestedScroll(imageRowScrollConnection),
                                     horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
                                 ) {
                                     items(item.imageUrls) { url ->
