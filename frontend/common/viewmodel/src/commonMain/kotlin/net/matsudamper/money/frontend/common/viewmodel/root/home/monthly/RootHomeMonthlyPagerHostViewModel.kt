@@ -38,6 +38,11 @@ public class RootHomeMonthlyPagerHostViewModel(
                     navController.navigateToHome()
                 }
             },
+            event = object : RootHomeMonthlyPagerHostScreenUiState.Event {
+                override fun onPageChanged(page: RootHomeMonthlyPagerHostScreenUiState.Page) {
+                    navController.navigateReplace(page.navigation)
+                }
+            },
             pages = buildList {
                 val current = Clock.System.todayIn(TimeZone.currentSystemDefault())
                 val initialDate = initial.date ?: current
