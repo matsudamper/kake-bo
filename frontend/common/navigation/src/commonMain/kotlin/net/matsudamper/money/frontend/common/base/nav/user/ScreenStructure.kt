@@ -358,8 +358,16 @@ public sealed interface ScreenStructure : IScreenStructure {
                     if (description != null) {
                         append(KEY_DESCRIPTION, description)
                     }
-                    if (date != null) {
-                        append(KEY_DATE, dateFormat.format(date))
+
+                    run {
+                        val parsedDate = if (date != null) {
+                            runCatching { dateFormat.format(date) }.getOrNull()
+                        } else {
+                            null
+                        }
+                        if (parsedDate != null) {
+                            append(KEY_DATE, parsedDate)
+                        }
                     }
                 },
             )
