@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,9 +19,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -37,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -92,6 +96,7 @@ public data class CalendarDateListScreenUiState(
         public fun onViewInitialized()
         public fun refresh()
         public fun onClickBack()
+        public fun onClickAdd()
     }
 }
 
@@ -134,36 +139,51 @@ public fun CalendarDateListScreen(
         val state = rememberPullToRefreshState()
         val coroutineScope = rememberCoroutineScope()
         var isRefreshing by remember { mutableStateOf(false) }
-        PullToRefreshBox(
-            isRefreshing = isRefreshing,
-            modifier = Modifier.fillMaxSize().padding(paddingValues),
-            state = state,
-            onRefresh = {
-                coroutineScope.launch {
-                    isRefreshing = true
-                    uiState.event.refresh()
-                    delay(1000)
-                    isRefreshing = false
-                }
-            },
-        ) {
-            when (val loadingState = uiState.loadingState) {
-                is CalendarDateListScreenUiState.LoadingState.Loaded -> {
-                    LoadedContent(
-                        modifier = Modifier.fillMaxSize(),
-                        uiState = loadingState,
-                    )
-                }
+        val layoutDirection = LocalLayoutDirection.current
+        val fabPadding = 16.dp
+        Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                modifier = Modifier.fillMaxSize(),
+                state = state,
+                onRefresh = {
+                    coroutineScope.launch {
+                        isRefreshing = true
+                        uiState.event.refresh()
+                        delay(1000)
+                        isRefreshing = false
+                    }
+                },
+            ) {
+                when (val loadingState = uiState.loadingState) {
+                    is CalendarDateListScreenUiState.LoadingState.Loaded -> {
+                        LoadedContent(
+                            modifier = Modifier.fillMaxSize(),
+                            uiState = loadingState,
+                        )
+                    }
 
-                is CalendarDateListScreenUiState.LoadingState.Loading -> {
-                    LaunchedEffect(Unit) { isRefreshing = false }
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        CircularProgressIndicator()
+                    is CalendarDateListScreenUiState.LoadingState.Loading -> {
+                        LaunchedEffect(Unit) { isRefreshing = false }
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
+            }
+            FloatingActionButton(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(
+                        end = windowInsets.calculateEndPadding(layoutDirection) + fabPadding,
+                        bottom = fabPadding,
+                    ),
+                onClick = { uiState.event.onClickAdd() },
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "使用用途を追加")
             }
         }
     }

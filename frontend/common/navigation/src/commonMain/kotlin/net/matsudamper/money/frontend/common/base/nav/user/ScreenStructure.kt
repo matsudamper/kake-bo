@@ -358,6 +358,9 @@ public sealed interface ScreenStructure : IScreenStructure {
                     if (description != null) {
                         append(KEY_DESCRIPTION, description)
                     }
+                    if (date != null) {
+                        append(KEY_DATE, date.toString())
+                    }
                 },
             )
         }
