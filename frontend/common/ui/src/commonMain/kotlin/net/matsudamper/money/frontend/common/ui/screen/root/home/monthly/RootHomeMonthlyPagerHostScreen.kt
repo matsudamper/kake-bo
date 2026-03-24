@@ -5,8 +5,15 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
@@ -18,10 +25,16 @@ public data class RootHomeMonthlyPagerHostScreenUiState(
     val kakeboScaffoldListener: KakeboScaffoldListener,
     val pages: ImmutableList<Page>,
     val currentPage: Int,
+    val event: Event,
 ) {
     public data class Page(
         val navigation: RootHomeScreenStructure.Monthly,
     )
+
+    @Immutable
+    public interface Event {
+        public fun onPageChanged(page: Page)
+    }
 }
 
 @Composable
@@ -42,6 +55,23 @@ public fun RootHomeMonthlyPagerHostScreen(
                     uiState.currentPage,
                     animationSpec = tween(durationMillis = 300),
                 )
+            }
+            var beforePage: Int? by rememberSaveable { mutableStateOf(null) }
+            val event by rememberUpdatedState(uiState.event)
+            LaunchedEffect(state) {
+                snapshotFlow { state.settledPage }.collect { settledPage ->
+                    if (beforePage == null) {
+                        beforePage = settledPage
+                        return@collect
+                    }
+                    if (beforePage == settledPage) {
+                        return@collect
+                    }
+                    beforePage = settledPage
+
+                    val page = uiState.pages.getOrNull(settledPage) ?: return@collect
+                    event.onPageChanged(page)
+                }
             }
             HorizontalPager(
                 state = state,
