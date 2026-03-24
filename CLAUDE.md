@@ -8,7 +8,7 @@
 ## Tech Stack
 
 **Backend**:
-- Ktor server framework (Netty)
+- Ktor server framework
 - GraphQL (graphql-java, GraphQL Java Kickstart)
 - MariaDB for persistence
 - Redis (optional) for sessions/challenges
