@@ -1,25 +1,31 @@
 package net.matsudamper.money.backend.datasource.challenge
 
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
 import kotlin.time.Duration
 import net.matsudamper.money.backend.app.interfaces.ChallengeRepository
-import redis.clients.jedis.JedisPool
+import redis.clients.jedis.DefaultJedisClientConfig
+import redis.clients.jedis.RedisClient
 import redis.clients.jedis.params.SetParams
 
 internal class RedisChallengeRepository(
     host: String,
     port: Int,
-    private val index: Int,
+    index: Int,
 ) : ChallengeRepository {
-    private val jedisPool = JedisPool(host, port)
+    private val redisClient = RedisClient.builder()
+        .hostAndPort(host, port)
+        .clientConfig(
+            DefaultJedisClientConfig.builder()
+                .database(index)
+                .build()
+        )
+        .build()
+
 
     override fun set(
         key: String,
         expire: Duration,
     ) {
-        useJedis { jedis ->
+        redisClient.use { jedis ->
             jedis.set(
                 key,
                 "",
@@ -31,23 +37,12 @@ internal class RedisChallengeRepository(
     }
 
     override fun containsWithDelete(key: String): Boolean {
-        useJedis { jedis ->
+        redisClient.use { jedis ->
             val result = jedis.exists(key)
             if (result) {
                 jedis.del(key)
             }
             return result
-        }
-    }
-
-    @OptIn(ExperimentalContracts::class)
-    private inline fun useJedis(block: (jedis: redis.clients.jedis.Jedis) -> Unit) {
-        contract {
-            callsInPlace(block, InvocationKind.EXACTLY_ONCE)
-        }
-        jedisPool.resource.use { jedis ->
-            jedis.select(index)
-            block(jedis)
         }
     }
 }
