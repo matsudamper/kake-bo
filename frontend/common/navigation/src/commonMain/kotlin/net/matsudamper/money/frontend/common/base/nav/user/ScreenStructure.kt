@@ -359,7 +359,7 @@ public sealed interface ScreenStructure : IScreenStructure {
                         append(KEY_DESCRIPTION, description)
                     }
                     if (date != null) {
-                        append(KEY_DATE, date.toString())
+                        append(KEY_DATE, dateFormat.format(date))
                     }
                 },
             )
@@ -373,6 +373,7 @@ public sealed interface ScreenStructure : IScreenStructure {
             private const val KEY_DATE = "date"
             private const val KEY_DESCRIPTION = "description"
             private const val KEY_SUB_CATEGORY_ID = "sub_category_id"
+            private val dateFormat = LocalDateTime.Formats.ISO
 
             public fun fromQueryParams(queryParams: Map<String, List<String>>): AddMoneyUsage {
                 return AddMoneyUsage(
@@ -381,7 +382,7 @@ public sealed interface ScreenStructure : IScreenStructure {
                     importedMailIndex = queryParams[KEY_IMPORTED_MAIL_INDEX]?.firstOrNull()?.toIntOrNull(),
                     title = queryParams[KEY_TITLE]?.firstOrNull(),
                     price = queryParams[KEY_PRICE]?.firstOrNull()?.toFloatOrNull(),
-                    date = queryParams[KEY_DATE]?.firstOrNull()?.let { LocalDateTime.parse(it) },
+                    date = queryParams[KEY_DATE]?.firstOrNull()?.let { dateFormat.parse(it) },
                     description = queryParams[KEY_DESCRIPTION]?.firstOrNull(),
                     subCategoryId = queryParams[KEY_SUB_CATEGORY_ID]?.firstOrNull(),
                 )
