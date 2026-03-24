@@ -52,6 +52,9 @@ kotlin {
                 implementation(libs.ktorServerCallLogging)
                 implementation(libs.ktorServerCompression)
                 implementation(libs.ktorServerConditionalHeaders)
+
+                implementation(libs.opentelemetryKtor3)
+                implementation(libs.opentelemetryKotlinExtension)
             }
         }
         val jvmTest by getting {

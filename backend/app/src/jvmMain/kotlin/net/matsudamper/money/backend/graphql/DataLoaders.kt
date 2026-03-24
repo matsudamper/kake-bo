@@ -3,6 +3,7 @@ package net.matsudamper.money.backend.graphql
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import graphql.schema.DataFetchingEnvironment
+import io.opentelemetry.context.Context
 import net.matsudamper.money.backend.dataloader.DataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterConditionDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterConditionsDataLoaderDefine
@@ -15,6 +16,7 @@ import net.matsudamper.money.backend.dataloader.MoneyUsageAssociateByImportedMai
 import net.matsudamper.money.backend.dataloader.MoneyUsageCategoryDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.MoneyUsageSubCategoryDataLoaderDefine
+import net.matsudamper.money.backend.dataloader.OtelBatchLoaderScheduler
 import net.matsudamper.money.backend.dataloader.UserNameDataLoaderDefine
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
@@ -23,8 +25,9 @@ import org.dataloader.DataLoaderRegistry
 
 internal class DataLoaders(
     private val diContainer: DiContainer,
-    private val dataLoaderRegistryBuilder: DataLoaderRegistry.Builder = DataLoaderRegistry.Builder(),
+    private val dataLoaderRegistryBuilder: DataLoaderRegistry.Builder,
     private val userSessionManager: UserSessionManagerImpl,
+    private val otelContext: Context,
 ) {
     val importedMailDataLoader by register {
         ImportedMailDataLoaderDefine(diContainer)
@@ -75,11 +78,12 @@ internal class DataLoaders(
 
     private fun <K : Any, V : Any> register(initializer: () -> DataLoaderDefine<K, V>): DataLoaderRegister<K, V> {
         val provider = initializer()
-
-        dataLoaderRegistryBuilder.register(
-            provider.key,
-            provider.getDataLoader(),
-        )
+        val dataLoader = provider.getDataLoader()
+        val scheduler = OtelBatchLoaderScheduler(otelContext, "DataLoader.${provider.key}")
+        val otelOptions = dataLoader.options.transform {
+            it.setBatchLoaderScheduler(scheduler)
+        }
+        dataLoaderRegistryBuilder.register(provider.key, dataLoader.transform { it.options(otelOptions) })
         return DataLoaderRegister(provider.key)
     }
 
