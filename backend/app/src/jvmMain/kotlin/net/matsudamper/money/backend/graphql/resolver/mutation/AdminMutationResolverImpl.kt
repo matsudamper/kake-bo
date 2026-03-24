@@ -1,11 +1,11 @@
 package net.matsudamper.money.backend.graphql.resolver.mutation
 
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import graphql.execution.DataFetcherResult
 import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.graphql.GraphQlContext
+import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.logic.AddUserUseCase
 import net.matsudamper.money.backend.logic.PasswordManager
@@ -25,7 +25,7 @@ class AdminMutationResolverImpl : AdminMutationResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         context.verifyAdminSession()
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             val result = AddUserUseCase(
                 context.diContainer.createAdminRepository(),
                 passwordManager = PasswordManager(),
@@ -77,7 +77,7 @@ class AdminMutationResolverImpl : AdminMutationResolver {
         env: DataFetchingEnvironment,
     ): CompletionStage<DataFetcherResult<QlAdminLoginResult>> {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             if (password == ServerEnv.adminPassword) {
                 val adminSession = context.diContainer.createAdminUserSessionRepository().createSession()
                 context.setAdminSessionCookie(

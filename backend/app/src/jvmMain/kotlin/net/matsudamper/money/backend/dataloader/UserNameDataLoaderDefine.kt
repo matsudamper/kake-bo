@@ -1,7 +1,7 @@
 package net.matsudamper.money.backend.dataloader
 
-import java.util.concurrent.CompletableFuture
 import net.matsudamper.money.backend.app.interfaces.UserRepository
+import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.element.UserId
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
@@ -13,7 +13,7 @@ class UserNameDataLoaderDefine(
 
     override fun getDataLoader(): DataLoader<UserId, String> {
         return DataLoaderFactory.newMappedDataLoader { keys, _ ->
-            CompletableFuture.supplyAsync {
+            otelSupplyAsync {
                 val results = userRepository.getUserName(keys.toList())
                 keys.associateWith {
                     results[it] ?: throw IllegalStateException("not result key: $key")

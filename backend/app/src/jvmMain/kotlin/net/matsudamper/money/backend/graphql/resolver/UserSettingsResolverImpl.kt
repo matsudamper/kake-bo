@@ -8,6 +8,8 @@ import graphql.schema.DataFetchingEnvironment
 import net.matsudamper.money.backend.base.ServerEnv
 import net.matsudamper.money.backend.fido.AuthenticatorConverter
 import net.matsudamper.money.backend.graphql.GraphQlContext
+import net.matsudamper.money.backend.graphql.otelSupplyAsync
+import net.matsudamper.money.backend.graphql.otelThenApplyAsync
 import net.matsudamper.money.backend.graphql.toDataFetcher
 import net.matsudamper.money.backend.lib.ChallengeModel
 import net.matsudamper.money.graphql.model.QlFidoAddInfo
@@ -24,8 +26,8 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
         val userId = context.verifyUserSessionAndGetUserId()
 
-        return CompletableFuture.supplyAsync {
-            val result = context.diContainer.createUserConfigRepository().getImapConfig(userId) ?: return@supplyAsync null
+        return otelSupplyAsync {
+            val result = context.diContainer.createUserConfigRepository().getImapConfig(userId) ?: return@otelSupplyAsync null
 
             QlUserImapConfig(
                 host = result.host,
@@ -45,7 +47,7 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         val userNameFuture = context.dataLoaders.userNameDataLoader.get(env)
             .load(userId)
         val challengeRepository = context.diContainer.createChallengeRepository()
-        return CompletableFuture.allOf(userNameFuture).thenApplyAsync {
+        return CompletableFuture.allOf(userNameFuture).otelThenApplyAsync {
             QlFidoAddInfo(
                 id = userId.value.toString(),
                 name = userNameFuture.get(),
@@ -63,7 +65,7 @@ class UserSettingsResolverImpl : UserSettingsResolver {
         val userId = context.verifyUserSessionAndGetUserId()
         val fidoRepository = context.diContainer.createFidoRepository()
 
-        return CompletableFuture.supplyAsync {
+        return otelSupplyAsync {
             fidoRepository.getFidoList(userId).map { fidoResult ->
                 val authenticator = AuthenticatorConverter.convertFromBase64(
                     base64AttestationStatement = fidoResult.attestedStatement,

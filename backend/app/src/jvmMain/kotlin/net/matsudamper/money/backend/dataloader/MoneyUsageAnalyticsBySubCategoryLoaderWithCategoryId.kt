@@ -1,13 +1,13 @@
 package net.matsudamper.money.backend.dataloader
 
 import java.time.LocalDateTime
-import java.util.concurrent.CompletableFuture
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageAnalyticsRepository
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
 import net.matsudamper.money.backend.graphql.GraphqlMoneyException
+import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import org.dataloader.DataLoader
 import org.dataloader.DataLoaderFactory
@@ -20,7 +20,7 @@ internal class MoneyUsageAnalyticsBySubCategoryLoaderWithCategoryId(
 
     override fun getDataLoader(): DataLoader<Key, MoneyUsageAnalyticsRepository.TotalAmountBySubCategory> {
         return DataLoaderFactory.newMappedDataLoader { keys, _ ->
-            CompletableFuture.supplyAsync {
+            otelSupplyAsync {
                 runBlocking {
                     val repository = repositoryFactory.createMoneyUsageAnalyticsRepository()
                     val userId = userSessionManager.verifyUserSession() ?: throw GraphqlMoneyException.SessionNotVerify()

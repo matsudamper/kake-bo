@@ -11,12 +11,13 @@ jackson = "2.21.2"
 compose = "1.10.3"
 protoBuf = "4.34.1"
 lifecycle = "2.10.0"
-jooq = "3.20.11"
+jooq = "3.21.0"
 nav3 = "1.0.1"
 jetbrainsNav3 = "1.0.0-alpha06"
 coil3 = "3.4.0"
 zoomable = "2.11.1"
 okhttp = "5.3.2"
+opentelemetry = "1.60.1"
 paparazzi = "2.0.0-alpha04"
 composablePreviewScanner = "0.8.1"
 
@@ -55,7 +56,7 @@ protobufProtoc = { module = "com.google.protobuf:protoc", version.ref = "protoBu
 
 # Ktor
 ktorServerCore = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
-ktorServerEngine = { module = "io.ktor:ktor-server-netty", version.ref = "ktor" }
+ktorServerEngine = { module = "io.ktor:ktor-server-cio", version.ref = "ktor" }
 ktorServerStatusPages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
 ktorServerCors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
 ktorServerDefaultHeaders = { module = "io.ktor:ktor-server-default-headers", version.ref = "ktor" }
@@ -92,7 +93,14 @@ composeHtmlCore = { module = "org.jetbrains.compose.html:html-core", version.ref
 # WebAUth4J
 webauth4jCore = { module = "com.webauthn4j:webauthn4j-core", version.require = "0.31.1.RELEASE" }
 
-opentelemetryApi = { module = "io.opentelemetry:opentelemetry-api", version.require = "1.60.1" }
+opentelemetryApi = { module = "io.opentelemetry:opentelemetry-api", version.ref = "opentelemetry" }
+opentelemetrySdk = { module = "io.opentelemetry:opentelemetry-sdk", version.ref = "opentelemetry" }
+opentelemetryExporterOtlp = { module = "io.opentelemetry:opentelemetry-exporter-otlp", version.ref = "opentelemetry" }
+opentelemetrySdkAutoconfigure = { module = "io.opentelemetry:opentelemetry-sdk-extension-autoconfigure", version.ref = "opentelemetry" }
+opentelemetryKotlinExtension = { module = "io.opentelemetry:opentelemetry-extension-kotlin", version.ref = "opentelemetry" }
+opentelemetryKtor3 = { module = "io.opentelemetry.instrumentation:opentelemetry-ktor-3.0", version = "2.26.0-alpha" }
+opentelemetryJdbc = { module = "io.opentelemetry.instrumentation:opentelemetry-jdbc", version = "2.26.0-alpha" }
+opentelemetryGraphqlJava = { module = "io.opentelemetry.instrumentation:opentelemetry-graphql-java-20.0", version = "2.26.0-alpha" }
 
 # Android
 androidActivityActivityCompose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
@@ -109,7 +117,7 @@ composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-previe
 composeUiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose" }
 
 # Test
-kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "6.1.7" }
+kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "6.1.8" }
 paparazzi = { module = "app.cash.paparazzi:paparazzi", version.ref = "paparazzi" }
 composablePreviewScanner = { module = "io.github.sergio-sastre.ComposablePreviewScanner:android", version.ref = "composablePreviewScanner" }
 
