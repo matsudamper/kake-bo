@@ -3,9 +3,12 @@ package net.matsudamper.money.frontend.common.ui.screen.root.home.monthly
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -62,12 +65,14 @@ public fun RootHomeMonthlyPagerHostScreen(
             ) {
                 Text(
                     modifier = Modifier.padding(end = 4.dp),
+                    style = MaterialTheme.typography.titleMedium,
                     text = "画像",
                 )
                 Switch(
                     checked = uiState.showImages,
                     onCheckedChange = { uiState.event.onToggleShowImages() },
                 )
+                Spacer(modifier = Modifier.width(8.dp))
             }
         },
         content = {
