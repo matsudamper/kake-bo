@@ -89,7 +89,7 @@ private class OtelSpan(
         return this
     }
 
-    override fun remoteEndpoint(endpoint: Tracing.Endpoint): Tracer.Span = this
+    override fun remoteEndpoint(endpoint: Tracing.Endpoint?): Tracer.Span = this
 
     override fun finish() {
         span.end()
