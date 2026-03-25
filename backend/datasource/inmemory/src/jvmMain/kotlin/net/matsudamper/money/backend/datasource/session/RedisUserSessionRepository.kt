@@ -109,7 +109,13 @@ internal class RedisUserSessionRepository(
         val userId = UserId(sessionData.userId)
         val sessionName = sessionData.sessionName
 
-        commands.expire(sessionKey, ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
+        val updatedSessionData = sessionData.copy(latestAccess = now.toString())
+        val updatedJsonData = ObjectMapper.kotlinxSerialization.encodeToString(updatedSessionData)
+        commands.set(
+            sessionKey,
+            updatedJsonData,
+            SetArgs().ex(ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60),
+        )
         commands.expire(getUserSessionsKey(userId), ServerVariables.USER_SESSION_EXPIRE_DAY * 24 * 60 * 60)
 
         if (sessionName.isNotEmpty()) {
