@@ -47,6 +47,7 @@ kotlin {
                 implementation(libs.androidAppCompatAppCompat)
                 implementation(libs.kotlin.datetime)
                 implementation(libs.coilNetworkOkhttp)
+                implementation(libs.androidxWorkManager)
             }
         }
         val jsMain by getting {

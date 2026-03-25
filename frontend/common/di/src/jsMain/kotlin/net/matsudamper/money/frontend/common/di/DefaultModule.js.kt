@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.di
 import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.AppSettingsRepositoryJsImpl
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
+import net.matsudamper.money.frontend.common.base.MoneyUsageImageUploadScheduler
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModelJsImpl
 import net.matsudamper.money.frontend.graphql.GraphqlClient
@@ -30,5 +31,9 @@ internal actual val factory: Factory = object : Factory() {
 
     override fun createAppSettingsRepository(scope: Scope): AppSettingsRepository {
         return AppSettingsRepositoryJsImpl()
+    }
+
+    override fun createMoneyUsageImageUploadScheduler(scope: Scope): MoneyUsageImageUploadScheduler {
+        return MoneyUsageImageUploadSchedulerJsImpl(imageUploadClient = scope.get())
     }
 }

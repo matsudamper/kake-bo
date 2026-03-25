@@ -17,6 +17,7 @@ import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.AppSettingsRepositoryAndroidImpl
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.frontend.common.base.Logger
+import net.matsudamper.money.frontend.common.base.MoneyUsageImageUploadScheduler
 import net.matsudamper.money.frontend.common.feature.localstore.DataStores
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModelAndroidImpl
@@ -116,5 +117,9 @@ internal actual val factory: Factory = object : Factory() {
 
     override fun createAppSettingsRepository(scope: Scope): AppSettingsRepository {
         return AppSettingsRepositoryAndroidImpl(context = scope.get())
+    }
+
+    override fun createMoneyUsageImageUploadScheduler(scope: Scope): MoneyUsageImageUploadScheduler {
+        return MoneyUsageImageUploadSchedulerAndroidImpl(context = scope.get())
     }
 }

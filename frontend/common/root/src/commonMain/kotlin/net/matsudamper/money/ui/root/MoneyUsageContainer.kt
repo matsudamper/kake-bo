@@ -27,7 +27,7 @@ internal fun MoneyUsageContainer(
             scopedObjectFeature = it,
             api = MoneyUsageScreenViewModelApi(
                 graphqlClient = koin.get(),
-                imageUploadClient = koin.get(),
+                imageUploadScheduler = koin.get(),
             ),
             graphqlClient = koin.get(),
         )

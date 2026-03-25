@@ -157,6 +157,9 @@ jsoup = { module = "org.jsoup:jsoup", version.require = "1.22.1" }
 hikariCP = { module = "com.zaxxer:HikariCP", version.require = "7.0.2" }
 mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.7" }
 
+# WorkManager
+androidxWorkManager = { module = "androidx.work:work-runtime-ktx", version.require = "2.10.1" }
+
 # Play
 androidxCredentialsPlayServicesAuth = { module = "androidx.credentials:credentials-play-services-auth", version.require = "1.5.0" }
 androidxCredentials = { module = "androidx.credentials:credentials", version.require = "1.5.0" }

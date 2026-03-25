@@ -28,6 +28,7 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation(libs.okHttp)
+                implementation(libs.androidxWorkManager)
             }
         }
     }

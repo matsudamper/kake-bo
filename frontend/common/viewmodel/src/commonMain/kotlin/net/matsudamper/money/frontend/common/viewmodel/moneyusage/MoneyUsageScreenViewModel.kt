@@ -410,23 +410,27 @@ public class MoneyUsageScreenViewModel(
                     }
 
                     images.forEach { image ->
-                        val selectedImageData = image.await() ?: return@forEach
-                        val uploadResult = api.uploadImage(
-                            bytes = selectedImageData.bytes,
-                            contentType = selectedImageData.contentType,
-                        ) ?: return@forEach
+                        val selectedImageData = image.await() ?: run {
+                            viewModelStateFlow.update { state ->
+                                state.copy(uploadingImages = state.uploadingImages.filterNot { it.id == image.id })
+                            }
+                            return@forEach
+                        }
 
                         updateImageMutex.withLock {
-                            val currentImageIds = currentMoneyUsage()?.images?.map { it.id } ?: item.images.map { it.id }
-                            val updatedImageIds = (currentImageIds + uploadResult.imageId)
-                                .distinctBy { imageId -> imageId.value }
+                            val currentImageIds = currentMoneyUsage()?.images?.map { it.id }
+                                ?: item.images.map { it.id }
 
-                            val isSuccess = api.updateUsage(
-                                id = moneyUsageId,
-                                imageIds = updatedImageIds,
+                            val isSuccess = api.scheduleUploadAndLink(
+                                bytes = selectedImageData.bytes,
+                                contentType = selectedImageData.contentType,
+                                moneyUsageId = moneyUsageId,
+                                currentImageIds = currentImageIds,
                             )
                             if (!isSuccess) {
                                 eventSender.send { it.showToast("画像のアップロードに失敗しました") }
+                            } else {
+                                fetch(policy = FetchPolicy.NetworkOnly)
                             }
                         }
 
