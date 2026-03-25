@@ -101,6 +101,7 @@ opentelemetryKotlinExtension = { module = "io.opentelemetry:opentelemetry-extens
 opentelemetryKtor3 = { module = "io.opentelemetry.instrumentation:opentelemetry-ktor-3.0", version = "2.26.0-alpha" }
 opentelemetryJdbc = { module = "io.opentelemetry.instrumentation:opentelemetry-jdbc", version = "2.26.0-alpha" }
 opentelemetryGraphqlJava = { module = "io.opentelemetry.instrumentation:opentelemetry-graphql-java-20.0", version = "2.26.0-alpha" }
+opentelemetryLettuce = { module = "io.opentelemetry.instrumentation:opentelemetry-lettuce-5.1", version = "2.26.0-alpha" }
 
 # Android
 androidActivityActivityCompose = { module = "androidx.activity:activity-compose", version.ref = "activity" }

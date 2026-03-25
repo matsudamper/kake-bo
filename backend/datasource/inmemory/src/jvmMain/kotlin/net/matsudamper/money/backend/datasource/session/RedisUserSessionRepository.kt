@@ -10,13 +10,13 @@ import io.lettuce.core.RedisURI
 import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.resource.ClientResources
+import io.opentelemetry.instrumentation.lettuce.v5_1.LettuceTelemetry
 import net.matsudamper.money.backend.app.interfaces.UserSessionRepository
 import net.matsudamper.money.backend.app.interfaces.element.UserSessionId
 import net.matsudamper.money.backend.base.ObjectMapper
 import net.matsudamper.money.backend.base.OpenTelemetryInitializer
 import net.matsudamper.money.backend.base.ServerVariables
 import net.matsudamper.money.backend.base.TraceLogger
-import net.matsudamper.money.backend.datasource.redis.LettuceOtelTracing
 import net.matsudamper.money.element.UserId
 
 internal class RedisUserSessionRepository(
@@ -27,7 +27,7 @@ internal class RedisUserSessionRepository(
     private val redisClient: RedisClient = run {
         val uri = RedisURI.Builder.redis(host, port).withDatabase(index).build()
         val clientResources = ClientResources.builder()
-            .tracing(LettuceOtelTracing(OpenTelemetryInitializer.get()))
+            .tracing(LettuceTelemetry.create(OpenTelemetryInitializer.get()).createTracing())
             .build()
         RedisClient.create(clientResources, uri)
     }

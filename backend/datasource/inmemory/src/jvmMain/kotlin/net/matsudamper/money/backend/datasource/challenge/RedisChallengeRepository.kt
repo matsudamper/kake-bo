@@ -6,9 +6,9 @@ import io.lettuce.core.RedisURI
 import io.lettuce.core.SetArgs
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.resource.ClientResources
+import io.opentelemetry.instrumentation.lettuce.v5_1.LettuceTelemetry
 import net.matsudamper.money.backend.app.interfaces.ChallengeRepository
 import net.matsudamper.money.backend.base.OpenTelemetryInitializer
-import net.matsudamper.money.backend.datasource.redis.LettuceOtelTracing
 
 internal class RedisChallengeRepository(
     host: String,
@@ -18,7 +18,7 @@ internal class RedisChallengeRepository(
     private val redisClient: RedisClient = run {
         val uri = RedisURI.Builder.redis(host, port).withDatabase(index).build()
         val clientResources = ClientResources.builder()
-            .tracing(LettuceOtelTracing(OpenTelemetryInitializer.get()))
+            .tracing(LettuceTelemetry.create(OpenTelemetryInitializer.get()).createTracing())
             .build()
         RedisClient.create(clientResources, uri)
     }
