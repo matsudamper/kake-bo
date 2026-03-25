@@ -113,7 +113,7 @@ androidxLifecycleRuntimeCompose = { module = "androidx.lifecycle:lifecycle-runti
 androidxNavigation3Runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3" }
 androidxNavigation3Ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3" }
 jetbrainsNavigation3Ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "jetbrainsNav3" }
-androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.10.5" }
+androidxComposeSaveable = { module = "androidx.compose.runtime:runtime-saveable", version = "1.10.6" }
 composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version = "1.10.0" }
 composeUiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose" }
 
