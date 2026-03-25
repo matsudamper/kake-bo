@@ -37,10 +37,6 @@ internal class RedisChallengeRepository(
     }
 
     override fun containsWithDelete(key: String): Boolean {
-        val exists = commands.exists(key) > 0
-        if (exists) {
-            commands.del(key)
-        }
-        return exists
+        return commands.getdel(key) != null
     }
 }

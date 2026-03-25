@@ -135,18 +135,23 @@ internal class RedisUserSessionRepository(
             return null
         }
 
-        val now = LocalDateTime.now(ZoneOffset.UTC)
+        val latestAccess = try {
+            LocalDateTime.parse(sessionData.latestAccess)
+        } catch (e: Throwable) {
+            TraceLogger.impl().noticeThrowable(e, true)
+            TraceLogger.impl().setAttribute("latestAccess", sessionData.latestAccess)
+            LocalDateTime.now(ZoneOffset.UTC)
+        }
 
         return UserSessionRepository.SessionInfo(
             name = sessionData.sessionName,
-            latestAccess = now,
+            latestAccess = latestAccess,
         )
     }
 
     override fun getSessions(userId: UserId): List<UserSessionRepository.SessionInfo> {
         val sessionsKey = getUserSessionsKey(userId)
         val sessionIds = commands.smembers(sessionsKey)
-        val now = LocalDateTime.now(ZoneOffset.UTC)
 
         return sessionIds.mapNotNull { sessionIdStr ->
             val sessionKey = getSessionKey(UserSessionId(sessionIdStr))
@@ -160,9 +165,17 @@ internal class RedisUserSessionRepository(
                 return@mapNotNull null
             }
 
+            val latestAccess = try {
+                LocalDateTime.parse(sessionData.latestAccess)
+            } catch (e: Throwable) {
+                TraceLogger.impl().noticeThrowable(e, true)
+                TraceLogger.impl().setAttribute("latestAccess", sessionData.latestAccess)
+                LocalDateTime.now(ZoneOffset.UTC)
+            }
+
             UserSessionRepository.SessionInfo(
                 name = sessionData.sessionName,
-                latestAccess = now,
+                latestAccess = latestAccess,
             )
         }
     }

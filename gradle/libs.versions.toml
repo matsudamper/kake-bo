@@ -152,7 +152,7 @@ graphqlJavaKickstart-JavaTools = { module = "com.graphql-java-kickstart:graphql-
 androidxDatastoreDatastore = { module = "androidx.datastore:datastore", version.require = "1.2.1" }
 
 # Other
-lettuce = { module = "io.lettuce:lettuce-core", version.require = "6.5.2.RELEASE" }
+lettuce = { module = "io.lettuce:lettuce-core", version.require = "7.5.0.RELEASE" }
 jsoup = { module = "org.jsoup:jsoup", version.require = "1.22.1" }
 hikariCP = { module = "com.zaxxer:HikariCP", version.require = "7.0.2" }
 mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.7" }
