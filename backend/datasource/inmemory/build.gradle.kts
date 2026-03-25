@@ -21,7 +21,6 @@ kotlin {
 
                 implementation(libs.lettuce)
                 implementation(libs.opentelemetryApi)
-                implementation(libs.opentelemetryLettuce)
             }
         }
         val jvmTest by getting {
