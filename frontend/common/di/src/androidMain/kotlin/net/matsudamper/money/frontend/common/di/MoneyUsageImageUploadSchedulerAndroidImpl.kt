@@ -2,15 +2,16 @@ package net.matsudamper.money.frontend.common.di
 
 import android.content.Context
 import androidx.work.Constraints
+import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkInfo
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import java.io.File
 import java.util.UUID
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.MoneyUsageId
@@ -38,7 +39,6 @@ internal class MoneyUsageImageUploadSchedulerAndroidImpl(
             ImageUploadWorker.KEY_FILE_PATH to tempFile.absolutePath,
             ImageUploadWorker.KEY_CONTENT_TYPE to (contentType ?: "application/octet-stream"),
             ImageUploadWorker.KEY_MONEY_USAGE_ID to moneyUsageId.id,
-            ImageUploadWorker.KEY_CURRENT_IMAGE_IDS to currentImageIds.map { it.value }.toIntArray(),
         )
 
         val workRequest = OneTimeWorkRequestBuilder<ImageUploadWorker>()
@@ -48,13 +48,25 @@ internal class MoneyUsageImageUploadSchedulerAndroidImpl(
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build(),
             )
+            .addTag(uploadTag(moneyUsageId))
             .build()
 
-        val workManager = WorkManager.getInstance(context)
-        workManager.enqueue(workRequest)
+        WorkManager.getInstance(context).enqueueUniqueWork(
+            uploadTag(moneyUsageId),
+            ExistingWorkPolicy.APPEND_OR_REPLACE,
+            workRequest,
+        )
 
-        return workManager.getWorkInfoByIdFlow(workRequest.id)
-            .first { it?.state?.isFinished == true }
-            ?.state == WorkInfo.State.SUCCEEDED
+        return true
+    }
+
+    override fun getActiveUploadCount(moneyUsageId: MoneyUsageId): Flow<Int> {
+        return WorkManager.getInstance(context)
+            .getWorkInfosByTagFlow(uploadTag(moneyUsageId))
+            .map { workInfos -> workInfos.count { !it.state.isFinished } }
+    }
+
+    private fun uploadTag(moneyUsageId: MoneyUsageId): String {
+        return "moneyUsageUpload_${moneyUsageId.id}"
     }
 }

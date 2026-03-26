@@ -2,6 +2,10 @@ package net.matsudamper.money.frontend.common.di
 
 import kotlinx.browser.window
 import kotlinx.coroutines.await
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
@@ -20,6 +24,7 @@ internal class MoneyUsageImageUploadSchedulerJsImpl(
 ) : MoneyUsageImageUploadScheduler {
 
     private val mutex = Mutex()
+    private val activeCountFlow = MutableStateFlow(0)
 
     override suspend fun scheduleUploadAndLink(
         bytes: ByteArray,
@@ -27,13 +32,22 @@ internal class MoneyUsageImageUploadSchedulerJsImpl(
         moneyUsageId: MoneyUsageId,
         currentImageIds: List<ImageId>,
     ): Boolean {
-        val uploadResult = imageUploadClient.upload(bytes, contentType) ?: return false
+        activeCountFlow.update { it + 1 }
+        return try {
+            val uploadResult = imageUploadClient.upload(bytes, contentType) ?: return false
 
-        val updatedImageIds = (currentImageIds + uploadResult.imageId).distinctBy { it.value }
+            val updatedImageIds = (currentImageIds + uploadResult.imageId).distinctBy { it.value }
 
-        return mutex.withLock {
-            updateMoneyUsage(moneyUsageId, updatedImageIds)
+            mutex.withLock {
+                updateMoneyUsage(moneyUsageId, updatedImageIds)
+            }
+        } finally {
+            activeCountFlow.update { it - 1 }
         }
+    }
+
+    override fun getActiveUploadCount(moneyUsageId: MoneyUsageId): Flow<Int> {
+        return activeCountFlow.asStateFlow()
     }
 
     private suspend fun updateMoneyUsage(

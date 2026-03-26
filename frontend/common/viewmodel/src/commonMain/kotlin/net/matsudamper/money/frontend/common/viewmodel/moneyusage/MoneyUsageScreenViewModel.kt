@@ -5,11 +5,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.LocalDateTime
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.cache.normalized.FetchPolicy
@@ -46,8 +45,6 @@ public class MoneyUsageScreenViewModel(
 
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
-    private val updateImageMutex = Mutex()
-
     private val categorySelectDialogViewModel = object {
         private val event: CategorySelectDialogViewModel.Event = object : CategorySelectDialogViewModel.Event {
             override fun selected(result: CategorySelectDialogViewModel.SelectedResult) {
@@ -417,21 +414,17 @@ public class MoneyUsageScreenViewModel(
                             return@forEach
                         }
 
-                        updateImageMutex.withLock {
-                            val currentImageIds = currentMoneyUsage()?.images?.map { it.id }
-                                ?: item.images.map { it.id }
+                        val currentImageIds = currentMoneyUsage()?.images?.map { it.id }
+                            ?: item.images.map { it.id }
 
-                            val isSuccess = api.scheduleUploadAndLink(
-                                bytes = selectedImageData.bytes,
-                                contentType = selectedImageData.contentType,
-                                moneyUsageId = moneyUsageId,
-                                currentImageIds = currentImageIds,
-                            )
-                            if (!isSuccess) {
-                                eventSender.send { it.showToast("画像のアップロードに失敗しました") }
-                            } else {
-                                fetch(policy = FetchPolicy.NetworkOnly)
-                            }
+                        val isSuccess = api.scheduleUploadAndLink(
+                            bytes = selectedImageData.bytes,
+                            contentType = selectedImageData.contentType,
+                            moneyUsageId = moneyUsageId,
+                            currentImageIds = currentImageIds,
+                        )
+                        if (!isSuccess) {
+                            eventSender.send { it.showToast("画像のアップロードに失敗しました") }
                         }
 
                         viewModelStateFlow.update { state ->
@@ -496,6 +489,23 @@ public class MoneyUsageScreenViewModel(
                     viewModelState.copy(
                         categorySelectDialog = categorySelectDialogUiState,
                     )
+                }
+            }
+        }
+        viewModelScope.launch {
+            var previousCount = 0
+            api.observeActiveUploadCount(moneyUsageId).collect { count ->
+                if (previousCount > 0 && count == 0) {
+                    fetch(policy = FetchPolicy.NetworkOnly)
+                }
+                previousCount = count
+
+                val placeholders = List(count) { index ->
+                    ViewModelState.UploadingImage(id = "background_$index", previewBytes = null)
+                }
+                viewModelStateFlow.update { state ->
+                    val nonBackground = state.uploadingImages.filterNot { it.id.startsWith("background_") }
+                    state.copy(uploadingImages = nonBackground + placeholders)
                 }
             }
         }

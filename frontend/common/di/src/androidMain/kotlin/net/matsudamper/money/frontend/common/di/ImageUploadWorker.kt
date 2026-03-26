@@ -11,10 +11,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
@@ -45,7 +47,6 @@ internal class ImageUploadWorker(
         val filePath = inputData.getString(KEY_FILE_PATH) ?: return Result.failure()
         val contentType = inputData.getString(KEY_CONTENT_TYPE) ?: "application/octet-stream"
         val moneyUsageId = inputData.getInt(KEY_MONEY_USAGE_ID, -1).takeIf { it >= 0 } ?: return Result.failure()
-        val currentImageIds = inputData.getIntArray(KEY_CURRENT_IMAGE_IDS) ?: intArrayOf()
 
         val file = File(filePath)
         if (!file.exists()) return Result.failure()
@@ -61,7 +62,10 @@ internal class ImageUploadWorker(
         val imageId = uploadImage(bytes, contentType, protocol, host, userSessionId)
             ?: return Result.retry()
 
-        val updatedImageIds = (currentImageIds.toList() + imageId).distinct()
+        val currentImageIds = fetchCurrentImageIds(moneyUsageId, protocol, host, userSessionId)
+            ?: return Result.retry()
+
+        val updatedImageIds = (currentImageIds + imageId).distinct()
         val success = updateMoneyUsage(moneyUsageId, updatedImageIds, protocol, host, userSessionId)
 
         if (success) {
@@ -109,6 +113,57 @@ internal class ImageUploadWorker(
         }
     }
 
+    private suspend fun fetchCurrentImageIds(
+        moneyUsageId: Int,
+        protocol: String,
+        host: String,
+        sessionId: String,
+    ): List<Int>? {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val query = """
+                    query ImageUploadWorkerFetchImages(${"$"}id: MoneyUsageId!) {
+                        user {
+                            moneyUsage(id: ${"$"}id) {
+                                images {
+                                    id
+                                }
+                            }
+                        }
+                    }
+                """.trimIndent()
+
+                val variables = buildJsonObject {
+                    put("id", moneyUsageId)
+                }
+
+                val requestBodyJson = buildJsonObject {
+                    put("query", query)
+                    put("variables", variables)
+                }.toString()
+
+                val request = Request.Builder()
+                    .url("$protocol://$host/query")
+                    .post(requestBodyJson.toRequestBody("application/json".toMediaTypeOrNull()))
+                    .apply {
+                        if (sessionId.isNotBlank()) {
+                            header("Cookie", "user_session_id=$sessionId")
+                        }
+                    }
+                    .build()
+
+                val responseBody = okHttpClient.newCall(request).execute().use { it.body.string() }
+                val json = Json.parseToJsonElement(responseBody).jsonObject
+                json["data"]?.jsonObject
+                    ?.get("user")?.jsonObject
+                    ?.get("moneyUsage")?.jsonObject
+                    ?.get("images")?.jsonArray
+                    ?.mapNotNull { it.jsonObject["id"]?.jsonPrimitive?.int }
+                    ?: listOf()
+            }.getOrNull()
+        }
+    }
+
     private suspend fun updateMoneyUsage(
         usageId: Int,
         imageIds: List<Int>,
@@ -128,7 +183,7 @@ internal class ImageUploadWorker(
                     }
                 """.trimIndent()
 
-                val variables: JsonElement = buildJsonObject {
+                val variables = buildJsonObject {
                     putJsonObject("query") {
                         put("id", usageId)
                         putJsonArray("imageIds") {
@@ -164,7 +219,6 @@ internal class ImageUploadWorker(
         const val KEY_FILE_PATH = "file_path"
         const val KEY_CONTENT_TYPE = "content_type"
         const val KEY_MONEY_USAGE_ID = "money_usage_id"
-        const val KEY_CURRENT_IMAGE_IDS = "current_image_ids"
         const val KEY_RESULT_IMAGE_ID = "result_image_id"
     }
 }

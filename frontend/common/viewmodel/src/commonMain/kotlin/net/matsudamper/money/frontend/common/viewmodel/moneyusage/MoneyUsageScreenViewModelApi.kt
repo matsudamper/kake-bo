@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.moneyusage
 
+import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDateTime
 import com.apollographql.apollo.api.Optional
 import net.matsudamper.money.element.ImageId
@@ -15,6 +16,10 @@ public class MoneyUsageScreenViewModelApi(
     private val graphqlClient: GraphqlClient,
     private val imageUploadScheduler: MoneyUsageImageUploadScheduler,
 ) {
+    public fun observeActiveUploadCount(moneyUsageId: MoneyUsageId): Flow<Int> {
+        return imageUploadScheduler.getActiveUploadCount(moneyUsageId)
+    }
+
     public suspend fun scheduleUploadAndLink(
         bytes: ByteArray,
         contentType: String?,
