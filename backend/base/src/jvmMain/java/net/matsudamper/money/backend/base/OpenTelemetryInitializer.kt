@@ -13,6 +13,7 @@ public object OpenTelemetryInitializer {
                     "otel.exporter.otlp.protocol" to "http/protobuf",
                 )
             }
+            .addSpanExporterCustomizer { exporter, _ -> FilteringSpanExporter(exporter) }
             .build()
             .openTelemetrySdk
 
