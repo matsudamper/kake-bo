@@ -22,6 +22,6 @@ internal class FilteringSpanExporter(private val delegate: SpanExporter) : SpanE
     override fun shutdown(): CompletableResultCode = delegate.shutdown()
 
     private companion object {
-        val EXCLUDED_SPAN_NAMES = setOf("CLIENT SETNAME", "HELLO", "SELECT")
+        val EXCLUDED_SPAN_NAMES = setOf("CLIENT", "HELLO", "SELECT", "SETNAME")
     }
 }
