@@ -31,8 +31,8 @@ internal class RedisUserSessionRepository(
             .build()
         RedisClient.create(clientResources, uri)
     }
-    private val connection: StatefulRedisConnection<String, String> = redisClient.connect()
-    private val commands = connection.sync()
+    private val connection: StatefulRedisConnection<String, String> by lazy { redisClient.connect() }
+    private val commands by lazy { connection.sync() }
 
     override fun clearSession(sessionId: UserSessionId) {
         val sessionKey = getSessionKey(sessionId)
