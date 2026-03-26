@@ -20,6 +20,8 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 import kotlinx.serialization.json.putJsonArray
 import kotlinx.serialization.json.putJsonObject
+import net.matsudamper.money.element.ImageId
+import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.feature.localstore.generated.Session
 import net.matsudamper.money.frontend.graphql.serverHost
 import net.matsudamper.money.frontend.graphql.serverProtocol
@@ -46,7 +48,9 @@ internal class ImageUploadWorker(
     override suspend fun doWork(): Result {
         val filePath = inputData.getString(KEY_FILE_PATH) ?: return Result.failure()
         val contentType = inputData.getString(KEY_CONTENT_TYPE) ?: "application/octet-stream"
-        val moneyUsageId = inputData.getInt(KEY_MONEY_USAGE_ID, -1).takeIf { it >= 0 } ?: return Result.failure()
+        val rawMoneyUsageId = inputData.getInt(KEY_MONEY_USAGE_ID, -1).takeIf { it >= 0 }
+            ?: return Result.failure()
+        val moneyUsageId = MoneyUsageId(rawMoneyUsageId)
 
         val file = File(filePath)
         if (!file.exists()) return Result.failure()
@@ -65,7 +69,7 @@ internal class ImageUploadWorker(
         val currentImageIds = fetchCurrentImageIds(moneyUsageId, protocol, host, userSessionId)
             ?: return Result.retry()
 
-        val updatedImageIds = (currentImageIds + imageId).distinct()
+        val updatedImageIds = (currentImageIds + imageId).distinctBy { it.value }
         val success = updateMoneyUsage(moneyUsageId, updatedImageIds, protocol, host, userSessionId)
 
         if (success) {
@@ -73,7 +77,7 @@ internal class ImageUploadWorker(
         }
 
         return if (success) {
-            Result.success(workDataOf(KEY_RESULT_IMAGE_ID to imageId))
+            Result.success(workDataOf(KEY_RESULT_IMAGE_ID to imageId.value))
         } else {
             Result.retry()
         }
@@ -85,7 +89,7 @@ internal class ImageUploadWorker(
         protocol: String,
         host: String,
         sessionId: String,
-    ): Int? {
+    ): ImageId? {
         return withContext(Dispatchers.IO) {
             runCatching {
                 val requestBody = MultipartBody.Builder()
@@ -108,17 +112,17 @@ internal class ImageUploadWorker(
                     .build()
 
                 val responseBody = okHttpClient.newCall(request).execute().use { it.body.string() }
-                Json.decodeFromString<ImageUploadImageResponse>(responseBody).success?.imageId?.value
+                Json.decodeFromString<ImageUploadImageResponse>(responseBody).success?.imageId
             }.getOrNull()
         }
     }
 
     private suspend fun fetchCurrentImageIds(
-        moneyUsageId: Int,
+        moneyUsageId: MoneyUsageId,
         protocol: String,
         host: String,
         sessionId: String,
-    ): List<Int>? {
+    ): List<ImageId>? {
         return withContext(Dispatchers.IO) {
             runCatching {
                 val query = """
@@ -134,7 +138,7 @@ internal class ImageUploadWorker(
                 """.trimIndent()
 
                 val variables = buildJsonObject {
-                    put("id", moneyUsageId)
+                    put("id", moneyUsageId.id)
                 }
 
                 val requestBodyJson = buildJsonObject {
@@ -158,15 +162,15 @@ internal class ImageUploadWorker(
                     ?.get("user")?.jsonObject
                     ?.get("moneyUsage")?.jsonObject
                     ?.get("images")?.jsonArray
-                    ?.mapNotNull { it.jsonObject["id"]?.jsonPrimitive?.int }
+                    ?.mapNotNull { it.jsonObject["id"]?.jsonPrimitive?.int?.let { id -> ImageId(id) } }
                     ?: listOf()
             }.getOrNull()
         }
     }
 
     private suspend fun updateMoneyUsage(
-        usageId: Int,
-        imageIds: List<Int>,
+        moneyUsageId: MoneyUsageId,
+        imageIds: List<ImageId>,
         protocol: String,
         host: String,
         sessionId: String,
@@ -185,9 +189,9 @@ internal class ImageUploadWorker(
 
                 val variables = buildJsonObject {
                     putJsonObject("query") {
-                        put("id", usageId)
+                        put("id", moneyUsageId.id)
                         putJsonArray("imageIds") {
-                            imageIds.forEach { add(JsonPrimitive(it)) }
+                            imageIds.forEach { add(JsonPrimitive(it.value)) }
                         }
                     }
                 }
