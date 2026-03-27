@@ -144,8 +144,16 @@ public data class MoneyUsageScreenUiState(
         val dateTime: String,
         val time: String,
         val images: ImmutableList<ImageItem>,
-        val uploadingImages: ImmutableList<ByteArray?>,
+        val uploadQueueItems: ImmutableList<UploadQueueItem>,
         val event: MoneyUsageEvent,
+    )
+
+    public data class UploadQueueItem(
+        val id: String,
+        val previewBytes: ByteArray?,
+        val isLoading: Boolean,
+        val isFailed: Boolean,
+        val onClickRetry: () -> Unit,
     )
 
     public data class ImageItem(
@@ -630,7 +638,7 @@ private fun MoneyUsage(
             },
             content = {
                 Column {
-                    if (uiState.images.isEmpty() && uiState.uploadingImages.isEmpty()) {
+                    if (uiState.images.isEmpty() && uiState.uploadQueueItems.isEmpty()) {
                         Text("未設定")
                     } else {
                         FlowRow(
@@ -699,20 +707,22 @@ private fun MoneyUsage(
                                 }
                             }
 
-                            uiState.uploadingImages.forEach { previewBytes ->
+                            uiState.uploadQueueItems.forEach { queueItem ->
                                 Box(
                                     modifier = Modifier.size(180.dp),
                                     contentAlignment = Alignment.Center,
                                 ) {
-                                    if (previewBytes != null) {
+                                    if (queueItem.previewBytes != null) {
                                         AsyncImage(
-                                            model = previewBytes,
+                                            model = queueItem.previewBytes,
                                             contentDescription = null,
                                             contentScale = ContentScale.Crop,
                                             modifier = Modifier
                                                 .fillMaxSize()
                                                 .background(MaterialTheme.colorScheme.surfaceVariant),
                                         )
+                                    }
+                                    if (queueItem.isLoading) {
                                         Box(
                                             modifier = Modifier
                                                 .fillMaxSize()
@@ -720,6 +730,28 @@ private fun MoneyUsage(
                                             contentAlignment = Alignment.Center,
                                         ) {
                                             CircularProgressIndicator(color = Color.White)
+                                        }
+                                    } else if (queueItem.isFailed) {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .background(Color.Black.copy(alpha = 0.6f)),
+                                            contentAlignment = Alignment.Center,
+                                        ) {
+                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                                Text(
+                                                    text = "失敗",
+                                                    color = Color.White,
+                                                )
+                                                OutlinedButton(
+                                                    onClick = { queueItem.onClickRetry() },
+                                                ) {
+                                                    Text(
+                                                        text = "再試行",
+                                                        color = Color.White,
+                                                    )
+                                                }
+                                            }
                                         }
                                     } else {
                                         CircularProgressIndicator()

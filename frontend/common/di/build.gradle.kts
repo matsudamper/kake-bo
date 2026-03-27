@@ -18,6 +18,7 @@ kotlin {
                 implementation(projects.frontend.common.base)
                 implementation(projects.frontend.common.feature.webauth)
                 implementation(projects.frontend.common.feature.localstore)
+                implementation(projects.frontend.common.feature.uploader)
                 implementation(projects.frontend.common.graphql)
                 implementation(projects.frontend.common.usecase)
 
@@ -28,6 +29,7 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation(libs.okHttp)
+                implementation(libs.workRuntimeKtx)
             }
         }
     }

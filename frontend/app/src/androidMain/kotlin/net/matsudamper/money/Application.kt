@@ -1,6 +1,9 @@
 package net.matsudamper.money
 
 import android.app.Application
+import androidx.work.Configuration
+import androidx.work.WorkManager
+import androidx.work.WorkerFactory
 import net.matsudamper.money.frontend.common.di.AndroidModule
 import net.matsudamper.money.frontend.common.di.DefaultModule
 import net.matsudamper.money.frontend.common.feature.localstore.DataStores
@@ -15,6 +18,13 @@ class Application : Application() {
             )
             modules(DefaultModule.module)
         }
+
+        WorkManager.initialize(
+            this,
+            Configuration.Builder()
+                .setWorkerFactory(koin.koin.get<WorkerFactory>())
+                .build(),
+        )
 
         initializeImageLoader(
             context = this@Application,
