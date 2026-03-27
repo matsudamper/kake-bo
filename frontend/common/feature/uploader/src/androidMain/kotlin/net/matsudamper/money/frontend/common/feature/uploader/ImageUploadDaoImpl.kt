@@ -32,7 +32,7 @@ internal class ImageUploadDaoImpl(private val db: SQLiteOpenHelper) : ImageUploa
     private fun queryByMoneyUsageId(moneyUsageId: Int): List<ImageUploadEntity> {
         val cursor = db.readableDatabase.query(
             "image_upload_queue",
-            null,
+            arrayOf("id", "moneyUsageId", "status", "workManagerId", "errorMessage", "createdAt"),
             "moneyUsageId = ?",
             arrayOf(moneyUsageId.toString()),
             null,
@@ -47,8 +47,6 @@ internal class ImageUploadDaoImpl(private val db: SQLiteOpenHelper) : ImageUploa
             val values = ContentValues().apply {
                 put("id", entity.id)
                 put("moneyUsageId", entity.moneyUsageId)
-                put("rawImageBytes", entity.rawImageBytes)
-                put("previewBytes", entity.previewBytes)
                 put("status", entity.status)
                 put("workManagerId", entity.workManagerId)
                 put("errorMessage", entity.errorMessage)
@@ -63,7 +61,7 @@ internal class ImageUploadDaoImpl(private val db: SQLiteOpenHelper) : ImageUploa
         return withContext(Dispatchers.IO) {
             val cursor = db.readableDatabase.query(
                 "image_upload_queue",
-                null,
+                arrayOf("id", "moneyUsageId", "status", "workManagerId", "errorMessage", "createdAt"),
                 "id = ?",
                 arrayOf(id),
                 null,
@@ -119,8 +117,6 @@ internal class ImageUploadDaoImpl(private val db: SQLiteOpenHelper) : ImageUploa
                 ImageUploadEntity(
                     id = cursor.getString(cursor.getColumnIndexOrThrow("id")),
                     moneyUsageId = cursor.getInt(cursor.getColumnIndexOrThrow("moneyUsageId")),
-                    rawImageBytes = cursor.getBlob(cursor.getColumnIndexOrThrow("rawImageBytes")),
-                    previewBytes = cursor.getBlob(cursor.getColumnIndexOrThrow("previewBytes")),
                     status = cursor.getString(cursor.getColumnIndexOrThrow("status")),
                     workManagerId = cursor.getString(cursor.getColumnIndexOrThrow("workManagerId")),
                     errorMessage = cursor.getString(cursor.getColumnIndexOrThrow("errorMessage")),

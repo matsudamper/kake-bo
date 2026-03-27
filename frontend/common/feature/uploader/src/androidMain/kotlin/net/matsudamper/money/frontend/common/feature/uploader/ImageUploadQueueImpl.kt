@@ -6,8 +6,10 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import java.util.UUID
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import net.matsudamper.money.element.MoneyUsageId
 
 internal class ImageUploadQueueImpl(
@@ -18,9 +20,12 @@ internal class ImageUploadQueueImpl(
     override fun observeItems(moneyUsageId: MoneyUsageId): Flow<List<ImageUploadQueue.QueueItem>> {
         return dao.observeByMoneyUsageId(moneyUsageId.id).map { entities ->
             entities.map { entity ->
+                val previewBytes = previewBytesFile(context, entity.id)
+                    .takeIf { it.exists() }
+                    ?.readBytes()
                 ImageUploadQueue.QueueItem(
                     id = entity.id,
-                    previewBytes = entity.previewBytes,
+                    previewBytes = previewBytes,
                     status = when (entity.status) {
                         STATUS_UPLOADING -> ImageUploadQueue.Status.Uploading
                         STATUS_FAILED -> ImageUploadQueue.Status.Failed(entity.errorMessage)
@@ -37,12 +42,16 @@ internal class ImageUploadQueueImpl(
         previewBytes: ByteArray?,
     ) {
         val id = UUID.randomUUID().toString()
+        withContext(Dispatchers.IO) {
+            rawImageBytesFile(context, id).also { it.parentFile?.mkdirs() }.writeBytes(rawImageBytes)
+            if (previewBytes != null) {
+                previewBytesFile(context, id).also { it.parentFile?.mkdirs() }.writeBytes(previewBytes)
+            }
+        }
         dao.insert(
             ImageUploadEntity(
                 id = id,
                 moneyUsageId = moneyUsageId.id,
-                rawImageBytes = rawImageBytes,
-                previewBytes = previewBytes,
                 status = STATUS_PENDING,
                 workManagerId = null,
                 errorMessage = null,

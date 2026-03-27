@@ -19,8 +19,6 @@ public class ImageUploadDatabase private constructor(context: Context) :
             CREATE TABLE image_upload_queue (
                 id TEXT PRIMARY KEY,
                 moneyUsageId INTEGER NOT NULL,
-                rawImageBytes BLOB NOT NULL,
-                previewBytes BLOB,
                 status TEXT NOT NULL,
                 workManagerId TEXT,
                 errorMessage TEXT,

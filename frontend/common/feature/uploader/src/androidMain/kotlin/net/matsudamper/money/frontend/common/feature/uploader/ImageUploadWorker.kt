@@ -67,8 +67,16 @@ internal class ImageUploadWorker(
 
         val entity = dao.getById(recordId) ?: return Result.failure()
 
+        val rawImageBytes = withContext(Dispatchers.IO) {
+            runCatching { rawImageBytesFile(applicationContext, recordId).readBytes() }.getOrNull()
+        }
+        if (rawImageBytes == null) {
+            dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "画像ファイルが見つかりません")
+            return Result.failure()
+        }
+
         val webpBytes = withContext(Dispatchers.Default) {
-            convertToWebP(entity.rawImageBytes)
+            convertToWebP(rawImageBytes)
         }
         if (webpBytes == null) {
             dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "画像変換に失敗しました")
@@ -131,6 +139,8 @@ internal class ImageUploadWorker(
         }
 
         dao.deleteById(recordId)
+        rawImageBytesFile(applicationContext, recordId).delete()
+        previewBytesFile(applicationContext, recordId).delete()
         return Result.success()
     }
 
