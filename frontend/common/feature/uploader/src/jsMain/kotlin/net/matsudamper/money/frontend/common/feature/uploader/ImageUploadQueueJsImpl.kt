@@ -20,4 +20,8 @@ public class ImageUploadQueueJsImpl : ImageUploadQueue {
     override suspend fun retry(itemId: String) {
         // JSではWorkManagerを使用しないため何もしない
     }
+
+    override suspend fun cancel(itemId: String) {
+        // JSではWorkManagerを使用しないため何もしない
+    }
 }

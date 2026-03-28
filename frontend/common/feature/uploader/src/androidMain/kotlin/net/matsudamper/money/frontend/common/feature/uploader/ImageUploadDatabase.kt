@@ -3,7 +3,15 @@ package net.matsudamper.money.frontend.common.feature.uploader
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import androidx.work.ExistingWorkPolicy
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import androidx.work.WorkerFactory
+import androidx.work.workDataOf
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.feature.localstore.DataStores
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ServerHostConfig
@@ -48,6 +56,25 @@ public class ImageUploadDatabase private constructor(context: Context) :
             graphqlClient = graphqlClient,
             serverHostConfig = serverHostConfig,
         )
+    }
+
+    public fun recoverPendingUploads(context: Context) {
+        CoroutineScope(Dispatchers.IO).launch {
+            // アプリ終了時にUPLOADING状態で止まっていたアイテムをPENDINGに戻す
+            dao.resetUploadingToPending()
+            val moneyUsageIds = dao.getDistinctMoneyUsageIdsWithPendingItems()
+            moneyUsageIds.forEach { moneyUsageId ->
+                val pendingItem = dao.getOldestPendingByMoneyUsageId(moneyUsageId) ?: return@forEach
+                val request = OneTimeWorkRequestBuilder<ImageUploadWorker>()
+                    .setInputData(workDataOf(ImageUploadWorker.KEY_RECORD_ID to pendingItem.id))
+                    .build()
+                WorkManager.getInstance(context).enqueueUniqueWork(
+                    ImageUploadQueueImpl.uniqueWorkName(MoneyUsageId(moneyUsageId)),
+                    ExistingWorkPolicy.KEEP,
+                    request,
+                )
+            }
+        }
     }
 
     public companion object {

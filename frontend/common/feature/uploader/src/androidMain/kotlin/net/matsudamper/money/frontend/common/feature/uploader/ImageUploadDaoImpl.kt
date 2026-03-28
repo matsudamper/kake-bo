@@ -110,6 +110,55 @@ internal class ImageUploadDaoImpl(private val db: SQLiteOpenHelper) : ImageUploa
         changeNotifier.tryEmit(Unit)
     }
 
+    override suspend fun getOldestPendingByMoneyUsageId(moneyUsageId: Int): ImageUploadEntity? {
+        return withContext(Dispatchers.IO) {
+            val cursor = db.readableDatabase.query(
+                "image_upload_queue",
+                arrayOf("id", "moneyUsageId", "status", "workManagerId", "errorMessage", "createdAt"),
+                "moneyUsageId = ? AND status = ?",
+                arrayOf(moneyUsageId.toString(), ImageUploadQueueImpl.STATUS_PENDING),
+                null,
+                null,
+                "createdAt ASC",
+                "1",
+            )
+            cursor.use { cursorToEntities(it).firstOrNull() }
+        }
+    }
+
+    override suspend fun getDistinctMoneyUsageIdsWithPendingItems(): List<Int> {
+        return withContext(Dispatchers.IO) {
+            val cursor = db.readableDatabase.rawQuery(
+                "SELECT DISTINCT moneyUsageId FROM image_upload_queue WHERE status = ?",
+                arrayOf(ImageUploadQueueImpl.STATUS_PENDING),
+            )
+            val ids = mutableListOf<Int>()
+            cursor.use {
+                while (it.moveToNext()) {
+                    ids.add(it.getInt(0))
+                }
+            }
+            ids
+        }
+    }
+
+    override suspend fun resetUploadingToPending() {
+        withContext(Dispatchers.IO) {
+            val values = ContentValues().apply {
+                put("status", ImageUploadQueueImpl.STATUS_PENDING)
+                putNull("workManagerId")
+                putNull("errorMessage")
+            }
+            db.writableDatabase.update(
+                "image_upload_queue",
+                values,
+                "status = ?",
+                arrayOf(ImageUploadQueueImpl.STATUS_UPLOADING),
+            )
+        }
+        changeNotifier.tryEmit(Unit)
+    }
+
     private fun cursorToEntities(cursor: Cursor): List<ImageUploadEntity> {
         val list = mutableListOf<ImageUploadEntity>()
         while (cursor.moveToNext()) {

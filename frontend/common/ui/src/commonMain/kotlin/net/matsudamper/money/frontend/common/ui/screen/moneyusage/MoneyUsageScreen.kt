@@ -154,6 +154,7 @@ public data class MoneyUsageScreenUiState(
         val isLoading: Boolean,
         val isFailed: Boolean,
         val onClickRetry: () -> Unit,
+        val onLongPressCancel: () -> Unit,
     )
 
     public data class ImageItem(
@@ -709,7 +710,13 @@ private fun MoneyUsage(
 
                             uiState.uploadQueueItems.forEach { queueItem ->
                                 Box(
-                                    modifier = Modifier.size(180.dp),
+                                    modifier = Modifier
+                                        .size(180.dp)
+                                        .pointerInput(queueItem.id) {
+                                            detectTapGestures(
+                                                onLongPress = { queueItem.onLongPressCancel() },
+                                            )
+                                        },
                                     contentAlignment = Alignment.Center,
                                 ) {
                                     if (queueItem.previewBytes != null) {

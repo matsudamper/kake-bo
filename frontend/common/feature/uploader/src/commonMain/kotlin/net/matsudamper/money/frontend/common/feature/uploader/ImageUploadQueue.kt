@@ -27,4 +27,6 @@ public interface ImageUploadQueue {
     )
 
     public suspend fun retry(itemId: String)
+
+    public suspend fun cancel(itemId: String)
 }

@@ -61,9 +61,10 @@ internal class ImageUploadQueueImpl(
         val request = OneTimeWorkRequestBuilder<ImageUploadWorker>()
             .setInputData(workDataOf(ImageUploadWorker.KEY_RECORD_ID to id))
             .build()
+        // KEEP: 同じmoneyUsageIdのWorkerが実行中なら無視。Workerのfinally内で次のPENDINGアイテムをトリガーする。
         WorkManager.getInstance(context).enqueueUniqueWork(
             uniqueWorkName(moneyUsageId),
-            ExistingWorkPolicy.APPEND_OR_REPLACE,
+            ExistingWorkPolicy.KEEP,
             request,
         )
     }
@@ -74,11 +75,25 @@ internal class ImageUploadQueueImpl(
         val request = OneTimeWorkRequestBuilder<ImageUploadWorker>()
             .setInputData(workDataOf(ImageUploadWorker.KEY_RECORD_ID to itemId))
             .build()
+        // KEEP: 実行中のWorkerがあればそのfinally内でこのアイテムが拾われる
         WorkManager.getInstance(context).enqueueUniqueWork(
             uniqueWorkName(MoneyUsageId(entity.moneyUsageId)),
-            ExistingWorkPolicy.APPEND_OR_REPLACE,
+            ExistingWorkPolicy.KEEP,
             request,
         )
+    }
+
+    override suspend fun cancel(itemId: String) {
+        val entity = dao.getById(itemId) ?: return
+        val workManagerId = entity.workManagerId
+        dao.deleteById(itemId)
+        withContext(Dispatchers.IO) {
+            rawImageBytesFile(context, itemId).delete()
+            previewBytesFile(context, itemId).delete()
+        }
+        if (workManagerId != null) {
+            WorkManager.getInstance(context).cancelWorkById(UUID.fromString(workManagerId))
+        }
     }
 
     internal companion object {

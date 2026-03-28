@@ -16,4 +16,10 @@ internal interface ImageUploadDao {
     suspend fun updateStatusWithError(id: String, status: String, errorMessage: String?)
 
     suspend fun deleteById(id: String)
+
+    suspend fun getOldestPendingByMoneyUsageId(moneyUsageId: Int): ImageUploadEntity?
+
+    suspend fun getDistinctMoneyUsageIdsWithPendingItems(): List<Int>
+
+    suspend fun resetUploadingToPending()
 }

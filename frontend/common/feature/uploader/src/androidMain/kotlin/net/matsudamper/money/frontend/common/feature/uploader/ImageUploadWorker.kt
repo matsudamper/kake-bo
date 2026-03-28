@@ -8,11 +8,16 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingWorkPolicy
 import androidx.work.ForegroundInfo
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import androidx.work.workDataOf
 import java.io.ByteArrayOutputStream
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -66,7 +71,18 @@ internal class ImageUploadWorker(
         }
 
         val entity = dao.getById(recordId) ?: return Result.failure()
+        val moneyUsageId = entity.moneyUsageId
 
+        return try {
+            doUploadWork(recordId)
+        } finally {
+            withContext(NonCancellable) {
+                triggerNextPending(moneyUsageId, recordId)
+            }
+        }
+    }
+
+    private suspend fun doUploadWork(recordId: String): Result {
         val rawImageBytes = withContext(Dispatchers.IO) {
             runCatching { rawImageBytesFile(applicationContext, recordId).readBytes() }.getOrNull()
         }
@@ -107,6 +123,7 @@ internal class ImageUploadWorker(
             return Result.failure()
         }
 
+        val entity = dao.getById(recordId) ?: return Result.failure()
         val moneyUsageId = MoneyUsageId(id = entity.moneyUsageId)
         val currentImageIds = runCatching {
             graphqlClient.apolloClient
@@ -143,6 +160,19 @@ internal class ImageUploadWorker(
         rawImageBytesFile(applicationContext, recordId).delete()
         previewBytesFile(applicationContext, recordId).delete()
         return Result.success()
+    }
+
+    private suspend fun triggerNextPending(moneyUsageId: Int, completedRecordId: String) {
+        val nextItem = dao.getOldestPendingByMoneyUsageId(moneyUsageId) ?: return
+        if (nextItem.id == completedRecordId) return
+        val request = OneTimeWorkRequestBuilder<ImageUploadWorker>()
+            .setInputData(workDataOf(KEY_RECORD_ID to nextItem.id))
+            .build()
+        WorkManager.getInstance(applicationContext).enqueueUniqueWork(
+            ImageUploadQueueImpl.uniqueWorkName(MoneyUsageId(moneyUsageId)),
+            ExistingWorkPolicy.REPLACE,
+            request,
+        )
     }
 
     private fun convertToWebP(bytes: ByteArray): ByteArray? {

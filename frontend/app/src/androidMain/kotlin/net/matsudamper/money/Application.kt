@@ -7,6 +7,7 @@ import androidx.work.WorkerFactory
 import net.matsudamper.money.frontend.common.di.AndroidModule
 import net.matsudamper.money.frontend.common.di.DefaultModule
 import net.matsudamper.money.frontend.common.feature.localstore.DataStores
+import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadDatabase
 import org.koin.core.context.startKoin
 
 class Application : Application() {
@@ -25,6 +26,8 @@ class Application : Application() {
                 .setWorkerFactory(koin.koin.get<WorkerFactory>())
                 .build(),
         )
+
+        koin.koin.get<ImageUploadDatabase>().recoverPendingUploads(this)
 
         initializeImageLoader(
             context = this@Application,

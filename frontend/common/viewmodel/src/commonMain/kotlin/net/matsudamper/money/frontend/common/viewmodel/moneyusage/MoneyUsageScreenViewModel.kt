@@ -150,6 +150,11 @@ public class MoneyUsageScreenViewModel(
                                                     imageUploadQueue.retry(item.id)
                                                 }
                                             },
+                                            onLongPressCancel = {
+                                                viewModelScope.launch {
+                                                    imageUploadQueue.cancel(item.id)
+                                                }
+                                            },
                                         )
                                     }.toImmutableList(),
                                     event = createMoneyUsageEvent(item = moneyUsage),
