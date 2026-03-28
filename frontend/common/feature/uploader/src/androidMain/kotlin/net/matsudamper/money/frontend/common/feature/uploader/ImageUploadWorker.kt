@@ -6,6 +6,8 @@ import android.content.Context
 import android.content.pm.ServiceInfo
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
+import android.media.ExifInterface
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingWorkPolicy
@@ -178,10 +180,32 @@ internal class ImageUploadWorker(
     private fun convertToWebP(bytes: ByteArray): ByteArray? {
         return runCatching {
             val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
+            val rotatedBitmap = rotateByExif(bytes, bitmap)
             val stream = ByteArrayOutputStream()
-            bitmap.compress(Bitmap.CompressFormat.WEBP_LOSSLESS, 100, stream)
+            rotatedBitmap.compress(Bitmap.CompressFormat.WEBP_LOSSLESS, 100, stream)
+            if (rotatedBitmap !== bitmap) rotatedBitmap.recycle()
+            bitmap.recycle()
             stream.toByteArray()
         }.getOrNull()
+    }
+
+    private fun rotateByExif(bytes: ByteArray, bitmap: Bitmap): Bitmap {
+        val orientation = runCatching {
+            ExifInterface(bytes.inputStream()).getAttributeInt(
+                ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_NORMAL,
+            )
+        }.getOrDefault(ExifInterface.ORIENTATION_NORMAL)
+
+        val degrees = when (orientation) {
+            ExifInterface.ORIENTATION_ROTATE_90 -> 90f
+            ExifInterface.ORIENTATION_ROTATE_180 -> 180f
+            ExifInterface.ORIENTATION_ROTATE_270 -> 270f
+            else -> return bitmap
+        }
+        val matrix = Matrix()
+        matrix.postRotate(degrees)
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
     }
 
     private fun uploadImage(
