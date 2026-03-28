@@ -9,7 +9,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ServerHostConfig
 
 public class ImageUploadDatabase private constructor(context: Context) :
-    SQLiteOpenHelper(context, "image_upload_queue.db", null, 1) {
+    SQLiteOpenHelper(context, "image_upload_queue.db", null, 2) {
 
     private val dao: ImageUploadDao by lazy { ImageUploadDaoImpl(this) }
 
