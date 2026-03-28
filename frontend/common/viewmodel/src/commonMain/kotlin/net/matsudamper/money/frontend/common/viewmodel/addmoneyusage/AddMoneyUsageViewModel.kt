@@ -23,6 +23,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.platform.ImagePicker
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
+import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreenUiState
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.ImageItem
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
@@ -39,6 +40,8 @@ public class AddMoneyUsageViewModel(
 ) : CommonViewModel(scopedObjectFeature) {
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
+
+    private val snackbarEventState = SnackbarEventState()
 
     private val categorySelectDialogViewModel = object {
         private val event: CategorySelectDialogViewModel.Event = object : CategorySelectDialogViewModel.Event {
@@ -286,17 +289,28 @@ public class AddMoneyUsageViewModel(
                     .takeIf { it.isNotEmpty() },
             )
 
-            // TODO Toast
-            if (result?.data?.userMutation?.addUsage == null) {
-                // TODO
-            } else {
-                // TODO
-            }
-
-            viewModelStateFlow.update {
-                ViewModelState(
-                    usageDate = it.usageDate,
+            val addedUsage = result?.data?.userMutation?.addUsage
+            if (addedUsage == null) {
+                snackbarEventState.show(
+                    SnackbarEventState.Event(
+                        message = "追加に失敗しました",
+                        withDismissAction = true,
+                    ),
                 )
+            } else {
+                viewModelStateFlow.update {
+                    ViewModelState(usageDate = it.usageDate)
+                }
+                val snackbarResult = snackbarEventState.show(
+                    SnackbarEventState.Event(
+                        message = "追加しました",
+                        actionLabel = "表示",
+                        withDismissAction = true,
+                    ),
+                )
+                if (snackbarResult == SnackbarEventState.Result.Action) {
+                    eventSender.send { it.navigate(ScreenStructure.MoneyUsage(addedUsage.id)) }
+                }
             }
         }
     }
@@ -422,6 +436,7 @@ public class AddMoneyUsageViewModel(
             numberInputDialog = null,
             category = "",
             event = uiEvent,
+            snackbarEventState = snackbarEventState,
         ),
     ).also { uiStateFlow ->
         viewModelScope.launch {
