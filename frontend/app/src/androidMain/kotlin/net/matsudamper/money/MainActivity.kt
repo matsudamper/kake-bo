@@ -41,11 +41,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-        }
         val globalEventSender = EventSender<GlobalEvent>()
-        val platformTools = PlatFormToolsImpl(this)
+        val platformTools = PlatFormToolsImpl(this) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
         val initialStructure = getScreenStructure(intent) ?: ScreenStructure.Splash
         setContent {
             MoneyCompositionLocalProvider(

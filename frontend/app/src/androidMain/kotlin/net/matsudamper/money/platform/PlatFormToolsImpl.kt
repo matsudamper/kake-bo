@@ -9,10 +9,11 @@ import net.matsudamper.money.frontend.common.base.platform.UrlOpener
 
 internal class PlatFormToolsImpl(
     componentActivity: ComponentActivity,
+    requestNotificationPermission: () -> Unit,
 ) : PlatformTools {
     override val urlOpener: UrlOpener = UrlOpenerImpl(componentActivity)
     override val clipboardManager: ClipboardManager = ClipboardManagerImpl(componentActivity)
-    override val applicationNotificationManager: ApplicationNotificationManager = ApplicationNotificationManagerImpl(componentActivity)
+    override val applicationNotificationManager: ApplicationNotificationManager = ApplicationNotificationManagerImpl(componentActivity, requestNotificationPermission)
     override val backPressDispatcher: BackPressDispatcher = BackPressDispatcherImpl(componentActivity)
     override val imagePicker = ImagePickerImpl(componentActivity)
 }
