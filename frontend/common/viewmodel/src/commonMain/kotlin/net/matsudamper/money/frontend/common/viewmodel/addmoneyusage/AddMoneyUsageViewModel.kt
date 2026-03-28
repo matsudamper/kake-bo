@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.viewmodel.addmoneyusage
 
 import kotlin.time.Clock
+import androidx.compose.material3.SnackbarDuration
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -294,7 +295,6 @@ public class AddMoneyUsageViewModel(
                 snackbarEventState.show(
                     SnackbarEventState.Event(
                         message = "追加に失敗しました",
-                        withDismissAction = true,
                     ),
                 )
             } else {
@@ -305,7 +305,7 @@ public class AddMoneyUsageViewModel(
                     SnackbarEventState.Event(
                         message = "追加しました",
                         actionLabel = "表示",
-                        withDismissAction = true,
+                        duration = SnackbarDuration.Long,
                     ),
                 )
                 if (snackbarResult == SnackbarEventState.Result.Action) {
