@@ -181,11 +181,15 @@ internal class ImageUploadWorker(
         return runCatching {
             val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
             val rotatedBitmap = rotateByExif(bytes, bitmap)
-            val stream = ByteArrayOutputStream()
-            rotatedBitmap.compress(Bitmap.CompressFormat.WEBP_LOSSLESS, 100, stream)
-            if (rotatedBitmap !== bitmap) rotatedBitmap.recycle()
-            bitmap.recycle()
-            stream.toByteArray()
+            try {
+                val stream = ByteArrayOutputStream()
+                val success = rotatedBitmap.compress(Bitmap.CompressFormat.WEBP_LOSSLESS, 100, stream)
+                if (!success) return null
+                stream.toByteArray()
+            } finally {
+                if (rotatedBitmap !== bitmap) rotatedBitmap.recycle()
+                bitmap.recycle()
+            }
         }.getOrNull()
     }
 
