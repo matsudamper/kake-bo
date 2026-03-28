@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.common.ui.layout
 
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.Stable
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 
@@ -10,11 +11,11 @@ public class SnackbarEventState {
     private val state: Channel<suspend (Bridge) -> Unit> = Channel(Channel.UNLIMITED)
 
     public suspend fun show(event: Event): Result {
-        var result: Result = Result.Dismiss
+        val deferred = CompletableDeferred<Result>()
         state.send {
-            result = it.call(event)
+            deferred.complete(it.call(event))
         }
-        return result
+        return deferred.await()
     }
 
     public suspend fun collect(block: suspend (Event) -> Result) {
