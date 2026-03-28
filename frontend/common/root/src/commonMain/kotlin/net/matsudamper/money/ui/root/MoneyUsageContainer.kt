@@ -29,6 +29,7 @@ internal fun MoneyUsageContainer(
                 graphqlClient = koin.get(),
                 imageUploadClient = koin.get(),
             ),
+            imageUploadQueue = koin.get(),
             graphqlClient = koin.get(),
         )
     }

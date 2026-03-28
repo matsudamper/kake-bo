@@ -16,6 +16,7 @@ kotlin {
             dependencies {
                 implementation(projects.frontend.common.base)
                 api(projects.frontend.common.feature.webauth)
+                api(projects.frontend.common.feature.uploader)
                 implementation(projects.frontend.common.navigation)
                 implementation(projects.frontend.common.ui)
                 implementation(projects.frontend.common.graphql)

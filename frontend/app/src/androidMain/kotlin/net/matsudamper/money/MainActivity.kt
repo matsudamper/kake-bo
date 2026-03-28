@@ -1,12 +1,15 @@
 package net.matsudamper.money
 
+import android.Manifest
 import android.app.ComponentCaller
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -31,9 +34,16 @@ import org.koin.core.context.GlobalContext
 
 class MainActivity : ComponentActivity() {
     private val navControllerFlow: MutableStateFlow<ScreenNavController?> = MutableStateFlow(null)
+
+    private val requestNotificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
+
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
         val globalEventSender = EventSender<GlobalEvent>()
         val platformTools = PlatFormToolsImpl(this)
         val initialStructure = getScreenStructure(intent) ?: ScreenStructure.Splash
