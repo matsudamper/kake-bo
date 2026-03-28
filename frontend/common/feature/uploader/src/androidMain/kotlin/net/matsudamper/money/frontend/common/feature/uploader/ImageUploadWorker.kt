@@ -71,8 +71,9 @@ internal class ImageUploadWorker(
             runCatching { rawImageBytesFile(applicationContext, recordId).readBytes() }.getOrNull()
         }
         if (rawImageBytes == null) {
-            dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "画像ファイルが見つかりません")
-            return Result.failure()
+            // キャッシュがクリアされてファイルが消えた場合はDBレコードも削除してクリーンアップ
+            dao.deleteById(recordId)
+            return Result.success()
         }
 
         val webpBytes = withContext(Dispatchers.Default) {
