@@ -10,11 +10,10 @@ import io.opentelemetry.sdk.trace.export.SpanExporter
 // 紐づかない孤立したルートスパンになる。エクスポーター段階でフィルタして除外する。
 internal class FilteringSpanExporter(private val delegate: SpanExporter) : SpanExporter {
     override fun export(spans: Collection<SpanData>): CompletableResultCode {
-
-        val isRedis = spans.any { it.attributes.get(AttributeKey.stringKey("db.system")) == "redis" }
+        val isRedis = spans.any { it.attributes.get(AttributeKey.stringKey("db.system.name")) == "redis" }
         if (isRedis.not()) return delegate.export(spans)
 
-        val filtered = spans.filter { it.attributes.get(AttributeKey.stringKey("db.operation")) !in EXCLUDED_SPAN_NAMES }
+        val filtered = spans.filter { it.attributes.get(AttributeKey.stringKey("db.operation.name")) !in EXCLUDED_SPAN_NAMES }
         return if (filtered.isEmpty()) {
             CompletableResultCode.ofSuccess()
         } else {
