@@ -280,7 +280,7 @@ public class RootHomeMonthlyScreenViewModel(
         return viewModelStateFlow.mapLatest { viewModelState ->
             MonthlyScreenListQuery(
                 cursor = Optional.present(null),
-                size = 5,
+                size = 20,
                 sinceDateTime = Optional.present(createSinceLocalDateTime()),
                 untilDateTime = Optional.present(
                     LocalDateTime(
