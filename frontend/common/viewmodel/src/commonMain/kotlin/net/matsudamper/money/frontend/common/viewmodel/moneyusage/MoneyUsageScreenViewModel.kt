@@ -415,6 +415,7 @@ public class MoneyUsageScreenViewModel(
                     val images = eventSender.send { it.selectImages() }
                     if (images.isEmpty()) return@launch
 
+                    eventSender.send { it.requestNotificationPermission() }
                     images.forEach { image ->
                         val rawBytes = image.previewBytes ?: return@forEach
                         imageUploadQueue.enqueue(
@@ -589,7 +590,10 @@ public class MoneyUsageScreenViewModel(
         public fun openUrl(text: String)
 
         public fun copyUrl(text: String)
+
         public fun showToast(text: String)
+
+        public suspend fun requestNotificationPermission()
     }
 
     private data class ViewModelState(

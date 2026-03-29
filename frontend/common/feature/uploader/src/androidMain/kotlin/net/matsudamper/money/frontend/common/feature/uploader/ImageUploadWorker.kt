@@ -68,7 +68,7 @@ internal class ImageUploadWorker(
 
         try {
             setForeground(createForegroundInfo())
-        } catch (_: Exception) {
+        } catch (_: SecurityException) {
             // 通知権限がない場合はForegroundServiceなしで継続
         }
 

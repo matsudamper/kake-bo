@@ -291,6 +291,10 @@ internal data class ViewModelEventHandlers(
                     override fun openUrl(text: String) {
                         platformToolsProvider().urlOpener.open(text)
                     }
+
+                    override suspend fun requestNotificationPermission() {
+                        platformToolsProvider().applicationNotificationManager.requestNotificationPermission()
+                    }
                 },
             )
         }
