@@ -163,7 +163,7 @@ public fun RootHomeTabPeriodScaffold(
                     Column(
                         modifier = Modifier
                             .verticalScroll(scrollState)
-                            .padding(horizontal = 24.dp),
+                            .padding(horizontal = 8.dp),
                     ) {
                         Spacer(modifier = Modifier.height(12.dp))
                         RootHomePeriodSection(
