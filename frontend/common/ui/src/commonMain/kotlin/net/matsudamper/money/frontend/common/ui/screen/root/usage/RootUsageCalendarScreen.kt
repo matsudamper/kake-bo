@@ -38,11 +38,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList
@@ -215,6 +217,7 @@ private fun CalendarCell(
     modifier: Modifier = Modifier,
     uiState: RootUsageCalendarScreenUiState.CalendarCell.Day,
 ) {
+    val horizontalPadding = 1.dp
     Column(
         modifier = modifier
             .clickable { uiState.event.onClick() }
@@ -222,7 +225,8 @@ private fun CalendarCell(
     ) {
         Text(
             modifier = Modifier
-                .padding(2.dp)
+                .padding(vertical = 2.dp)
+                .padding(horizontal = horizontalPadding)
                 .clip(MaterialTheme.shapes.small)
                 .background(
                     if (uiState.isToday) {
@@ -243,14 +247,14 @@ private fun CalendarCell(
         HorizontalDivider(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 2.dp)
+                .padding(horizontal = horizontalPadding)
                 .height(1.dp),
         )
         uiState.items.forEach { item ->
             Spacer(Modifier.height(2.dp))
             val textColor = contrastTextColor(item.color)
             Card(
-                modifier = Modifier.padding(horizontal = 2.dp),
+                modifier = Modifier.padding(horizontal = horizontalPadding),
                 colors = CardDefaults.cardColors(
                     containerColor = item.color,
                 ),
@@ -264,7 +268,10 @@ private fun CalendarCell(
                     overflow = TextOverflow.Ellipsis,
                     color = textColor,
                     text = item.title,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        fontSize = 10.sp,
+                        fontWeight = FontWeight.ExtraBold,
+                    ),
                 )
             }
         }
