@@ -9,7 +9,7 @@ public object OpenTelemetryInitializer {
 
     public fun initialize(): OpenTelemetry {
         // 新仕様で出力する
-        System.setProperty("otel.semconv-stability.opt-in", "database")
+//        System.setProperty("otel.semconv-stability.opt-in", "database")
 
         val openTelemetry = AutoConfiguredOpenTelemetrySdk.builder()
             .addPropertiesSupplier {

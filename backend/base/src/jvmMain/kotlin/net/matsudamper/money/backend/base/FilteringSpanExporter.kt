@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.base
 
+import io.opentelemetry.api.common.AttributeKey
 import io.opentelemetry.sdk.common.CompletableResultCode
 import io.opentelemetry.sdk.trace.data.SpanData
 import io.opentelemetry.sdk.trace.export.SpanExporter
@@ -9,7 +10,11 @@ import io.opentelemetry.sdk.trace.export.SpanExporter
 // 紐づかない孤立したルートスパンになる。エクスポーター段階でフィルタして除外する。
 internal class FilteringSpanExporter(private val delegate: SpanExporter) : SpanExporter {
     override fun export(spans: Collection<SpanData>): CompletableResultCode {
-        val filtered = spans.filter { it.name !in EXCLUDED_SPAN_NAMES }
+
+        val isRedis = spans.any { it.attributes.get(AttributeKey.stringKey("db.system")) == "redis" }
+        if (isRedis.not()) return delegate.export(spans)
+
+        val filtered = spans.filter { it.attributes.get(AttributeKey.stringKey("db.operation")) !in EXCLUDED_SPAN_NAMES }
         return if (filtered.isEmpty()) {
             CompletableResultCode.ofSuccess()
         } else {
@@ -21,7 +26,7 @@ internal class FilteringSpanExporter(private val delegate: SpanExporter) : SpanE
 
     override fun shutdown(): CompletableResultCode = delegate.shutdown()
 
-    private companion object {
-        val EXCLUDED_SPAN_NAMES = setOf("CLIENT", "HELLO", "SELECT", "SETNAME")
+    companion object {
+        private val EXCLUDED_SPAN_NAMES = setOf("CLIENT", "HELLO", "SELECT", "SETNAME")
     }
 }
