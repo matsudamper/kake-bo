@@ -8,6 +8,6 @@ internal class ApplicationNotificationManagerImpl : ApplicationNotificationManag
         window.alert(message)
     }
 
-    override fun requestNotificationPermission() {
+    override suspend fun requestNotificationPermission() {
     }
 }

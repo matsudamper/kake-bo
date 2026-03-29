@@ -35,16 +35,24 @@ import org.koin.core.context.GlobalContext
 class MainActivity : ComponentActivity() {
     private val navControllerFlow: MutableStateFlow<ScreenNavController?> = MutableStateFlow(null)
 
+    private var notificationPermissionCallback: ((Boolean) -> Unit)? = null
+
     private val requestNotificationPermissionLauncher =
-        registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            notificationPermissionCallback?.invoke(granted)
+            notificationPermissionCallback = null
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         val globalEventSender = EventSender<GlobalEvent>()
-        val platformTools = PlatFormToolsImpl(this) {
+        val platformTools = PlatFormToolsImpl(this) { callback ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                notificationPermissionCallback = callback
                 requestNotificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            } else {
+                callback(true)
             }
         }
         val initialStructure = getScreenStructure(intent) ?: ScreenStructure.Splash

@@ -593,7 +593,7 @@ public class MoneyUsageScreenViewModel(
 
         public fun showToast(text: String)
 
-        public fun requestNotificationPermission()
+        public suspend fun requestNotificationPermission()
     }
 
     private data class ViewModelState(

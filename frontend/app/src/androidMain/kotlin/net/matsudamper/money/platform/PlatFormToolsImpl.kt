@@ -9,7 +9,7 @@ import net.matsudamper.money.frontend.common.base.platform.UrlOpener
 
 internal class PlatFormToolsImpl(
     componentActivity: ComponentActivity,
-    requestNotificationPermission: () -> Unit,
+    requestNotificationPermission: (callback: (Boolean) -> Unit) -> Unit,
 ) : PlatformTools {
     override val urlOpener: UrlOpener = UrlOpenerImpl(componentActivity)
     override val clipboardManager: ClipboardManager = ClipboardManagerImpl(componentActivity)

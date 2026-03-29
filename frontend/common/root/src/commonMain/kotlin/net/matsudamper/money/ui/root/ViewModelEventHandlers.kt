@@ -292,7 +292,7 @@ internal data class ViewModelEventHandlers(
                         platformToolsProvider().urlOpener.open(text)
                     }
 
-                    override fun requestNotificationPermission() {
+                    override suspend fun requestNotificationPermission() {
                         platformToolsProvider().applicationNotificationManager.requestNotificationPermission()
                     }
                 },
