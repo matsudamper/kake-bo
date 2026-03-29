@@ -22,12 +22,8 @@ public object OpenTelemetryInitializer {
 
         sdk = openTelemetry
 
-        Runtime.getRuntime().addShutdownHook(
-            Thread {
-                runtimeTelemetry.close()
-                openTelemetry.close()
-            },
-        )
+        Runtime.getRuntime().addShutdownHook(Thread { runtimeTelemetry.close() })
+        Runtime.getRuntime().addShutdownHook(Thread { openTelemetry.close() })
 
         return openTelemetry
     }
