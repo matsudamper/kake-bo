@@ -26,6 +26,7 @@ kotlin {
                 implementation(libs.hikariCP)
 
                 implementation(libs.opentelemetryJdbc)
+                implementation(libs.opentelemetryHikariCp3)
             }
         }
         val jvmTest by getting {
