@@ -207,9 +207,9 @@ public fun CalendarDateListScreen(
 
 @Composable
 private fun LoadedContent(
-    modifier: Modifier,
     uiState: CalendarDateListScreenUiState.LoadingState.Loaded,
     paddingValues: PaddingValues,
+    modifier: Modifier = Modifier,
 ) {
     val lazyListState = rememberLazyListState()
     LazyColumn(
