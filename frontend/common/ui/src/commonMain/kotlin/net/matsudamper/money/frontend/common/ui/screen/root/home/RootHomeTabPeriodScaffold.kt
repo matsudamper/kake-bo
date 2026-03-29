@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList
+import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
@@ -163,7 +164,7 @@ public fun RootHomeTabPeriodScaffold(
                     Column(
                         modifier = Modifier
                             .verticalScroll(scrollState)
-                            .padding(horizontal = 8.dp),
+                            .padding(horizontal = if (LocalIsLargeScreen.current) 24.dp else 8.dp),
                     ) {
                         Spacer(modifier = Modifier.height(12.dp))
                         RootHomePeriodSection(
