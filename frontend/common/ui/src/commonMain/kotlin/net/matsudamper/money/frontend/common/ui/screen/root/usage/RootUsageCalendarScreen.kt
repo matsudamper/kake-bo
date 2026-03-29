@@ -274,7 +274,7 @@ private fun CalendarCell(
                     } else {
                         MaterialTheme.typography.bodySmall.copy(
                             fontSize = 10.sp,
-                            fontWeight = FontWeight.ExtraBold,
+                            fontWeight = FontWeight.Bold,
                         )
                     },
                 )
