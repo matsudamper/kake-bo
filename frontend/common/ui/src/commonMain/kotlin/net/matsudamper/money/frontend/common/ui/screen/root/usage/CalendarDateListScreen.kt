@@ -218,80 +218,12 @@ private fun LoadedContent(
         contentPadding = paddingValues,
     ) {
         items(uiState.items) { item ->
-            var selectedImageUrl by remember { mutableStateOf<String?>(null) }
-            val currentSelectedImageUrl = selectedImageUrl
-            if (currentSelectedImageUrl != null) {
-                ZoomableImageDialog(
-                    imageUrl = currentSelectedImageUrl,
-                    onDismissRequest = { selectedImageUrl = null },
-                )
-            }
-            Card(
+            ItemCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp, vertical = 6.dp),
-                onClick = item.event::onClick,
-            ) {
-                GridColumn(
-                    modifier = Modifier.fillMaxWidth()
-                        .padding(12.dp),
-                    horizontalPadding = 8.dp,
-                    verticalPadding = 4.dp,
-                ) {
-                    row {
-                        item {
-                            Text("タイトル")
-                        }
-                        item {
-                            Text(text = item.title)
-                        }
-                    }
-                    row {
-                        item {
-                            Text("日付")
-                        }
-                        item {
-                            Text(text = item.date)
-                        }
-                    }
-                    row {
-                        item {
-                            Text("金額")
-                        }
-                        item {
-                            Text(text = item.amount)
-                        }
-                    }
-                    row {
-                        item {
-                            Text("カテゴリ")
-                        }
-                        item {
-                            Text(text = item.category.orEmpty())
-                        }
-                    }
-                }
-                if (item.images.isNotEmpty()) {
-                    LazyRow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp)
-                            .padding(bottom = 12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        items(item.images) { imageItem ->
-                            AsyncImage(
-                                model = imageItem.url,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .size(100.dp)
-                                    .clickable { selectedImageUrl = imageItem.url },
-                            )
-                        }
-                    }
-                }
-            }
+                item = item,
+            )
         }
         if (uiState.loadToEnd.not()) {
             item {
@@ -320,6 +252,85 @@ private fun LoadedContent(
         }
         item {
             Spacer(modifier = Modifier.height(12.dp))
+        }
+    }
+}
+
+@Composable
+private fun ItemCard(
+    item: CalendarDateListScreenUiState.Item,
+    modifier: Modifier = Modifier,
+) {
+    var selectedImageUrl by remember { mutableStateOf<String?>(null) }
+    val currentSelectedImageUrl = selectedImageUrl
+    if (currentSelectedImageUrl != null) {
+        ZoomableImageDialog(
+            imageUrl = currentSelectedImageUrl,
+            onDismissRequest = { selectedImageUrl = null },
+        )
+    }
+    Card(
+        modifier = modifier,
+        onClick = item.event::onClick,
+    ) {
+        GridColumn(
+            modifier = Modifier.fillMaxWidth()
+                .padding(12.dp),
+            horizontalPadding = 8.dp,
+            verticalPadding = 4.dp,
+        ) {
+            row {
+                item {
+                    Text("タイトル")
+                }
+                item {
+                    Text(text = item.title)
+                }
+            }
+            row {
+                item {
+                    Text("日付")
+                }
+                item {
+                    Text(text = item.date)
+                }
+            }
+            row {
+                item {
+                    Text("金額")
+                }
+                item {
+                    Text(text = item.amount)
+                }
+            }
+            row {
+                item {
+                    Text("カテゴリ")
+                }
+                item {
+                    Text(text = item.category.orEmpty())
+                }
+            }
+        }
+        if (item.images.isNotEmpty()) {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+                    .padding(bottom = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(item.images) { imageItem ->
+                    AsyncImage(
+                        model = imageItem.url,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clickable { selectedImageUrl = imageItem.url },
+                    )
+                }
+            }
         }
     }
 }

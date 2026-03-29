@@ -430,7 +430,7 @@ private fun LoadedContent(
             }
             item {
                 Text(
-                    modifier = Modifier.padding(vertical = 12.dp),
+                    modifier = Modifier.padding(12.dp),
                     text = "連携されたメール",
                     style = MaterialTheme.typography.titleLarge,
                 )
@@ -440,7 +440,7 @@ private fun LoadedContent(
                 items(uiState.linkedMails) { mail ->
                     Card(
                         modifier = Modifier.fillMaxWidth()
-                            .padding(8.dp),
+                            .padding(vertical = 8.dp),
                         onClick = { mail.event.onClick() },
                     ) {
                         MailContent(
