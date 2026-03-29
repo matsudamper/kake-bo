@@ -126,7 +126,7 @@ public class MoneyUsageScreenViewModel(
                                         text = moneyUsage.description,
                                         event = ClickableEventImpl(moneyUsage.description),
                                     ),
-                                    dateTime = Formatter.formatDateTime(moneyUsage.date),
+                                    date = Formatter.formatDate(moneyUsage.date),
                                     time = Formatter.formatTime(moneyUsage.date.time),
                                     category = run category@{
                                         val subCategory = moneyUsage.moneyUsageSubCategory ?: return@category "未指定"

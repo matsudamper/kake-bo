@@ -141,7 +141,7 @@ public data class MoneyUsageScreenUiState(
         val description: Clickable,
         val amount: String,
         val category: String,
-        val dateTime: String,
+        val date: String,
         val time: String,
         val images: ImmutableList<ImageItem>,
         val uploadQueueItems: ImmutableList<UploadQueueItem>,
@@ -569,7 +569,7 @@ private fun MoneyUsage(
             },
             content = {
                 Text(
-                    text = uiState.dateTime,
+                    text = uiState.date,
                 )
             },
             onClickChange = {
