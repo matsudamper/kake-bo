@@ -4,6 +4,7 @@ import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryReposit
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JMoneyUsageCategories
 import net.matsudamper.money.db.schema.tables.JMoneyUsageSubCategories
+import net.matsudamper.money.db.schema.tables.records.JMoneyUsageSubCategoriesRecord
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.UserId
@@ -42,17 +43,21 @@ class DbMoneyUsageSubCategoryRepository : MoneyUsageSubCategoryRepository {
             DbConnectionImpl.use { connection ->
                 val record = DSL.using(connection)
                     .insertInto(subCategories)
-                    .set(subCategories.USER_ID, userId.value)
-                    .set(subCategories.NAME, name)
-                    .set(subCategories.MONEY_USAGE_CATEGORY_ID, categoryId.value)
+                    .set(
+                        JMoneyUsageSubCategoriesRecord(
+                            userId = userId.value,
+                            moneyUsageCategoryId = categoryId.value,
+                            name = name,
+                        ),
+                    )
                     .returning()
                     .fetchOne()!!
 
                 MoneyUsageSubCategoryRepository.SubCategoryResult(
-                    userId = UserId(record.get(subCategories.USER_ID)!!),
-                    moneyUsageCategoryId = MoneyUsageCategoryId(record.get(subCategories.MONEY_USAGE_CATEGORY_ID)!!),
-                    moneyUsageSubCategoryId = MoneyUsageSubCategoryId(record.get(subCategories.MONEY_USAGE_SUB_CATEGORY_ID)!!),
-                    name = record.get(subCategories.NAME)!!,
+                    userId = UserId(record.userId!!),
+                    moneyUsageCategoryId = MoneyUsageCategoryId(record.moneyUsageCategoryId!!),
+                    moneyUsageSubCategoryId = MoneyUsageSubCategoryId(record.moneyUsageSubCategoryId!!),
+                    name = record.name!!,
                 )
             }
         }

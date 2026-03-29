@@ -1,0 +1,15 @@
+{
+  "resources": {
+    "includes": [
+      {"pattern": "graphql/.*\\.graphqls"},
+      {"pattern": "graphql/schema-list\\.txt"},
+      {"pattern": "logback\\.xml"},
+      {"pattern": "META-INF/services/.*"},
+      {"pattern": "META-INF/native-image/.*"},
+      {"pattern": "META-INF/io\\.netty\\.versions\\.properties"},
+      {"pattern": "org/mariadb/jdbc/.*"},
+      {"pattern": "META-INF/MANIFEST\\.MF"}
+    ]
+  },
+  "bundles": []
+}

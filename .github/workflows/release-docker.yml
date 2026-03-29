@@ -38,7 +38,7 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: backend-distribution
-          path: backend/build/distributions/backend-jvm.tar
+          path: backend/build/distributions/backend.tar
 
       - name: Upload frontend artifacts
         uses: actions/upload-artifact@v7
@@ -116,12 +116,12 @@ jobs:
           if gh release view ${{ github.ref_name }} 2>&1 >/dev/null; then
             echo "Release already exists"
             gh release upload ${{ github.ref_name }} \
-              backend-jvm.tar \
+              backend.tar \
               frontend-dist.zip
           else
             echo "Creating release"
             gh release create ${{ github.ref_name }} \
               --title ${{ github.ref_name }} \
-              backend-jvm.tar \
+              backend.tar \
               frontend-dist.zip
           fi

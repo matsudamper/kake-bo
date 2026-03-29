@@ -80,7 +80,9 @@ class GraphqlHandler(
             )
             .build()
 
-        return ObjectMapper.jackson.writeValueAsString(responseResult)
+        // GraalVM native imageではExecutionResultのgetterが解決できず
+        // Jacksonが空の`{}`を返すことがあるため、Mapに変換してからシリアライズする。
+        return ObjectMapper.jackson.writeValueAsString(responseResult.toSpecification())
     }
 
     private fun handleError(errors: MutableList<GraphQLError>): List<GraphqlMoneyException> {
