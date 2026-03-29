@@ -1,6 +1,8 @@
 import com.kobylynskyi.graphql.codegen.model.GeneratedLanguage
 import io.github.kobylynskyi.graphql.codegen.gradle.GraphQLCodegenGradleTask
 import io.github.kobylynskyi.graphql.codegen.gradle.NullableInputTypeWrapperConfig
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -9,12 +11,41 @@ plugins {
 }
 
 val generatedPath: String = layout.buildDirectory.dir("generated/codegen").get().asFile.path
+val generatedResourcesPath: String = layout.buildDirectory.dir("generated/resources").get().asFile.path
+
+abstract class GenerateSchemaListTask : DefaultTask() {
+    @get:InputDirectory
+    abstract val schemaDir: DirectoryProperty
+
+    @get:OutputFile
+    abstract val outputFile: RegularFileProperty
+
+    @TaskAction
+    fun generate() {
+        val dir = schemaDir.get().asFile
+        val out = outputFile.get().asFile
+        out.parentFile.mkdirs()
+        val fileNames = dir.listFiles()
+            ?.filter { it.extension == "graphqls" }
+            ?.map { it.name }
+            ?.sorted()
+            .orEmpty()
+        out.writeText(fileNames.joinToString("\n"))
+    }
+}
+
+val generateSchemaList = tasks.register<GenerateSchemaListTask>("generateSchemaList") {
+    schemaDir.set(layout.projectDirectory.dir("src/commonMain/resources/graphql"))
+    outputFile.set(layout.buildDirectory.file("generated/resources/graphql/schema-list.txt"))
+}
+
 kotlin {
     jvm()
     sourceSets {
         jvmToolchain(libs.versions.javaToolchain.get().toInt())
         val jvmMain by getting {
             kotlin.srcDir(generatedPath)
+            resources.srcDir(generatedResourcesPath)
             dependencies {
                 implementation(projects.backend.base)
                 implementation(projects.shared)
@@ -85,4 +116,9 @@ val graphqlCodegen = tasks.named<GraphQLCodegenGradleTask>("graphqlCodegen") {
 
 tasks.withType<KotlinCompile> {
     dependsOn(graphqlCodegen)
+    dependsOn(generateSchemaList)
+}
+
+tasks.named("jvmProcessResources") {
+    dependsOn(generateSchemaList)
 }
