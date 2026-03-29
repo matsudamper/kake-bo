@@ -50,6 +50,7 @@ import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.AppRoot
+import net.matsudamper.money.frontend.common.ui.LocalIsLargeScreen
 import net.matsudamper.money.frontend.common.ui.StickyHeaderState
 import net.matsudamper.money.frontend.common.ui.stickyHeaderScrollable
 
@@ -217,7 +218,7 @@ private fun CalendarCell(
     modifier: Modifier = Modifier,
     uiState: RootUsageCalendarScreenUiState.CalendarCell.Day,
 ) {
-    val horizontalPadding = 1.dp
+    val horizontalPadding = if (LocalIsLargeScreen.current) 2.dp else 1.dp
     Column(
         modifier = modifier
             .clickable { uiState.event.onClick() }
@@ -268,10 +269,14 @@ private fun CalendarCell(
                     overflow = TextOverflow.Ellipsis,
                     color = textColor,
                     text = item.title,
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.ExtraBold,
-                    ),
+                    style = if (LocalIsLargeScreen.current) {
+                        MaterialTheme.typography.bodyMedium
+                    } else {
+                        MaterialTheme.typography.bodySmall.copy(
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                        )
+                    },
                 )
             }
         }
@@ -292,11 +297,13 @@ private fun Preview() {
     val noOpCalendarDayEvent = object : RootUsageCalendarScreenUiState.CalendarDayEvent {
         override fun onClick() {}
     }
+
     fun dayItem(title: String, color: Color) = RootUsageCalendarScreenUiState.CalendarDayItem(
         title = title,
         color = color,
         event = noOpCalendarDayEvent,
     )
+
     val dayOfWeeks = listOf(
         kotlinx.datetime.DayOfWeek.SUNDAY to "日",
         kotlinx.datetime.DayOfWeek.MONDAY to "月",
