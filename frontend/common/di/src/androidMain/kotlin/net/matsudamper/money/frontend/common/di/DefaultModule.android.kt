@@ -18,6 +18,8 @@ import net.matsudamper.money.frontend.common.base.AppSettingsRepositoryAndroidIm
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.feature.localstore.DataStores
+import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadDatabase
+import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadQueue
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModelAndroidImpl
 import net.matsudamper.money.frontend.graphql.BuildConfig
@@ -116,5 +118,9 @@ internal actual val factory: Factory = object : Factory() {
 
     override fun createAppSettingsRepository(scope: Scope): AppSettingsRepository {
         return AppSettingsRepositoryAndroidImpl(context = scope.get())
+    }
+
+    override fun createImageUploadQueue(scope: Scope): ImageUploadQueue {
+        return scope.get<ImageUploadDatabase>().createQueue(context = scope.get())
     }
 }

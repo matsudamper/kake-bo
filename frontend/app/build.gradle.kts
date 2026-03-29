@@ -39,6 +39,8 @@ kotlin {
         val androidMain by getting {
             dependencies {
                 implementation(projects.frontend.common.navigation)
+                implementation(projects.frontend.common.feature.uploader)
+                implementation(libs.workRuntimeKtx)
 
                 implementation(kotlin("stdlib"))
                 implementation(libs.kotlin.serialization.json)
