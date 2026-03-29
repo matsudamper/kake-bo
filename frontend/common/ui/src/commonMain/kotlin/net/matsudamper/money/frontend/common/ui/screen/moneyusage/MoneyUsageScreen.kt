@@ -419,7 +419,7 @@ private fun LoadedContent(
 
                 Card(
                     modifier = Modifier
-                        .padding(12.dp),
+                        .padding(vertical = 12.dp),
                 ) {
                     MoneyUsage(
                         modifier = Modifier.fillMaxWidth()
@@ -430,7 +430,7 @@ private fun LoadedContent(
             }
             item {
                 Text(
-                    modifier = Modifier.padding(12.dp),
+                    modifier = Modifier.padding(vertical = 12.dp),
                     text = "連携されたメール",
                     style = MaterialTheme.typography.titleLarge,
                 )
