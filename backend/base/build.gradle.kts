@@ -22,6 +22,7 @@ kotlin {
                 implementation(libs.opentelemetrySdk)
                 implementation(libs.opentelemetryExporterOtlp)
                 implementation(libs.opentelemetrySdkAutoconfigure)
+                implementation(libs.opentelemetryRuntimeTelemetry)
             }
         }
         val jvmTest by getting {

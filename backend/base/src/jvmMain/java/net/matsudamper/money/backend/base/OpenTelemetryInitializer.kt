@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend.base
 
 import io.opentelemetry.api.OpenTelemetry
+import io.opentelemetry.instrumentation.runtimetelemetry.RuntimeTelemetry
 import io.opentelemetry.sdk.autoconfigure.AutoConfiguredOpenTelemetrySdk
 
 public object OpenTelemetryInitializer {
@@ -17,9 +18,16 @@ public object OpenTelemetryInitializer {
             .build()
             .openTelemetrySdk
 
+        val runtimeTelemetry = RuntimeTelemetry.create(openTelemetry)
+
         sdk = openTelemetry
 
-        Runtime.getRuntime().addShutdownHook(Thread { openTelemetry.close() })
+        Runtime.getRuntime().addShutdownHook(
+            Thread {
+                runtimeTelemetry.close()
+                openTelemetry.close()
+            },
+        )
 
         return openTelemetry
     }
