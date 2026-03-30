@@ -49,6 +49,7 @@ import androidx.compose.ui.window.Dialog
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
@@ -359,14 +360,20 @@ public fun AddMoneyUsageScreen(
                                                 }
                                             }
                                             is ImageItem.Uploaded -> {
-                                                AsyncImage(
+                                                SubcomposeAsyncImage(
                                                     model = image.url,
                                                     contentDescription = null,
                                                     contentScale = ContentScale.Crop,
                                                     modifier = Modifier
                                                         .size(120.dp)
-                                                        .clickable { selectedImageUrl = image.url }
-                                                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                                                        .clickable { selectedImageUrl = image.url },
+                                                    loading = {
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .fillMaxSize()
+                                                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                                                        )
+                                                    },
                                                 )
                                             }
                                         }

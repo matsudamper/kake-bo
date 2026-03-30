@@ -60,6 +60,7 @@ import androidx.compose.ui.window.PopupProperties
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
@@ -651,7 +652,7 @@ private fun MoneyUsage(
                                 var showDeleteDialog by remember { mutableStateOf(false) }
                                 var showPopupMenu by remember { mutableStateOf(false) }
                                 Box(modifier = Modifier.size(180.dp)) {
-                                    AsyncImage(
+                                    SubcomposeAsyncImage(
                                         model = imageItem.url,
                                         contentDescription = null,
                                         contentScale = ContentScale.Crop,
@@ -678,6 +679,13 @@ private fun MoneyUsage(
                                                     }
                                                 }
                                             },
+                                        loading = {
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                                            )
+                                        },
                                     )
                                     DropdownMenu(
                                         expanded = showPopupMenu,

@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.home.monthly
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -38,7 +39,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
@@ -252,11 +253,18 @@ private fun LoadedContent(
                                     horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
                                 ) {
                                     items(item.imageUrls) { url ->
-                                        AsyncImage(
+                                        SubcomposeAsyncImage(
                                             model = url,
                                             contentDescription = null,
                                             contentScale = ContentScale.Crop,
                                             modifier = Modifier.size(80.dp),
+                                            loading = {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .fillMaxSize()
+                                                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                                                )
+                                            },
                                         )
                                     }
                                 }
