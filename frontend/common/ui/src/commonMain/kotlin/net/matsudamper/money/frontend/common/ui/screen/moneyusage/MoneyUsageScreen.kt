@@ -39,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -799,8 +800,22 @@ private fun MoneyUsageSection(
 ) {
     Column(modifier = modifier) {
         ProvideTextStyle(MaterialTheme.typography.titleMedium) {
-            Box(modifier = Modifier.padding(8.dp)) {
-                title()
+            Row(
+                modifier = Modifier.padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(modifier = Modifier.weight(1f)) {
+                    title()
+                }
+                if (showChangeButton) {
+                    TextButton(
+                        onClick = {
+                            onClickChange()
+                        },
+                    ) {
+                        Text("変更")
+                    }
+                }
             }
         }
         HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
@@ -819,23 +834,6 @@ private fun MoneyUsageSection(
             ) {
                 ProvideTextStyle(MaterialTheme.typography.bodyMedium) {
                     content()
-                }
-            }
-
-            if (showChangeButton) {
-                OutlinedButton(
-                    modifier = Modifier.align(
-                        if (multiline) {
-                            Alignment.Bottom
-                        } else {
-                            Alignment.CenterVertically
-                        },
-                    ),
-                    onClick = {
-                        onClickChange()
-                    },
-                ) {
-                    Text("変更")
                 }
             }
         }
