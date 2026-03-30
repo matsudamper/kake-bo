@@ -643,6 +643,8 @@ scalar SessionRecordId
 type SettingsMutation {
   updateImapConfig(config: UpdateUserImapConfigInput!): UserImapConfig
   changePassword(password: String): ChangePasswordResult!
+
+  updateTimezoneOffset(offsetMinutes: Int!): Int
 }
 
 type ChangePasswordResult {
@@ -918,6 +920,8 @@ type UserSettings {
   apiTokenAttributes: ApiTokenAttributes!
 
   hasPassword: Boolean!
+
+  timezoneOffset: Int!
 }
 
 type __Directive {

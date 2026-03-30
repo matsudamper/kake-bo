@@ -4,6 +4,7 @@ query GetConfig {
             imapConfig {
                 ... DisplayImapConfig
             }
+            timezoneOffset
         }
     }
 }
