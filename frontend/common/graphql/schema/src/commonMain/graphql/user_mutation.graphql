@@ -24,6 +24,14 @@ mutation SetImapConfig($config: UpdateUserImapConfigInput!) {
     }
 }
 
+mutation SetTimezoneOffset($offsetMinutes: Int!) {
+    userMutation {
+        settingsMutation {
+            updateTimezoneOffset(offsetMinutes: $offsetMinutes)
+        }
+    }
+}
+
 mutation ImportMail($mailIds: [MailId!]!) {
     userMutation {
         importMail(mailIds: $mailIds) {

@@ -26,6 +26,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingMail
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.SettingRootScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.TextFieldTestScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.settings.TextFieldTestScreenUiState
+import net.matsudamper.money.frontend.common.ui.screen.root.settings.TimezoneSettingScreen
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.ImapSettingViewModel
@@ -38,6 +39,8 @@ import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfil
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.categoryfilters.SettingMailCategoryFiltersViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.login.LoginSettingScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.root.settings.login.LoginSettingViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.timezone.TimezoneSettingGraphqlApi
+import net.matsudamper.money.frontend.common.viewmodel.root.settings.timezone.TimezoneSettingViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingScreenCategoryApi
@@ -232,6 +235,27 @@ internal fun SettingNavContent(
                 ),
                 windowInsets = windowInsets,
             )
+        }
+
+        ScreenStructure.Root.Settings.Timezone -> {
+            holder.SaveableStateProvider(state::class.toString()) {
+                val viewModel = LocalScopedObjectStore.current.putOrGet<TimezoneSettingViewModel>(Unit) {
+                    TimezoneSettingViewModel(
+                        scopedObjectFeature = it,
+                        graphqlApi = TimezoneSettingGraphqlApi(
+                            apolloClient = koin.get<GraphqlClient>().apolloClient,
+                        ),
+                        globalEventSender = globalEventSender,
+                        ioDispatchers = Dispatchers.IO,
+                        navController = navController,
+                    )
+                }
+                TimezoneSettingScreen(
+                    uiState = viewModel.uiStateFlow.collectAsState().value,
+                    modifier = modifier.fillMaxSize(),
+                    windowInsets = windowInsets,
+                )
+            }
         }
 
         ScreenStructure.Root.Settings.Api -> {
