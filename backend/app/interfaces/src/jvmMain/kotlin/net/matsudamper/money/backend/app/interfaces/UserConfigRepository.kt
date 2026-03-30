@@ -14,6 +14,10 @@ interface UserConfigRepository {
         userName: String?,
     ): Boolean
 
+    fun getTimezoneOffset(userId: UserId): Int
+
+    fun updateTimezoneOffset(userId: UserId, offsetMinutes: Int): Boolean
+
     sealed interface Optional<T> {
         class None<T> : Optional<T>
 

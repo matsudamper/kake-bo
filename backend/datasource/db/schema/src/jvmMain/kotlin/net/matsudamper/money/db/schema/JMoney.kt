@@ -22,6 +22,7 @@ import net.matsudamper.money.db.schema.tables.JMoneyUsagesMailsRelation
 import net.matsudamper.money.db.schema.tables.JUserImages
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
 import net.matsudamper.money.db.schema.tables.JUserMails
+import net.matsudamper.money.db.schema.tables.JUserSetting
 import net.matsudamper.money.db.schema.tables.JUserPasswordExtendData
 import net.matsudamper.money.db.schema.tables.JUserPasswords
 import net.matsudamper.money.db.schema.tables.JUserSessions
@@ -129,6 +130,11 @@ open class JMoney : SchemaImpl(DSL.name("money"), DefaultCatalog.DEFAULT_CATALOG
     val USER_MAILS: JUserMails get() = JUserMails.USER_MAILS
 
     /**
+     * The table <code>money.user_setting</code>.
+     */
+    val USER_SETTING: JUserSetting get() = JUserSetting.USER_SETTING
+
+    /**
      * The table <code>money.user_password_extend_data</code>.
      */
     val USER_PASSWORD_EXTEND_DATA: JUserPasswordExtendData get() = JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA
@@ -172,6 +178,7 @@ open class JMoney : SchemaImpl(DSL.name("money"), DefaultCatalog.DEFAULT_CATALOG
         JUserImages.USER_IMAGES,
         JUserImapSettings.USER_IMAP_SETTINGS,
         JUserMails.USER_MAILS,
+        JUserSetting.USER_SETTING,
         JUserPasswordExtendData.USER_PASSWORD_EXTEND_DATA,
         JUserPasswords.USER_PASSWORDS,
         JUserSessions.USER_SESSIONS,
