@@ -1,5 +1,7 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.home.monthly
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -27,7 +29,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -39,6 +45,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
@@ -46,6 +53,7 @@ import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
+import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import net.matsudamper.money.frontend.common.ui.screen.root.home.HomePreviewSurface
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSection
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionOrder
@@ -143,6 +151,15 @@ private fun LoadedContent(
     showImages: Boolean,
     modifier: Modifier = Modifier,
 ) {
+    val imageUrlState: MutableState<String?> = remember { mutableStateOf(null) }
+    val imageUrl = imageUrlState.value
+    if (imageUrl != null) {
+        ZoomableImageDialog(
+            imageUrl = imageUrl,
+            onDismissRequest = { imageUrlState.value = null },
+        )
+    }
+
     BoxWithConstraints(
         modifier = modifier,
     ) {
@@ -264,7 +281,10 @@ private fun LoadedContent(
                                             model = url,
                                             contentDescription = null,
                                             contentScale = ContentScale.Crop,
-                                            modifier = Modifier.size(80.dp),
+                                            modifier = Modifier.size(80.dp)
+                                                .clickable {
+                                                    imageUrlState.value = url
+                                                },
                                             loading = { ImageLoadingPlaceholder() },
                                         )
                                     }
