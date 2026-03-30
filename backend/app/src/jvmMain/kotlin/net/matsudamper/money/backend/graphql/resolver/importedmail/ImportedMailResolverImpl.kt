@@ -163,12 +163,16 @@ class ImportedMailResolverImpl : ImportedMailResolver {
                     .build()
             }
 
+            val timezoneOffsetMinutes = context.diContainer.createUserConfigRepository()
+                .getTimezoneOffset(userId)
+            val adjustedDate = targetMail.dateTime.plusMinutes(timezoneOffsetMinutes.toLong())
+
             val results = MailParser.parseUsage(
                 subject = targetMail.subject,
                 from = targetMail.from,
                 html = targetMail.html.orEmpty(),
                 plain = targetMail.plain.orEmpty(),
-                date = targetMail.dateTime,
+                date = adjustedDate,
             )
 
             DataFetcherResult.newResult<List<QlMoneyUsageSuggest>>()
