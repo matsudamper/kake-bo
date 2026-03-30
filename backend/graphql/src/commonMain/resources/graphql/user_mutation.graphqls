@@ -183,6 +183,7 @@ type UserLoginResult {
 
 type SettingsMutation {
     updateImapConfig(config: UpdateUserImapConfigInput!) : UserImapConfig
+    updateTimezoneOffset(offsetMinutes: Int!): Int
 }
 
 input UpdateUserImapConfigInput {

@@ -13,6 +13,23 @@ import net.matsudamper.money.graphql.model.QlUserImapConfig
 import net.matsudamper.money.graphql.model.SettingsMutationResolver
 
 class SettingsMutationResolverResolverImpl : SettingsMutationResolver {
+    override fun updateTimezoneOffset(
+        settingsMutation: QlSettingsMutation,
+        offsetMinutes: Int,
+        env: DataFetchingEnvironment,
+    ): CompletionStage<DataFetcherResult<Int?>> {
+        val context = env.graphQlContext.get<GraphQlContext>(GraphQlContext::class.java.name)
+        val userConfigRepository = context.diContainer.createUserConfigRepository()
+        val userId = context.verifyUserSessionAndGetUserId()
+        return otelSupplyAsync {
+            val isSuccess = userConfigRepository.updateTimezoneOffset(userId, offsetMinutes)
+            if (isSuccess.not()) {
+                return@otelSupplyAsync null
+            }
+            userConfigRepository.getTimezoneOffset(userId)
+        }.toDataFetcher()
+    }
+
     override fun updateImapConfig(
         settingsMutation: QlSettingsMutation,
         config: QlUpdateUserImapConfigInput,
