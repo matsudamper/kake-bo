@@ -38,12 +38,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChart
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
+import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.screen.root.home.HomePreviewSurface
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSection
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionOrder
@@ -252,11 +253,12 @@ private fun LoadedContent(
                                     horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
                                 ) {
                                     items(item.imageUrls) { url ->
-                                        AsyncImage(
+                                        SubcomposeAsyncImage(
                                             model = url,
                                             contentDescription = null,
                                             contentScale = ContentScale.Crop,
                                             modifier = Modifier.size(80.dp),
+                                            loading = { ImageLoadingPlaceholder() },
                                         )
                                     }
                                 }

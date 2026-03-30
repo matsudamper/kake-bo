@@ -50,12 +50,13 @@ import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffold
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
+import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 
 public data class CalendarDateListScreenUiState(
@@ -321,13 +322,14 @@ private fun ItemCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(item.images) { imageItem ->
-                    AsyncImage(
+                    SubcomposeAsyncImage(
                         model = imageItem.url,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .size(100.dp)
                             .clickable { selectedImageUrl = imageItem.url },
+                        loading = { ImageLoadingPlaceholder() },
                     )
                 }
             }

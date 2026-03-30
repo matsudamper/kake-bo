@@ -49,6 +49,7 @@ import androidx.compose.ui.window.Dialog
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
@@ -61,6 +62,7 @@ import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
 import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
@@ -359,14 +361,14 @@ public fun AddMoneyUsageScreen(
                                                 }
                                             }
                                             is ImageItem.Uploaded -> {
-                                                AsyncImage(
+                                                SubcomposeAsyncImage(
                                                     model = image.url,
                                                     contentDescription = null,
                                                     contentScale = ContentScale.Crop,
                                                     modifier = Modifier
                                                         .size(120.dp)
-                                                        .clickable { selectedImageUrl = image.url }
-                                                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                                                        .clickable { selectedImageUrl = image.url },
+                                                    loading = { ImageLoadingPlaceholder() },
                                                 )
                                             }
                                         }

@@ -14,7 +14,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.ui.window.DialogWindowProvider
-import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
 import net.engawapg.lib.zoomable.rememberZoomState
 import net.engawapg.lib.zoomable.zoomable
 
@@ -46,7 +46,7 @@ public actual fun ZoomableImageDialog(
                 ),
             contentAlignment = Alignment.Center,
         ) {
-            AsyncImage(
+            SubcomposeAsyncImage(
                 model = imageUrl,
                 contentDescription = null,
                 contentScale = ContentScale.Fit,
@@ -61,6 +61,7 @@ public actual fun ZoomableImageDialog(
                         onClick = {},
                     )
                     .zoomable(zoomState),
+                loading = { ImageLoadingPlaceholder() },
             )
         }
     }

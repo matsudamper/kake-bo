@@ -60,6 +60,7 @@ import androidx.compose.ui.window.PopupProperties
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
@@ -76,6 +77,7 @@ import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.UrlClickableText
 import net.matsudamper.money.frontend.common.ui.layout.UrlMenuDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 
@@ -651,7 +653,7 @@ private fun MoneyUsage(
                                 var showDeleteDialog by remember { mutableStateOf(false) }
                                 var showPopupMenu by remember { mutableStateOf(false) }
                                 Box(modifier = Modifier.size(180.dp)) {
-                                    AsyncImage(
+                                    SubcomposeAsyncImage(
                                         model = imageItem.url,
                                         contentDescription = null,
                                         contentScale = ContentScale.Crop,
@@ -678,6 +680,7 @@ private fun MoneyUsage(
                                                     }
                                                 }
                                             },
+                                        loading = { ImageLoadingPlaceholder() },
                                     )
                                     DropdownMenu(
                                         expanded = showPopupMenu,
