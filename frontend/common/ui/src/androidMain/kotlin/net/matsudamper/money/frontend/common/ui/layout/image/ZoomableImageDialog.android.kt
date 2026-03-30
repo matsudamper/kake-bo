@@ -1,11 +1,9 @@
 package net.matsudamper.money.frontend.common.ui.layout.image
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
@@ -63,13 +61,7 @@ public actual fun ZoomableImageDialog(
                         onClick = {},
                     )
                     .zoomable(zoomState),
-                loading = {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                    )
-                },
+                loading = { ImageLoadingPlaceholder() },
             )
         }
     }

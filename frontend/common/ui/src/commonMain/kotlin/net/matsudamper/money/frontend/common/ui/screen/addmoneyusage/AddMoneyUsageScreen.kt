@@ -62,6 +62,7 @@ import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
 import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
@@ -367,13 +368,7 @@ public fun AddMoneyUsageScreen(
                                                     modifier = Modifier
                                                         .size(120.dp)
                                                         .clickable { selectedImageUrl = image.url },
-                                                    loading = {
-                                                        Box(
-                                                            modifier = Modifier
-                                                                .fillMaxSize()
-                                                                .background(MaterialTheme.colorScheme.surfaceVariant),
-                                                        )
-                                                    },
+                                                    loading = { ImageLoadingPlaceholder() },
                                                 )
                                             }
                                         }
