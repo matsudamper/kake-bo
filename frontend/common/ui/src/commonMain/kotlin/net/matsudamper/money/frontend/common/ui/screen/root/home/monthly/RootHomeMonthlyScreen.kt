@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.home.monthly
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -205,40 +206,45 @@ private fun LoadedContent(
                     ProvideTextStyle(
                         MaterialTheme.typography.bodyMedium,
                     ) {
+                        val padding = 12.dp
                         Column(
-                            modifier = Modifier.padding(12.dp),
+                            modifier = Modifier,
                         ) {
-                            Text(
-                                text = item.date,
-                            )
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Row {
+                            Spacer(modifier = Modifier.height(padding))
+                            Column(
+                                modifier = Modifier.padding(horizontal = padding),
+                            ) {
                                 Text(
-                                    modifier = Modifier.weight(1f),
-                                    text = item.title,
-                                    maxLines = 3,
+                                    text = item.date,
                                 )
-                                Text(
-                                    modifier = Modifier
-                                        .align(Alignment.Bottom)
-                                        .height(IntrinsicSize.Max)
-                                        .requiredWidthIn(min = 80.dp),
-                                    text = item.category,
-                                    maxLines = 1,
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    modifier = Modifier
-                                        .align(Alignment.Bottom)
-                                        .height(IntrinsicSize.Max)
-                                        .requiredWidthIn(min = 60.dp),
-                                    maxLines = 1,
-                                    text = item.amount,
-                                    textAlign = TextAlign.End,
-                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Row {
+                                    Text(
+                                        modifier = Modifier.weight(1f),
+                                        text = item.title,
+                                        maxLines = 3,
+                                    )
+                                    Text(
+                                        modifier = Modifier
+                                            .align(Alignment.Bottom)
+                                            .height(IntrinsicSize.Max)
+                                            .requiredWidthIn(min = 80.dp),
+                                        text = item.category,
+                                        maxLines = 1,
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        modifier = Modifier
+                                            .align(Alignment.Bottom)
+                                            .height(IntrinsicSize.Max)
+                                            .requiredWidthIn(min = 60.dp),
+                                        maxLines = 1,
+                                        text = item.amount,
+                                        textAlign = TextAlign.End,
+                                    )
+                                }
                             }
                             if (showImages && item.imageUrls.isNotEmpty()) {
-                                Spacer(modifier = Modifier.height(8.dp))
                                 val imageRowScrollConnection = remember {
                                     object : NestedScrollConnection {
                                         override fun onPostScroll(
@@ -250,7 +256,8 @@ private fun LoadedContent(
                                 }
                                 LazyRow(
                                     modifier = Modifier.nestedScroll(imageRowScrollConnection),
-                                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(8.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    contentPadding = PaddingValues(padding),
                                 ) {
                                     items(item.imageUrls) { url ->
                                         SubcomposeAsyncImage(
@@ -262,6 +269,8 @@ private fun LoadedContent(
                                         )
                                     }
                                 }
+                            } else {
+                                Spacer(modifier = Modifier.height(padding))
                             }
                         }
                     }
