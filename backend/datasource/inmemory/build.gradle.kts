@@ -19,9 +19,8 @@ kotlin {
                 implementation(libs.kotlin.coroutines.core)
                 implementation(libs.kotlin.serialization.json)
 
-                implementation(libs.lettuce)
+                implementation(libs.jedis)
                 implementation(libs.opentelemetryApi)
-                implementation(libs.opentelemetryLettuce)
             }
         }
         val jvmTest by getting {
