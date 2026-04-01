@@ -125,12 +125,24 @@ tasks.withType<Test>().configureEach {
 }
 
 graalvmNative {
+    metadataRepository {
+        enabled.set(false)
+    }
     binaries {
         named("main") {
             mainClass.set("net.matsudamper.money.backend.Main")
             imageName.set("backend")
             buildArgs.addAll(nativeBuildArgs)
             buildArgs.add("--features=net.matsudamper.money.backend.graalvm.GraphqlReflectionFeature")
+            javaLauncher.set(graalVmLauncher)
+        }
+        named("test") {
+            buildArgs.addAll(nativeBuildArgs)
+            buildArgs.add("--features=net.matsudamper.money.backend.graalvm.GraphqlReflectionFeature")
+            // Kotest は追加 TestEngine として nativeTest に載るため、
+            // JUnit Platform 連携に必要な最小限のクラスだけ build-time 初期化する。
+            buildArgs.add("--initialize-at-build-time=io.kotest.runner.junit.platform")
+            buildArgs.add("--initialize-at-build-time=io.kotest.core.Logger,io.kotest.core.LoggerKt")
             javaLauncher.set(graalVmLauncher)
         }
     }
