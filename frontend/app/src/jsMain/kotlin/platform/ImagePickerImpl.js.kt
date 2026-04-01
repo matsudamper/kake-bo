@@ -2,17 +2,18 @@ package platform
 
 import kotlin.coroutines.resume
 import kotlin.js.Promise
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 import kotlinx.browser.document
 import kotlinx.coroutines.suspendCancellableCoroutine
-import net.matsudamper.money.frontend.common.ui.layout.image.SelectedImage
-import net.matsudamper.money.frontend.common.ui.layout.image.UploadedImageData
-import net.matsudamper.money.ui.root.platform.ImagePicker
+import net.matsudamper.money.frontend.common.base.platform.ImagePicker
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Int8Array
 import org.w3c.dom.HTMLInputElement
 
 internal class ImagePickerImpl : ImagePicker {
-    override suspend fun pickImages(): List<SelectedImage> = suspendCancellableCoroutine { continuation ->
+    @OptIn(ExperimentalUuidApi::class)
+    override suspend fun pickImages(): List<ImagePicker.SelectedImage> = suspendCancellableCoroutine { continuation ->
         val input = document.createElement("input") as HTMLInputElement
         input.type = "file"
         input.accept = "image/*"
@@ -31,9 +32,11 @@ internal class ImagePickerImpl : ImagePicker {
                             .then { buffer ->
                                 val bytes = toByteArray(buffer)
                                 if (bytes.isNotEmpty()) {
-                                    SelectedImage(
+                                    ImagePicker.SelectedImage(
+                                        id = Uuid.random().toString(),
+                                        previewBytes = bytes,
                                         await = {
-                                            UploadedImageData(
+                                            ImagePicker.UploadedImageData(
                                                 bytes = bytes,
                                                 contentType = file.type.ifBlank { "application/octet-stream" },
                                             )
@@ -49,7 +52,7 @@ internal class ImagePickerImpl : ImagePicker {
                     if (continuation.isActive) {
                         continuation.resume(
                             selectedImages
-                                .unsafeCast<Array<SelectedImage?>>()
+                                .unsafeCast<Array<ImagePicker.SelectedImage?>>()
                                 .filterNotNull(),
                         )
                     }

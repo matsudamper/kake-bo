@@ -1,7 +1,7 @@
 package net.matsudamper.money.platform
 
 import androidx.activity.ComponentActivity
-import net.matsudamper.money.ui.root.platform.BackPressDispatcher
+import net.matsudamper.money.frontend.common.base.platform.BackPressDispatcher
 
 internal class BackPressDispatcherImpl(
     private val componentActivity: ComponentActivity,

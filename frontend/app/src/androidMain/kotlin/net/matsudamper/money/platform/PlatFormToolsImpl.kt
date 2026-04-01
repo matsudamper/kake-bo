@@ -1,11 +1,11 @@
 package net.matsudamper.money.platform
 
 import androidx.activity.ComponentActivity
-import net.matsudamper.money.ui.root.platform.ApplicationNotificationManager
-import net.matsudamper.money.ui.root.platform.BackPressDispatcher
-import net.matsudamper.money.ui.root.platform.ClipboardManager
-import net.matsudamper.money.ui.root.platform.PlatformTools
-import net.matsudamper.money.ui.root.platform.UrlOpener
+import net.matsudamper.money.frontend.common.base.platform.ApplicationNotificationManager
+import net.matsudamper.money.frontend.common.base.platform.BackPressDispatcher
+import net.matsudamper.money.frontend.common.base.platform.ClipboardManager
+import net.matsudamper.money.frontend.common.base.platform.PlatformTools
+import net.matsudamper.money.frontend.common.base.platform.UrlOpener
 
 internal class PlatFormToolsImpl(
     componentActivity: ComponentActivity,
