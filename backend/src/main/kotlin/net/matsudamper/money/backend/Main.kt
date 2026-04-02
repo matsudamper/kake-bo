@@ -52,13 +52,6 @@ class Main {
 
             OpenTelemetryInitializer.initialize()
 
-            // Initialize
-            MoneyGraphQlSchema.graphql
-            if (System.getenv("CI")?.toBooleanStrictOrNull() != true) {
-                runCatching { DbConnectionImpl.warmup() }
-                    .onFailure { TraceLogger.impl().noticeThrowable(it, isError = true) }
-            }
-
             val engine = embeddedServer(
                 CIO,
                 port = ServerEnv.port,
@@ -69,7 +62,18 @@ class Main {
                     engine.stop(1000, 1000)
                 },
             )
-            engine.start(wait = true)
+            // ネイティブバイナリではスキーマ初期化前にサーバーを起動し、
+            // healthz がすぐに応答できるようにする。
+            engine.start(wait = false)
+
+            // Initialize
+            MoneyGraphQlSchema.graphql
+            if (System.getenv("CI")?.toBooleanStrictOrNull() != true) {
+                runCatching { DbConnectionImpl.warmup() }
+                    .onFailure { TraceLogger.impl().noticeThrowable(it, isError = true) }
+            }
+
+            Thread.currentThread().join()
         }
     }
 }
