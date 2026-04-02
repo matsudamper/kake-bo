@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.home
 
 import androidx.compose.runtime.Immutable
+import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 
 public data class RootHomeMonthlySubCategoryScreenUiState(
@@ -16,6 +17,7 @@ public data class RootHomeMonthlySubCategoryScreenUiState(
         val amount: String,
         val category: String,
         val date: String,
+        val imageUrls: ImmutableList<String>,
         val event: Event,
     ) {
         @Immutable

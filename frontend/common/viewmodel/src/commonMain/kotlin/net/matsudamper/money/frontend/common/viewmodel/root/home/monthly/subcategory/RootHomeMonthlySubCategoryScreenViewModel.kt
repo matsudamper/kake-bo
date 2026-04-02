@@ -25,6 +25,7 @@ import com.apollographql.apollo.cache.normalized.fetchPolicy
 import com.apollographql.apollo.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.IO
+import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
@@ -164,6 +165,7 @@ public class RootHomeMonthlySubCategoryScreenViewModel(
             amount = "${Formatter.formatMoney(node.amount)}円",
             category = node.moneyUsageSubCategory?.name.orEmpty(),
             date = Formatter.formatDateTime(node.date),
+            imageUrls = node.images.map { it.url }.toImmutableList(),
             event = object : RootHomeMonthlySubCategoryScreenUiState.Item.Event {
                 override fun onClick() {
                     viewModelScope.launch {
