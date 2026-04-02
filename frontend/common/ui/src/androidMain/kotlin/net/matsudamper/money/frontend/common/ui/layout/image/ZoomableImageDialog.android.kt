@@ -56,7 +56,7 @@ public actual fun ZoomableImageDialog(
                 is AsyncImagePainter.State.Empty,
                 is AsyncImagePainter.State.Error,
                 is AsyncImagePainter.State.Loading,
-                    -> {
+                -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
                     }

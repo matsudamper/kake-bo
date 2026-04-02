@@ -1,7 +1,6 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.home.monthly
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -45,7 +44,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
