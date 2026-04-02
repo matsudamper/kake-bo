@@ -43,7 +43,12 @@ jobs:
 
       - name: ネイティブバイナリの healthz スモークテスト
         run: |
-          export $(grep -v '^#' schema_update_local.env | xargs)
+          while IFS= read -r line; do
+            case "$line" in
+              ''|\#*) continue ;;
+            esac
+            export "$line"
+          done < schema_update_local.env
           export PORT=8080
           export IS_DEBUG=true
           export HTML_PATH=/tmp/html
