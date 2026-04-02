@@ -384,6 +384,12 @@
     "allDeclaredFields": true
   },
   {
+    "name": "ch.qos.logback.classic.filter.ThresholdFilter",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
     "name": "ch.qos.logback.core.ConsoleAppender",
     "allDeclaredConstructors": true,
     "allDeclaredMethods": true,
@@ -438,54 +444,6 @@
     "allDeclaredMethods": true,
     "allPublicMethods": true,
     "allDeclaredFields": true
-  },
-  {
-    "name": "[Lorg.jooq.types.UByte;"
-  },
-  {
-    "name": "[Lorg.jooq.types.UShort;"
-  },
-  {
-    "name": "[Lorg.jooq.types.UInteger;"
-  },
-  {
-    "name": "[Lorg.jooq.types.ULong;"
-  },
-  {
-    "name": "[Lorg.jooq.types.DayToSecond;"
-  },
-  {
-    "name": "[Lorg.jooq.types.YearToMonth;"
-  },
-  {
-    "name": "[Lorg.jooq.types.YearToSecond;"
-  },
-  {
-    "name": "[Lorg.jooq.RowId;"
-  },
-  {
-    "name": "[Lorg.jooq.Record;"
-  },
-  {
-    "name": "[Lorg.jooq.Result;"
-  },
-  {
-    "name": "[Lorg.jooq.JSON;"
-  },
-  {
-    "name": "[Lorg.jooq.JSONB;"
-  },
-  {
-    "name": "[Lorg.jooq.XML;"
-  },
-  {
-    "name": "[Lorg.jooq.Geography;"
-  },
-  {
-    "name": "[Lorg.jooq.Geometry;"
-  },
-  {
-    "name": "[Lorg.jooq.Decfloat;"
   },
   {
     "name": "io.ktor.network.selector.InterestSuspensionsMap",

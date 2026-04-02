@@ -33,7 +33,7 @@ val nativeBuildArgs = listOf(
     // DefaultDataType の静的ブロックが SQLDataType の初期化をトリガーし、
     // その中で ArrayDataType.getArrayType() が呼ばれる。
     // GraalVM native-image では Class.arrayType() が image に含まれていない型に対して
-    // null を返すため、reflect-config.json に jOOQ カスタム型の配列クラスを登録している。
+    // null を返すため、JooqArrayReflectionFeature で build-time に配列クラスを自動登録する。
     "--initialize-at-run-time=org.jooq",
     "-H:+AddAllCharsets",
     // Jackson: コアクラスはビルド時初期化、リフレクション依存部分はランタイム初期化
@@ -134,11 +134,13 @@ graalvmNative {
             imageName.set("backend")
             buildArgs.addAll(nativeBuildArgs)
             buildArgs.add("--features=net.matsudamper.money.backend.graalvm.GraphqlReflectionFeature")
+            buildArgs.add("--features=net.matsudamper.money.backend.graalvm.JooqArrayReflectionFeature")
             javaLauncher.set(graalVmLauncher)
         }
         named("test") {
             buildArgs.addAll(nativeBuildArgs)
             buildArgs.add("--features=net.matsudamper.money.backend.graalvm.GraphqlReflectionFeature")
+            buildArgs.add("--features=net.matsudamper.money.backend.graalvm.JooqArrayReflectionFeature")
             // Kotest は追加 TestEngine として nativeTest に載るため、
             // JUnit Platform 連携に必要な最小限のクラスだけ build-time 初期化する。
             buildArgs.add("--initialize-at-build-time=io.kotest.runner.junit.platform")
