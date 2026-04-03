@@ -172,6 +172,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
             amount = "${Formatter.formatMoney(node.amount)}円",
             subCategory = node.moneyUsageSubCategory?.name.orEmpty(),
             date = Formatter.formatDateTime(node.date),
+            imageUrls = node.images.map { it.url }.toImmutableList(),
             event = object : RootHomeMonthlyCategoryScreenUiState.Item.Event {
                 override fun onClick() {
                     viewModelScope.launch {

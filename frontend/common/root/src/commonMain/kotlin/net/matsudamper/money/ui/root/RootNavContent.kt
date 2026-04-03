@@ -210,9 +210,14 @@ internal fun RootNavContent(
                             monthlyCategoryViewModel.updateStructure(current)
                         }
 
+                        val showImages = koin.get<AppSettingsRepository>()
+                            .showImagesInMonthlyScreen
+                            .collectAsState(initial = false)
+                            .value
                         RootHomeMonthlyCategoryScreen(
                             modifier = Modifier.fillMaxSize(),
                             uiState = monthlyCategoryViewModel.uiStateFlow.collectAsState().value,
+                            showImages = showImages,
                             windowInsets = windowInsets,
                         )
                     }
