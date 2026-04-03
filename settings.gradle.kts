@@ -36,6 +36,13 @@ include(":shared")
 
 pluginManagement {
     includeBuild("build-logic")
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "org.graalvm.buildtools.native") {
+                useModule("org.graalvm.buildtools:native-gradle-plugin:${requested.version}")
+            }
+        }
+    }
     repositories {
         google()
         gradlePluginPortal()

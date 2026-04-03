@@ -1,0 +1,616 @@
+[
+  {
+    "name": "org.mariadb.jdbc.Driver",
+    "allPublicConstructors": true,
+    "allPublicMethods": true
+  },
+  {
+    "name": "org.mariadb.jdbc.MariaDbDataSource",
+    "allPublicConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "graphql.GraphQL",
+    "allPublicConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "graphql.execution.AsyncExecutionStrategy",
+    "allPublicConstructors": true,
+    "allPublicMethods": true
+  },
+  {
+    "name": "graphql.execution.DataFetcherResult",
+    "allPublicConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "graphql.kickstart.tools.SchemaParser",
+    "allPublicConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "graphql.kickstart.tools.SchemaParserOptions",
+    "allPublicConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "graphql.kickstart.tools.PerFieldConfiguringObjectMapperProvider",
+    "allPublicConstructors": true,
+    "allPublicMethods": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.QueryResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.mutation.MutationResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.mutation.AdminMutationResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.mutation.UserMutationResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.mutation.SettingsMutationResolverResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.ImageResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.MoneyUsageCategoryResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.MoneyUsageResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.MoneyUsageSubCategoryResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.MoneyUsageSuggestResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.SessionAttributesResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.UserMailAttributesResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.UserSettingsResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.analytics.MoneyUsageAnalyticsResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.analytics.MoneyUsageAnalyticsByCategoryResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailAttributesResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailCategoryFilterResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.importedmail.ImportedMailCategoryConditionResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.setting.ApiTokenAttributesResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.resolver.user.UserResolverImpl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionsRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JUserPasswordsRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JApiTokensRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JMoneyUsageCategoriesRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JMoneyUsageImagesRelationRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JMoneyUsagePresetsRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JUserMailsRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JAdminSessionsRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JUserImagesRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JMoneyUsagesRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JMoneyUsagesMailsRelationRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JUsersRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JUserSessionsRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JMoneyUsageSubCategoriesRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JUserImapSettingsRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JWebAuthAuthenticatorRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JCategoryMailFiltersRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionTypeRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterConditionOperatorTypeRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JUserPasswordExtendDataRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.db.schema.tables.records.JCategoryMailFilterDatasourceTypeRecord",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.webauthn4j.data.AuthenticatorTransport",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.webauthn4j.data.attestation.authenticator.AttestedCredentialData",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.webauthn4j.data.attestation.statement.COSEAlgorithmIdentifier",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.webauthn4j.data.client.challenge.DefaultChallenge",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "org.eclipse.angus.mail.imap.IMAPStore",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "org.eclipse.angus.mail.smtp.SMTPTransport",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.sun.mail.imap.IMAPStore",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "java.sql.DriverManager",
+    "allPublicMethods": true
+  },
+  {
+    "name": "sun.net.www.protocol.https.Handler",
+    "allPublicConstructors": true
+  },
+  {
+    "name": "ch.qos.logback.classic.db.DBAppender",
+    "allDeclaredConstructors": true
+  },
+  {
+    "name": "ch.qos.logback.classic.util.DefaultJoranConfigurator",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ch.qos.logback.classic.BasicConfigurator",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ch.qos.logback.classic.filter.ThresholdFilter",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ch.qos.logback.core.ConsoleAppender",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ch.qos.logback.core.FileAppender",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ch.qos.logback.core.OutputStreamAppender",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ch.qos.logback.core.encoder.LayoutWrappingEncoder",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ch.qos.logback.classic.PatternLayout",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ch.qos.logback.classic.encoder.PatternLayoutEncoder",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ch.qos.logback.core.pattern.PatternLayoutEncoderBase",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.logstash.logback.encoder.LogstashEncoder",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "io.ktor.network.selector.InterestSuspensionsMap",
+    "allDeclaredConstructors": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.fasterxml.jackson.databind.ObjectMapper",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.fasterxml.jackson.databind.deser.BeanDeserializer",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.fasterxml.jackson.databind.deser.BeanDeserializerFactory",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.fasterxml.jackson.databind.deser.DefaultDeserializationContext$Impl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.fasterxml.jackson.databind.ser.BeanSerializerFactory",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.fasterxml.jackson.databind.ser.DefaultSerializerProvider$Impl",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.fasterxml.jackson.module.kotlin.KotlinModule",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.fasterxml.jackson.module.kotlin.KotlinModule$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.fasterxml.jackson.datatype.jsr310.JavaTimeModule",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.fasterxml.jackson.datatype.jsr310.deser.InstantDeserializer",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.graphql.GraphQlInputFieldDeserializer",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.GraphQlRequest",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.GraphQlRequest$Extensions",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.GraphQlRequest$ClientLibrary",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "net.matsudamper.money.backend.GraphQlRequest$PersistedQuery",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "redis.clients.jedis.DefaultJedisClientConfig",
+    "allPublicConstructors": true,
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "redis.clients.jedis.JedisClientConfig",
+    "allPublicMethods": true
+  },
+  {
+    "name": "redis.clients.jedis.JedisFactory",
+    "allDeclaredFields": true,
+    "allDeclaredMethods": true
+  },
+  {
+    "name": "com.zaxxer.hikari.HikariConfig",
+    "allPublicConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.zaxxer.hikari.HikariDataSource",
+    "allPublicConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "com.zaxxer.hikari.util.Credentials",
+    "allPublicConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "org.mariadb.jdbc.Configuration",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "org.mariadb.jdbc.Configuration$Builder",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredMethods": true,
+    "allDeclaredFields": true
+  }
+]

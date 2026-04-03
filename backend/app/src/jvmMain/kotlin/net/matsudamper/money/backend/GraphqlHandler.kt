@@ -95,7 +95,9 @@ class GraphqlHandler(
             )
             .build()
 
-        val responseText = ObjectMapper.jackson.writeValueAsString(responseResult)
+        // GraalVM native imageではExecutionResultのgetterがリフレクションで見つからず
+        // Jacksonが空の`{}`を返すため、toSpecification()でMapに変換してからシリアライズする。
+        val responseText = ObjectMapper.jackson.writeValueAsString(responseResult.toSpecification())
 
         operationDurationHistogram.record(
             mark.elapsedNow().inWholeMilliseconds.toDouble(),

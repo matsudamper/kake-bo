@@ -1,7 +1,4 @@
 import io.kotest.core.spec.style.DescribeSpec
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
 import net.matsudamper.money.backend.app.interfaces.AdminRepository
 import net.matsudamper.money.backend.logic.AddUserUseCase
 import net.matsudamper.money.backend.logic.IPasswordManager
@@ -11,11 +8,7 @@ class AddUserUseCaseTest : DescribeSpec(
         describe("パスワードのバリデーション") {
             context("記号が含まれている128文字") {
                 it("パスワードが通る") {
-                    val operation: AdminRepository = mockk {
-                        every { addUser(any(), any(), any(), any(), any(), any()) } answers {
-                            AdminRepository.AddUserResult.Success
-                        }
-                    }
+                    val operation = FakeAdminRepository()
                     val useCase = AddUserUseCase(
                         adminRepository = operation,
                         passwordManager = object : IPasswordManager {
@@ -59,9 +52,28 @@ class AddUserUseCaseTest : DescribeSpec(
 
                         is AddUserUseCase.Result.Success -> Unit
                     }
-                    verify { operation.addUser(any(), any(), any(), any(), any(), any()) }
+                    check(operation.addUserCallCount == 1) {
+                        "addUser should be called exactly once"
+                    }
                 }
             }
         }
     },
 )
+
+private class FakeAdminRepository : AdminRepository {
+    var addUserCallCount = 0
+        private set
+
+    override fun addUser(
+        userName: String,
+        hashedPassword: String,
+        algorithmName: String,
+        salt: ByteArray,
+        iterationCount: Int,
+        keyLength: Int,
+    ): AdminRepository.AddUserResult {
+        addUserCallCount++
+        return AdminRepository.AddUserResult.Success
+    }
+}
