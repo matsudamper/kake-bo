@@ -62,9 +62,6 @@ class Main {
                     engine.stop(1000, 1000)
                 },
             )
-            // ネイティブバイナリではスキーマ初期化前にサーバーを起動し、
-            // healthz がすぐに応答できるようにする。
-            engine.start(wait = false)
 
             // Initialize
             MoneyGraphQlSchema.graphql
@@ -73,7 +70,7 @@ class Main {
                     .onFailure { TraceLogger.impl().noticeThrowable(it, isError = true) }
             }
 
-            Thread.currentThread().join()
+            engine.start(wait = true)
         }
     }
 }
