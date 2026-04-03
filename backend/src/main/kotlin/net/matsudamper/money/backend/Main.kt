@@ -67,7 +67,9 @@ class Main {
             engine.start(wait = false)
 
             // Initialize
-            MoneyGraphQlSchema.graphql
+            // ネイティブバイナリでスキーマ初期化が失敗してもサーバーを継続させるためにrunCatchingでラップする
+            runCatching { MoneyGraphQlSchema.graphql }
+                .onFailure { TraceLogger.impl().noticeThrowable(it, isError = true) }
             if (System.getenv("CI")?.toBooleanStrictOrNull() != true) {
                 runCatching { DbConnectionImpl.warmup() }
                     .onFailure { TraceLogger.impl().noticeThrowable(it, isError = true) }
