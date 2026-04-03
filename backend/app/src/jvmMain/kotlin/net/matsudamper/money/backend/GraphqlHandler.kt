@@ -2,7 +2,6 @@ package net.matsudamper.money.backend
 
 import java.lang.reflect.UndeclaredThrowableException
 import kotlin.time.TimeSource
-import kotlin.time.measureTime
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import graphql.ExceptionWhileDataFetching
