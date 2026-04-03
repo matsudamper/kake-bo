@@ -7,7 +7,8 @@
       {"pattern": "META-INF/services/.*"},
       {"pattern": "META-INF/native-image/.*"},
       {"pattern": "org/mariadb/jdbc/.*"},
-      {"pattern": "META-INF/MANIFEST\\.MF"}
+      {"pattern": "META-INF/MANIFEST\\.MF"},
+      {"pattern": "kotlin/.*\\.kotlin_builtins"}
     ]
   },
   "bundles": [
