@@ -10,5 +10,11 @@
       {"pattern": "META-INF/MANIFEST\\.MF"}
     ]
   },
-  "bundles": []
+  "bundles": [
+    {"name": "i18n.Parsing"},
+    {"name": "i18n.Validation"},
+    {"name": "i18n.General"},
+    {"name": "i18n.Execution"},
+    {"name": "i18n.Scalars"}
+  ]
 }
