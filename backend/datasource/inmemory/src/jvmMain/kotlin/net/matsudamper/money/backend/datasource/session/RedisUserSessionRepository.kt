@@ -5,6 +5,8 @@ import java.time.ZoneOffset
 import java.util.UUID
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
+import io.lettuce.core.ClientOptions
+import io.lettuce.core.MaintNotificationsConfig
 import io.lettuce.core.RedisClient
 import io.lettuce.core.RedisURI
 import io.lettuce.core.SetArgs
@@ -29,7 +31,13 @@ internal class RedisUserSessionRepository(
         val clientResources = ClientResources.builder()
             .tracing(LettuceTelemetry.create(OpenTelemetryInitializer.get()).createTracing())
             .build()
-        RedisClient.create(clientResources, uri)
+        RedisClient.create(clientResources, uri).apply {
+            setOptions(
+                ClientOptions.builder()
+                    .maintNotificationsConfig(MaintNotificationsConfig.disabled())
+                    .build(),
+            )
+        }
     }
     private val connection: StatefulRedisConnection<String, String> by lazy { redisClient.connect() }
     private val commands by lazy { connection.sync() }
