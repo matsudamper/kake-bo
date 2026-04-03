@@ -42,6 +42,10 @@
     <logger name="org.jooq.tools.LoggerListener" level="trace" additivity="false" />
     <logger name="org.jooq.impl.DefaultBinding" level="trace" additivity="false" />
     <logger name="graphql.execution.ExecutionStrategy" level="DEBUG" additivity="false" />
+    <logger name="io.lettuce.core.protocol" level="TRACE" additivity="false" >
+        <appender-ref ref="FILE_TRACE"/>
+        <appender-ref ref="FILE_ERROR"/>
+    </logger>
 
     <root level="trace">
         <appender-ref ref="STDOUT"/>
