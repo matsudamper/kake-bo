@@ -357,5 +357,33 @@ with open(local_props, 'w') as f:
     f.write(f"sdk.dir={android_home}\n")
 print(f"local.properties written: sdk.dir={android_home}")
 
+# ── GraalVM native-image のセットアップ ──────────────────────────────────────
+# /opt/graalvm* にインストール済みの GraalVM を探し、native-image を PATH に追加する
+import glob as _glob
+
+graalvm_dirs = sorted(_glob.glob('/opt/graalvm*'), reverse=True)
+graalvm_home = next((d for d in graalvm_dirs if os.path.isfile(os.path.join(d, 'bin', 'native-image'))), None)
+
+if graalvm_home:
+    native_image_bin = os.path.join(graalvm_home, 'bin', 'native-image')
+    symlink_path = '/usr/local/bin/native-image'
+    if not os.path.exists(symlink_path):
+        try:
+            os.symlink(native_image_bin, symlink_path)
+            print(f"GraalVM native-image symlinked: {symlink_path} -> {native_image_bin}")
+        except OSError as e:
+            print(f"Failed to symlink native-image: {e}")
+    else:
+        print(f"GraalVM native-image already available: {symlink_path}")
+    # GRAALVM_HOME を環境変数ファイルに書き込み、セッション全体で参照できるようにする
+    env_file = os.environ.get('CLAUDE_ENV_FILE', '')
+    if env_file:
+        with open(env_file, 'a') as f:
+            f.write(f'export GRAALVM_HOME="{graalvm_home}"\n')
+            f.write(f'export PATH="{graalvm_home}/bin:$PATH"\n')
+    print(f"GraalVM home: {graalvm_home}")
+else:
+    print("WARNING: GraalVM not found in /opt/graalvm*. native-image will not be available.")
+
 print("Session start hook completed.")
 PYEOF
