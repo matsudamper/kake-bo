@@ -210,7 +210,8 @@ internal fun RootNavContent(
                             monthlyCategoryViewModel.updateStructure(current)
                         }
 
-                        val showImages = koin.get<AppSettingsRepository>()
+                        val appSettingsRepository = koin.get<AppSettingsRepository>()
+                        val showImages = appSettingsRepository
                             .showImagesInMonthlyScreen
                             .collectAsState(initial = false)
                             .value
@@ -218,6 +219,9 @@ internal fun RootNavContent(
                             modifier = Modifier.fillMaxSize(),
                             uiState = monthlyCategoryViewModel.uiStateFlow.collectAsState().value,
                             showImages = showImages,
+                            onToggleShowImages = {
+                                appSettingsRepository.setShowImagesInMonthlyScreen(!showImages)
+                            },
                             windowInsets = windowInsets,
                         )
                     }
@@ -241,7 +245,8 @@ internal fun RootNavContent(
                             monthlySubCategoryViewModel.updateStructure(current)
                         }
 
-                        val showImages = koin.get<AppSettingsRepository>()
+                        val appSettingsRepository = koin.get<AppSettingsRepository>()
+                        val showImages = appSettingsRepository
                             .showImagesInMonthlyScreen
                             .collectAsState(initial = false)
                             .value
@@ -249,6 +254,9 @@ internal fun RootNavContent(
                             modifier = Modifier.fillMaxSize(),
                             uiState = monthlySubCategoryViewModel.uiStateFlow.collectAsState().value,
                             showImages = showImages,
+                            onToggleShowImages = {
+                                appSettingsRepository.setShowImagesInMonthlyScreen(!showImages)
+                            },
                             windowInsets = windowInsets,
                         )
                     }

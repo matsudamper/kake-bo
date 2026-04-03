@@ -24,6 +24,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -110,6 +111,7 @@ public data class RootHomeMonthlyCategoryScreenUiState(
 public fun RootHomeMonthlyCategoryScreen(
     uiState: RootHomeMonthlyCategoryScreenUiState,
     showImages: Boolean,
+    onToggleShowImages: () -> Unit,
     modifier: Modifier = Modifier,
     windowInsets: PaddingValues,
 ) {
@@ -123,6 +125,22 @@ public fun RootHomeMonthlyCategoryScreen(
             KakeBoTopAppBar(
                 title = {
                     Text(uiState.headerTitle)
+                },
+                menu = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(end = 4.dp),
+                            style = MaterialTheme.typography.titleMedium,
+                            text = "画像",
+                        )
+                        Switch(
+                            checked = showImages,
+                            onCheckedChange = { onToggleShowImages() },
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
                 },
                 windowInsets = windowInsets,
             )
