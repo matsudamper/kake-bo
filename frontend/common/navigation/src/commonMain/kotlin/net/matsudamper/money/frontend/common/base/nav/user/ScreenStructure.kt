@@ -38,6 +38,12 @@ public sealed interface ScreenStructure : IScreenStructure {
             }
 
             @Serializable
+            public data object Timezone : Settings {
+                override val direction: Screens = Screens.SettingsTimezone
+                override val sameScreenId: String = "ScreenStructure#Root#Settings#Timezone"
+            }
+
+            @Serializable
             public data object Categories : Settings {
                 override val direction: Screens = Screens.SettingsCategory
                 override val sameScreenId: String = "ScreenStructure#Root#Settings#Categories"

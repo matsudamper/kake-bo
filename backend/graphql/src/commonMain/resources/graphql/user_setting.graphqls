@@ -4,6 +4,7 @@ type UserSettings {
     registeredFidoList: [RegisteredFidoInfo!]! @lazy
     sessionAttributes: SessionAttributes!
     apiTokenAttributes: ApiTokenAttributes!
+    timezoneOffset: Int! @lazy
 }
 
 type ApiTokenAttributes {
