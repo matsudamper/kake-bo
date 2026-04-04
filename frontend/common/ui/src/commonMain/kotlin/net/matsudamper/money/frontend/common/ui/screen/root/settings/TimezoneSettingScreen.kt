@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
+import net.matsudamper.money.frontend.common.ui.base.LoadingErrorContent
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
 
@@ -41,6 +42,7 @@ public data class TimezoneSettingScreenUiState(
 ) {
     @Immutable
     public sealed interface LoadingState {
+        public data object Error : LoadingState
         public data object Loading : LoadingState
         public data class Loaded(
             val timezoneOffsetMinutes: Int,
@@ -58,6 +60,7 @@ public data class TimezoneSettingScreenUiState(
     public interface Event {
         public fun onClickBack()
         public fun onResume()
+        public fun onClickRetry()
         public fun consumeTextInputEvent()
     }
 
@@ -85,7 +88,12 @@ public fun TimezoneSettingScreen(
     }
 
     if (uiState.textInputEvent != null) {
-        Dialog(onDismissRequest = { uiState.textInputEvent.event.cancel() }) {
+        Dialog(
+            onDismissRequest = {
+                uiState.textInputEvent.event.cancel()
+                uiState.event.consumeTextInputEvent()
+            },
+        ) {
             FullScreenTextInput(
                 title = uiState.textInputEvent.title,
                 onComplete = { uiState.textInputEvent.event.complete(it) },
@@ -126,6 +134,14 @@ public fun TimezoneSettingScreen(
             },
         ) { paddingValues ->
             when (val loadingState = uiState.loadingState) {
+                TimezoneSettingScreenUiState.LoadingState.Error -> {
+                    LoadingErrorContent(
+                        modifier = Modifier.fillMaxSize()
+                            .padding(paddingValues),
+                        onClickRetry = { uiState.event.onClickRetry() },
+                    )
+                }
+
                 TimezoneSettingScreenUiState.LoadingState.Loading -> {
                     Box(
                         modifier = Modifier.fillMaxSize()

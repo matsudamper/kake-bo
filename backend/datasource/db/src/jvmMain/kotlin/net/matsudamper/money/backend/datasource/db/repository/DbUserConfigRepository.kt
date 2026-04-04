@@ -1,6 +1,7 @@
 package net.matsudamper.money.backend.datasource.db.repository
 
 import net.matsudamper.money.backend.app.interfaces.UserConfigRepository
+import net.matsudamper.money.backend.app.interfaces.UserConfigRepository.Companion.TIMEZONE_OFFSET_RANGE
 import net.matsudamper.money.backend.app.interfaces.element.ImapConfig
 import net.matsudamper.money.backend.datasource.db.DbConnectionImpl
 import net.matsudamper.money.db.schema.tables.JUserImapSettings
@@ -73,11 +74,14 @@ class DbUserConfigRepository : UserConfigRepository {
             }
         }.fold(
             onSuccess = { record -> record?.value1() ?: 0 },
-            onFailure = { 0 },
+            onFailure = { throw it },
         )
     }
 
     override fun updateTimezoneOffset(userId: UserId, offsetMinutes: Int): Boolean {
+        if (offsetMinutes !in TIMEZONE_OFFSET_RANGE) {
+            return false
+        }
         return runCatching {
             val userSetting = JUserSetting.USER_SETTING
             DbConnectionImpl.use {
