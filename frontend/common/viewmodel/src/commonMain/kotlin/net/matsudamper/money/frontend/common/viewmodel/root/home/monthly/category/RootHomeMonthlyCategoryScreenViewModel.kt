@@ -206,19 +206,34 @@ public class RootHomeMonthlyCategoryScreenViewModel(
 
     private fun createPieChartItems(nodes: List<MonthlyCategoryScreenListQuery.Node>): ImmutableList<PieChartItem> {
         return nodes
-            .groupBy { it.moneyUsageSubCategory?.name ?: "その他" }
-            .mapValues { (_, nodes) -> nodes.sumOf { it.amount } }
+            .groupBy { it.moneyUsageSubCategory?.id to (it.moneyUsageSubCategory?.name ?: "その他") }
+            .mapValues { (_, groupedNodes) -> groupedNodes.sumOf { it.amount } }
             .filter { it.value > 0 }
             .entries
-            .mapIndexed { index, (subCategory, amount) ->
+            .map { (subCategoryKey, amount) ->
+                val (subCategoryId, subCategoryName) = subCategoryKey
                 PieChartItem(
-                    color = reservedColorModel.getColor(subCategory),
-                    title = subCategory,
+                    color = reservedColorModel.getColor(subCategoryName),
+                    title = subCategoryName,
                     value = amount.toLong(),
-                    event = object : PieChartItemEvent {
-                        override fun onClick() {
-                            // TODO
+                    event = if (subCategoryId != null) {
+                        object : PieChartItemEvent {
+                            override fun onClick() {
+                                viewModelScope.launch {
+                                    eventSender.send {
+                                        it.navigate(
+                                            RootHomeScreenStructure.MonthlySubCategory(
+                                                subCategoryId = subCategoryId,
+                                                year = viewModelStateFlow.value.year,
+                                                month = viewModelStateFlow.value.month,
+                                            ),
+                                        )
+                                    }
+                                }
+                            }
                         }
+                    } else {
+                        null
                     },
                 )
             }.toImmutableList()
