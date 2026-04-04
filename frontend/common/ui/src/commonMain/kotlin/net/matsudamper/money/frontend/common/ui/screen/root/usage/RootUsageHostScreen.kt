@@ -501,7 +501,7 @@ private fun CalendarDatePicker(
                                 if (isCurrentYear && !isSelected) {
                                     Modifier.border(
                                         width = 2.dp,
-                                        color = MaterialTheme.colorScheme.outline,
+                                        color = MaterialTheme.colorScheme.primary,
                                         shape = RoundedCornerShape(8.dp),
                                     )
                                 } else {
@@ -547,7 +547,7 @@ private fun CalendarDatePicker(
                                 if (isCurrentMonth && !isSelected) {
                                     Modifier.border(
                                         width = 2.dp,
-                                        color = MaterialTheme.colorScheme.outline,
+                                        color = MaterialTheme.colorScheme.primary,
                                         shape = RoundedCornerShape(8.dp),
                                     )
                                 } else {
