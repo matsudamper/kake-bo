@@ -1,7 +1,7 @@
 package platform
 
 import kotlinx.browser.window
-import net.matsudamper.money.frontend.common.base.platform.ApplicationNotificationManager
+import net.matsudamper.money.ui.root.platform.ApplicationNotificationManager
 
 internal class ApplicationNotificationManagerImpl : ApplicationNotificationManager {
     override fun notify(message: String) {

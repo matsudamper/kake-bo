@@ -5,6 +5,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
+public data class SelectedImage(
+    val id: String,
+    val previewBytes: ByteArray?,
+    val await: suspend () -> UploadedImageData?,
+)
+
+public data class UploadedImageData(
+    val bytes: ByteArray,
+    val contentType: String?,
+)
+
 @Composable
 public fun ImageUploadButton(
     onClick: () -> Unit,

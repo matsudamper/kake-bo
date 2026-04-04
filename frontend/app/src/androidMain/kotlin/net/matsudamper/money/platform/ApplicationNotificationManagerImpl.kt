@@ -7,7 +7,7 @@ import androidx.activity.ComponentActivity
 import androidx.core.content.ContextCompat
 import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
-import net.matsudamper.money.frontend.common.base.platform.ApplicationNotificationManager
+import net.matsudamper.money.ui.root.platform.ApplicationNotificationManager
 
 class ApplicationNotificationManagerImpl(
     private val componentActivity: ComponentActivity,

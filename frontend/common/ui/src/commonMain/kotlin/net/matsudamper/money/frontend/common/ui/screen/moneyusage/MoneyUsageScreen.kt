@@ -661,7 +661,7 @@ private fun MoneyUsage(
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .clickable { selectedImageUrl = imageItem.url }
-                                            .pointerInput(imageItem.url) {
+                                            .pointerInput(Unit) {
                                                 detectTapGestures(
                                                     onTap = { selectedImageUrl = imageItem.url },
                                                     onLongPress = { showPopupMenu = true },
@@ -711,7 +711,6 @@ private fun MoneyUsage(
                                     }
                                 }
                             }
-
                             uiState.uploadQueueItems.forEach { queueItem ->
                                 Box(
                                     modifier = Modifier

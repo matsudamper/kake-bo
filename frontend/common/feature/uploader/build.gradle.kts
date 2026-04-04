@@ -19,6 +19,8 @@ kotlin {
         }
         val jsMain by getting {
             dependencies {
+                implementation(projects.frontend.common.base)
+                implementation(projects.frontend.common.graphql)
             }
         }
         val androidMain by getting {
