@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -24,6 +25,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
@@ -65,6 +67,28 @@ public fun PresetListScreen(
                 uiState.event.onDismissNameInput()
             },
             default = "",
+        )
+    }
+
+    if (uiState.deleteConfirmationDialog != null) {
+        AlertDialog(
+            onDismissRequest = { uiState.deleteConfirmationDialog.event.onCancel() },
+            title = { Text("プリセットを削除しますか？") },
+            text = { Text("「${uiState.deleteConfirmationDialog.presetName}」を削除します。この操作は取り消せません。") },
+            confirmButton = {
+                TextButton(
+                    onClick = { uiState.deleteConfirmationDialog.event.onConfirm() },
+                ) {
+                    Text("削除")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { uiState.deleteConfirmationDialog.event.onCancel() },
+                ) {
+                    Text("キャンセル")
+                }
+            },
         )
     }
 

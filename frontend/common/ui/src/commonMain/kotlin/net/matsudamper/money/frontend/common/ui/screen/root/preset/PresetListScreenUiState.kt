@@ -8,8 +8,20 @@ public data class PresetListScreenUiState(
     val kakeboScaffoldListener: KakeboScaffoldListener,
     val loadingState: LoadingState,
     val showNameInput: Boolean,
+    val deleteConfirmationDialog: DeleteConfirmationDialog?,
     val event: Event,
 ) {
+    public data class DeleteConfirmationDialog(
+        val presetName: String,
+        val event: DeleteConfirmationEvent,
+    ) {
+        @Immutable
+        public interface DeleteConfirmationEvent {
+            public fun onConfirm()
+
+            public fun onCancel()
+        }
+    }
     public sealed interface LoadingState {
         public data object Loading : LoadingState
         public data object Error : LoadingState
