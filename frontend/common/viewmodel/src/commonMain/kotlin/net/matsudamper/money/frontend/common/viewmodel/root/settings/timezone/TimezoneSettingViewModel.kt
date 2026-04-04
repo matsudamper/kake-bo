@@ -111,6 +111,57 @@ public class TimezoneSettingViewModel(
         }
     }
 
+    private val timezoneTextInputEvent = object : TimezoneSettingScreenUiState.TextInputUiState.Event {
+        override fun complete(text: String) {
+            val offsetMinutes = text.toIntOrNull()
+            if (offsetMinutes == null) {
+                viewModelScope.launch {
+                    showNativeNotification("数値を入力してください")
+                }
+                return
+            }
+            if (offsetMinutes !in validTimezoneOffsetRange) {
+                viewModelScope.launch {
+                    showNativeNotification("UTC-12:00〜UTC+14:00 の範囲で入力してください")
+                }
+                return
+            }
+            viewModelScope.launch {
+                val result = runCatching {
+                    withContext(ioDispatchers) {
+                        graphqlApi.setTimezoneOffset(offsetMinutes)
+                    }
+                }.onFailure {
+                    showNativeNotification("更新に失敗しました")
+                    return@launch
+                }.getOrNull() ?: return@launch
+
+                val updatedOffset = result.data
+                    ?.userMutation
+                    ?.settingsMutation
+                    ?.updateTimezoneOffset
+                if (updatedOffset == null) {
+                    showNativeNotification("更新に失敗しました")
+                    return@launch
+                }
+
+                viewModelStateFlow.update {
+                    it.copy(
+                        timezoneOffsetMinutes = updatedOffset,
+                        textInputEvent = null,
+                        loadingState = ViewModelState.LoadingState.Loaded,
+                    )
+                }
+            }
+        }
+
+        override fun cancel() {
+            viewModelStateFlow.update {
+                it.copy(textInputEvent = null)
+            }
+        }
+    }
+
     private fun ViewModelState.toLoadingState(): TimezoneSettingScreenUiState.LoadingState {
         return when (loadingState) {
             ViewModelState.LoadingState.Error -> TimezoneSettingScreenUiState.LoadingState.Error
@@ -128,56 +179,7 @@ public class TimezoneSettingViewModel(
                                     textInputEvent = TimezoneSettingScreenUiState.TextInputUiState(
                                         title = "タイムゾーンオフセット（分）",
                                         default = viewModelState.timezoneOffsetMinutes?.toString().orEmpty(),
-                                        event = object : TimezoneSettingScreenUiState.TextInputUiState.Event {
-                                            override fun complete(text: String) {
-                                                val offsetMinutes = text.toIntOrNull()
-                                                if (offsetMinutes == null) {
-                                                    viewModelScope.launch {
-                                                        showNativeNotification("数値を入力してください")
-                                                    }
-                                                    return
-                                                }
-                                                if (offsetMinutes !in validTimezoneOffsetRange) {
-                                                    viewModelScope.launch {
-                                                        showNativeNotification("UTC-12:00〜UTC+14:00 の範囲で入力してください")
-                                                    }
-                                                    return
-                                                }
-                                                viewModelScope.launch {
-                                                    val result = runCatching {
-                                                        withContext(ioDispatchers) {
-                                                            graphqlApi.setTimezoneOffset(offsetMinutes)
-                                                        }
-                                                    }.onFailure {
-                                                        showNativeNotification("更新に失敗しました")
-                                                        return@launch
-                                                    }.getOrNull() ?: return@launch
-
-                                                    val updatedOffset = result.data
-                                                        ?.userMutation
-                                                        ?.settingsMutation
-                                                        ?.updateTimezoneOffset
-                                                    if (updatedOffset == null) {
-                                                        showNativeNotification("更新に失敗しました")
-                                                        return@launch
-                                                    }
-
-                                                    viewModelStateFlow.update {
-                                                        it.copy(
-                                                            timezoneOffsetMinutes = updatedOffset,
-                                                            textInputEvent = null,
-                                                            loadingState = ViewModelState.LoadingState.Loaded,
-                                                        )
-                                                    }
-                                                }
-                                            }
-
-                                            override fun cancel() {
-                                                viewModelStateFlow.update {
-                                                    it.copy(textInputEvent = null)
-                                                }
-                                            }
-                                        },
+                                        event = timezoneTextInputEvent,
                                     ),
                                 )
                             }
