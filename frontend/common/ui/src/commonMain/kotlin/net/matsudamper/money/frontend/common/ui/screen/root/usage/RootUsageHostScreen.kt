@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.ui.screen.root.usage
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -106,6 +107,8 @@ public data class RootUsageHostScreenUiState(
             val title: String,
             val year: Int,
             val month: Int,
+            val currentYear: Int,
+            val currentMonth: Int,
             val event: HeaderCalendarEvent,
         ) : Header
 
@@ -209,6 +212,8 @@ public fun RootUsageHostScreen(
                             CalendarDatePicker(
                                 selectedYear = header.year,
                                 selectedMonth = header.month,
+                                currentYear = header.currentYear,
+                                currentMonth = header.currentMonth,
                                 onSelectYearMonth = header.event::onClickYearMonth,
                             )
                         }
@@ -454,6 +459,8 @@ private fun TitleBar(
 private fun CalendarDatePicker(
     selectedYear: Int,
     selectedMonth: Int,
+    currentYear: Int,
+    currentMonth: Int,
     onSelectYearMonth: (Int, Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -485,10 +492,22 @@ private fun CalendarDatePicker(
             ) {
                 items(years) { year ->
                     val isSelected = year == selectedYear
+                    val isCurrentYear = year == currentYear
                     Surface(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
-                            .clickable { onSelectYearMonth(year, selectedMonth) },
+                            .clickable { onSelectYearMonth(year, selectedMonth) }
+                            .then(
+                                if (isCurrentYear && !isSelected) {
+                                    Modifier.border(
+                                        width = 2.dp,
+                                        color = MaterialTheme.colorScheme.outline,
+                                        shape = RoundedCornerShape(8.dp),
+                                    )
+                                } else {
+                                    Modifier
+                                },
+                            ),
                         color = if (isSelected) {
                             MaterialTheme.colorScheme.primary
                         } else {
@@ -519,10 +538,22 @@ private fun CalendarDatePicker(
             ) {
                 items(months) { month ->
                     val isSelected = month == selectedMonth
+                    val isCurrentMonth = month == currentMonth && selectedYear == currentYear
                     Surface(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
-                            .clickable { onSelectYearMonth(selectedYear, month) },
+                            .clickable { onSelectYearMonth(selectedYear, month) }
+                            .then(
+                                if (isCurrentMonth && !isSelected) {
+                                    Modifier.border(
+                                        width = 2.dp,
+                                        color = MaterialTheme.colorScheme.outline,
+                                        shape = RoundedCornerShape(8.dp),
+                                    )
+                                } else {
+                                    Modifier
+                                },
+                            ),
                         color = if (isSelected) {
                             MaterialTheme.colorScheme.primary
                         } else {

@@ -6,6 +6,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo.api.Optional
 import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
@@ -315,10 +318,13 @@ public class RootUsageHostViewModel(
                             },
                             header = when (viewModelState.screenStructure) {
                                 is ScreenStructure.Root.Usage.Calendar -> run {
+                                    val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
                                     RootUsageHostScreenUiState.Header.Calendar(
                                         title = viewModelState.calendarTitle ?: return@run RootUsageHostScreenUiState.Header.None,
                                         year = viewModelState.calendarYear ?: return@run RootUsageHostScreenUiState.Header.None,
                                         month = viewModelState.calendarMonth ?: return@run RootUsageHostScreenUiState.Header.None,
+                                        currentYear = now.year,
+                                        currentMonth = now.monthNumber,
                                         event = viewModelState.calendarEvent ?: return@run RootUsageHostScreenUiState.Header.None,
                                     )
                                 }
