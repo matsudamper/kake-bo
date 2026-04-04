@@ -32,6 +32,7 @@ import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructu
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItem
+import net.matsudamper.money.frontend.common.ui.layout.graph.pie.PieChartItemEvent
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionOrder
 import net.matsudamper.money.frontend.common.ui.screen.root.home.SortSectionType
 import net.matsudamper.money.frontend.common.ui.screen.root.home.monthly.RootHomeMonthlyScreenUiState
@@ -159,18 +160,33 @@ public class RootHomeMonthlyScreenViewModel(
     }.asStateFlow()
 
     private fun createLoadedUiState(viewModelState: ViewModelState): RootHomeMonthlyScreenUiState.LoadingState.Loaded {
+        val sinceDate = createSinceLocalDateTime().date
+
         val pieChartItems = viewModelState.moneyUsageAnalytics?.byCategories?.mapIndexed { index, byCategory ->
             PieChartItem(
                 title = byCategory.category.name,
                 color = reservedColorModel.getColor(byCategory.category.name),
                 value = byCategory.totalAmount ?: 0,
+                event = object : PieChartItemEvent {
+                    override fun onClick() {
+                        viewModelScope.launch {
+                            eventSender.send {
+                                it.navigate(
+                                    RootHomeScreenStructure.MonthlyCategory(
+                                        categoryId = byCategory.category.id,
+                                        year = sinceDate.year,
+                                        month = sinceDate.monthNumber,
+                                    ),
+                                )
+                            }
+                        }
+                    }
+                },
             )
         }.orEmpty().sortedByDescending { it.value }
 
         val response = (viewModelState.monthlyListResponse as? ApolloResponseState.Success)?.value
         val nodes = response?.data?.user?.moneyUsages?.nodes.orEmpty()
-
-        val sinceDate = createSinceLocalDateTime().date
 
         return RootHomeMonthlyScreenUiState.LoadingState.Loaded(
             yearMonth = "${sinceDate.year}年${sinceDate.monthNumber}月",
