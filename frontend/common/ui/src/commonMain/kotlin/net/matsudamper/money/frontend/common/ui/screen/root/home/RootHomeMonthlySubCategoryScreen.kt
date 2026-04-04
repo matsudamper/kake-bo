@@ -52,8 +52,6 @@ import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 @Composable
 public fun RootHomeMonthlySubCategoryScreen(
     uiState: RootHomeMonthlySubCategoryScreenUiState,
-    showImages: Boolean,
-    onToggleShowImages: () -> Unit,
     modifier: Modifier = Modifier,
     windowInsets: PaddingValues,
 ) {
@@ -78,8 +76,8 @@ public fun RootHomeMonthlySubCategoryScreen(
                             text = "画像",
                         )
                         Switch(
-                            checked = showImages,
-                            onCheckedChange = { onToggleShowImages() },
+                            checked = uiState.showImages,
+                            onCheckedChange = { uiState.event.onToggleShowImages() },
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                     }
@@ -94,7 +92,6 @@ public fun RootHomeMonthlySubCategoryScreen(
                     modifier = Modifier.fillMaxWidth(),
                     loadingState = loadingState,
                     uiState = uiState,
-                    showImages = showImages,
                 )
             }
 
@@ -118,7 +115,6 @@ public fun RootHomeMonthlySubCategoryScreen(
 private fun LoadedContent(
     loadingState: RootHomeMonthlySubCategoryScreenUiState.LoadingState.Loaded,
     uiState: RootHomeMonthlySubCategoryScreenUiState,
-    showImages: Boolean,
     modifier: Modifier = Modifier,
 ) {
     BoxWithConstraints(
@@ -168,7 +164,7 @@ private fun LoadedContent(
             items(loadingState.items) { item ->
                 ListItem(
                     item = item,
-                    showImages = showImages,
+                    showImages = uiState.showImages,
                     onClickImage = { url -> imageUrlState.value = url },
                     modifier = Modifier
                         .fillMaxWidth()

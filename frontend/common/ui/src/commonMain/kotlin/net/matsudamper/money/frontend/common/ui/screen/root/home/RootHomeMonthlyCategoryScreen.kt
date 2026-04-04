@@ -61,6 +61,7 @@ import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 public data class RootHomeMonthlyCategoryScreenUiState(
     val loadingState: LoadingState,
     val headerTitle: String,
+    val showImages: Boolean,
     val event: Event,
     val kakeboScaffoldListener: KakeboScaffoldListener,
     val currentSortType: SortSectionType,
@@ -104,14 +105,13 @@ public data class RootHomeMonthlyCategoryScreenUiState(
         public fun onViewInitialized()
         public fun onSortTypeChanged(sortType: SortSectionType)
         public fun onSortOrderChanged(order: SortSectionOrder)
+        public fun onToggleShowImages()
     }
 }
 
 @Composable
 public fun RootHomeMonthlyCategoryScreen(
     uiState: RootHomeMonthlyCategoryScreenUiState,
-    showImages: Boolean,
-    onToggleShowImages: () -> Unit,
     modifier: Modifier = Modifier,
     windowInsets: PaddingValues,
 ) {
@@ -136,8 +136,8 @@ public fun RootHomeMonthlyCategoryScreen(
                             text = "画像",
                         )
                         Switch(
-                            checked = showImages,
-                            onCheckedChange = { onToggleShowImages() },
+                            checked = uiState.showImages,
+                            onCheckedChange = { uiState.event.onToggleShowImages() },
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                     }
@@ -152,7 +152,6 @@ public fun RootHomeMonthlyCategoryScreen(
                     modifier = Modifier.fillMaxWidth(),
                     loadingState = loadingState,
                     uiState = uiState,
-                    showImages = showImages,
                 )
             }
 
@@ -176,7 +175,6 @@ public fun RootHomeMonthlyCategoryScreen(
 private fun LoadedContent(
     loadingState: RootHomeMonthlyCategoryScreenUiState.LoadingState.Loaded,
     uiState: RootHomeMonthlyCategoryScreenUiState,
-    showImages: Boolean,
     modifier: Modifier = Modifier,
 ) {
     BoxWithConstraints(
@@ -241,7 +239,7 @@ private fun LoadedContent(
             items(loadingState.items) { item ->
                 ListItem(
                     item = item,
-                    showImages = showImages,
+                    showImages = uiState.showImages,
                     onClickImage = { url -> imageUrlState.value = url },
                     modifier = Modifier
                         .fillMaxWidth()

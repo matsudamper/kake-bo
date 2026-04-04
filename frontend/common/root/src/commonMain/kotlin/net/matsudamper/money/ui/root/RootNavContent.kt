@@ -201,6 +201,7 @@ internal fun RootNavContent(
                                 loginCheckUseCase = loginCheckUseCase,
                                 graphqlClient = koin.get<GraphqlClient>(),
                                 navController = navController,
+                                appSettingsRepository = koin.get<AppSettingsRepository>(),
                             )
                         }
                         LaunchedEffect(monthlyCategoryViewModel.eventHandler) {
@@ -210,18 +211,9 @@ internal fun RootNavContent(
                             monthlyCategoryViewModel.updateStructure(current)
                         }
 
-                        val appSettingsRepository = koin.get<AppSettingsRepository>()
-                        val showImages = appSettingsRepository
-                            .showImagesInMonthlyScreen
-                            .collectAsState(initial = false)
-                            .value
                         RootHomeMonthlyCategoryScreen(
                             modifier = Modifier.fillMaxSize(),
                             uiState = monthlyCategoryViewModel.uiStateFlow.collectAsState().value,
-                            showImages = showImages,
-                            onToggleShowImages = {
-                                appSettingsRepository.setShowImagesInMonthlyScreen(!showImages)
-                            },
                             windowInsets = windowInsets,
                         )
                     }
@@ -236,6 +228,7 @@ internal fun RootNavContent(
                                 loginCheckUseCase = loginCheckUseCase,
                                 graphqlClient = koin.get<GraphqlClient>(),
                                 navController = navController,
+                                appSettingsRepository = koin.get<AppSettingsRepository>(),
                             )
                         }
                         LaunchedEffect(monthlySubCategoryViewModel.eventHandler) {
@@ -245,18 +238,9 @@ internal fun RootNavContent(
                             monthlySubCategoryViewModel.updateStructure(current)
                         }
 
-                        val appSettingsRepository = koin.get<AppSettingsRepository>()
-                        val showImages = appSettingsRepository
-                            .showImagesInMonthlyScreen
-                            .collectAsState(initial = false)
-                            .value
                         RootHomeMonthlySubCategoryScreen(
                             modifier = Modifier.fillMaxSize(),
                             uiState = monthlySubCategoryViewModel.uiStateFlow.collectAsState().value,
-                            showImages = showImages,
-                            onToggleShowImages = {
-                                appSettingsRepository.setShowImagesInMonthlyScreen(!showImages)
-                            },
                             windowInsets = windowInsets,
                         )
                     }
