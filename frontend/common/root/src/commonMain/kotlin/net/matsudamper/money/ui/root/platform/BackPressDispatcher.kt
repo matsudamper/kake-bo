@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.base.platform
+package net.matsudamper.money.ui.root.platform
 
 public interface BackPressDispatcher {
     public fun onBackPressed()

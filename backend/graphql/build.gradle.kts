@@ -1,8 +1,13 @@
 import com.kobylynskyi.graphql.codegen.model.GeneratedLanguage
 import io.github.kobylynskyi.graphql.codegen.gradle.GraphQLCodegenGradleTask
 import io.github.kobylynskyi.graphql.codegen.gradle.NullableInputTypeWrapperConfig
+import java.io.File
+import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.TaskAction
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
