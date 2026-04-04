@@ -169,7 +169,7 @@ roomCompiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 workRuntimeKtx = { module = "androidx.work:work-runtime-ktx", version.ref = "workmanager" }
 
 # Other
-lettuce = { module = "io.lettuce:lettuce-core", version.require = "7.5.0.RELEASE" }
+lettuce = { module = "io.lettuce:lettuce-core", version.require = "7.5.1.RELEASE" }
 jsoup = { module = "org.jsoup:jsoup", version.require = "1.22.1" }
 hikariCP = { module = "com.zaxxer:HikariCP", version.require = "7.0.2" }
 mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.8" }
