@@ -172,7 +172,7 @@ workRuntimeKtx = { module = "androidx.work:work-runtime-ktx", version.ref = "wor
 lettuce = { module = "io.lettuce:lettuce-core", version.require = "7.5.0.RELEASE" }
 jsoup = { module = "org.jsoup:jsoup", version.require = "1.22.1" }
 hikariCP = { module = "com.zaxxer:HikariCP", version.require = "7.0.2" }
-mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.7" }
+mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.8" }
 
 # Play
 androidxCredentialsPlayServicesAuth = { module = "androidx.credentials:credentials-play-services-auth", version.require = "1.5.0" }
