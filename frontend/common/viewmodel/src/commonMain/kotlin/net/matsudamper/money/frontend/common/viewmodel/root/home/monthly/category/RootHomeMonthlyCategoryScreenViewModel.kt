@@ -24,6 +24,7 @@ import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import com.apollographql.apollo.cache.normalized.watch
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.IO
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
@@ -55,6 +56,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
     loginCheckUseCase: GlobalEventHandlerLoginCheckUseCaseDelegate,
     private val navController: ScreenNavController,
     private val graphqlClient: GraphqlClient,
+    private val appSettingsRepository: AppSettingsRepository,
 ) : CommonViewModel(scopedObjectFeature) {
     private val reservedColorModel = ReservedColorModel()
 
@@ -126,9 +128,16 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                         order = order,
                     )
                 }
+
+                override fun onToggleShowImages() {
+                    appSettingsRepository.setShowImagesInMonthlyScreen(
+                        !viewModelStateFlow.value.showImages,
+                    )
+                }
             },
             loadingState = RootHomeMonthlyCategoryScreenUiState.LoadingState.Loading,
             headerTitle = "",
+            showImages = false,
             currentSortType = SortSectionType.Date,
             sortOrder = SortSectionOrder.Ascending,
         ),
@@ -159,9 +168,15 @@ public class RootHomeMonthlyCategoryScreenViewModel(
                         val descriptionText = viewModelState.categoryName ?: "カテゴリ別一覧"
                         "$yearText $descriptionText"
                     },
+                    showImages = viewModelState.showImages,
                     currentSortType = viewModelState.sortStateMap.currentSortState.type,
                     sortOrder = viewModelState.sortStateMap.currentSortState.order,
                 )
+            }
+        }
+        viewModelScope.launch {
+            appSettingsRepository.showImagesInMonthlyScreen.collectLatest { showImages ->
+                viewModelStateFlow.update { it.copy(showImages = showImages) }
             }
         }
     }
@@ -341,6 +356,7 @@ public class RootHomeMonthlyCategoryScreenViewModel(
         val month: Int,
         val categoryId: MoneyUsageCategoryId,
         val categoryName: String? = null,
+        val showImages: Boolean = false,
         val apolloResponse: ApolloResponse<MonthlyCategoryScreenListQuery.Data>? = null,
         val sortStateMap: SortStateMap = SortStateMap(),
     ) {
