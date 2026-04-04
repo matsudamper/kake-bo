@@ -42,6 +42,10 @@ public class TimezoneSettingViewModel(
                     load()
                 }
 
+                override fun onClickRetry() {
+                    load()
+                }
+
                 override fun consumeTextInputEvent() {
                     viewModelStateFlow.update {
                         it.copy(textInputEvent = null)
@@ -54,70 +58,7 @@ public class TimezoneSettingViewModel(
             viewModelStateFlow.collect { state ->
                 uiStateFlow.update {
                     it.copy(
-                        loadingState = if (state.timezoneOffsetMinutes == null) {
-                            TimezoneSettingScreenUiState.LoadingState.Loading
-                        } else {
-                            TimezoneSettingScreenUiState.LoadingState.Loaded(
-                                timezoneOffsetMinutes = state.timezoneOffsetMinutes,
-                                timezoneOffsetText = formatOffsetText(state.timezoneOffsetMinutes),
-                                event = object : TimezoneSettingScreenUiState.LoadedEvent {
-                                    override fun onClickChange() {
-                                        viewModelStateFlow.update { viewModelState ->
-                                            viewModelState.copy(
-                                                textInputEvent = TimezoneSettingScreenUiState.TextInputUiState(
-                                                    title = "タイムゾーンオフセット（分）",
-                                                    default = viewModelState.timezoneOffsetMinutes?.toString().orEmpty(),
-                                                    event = object : TimezoneSettingScreenUiState.TextInputUiState.Event {
-                                                        override fun complete(text: String) {
-                                                            val offsetMinutes = text.toIntOrNull()
-                                                            if (offsetMinutes == null) {
-                                                                viewModelScope.launch {
-                                                                    globalEventSender.send {
-                                                                        it.showNativeNotification("数値を入力してください")
-                                                                    }
-                                                                }
-                                                                return
-                                                            }
-                                                            viewModelScope.launch {
-                                                                val result = runCatching {
-                                                                    withContext(ioDispatchers) {
-                                                                        graphqlApi.setTimezoneOffset(offsetMinutes)
-                                                                    }
-                                                                }.onFailure {
-                                                                    globalEventSender.send {
-                                                                        it.showNativeNotification("更新に失敗しました")
-                                                                    }
-                                                                    return@launch
-                                                                }.getOrNull() ?: return@launch
-
-                                                                val updatedOffset = result.data
-                                                                    ?.userMutation
-                                                                    ?.settingsMutation
-                                                                    ?.updateTimezoneOffset
-                                                                    ?: return@launch
-
-                                                                viewModelStateFlow.update {
-                                                                    it.copy(
-                                                                        timezoneOffsetMinutes = updatedOffset,
-                                                                        textInputEvent = null,
-                                                                    )
-                                                                }
-                                                            }
-                                                        }
-
-                                                        override fun cancel() {
-                                                            viewModelStateFlow.update {
-                                                                it.copy(textInputEvent = null)
-                                                            }
-                                                        }
-                                                    },
-                                                ),
-                                            )
-                                        }
-                                    }
-                                },
-                            )
-                        },
+                        loadingState = state.toLoadingState(),
                         textInputEvent = state.textInputEvent,
                     )
                 }
@@ -137,22 +78,135 @@ public class TimezoneSettingViewModel(
 
     private fun load() {
         viewModelScope.launch {
+            if (viewModelStateFlow.value.timezoneOffsetMinutes == null) {
+                viewModelStateFlow.update {
+                    it.copy(loadingState = ViewModelState.LoadingState.Loading)
+                }
+            }
+
             val result = runCatching {
                 withContext(ioDispatchers) {
                     graphqlApi.getTimezoneOffset()
                 }
-            }.getOrNull() ?: return@launch
+            }.getOrNull()
 
-            val offsetMinutes = result.data?.user?.settings?.timezoneOffset ?: return@launch
+            val offsetMinutes = result?.data?.user?.settings?.timezoneOffset
+            if (offsetMinutes == null) {
+                viewModelStateFlow.update { state ->
+                    if (state.timezoneOffsetMinutes == null) {
+                        state.copy(loadingState = ViewModelState.LoadingState.Error)
+                    } else {
+                        state
+                    }
+                }
+                return@launch
+            }
 
             viewModelStateFlow.update {
-                it.copy(timezoneOffsetMinutes = offsetMinutes)
+                it.copy(
+                    timezoneOffsetMinutes = offsetMinutes,
+                    loadingState = ViewModelState.LoadingState.Loaded,
+                )
             }
+        }
+    }
+
+    private fun ViewModelState.toLoadingState(): TimezoneSettingScreenUiState.LoadingState {
+        return when (loadingState) {
+            ViewModelState.LoadingState.Error -> TimezoneSettingScreenUiState.LoadingState.Error
+            ViewModelState.LoadingState.Loading -> TimezoneSettingScreenUiState.LoadingState.Loading
+            ViewModelState.LoadingState.Loaded -> {
+                val timezoneOffsetMinutes = timezoneOffsetMinutes
+                    ?: return TimezoneSettingScreenUiState.LoadingState.Error
+                TimezoneSettingScreenUiState.LoadingState.Loaded(
+                    timezoneOffsetMinutes = timezoneOffsetMinutes,
+                    timezoneOffsetText = formatOffsetText(timezoneOffsetMinutes),
+                    event = object : TimezoneSettingScreenUiState.LoadedEvent {
+                        override fun onClickChange() {
+                            viewModelStateFlow.update { viewModelState ->
+                                viewModelState.copy(
+                                    textInputEvent = TimezoneSettingScreenUiState.TextInputUiState(
+                                        title = "タイムゾーンオフセット（分）",
+                                        default = viewModelState.timezoneOffsetMinutes?.toString().orEmpty(),
+                                        event = object : TimezoneSettingScreenUiState.TextInputUiState.Event {
+                                            override fun complete(text: String) {
+                                                val offsetMinutes = text.toIntOrNull()
+                                                if (offsetMinutes == null) {
+                                                    viewModelScope.launch {
+                                                        showNativeNotification("数値を入力してください")
+                                                    }
+                                                    return
+                                                }
+                                                if (offsetMinutes !in validTimezoneOffsetRange) {
+                                                    viewModelScope.launch {
+                                                        showNativeNotification("UTC-12:00〜UTC+14:00 の範囲で入力してください")
+                                                    }
+                                                    return
+                                                }
+                                                viewModelScope.launch {
+                                                    val result = runCatching {
+                                                        withContext(ioDispatchers) {
+                                                            graphqlApi.setTimezoneOffset(offsetMinutes)
+                                                        }
+                                                    }.onFailure {
+                                                        showNativeNotification("更新に失敗しました")
+                                                        return@launch
+                                                    }.getOrNull() ?: return@launch
+
+                                                    val updatedOffset = result.data
+                                                        ?.userMutation
+                                                        ?.settingsMutation
+                                                        ?.updateTimezoneOffset
+                                                    if (updatedOffset == null) {
+                                                        showNativeNotification("更新に失敗しました")
+                                                        return@launch
+                                                    }
+
+                                                    viewModelStateFlow.update {
+                                                        it.copy(
+                                                            timezoneOffsetMinutes = updatedOffset,
+                                                            textInputEvent = null,
+                                                            loadingState = ViewModelState.LoadingState.Loaded,
+                                                        )
+                                                    }
+                                                }
+                                            }
+
+                                            override fun cancel() {
+                                                viewModelStateFlow.update {
+                                                    it.copy(textInputEvent = null)
+                                                }
+                                            }
+                                        },
+                                    ),
+                                )
+                            }
+                        }
+                    },
+                )
+            }
+        }
+    }
+
+    private suspend fun showNativeNotification(text: String) {
+        globalEventSender.send {
+            it.showNativeNotification(text)
         }
     }
 
     private data class ViewModelState(
         val timezoneOffsetMinutes: Int? = null,
         val textInputEvent: TimezoneSettingScreenUiState.TextInputUiState? = null,
-    )
+        val loadingState: LoadingState = LoadingState.Loading,
+    ) {
+        enum class LoadingState {
+            Loading,
+            Loaded,
+            Error,
+        }
+    }
+
+    private companion object {
+        val validTimezoneOffsetRange: IntRange = -720..840
+    }
 }
