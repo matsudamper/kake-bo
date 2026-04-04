@@ -74,7 +74,7 @@ public fun PresetListScreen(
         AlertDialog(
             onDismissRequest = { uiState.deleteConfirmationDialog.event.onCancel() },
             title = { Text("プリセットを削除しますか？") },
-            text = { Text("「${uiState.deleteConfirmationDialog.presetName}」を削除します。この操作は取り消せません。") },
+            text = { Text("「${uiState.deleteConfirmationDialog.presetName}」を削除しますか？") },
             confirmButton = {
                 TextButton(
                     onClick = { uiState.deleteConfirmationDialog.event.onConfirm() },
