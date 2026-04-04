@@ -39,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -60,6 +61,7 @@ import androidx.compose.ui.window.PopupProperties
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
@@ -76,6 +78,7 @@ import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.UrlClickableText
 import net.matsudamper.money.frontend.common.ui.layout.UrlMenuDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 
@@ -651,14 +654,14 @@ private fun MoneyUsage(
                                 var showDeleteDialog by remember { mutableStateOf(false) }
                                 var showPopupMenu by remember { mutableStateOf(false) }
                                 Box(modifier = Modifier.size(180.dp)) {
-                                    AsyncImage(
+                                    SubcomposeAsyncImage(
                                         model = imageItem.url,
                                         contentDescription = null,
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .clickable { selectedImageUrl = imageItem.url }
-                                            .pointerInput(imageItem.url) {
+                                            .pointerInput(Unit) {
                                                 detectTapGestures(
                                                     onTap = { selectedImageUrl = imageItem.url },
                                                     onLongPress = { showPopupMenu = true },
@@ -678,6 +681,7 @@ private fun MoneyUsage(
                                                     }
                                                 }
                                             },
+                                        loading = { ImageLoadingPlaceholder() },
                                     )
                                     DropdownMenu(
                                         expanded = showPopupMenu,
@@ -707,7 +711,6 @@ private fun MoneyUsage(
                                     }
                                 }
                             }
-
                             uiState.uploadQueueItems.forEach { queueItem ->
                                 Box(
                                     modifier = Modifier
@@ -796,8 +799,22 @@ private fun MoneyUsageSection(
 ) {
     Column(modifier = modifier) {
         ProvideTextStyle(MaterialTheme.typography.titleMedium) {
-            Box(modifier = Modifier.padding(8.dp)) {
-                title()
+            Row(
+                modifier = Modifier.padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(modifier = Modifier.weight(1f)) {
+                    title()
+                }
+                if (showChangeButton) {
+                    TextButton(
+                        onClick = {
+                            onClickChange()
+                        },
+                    ) {
+                        Text("変更")
+                    }
+                }
             }
         }
         HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
@@ -816,23 +833,6 @@ private fun MoneyUsageSection(
             ) {
                 ProvideTextStyle(MaterialTheme.typography.bodyMedium) {
                     content()
-                }
-            }
-
-            if (showChangeButton) {
-                OutlinedButton(
-                    modifier = Modifier.align(
-                        if (multiline) {
-                            Alignment.Bottom
-                        } else {
-                            Alignment.CenterVertically
-                        },
-                    ),
-                    onClick = {
-                        onClickChange()
-                    },
-                ) {
-                    Text("変更")
                 }
             }
         }

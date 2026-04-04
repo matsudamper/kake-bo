@@ -19,10 +19,10 @@ import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.base.platform.ImagePicker
 import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadQueue
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
+import net.matsudamper.money.frontend.common.ui.layout.image.SelectedImage
 import net.matsudamper.money.frontend.common.ui.screen.moneyusage.MoneyUsageScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.layout.CategorySelectDialogViewModel
@@ -581,7 +581,7 @@ public class MoneyUsageScreenViewModel(
     }
 
     public interface Event {
-        public suspend fun selectImages(): List<ImagePicker.SelectedImage>
+        public suspend fun selectImages(): List<SelectedImage>
 
         public fun navigate(structure: ScreenStructure)
 

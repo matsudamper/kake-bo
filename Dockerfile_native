@@ -1,0 +1,24 @@
+FROM ghcr.io/graalvm/native-image-community:24 AS builder
+
+WORKDIR /app
+
+COPY . .
+
+RUN ./gradlew :backend:nativeCompile :frontend:app:jsBrowserProductionWebpack \
+    --no-daemon \
+    -Dorg.gradle.jvmargs="-Xmx6g"
+
+FROM debian:13-slim
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libz1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+RUN mkdir src logs
+
+COPY --from=builder /app/frontend/app/build/dist/js/productionExecutable src
+COPY --from=builder /app/backend/build/native/nativeCompile/backend backend
+
+ENTRYPOINT ["/app/backend"]

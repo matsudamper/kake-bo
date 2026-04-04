@@ -35,6 +35,10 @@ query MonthlyCategoryScreenList(
                 title
                 amount
                 date
+                images {
+                    id
+                    url
+                }
                 moneyUsageSubCategory {
                     id
                     name

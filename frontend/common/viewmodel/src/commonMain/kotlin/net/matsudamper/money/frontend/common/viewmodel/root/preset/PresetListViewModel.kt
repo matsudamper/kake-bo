@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import net.matsudamper.money.element.MoneyUsagePresetId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
@@ -32,6 +33,7 @@ public class PresetListViewModel(
             isLoading = true,
             showNameInput = false,
             isError = false,
+            deleteConfirmationPresetId = null,
         ),
     )
 
@@ -47,6 +49,7 @@ public class PresetListViewModel(
             },
             loadingState = PresetListScreenUiState.LoadingState.Loading,
             showNameInput = false,
+            deleteConfirmationDialog = null,
             event = object : PresetListScreenUiState.Event {
                 override fun onResume() {
                     fetchCollect()
@@ -102,14 +105,48 @@ public class PresetListViewModel(
                             }.toImmutableList(),
                         )
                     }
+                    val deleteConfirmationDialog = viewModelState.deleteConfirmationPresetId?.let { presetId ->
+                        val preset = viewModelState.presets.find { it.id == presetId }
+                        if (preset != null) {
+                            PresetListScreenUiState.DeleteConfirmationDialog(
+                                presetName = preset.name,
+                                event = object : PresetListScreenUiState.DeleteConfirmationDialog.DeleteConfirmationEvent {
+                                    override fun onConfirm() {
+                                        viewModelScope.launch {
+                                            confirmDelete(presetId)
+                                        }
+                                    }
+
+                                    override fun onCancel() {
+                                        viewModelStateFlow.update { it.copy(deleteConfirmationPresetId = null) }
+                                    }
+                                },
+                            )
+                        } else {
+                            null
+                        }
+                    }
                     uiState.copy(
                         loadingState = loadingState,
                         showNameInput = viewModelState.showNameInput,
+                        deleteConfirmationDialog = deleteConfirmationDialog,
                     )
                 }
             }
         }
     }.asStateFlow()
+
+    private suspend fun confirmDelete(presetId: MoneyUsagePresetId) {
+        val deleted = api.deletePreset(presetId)
+        viewModelStateFlow.update { it.copy(deleteConfirmationPresetId = null) }
+        if (!deleted) {
+            globalEventSender.send {
+                it.showNativeNotification("削除に失敗しました")
+            }
+            return
+        }
+        fetchCollect()
+    }
 
     private var fetchJob: Job = Job()
     private fun fetchCollect() {
@@ -157,16 +194,7 @@ public class PresetListViewModel(
         }
 
         override fun onClickDelete() {
-            viewModelScope.launch {
-                val deleted = api.deletePreset(preset.id)
-                if (!deleted) {
-                    globalEventSender.send {
-                        it.showNativeNotification("削除に失敗しました")
-                    }
-                    return@launch
-                }
-                fetchCollect()
-            }
+            viewModelStateFlow.update { it.copy(deleteConfirmationPresetId = preset.id) }
         }
 
         override fun onClickEdit() {
@@ -183,5 +211,6 @@ public class PresetListViewModel(
         val presets: List<GetMoneyUsagePresetsQuery.MoneyUsagePreset>,
         val isError: Boolean,
         val showNameInput: Boolean,
+        val deleteConfirmationPresetId: MoneyUsagePresetId?,
     )
 }

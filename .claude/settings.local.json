@@ -6,6 +6,18 @@
     "allow": [
       "Bash(./gradlew:*)",
       "Bash(grep:*)",
+      "Bash(find /c/Users/matsu/Documents/Git/kake-bo -type f \\\\\\(-name *.gradle.kts -o -name *.gradle -o -name *.toml -o -name Dockerfile* -o -name *.properties -o -name *.kt -o -name *.yaml -o -name *.yml -o -name *.json \\\\\\))",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:mvnrepository.com)",
+      "WebFetch(domain:central.sonatype.com)",
+      "WebFetch(domain:opentelemetry.io)",
+      "Bash(xargs -I{} jar tf {})",
+      "Bash(find /c/Users/matsu/.gradle/caches -name opentelemetry-ktor-3*)",
+      "Bash(find /c/Users/matsu/.gradle/caches/modules-2/files-2.1/io.opentelemetry.instrumentation -name opentelemetry-ktor-3*)",
+      "Bash(jar tf:*)",
+      "Bash(find . -name *.jar -path */dataloader*)",
+      "Bash(javap:*)",
       "Bash(echo:*)"
     ],
     "deny": [

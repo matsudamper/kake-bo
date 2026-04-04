@@ -17,6 +17,7 @@ jetbrainsNav3 = "1.0.0-alpha06"
 coil3 = "3.4.0"
 zoomable = "2.11.1"
 okhttp = "5.3.2"
+graalvmNative = "0.11.5"
 opentelemetry = "1.60.1"
 paparazzi = "2.0.0-alpha04"
 composablePreviewScanner = "0.8.2"
@@ -37,6 +38,7 @@ kobylynskyi-graphqlCodegen = { id = "io.github.kobylynskyi.graphql.codegen", ver
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose" }
 protobuf = { id = "com.google.protobuf", version.require = "0.9.6" }
 paparazzi = { id = "app.cash.paparazzi", version.ref = "paparazzi" }
+graalvmNative = { id = "org.graalvm.buildtools.native", version.ref = "graalvmNative" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 [libraries]
@@ -124,7 +126,7 @@ composeUiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-previe
 composeUiTooling = { module = "org.jetbrains.compose.ui:ui-tooling", version.ref = "compose" }
 
 # Test
-kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "6.1.9" }
+kotestRunnerJunit5 = { module = "io.kotest:kotest-runner-junit5", version.require = "6.1.11" }
 paparazzi = { module = "app.cash.paparazzi:paparazzi", version.ref = "paparazzi" }
 composablePreviewScanner = { module = "io.github.sergio-sastre.ComposablePreviewScanner:android", version.ref = "composablePreviewScanner" }
 
@@ -135,7 +137,7 @@ angus-mail = { module = "org.eclipse.angus:angus-mail", version.require = "2.0.5
 jakarta-activation-api = { module = "jakarta.activation:jakarta.activation-api", version.require = "2.1.4" }
 
 # Koin
-koinCore = { module = "io.insert-koin:koin-core", version.require = "4.1.1" }
+koinCore = { module = "io.insert-koin:koin-core", version.require = "4.2.0" }
 
 # Coil
 coilRuntime = { module = "io.coil-kt.coil3:coil", version.ref = "coil3" }
@@ -167,10 +169,10 @@ roomCompiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 workRuntimeKtx = { module = "androidx.work:work-runtime-ktx", version.ref = "workmanager" }
 
 # Other
-lettuce = { module = "io.lettuce:lettuce-core", version.require = "7.5.0.RELEASE" }
+lettuce = { module = "io.lettuce:lettuce-core", version.require = "7.5.1.RELEASE" }
 jsoup = { module = "org.jsoup:jsoup", version.require = "1.22.1" }
 hikariCP = { module = "com.zaxxer:HikariCP", version.require = "7.0.2" }
-mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.7" }
+mariadbClient = { module = "org.mariadb.jdbc:mariadb-java-client", version.require = "3.5.8" }
 
 # Play
 androidxCredentialsPlayServicesAuth = { module = "androidx.credentials:credentials-play-services-auth", version.require = "1.5.0" }
