@@ -11,12 +11,12 @@
 - Ktor server framework
 - GraphQL (graphql-java, GraphQL Java Kickstart)
 - MariaDB for persistence
-- Redis (optional) for sessions/challenges
+- Lettuce for sessions/challenges
 - FIDO for authentication
 
 **Frontend**:
 - Kotlin/JS for web
-- Jetpack Compose Multiplatform (Web + Android)
+- Jetpack Compose Multiplatform (WASM + Android)
 - Apollo Client for GraphQL
 - Compose HTML
 
@@ -49,28 +49,22 @@ The project is organized into backend, frontend, and shared modules:
 - `shared/`: Code shared between backend and frontend
 - `build-logic/`: Convention plugins and version catalog
 
-### メールのパース
-@.claude/skills/add-email-parser
-
 ### GraphQL スキーマ
 
 - Backend: `backend/graphql/src/commonMain/resources/graphql/`
-  - `schema.graphqls` - メインスキーマ
-  - `user_query.graphqls`, `user_mutation.graphqls` - ユーザー操作
-  - `money_usage.graphqls`, `money_usage_analytics.graphqls` - 家計簿機能
-  - `fido_info.graphqls` - FIDO認証
-  - `imported_mail.graphqls` - メールインポート
 
 ### FIDO認証
 
 `backend/feature/fido/`モジュールでWebAuthn4Jを使用。
-- `FidoAuthenticator.kt` - データモデル
-- `AuthenticatorConverter.kt` - 変換ロジック
-- `Auth4JModel.kt` - WebAuthn4J統合
 
 # コーディングガイドライン
 
 @docs/coding_style.md
+
+## フロントエンドのアーキテクチャ
+- MVVMを使用する
+- UIの更新はUiState必ず経由する
+- UIからのイベント取得はUiState内のイベントハンドラーを使用する
 
 # Coding Agent
 すべての応答、説明、およびコミットメッセージは日本語で行ってください。
@@ -120,29 +114,19 @@ GitHub Actionsで自動ビルド・テスト（`.github/workflows/`）:
 - **build.yml**: push/PR時に`ktlintCheck`, ビルド, `allTests`を実行
 - **release-docker.yml**: タグpush時にDockerイメージをghcr.ioへプッシュ
 
-## 個別ビルド
-
-### Backend
+## ビルドコマンド
 
 ```shell
+// Backend
 ./gradlew :backend:build
-```
 
-### Frontend - Android App
-
-```shell
+// Frontend - Android App
 ./gradlew :frontend:app:assembleDebug
-```
 
-### Frontend - JS
-
-```shell
+// Frontend - JS
 ./gradlew :frontend:app:jsBrowserDevelopmentWebpack
-```
 
-### Production JS
-
-```shell
+// Production JS
 ./gradlew :frontend:app:jsBrowserProductionWebpack
 ```
 
