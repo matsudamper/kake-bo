@@ -6,6 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 public data class SelectedImage(
+    val id: String,
+    val previewBytes: ByteArray?,
     val await: suspend () -> UploadedImageData?,
 )
 

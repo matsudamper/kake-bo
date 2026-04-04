@@ -2,50 +2,57 @@ package net.matsudamper.money.backend.dataloader
 
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageCategoryRepository
 import net.matsudamper.money.backend.di.DiContainer
+import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.UserId
 import net.matsudamper.money.lib.flatten
+import org.dataloader.DataLoader
+import org.dataloader.DataLoaderFactory
 
 class MoneyUsageCategoryDataLoaderDefine(
     private val repositoryFactory: DiContainer,
 ) : DataLoaderDefine<MoneyUsageCategoryDataLoaderDefine.Key, MoneyUsageCategoryDataLoaderDefine.Result> {
     override val key: String = this::class.java.name
 
-    override fun load(keys: Set<Key>): Map<Key, Result> {
-        val repository = repositoryFactory.createMoneyUsageCategoryRepository()
+    override fun getDataLoader(): DataLoader<Key, Result> {
+        return DataLoaderFactory.newMappedDataLoader { keys, _ ->
+            otelSupplyAsync {
+                val repository = repositoryFactory.createMoneyUsageCategoryRepository()
 
-        val results = keys.groupBy { it.userId }
-            .mapNotNull { (userId, key) ->
-                val result = repository
-                    .getCategory(
-                        userId = userId,
-                        moneyUsageCategoryIds = key.map { it.categoryId },
-                    )
-
-                when (result) {
-                    is MoneyUsageCategoryRepository.GetCategoryResult.Failed -> {
-                        result.e.printStackTrace()
-                        null
-                    }
-                    is MoneyUsageCategoryRepository.GetCategoryResult.Success -> {
-                        result.results.associateBy {
-                            Key(
+                val results = keys.groupBy { it.userId }
+                    .mapNotNull { (userId, key) ->
+                        val result = repository
+                            .getCategory(
                                 userId = userId,
-                                categoryId = it.moneyUsageCategoryId,
+                                moneyUsageCategoryIds = key.map { it.categoryId },
                             )
-                        }
-                    }
-                }
-            }.flatten()
 
-        return keys.associateWith { key ->
-            val result = results[key] ?: throw IllegalStateException("not result key: $key")
-            Result(
-                userId = key.userId,
-                name = result.name,
-                color = result.color,
-                categoryId = result.moneyUsageCategoryId,
-            )
+                        when (result) {
+                            is MoneyUsageCategoryRepository.GetCategoryResult.Failed -> {
+                                result.e.printStackTrace()
+                                null
+                            }
+                            is MoneyUsageCategoryRepository.GetCategoryResult.Success -> {
+                                result.results.associateBy {
+                                    Key(
+                                        userId = userId,
+                                        categoryId = it.moneyUsageCategoryId,
+                                    )
+                                }
+                            }
+                        }
+                    }.flatten()
+
+                keys.associateWith { key ->
+                    val result = results[key] ?: throw IllegalStateException("not result key: $key")
+                    Result(
+                        userId = key.userId,
+                        name = result.name,
+                        color = result.color,
+                        categoryId = result.moneyUsageCategoryId,
+                    )
+                }
+            }
         }
     }
 

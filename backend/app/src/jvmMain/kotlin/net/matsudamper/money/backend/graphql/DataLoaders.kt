@@ -1,12 +1,9 @@
 package net.matsudamper.money.backend.graphql
 
-import java.util.concurrent.CompletableFuture
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import graphql.schema.DataFetchingEnvironment
-import io.opentelemetry.api.trace.StatusCode
 import io.opentelemetry.context.Context
-import net.matsudamper.money.backend.base.OpenTelemetryInitializer
 import net.matsudamper.money.backend.dataloader.DataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterConditionDataLoaderDefine
 import net.matsudamper.money.backend.dataloader.ImportedMailCategoryFilterConditionsDataLoaderDefine
@@ -24,7 +21,6 @@ import net.matsudamper.money.backend.dataloader.UserNameDataLoaderDefine
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
 import org.dataloader.DataLoader
-import org.dataloader.DataLoaderFactory
 import org.dataloader.DataLoaderRegistry
 
 internal class DataLoaders(
@@ -82,23 +78,10 @@ internal class DataLoaders(
 
     private fun <K : Any, V : Any> register(initializer: () -> DataLoaderDefine<K, V>): DataLoaderRegister<K, V> {
         val provider = initializer()
-        val tracer = OpenTelemetryInitializer.get().getTracer("graphql-dataloader")
-        val dataLoader = DataLoaderFactory.newMappedDataLoader<K, V> { keys, _ ->
-            val span = tracer.spanBuilder("DataLoader.${provider.key}").startSpan()
-            try {
-                span.makeCurrent().use {
-                    CompletableFuture.completedFuture(provider.load(keys))
-                }
-            } catch (e: Exception) {
-                span.setStatus(StatusCode.ERROR)
-                span.recordException(e)
-                throw e
-            } finally {
-                span.end()
-            }
-        }
+        val dataLoader = provider.getDataLoader()
+        val scheduler = OtelBatchLoaderScheduler(otelContext, "DataLoader.${provider.key}")
         val otelOptions = dataLoader.options.transform {
-            it.setBatchLoaderScheduler(OtelBatchLoaderScheduler(otelContext))
+            it.setBatchLoaderScheduler(scheduler)
         }
         dataLoaderRegistryBuilder.register(provider.key, dataLoader.transform { it.options(otelOptions) })
         return DataLoaderRegister(provider.key)

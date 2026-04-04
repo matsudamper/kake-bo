@@ -8,8 +8,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.LocalDateTime
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.cache.normalized.FetchPolicy
@@ -21,6 +19,7 @@ import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadQueue
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.layout.image.SelectedImage
@@ -40,13 +39,13 @@ public class MoneyUsageScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     private val moneyUsageId: MoneyUsageId,
     private val api: MoneyUsageScreenViewModelApi,
+    private val imageUploadQueue: ImageUploadQueue,
     graphqlClient: GraphqlClient,
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
-    private val updateImageMutex = Mutex()
 
     private val categorySelectDialogViewModel = object {
         private val event: CategorySelectDialogViewModel.Event = object : CategorySelectDialogViewModel.Event {
@@ -127,7 +126,7 @@ public class MoneyUsageScreenViewModel(
                                         text = moneyUsage.description,
                                         event = ClickableEventImpl(moneyUsage.description),
                                     ),
-                                    dateTime = Formatter.formatDateTime(moneyUsage.date),
+                                    date = Formatter.formatDate(moneyUsage.date),
                                     time = Formatter.formatTime(moneyUsage.date.time),
                                     category = run category@{
                                         val subCategory = moneyUsage.moneyUsageSubCategory ?: return@category "未指定"
@@ -140,7 +139,24 @@ public class MoneyUsageScreenViewModel(
                                             event = createImageItemEvent(imageId = image.id),
                                         )
                                     }.toImmutableList(),
-                                    isImageUploading = viewModelState.uploadingImageCount > 0,
+                                    uploadQueueItems = viewModelState.uploadQueueItems.map { item ->
+                                        MoneyUsageScreenUiState.UploadQueueItem(
+                                            id = item.id,
+                                            previewBytes = item.previewBytes,
+                                            isLoading = item.status is ImageUploadQueue.Status.Pending || item.status is ImageUploadQueue.Status.Uploading,
+                                            isFailed = item.status is ImageUploadQueue.Status.Failed,
+                                            onClickRetry = {
+                                                viewModelScope.launch {
+                                                    imageUploadQueue.retry(item.id)
+                                                }
+                                            },
+                                            onLongPressCancel = {
+                                                viewModelScope.launch {
+                                                    imageUploadQueue.cancel(item.id)
+                                                }
+                                            },
+                                        )
+                                    }.toImmutableList(),
                                     event = createMoneyUsageEvent(item = moneyUsage),
                                 ),
                                 linkedMails = moneyUsage.linkedMail.orEmpty().map { mail ->
@@ -399,38 +415,14 @@ public class MoneyUsageScreenViewModel(
                     val images = eventSender.send { it.selectImages() }
                     if (images.isEmpty()) return@launch
 
-                    viewModelStateFlow.update { state ->
-                        state.copy(uploadingImageCount = state.uploadingImageCount + images.size)
-                    }
-
-                    try {
-                        images.forEach { image ->
-                            val selectedImageData = image.await() ?: return@forEach
-                            val uploadResult = api.uploadImage(
-                                bytes = selectedImageData.bytes,
-                                contentType = selectedImageData.contentType,
-                            ) ?: return@forEach
-
-                            updateImageMutex.withLock {
-                                val currentImageIds = currentMoneyUsage()?.images?.map { it.id } ?: item.images.map { it.id }
-                                val updatedImageIds = (currentImageIds + uploadResult.imageId)
-                                    .distinctBy { imageId -> imageId.value }
-
-                                val isSuccess = api.updateUsage(
-                                    id = moneyUsageId,
-                                    imageIds = updatedImageIds,
-                                )
-                                if (!isSuccess) {
-                                    eventSender.send { it.showToast("画像のアップロードに失敗しました") }
-                                }
-                            }
-                        }
-                    } finally {
-                        viewModelStateFlow.update { state ->
-                            state.copy(
-                                uploadingImageCount = (state.uploadingImageCount - images.size).coerceAtLeast(0),
-                            )
-                        }
+                    eventSender.send { it.requestNotificationPermission() }
+                    images.forEach { image ->
+                        val rawBytes = image.previewBytes ?: return@forEach
+                        imageUploadQueue.enqueue(
+                            moneyUsageId = moneyUsageId,
+                            rawImageBytes = rawBytes,
+                            previewBytes = image.previewBytes,
+                        )
                     }
                 }
             }
@@ -490,6 +482,13 @@ public class MoneyUsageScreenViewModel(
                     viewModelState.copy(
                         categorySelectDialog = categorySelectDialogUiState,
                     )
+                }
+            }
+        }
+        viewModelScope.launch {
+            imageUploadQueue.observeItems(moneyUsageId).collect { items ->
+                viewModelStateFlow.update { state ->
+                    state.copy(uploadQueueItems = items)
                 }
             }
         }
@@ -591,7 +590,10 @@ public class MoneyUsageScreenViewModel(
         public fun openUrl(text: String)
 
         public fun copyUrl(text: String)
+
         public fun showToast(text: String)
+
+        public suspend fun requestNotificationPermission()
     }
 
     private data class ViewModelState(
@@ -603,6 +605,6 @@ public class MoneyUsageScreenViewModel(
         val categorySelectDialog: CategorySelectDialogUiState? = null,
         val urlMenuDialog: MoneyUsageScreenUiState.UrlMenuDialog? = null,
         val numberInputDialog: MoneyUsageScreenUiState.NumberInputDialog? = null,
-        val uploadingImageCount: Int = 0,
+        val uploadQueueItems: List<ImageUploadQueue.QueueItem> = listOf(),
     )
 }

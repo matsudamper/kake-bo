@@ -2,6 +2,8 @@ package platform
 
 import kotlin.coroutines.resume
 import kotlin.js.Promise
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 import kotlinx.browser.document
 import kotlinx.coroutines.suspendCancellableCoroutine
 import net.matsudamper.money.frontend.common.ui.layout.image.SelectedImage
@@ -12,6 +14,7 @@ import org.khronos.webgl.Int8Array
 import org.w3c.dom.HTMLInputElement
 
 internal class ImagePickerImpl : ImagePicker {
+    @OptIn(ExperimentalUuidApi::class)
     override suspend fun pickImages(): List<SelectedImage> = suspendCancellableCoroutine { continuation ->
         val input = document.createElement("input") as HTMLInputElement
         input.type = "file"
@@ -32,6 +35,8 @@ internal class ImagePickerImpl : ImagePicker {
                                 val bytes = toByteArray(buffer)
                                 if (bytes.isNotEmpty()) {
                                     SelectedImage(
+                                        id = Uuid.random().toString(),
+                                        previewBytes = bytes,
                                         await = {
                                             UploadedImageData(
                                                 bytes = bytes,

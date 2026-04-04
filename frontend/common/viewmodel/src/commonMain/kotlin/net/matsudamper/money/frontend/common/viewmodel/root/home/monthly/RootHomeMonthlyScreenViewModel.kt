@@ -180,6 +180,7 @@ public class RootHomeMonthlyScreenViewModel(
                     amount = "${Formatter.formatMoney(node.amount)}円",
                     date = Formatter.formatDateTime(node.date),
                     category = node.moneyUsageSubCategory?.name.orEmpty(),
+                    imageUrls = node.images.map { it.url }.toImmutableList(),
                     event = ItemEventImpl(
                         coroutineScope = viewModelScope,
                         eventSender = eventSender,
@@ -279,7 +280,7 @@ public class RootHomeMonthlyScreenViewModel(
         return viewModelStateFlow.mapLatest { viewModelState ->
             MonthlyScreenListQuery(
                 cursor = Optional.present(null),
-                size = 5,
+                size = 20,
                 sinceDateTime = Optional.present(createSinceLocalDateTime()),
                 untilDateTime = Optional.present(
                     LocalDateTime(

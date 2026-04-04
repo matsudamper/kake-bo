@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.viewmodel.lib
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
+import kotlinx.datetime.number
 
 internal object Formatter {
     fun formatMoney(value: Number): String {
@@ -53,6 +54,13 @@ internal object Formatter {
             append(dateTime.hour.toString().padStart(2, padChar = '0'))
             append(":")
             append(dateTime.minute.toString().padStart(2, padChar = '0'))
+        }
+    }
+
+    fun formatDate(date: LocalDateTime): String {
+        return buildString {
+            append("${date.year}/${date.month.number}/${date.day}")
+            append("(${dayOfWeekToJapanese(date.date.dayOfWeek)})")
         }
     }
 }

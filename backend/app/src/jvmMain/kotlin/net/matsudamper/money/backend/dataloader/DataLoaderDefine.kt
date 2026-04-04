@@ -1,7 +1,9 @@
 package net.matsudamper.money.backend.dataloader
 
+import org.dataloader.DataLoader
+
 interface DataLoaderDefine<Key : Any, R : Any> {
     val key: String
 
-    fun load(keys: Set<Key>): Map<Key, R>
+    fun getDataLoader(): DataLoader<Key, R>
 }

@@ -13,9 +13,13 @@ import com.apollographql.apollo.interceptor.ApolloInterceptor
 import com.apollographql.apollo.interceptor.ApolloInterceptorChain
 import com.apollographql.apollo.network.http.HttpInfo
 import com.apollographql.apollo.network.http.LoggingInterceptor
+import net.matsudamper.money.frontend.common.base.AppSettingsRepository
+import net.matsudamper.money.frontend.common.base.AppSettingsRepositoryAndroidImpl
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.frontend.common.base.Logger
 import net.matsudamper.money.frontend.common.feature.localstore.DataStores
+import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadDatabase
+import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadQueue
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModelAndroidImpl
 import net.matsudamper.money.frontend.graphql.BuildConfig
@@ -110,5 +114,13 @@ internal actual val factory: Factory = object : Factory() {
                 activeHost = url.substringAfter("://").substringBefore("/")
             },
         )
+    }
+
+    override fun createAppSettingsRepository(scope: Scope): AppSettingsRepository {
+        return AppSettingsRepositoryAndroidImpl(context = scope.get())
+    }
+
+    override fun createImageUploadQueue(scope: Scope): ImageUploadQueue {
+        return scope.get<ImageUploadDatabase>().createQueue(context = scope.get())
     }
 }

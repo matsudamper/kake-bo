@@ -1,6 +1,13 @@
 import com.kobylynskyi.graphql.codegen.model.GeneratedLanguage
 import io.github.kobylynskyi.graphql.codegen.gradle.GraphQLCodegenGradleTask
 import io.github.kobylynskyi.graphql.codegen.gradle.NullableInputTypeWrapperConfig
+import java.io.File
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.TaskAction
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -11,20 +18,30 @@ plugins {
 val generatedPath: String = layout.buildDirectory.dir("generated/codegen").get().asFile.path
 val generatedResourcesPath: String = layout.buildDirectory.dir("generated/resources").get().asFile.path
 
-val generateSchemaList = tasks.register("generateSchemaList") {
-    val schemaDir = file("$projectDir/src/commonMain/resources/graphql")
-    val outputFile = file("$generatedResourcesPath/graphql/schema-list.txt")
-    inputs.dir(schemaDir)
-    outputs.file(outputFile)
-    doLast {
-        outputFile.parentFile.mkdirs()
-        val fileNames = schemaDir.listFiles()
+abstract class GenerateSchemaListTask : DefaultTask() {
+    @get:InputDirectory
+    abstract val schemaDir: DirectoryProperty
+
+    @get:OutputFile
+    abstract val outputFile: RegularFileProperty
+
+    @TaskAction
+    fun generate() {
+        val dir = schemaDir.get().asFile
+        val out = outputFile.get().asFile
+        out.parentFile.mkdirs()
+        val fileNames = dir.listFiles()
             ?.filter { it.extension == "graphqls" }
             ?.map { it.name }
             ?.sorted()
             .orEmpty()
-        outputFile.writeText(fileNames.joinToString("\n"))
+        out.writeText(fileNames.joinToString("\n"))
     }
+}
+
+val generateSchemaList = tasks.register<GenerateSchemaListTask>("generateSchemaList") {
+    schemaDir.set(layout.projectDirectory.dir("src/commonMain/resources/graphql"))
+    outputFile.set(layout.buildDirectory.file("generated/resources/graphql/schema-list.txt"))
 }
 
 kotlin {

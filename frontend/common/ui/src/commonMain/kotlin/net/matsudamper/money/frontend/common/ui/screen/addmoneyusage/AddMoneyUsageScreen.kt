@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.common.ui.screen.addmoneyusage
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,9 +26,13 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,17 +46,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
-import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.AppRoot
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
+import net.matsudamper.money.frontend.common.ui.base.MySnackBarHost
 import net.matsudamper.money.frontend.common.ui.layout.CalendarDialog
 import net.matsudamper.money.frontend.common.ui.layout.NumberInput
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
+import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
 import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 import net.matsudamper.money.frontend.common.ui.lib.asWindowInsets
@@ -78,6 +84,7 @@ public data class AddMoneyUsageScreenUiState(
     val addButtonEnabled: Boolean,
     val event: Event,
     val numberInputDialog: NumberInputDialog?,
+    val snackbarEventState: SnackbarEventState,
 ) {
     public data class NumberInputDialog(
         val value: NumberInputValue,
@@ -136,6 +143,26 @@ public fun AddMoneyUsageScreen(
     windowInsets: PaddingValues,
 ) {
     var selectedImageUrl by remember { mutableStateOf<String?>(null) }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.snackbarEventState) {
+        uiState.snackbarEventState.collect { event ->
+            val result = snackbarHostState.showSnackbar(
+                message = event.message,
+                actionLabel = event.actionLabel,
+                duration = event.duration ?: if (event.withDismissAction) {
+                    SnackbarDuration.Indefinite
+                } else {
+                    SnackbarDuration.Short
+                },
+                withDismissAction = event.withDismissAction,
+            )
+            when (result) {
+                SnackbarResult.Dismissed -> SnackbarEventState.Result.Dismiss
+                SnackbarResult.ActionPerformed -> SnackbarEventState.Result.Action
+            }
+        }
+    }
 
     if (uiState.fullScreenTextInputDialog != null) {
         FullScreenTextInput(
@@ -151,6 +178,9 @@ public fun AddMoneyUsageScreen(
 
     Scaffold(
         modifier = modifier,
+        snackbarHost = {
+            MySnackBarHost(hostState = snackbarHostState)
+        },
         topBar = {
             KakeBoTopAppBar(
                 modifier = Modifier.fillMaxWidth()
@@ -307,14 +337,14 @@ public fun AddMoneyUsageScreen(
                                                 }
                                             }
                                             is ImageItem.Uploaded -> {
-                                                AsyncImage(
+                                                SubcomposeAsyncImage(
                                                     model = image.url,
                                                     contentDescription = null,
                                                     contentScale = ContentScale.Crop,
                                                     modifier = Modifier
                                                         .size(120.dp)
-                                                        .clickable { selectedImageUrl = image.url }
-                                                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                                                        .clickable { selectedImageUrl = image.url },
+                                                    loading = { ImageLoadingPlaceholder() },
                                                 )
                                             }
                                         }
@@ -459,6 +489,7 @@ private fun AddMoneyUsageScreenPreview() {
                     override fun onClickUploadImage() {}
                 },
                 numberInputDialog = null,
+                snackbarEventState = SnackbarEventState(),
             ),
             windowInsets = PaddingValues(),
         )

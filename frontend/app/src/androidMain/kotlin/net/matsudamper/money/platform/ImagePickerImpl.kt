@@ -37,7 +37,14 @@ internal class ImagePickerImpl(
             .first()
 
         return uris.map { uri ->
+            val previewBytes = withContext(Dispatchers.IO) {
+                runCatching {
+                    componentActivity.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                }.getOrNull()
+            }
             SelectedImage(
+                id = uri.toString(),
+                previewBytes = previewBytes,
                 await = {
                     val bitmap = decodeBitmapFromUri(uri) ?: return@SelectedImage null
                     val webpBytes = try {

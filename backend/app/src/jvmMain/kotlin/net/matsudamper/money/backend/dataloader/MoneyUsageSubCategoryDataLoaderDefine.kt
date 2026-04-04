@@ -2,51 +2,58 @@ package net.matsudamper.money.backend.dataloader
 
 import net.matsudamper.money.backend.app.interfaces.MoneyUsageSubCategoryRepository
 import net.matsudamper.money.backend.di.DiContainer
+import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.UserId
 import net.matsudamper.money.lib.flatten
+import org.dataloader.DataLoader
+import org.dataloader.DataLoaderFactory
 
 class MoneyUsageSubCategoryDataLoaderDefine(
     private val repositoryFactory: DiContainer,
 ) : DataLoaderDefine<MoneyUsageSubCategoryDataLoaderDefine.Key, MoneyUsageSubCategoryDataLoaderDefine.Result> {
     override val key: String = this::class.java.name
 
-    override fun load(keys: Set<Key>): Map<Key, Result> {
-        val repository = repositoryFactory.createMoneyUsageSubCategoryRepository()
+    override fun getDataLoader(): DataLoader<Key, Result> {
+        return DataLoaderFactory.newMappedDataLoader { keys, _ ->
+            otelSupplyAsync {
+                val repository = repositoryFactory.createMoneyUsageSubCategoryRepository()
 
-        val results = keys.groupBy { it.userId }
-            .mapNotNull { (userId, key) ->
-                val result = repository
-                    .getSubCategory(
-                        userId = userId,
-                        moneyUsageSubCategoryIds = key.map { it.subCategoryId },
-                    )
-
-                when (result) {
-                    is MoneyUsageSubCategoryRepository.GetSubCategoryResult.Failed -> {
-                        result.e.printStackTrace()
-                        null
-                    }
-                    is MoneyUsageSubCategoryRepository.GetSubCategoryResult.Success -> {
-                        result.results.associateBy {
-                            Key(
+                val results = keys.groupBy { it.userId }
+                    .mapNotNull { (userId, key) ->
+                        val result = repository
+                            .getSubCategory(
                                 userId = userId,
-                                subCategoryId = it.moneyUsageSubCategoryId,
+                                moneyUsageSubCategoryIds = key.map { it.subCategoryId },
                             )
-                        }
-                    }
-                }
-            }.flatten()
 
-        return keys.associateWith { key ->
-            val result = results[key] ?: throw IllegalStateException("not result key: $key")
-            Result(
-                userId = key.userId,
-                subCategoryId = key.subCategoryId,
-                name = result.name,
-                categoryId = result.moneyUsageCategoryId,
-            )
+                        when (result) {
+                            is MoneyUsageSubCategoryRepository.GetSubCategoryResult.Failed -> {
+                                result.e.printStackTrace()
+                                null
+                            }
+                            is MoneyUsageSubCategoryRepository.GetSubCategoryResult.Success -> {
+                                result.results.associateBy {
+                                    Key(
+                                        userId = userId,
+                                        subCategoryId = it.moneyUsageSubCategoryId,
+                                    )
+                                }
+                            }
+                        }
+                    }.flatten()
+
+                keys.associateWith { key ->
+                    val result = results[key] ?: throw IllegalStateException("not result key: $key")
+                    Result(
+                        userId = key.userId,
+                        subCategoryId = key.subCategoryId,
+                        name = result.name,
+                        categoryId = result.moneyUsageCategoryId,
+                    )
+                }
+            }
         }
     }
 

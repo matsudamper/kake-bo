@@ -26,7 +26,6 @@ val nativeBuildArgs = listOf(
     "--enable-url-protocols=http,https",
     "--initialize-at-run-time=com.zaxxer.hikari",
     "--initialize-at-run-time=org.mariadb.jdbc",
-    "--initialize-at-run-time=redis.clients.jedis",
     "--initialize-at-run-time=ch.qos.logback.core.rolling",
     "--initialize-at-run-time=graphql.kickstart.tools",
     // jOOQ は全クラスをランタイム初期化に指定する。
@@ -50,17 +49,6 @@ val nativeBuildArgs = listOf(
     // EnumEntriesList → AbstractList$Companion と連鎖するため kotlin パッケージ全体を指定
     "--initialize-at-build-time=kotlin",
 )
-
-// foojay でダウンロードされた GraalVM toolchain から native-image のパスを導出する。
-fun findNativeImage(): String {
-    val javaHome = graalVmLauncher.get().executablePath.asFile.toPath().parent.parent
-    val candidates = listOf(
-        javaHome.resolve("bin/native-image"),
-        javaHome.resolve("bin/native-image.cmd"),
-    )
-    return candidates.firstOrNull { it.isRegularFile(LinkOption.NOFOLLOW_LINKS) }?.toString()
-        ?: error("native-image not found in GraalVM toolchain: $javaHome")
-}
 
 java {
     toolchain {

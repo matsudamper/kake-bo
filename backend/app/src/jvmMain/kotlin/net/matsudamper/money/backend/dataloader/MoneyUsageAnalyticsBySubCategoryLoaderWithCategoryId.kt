@@ -7,7 +7,10 @@ import net.matsudamper.money.backend.app.interfaces.MoneyUsageAnalyticsRepositor
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
 import net.matsudamper.money.backend.graphql.GraphqlMoneyException
+import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.element.MoneyUsageCategoryId
+import org.dataloader.DataLoader
+import org.dataloader.DataLoaderFactory
 
 internal class MoneyUsageAnalyticsBySubCategoryLoaderWithCategoryId(
     private val repositoryFactory: DiContainer,
@@ -15,43 +18,47 @@ internal class MoneyUsageAnalyticsBySubCategoryLoaderWithCategoryId(
 ) : DataLoaderDefine<MoneyUsageAnalyticsBySubCategoryLoaderWithCategoryId.Key, MoneyUsageAnalyticsRepository.TotalAmountBySubCategory> {
     override val key: String = this::class.java.name
 
-    override fun load(keys: Set<Key>): Map<Key, MoneyUsageAnalyticsRepository.TotalAmountBySubCategory> {
-        return runBlocking {
-            val repository = repositoryFactory.createMoneyUsageAnalyticsRepository()
-            val userId = userSessionManager.verifyUserSession() ?: throw GraphqlMoneyException.SessionNotVerify()
+    override fun getDataLoader(): DataLoader<Key, MoneyUsageAnalyticsRepository.TotalAmountBySubCategory> {
+        return DataLoaderFactory.newMappedDataLoader { keys, _ ->
+            otelSupplyAsync {
+                runBlocking {
+                    val repository = repositoryFactory.createMoneyUsageAnalyticsRepository()
+                    val userId = userSessionManager.verifyUserSession() ?: throw GraphqlMoneyException.SessionNotVerify()
 
-            val results = keys.groupBy {
-                GroupKey(
-                    sinceDateTimeAt = it.sinceDateTimeAt,
-                    untilDateTimeAt = it.untilDateTimeAt,
-                )
-            }.map { (key, value) ->
-                val ids = value.map { it.id }
-
-                async {
-                    key to
-                        repository.getTotalAmountBySubCategoriesWithCategoryId(
-                            userId = userId,
-                            sinceDateTimeAt = key.sinceDateTimeAt,
-                            untilDateTimeAt = key.untilDateTimeAt,
-                            categoryIds = ids,
+                    val results = keys.groupBy {
+                        GroupKey(
+                            sinceDateTimeAt = it.sinceDateTimeAt,
+                            untilDateTimeAt = it.untilDateTimeAt,
                         )
+                    }.map { (key, value) ->
+                        val ids = value.map { it.id }
+
+                        async {
+                            key to
+                                repository.getTotalAmountBySubCategoriesWithCategoryId(
+                                    userId = userId,
+                                    sinceDateTimeAt = key.sinceDateTimeAt,
+                                    untilDateTimeAt = key.untilDateTimeAt,
+                                    categoryIds = ids,
+                                )
+                        }
+                    }.map {
+                        val (key, kotlinResult) = it.await()
+                        kotlinResult
+                            .onFailure { e ->
+                                e.printStackTrace()
+                            }
+                            .getOrNull().orEmpty().map { result ->
+                                Key(
+                                    id = result.categoryId,
+                                    sinceDateTimeAt = key.sinceDateTimeAt,
+                                    untilDateTimeAt = key.untilDateTimeAt,
+                                ) to result
+                            }
+                    }.flatten()
+                    results.toMap()
                 }
-            }.map {
-                val (key, kotlinResult) = it.await()
-                kotlinResult
-                    .onFailure { e ->
-                        e.printStackTrace()
-                    }
-                    .getOrNull().orEmpty().map { result ->
-                        Key(
-                            id = result.categoryId,
-                            sinceDateTimeAt = key.sinceDateTimeAt,
-                            untilDateTimeAt = key.untilDateTimeAt,
-                        ) to result
-                    }
-            }.flatten()
-            results.toMap()
+            }
         }
     }
 

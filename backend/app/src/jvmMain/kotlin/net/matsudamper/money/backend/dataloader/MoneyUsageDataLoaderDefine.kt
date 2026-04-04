@@ -2,51 +2,58 @@ package net.matsudamper.money.backend.dataloader
 
 import java.time.LocalDateTime
 import net.matsudamper.money.backend.di.DiContainer
+import net.matsudamper.money.backend.graphql.otelSupplyAsync
 import net.matsudamper.money.element.ImageId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.element.UserId
 import net.matsudamper.money.lib.flatten
+import org.dataloader.DataLoader
+import org.dataloader.DataLoaderFactory
 
 class MoneyUsageDataLoaderDefine(
     private val repositoryFactory: DiContainer,
 ) : DataLoaderDefine<MoneyUsageDataLoaderDefine.Key, MoneyUsageDataLoaderDefine.MoneyUsage> {
     override val key: String = this::class.java.name
 
-    override fun load(keys: Set<Key>): Map<Key, MoneyUsage> {
-        val dbMailRepository = repositoryFactory.createMoneyUsageRepository()
+    override fun getDataLoader(): DataLoader<Key, MoneyUsage> {
+        return DataLoaderFactory.newMappedDataLoader { keys, _ ->
+            otelSupplyAsync {
+                val dbMailRepository = repositoryFactory.createMoneyUsageRepository()
 
-        val result = keys.groupBy { it.userId }
-            .map { (userId, key) ->
-                dbMailRepository
-                    .getMoneyUsage(
-                        userId = userId,
-                        ids = key.map { it.moneyUsageId },
-                    ).fold(
-                        onSuccess = { results ->
-                            results.associate {
-                                Key(
-                                    userId = userId,
-                                    moneyUsageId = it.id,
-                                ) to
-                                    MoneyUsage(
-                                        id = it.id,
-                                        userId = it.userId,
-                                        amount = it.amount,
-                                        subCategoryId = it.subCategoryId,
-                                        date = it.date,
-                                        title = it.title,
-                                        description = it.description,
-                                        imageIds = it.imageIds,
-                                    )
-                            }
-                        },
-                        onFailure = { mapOf() },
-                    )
-            }.flatten()
+                val result = keys.groupBy { it.userId }
+                    .map { (userId, key) ->
+                        dbMailRepository
+                            .getMoneyUsage(
+                                userId = userId,
+                                ids = key.map { it.moneyUsageId },
+                            ).fold(
+                                onSuccess = { results ->
+                                    results.associate {
+                                        Key(
+                                            userId = userId,
+                                            moneyUsageId = it.id,
+                                        ) to
+                                            MoneyUsage(
+                                                id = it.id,
+                                                userId = it.userId,
+                                                amount = it.amount,
+                                                subCategoryId = it.subCategoryId,
+                                                date = it.date,
+                                                title = it.title,
+                                                description = it.description,
+                                                imageIds = it.imageIds,
+                                            )
+                                    }
+                                },
+                                onFailure = { mapOf() },
+                            )
+                    }.flatten()
 
-        return keys.associateWith { key ->
-            result[key] ?: throw IllegalStateException("not result key: $key")
+                keys.associateWith { key ->
+                    result[key] ?: throw IllegalStateException("not result key: $key")
+                }
+            }
         }
     }
 

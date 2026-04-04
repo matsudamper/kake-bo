@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,9 +20,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -37,15 +41,22 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffold
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
+import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 
 public data class CalendarDateListScreenUiState(
@@ -92,6 +103,7 @@ public data class CalendarDateListScreenUiState(
         public fun onViewInitialized()
         public fun refresh()
         public fun onClickBack()
+        public fun onClickAdd()
     }
 }
 
@@ -106,9 +118,21 @@ public fun CalendarDateListScreen(
     LaunchedEffect(uiState.event) {
         uiState.event.onViewInitialized()
     }
+    var fabY by remember { mutableStateOf(0f) }
+    val localDensity = LocalDensity.current
     KakeboScaffold(
         modifier = modifier,
         windowInsets = windowInsets,
+        floatingActionButton = {
+            FloatingActionButton(
+                modifier = Modifier.onGloballyPositioned { coordinates ->
+                    fabY = coordinates.positionInWindow().y
+                },
+                onClick = { uiState.event.onClickAdd() },
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "使用用途を追加")
+            }
+        },
         topBar = {
             KakeBoTopAppBar(
                 navigation = {
@@ -134,15 +158,19 @@ public fun CalendarDateListScreen(
         val state = rememberPullToRefreshState()
         val coroutineScope = rememberCoroutineScope()
         var isRefreshing by remember { mutableStateOf(false) }
+        val localDirection = LocalLayoutDirection.current
+        var boxY by remember { mutableStateOf(0f) }
         PullToRefreshBox(
             isRefreshing = isRefreshing,
-            modifier = Modifier.fillMaxSize().padding(paddingValues),
+            modifier = Modifier.fillMaxSize().onGloballyPositioned { coordinates ->
+                boxY = coordinates.boundsInWindow().height
+            },
             state = state,
             onRefresh = {
                 coroutineScope.launch {
                     isRefreshing = true
                     uiState.event.refresh()
-                    delay(1000)
+                    delay(1000.milliseconds)
                     isRefreshing = false
                 }
             },
@@ -152,13 +180,22 @@ public fun CalendarDateListScreen(
                     LoadedContent(
                         modifier = Modifier.fillMaxSize(),
                         uiState = loadingState,
+                        paddingValues = PaddingValues(
+                            top = paddingValues.calculateTopPadding(),
+                            bottom = paddingValues.calculateBottomPadding() + with(localDensity) {
+                                (boxY - fabY).coerceAtLeast(0f).toDp()
+                            },
+                            start = paddingValues.calculateStartPadding(localDirection),
+                            end = paddingValues.calculateEndPadding(localDirection),
+                        ),
                     )
                 }
 
                 is CalendarDateListScreenUiState.LoadingState.Loading -> {
                     LaunchedEffect(Unit) { isRefreshing = false }
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier.fillMaxSize()
+                            .padding(paddingValues),
                         contentAlignment = Alignment.Center,
                     ) {
                         CircularProgressIndicator()
@@ -171,89 +208,23 @@ public fun CalendarDateListScreen(
 
 @Composable
 private fun LoadedContent(
-    modifier: Modifier,
     uiState: CalendarDateListScreenUiState.LoadingState.Loaded,
+    paddingValues: PaddingValues,
+    modifier: Modifier = Modifier,
 ) {
     val lazyListState = rememberLazyListState()
     LazyColumn(
         modifier = modifier,
         state = lazyListState,
+        contentPadding = paddingValues,
     ) {
         items(uiState.items) { item ->
-            var selectedImageUrl by remember { mutableStateOf<String?>(null) }
-            val currentSelectedImageUrl = selectedImageUrl
-            if (currentSelectedImageUrl != null) {
-                ZoomableImageDialog(
-                    imageUrl = currentSelectedImageUrl,
-                    onDismissRequest = { selectedImageUrl = null },
-                )
-            }
-            Card(
+            ItemCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp, vertical = 6.dp),
-                onClick = item.event::onClick,
-            ) {
-                GridColumn(
-                    modifier = Modifier.fillMaxWidth()
-                        .padding(12.dp),
-                    horizontalPadding = 8.dp,
-                    verticalPadding = 4.dp,
-                ) {
-                    row {
-                        item {
-                            Text("タイトル")
-                        }
-                        item {
-                            Text(text = item.title)
-                        }
-                    }
-                    row {
-                        item {
-                            Text("日付")
-                        }
-                        item {
-                            Text(text = item.date)
-                        }
-                    }
-                    row {
-                        item {
-                            Text("金額")
-                        }
-                        item {
-                            Text(text = item.amount)
-                        }
-                    }
-                    row {
-                        item {
-                            Text("カテゴリ")
-                        }
-                        item {
-                            Text(text = item.category.orEmpty())
-                        }
-                    }
-                }
-                if (item.images.isNotEmpty()) {
-                    LazyRow(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 12.dp)
-                            .padding(bottom = 12.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        items(item.images) { imageItem ->
-                            AsyncImage(
-                                model = imageItem.url,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .size(100.dp)
-                                    .clickable { selectedImageUrl = imageItem.url },
-                            )
-                        }
-                    }
-                }
-            }
+                item = item,
+            )
         }
         if (uiState.loadToEnd.not()) {
             item {
@@ -282,6 +253,86 @@ private fun LoadedContent(
         }
         item {
             Spacer(modifier = Modifier.height(12.dp))
+        }
+    }
+}
+
+@Composable
+private fun ItemCard(
+    item: CalendarDateListScreenUiState.Item,
+    modifier: Modifier = Modifier,
+) {
+    var selectedImageUrl by remember { mutableStateOf<String?>(null) }
+    val currentSelectedImageUrl = selectedImageUrl
+    if (currentSelectedImageUrl != null) {
+        ZoomableImageDialog(
+            imageUrl = currentSelectedImageUrl,
+            onDismissRequest = { selectedImageUrl = null },
+        )
+    }
+    Card(
+        modifier = modifier,
+        onClick = item.event::onClick,
+    ) {
+        GridColumn(
+            modifier = Modifier.fillMaxWidth()
+                .padding(12.dp),
+            horizontalPadding = 8.dp,
+            verticalPadding = 4.dp,
+        ) {
+            row {
+                item {
+                    Text("タイトル")
+                }
+                item {
+                    Text(text = item.title)
+                }
+            }
+            row {
+                item {
+                    Text("日付")
+                }
+                item {
+                    Text(text = item.date)
+                }
+            }
+            row {
+                item {
+                    Text("金額")
+                }
+                item {
+                    Text(text = item.amount)
+                }
+            }
+            row {
+                item {
+                    Text("カテゴリ")
+                }
+                item {
+                    Text(text = item.category.orEmpty())
+                }
+            }
+        }
+        if (item.images.isNotEmpty()) {
+            LazyRow(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp)
+                    .padding(bottom = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                items(item.images) { imageItem ->
+                    SubcomposeAsyncImage(
+                        model = imageItem.url,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clickable { selectedImageUrl = imageItem.url },
+                        loading = { ImageLoadingPlaceholder() },
+                    )
+                }
+            }
         }
     }
 }

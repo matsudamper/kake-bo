@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.ui.screen.moneyusage
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -38,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -47,6 +49,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
@@ -58,6 +61,7 @@ import androidx.compose.ui.window.PopupProperties
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import coil3.compose.AsyncImage
+import coil3.compose.SubcomposeAsyncImage
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialog
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
@@ -74,6 +78,7 @@ import net.matsudamper.money.frontend.common.ui.layout.TimePickerDialog
 import net.matsudamper.money.frontend.common.ui.layout.UrlClickableText
 import net.matsudamper.money.frontend.common.ui.layout.UrlMenuDialog
 import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.FullScreenTextInput
+import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
 
@@ -139,11 +144,20 @@ public data class MoneyUsageScreenUiState(
         val description: Clickable,
         val amount: String,
         val category: String,
-        val dateTime: String,
+        val date: String,
         val time: String,
         val images: ImmutableList<ImageItem>,
-        val isImageUploading: Boolean,
+        val uploadQueueItems: ImmutableList<UploadQueueItem>,
         val event: MoneyUsageEvent,
+    )
+
+    public data class UploadQueueItem(
+        val id: String,
+        val previewBytes: ByteArray?,
+        val isLoading: Boolean,
+        val isFailed: Boolean,
+        val onClickRetry: () -> Unit,
+        val onLongPressCancel: () -> Unit,
     )
 
     public data class ImageItem(
@@ -408,7 +422,7 @@ private fun LoadedContent(
 
                 Card(
                     modifier = Modifier
-                        .padding(12.dp),
+                        .padding(vertical = 12.dp),
                 ) {
                     MoneyUsage(
                         modifier = Modifier.fillMaxWidth()
@@ -429,7 +443,7 @@ private fun LoadedContent(
                 items(uiState.linkedMails) { mail ->
                     Card(
                         modifier = Modifier.fillMaxWidth()
-                            .padding(8.dp),
+                            .padding(vertical = 8.dp),
                         onClick = { mail.event.onClick() },
                     ) {
                         MailContent(
@@ -558,7 +572,7 @@ private fun MoneyUsage(
             },
             content = {
                 Text(
-                    text = uiState.dateTime,
+                    text = uiState.date,
                 )
             },
             onClickChange = {
@@ -628,7 +642,7 @@ private fun MoneyUsage(
             },
             content = {
                 Column {
-                    if (uiState.images.isEmpty() && !uiState.isImageUploading) {
+                    if (uiState.images.isEmpty() && uiState.uploadQueueItems.isEmpty()) {
                         Text("未設定")
                     } else {
                         FlowRow(
@@ -640,7 +654,7 @@ private fun MoneyUsage(
                                 var showDeleteDialog by remember { mutableStateOf(false) }
                                 var showPopupMenu by remember { mutableStateOf(false) }
                                 Box(modifier = Modifier.size(180.dp)) {
-                                    AsyncImage(
+                                    SubcomposeAsyncImage(
                                         model = imageItem.url,
                                         contentDescription = null,
                                         contentScale = ContentScale.Crop,
@@ -667,6 +681,7 @@ private fun MoneyUsage(
                                                     }
                                                 }
                                             },
+                                        loading = { ImageLoadingPlaceholder() },
                                     )
                                     DropdownMenu(
                                         expanded = showPopupMenu,
@@ -696,13 +711,61 @@ private fun MoneyUsage(
                                     }
                                 }
                             }
-
-                            if (uiState.isImageUploading) {
+                            uiState.uploadQueueItems.forEach { queueItem ->
                                 Box(
-                                    modifier = Modifier.size(180.dp),
+                                    modifier = Modifier
+                                        .size(180.dp)
+                                        .pointerInput(queueItem.id) {
+                                            detectTapGestures(
+                                                onLongPress = { queueItem.onLongPressCancel() },
+                                            )
+                                        },
                                     contentAlignment = Alignment.Center,
                                 ) {
-                                    CircularProgressIndicator()
+                                    if (queueItem.previewBytes != null) {
+                                        AsyncImage(
+                                            model = queueItem.previewBytes,
+                                            contentDescription = null,
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                                        )
+                                    }
+                                    if (queueItem.isLoading) {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .background(Color.Black.copy(alpha = 0.4f)),
+                                            contentAlignment = Alignment.Center,
+                                        ) {
+                                            CircularProgressIndicator(color = Color.White)
+                                        }
+                                    } else if (queueItem.isFailed) {
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .background(Color.Black.copy(alpha = 0.6f)),
+                                            contentAlignment = Alignment.Center,
+                                        ) {
+                                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                                Text(
+                                                    text = "失敗",
+                                                    color = Color.White,
+                                                )
+                                                OutlinedButton(
+                                                    onClick = { queueItem.onClickRetry() },
+                                                ) {
+                                                    Text(
+                                                        text = "再試行",
+                                                        color = Color.White,
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        CircularProgressIndicator()
+                                    }
                                 }
                             }
                         }
@@ -736,8 +799,22 @@ private fun MoneyUsageSection(
 ) {
     Column(modifier = modifier) {
         ProvideTextStyle(MaterialTheme.typography.titleMedium) {
-            Box(modifier = Modifier.padding(8.dp)) {
-                title()
+            Row(
+                modifier = Modifier.padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Box(modifier = Modifier.weight(1f)) {
+                    title()
+                }
+                if (showChangeButton) {
+                    TextButton(
+                        onClick = {
+                            onClickChange()
+                        },
+                    ) {
+                        Text("変更")
+                    }
+                }
             }
         }
         HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
@@ -756,23 +833,6 @@ private fun MoneyUsageSection(
             ) {
                 ProvideTextStyle(MaterialTheme.typography.bodyMedium) {
                     content()
-                }
-            }
-
-            if (showChangeButton) {
-                OutlinedButton(
-                    modifier = Modifier.align(
-                        if (multiline) {
-                            Alignment.Bottom
-                        } else {
-                            Alignment.CenterVertically
-                        },
-                    ),
-                    onClick = {
-                        onClickChange()
-                    },
-                ) {
-                    Text("変更")
                 }
             }
         }
