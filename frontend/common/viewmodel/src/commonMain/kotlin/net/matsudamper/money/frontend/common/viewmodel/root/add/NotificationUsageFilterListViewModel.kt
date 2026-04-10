@@ -12,6 +12,7 @@ import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageFilterDefinition
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageParser
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.add.NotificationUsageFilterListScreenUiState
@@ -30,14 +31,9 @@ public class NotificationUsageFilterListViewModel(
             title = "通知フィルター",
             description = "フィルターごとに自動追加を切り替えます。ON にすると、その条件に一致した通知を受信時に自動追加します。未設定の項目は package 名 / 通知全文 / 0円 / 通知時刻で補完します。",
             filters = filterDefinitions.map { definition ->
-                NotificationUsageFilterListScreenUiState.FilterItem(
-                    title = definition.title,
-                    matchDescription = definition.matchDescription,
-                    parseDescription = definition.parseDescription,
+                createFilterItem(
+                    definition = definition,
                     autoAddEnabled = false,
-                    onToggleAutoAdd = { enabled ->
-                        appSettingsRepository.setNotificationUsageAutoAddEnabled(definition.id, enabled)
-                    },
                 )
             }.toImmutableList(),
             kakeboScaffoldListener = object : KakeboScaffoldListener {
@@ -61,14 +57,9 @@ public class NotificationUsageFilterListViewModel(
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         filters = filterDefinitions.map { definition ->
-                            NotificationUsageFilterListScreenUiState.FilterItem(
-                                title = definition.title,
-                                matchDescription = definition.matchDescription,
-                                parseDescription = definition.parseDescription,
+                            createFilterItem(
+                                definition = definition,
                                 autoAddEnabled = enabledMap[definition.id] ?: false,
-                                onToggleAutoAdd = { enabled ->
-                                    appSettingsRepository.setNotificationUsageAutoAddEnabled(definition.id, enabled)
-                                },
                             )
                         }.toImmutableList(),
                     )
@@ -76,4 +67,21 @@ public class NotificationUsageFilterListViewModel(
             }
         }
     }.asStateFlow()
+
+    private fun createFilterItem(
+        definition: NotificationUsageFilterDefinition,
+        autoAddEnabled: Boolean,
+    ): NotificationUsageFilterListScreenUiState.FilterItem {
+        return NotificationUsageFilterListScreenUiState.FilterItem(
+            title = definition.title,
+            matchDescription = definition.matchDescription,
+            parseDescription = definition.parseDescription,
+            autoAddEnabled = autoAddEnabled,
+            listener = object : NotificationUsageFilterListScreenUiState.FilterItemListener {
+                override fun onToggleAutoAdd(value: Boolean) {
+                    appSettingsRepository.setNotificationUsageAutoAddEnabled(definition.id, value)
+                }
+            },
+        )
+    }
 }

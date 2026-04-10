@@ -18,6 +18,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
@@ -36,8 +38,13 @@ public data class NotificationUsageFilterListScreenUiState(
         val matchDescription: String,
         val parseDescription: String,
         val autoAddEnabled: Boolean,
-        val onToggleAutoAdd: (Boolean) -> Unit,
+        val listener: FilterItemListener,
     )
+
+    @Immutable
+    public interface FilterItemListener {
+        public fun onToggleAutoAdd(value: Boolean)
+    }
 }
 
 @Composable
@@ -85,34 +92,33 @@ public fun NotificationUsageFilterListScreen(
                                 .fillMaxWidth()
                                 .padding(16.dp),
                         ) {
-                            Text(
-                                text = filter.title,
-                                style = MaterialTheme.typography.titleSmall,
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Column(
+                                Text(
                                     modifier = Modifier.weight(1f),
-                                ) {
-                                    Text(
-                                        text = "条件: ${filter.matchDescription}",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                    )
-                                }
+                                    text = filter.title,
+                                    style = MaterialTheme.typography.titleSmall,
+                                )
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Text(
+                                    text = "自動追加",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Switch(
                                     checked = filter.autoAddEnabled,
-                                    onCheckedChange = filter.onToggleAutoAdd,
+                                    onCheckedChange = { value ->
+                                        filter.listener.onToggleAutoAdd(value)
+                                    },
                                 )
                             }
-                            Spacer(modifier = Modifier.height(6.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = "自動追加: ${if (filter.autoAddEnabled) "ON" else "OFF"}",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.primary,
+                                text = "条件: ${filter.matchDescription}",
+                                style = MaterialTheme.typography.bodyMedium,
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
