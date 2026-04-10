@@ -38,6 +38,7 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
+                implementation(projects.frontend.android.featureNotificationUsage)
                 implementation(projects.frontend.common.navigation)
                 implementation(projects.frontend.common.feature.uploader)
                 implementation(libs.workRuntimeKtx)

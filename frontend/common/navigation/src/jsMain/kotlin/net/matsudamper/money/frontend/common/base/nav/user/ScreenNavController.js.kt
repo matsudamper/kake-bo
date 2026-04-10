@@ -88,6 +88,9 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
 
         Screens.SettingsTextFieldTest -> ScreenStructure.Root.Settings.TextFieldTest
         Screens.AddPresets -> ScreenStructure.Root.Add.Preset
+        Screens.AddNotificationUsage -> ScreenStructure.Root.Add.NotificationUsage
+        Screens.AddNotificationUsageFilters -> ScreenStructure.Root.Add.NotificationUsageFilters
+        Screens.AddNotificationUsageDebug -> ScreenStructure.Root.Add.NotificationUsageDebug
         Screens.AddPresetDetail -> {
             ScreenStructure.Root.Add.PresetDetail(
                 id = run id@{

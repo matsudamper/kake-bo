@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 public class AppSettingsRepositoryAndroidImpl(context: Context) : AppSettingsRepository {
     private val prefs = context.getSharedPreferences("app_settings", Context.MODE_PRIVATE)
     private val showImagesKey = "showImagesInMonthlyScreen"
+    private val notificationUsageAutoAddEnabledFlows = mutableMapOf<String, MutableStateFlow<Boolean>>()
 
     private val _showImagesInMonthlyScreen = MutableStateFlow(
         prefs.getBoolean(showImagesKey, false),
@@ -17,5 +18,28 @@ public class AppSettingsRepositoryAndroidImpl(context: Context) : AppSettingsRep
     override fun setShowImagesInMonthlyScreen(value: Boolean) {
         prefs.edit().putBoolean(showImagesKey, value).apply()
         _showImagesInMonthlyScreen.value = value
+    }
+
+    override fun notificationUsageAutoAddEnabled(filterId: String): Flow<Boolean> {
+        return synchronized(notificationUsageAutoAddEnabledFlows) {
+            notificationUsageAutoAddEnabledFlows.getOrPut(filterId) {
+                MutableStateFlow(
+                    prefs.getBoolean(notificationUsageAutoAddEnabledKey(filterId), false),
+                )
+            }
+        }
+    }
+
+    override fun setNotificationUsageAutoAddEnabled(filterId: String, value: Boolean) {
+        prefs.edit().putBoolean(notificationUsageAutoAddEnabledKey(filterId), value).apply()
+        synchronized(notificationUsageAutoAddEnabledFlows) {
+            notificationUsageAutoAddEnabledFlows.getOrPut(filterId) {
+                MutableStateFlow(value)
+            }
+        }.value = value
+    }
+
+    private fun notificationUsageAutoAddEnabledKey(filterId: String): String {
+        return "notificationUsageAutoAddEnabled.$filterId"
     }
 }

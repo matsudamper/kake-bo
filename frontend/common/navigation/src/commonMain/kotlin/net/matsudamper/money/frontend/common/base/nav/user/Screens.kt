@@ -70,6 +70,18 @@ public enum class Screens : Direction {
         override val title: String = "プリセット"
         override val placeholderUrl: String = "/add/presets"
     },
+    AddNotificationUsage {
+        override val title: String = "通知から追加"
+        override val placeholderUrl: String = "/add/notification-usage"
+    },
+    AddNotificationUsageFilters {
+        override val title: String = "通知フィルター"
+        override val placeholderUrl: String = "/add/notification-usage/filters"
+    },
+    AddNotificationUsageDebug {
+        override val title: String = "通知の確認"
+        override val placeholderUrl: String = "/add/notification-usage/debug"
+    },
     AddPresetDetail {
         override val title: String = "プリセット詳細"
         override val placeholderUrl: String = "/add/presets/{id}"

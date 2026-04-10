@@ -143,6 +143,24 @@ public sealed interface ScreenStructure : IScreenStructure {
             }
 
             @Serializable
+            public data object NotificationUsage : Add {
+                override val direction: Screens = Screens.AddNotificationUsage
+                override val sameScreenId: String = "ScreenStructure#Root#Add#NotificationUsage"
+            }
+
+            @Serializable
+            public data object NotificationUsageFilters : Add {
+                override val direction: Screens = Screens.AddNotificationUsageFilters
+                override val sameScreenId: String = "ScreenStructure#Root#Add#NotificationUsageFilters"
+            }
+
+            @Serializable
+            public data object NotificationUsageDebug : Add {
+                override val direction: Screens = Screens.AddNotificationUsageDebug
+                override val sameScreenId: String = "ScreenStructure#Root#Add#NotificationUsageDebug"
+            }
+
+            @Serializable
             public data class PresetDetail(
                 public val id: MoneyUsagePresetId,
             ) : Add {
@@ -338,6 +356,7 @@ public sealed interface ScreenStructure : IScreenStructure {
         val date: LocalDateTime? = null,
         val description: String? = null,
         val subCategoryId: String? = null,
+        val notificationUsageKey: String? = null,
     ) : ScreenStructure {
         override val direction: Screens = Screens.AddMoneyUsage
         override val stackGroupId: String? = null
@@ -357,6 +376,15 @@ public sealed interface ScreenStructure : IScreenStructure {
                     }
                     if (description != null) {
                         append(KEY_DESCRIPTION, description)
+                    }
+                    if (price != null) {
+                        append(KEY_PRICE, price.toString())
+                    }
+                    if (subCategoryId != null) {
+                        append(KEY_SUB_CATEGORY_ID, subCategoryId)
+                    }
+                    if (notificationUsageKey != null) {
+                        append(KEY_NOTIFICATION_USAGE_KEY, notificationUsageKey)
                     }
 
                     run {
@@ -381,6 +409,7 @@ public sealed interface ScreenStructure : IScreenStructure {
             private const val KEY_DATE = "date"
             private const val KEY_DESCRIPTION = "description"
             private const val KEY_SUB_CATEGORY_ID = "sub_category_id"
+            private const val KEY_NOTIFICATION_USAGE_KEY = "notification_usage_key"
             private val dateFormat = LocalDateTime.Formats.ISO
 
             public fun fromQueryParams(queryParams: Map<String, List<String>>): AddMoneyUsage {
@@ -393,6 +422,7 @@ public sealed interface ScreenStructure : IScreenStructure {
                     date = queryParams[KEY_DATE]?.firstOrNull()?.let { dateFormat.parse(it) },
                     description = queryParams[KEY_DESCRIPTION]?.firstOrNull(),
                     subCategoryId = queryParams[KEY_SUB_CATEGORY_ID]?.firstOrNull(),
+                    notificationUsageKey = queryParams[KEY_NOTIFICATION_USAGE_KEY]?.firstOrNull(),
                 )
             }
         }

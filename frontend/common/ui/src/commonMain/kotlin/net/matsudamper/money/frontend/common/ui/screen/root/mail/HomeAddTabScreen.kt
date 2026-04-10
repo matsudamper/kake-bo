@@ -16,34 +16,42 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 
 public data class HomeAddTabScreenUiState(
     val kakeboScaffoldListener: KakeboScaffoldListener,
-    val event: Event,
+    val items: ImmutableList<Item>,
 ) {
-    @Immutable
-    public interface Event {
-        public fun onClickImportButton()
-        public fun onClickImportedButton()
-        public fun onClickPresetButton()
+    public data class Item(
+        val title: String,
+        val icon: Icon,
+        val onClick: () -> Unit,
+    )
+
+    public enum class Icon {
+        ImportMail,
+        ImportedMail,
+        Preset,
+        Notification,
     }
 }
 
@@ -82,49 +90,20 @@ public fun HomeAddTabScreen(
                     horizontal = padding,
                 ),
             ) {
-                item {
+                items(
+                    count = uiState.items.size,
+                ) { index ->
+                    val item = uiState.items[index]
                     Item(
                         title = {
-                            Text("メールのインポート")
+                            Text(item.title)
                         },
                         icon = {
-                            Row {
-                                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = null)
-                                Icon(Icons.Default.Email, contentDescription = null)
-                            }
+                            AddTabItemIcon(item.icon)
                         },
                         modifier = Modifier.padding(8.dp),
                         onClick = {
-                            uiState.event.onClickImportButton()
-                        },
-                    )
-                }
-                item {
-                    Item(
-                        title = {
-                            Text("インポートされたメールから追加")
-                        },
-                        icon = {
-                            Icon(Icons.Default.Add, contentDescription = null)
-                            Icon(Icons.Default.Email, contentDescription = null)
-                        },
-                        modifier = Modifier.padding(8.dp),
-                        onClick = {
-                            uiState.event.onClickImportedButton()
-                        },
-                    )
-                }
-                item {
-                    Item(
-                        title = {
-                            Text("プリセットから追加")
-                        },
-                        icon = {
-                            Icon(Icons.Default.List, contentDescription = null)
-                        },
-                        modifier = Modifier.padding(8.dp),
-                        onClick = {
-                            uiState.event.onClickPresetButton()
+                            item.onClick()
                         },
                     )
                 }
@@ -163,6 +142,38 @@ private fun Item(
                 contentAlignment = Alignment.BottomStart,
             ) {
                 title()
+            }
+        }
+    }
+}
+
+@Composable
+private fun AddTabItemIcon(
+    icon: HomeAddTabScreenUiState.Icon,
+) {
+    when (icon) {
+        HomeAddTabScreenUiState.Icon.ImportMail -> {
+            Row {
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = null)
+                Icon(Icons.Default.Email, contentDescription = null)
+            }
+        }
+
+        HomeAddTabScreenUiState.Icon.ImportedMail -> {
+            Row {
+                Icon(Icons.Default.Add, contentDescription = null)
+                Icon(Icons.Default.Email, contentDescription = null)
+            }
+        }
+
+        HomeAddTabScreenUiState.Icon.Preset -> {
+            Icon(Icons.Default.List, contentDescription = null)
+        }
+
+        HomeAddTabScreenUiState.Icon.Notification -> {
+            Row {
+                Icon(Icons.Default.Add, contentDescription = null)
+                Icon(Icons.Default.Notifications, contentDescription = null)
             }
         }
     }

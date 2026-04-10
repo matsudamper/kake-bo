@@ -21,6 +21,7 @@ import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmu
 import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
@@ -38,6 +39,7 @@ public class AddMoneyUsageViewModel(
     scopedObjectFeature: ScopedObjectFeature,
     public val graphqlApi: AddMoneyUsageScreenApi,
     private val graphqlClient: GraphqlClient,
+    private val notificationUsageRepository: NotificationUsageRepository,
 ) : CommonViewModel(scopedObjectFeature) {
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
@@ -293,6 +295,11 @@ public class AddMoneyUsageViewModel(
                     ),
                 )
             } else {
+                viewModelStateFlow.value.notificationUsageKey?.let { notificationUsageKey ->
+                    runCatching {
+                        notificationUsageRepository.markNotificationAsAdded(notificationUsageKey)
+                    }
+                }
                 viewModelStateFlow.update {
                     ViewModelState(usageDate = it.usageDate)
                 }
@@ -314,6 +321,11 @@ public class AddMoneyUsageViewModel(
 
     public fun updateScreenStructure(current: ScreenStructure.AddMoneyUsage) {
         usageFromMailIdJob.cancel()
+        viewModelStateFlow.update { state ->
+            state.copy(
+                notificationUsageKey = current.notificationUsageKey,
+            )
+        }
 
         val subCategoryId = current.subCategoryId
         if (subCategoryId != null) {
@@ -481,6 +493,7 @@ public class AddMoneyUsageViewModel(
 
     private data class ViewModelState(
         val importedMailId: ImportedMailId? = null,
+        val notificationUsageKey: String? = null,
         val usageDate: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
         val usageTime: LocalTime = LocalTime(0, 0, 0, 0),
         val usageTitle: String = "",

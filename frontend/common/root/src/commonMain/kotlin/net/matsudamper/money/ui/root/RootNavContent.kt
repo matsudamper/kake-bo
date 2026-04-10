@@ -366,6 +366,30 @@ internal fun RootNavContent(
                             windowInsets = windowInsets,
                         )
                     }
+
+                    ScreenStructure.Root.Add.NotificationUsage,
+                    ScreenStructure.Root.Add.NotificationUsageFilters,
+                    ScreenStructure.Root.Add.NotificationUsageDebug,
+                    -> {
+                        when (current) {
+                            ScreenStructure.Root.Add.NotificationUsage,
+                            ScreenStructure.Root.Add.NotificationUsageDebug,
+                            -> {
+                                NotificationUsageScreenContainer(
+                                    current = current,
+                                    navController = navController,
+                                    windowInsets = windowInsets,
+                                )
+                            }
+
+                            ScreenStructure.Root.Add.NotificationUsageFilters -> {
+                                NotificationUsageFilterListScreenContainer(
+                                    navController = navController,
+                                    windowInsets = windowInsets,
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -9,6 +9,8 @@ import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.base.notification.EmptyNotificationUsageRepository
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
 import net.matsudamper.money.frontend.common.ui.screen.addmoneyusage.AddMoneyUsageScreen
 import net.matsudamper.money.frontend.common.viewmodel.addmoneyusage.AddMoneyUsageScreenApi
 import net.matsudamper.money.frontend.common.viewmodel.addmoneyusage.AddMoneyUsageViewModel
@@ -21,6 +23,8 @@ internal fun AddMoneyUsageScreenContainer(
     windowInsets: PaddingValues,
 ) {
     val koin = LocalKoin.current
+    val notificationUsageRepository = runCatching { koin.get<NotificationUsageRepository>() }
+        .getOrElse { EmptyNotificationUsageRepository }
     val viewModel = LocalScopedObjectStore.current.putOrGet(Unit) { viewModelFeature ->
         AddMoneyUsageViewModel(
             scopedObjectFeature = viewModelFeature,
@@ -29,6 +33,7 @@ internal fun AddMoneyUsageScreenContainer(
                 imageUploadClient = koin.get(),
             ),
             graphqlClient = koin.get(),
+            notificationUsageRepository = notificationUsageRepository,
         )
     }
     LaunchedEffect(viewModel.eventHandler) {
