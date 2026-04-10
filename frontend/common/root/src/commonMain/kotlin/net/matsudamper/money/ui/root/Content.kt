@@ -350,6 +350,14 @@ public fun Content(
                                     )
                                 }
 
+                                addEntryProvider<ScreenStructure.NotificationUsageDetail> { current ->
+                                    NotificationUsageDetailScreenContainer(
+                                        current = current,
+                                        navController = navController,
+                                        windowInsets = paddingValues.value,
+                                    )
+                                }
+
                                 addEntryProvider<ScreenStructure.CalendarDateList> { current ->
                                     CalendarDateListScreenContainer(
                                         screen = current,

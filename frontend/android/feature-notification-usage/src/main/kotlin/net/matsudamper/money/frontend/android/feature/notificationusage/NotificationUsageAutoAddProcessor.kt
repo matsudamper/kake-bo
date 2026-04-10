@@ -7,6 +7,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import com.apollographql.apollo.api.Optional
+import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDraft
@@ -41,9 +42,9 @@ internal class NotificationUsageAutoAddProcessor(
                 parser to draft
             } ?: return
             val draft = parserAndDraft.second
-            val isSuccess = api.addUsage(draft.toPayload(record))
-            if (isSuccess) {
-                dao.markAsAdded(notificationKey)
+            val moneyUsageId = api.addUsage(draft.toPayload(record))
+            if (moneyUsageId != null) {
+                dao.markAsAdded(notificationKey, moneyUsageId.id)
             }
         } finally {
             finishProcessing(notificationKey)
@@ -75,6 +76,7 @@ internal class NotificationUsageAutoAddProcessor(
             postedAtEpochMillis = postedAtEpochMillis,
             receivedAtEpochMillis = receivedAtEpochMillis,
             isAdded = isAdded,
+            moneyUsageId = moneyUsageId?.let { MoneyUsageId(it) },
         )
     }
 
@@ -100,13 +102,13 @@ internal data class NotificationUsageAutoAddPayload(
 )
 
 internal interface NotificationUsageAutoAddApi {
-    suspend fun addUsage(payload: NotificationUsageAutoAddPayload): Boolean
+    suspend fun addUsage(payload: NotificationUsageAutoAddPayload): MoneyUsageId?
 }
 
 internal class NotificationUsageAutoAddGraphqlApi(
     private val graphqlClient: GraphqlClient,
 ) : NotificationUsageAutoAddApi {
-    override suspend fun addUsage(payload: NotificationUsageAutoAddPayload): Boolean {
+    override suspend fun addUsage(payload: NotificationUsageAutoAddPayload): MoneyUsageId? {
         return runCatching {
             graphqlClient.apolloClient
                 .mutation(
@@ -123,7 +125,7 @@ internal class NotificationUsageAutoAddGraphqlApi(
                     ),
                 )
                 .execute()
-                .data?.userMutation?.addUsage != null
-        }.getOrDefault(false)
+                .data?.userMutation?.addUsage?.id
+        }.getOrNull()
     }
 }

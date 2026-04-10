@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.base.notification
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.datetime.LocalDateTime
+import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsageSubCategoryId
 
 public data class NotificationUsageRecord(
@@ -12,6 +13,7 @@ public data class NotificationUsageRecord(
     val postedAtEpochMillis: Long,
     val receivedAtEpochMillis: Long,
     val isAdded: Boolean = false,
+    val moneyUsageId: MoneyUsageId? = null,
 )
 
 public data class NotificationUsageRecordInput(
@@ -40,16 +42,28 @@ public data class NotificationUsageFilterDefinition(
 public data class NotificationUsageMatchedRecord(
     val record: NotificationUsageRecord,
     val draft: NotificationUsageDraft,
+    val filterDefinition: NotificationUsageFilterDefinition,
+)
+
+public data class NotificationUsageDetail(
+    val record: NotificationUsageRecord,
+    val matched: NotificationUsageMatchedRecord?,
 )
 
 public interface NotificationUsageRepository {
-    public fun matchedNotificationsFlow(): Flow<List<NotificationUsageMatchedRecord>>
+    public fun notificationsFlow(): Flow<List<NotificationUsageRecord>>
 
-    public fun unmatchedNotificationsFlow(): Flow<List<NotificationUsageRecord>>
+    public fun unaddedMatchedNotificationsFlow(): Flow<List<NotificationUsageMatchedRecord>>
+
+    public fun notAddedNotificationsFlow(): Flow<List<NotificationUsageRecord>>
+
+    public fun addedNotificationsFlow(): Flow<List<NotificationUsageRecord>>
+
+    public fun notificationDetailFlow(notificationKey: String): Flow<NotificationUsageDetail?>
 
     public suspend fun upsertNotification(record: NotificationUsageRecordInput)
 
-    public suspend fun markNotificationAsAdded(notificationKey: String)
+    public suspend fun markNotificationAsAdded(notificationKey: String, moneyUsageId: MoneyUsageId?)
 }
 
 public interface NotificationUsageParser {
@@ -73,14 +87,20 @@ public sealed interface NotificationAccessState {
 }
 
 public object EmptyNotificationUsageRepository : NotificationUsageRepository {
-    override fun matchedNotificationsFlow(): Flow<List<NotificationUsageMatchedRecord>> = flowOf(emptyList())
+    override fun notificationsFlow(): Flow<List<NotificationUsageRecord>> = flowOf(emptyList())
 
-    override fun unmatchedNotificationsFlow(): Flow<List<NotificationUsageRecord>> = flowOf(emptyList())
+    override fun unaddedMatchedNotificationsFlow(): Flow<List<NotificationUsageMatchedRecord>> = flowOf(emptyList())
+
+    override fun notAddedNotificationsFlow(): Flow<List<NotificationUsageRecord>> = flowOf(emptyList())
+
+    override fun addedNotificationsFlow(): Flow<List<NotificationUsageRecord>> = flowOf(emptyList())
+
+    override fun notificationDetailFlow(notificationKey: String): Flow<NotificationUsageDetail?> = flowOf(null)
 
     override suspend fun upsertNotification(record: NotificationUsageRecordInput) {
     }
 
-    override suspend fun markNotificationAsAdded(notificationKey: String) {
+    override suspend fun markNotificationAsAdded(notificationKey: String, moneyUsageId: MoneyUsageId?) {
     }
 }
 

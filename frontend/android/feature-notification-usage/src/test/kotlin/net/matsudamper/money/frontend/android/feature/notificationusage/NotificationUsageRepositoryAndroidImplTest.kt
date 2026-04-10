@@ -5,14 +5,17 @@ import kotlin.test.assertEquals
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
+import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDraft
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageFilterDefinition
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageParser
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRecordInput
 
 public class NotificationUsageRepositoryAndroidImplTest {
     @Test
-    public fun `parser に一致した通知だけ matched に出る`() = runBlocking {
+    public fun `未追加は parser に一致した通知だけ出る`() = runBlocking {
         val dao = FakeNotificationUsageDao(
             initialEntities = listOf(
                 NotificationUsageEntity(
@@ -38,13 +41,20 @@ public class NotificationUsageRepositoryAndroidImplTest {
             parsers = listOf(ComExampleParser()),
         )
 
-        val matched = repository.matchedNotificationsFlow().first()
-        val unmatched = repository.unmatchedNotificationsFlow().first()
+        val matched = repository.unaddedMatchedNotificationsFlow().first()
+        val all = repository.notificationsFlow().first()
+        val notAdded = repository.notAddedNotificationsFlow().first()
+        val added = repository.addedNotificationsFlow().first()
+        val unmatchedDetail = repository.notificationDetailFlow("unmatched").first()
 
         assertEquals(listOf("matched"), matched.map { it.record.notificationKey })
+        assertEquals(listOf("matched", "unmatched"), all.map { it.notificationKey })
+        assertEquals(listOf("matched", "unmatched"), notAdded.map { it.notificationKey })
         assertEquals("match text", matched.single().draft.description)
-        assertEquals(listOf("unmatched"), unmatched.map { it.notificationKey })
+        assertEquals("com.example", matched.single().filterDefinition.id)
+        assertEquals(listOf(), added.map { it.notificationKey })
         assertEquals(false, matched.single().record.isAdded)
+        assertEquals(null, unmatchedDetail?.matched)
     }
 
     @Test
@@ -66,10 +76,13 @@ public class NotificationUsageRepositoryAndroidImplTest {
             parsers = listOf(ComExampleParser()),
         )
 
-        repository.markNotificationAsAdded("matched")
+        repository.markNotificationAsAdded("matched", MoneyUsageId(10))
 
-        val matched = repository.matchedNotificationsFlow().first()
-        assertEquals(true, matched.single().record.isAdded)
+        val matched = repository.unaddedMatchedNotificationsFlow().first()
+        val added = repository.addedNotificationsFlow().first()
+        assertEquals(listOf(), matched.map { it.record.notificationKey })
+        assertEquals(true, added.single().isAdded)
+        assertEquals(MoneyUsageId(10), added.single().moneyUsageId)
     }
 
     @Test
@@ -83,6 +96,7 @@ public class NotificationUsageRepositoryAndroidImplTest {
                     postedAtEpochMillis = 20,
                     receivedAtEpochMillis = 20,
                     isAdded = true,
+                    moneyUsageId = 10,
                 ),
             ),
         )
@@ -92,7 +106,7 @@ public class NotificationUsageRepositoryAndroidImplTest {
         )
 
         repository.upsertNotification(
-            net.matsudamper.money.frontend.common.base.notification.NotificationUsageRecordInput(
+            NotificationUsageRecordInput(
                 notificationKey = "matched",
                 packageName = "com.example",
                 text = "new text",
@@ -101,9 +115,10 @@ public class NotificationUsageRepositoryAndroidImplTest {
             ),
         )
 
-        val matched = repository.matchedNotificationsFlow().first()
-        assertEquals(true, matched.single().record.isAdded)
-        assertEquals("new text", matched.single().record.text)
+        val detail = repository.notificationDetailFlow("matched").first()
+        assertEquals(true, detail?.record?.isAdded)
+        assertEquals(MoneyUsageId(10), detail?.record?.moneyUsageId)
+        assertEquals("new text", detail?.record?.text)
     }
 
     private class FakeNotificationUsageDao(
@@ -112,6 +127,18 @@ public class NotificationUsageRepositoryAndroidImplTest {
         private val entitiesFlow = MutableStateFlow(initialEntities)
 
         override fun observeAll(): Flow<List<NotificationUsageEntity>> = entitiesFlow
+
+        override fun observeNotAdded(): Flow<List<NotificationUsageEntity>> {
+            return entitiesFlow.map { entities ->
+                entities.filter { it.isAdded.not() }
+            }
+        }
+
+        override fun observeAdded(): Flow<List<NotificationUsageEntity>> {
+            return entitiesFlow.map { entities ->
+                entities.filter { it.isAdded }
+            }
+        }
 
         override suspend fun upsert(entity: NotificationUsageEntity) {
             entitiesFlow.value = entitiesFlow.value
@@ -122,10 +149,19 @@ public class NotificationUsageRepositoryAndroidImplTest {
             return entitiesFlow.value.firstOrNull { it.notificationKey == notificationKey }
         }
 
-        override suspend fun markAsAdded(notificationKey: String) {
+        override fun observeByKey(notificationKey: String): Flow<NotificationUsageEntity?> {
+            return entitiesFlow.map { entities ->
+                entities.firstOrNull { it.notificationKey == notificationKey }
+            }
+        }
+
+        override suspend fun markAsAdded(notificationKey: String, moneyUsageId: Int?) {
             entitiesFlow.value = entitiesFlow.value.map { entity ->
                 if (entity.notificationKey == notificationKey) {
-                    entity.copy(isAdded = true)
+                    entity.copy(
+                        isAdded = true,
+                        moneyUsageId = moneyUsageId,
+                    )
                 } else {
                     entity
                 }

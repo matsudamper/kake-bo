@@ -12,4 +12,5 @@ internal data class NotificationUsageEntity(
     val postedAtEpochMillis: Long,
     val receivedAtEpochMillis: Long,
     val isAdded: Boolean = false,
+    val moneyUsageId: Int? = null,
 )

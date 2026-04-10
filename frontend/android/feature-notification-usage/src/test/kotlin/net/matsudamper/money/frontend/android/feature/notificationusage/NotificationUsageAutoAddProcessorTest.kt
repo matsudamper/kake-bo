@@ -5,9 +5,11 @@ import kotlin.test.assertEquals
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDraft
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageFilterDefinition
@@ -83,6 +85,7 @@ public class NotificationUsageAutoAddProcessorTest {
             api.payloads.single(),
         )
         assertEquals(true, dao.findByKey("key")?.isAdded)
+        assertEquals(10, dao.findByKey("key")?.moneyUsageId)
     }
 
     @Test
@@ -140,6 +143,18 @@ public class NotificationUsageAutoAddProcessorTest {
 
         override fun observeAll(): Flow<List<NotificationUsageEntity>> = MutableStateFlow(entities.values.toList())
 
+        override fun observeNotAdded(): Flow<List<NotificationUsageEntity>> {
+            return MutableStateFlow(entities.values.toList()).map { entities ->
+                entities.filter { it.isAdded.not() }
+            }
+        }
+
+        override fun observeAdded(): Flow<List<NotificationUsageEntity>> {
+            return MutableStateFlow(entities.values.toList()).map { entities ->
+                entities.filter { it.isAdded }
+            }
+        }
+
         override suspend fun upsert(entity: NotificationUsageEntity) {
             entities[entity.notificationKey] = entity
         }
@@ -148,17 +163,24 @@ public class NotificationUsageAutoAddProcessorTest {
             return entities[notificationKey]
         }
 
-        override suspend fun markAsAdded(notificationKey: String) {
-            entities[notificationKey] = entities[notificationKey]?.copy(isAdded = true) ?: return
+        override fun observeByKey(notificationKey: String): Flow<NotificationUsageEntity?> {
+            return MutableStateFlow(entities[notificationKey])
+        }
+
+        override suspend fun markAsAdded(notificationKey: String, moneyUsageId: Int?) {
+            entities[notificationKey] = entities[notificationKey]?.copy(
+                isAdded = true,
+                moneyUsageId = moneyUsageId,
+            ) ?: return
         }
     }
 
     private class FakeNotificationUsageAutoAddApi : NotificationUsageAutoAddApi {
         val payloads: MutableList<NotificationUsageAutoAddPayload> = mutableListOf()
 
-        override suspend fun addUsage(payload: NotificationUsageAutoAddPayload): Boolean {
+        override suspend fun addUsage(payload: NotificationUsageAutoAddPayload): MoneyUsageId? {
             payloads += payload
-            return true
+            return MoneyUsageId(10)
         }
     }
 

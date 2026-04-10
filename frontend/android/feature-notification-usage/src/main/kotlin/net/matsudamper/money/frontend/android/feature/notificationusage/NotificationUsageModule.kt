@@ -17,7 +17,10 @@ public object NotificationUsageModule {
                 NotificationUsageDatabase::class.java,
                 "notification_usage.db",
             )
-                .addMigrations(NotificationUsageDatabase.Migration1To2)
+                .addMigrations(
+                    NotificationUsageDatabase.Migration1To2,
+                    NotificationUsageDatabase.Migration2To3,
+                )
                 .build()
         }
         single<NotificationUsageDao> {

@@ -8,39 +8,32 @@ import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.base.notification.EmptyNotificationUsageAccessGateway
 import net.matsudamper.money.frontend.common.base.notification.EmptyNotificationUsageRepository
-import net.matsudamper.money.frontend.common.base.notification.NotificationUsageAccessGateway
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
-import net.matsudamper.money.frontend.common.ui.screen.root.add.NotificationUsageListScreen
-import net.matsudamper.money.frontend.common.viewmodel.root.add.NotificationUsageViewModel
+import net.matsudamper.money.frontend.common.ui.screen.root.add.NotificationUsageDetailScreen
+import net.matsudamper.money.frontend.common.viewmodel.root.add.NotificationUsageDetailViewModel
+import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 @Composable
-internal fun NotificationUsageScreenContainer(
-    current: ScreenStructure.Root.Add,
+internal fun NotificationUsageDetailScreenContainer(
+    current: ScreenStructure.NotificationUsageDetail,
     navController: ScreenNavController,
     windowInsets: PaddingValues,
 ) {
     val koin = LocalKoin.current
-    val mode = when (current) {
-        ScreenStructure.Root.Add.NotificationUsage -> NotificationUsageViewModel.Mode.AddFromNotification
-        ScreenStructure.Root.Add.NotificationUsageDebug -> NotificationUsageViewModel.Mode.NotificationList
-        else -> error("Unsupported screen: $current")
-    }
     val repository = runCatching { koin.get<NotificationUsageRepository>() }
         .getOrElse { EmptyNotificationUsageRepository }
-    val accessGateway = runCatching { koin.get<NotificationUsageAccessGateway>() }
-        .getOrElse { EmptyNotificationUsageAccessGateway }
-    val viewModel = LocalScopedObjectStore.current.putOrGet(current) {
-        NotificationUsageViewModel(
+    val viewModel = LocalScopedObjectStore.current.putOrGet(current.notificationUsageKey) {
+        NotificationUsageDetailViewModel(
             scopedObjectFeature = it,
-            mode = mode,
+            notificationUsageKey = current.notificationUsageKey,
             repository = repository,
-            accessGateway = accessGateway,
+            graphqlClient = koin.get<GraphqlClient>(),
             navController = navController,
         )
     }
-    NotificationUsageListScreen(
+
+    NotificationUsageDetailScreen(
         modifier = Modifier.fillMaxSize(),
         uiState = viewModel.uiStateFlow.collectAsState().value,
         windowInsets = windowInsets,

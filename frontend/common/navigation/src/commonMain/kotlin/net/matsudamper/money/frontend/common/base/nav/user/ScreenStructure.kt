@@ -320,6 +320,34 @@ public sealed interface ScreenStructure : IScreenStructure {
     }
 
     @Serializable
+    public data class NotificationUsageDetail(
+        public val notificationUsageKey: String,
+    ) : ScreenStructure {
+        override val direction: Screens = Screens.NotificationUsageDetail
+        override val stackGroupId: String? = null
+        override val sameScreenId: String = "ScreenStructure#NotificationUsageDetail($notificationUsageKey)"
+
+        override fun createUrl(): String {
+            return direction.placeholderUrl.plus(
+                buildParameter {
+                    append(KEY_NOTIFICATION_USAGE_KEY, notificationUsageKey)
+                },
+            )
+        }
+
+        public companion object {
+            private const val KEY_NOTIFICATION_USAGE_KEY = "notification_usage_key"
+
+            public fun fromQueryParams(queryParams: Map<String, List<String>>): NotificationUsageDetail? {
+                val notificationUsageKey = queryParams[KEY_NOTIFICATION_USAGE_KEY]?.firstOrNull() ?: return null
+                return NotificationUsageDetail(
+                    notificationUsageKey = notificationUsageKey,
+                )
+            }
+        }
+    }
+
+    @Serializable
     public data class ImportedMailHTML(
         public val id: ImportedMailId,
     ) : ScreenStructure {

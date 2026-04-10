@@ -297,7 +297,7 @@ public class AddMoneyUsageViewModel(
             } else {
                 viewModelStateFlow.value.notificationUsageKey?.let { notificationUsageKey ->
                     runCatching {
-                        notificationUsageRepository.markNotificationAsAdded(notificationUsageKey)
+                        notificationUsageRepository.markNotificationAsAdded(notificationUsageKey, addedUsage.id)
                     }
                 }
                 viewModelStateFlow.update {

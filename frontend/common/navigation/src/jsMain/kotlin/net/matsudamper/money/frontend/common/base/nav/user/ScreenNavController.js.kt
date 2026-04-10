@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import kotlinx.browser.window
 import io.ktor.http.ParametersBuilder
+import io.ktor.http.decodeURLQueryComponent
 import io.ktor.util.StringValues
 import io.ktor.util.toMap
 import net.matsudamper.money.element.ImportedMailCategoryFilterId
@@ -36,7 +37,9 @@ private fun parseQueryParams(query: String): Map<String, List<String>> {
                     .forEach { keyValue ->
                         keyValue.split("=").let {
                             val key = it.getOrNull(0) ?: return@forEach
-                            val value = it.getOrNull(1).orEmpty()
+                            val value = it.getOrNull(1)
+                                .orEmpty()
+                                .decodeURLQueryComponent(plusIsSpace = true)
 
                             append(key, value)
                         }
@@ -90,6 +93,10 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
         Screens.AddPresets -> ScreenStructure.Root.Add.Preset
         Screens.AddNotificationUsage -> ScreenStructure.Root.Add.NotificationUsage
         Screens.AddNotificationUsageFilters -> ScreenStructure.Root.Add.NotificationUsageFilters
+        Screens.NotificationUsageDetail ->
+            ScreenStructure.NotificationUsageDetail.fromQueryParams(
+                queryParams = queryParams,
+            ) ?: ScreenStructure.NotFound
         Screens.AddNotificationUsageDebug -> ScreenStructure.Root.Add.NotificationUsageDebug
         Screens.AddPresetDetail -> {
             ScreenStructure.Root.Add.PresetDetail(
