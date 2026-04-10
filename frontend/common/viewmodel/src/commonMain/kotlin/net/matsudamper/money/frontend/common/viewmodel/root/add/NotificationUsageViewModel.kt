@@ -4,7 +4,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -147,7 +146,7 @@ public class NotificationUsageViewModel(
 
             is ItemSource.Raw -> record.toUiItem(
                 title = record.packageName,
-                statusLabel = record.addedLabel,
+                statusLabel = if (record.isAdded) "追加済み" else "未追加",
                 description = record.text.ifBlank { "(テキストなし)" },
             )
         }
@@ -192,7 +191,10 @@ public class NotificationUsageViewModel(
     }
 
     private fun Status.toUiState(): List<NotificationUsageListScreenUiState.Filter> {
-        return mode.statuses.map { filter ->
+        return when (mode) {
+            Mode.AddFromNotification -> listOf(Status.NotAdded, Status.Added)
+            Mode.NotificationList -> listOf(Status.All, Status.Added, Status.NotAdded)
+        }.map { filter ->
             NotificationUsageListScreenUiState.Filter(
                 label = filter.label,
                 selected = filter == this,
@@ -227,14 +229,6 @@ public class NotificationUsageViewModel(
             Mode.NotificationList -> Status.All
         }
 
-    private val Mode.statuses: List<Status>
-        get() = when (this) {
-            Mode.AddFromNotification -> listOf(Status.NotAdded, Status.Added)
-            Mode.NotificationList -> listOf(Status.All, Status.Added, Status.NotAdded)
-        }
-
-    private val NotificationUsageRecord.addedLabel: String
-        get() = if (isAdded) "追加済み" else "未追加"
 
     private fun Mode.emptyText(status: Status): String {
         return when (this) {
