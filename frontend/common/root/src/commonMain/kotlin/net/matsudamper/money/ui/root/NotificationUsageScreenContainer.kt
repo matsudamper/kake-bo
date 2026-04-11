@@ -3,6 +3,7 @@ package net.matsudamper.money.ui.root
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
@@ -19,6 +20,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.add.NotificationUsag
 internal fun NotificationUsageScreenContainer(
     current: ScreenStructure.Root.Add,
     navController: ScreenNavController,
+    viewModelEventHandlers: ViewModelEventHandlers,
     windowInsets: PaddingValues,
 ) {
     val koin = LocalKoin.current
@@ -39,6 +41,9 @@ internal fun NotificationUsageScreenContainer(
             accessGateway = accessGateway,
             navController = navController,
         )
+    }
+    LaunchedEffect(viewModel.eventHandler) {
+        viewModelEventHandlers.handleNotificationUsage(viewModel.eventHandler)
     }
     NotificationUsageListScreen(
         modifier = Modifier.fillMaxSize(),

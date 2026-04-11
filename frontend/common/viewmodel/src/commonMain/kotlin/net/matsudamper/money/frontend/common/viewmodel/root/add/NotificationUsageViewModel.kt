@@ -9,6 +9,12 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonNull
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonObject
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
@@ -21,6 +27,8 @@ import net.matsudamper.money.frontend.common.base.notification.NotificationUsage
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.screen.root.add.NotificationUsageListScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 
 public class NotificationUsageViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -29,7 +37,13 @@ public class NotificationUsageViewModel(
     private val accessGateway: NotificationUsageAccessGateway,
     private val navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
+    private val eventSender = EventSender<Event>()
+    public val eventHandler: EventHandler<Event> = eventSender.asHandler()
+
     private val statusStateFlow = MutableStateFlow(mode.initialStatus)
+    private val copyJsonFormatter = Json {
+        prettyPrint = true
+    }
 
     public enum class Mode {
         AddFromNotification,
@@ -137,17 +151,24 @@ public class NotificationUsageViewModel(
     }
 
     private fun ItemSource.toUiItem(): NotificationUsageListScreenUiState.Item {
-        return when (this) {
-            is ItemSource.Matched -> record.toUiItem(
-                title = record.record.packageName,
+        val source = this
+        return when (source) {
+            is ItemSource.Matched -> source.record.toUiItem(
+                title = source.record.record.packageName,
                 statusLabel = "未追加",
-                description = record.record.text.ifBlank { "(テキストなし)" },
+                description = source.record.record.text.ifBlank { "(テキストなし)" },
+                onClickCopyJson = {
+                    copyNotificationJson(source.toCopyJson())
+                },
             )
 
-            is ItemSource.Raw -> record.toUiItem(
-                title = record.packageName,
-                statusLabel = if (record.isAdded) "追加済み" else "未追加",
-                description = record.text.ifBlank { "(テキストなし)" },
+            is ItemSource.Raw -> source.record.toUiItem(
+                title = source.record.packageName,
+                statusLabel = if (source.record.isAdded) "追加済み" else "未追加",
+                description = source.record.text.ifBlank { "(テキストなし)" },
+                onClickCopyJson = {
+                    copyNotificationJson(source.toCopyJson())
+                },
             )
         }
     }
@@ -156,6 +177,7 @@ public class NotificationUsageViewModel(
         title: String,
         statusLabel: String,
         description: String,
+        onClickCopyJson: () -> Unit,
     ): NotificationUsageListScreenUiState.Item {
         return NotificationUsageListScreenUiState.Item(
             title = title,
@@ -168,6 +190,7 @@ public class NotificationUsageViewModel(
                     ),
                 )
             },
+            onClickCopyJson = onClickCopyJson,
         )
     }
 
@@ -175,6 +198,7 @@ public class NotificationUsageViewModel(
         title: String,
         statusLabel: String,
         description: String,
+        onClickCopyJson: () -> Unit,
     ): NotificationUsageListScreenUiState.Item {
         return NotificationUsageListScreenUiState.Item(
             title = title,
@@ -187,7 +211,65 @@ public class NotificationUsageViewModel(
                     ),
                 )
             },
+            onClickCopyJson = onClickCopyJson,
         )
+    }
+
+    private fun ItemSource.toCopyJson(): String {
+        return copyJsonFormatter.encodeToString(JsonObject.serializer(), toCopyJsonObject())
+    }
+
+    private fun ItemSource.toCopyJsonObject(): JsonObject {
+        return buildJsonObject {
+            put("schema", "kakebo.notification_usage.v1")
+            when (this@toCopyJsonObject) {
+                is ItemSource.Matched -> {
+                    put("source", "matched")
+                    put("record", record.record.toJsonObject())
+                    putJsonObject("matched") {
+                        putJsonObject("filterDefinition") {
+                            put("id", record.filterDefinition.id)
+                            put("title", record.filterDefinition.title)
+                            put("description", record.filterDefinition.description)
+                        }
+                        putJsonObject("draft") {
+                            put("title", record.draft.title)
+                            put("description", record.draft.description)
+                            put("amount", record.draft.amount)
+                            put("dateTime", record.draft.dateTime?.toString())
+                            put("subCategoryId", record.draft.subCategoryId?.id)
+                        }
+                    }
+                }
+
+                is ItemSource.Raw -> {
+                    put("source", "raw")
+                    put("record", record.toJsonObject())
+                    put("matched", JsonNull)
+                }
+            }
+        }
+    }
+
+    private fun NotificationUsageRecord.toJsonObject(): JsonObject {
+        return buildJsonObject {
+            put("notificationKey", notificationKey)
+            put("packageName", packageName)
+            put("text", text)
+            put("postedAtEpochMillis", postedAtEpochMillis)
+            put("receivedAtEpochMillis", receivedAtEpochMillis)
+            put("isAdded", isAdded)
+            put("moneyUsageId", moneyUsageId?.id)
+        }
+    }
+
+    private fun copyNotificationJson(json: String) {
+        viewModelScope.launch {
+            eventSender.send {
+                it.copyToClipboard(json)
+                it.showToast("通知情報のJSONをコピーしました")
+            }
+        }
     }
 
     private fun Status.toUiState(): List<NotificationUsageListScreenUiState.Filter> {
@@ -215,6 +297,12 @@ public class NotificationUsageViewModel(
         data class Matched(val record: NotificationUsageMatchedRecord) : ItemSource
 
         data class Raw(val record: NotificationUsageRecord) : ItemSource
+    }
+
+    public interface Event {
+        public fun copyToClipboard(text: String)
+
+        public fun showToast(text: String)
     }
 
     private val Mode.title: String

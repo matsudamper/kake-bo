@@ -1,8 +1,10 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.add
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -16,13 +18,20 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -50,6 +59,7 @@ public data class NotificationUsageListScreenUiState(
         val statusLabel: String,
         val description: String,
         val onClick: (() -> Unit)? = null,
+        val onClickCopyJson: (() -> Unit)? = null,
     )
 
     public data class Filter(
@@ -165,41 +175,69 @@ public fun NotificationUsageListScreen(
                 }
             } else {
                 items(uiState.items) { item ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .then(
-                                if (item.onClick != null) {
-                                    Modifier.clickable { item.onClick.invoke() }
-                                } else {
-                                    Modifier
-                                },
-                            ),
+                    var showMenu by remember(item) { mutableStateOf(false) }
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Column(
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
+                                .then(
+                                    if (item.onClick != null || item.onClickCopyJson != null) {
+                                        Modifier.pointerInput(item) {
+                                            detectTapGestures(
+                                                onTap = {
+                                                    item.onClick?.invoke()
+                                                },
+                                                onLongPress = {
+                                                    if (item.onClickCopyJson != null) {
+                                                        showMenu = true
+                                                    }
+                                                },
+                                            )
+                                        }
+                                    } else {
+                                        Modifier
+                                    },
+                                ),
                         ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
                             ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text(
+                                        modifier = Modifier.weight(1f),
+                                        text = item.title,
+                                        style = MaterialTheme.typography.titleSmall,
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = item.statusLabel,
+                                        style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.primary,
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(8.dp))
                                 Text(
-                                    modifier = Modifier.weight(1f),
-                                    text = item.title,
-                                    style = MaterialTheme.typography.titleSmall,
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = item.statusLabel,
-                                    style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.primary,
+                                    text = item.description,
+                                    style = MaterialTheme.typography.bodyMedium,
                                 )
                             }
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = item.description,
-                                style = MaterialTheme.typography.bodyMedium,
+                        }
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false },
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("JSONでコピー") },
+                                onClick = {
+                                    showMenu = false
+                                    item.onClickCopyJson?.invoke()
+                                },
                             )
                         }
                     }

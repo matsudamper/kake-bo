@@ -378,6 +378,7 @@ internal fun RootNavContent(
                                 NotificationUsageScreenContainer(
                                     current = current,
                                     navController = navController,
+                                    viewModelEventHandlers = viewModelEventHandlers,
                                     windowInsets = windowInsets,
                                 )
                             }

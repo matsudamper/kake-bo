@@ -16,6 +16,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.add.NotificationUsageViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodAllContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodCategoryContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodSubCategoryContentViewModel
@@ -255,6 +256,22 @@ internal data class ViewModelEventHandlers(
 
                     override fun back() {
                         navController.back()
+                    }
+                },
+            )
+        }
+    }
+
+    suspend fun handleNotificationUsage(handler: EventHandler<NotificationUsageViewModel.Event>) {
+        coroutineScope {
+            handler.collect(
+                object : NotificationUsageViewModel.Event {
+                    override fun copyToClipboard(text: String) {
+                        platformToolsProvider().clipboardManager.copy(text)
+                    }
+
+                    override fun showToast(text: String) {
+                        platformToolsProvider().applicationNotificationManager.notify(text)
                     }
                 },
             )
