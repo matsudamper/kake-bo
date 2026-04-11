@@ -22,6 +22,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -42,6 +43,8 @@ public data class NotificationUsageListScreenUiState(
     val title: String,
     val items: ImmutableList<Item>,
     val filters: ImmutableList<Filter>,
+    val searchQuery: String?,
+    val onSearchQueryChange: ((String) -> Unit)?,
     val emptyText: String,
     val accessSection: AccessSection?,
     val topBarActions: ImmutableList<TopBarAction>,
@@ -165,6 +168,17 @@ public fun NotificationUsageListScreen(
                             }
                         }
                     }
+                }
+            }
+            if (uiState.searchQuery != null) {
+                item {
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = uiState.searchQuery,
+                        onValueChange = { uiState.onSearchQueryChange?.invoke(it) },
+                        placeholder = { Text("検索") },
+                        singleLine = true,
+                    )
                 }
             }
             if (uiState.items.isEmpty()) {

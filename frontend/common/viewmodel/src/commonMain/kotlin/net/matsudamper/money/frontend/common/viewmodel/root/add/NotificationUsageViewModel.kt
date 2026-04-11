@@ -43,6 +43,7 @@ public class NotificationUsageViewModel(
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
     private val statusStateFlow = MutableStateFlow(mode.initialStatus)
+    private val searchQueryStateFlow = MutableStateFlow("")
     private val copyJsonFormatter = Json {
         prettyPrint = true
     }
@@ -57,6 +58,12 @@ public class NotificationUsageViewModel(
             title = mode.title,
             items = emptyList<NotificationUsageListScreenUiState.Item>().toImmutableList(),
             filters = statusStateFlow.value.toUiState().toImmutableList(),
+            searchQuery = if (mode == Mode.NotificationList) "" else null,
+            onSearchQueryChange = if (mode == Mode.NotificationList) {
+                { query -> searchQueryStateFlow.value = query }
+            } else {
+                null
+            },
             emptyText = mode.emptyText(statusStateFlow.value),
             accessSection = null,
             topBarActions = mode.topBarActions().toImmutableList(),
@@ -71,20 +78,28 @@ public class NotificationUsageViewModel(
             combine(
                 accessGateway.accessStateFlow(),
                 statusStateFlow,
+                searchQueryStateFlow,
                 itemsFlow(),
-            ) { accessState, status, items ->
+            ) { accessState, status, searchQuery, items ->
                 NotificationUsageUiStateSource(
                     accessState = accessState,
                     status = status,
+                    searchQuery = searchQuery,
                     items = items,
                 )
             }.collect { source ->
                 uiStateFlow.update { uiState ->
+                    val filteredItems = if (mode == Mode.NotificationList) {
+                        source.items.filterByQuery(source.searchQuery)
+                    } else {
+                        source.items
+                    }
                     uiState.copy(
-                        items = source.items.map { it.toUiItem() }.toImmutableList(),
+                        items = filteredItems.map { it.toUiItem() }.toImmutableList(),
                         filters = source.status.toUiState().toImmutableList(),
                         emptyText = mode.emptyText(source.status),
                         accessSection = source.accessState.toAccessSection(),
+                        searchQuery = if (mode == Mode.NotificationList) source.searchQuery else null,
                     )
                 }
             }
@@ -269,8 +284,26 @@ public class NotificationUsageViewModel(
     private data class NotificationUsageUiStateSource(
         val accessState: NotificationAccessState,
         val status: Status,
+        val searchQuery: String,
         val items: List<ItemSource>,
     )
+
+    private fun List<ItemSource>.filterByQuery(query: String): List<ItemSource> {
+        if (query.isBlank()) return this
+        val q = query.lowercase()
+        return filter { source ->
+            when (source) {
+                is ItemSource.Matched -> {
+                    source.record.record.packageName.lowercase().contains(q) ||
+                        source.record.record.text.lowercase().contains(q)
+                }
+                is ItemSource.Raw -> {
+                    source.record.packageName.lowercase().contains(q) ||
+                        source.record.text.lowercase().contains(q)
+                }
+            }
+        }
+    }
 
     private sealed interface ItemSource {
         data class Matched(val record: NotificationUsageMatchedRecord) : ItemSource
