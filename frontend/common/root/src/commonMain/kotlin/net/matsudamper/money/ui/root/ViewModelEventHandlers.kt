@@ -16,6 +16,7 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
+import net.matsudamper.money.frontend.common.viewmodel.root.add.NotificationUsageDetailViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.add.NotificationUsageViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodAllContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodCategoryContentViewModel
@@ -256,6 +257,30 @@ internal data class ViewModelEventHandlers(
 
                     override fun back() {
                         navController.back()
+                    }
+                },
+            )
+        }
+    }
+
+    suspend fun handleNotificationUsageDetail(handler: EventHandler<NotificationUsageDetailViewModel.Event>) {
+        coroutineScope {
+            handler.collect(
+                object : NotificationUsageDetailViewModel.Event {
+                    override fun navigate(structure: ScreenStructure) {
+                        navController.navigate(structure)
+                    }
+
+                    override fun navigateBack() {
+                        if (navController.canGoBack) {
+                            navController.back()
+                        } else {
+                            navController.navigate(ScreenStructure.Root.Add.NotificationUsage)
+                        }
+                    }
+
+                    override fun navigateToHome() {
+                        navController.navigateToHome()
                     }
                 },
             )

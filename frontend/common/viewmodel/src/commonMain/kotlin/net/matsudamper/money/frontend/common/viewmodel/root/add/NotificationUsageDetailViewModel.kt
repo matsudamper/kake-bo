@@ -13,7 +13,6 @@ import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
-import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDetail
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageMatchedRecord
@@ -21,6 +20,8 @@ import net.matsudamper.money.frontend.common.base.notification.NotificationUsage
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
 import net.matsudamper.money.frontend.common.ui.screen.root.add.NotificationUsageDetailScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
+import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenQuery
@@ -31,8 +32,10 @@ public class NotificationUsageDetailViewModel(
     private val notificationUsageKey: String,
     private val repository: NotificationUsageRepository,
     private val graphqlClient: GraphqlClient,
-    private val navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
+    private val eventSender = EventSender<Event>()
+    public val eventHandler: EventHandler<Event> = eventSender.asHandler()
+
     private val viewModelStateFlow = MutableStateFlow(ViewModelState())
 
     public val uiStateFlow: StateFlow<NotificationUsageDetailScreenUiState> = MutableStateFlow(
@@ -40,15 +43,15 @@ public class NotificationUsageDetailViewModel(
             loadingState = NotificationUsageDetailScreenUiState.LoadingState.Loading,
             event = object : NotificationUsageDetailScreenUiState.Event {
                 override fun onClickBack() {
-                    if (navController.canGoBack) {
-                        navController.back()
-                    } else {
-                        navController.navigate(ScreenStructure.Root.Add.NotificationUsage)
+                    viewModelScope.launch {
+                        eventSender.send { it.navigateBack() }
                     }
                 }
 
                 override fun onClickTitle() {
-                    navController.navigateToHome()
+                    viewModelScope.launch {
+                        eventSender.send { it.navigateToHome() }
+                    }
                 }
             },
         ),
@@ -89,12 +92,13 @@ public class NotificationUsageDetailViewModel(
             notification = detail.record.toNotificationUiState(),
             filter = detail.matched.toFilterUiState(),
             draft = detail.matched?.toDraftUiState(),
-            canRegister = detail.record.isAdded.not() && detail.matched != null,
+            canRegister = detail.record.isAdded.not(),
             linkedUsage = linkedUsageState.toUiState(),
             event = object : NotificationUsageDetailScreenUiState.LoadedEvent {
                 override fun onClickRegister() {
-                    val matched = detail.matched ?: return
-                    navController.navigate(matched.toAddMoneyUsageScreen())
+                    viewModelScope.launch {
+                        eventSender.send { it.navigate(detail.toAddMoneyUsageScreen()) }
+                    }
                 }
             },
         )
@@ -192,19 +196,30 @@ public class NotificationUsageDetailViewModel(
             dateTime = Formatter.formatDateTime(date),
             event = object : NotificationUsageDetailScreenUiState.LinkedUsageEvent {
                 override fun onClick() {
-                    navController.navigate(ScreenStructure.MoneyUsage(moneyUsageId))
+                    viewModelScope.launch {
+                        eventSender.send { it.navigate(ScreenStructure.MoneyUsage(moneyUsageId)) }
+                    }
                 }
             },
         )
     }
 
-    private fun NotificationUsageMatchedRecord.toAddMoneyUsageScreen(): ScreenStructure.AddMoneyUsage {
+    private fun NotificationUsageDetail.toAddMoneyUsageScreen(): ScreenStructure.AddMoneyUsage {
+        val draft = matched?.draft
+        val description = buildString {
+            val draftDesc = draft?.description
+            if (!draftDesc.isNullOrBlank()) {
+                append(draftDesc)
+                append("\n")
+            }
+            append(record.text)
+        }
         return ScreenStructure.AddMoneyUsage(
-            title = draft.title,
-            description = draft.description,
-            price = draft.amount?.toFloat(),
-            date = draft.dateTime,
-            subCategoryId = draft.subCategoryId?.id?.toString(),
+            title = draft?.title,
+            description = description,
+            price = draft?.amount?.toFloat(),
+            date = draft?.dateTime,
+            subCategoryId = draft?.subCategoryId?.id?.toString(),
             notificationUsageKey = record.notificationKey,
         )
     }
@@ -241,4 +256,12 @@ public class NotificationUsageDetailViewModel(
         val detailState: DetailState = DetailState.Loading,
         val linkedUsageState: LinkedUsageState = LinkedUsageState.None,
     )
+
+    public interface Event {
+        public fun navigate(structure: ScreenStructure)
+
+        public fun navigateBack()
+
+        public fun navigateToHome()
+    }
 }

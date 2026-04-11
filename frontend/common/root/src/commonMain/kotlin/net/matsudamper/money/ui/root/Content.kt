@@ -353,7 +353,7 @@ public fun Content(
                                 addEntryProvider<ScreenStructure.NotificationUsageDetail> { current ->
                                     NotificationUsageDetailScreenContainer(
                                         current = current,
-                                        navController = navController,
+                                        viewModelEventHandlers = viewModelEventHandlers,
                                         windowInsets = paddingValues.value,
                                     )
                                 }
