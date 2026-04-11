@@ -58,6 +58,52 @@ public class NotificationUsageRepositoryAndroidImplTest {
     }
 
     @Test
+    public fun `通知は受信時刻の降順で出る`() = runBlocking {
+        val dao = FakeNotificationUsageDao(
+            initialEntities = listOf(
+                NotificationUsageEntity(
+                    notificationKey = "old-not-added",
+                    packageName = "com.example",
+                    text = "old text",
+                    postedAtEpochMillis = 100,
+                    receivedAtEpochMillis = 10,
+                    isAdded = false,
+                ),
+                NotificationUsageEntity(
+                    notificationKey = "added",
+                    packageName = "com.example",
+                    text = "added text",
+                    postedAtEpochMillis = 20,
+                    receivedAtEpochMillis = 20,
+                    isAdded = true,
+                ),
+                NotificationUsageEntity(
+                    notificationKey = "new-not-added",
+                    packageName = "com.example",
+                    text = "new text",
+                    postedAtEpochMillis = 5,
+                    receivedAtEpochMillis = 30,
+                    isAdded = false,
+                ),
+            ),
+        )
+        val repository = NotificationUsageRepositoryAndroidImpl(
+            dao = dao,
+            parsers = listOf(ComExampleParser()),
+        )
+
+        val matched = repository.unaddedMatchedNotificationsFlow().first()
+        val all = repository.notificationsFlow().first()
+        val notAdded = repository.notAddedNotificationsFlow().first()
+        val added = repository.addedNotificationsFlow().first()
+
+        assertEquals(listOf("new-not-added", "old-not-added"), matched.map { it.record.notificationKey })
+        assertEquals(listOf("new-not-added", "added", "old-not-added"), all.map { it.notificationKey })
+        assertEquals(listOf("new-not-added", "old-not-added"), notAdded.map { it.notificationKey })
+        assertEquals(listOf("added"), added.map { it.notificationKey })
+    }
+
+    @Test
     public fun `追加済みに更新できる`() = runBlocking {
         val dao = FakeNotificationUsageDao(
             initialEntities = listOf(
@@ -126,17 +172,23 @@ public class NotificationUsageRepositoryAndroidImplTest {
     ) : NotificationUsageDao {
         private val entitiesFlow = MutableStateFlow(initialEntities)
 
-        override fun observeAll(): Flow<List<NotificationUsageEntity>> = entitiesFlow
+        override fun observeAll(): Flow<List<NotificationUsageEntity>> {
+            return entitiesFlow.map { entities ->
+                entities.sortByReceivedAtDescending()
+            }
+        }
 
         override fun observeNotAdded(): Flow<List<NotificationUsageEntity>> {
             return entitiesFlow.map { entities ->
                 entities.filter { it.isAdded.not() }
+                    .sortByReceivedAtDescending()
             }
         }
 
         override fun observeAdded(): Flow<List<NotificationUsageEntity>> {
             return entitiesFlow.map { entities ->
                 entities.filter { it.isAdded }
+                    .sortByReceivedAtDescending()
             }
         }
 
@@ -166,6 +218,13 @@ public class NotificationUsageRepositoryAndroidImplTest {
                     entity
                 }
             }
+        }
+
+        private fun List<NotificationUsageEntity>.sortByReceivedAtDescending(): List<NotificationUsageEntity> {
+            return sortedWith(
+                compareByDescending<NotificationUsageEntity> { it.receivedAtEpochMillis }
+                    .thenByDescending { it.postedAtEpochMillis },
+            )
         }
     }
 

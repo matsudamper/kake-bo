@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.viewmodel.root.add
 
+import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -9,6 +10,8 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
@@ -29,6 +32,7 @@ import net.matsudamper.money.frontend.common.ui.screen.root.add.NotificationUsag
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
+import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 
 public class NotificationUsageViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -181,6 +185,7 @@ public class NotificationUsageViewModel(
     ): NotificationUsageListScreenUiState.Item {
         return NotificationUsageListScreenUiState.Item(
             title = title,
+            receivedAt = Formatter.formatYearMonthDateTime(record.receivedAtEpochMillis.toLocalDateTime()),
             statusLabel = statusLabel,
             description = description,
             onClick = {
@@ -202,6 +207,7 @@ public class NotificationUsageViewModel(
     ): NotificationUsageListScreenUiState.Item {
         return NotificationUsageListScreenUiState.Item(
             title = title,
+            receivedAt = Formatter.formatYearMonthDateTime(receivedAtEpochMillis.toLocalDateTime()),
             statusLabel = statusLabel,
             description = description,
             onClick = {
@@ -261,6 +267,11 @@ public class NotificationUsageViewModel(
             put("isAdded", isAdded)
             put("moneyUsageId", moneyUsageId?.id)
         }
+    }
+
+    private fun Long.toLocalDateTime(): kotlinx.datetime.LocalDateTime {
+        return Instant.fromEpochMilliseconds(this)
+            .toLocalDateTime(TimeZone.currentSystemDefault())
     }
 
     private fun copyNotificationJson(json: String) {

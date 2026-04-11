@@ -12,7 +12,7 @@ internal interface NotificationUsageDao {
         """
         SELECT *
         FROM notification_usage_records
-        ORDER BY postedAtEpochMillis DESC, receivedAtEpochMillis DESC
+        ORDER BY receivedAtEpochMillis DESC, postedAtEpochMillis DESC
         """,
     )
     fun observeAll(): Flow<List<NotificationUsageEntity>>
@@ -22,7 +22,7 @@ internal interface NotificationUsageDao {
         SELECT *
         FROM notification_usage_records
         WHERE isAdded = 0
-        ORDER BY postedAtEpochMillis DESC, receivedAtEpochMillis DESC
+        ORDER BY receivedAtEpochMillis DESC, postedAtEpochMillis DESC
         """,
     )
     fun observeNotAdded(): Flow<List<NotificationUsageEntity>>
@@ -32,7 +32,7 @@ internal interface NotificationUsageDao {
         SELECT *
         FROM notification_usage_records
         WHERE isAdded = 1
-        ORDER BY postedAtEpochMillis DESC, receivedAtEpochMillis DESC
+        ORDER BY receivedAtEpochMillis DESC, postedAtEpochMillis DESC
         """,
     )
     fun observeAdded(): Flow<List<NotificationUsageEntity>>

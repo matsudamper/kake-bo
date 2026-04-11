@@ -57,6 +57,20 @@ internal object Formatter {
         }
     }
 
+    fun formatYearMonthDateTime(dateTime: LocalDateTime): String {
+        return buildString {
+            append(dateTime.year.toString().padStart(4, padChar = '0'))
+            append("/")
+            append(dateTime.monthNumber.toString().padStart(2, padChar = '0'))
+            append("/")
+            append(dateTime.dayOfMonth.toString().padStart(2, padChar = '0'))
+            append("・")
+            append(dateTime.hour.toString().padStart(2, padChar = '0'))
+            append(":")
+            append(dateTime.minute.toString().padStart(2, padChar = '0'))
+        }
+    }
+
     fun formatDate(date: LocalDateTime): String {
         return buildString {
             append("${date.year}/${date.month.number}/${date.day}")

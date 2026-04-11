@@ -56,6 +56,7 @@ public data class NotificationUsageListScreenUiState(
 
     public data class Item(
         val title: String,
+        val receivedAt: String,
         val statusLabel: String,
         val description: String,
         val onClick: (() -> Unit)? = null,
@@ -215,6 +216,11 @@ public fun NotificationUsageListScreen(
                                         style = MaterialTheme.typography.titleSmall,
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
+                                    Text(
+                                        text = item.receivedAt,
+                                        style = MaterialTheme.typography.labelMedium,
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
                                     Text(
                                         text = item.statusLabel,
                                         style = MaterialTheme.typography.labelMedium,
