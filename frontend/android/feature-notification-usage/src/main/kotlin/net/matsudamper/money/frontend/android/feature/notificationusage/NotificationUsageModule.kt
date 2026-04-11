@@ -27,7 +27,6 @@ public object NotificationUsageModule {
         single<NotificationUsageDao> {
             get<NotificationUsageDatabase>().notificationUsageDao()
         }
-        single<NotificationUsageParser>(named("com.example")) { ComExampleNotificationUsageParser() }
         single<NotificationUsageParser>(named("com.felicanetworks.mfm.main")) { MobileSuicaNotificationUsageParser() }
         single<NotificationUsageParser>(named("jp.co.saisoncard.android.saisonportal")) { SaisonCardNotificationUsageParser() }
         single<NotificationUsageAutoAddApi> {
