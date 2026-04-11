@@ -440,6 +440,72 @@
     "allDeclaredFields": true
   },
   {
+    "name": "[Ljava.lang.Boolean;"
+  },
+  {
+    "name": "[Ljava.lang.Byte;"
+  },
+  {
+    "name": "[Ljava.lang.Double;"
+  },
+  {
+    "name": "[Ljava.lang.Float;"
+  },
+  {
+    "name": "[Ljava.lang.Integer;"
+  },
+  {
+    "name": "[Ljava.lang.Long;"
+  },
+  {
+    "name": "[Ljava.lang.Object;"
+  },
+  {
+    "name": "[Ljava.lang.Short;"
+  },
+  {
+    "name": "[Ljava.lang.String;"
+  },
+  {
+    "name": "[Ljava.math.BigDecimal;"
+  },
+  {
+    "name": "[Ljava.math.BigInteger;"
+  },
+  {
+    "name": "[Ljava.sql.Date;"
+  },
+  {
+    "name": "[Ljava.sql.Time;"
+  },
+  {
+    "name": "[Ljava.sql.Timestamp;"
+  },
+  {
+    "name": "[Ljava.time.Instant;"
+  },
+  {
+    "name": "[Ljava.time.LocalDate;"
+  },
+  {
+    "name": "[Ljava.time.LocalDateTime;"
+  },
+  {
+    "name": "[Ljava.time.LocalTime;"
+  },
+  {
+    "name": "[Ljava.time.OffsetDateTime;"
+  },
+  {
+    "name": "[Ljava.time.OffsetTime;"
+  },
+  {
+    "name": "[Ljava.time.Year;"
+  },
+  {
+    "name": "[Ljava.util.UUID;"
+  },
+  {
     "name": "[Lorg.jooq.types.UByte;"
   },
   {

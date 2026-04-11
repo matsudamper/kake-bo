@@ -32,7 +32,10 @@ val nativeBuildArgs = listOf(
     // DefaultDataType の静的ブロックが SQLDataType の初期化をトリガーし、
     // その中で ArrayDataType.getArrayType() が呼ばれる。
     // GraalVM native-image では Class.arrayType() が image に含まれていない型に対して
-    // null を返すため、reflect-config.json に jOOQ カスタム型の配列クラスを登録している。
+    // null を返すため、reflect-config.json に jOOQ カスタム型および標準 Java 型の
+    // 配列クラスを登録している。
+    // (GraalVM reachability metadata repo 3.20.0 以降、配列型の登録条件がテストクラスに
+    //  変わったため、プロジェクト側での登録が必須)
     "--initialize-at-run-time=org.jooq",
     "-H:+AddAllCharsets",
     "--initialize-at-run-time=io.opentelemetry.sdk",
