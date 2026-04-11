@@ -29,6 +29,7 @@ public object NotificationUsageModule {
         }
         single<NotificationUsageParser>(named("com.example")) { ComExampleNotificationUsageParser() }
         single<NotificationUsageParser>(named("com.felicanetworks.mfm.main")) { MobileSuicaNotificationUsageParser() }
+        single<NotificationUsageParser>(named("jp.co.saisoncard.android.saisonportal")) { SaisonCardNotificationUsageParser() }
         single<NotificationUsageAutoAddApi> {
             NotificationUsageAutoAddGraphqlApi(
                 graphqlClient = get<GraphqlClient>(),
