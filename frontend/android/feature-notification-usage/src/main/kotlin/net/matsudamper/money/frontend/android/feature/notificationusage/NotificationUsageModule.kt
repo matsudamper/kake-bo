@@ -7,6 +7,7 @@ import net.matsudamper.money.frontend.common.base.notification.NotificationUsage
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
 import net.matsudamper.money.frontend.common.viewmodel.root.add.HomeAddExtensionEntryProvider
 import net.matsudamper.money.frontend.graphql.GraphqlClient
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 public object NotificationUsageModule {
@@ -26,7 +27,8 @@ public object NotificationUsageModule {
         single<NotificationUsageDao> {
             get<NotificationUsageDatabase>().notificationUsageDao()
         }
-        single<NotificationUsageParser> { ComExampleNotificationUsageParser() }
+        single<NotificationUsageParser>(named("com.example")) { ComExampleNotificationUsageParser() }
+        single<NotificationUsageParser>(named("com.felicanetworks.mfm.main")) { MobileSuicaNotificationUsageParser() }
         single<NotificationUsageAutoAddApi> {
             NotificationUsageAutoAddGraphqlApi(
                 graphqlClient = get<GraphqlClient>(),
