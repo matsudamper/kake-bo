@@ -291,6 +291,14 @@ internal data class ViewModelEventHandlers(
         coroutineScope {
             handler.collect(
                 object : NotificationUsageViewModel.Event {
+                    override fun navigate(structure: ScreenStructure) {
+                        navController.navigate(structure)
+                    }
+
+                    override fun navigateToHome() {
+                        navController.navigateToHome()
+                    }
+
                     override fun copyToClipboard(text: String) {
                         platformToolsProvider().clipboardManager.copy(text)
                     }

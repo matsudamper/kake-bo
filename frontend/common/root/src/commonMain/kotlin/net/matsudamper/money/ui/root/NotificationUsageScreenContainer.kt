@@ -7,7 +7,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
-import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.notification.EmptyNotificationUsageAccessGateway
 import net.matsudamper.money.frontend.common.base.notification.EmptyNotificationUsageRepository
@@ -19,7 +18,6 @@ import net.matsudamper.money.frontend.common.viewmodel.root.add.NotificationUsag
 @Composable
 internal fun NotificationUsageScreenContainer(
     current: ScreenStructure.Root.Add,
-    navController: ScreenNavController,
     viewModelEventHandlers: ViewModelEventHandlers,
     windowInsets: PaddingValues,
 ) {
@@ -39,10 +37,9 @@ internal fun NotificationUsageScreenContainer(
             mode = mode,
             repository = repository,
             accessGateway = accessGateway,
-            navController = navController,
         )
     }
-    LaunchedEffect(viewModel.eventHandler) {
+    LaunchedEffect(viewModelEventHandlers, viewModel.eventHandler) {
         viewModelEventHandlers.handleNotificationUsage(viewModel.eventHandler)
     }
     NotificationUsageListScreen(

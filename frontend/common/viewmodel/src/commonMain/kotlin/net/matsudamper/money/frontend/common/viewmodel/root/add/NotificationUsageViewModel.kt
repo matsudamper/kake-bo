@@ -18,7 +18,6 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
-import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.notification.NotificationAccessState
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageAccessGateway
@@ -37,7 +36,6 @@ public class NotificationUsageViewModel(
     private val mode: Mode,
     private val repository: NotificationUsageRepository,
     private val accessGateway: NotificationUsageAccessGateway,
-    private val navController: ScreenNavController,
 ) : CommonViewModel(scopedObjectFeature) {
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
@@ -69,7 +67,7 @@ public class NotificationUsageViewModel(
             topBarActions = mode.topBarActions().toImmutableList(),
             kakeboScaffoldListener = object : KakeboScaffoldListener {
                 override fun onClickTitle() {
-                    navController.navigateToHome()
+                    navigateToHome()
                 }
             },
         ),
@@ -135,13 +133,13 @@ public class NotificationUsageViewModel(
                 NotificationUsageListScreenUiState.TopBarAction(
                     label = "条件",
                     onClick = {
-                        navController.navigate(ScreenStructure.Root.Add.NotificationUsageFilters)
+                        navigate(ScreenStructure.Root.Add.NotificationUsageFilters)
                     },
                 ),
                 NotificationUsageListScreenUiState.TopBarAction(
                     label = "一覧",
                     onClick = {
-                        navController.navigate(ScreenStructure.Root.Add.NotificationUsageDebug)
+                        navigate(ScreenStructure.Root.Add.NotificationUsageDebug)
                     },
                 ),
             )
@@ -202,7 +200,7 @@ public class NotificationUsageViewModel(
             statusLabel = statusLabel,
             description = description,
             onClick = {
-                navController.navigate(
+                navigate(
                     ScreenStructure.NotificationUsageDetail(
                         notificationUsageKey = record.notificationKey,
                     ),
@@ -224,7 +222,7 @@ public class NotificationUsageViewModel(
             statusLabel = statusLabel,
             description = description,
             onClick = {
-                navController.navigate(
+                navigate(
                     ScreenStructure.NotificationUsageDetail(
                         notificationUsageKey = notificationKey,
                     ),
@@ -255,6 +253,22 @@ public class NotificationUsageViewModel(
     private fun Long.toLocalDateTime(): kotlinx.datetime.LocalDateTime {
         return Instant.fromEpochMilliseconds(this)
             .toLocalDateTime(TimeZone.currentSystemDefault())
+    }
+
+    private fun navigate(structure: ScreenStructure) {
+        viewModelScope.launch {
+            eventSender.send {
+                it.navigate(structure)
+            }
+        }
+    }
+
+    private fun navigateToHome() {
+        viewModelScope.launch {
+            eventSender.send {
+                it.navigateToHome()
+            }
+        }
     }
 
     private fun copyNotificationJson(json: String) {
@@ -312,6 +326,10 @@ public class NotificationUsageViewModel(
     }
 
     public interface Event {
+        public fun navigate(structure: ScreenStructure)
+
+        public fun navigateToHome()
+
         public fun copyToClipboard(text: String)
 
         public fun showToast(text: String)
