@@ -13,11 +13,9 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonObject
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
@@ -226,46 +224,16 @@ public class NotificationUsageViewModel(
     }
 
     private fun ItemSource.toCopyJsonObject(): JsonObject {
-        return buildJsonObject {
-            put("schema", "kakebo.notification_usage.v1")
-            when (this@toCopyJsonObject) {
-                is ItemSource.Matched -> {
-                    put("source", "matched")
-                    put("record", record.record.toJsonObject())
-                    putJsonObject("matched") {
-                        putJsonObject("filterDefinition") {
-                            put("id", record.filterDefinition.id)
-                            put("title", record.filterDefinition.title)
-                            put("description", record.filterDefinition.description)
-                        }
-                        putJsonObject("draft") {
-                            put("title", record.draft.title)
-                            put("description", record.draft.description)
-                            put("amount", record.draft.amount)
-                            put("dateTime", record.draft.dateTime?.toString())
-                            put("subCategoryId", record.draft.subCategoryId?.id)
-                        }
-                    }
-                }
-
-                is ItemSource.Raw -> {
-                    put("source", "raw")
-                    put("record", record.toJsonObject())
-                    put("matched", JsonNull)
-                }
-            }
+        return when (this) {
+            is ItemSource.Matched -> record.record.toJsonObject()
+            is ItemSource.Raw -> record.toJsonObject()
         }
     }
 
     private fun NotificationUsageRecord.toJsonObject(): JsonObject {
         return buildJsonObject {
-            put("notificationKey", notificationKey)
             put("packageName", packageName)
             put("text", text)
-            put("postedAtEpochMillis", postedAtEpochMillis)
-            put("receivedAtEpochMillis", receivedAtEpochMillis)
-            put("isAdded", isAdded)
-            put("moneyUsageId", moneyUsageId?.id)
         }
     }
 
