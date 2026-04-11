@@ -57,19 +57,18 @@ internal class NotificationUsageRepositoryAndroidImpl(
         }
     }
 
-    override suspend fun upsertNotification(record: NotificationUsageRecordInput) {
-        val storedEntity = dao.findByKey(record.notificationKey)
-        dao.upsert(
+    override suspend fun upsertNotification(record: NotificationUsageRecordInput): String {
+        val notificationKey = record.resolveNotificationKey()
+        dao.insert(
             NotificationUsageEntity(
-                notificationKey = record.notificationKey,
+                notificationKey = notificationKey,
                 packageName = record.packageName,
                 text = record.text,
                 postedAtEpochMillis = record.postedAtEpochMillis,
                 receivedAtEpochMillis = record.receivedAtEpochMillis,
-                isAdded = storedEntity?.isAdded ?: false,
-                moneyUsageId = storedEntity?.moneyUsageId,
             ),
         )
+        return notificationKey
     }
 
     override suspend fun markNotificationAsAdded(notificationKey: String, moneyUsageId: MoneyUsageId?) {
@@ -86,6 +85,25 @@ internal class NotificationUsageRepositoryAndroidImpl(
             isAdded = isAdded,
             moneyUsageId = moneyUsageId?.let { MoneyUsageId(it) },
         )
+    }
+
+    private suspend fun NotificationUsageRecordInput.resolveNotificationKey(): String {
+        val legacyEntity = dao.findByKey(notificationKey)
+        if (legacyEntity != null && legacyEntity.hasSameNotificationValue(this)) {
+            return notificationKey
+        }
+        return NotificationUsageKeyBuilder.build(
+            notificationKey = notificationKey,
+            packageName = packageName,
+            text = text,
+            postedAtEpochMillis = postedAtEpochMillis,
+        )
+    }
+
+    private fun NotificationUsageEntity.hasSameNotificationValue(record: NotificationUsageRecordInput): Boolean {
+        return packageName == record.packageName &&
+            text == record.text &&
+            postedAtEpochMillis == record.postedAtEpochMillis
     }
 
     private fun NotificationUsageRecord.toMatchedRecord(): NotificationUsageMatchedRecord? {

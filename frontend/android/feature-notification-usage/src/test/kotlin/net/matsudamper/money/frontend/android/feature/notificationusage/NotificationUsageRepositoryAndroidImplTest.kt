@@ -2,6 +2,7 @@ package net.matsudamper.money.frontend.android.feature.notificationusage
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -132,7 +133,7 @@ public class NotificationUsageRepositoryAndroidImplTest {
     }
 
     @Test
-    public fun `同じ通知の再取り込みでも追加済み状態を保持する`() = runBlocking {
+    public fun `値が変わった同じ Android 通知は別通知として保存する`() = runBlocking {
         val dao = FakeNotificationUsageDao(
             initialEntities = listOf(
                 NotificationUsageEntity(
@@ -151,7 +152,7 @@ public class NotificationUsageRepositoryAndroidImplTest {
             parsers = listOf(ComExampleParser()),
         )
 
-        repository.upsertNotification(
+        val storedKey = repository.upsertNotification(
             NotificationUsageRecordInput(
                 notificationKey = "matched",
                 packageName = "com.example",
@@ -162,9 +163,53 @@ public class NotificationUsageRepositoryAndroidImplTest {
         )
 
         val detail = repository.notificationDetailFlow("matched").first()
+        val newDetail = repository.notificationDetailFlow(storedKey).first()
+        val all = repository.notificationsFlow().first()
+        assertNotEquals("matched", storedKey)
+        assertEquals(listOf(storedKey, "matched"), all.map { it.notificationKey })
         assertEquals(true, detail?.record?.isAdded)
         assertEquals(MoneyUsageId(10), detail?.record?.moneyUsageId)
-        assertEquals("new text", detail?.record?.text)
+        assertEquals("old text", detail?.record?.text)
+        assertEquals(false, newDetail?.record?.isAdded)
+        assertEquals("new text", newDetail?.record?.text)
+    }
+
+    @Test
+    public fun `値が同じ Android 通知の再取り込みでは保存済み通知を上書きしない`() = runBlocking {
+        val dao = FakeNotificationUsageDao(
+            initialEntities = listOf(
+                NotificationUsageEntity(
+                    notificationKey = "matched",
+                    packageName = "com.example",
+                    text = "same text",
+                    postedAtEpochMillis = 20,
+                    receivedAtEpochMillis = 20,
+                    isAdded = true,
+                    moneyUsageId = 10,
+                ),
+            ),
+        )
+        val repository = NotificationUsageRepositoryAndroidImpl(
+            dao = dao,
+            parsers = listOf(ComExampleParser()),
+        )
+
+        val storedKey = repository.upsertNotification(
+            NotificationUsageRecordInput(
+                notificationKey = "matched",
+                packageName = "com.example",
+                text = "same text",
+                postedAtEpochMillis = 20,
+                receivedAtEpochMillis = 30,
+            ),
+        )
+
+        val all = repository.notificationsFlow().first()
+        assertEquals("matched", storedKey)
+        assertEquals(listOf("matched"), all.map { it.notificationKey })
+        assertEquals(true, all.single().isAdded)
+        assertEquals(MoneyUsageId(10), all.single().moneyUsageId)
+        assertEquals(20L, all.single().receivedAtEpochMillis)
     }
 
     private class FakeNotificationUsageDao(
@@ -192,9 +237,10 @@ public class NotificationUsageRepositoryAndroidImplTest {
             }
         }
 
-        override suspend fun upsert(entity: NotificationUsageEntity) {
-            entitiesFlow.value = entitiesFlow.value
-                .filterNot { it.notificationKey == entity.notificationKey } + entity
+        override suspend fun insert(entity: NotificationUsageEntity) {
+            if (entitiesFlow.value.none { it.notificationKey == entity.notificationKey }) {
+                entitiesFlow.value += entity
+            }
         }
 
         override suspend fun findByKey(notificationKey: String): NotificationUsageEntity? {

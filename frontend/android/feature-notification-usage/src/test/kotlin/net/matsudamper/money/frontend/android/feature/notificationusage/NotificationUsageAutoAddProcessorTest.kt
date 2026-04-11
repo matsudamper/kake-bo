@@ -155,8 +155,10 @@ public class NotificationUsageAutoAddProcessorTest {
             }
         }
 
-        override suspend fun upsert(entity: NotificationUsageEntity) {
-            entities[entity.notificationKey] = entity
+        override suspend fun insert(entity: NotificationUsageEntity) {
+            if (entity.notificationKey !in entities) {
+                entities[entity.notificationKey] = entity
+            }
         }
 
         override suspend fun findByKey(notificationKey: String): NotificationUsageEntity? {

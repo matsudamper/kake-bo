@@ -39,16 +39,18 @@ public class NotificationUsageListenerService : NotificationListenerService() {
         val autoAddProcessor = runCatching { GlobalContext.get().get<NotificationUsageAutoAddProcessor>() }
             .getOrNull()
         val text = NotificationTextExtractor.extract(sbn.notification)
+        val postedAtEpochMillis = sbn.postTime
+        val packageName = sbn.packageName
         val input = NotificationUsageRecordInput(
             notificationKey = sbn.key,
-            packageName = sbn.packageName,
+            packageName = packageName,
             text = text,
-            postedAtEpochMillis = sbn.postTime,
+            postedAtEpochMillis = postedAtEpochMillis,
             receivedAtEpochMillis = System.currentTimeMillis(),
         )
         scope.launch {
-            repository.upsertNotification(input)
-            autoAddProcessor?.process(input.notificationKey)
+            val storedNotificationKey = repository.upsertNotification(input)
+            autoAddProcessor?.process(storedNotificationKey)
         }
     }
 }

@@ -60,7 +60,7 @@ public interface NotificationUsageRepository {
 
     public fun notificationDetailFlow(notificationKey: String): Flow<NotificationUsageDetail?>
 
-    public suspend fun upsertNotification(record: NotificationUsageRecordInput)
+    public suspend fun upsertNotification(record: NotificationUsageRecordInput): String
 
     public suspend fun markNotificationAsAdded(notificationKey: String, moneyUsageId: MoneyUsageId?)
 }
@@ -96,7 +96,8 @@ public object EmptyNotificationUsageRepository : NotificationUsageRepository {
 
     override fun notificationDetailFlow(notificationKey: String): Flow<NotificationUsageDetail?> = flowOf(null)
 
-    override suspend fun upsertNotification(record: NotificationUsageRecordInput) {
+    override suspend fun upsertNotification(record: NotificationUsageRecordInput): String {
+        return record.notificationKey
     }
 
     override suspend fun markNotificationAsAdded(notificationKey: String, moneyUsageId: MoneyUsageId?) {

@@ -37,8 +37,8 @@ internal interface NotificationUsageDao {
     )
     fun observeAdded(): Flow<List<NotificationUsageEntity>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun upsert(entity: NotificationUsageEntity)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insert(entity: NotificationUsageEntity)
 
     @Query(
         """
