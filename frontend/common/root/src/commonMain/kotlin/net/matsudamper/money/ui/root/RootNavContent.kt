@@ -20,6 +20,7 @@ import net.matsudamper.money.frontend.common.base.notification.NotificationUsage
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageParser
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
 import net.matsudamper.money.frontend.common.ui.StickyHeaderState
+import net.matsudamper.money.frontend.common.ui.base.LocalRootScaffoldPadding
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlyCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlySubCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeTabPeriodAllContentUiState
@@ -268,7 +269,7 @@ internal fun RootNavContent(
                             modifier = Modifier.fillMaxSize(),
                             stickyHeaderState = stickyHeaderState,
                             uiState = rootUiState,
-                            windowInsets = windowInsets,
+                            windowInsets = LocalRootScaffoldPadding.current,
                         ) {
                             content()
                         }
