@@ -153,8 +153,7 @@ public class NotificationUsageDetailViewModel(
         }
         return NotificationUsageDetailScreenUiState.Filter.Matched(
             title = filterDefinition.title,
-            matchDescription = filterDefinition.matchDescription,
-            parseDescription = filterDefinition.parseDescription,
+            description = filterDefinition.description,
         )
     }
 

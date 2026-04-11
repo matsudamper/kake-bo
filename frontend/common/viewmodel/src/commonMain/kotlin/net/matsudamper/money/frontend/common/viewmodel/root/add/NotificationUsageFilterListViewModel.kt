@@ -74,8 +74,7 @@ public class NotificationUsageFilterListViewModel(
     ): NotificationUsageFilterListScreenUiState.FilterItem {
         return NotificationUsageFilterListScreenUiState.FilterItem(
             title = definition.title,
-            matchDescription = definition.matchDescription,
-            parseDescription = definition.parseDescription,
+            description = definition.description,
             autoAddEnabled = autoAddEnabled,
             listener = object : NotificationUsageFilterListScreenUiState.FilterItemListener {
                 override fun onToggleAutoAdd(value: Boolean) {

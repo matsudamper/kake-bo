@@ -35,8 +35,7 @@ public data class NotificationUsageFilterListScreenUiState(
 ) {
     public data class FilterItem(
         val title: String,
-        val matchDescription: String,
-        val parseDescription: String,
+        val description: String,
         val autoAddEnabled: Boolean,
         val listener: FilterItemListener,
     )
@@ -117,12 +116,7 @@ public fun NotificationUsageFilterListScreen(
                             }
                             Spacer(modifier = Modifier.height(8.dp))
                             Text(
-                                text = "条件: ${filter.matchDescription}",
-                                style = MaterialTheme.typography.bodyMedium,
-                            )
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = "変換: ${filter.parseDescription}",
+                                text = filter.description,
                                 style = MaterialTheme.typography.bodyMedium,
                             )
                         }

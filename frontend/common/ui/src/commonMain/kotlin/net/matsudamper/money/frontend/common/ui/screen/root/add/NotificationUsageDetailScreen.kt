@@ -66,8 +66,7 @@ public data class NotificationUsageDetailScreenUiState(
 
         public data class Matched(
             val title: String,
-            val matchDescription: String,
-            val parseDescription: String,
+            val description: String,
         ) : Filter
     }
 
@@ -328,12 +327,8 @@ private fun FilterCard(
                         item { Text(uiState.title) }
                     }
                     row {
-                        item { Text("一致条件") }
-                        item { Text(uiState.matchDescription) }
-                    }
-                    row {
-                        item { Text("解析内容") }
-                        item { Text(uiState.parseDescription) }
+                        item { Text("説明") }
+                        item { Text(uiState.description) }
                     }
                 }
             }

@@ -229,7 +229,6 @@ public class NotificationUsageViewModel(
             Mode.NotificationList -> Status.All
         }
 
-
     private fun Mode.emptyText(status: Status): String {
         return when (this) {
             Mode.AddFromNotification -> status.addFromNotificationEmptyText

@@ -9,8 +9,7 @@ internal class ComExampleNotificationUsageParser : NotificationUsageParser {
     override val filterDefinition: NotificationUsageFilterDefinition = NotificationUsageFilterDefinition(
         id = "com.example",
         title = "com.example サンプル",
-        matchDescription = "packageName が com.example に一致した通知を対象にします。",
-        parseDescription = "通知全文を description に入れます。",
+        description = "packageName が com.example に一致した通知を対象にし、通知全文を description に入れます。",
     )
 
     override fun parse(record: NotificationUsageRecord): NotificationUsageDraft? {

@@ -173,8 +173,7 @@ public class NotificationUsageRepositoryAndroidImplTest {
         override val filterDefinition: NotificationUsageFilterDefinition = NotificationUsageFilterDefinition(
             id = "com.example",
             title = "com.example",
-            matchDescription = "packageName が com.example",
-            parseDescription = "description に全文を入れる",
+            description = "packageName が com.example の通知の全文を description に入れる",
         )
 
         override fun parse(record: net.matsudamper.money.frontend.common.base.notification.NotificationUsageRecord): NotificationUsageDraft? {

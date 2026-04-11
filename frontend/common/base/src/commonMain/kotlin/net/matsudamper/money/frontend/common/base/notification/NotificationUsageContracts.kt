@@ -35,8 +35,7 @@ public data class NotificationUsageDraft(
 public data class NotificationUsageFilterDefinition(
     val id: String,
     val title: String,
-    val matchDescription: String,
-    val parseDescription: String,
+    val description: String,
 )
 
 public data class NotificationUsageMatchedRecord(
