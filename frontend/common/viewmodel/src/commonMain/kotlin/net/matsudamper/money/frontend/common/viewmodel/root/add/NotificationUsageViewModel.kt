@@ -56,7 +56,7 @@ public class NotificationUsageViewModel(
             title = mode.title,
             items = emptyList<NotificationUsageListScreenUiState.Item>().toImmutableList(),
             filters = statusStateFlow.value.toUiState().toImmutableList(),
-            searchQuery = if (mode == Mode.NotificationList) "" else null,
+            showSearch = mode == Mode.NotificationList,
             onSearchQueryChange = if (mode == Mode.NotificationList) {
                 { query -> searchQueryStateFlow.value = query }
             } else {
@@ -97,7 +97,6 @@ public class NotificationUsageViewModel(
                         filters = source.status.toUiState().toImmutableList(),
                         emptyText = mode.emptyText(source.status),
                         accessSection = source.accessState.toAccessSection(),
-                        searchQuery = if (mode == Mode.NotificationList) source.searchQuery else null,
                     )
                 }
             }
