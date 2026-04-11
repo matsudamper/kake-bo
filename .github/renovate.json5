@@ -9,6 +9,21 @@
       "allowedVersions": "!/SNAPSHOT/",
     },
     {
+      // native-build-tools をアップグレードする際は、バンドルされる jOOQ reachability metadata
+      // のバージョンが変わる可能性がある。
+      // 現在 backend/src/main/resources/META-INF/native-image/.../reflect-config.json に
+      // 標準 Java 配列型 (String[], Instant[] など) を手動登録しているが、これは
+      // oracle/graalvm-reachability-metadata の jOOQ 3.20.0 メタデータで配列型の
+      // condition.typeReached がテストクラス (org_jooq.jooq.JooqTest) に変わったことへの
+      // workaround である。
+      // 上流で修正された場合はその workaround エントリを削除できる。
+      // 参照: https://github.com/oracle/graalvm-reachability-metadata (SplitTestOnlyMetadataTask)
+      "matchPackageNames": ["org.graalvm.buildtools.native"],
+      "prBodyNotes": [
+        "> [!NOTE]\n> このアップグレードでは **jOOQ + GraalVM Native Image** の互換性を確認してください。\n> \n> `native-build-tools` にバンドルされる `graalvm-reachability-metadata` の jOOQ メタデータが更新される場合、配列型 (`String[]` など) の `condition.typeReached` が修正されている可能性があります。修正済みであれば `backend/src/main/resources/META-INF/native-image/net.matsudamper.money.backend/reflect-config.json` 内の標準 Java 配列型エントリ（workaround）を削除できます。\n> \n> 詳細: `oracle/graalvm-reachability-metadata` の `SplitTestOnlyMetadataTask` で配列型の条件がテストクラス (`org_jooq.jooq.JooqTest`) に変わったことが原因。",
+      ],
+    },
+    {
       "matchPackageNames": [
         "com.graphql-java:graphql-java-extended-scalars",
         "com.graphql-java:graphql-java",
