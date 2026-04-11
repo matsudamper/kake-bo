@@ -54,6 +54,8 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.isSecondaryPressed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
@@ -81,6 +83,7 @@ import net.matsudamper.money.frontend.common.ui.layout.html.text.fullscreen.Full
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageUploadButton
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
+import net.matsudamper.money.image.ResizableImageUrl
 
 public data class MoneyUsageScreenUiState(
     val event: Event,
@@ -161,7 +164,7 @@ public data class MoneyUsageScreenUiState(
     )
 
     public data class ImageItem(
-        val url: String,
+        val url: ResizableImageUrl,
         val event: ImageItemEvent,
     )
 
@@ -550,7 +553,7 @@ private fun MoneyUsage(
     modifier: Modifier = Modifier,
     uiState: MoneyUsageScreenUiState.MoneyUsage,
 ) {
-    var selectedImageUrl by remember { mutableStateOf<String?>(null) }
+    var selectedImageUrl by remember { mutableStateOf<ResizableImageUrl?>(null) }
 
     Column(modifier = modifier) {
         MoneyUsageSection(
@@ -653,9 +656,22 @@ private fun MoneyUsage(
                             uiState.images.forEach { imageItem ->
                                 var showDeleteDialog by remember { mutableStateOf(false) }
                                 var showPopupMenu by remember { mutableStateOf(false) }
-                                Box(modifier = Modifier.size(180.dp)) {
+                                var imageBoxSize by remember { mutableStateOf(IntSize.Zero) }
+                                Box(
+                                    modifier = Modifier
+                                        .size(180.dp)
+                                        .onSizeChanged { imageBoxSize = it },
+                                ) {
+                                    val imageUrl = if (imageBoxSize != IntSize.Zero) {
+                                        imageItem.url.buildUrlWithSize(
+                                            widthPx = imageBoxSize.width,
+                                            heightPx = imageBoxSize.height,
+                                        )
+                                    } else {
+                                        imageItem.url.url
+                                    }
                                     SubcomposeAsyncImage(
-                                        model = imageItem.url,
+                                        model = imageUrl,
                                         contentDescription = null,
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
@@ -780,9 +796,9 @@ private fun MoneyUsage(
         )
     }
 
-    selectedImageUrl?.let { imageUrl ->
+    selectedImageUrl?.let { resizableUrl ->
         ZoomableImageDialog(
-            imageUrl = imageUrl,
+            imageUrl = resizableUrl.url,
             onDismissRequest = { selectedImageUrl = null },
         )
     }

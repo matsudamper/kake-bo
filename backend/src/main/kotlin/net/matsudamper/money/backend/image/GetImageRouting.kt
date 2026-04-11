@@ -6,12 +6,14 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondBytes
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.get
 import net.matsudamper.money.backend.di.DiContainer
 import net.matsudamper.money.backend.feature.image.ImageApiPath
 import net.matsudamper.money.backend.feature.image.ImageReadHandler
+import net.matsudamper.money.backend.feature.image.ImageResizeHandler
 import net.matsudamper.money.backend.feature.session.KtorCookieManager
 import net.matsudamper.money.backend.feature.session.UserSessionManagerImpl
 import net.matsudamper.money.image.ImageUploadImageResponse
@@ -20,6 +22,7 @@ internal fun Route.getImage(
     diContainer: DiContainer,
     imageUploadConfig: ImageUploadConfig,
     imageReadHandler: ImageReadHandler = ImageReadHandler(),
+    imageResizeHandler: ImageResizeHandler = ImageResizeHandler(),
 ) {
     get(ImageApiPath.imageV1ByDisplayId("{displayId}")) {
         val userId = UserSessionManagerImpl(
@@ -55,6 +58,9 @@ internal fun Route.getImage(
             return@get
         }
 
+        val width = call.request.queryParameters["width"]?.toIntOrNull()
+        val height = call.request.queryParameters["height"]?.toIntOrNull()
+
         when (
             val result = imageReadHandler.handle(
                 request = ImageReadHandler.Request(
@@ -79,16 +85,58 @@ internal fun Route.getImage(
             }
 
             is ImageReadHandler.Result.Success -> {
-                val responseContentType = runCatching {
-                    ContentType.parse(imageData.contentType)
-                }.getOrDefault(ContentType.Application.OctetStream)
+                if (width != null && height != null) {
+                    when (
+                        val resizeResult = imageResizeHandler.resize(
+                            file = result.file,
+                            contentType = imageData.contentType,
+                            width = width,
+                            height = height,
+                        )
+                    ) {
+                        is ImageResizeHandler.Result.Success -> {
+                            val responseContentType = runCatching {
+                                ContentType.parse(resizeResult.contentType)
+                            }.getOrDefault(ContentType.Image.JPEG)
 
-                call.respond(
-                    LocalFileContent(
-                        file = result.file,
-                        contentType = responseContentType,
-                    ),
-                )
+                            call.respondBytes(
+                                bytes = resizeResult.data,
+                                contentType = responseContentType,
+                            )
+                        }
+
+                        ImageResizeHandler.Result.InvalidSize -> {
+                            call.respondApiError(
+                                status = HttpStatusCode.BadRequest,
+                                message = "InvalidSize",
+                            )
+                        }
+
+                        ImageResizeHandler.Result.UnsupportedFormat -> {
+                            val responseContentType = runCatching {
+                                ContentType.parse(imageData.contentType)
+                            }.getOrDefault(ContentType.Application.OctetStream)
+
+                            call.respond(
+                                LocalFileContent(
+                                    file = result.file,
+                                    contentType = responseContentType,
+                                ),
+                            )
+                        }
+                    }
+                } else {
+                    val responseContentType = runCatching {
+                        ContentType.parse(imageData.contentType)
+                    }.getOrDefault(ContentType.Application.OctetStream)
+
+                    call.respond(
+                        LocalFileContent(
+                            file = result.file,
+                            contentType = responseContentType,
+                        ),
+                    )
+                }
             }
         }
     }

@@ -34,6 +34,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenQuery
 import net.matsudamper.money.frontend.graphql.fragment.MoneyUsageScreenMoneyUsage
 import net.matsudamper.money.frontend.graphql.lib.ApolloResponseState
+import net.matsudamper.money.image.ResizableImageUrl
 
 public class MoneyUsageScreenViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -135,7 +136,7 @@ public class MoneyUsageScreenViewModel(
                                     },
                                     images = moneyUsage.images.map { image ->
                                         MoneyUsageScreenUiState.ImageItem(
-                                            url = image.url,
+                                            url = ResizableImageUrl(image.url),
                                             event = createImageItemEvent(imageId = image.id),
                                         )
                                     }.toImmutableList(),

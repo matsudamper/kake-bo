@@ -43,9 +43,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
@@ -58,6 +60,7 @@ import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
 import net.matsudamper.money.frontend.common.ui.layout.image.ImageLoadingPlaceholder
 import net.matsudamper.money.frontend.common.ui.layout.image.ZoomableImageDialog
+import net.matsudamper.money.image.ResizableImageUrl
 
 public data class CalendarDateListScreenUiState(
     val title: String,
@@ -85,7 +88,7 @@ public data class CalendarDateListScreenUiState(
     )
 
     public data class ImageItem(
-        val url: String,
+        val url: ResizableImageUrl,
     )
 
     @Immutable
@@ -262,11 +265,11 @@ private fun ItemCard(
     item: CalendarDateListScreenUiState.Item,
     modifier: Modifier = Modifier,
 ) {
-    var selectedImageUrl by remember { mutableStateOf<String?>(null) }
+    var selectedImageUrl by remember { mutableStateOf<ResizableImageUrl?>(null) }
     val currentSelectedImageUrl = selectedImageUrl
     if (currentSelectedImageUrl != null) {
         ZoomableImageDialog(
-            imageUrl = currentSelectedImageUrl,
+            imageUrl = currentSelectedImageUrl.url,
             onDismissRequest = { selectedImageUrl = null },
         )
     }
@@ -322,12 +325,22 @@ private fun ItemCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(item.images) { imageItem ->
+                    var imageBoxSize by remember { mutableStateOf(IntSize.Zero) }
+                    val imageUrl = if (imageBoxSize != IntSize.Zero) {
+                        imageItem.url.buildUrlWithSize(
+                            widthPx = imageBoxSize.width,
+                            heightPx = imageBoxSize.height,
+                        )
+                    } else {
+                        imageItem.url.url
+                    }
                     SubcomposeAsyncImage(
-                        model = imageItem.url,
+                        model = imageUrl,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
                             .size(100.dp)
+                            .onSizeChanged { imageBoxSize = it }
                             .clickable { selectedImageUrl = imageItem.url },
                         loading = { ImageLoadingPlaceholder() },
                     )

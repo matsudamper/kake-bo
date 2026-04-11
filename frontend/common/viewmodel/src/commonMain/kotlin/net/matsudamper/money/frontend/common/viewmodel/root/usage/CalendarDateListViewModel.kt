@@ -34,6 +34,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQuery
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryFilter
 import net.matsudamper.money.frontend.graphql.type.MoneyUsagesQueryOrderType
+import net.matsudamper.money.image.ResizableImageUrl
 
 public class CalendarDateListViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -113,7 +114,7 @@ public class CalendarDateListViewModel(
                             "${subCategory.category.name} / ${subCategory.name}"
                         },
                         images = result.images.map { image ->
-                            CalendarDateListScreenUiState.ImageItem(url = image.url)
+                            CalendarDateListScreenUiState.ImageItem(url = ResizableImageUrl(image.url))
                         }.toImmutableList(),
                         event = object : CalendarDateListScreenUiState.ItemEvent {
                             override fun onClick() {
