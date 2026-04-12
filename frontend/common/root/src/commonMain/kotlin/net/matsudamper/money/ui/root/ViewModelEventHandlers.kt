@@ -16,8 +16,6 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
 import net.matsudamper.money.frontend.common.viewmodel.moneyusage.MoneyUsageScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.GlobalEvent
 import net.matsudamper.money.frontend.common.viewmodel.root.SettingViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.add.NotificationUsageDetailViewModel
-import net.matsudamper.money.frontend.common.viewmodel.root.add.NotificationUsageViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodAllContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodCategoryContentViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.home.RootHomeTabPeriodSubCategoryContentViewModel
@@ -38,6 +36,8 @@ import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageCalen
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoriesViewModelEvent
 import net.matsudamper.money.frontend.common.viewmodel.settings.SettingCategoryViewModel
+import net.matsudamper.money.frontend.feature.notification.viewmodel.NotificationUsageDetailViewModel
+import net.matsudamper.money.frontend.feature.notification.viewmodel.NotificationUsageViewModel
 import net.matsudamper.money.ui.root.platform.PlatformTools
 
 internal data class ViewModelEventHandlers(

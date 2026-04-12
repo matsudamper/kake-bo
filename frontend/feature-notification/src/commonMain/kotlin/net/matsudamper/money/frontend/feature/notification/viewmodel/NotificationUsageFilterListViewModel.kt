@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.viewmodel.root.add
+package net.matsudamper.money.frontend.feature.notification.viewmodel
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,8 +15,8 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageFilterDefinition
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageParser
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
-import net.matsudamper.money.frontend.common.ui.screen.root.add.NotificationUsageFilterListScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
+import net.matsudamper.money.frontend.feature.notification.ui.NotificationUsageFilterListScreenUiState
 
 public class NotificationUsageFilterListViewModel(
     scopedObjectFeature: ScopedObjectFeature,

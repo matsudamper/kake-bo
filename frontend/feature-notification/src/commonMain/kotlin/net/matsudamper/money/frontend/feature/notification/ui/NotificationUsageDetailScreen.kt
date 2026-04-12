@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.ui.screen.root.add
+package net.matsudamper.money.frontend.feature.notification.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource

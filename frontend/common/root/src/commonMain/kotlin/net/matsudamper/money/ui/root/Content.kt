@@ -40,6 +40,7 @@ import net.matsudamper.money.frontend.common.base.nav.rememberScopedObjectStoreO
 import net.matsudamper.money.frontend.common.base.nav.user.IScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.MySnackBarHost
 import net.matsudamper.money.frontend.common.ui.base.rootHostScaffoldEntryDecorator
@@ -56,6 +57,7 @@ import net.matsudamper.money.frontend.common.viewmodel.root.add.HomeAddExtension
 import net.matsudamper.money.frontend.common.viewmodel.root.home.LoginCheckUseCaseEventListenerImpl
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.HomeAddTabScreenViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.usage.RootUsageHostViewModel
+import net.matsudamper.money.frontend.feature.notification.root.NotificationUsageDetailScreenContainer
 import net.matsudamper.money.frontend.graphql.GraphqlUserLoginQuery
 import net.matsudamper.money.ui.root.platform.PlatformTools
 import net.matsudamper.money.ui.root.viewmodel.LocalViewModelProviders
@@ -353,7 +355,9 @@ public fun Content(
                                 addEntryProvider<ScreenStructure.NotificationUsageDetail> { current ->
                                     NotificationUsageDetailScreenContainer(
                                         current = current,
-                                        viewModelEventHandlers = viewModelEventHandlers,
+                                        repository = koin.get<NotificationUsageRepository>(),
+                                        graphqlClient = koin.get(),
+                                        eventHandlerCollector = viewModelEventHandlers::handleNotificationUsageDetail,
                                         windowInsets = paddingValues.value,
                                     )
                                 }

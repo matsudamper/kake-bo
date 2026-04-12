@@ -1,10 +1,5 @@
-
-
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.kotlin.serialization)
-    alias(libs.plugins.composeCompiler)
-    alias(libs.plugins.jetbrainsCompose)
     id("net.matsudamper.money.buildlogic.compose")
     id("net.matsudamper.money.buildlogic.androidLibrary")
 }
@@ -24,34 +19,20 @@ kotlin {
                 implementation(projects.frontend.common.navigation)
                 implementation(projects.frontend.common.ui)
                 implementation(projects.frontend.common.viewmodel)
-                implementation(projects.frontend.common.usecase)
                 implementation(projects.frontend.common.graphql)
-                implementation(projects.frontend.featureNotification)
 
-                implementation(kotlin("stdlib"))
-                implementation(kotlin("reflect"))
-                implementation(libs.kotlin.serialization.json)
+                implementation(libs.apolloRuntime)
                 implementation(libs.composeFoundation)
                 implementation(libs.composeMaterial3)
                 implementation(libs.composeRuntime)
-
-                implementation(libs.koinCore)
+                implementation(libs.kotlin.datetime)
+                implementation(libs.kotlin.serialization.json)
             }
         }
-        val androidMain by getting {
-            dependencies {
-                implementation(libs.androidxCoreKtx)
-                implementation(libs.androidxLifecycleViewModelKtx)
-                implementation(libs.androidxLifecycleViewModelCompose)
-            }
-        }
-        explicitApi()
     }
+    explicitApi()
 }
 
 android {
-    namespace = "net.matsudamper.money.ui.root"
-}
-dependencies {
-    implementation(project(":frontend:common:di"))
+    namespace = "net.matsudamper.money.frontend.feature.notification"
 }

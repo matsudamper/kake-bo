@@ -1,4 +1,4 @@
-package net.matsudamper.money.frontend.common.viewmodel.root.add
+package net.matsudamper.money.frontend.feature.notification.viewmodel
 
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
@@ -25,11 +25,10 @@ import net.matsudamper.money.frontend.common.base.notification.NotificationUsage
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRecord
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
-import net.matsudamper.money.frontend.common.ui.screen.root.add.NotificationUsageListScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
-import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
+import net.matsudamper.money.frontend.feature.notification.ui.NotificationUsageListScreenUiState
 
 public class NotificationUsageViewModel(
     scopedObjectFeature: ScopedObjectFeature,

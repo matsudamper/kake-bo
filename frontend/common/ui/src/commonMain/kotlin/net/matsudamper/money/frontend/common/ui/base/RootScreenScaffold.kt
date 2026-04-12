@@ -19,7 +19,7 @@ public enum class RootScreenTab {
 }
 
 @Composable
-internal fun RootScreenScaffold(
+public fun RootScreenScaffold(
     modifier: Modifier = Modifier,
     topBar: @Composable () -> Unit,
     windowInsets: PaddingValues,
