@@ -83,13 +83,15 @@ public class HomeAddTabScreenViewModel(
                     item = HomeAddTabScreenUiState.Item(
                         title = "メールのインポート",
                         icon = HomeAddTabScreenUiState.Icon.ImportMail,
-                        onClick = {
-                            viewModelScope.launch {
-                                navigateEventSender.send {
-                                    it.navigate(
-                                        viewModelState.lastImportMailStructure
-                                            ?: ScreenStructure.Root.Add.Import,
-                                    )
+                        listener = object : HomeAddTabScreenUiState.ItemListener {
+                            override fun onClick() {
+                                viewModelScope.launch {
+                                    navigateEventSender.send {
+                                        it.navigate(
+                                            viewModelState.lastImportMailStructure
+                                                ?: ScreenStructure.Root.Add.Import,
+                                        )
+                                    }
                                 }
                             }
                         },
@@ -102,13 +104,15 @@ public class HomeAddTabScreenViewModel(
                     item = HomeAddTabScreenUiState.Item(
                         title = "インポートされたメールから追加",
                         icon = HomeAddTabScreenUiState.Icon.ImportedMail,
-                        onClick = {
-                            viewModelScope.launch {
-                                navigateEventSender.send {
-                                    it.navigate(
-                                        viewModelState.lastImportedMailStructure
-                                            ?: ScreenStructure.Root.Add.Imported(isLinked = false, text = null),
-                                    )
+                        listener = object : HomeAddTabScreenUiState.ItemListener {
+                            override fun onClick() {
+                                viewModelScope.launch {
+                                    navigateEventSender.send {
+                                        it.navigate(
+                                            viewModelState.lastImportedMailStructure
+                                                ?: ScreenStructure.Root.Add.Imported(isLinked = false, text = null),
+                                        )
+                                    }
                                 }
                             }
                         },
@@ -121,10 +125,12 @@ public class HomeAddTabScreenViewModel(
                     item = HomeAddTabScreenUiState.Item(
                         title = "プリセットから追加",
                         icon = HomeAddTabScreenUiState.Icon.Preset,
-                        onClick = {
-                            viewModelScope.launch {
-                                navigateEventSender.send {
-                                    it.navigate(ScreenStructure.Root.Add.Preset)
+                        listener = object : HomeAddTabScreenUiState.ItemListener {
+                            override fun onClick() {
+                                viewModelScope.launch {
+                                    navigateEventSender.send {
+                                        it.navigate(ScreenStructure.Root.Add.Preset)
+                                    }
                                 }
                             }
                         },
@@ -138,10 +144,12 @@ public class HomeAddTabScreenViewModel(
                     item = HomeAddTabScreenUiState.Item(
                         title = entry.title,
                         icon = entry.icon.toUiIcon(),
-                        onClick = {
-                            viewModelScope.launch {
-                                navigateEventSender.send {
-                                    it.navigate(entry.screenStructure)
+                        listener = object : HomeAddTabScreenUiState.ItemListener {
+                            override fun onClick() {
+                                viewModelScope.launch {
+                                    navigateEventSender.send {
+                                        it.navigate(entry.screenStructure)
+                                    }
                                 }
                             }
                         },

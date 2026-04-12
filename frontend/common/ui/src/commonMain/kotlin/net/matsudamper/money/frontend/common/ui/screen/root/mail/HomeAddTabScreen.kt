@@ -27,6 +27,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,8 +45,13 @@ public data class HomeAddTabScreenUiState(
     public data class Item(
         val title: String,
         val icon: Icon,
-        val onClick: () -> Unit,
+        val listener: ItemListener,
     )
+
+    @Immutable
+    public interface ItemListener {
+        public fun onClick()
+    }
 
     public enum class Icon {
         ImportMail,
@@ -103,7 +109,7 @@ public fun HomeAddTabScreen(
                         },
                         modifier = Modifier.padding(8.dp),
                         onClick = {
-                            item.onClick()
+                            item.listener.onClick()
                         },
                     )
                 }
