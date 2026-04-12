@@ -59,8 +59,8 @@ The project is organized into backend, frontend, and shared modules:
 
 パーサのテストは書かない。パーサで例をコメントする時はマスキングやダミーデータを使用し、ユーザーから依頼された文章を含むことを禁止する。
 
-## combine
-ViewModelでcombineは使用しないのが基本。大体ViewModelStateに入れれば解決する。
+## ViewModel
+ViewModelでUiStateをcombineで使用しているのは間違ったコードの兆候。大体ViewModelStateに入れれば解決する。
 
 ## フロントエンドのアーキテクチャ
 - MVVMを使用する
