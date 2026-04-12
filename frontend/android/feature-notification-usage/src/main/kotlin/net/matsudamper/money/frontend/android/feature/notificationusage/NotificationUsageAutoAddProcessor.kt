@@ -37,7 +37,7 @@ internal class NotificationUsageAutoAddProcessor(
                 parser to draft
             } ?: return
             val draft = parserAndDraft.second
-            val moneyUsageId = api.addUsage(draft.toPayload(record))
+            val moneyUsageId = api.addUsage(draftToPayload(draft, record))
             if (moneyUsageId != null) {
                 dao.markAsAdded(notificationKey, moneyUsageId.id)
             }
@@ -75,15 +75,15 @@ internal class NotificationUsageAutoAddProcessor(
         )
     }
 
-    private fun NotificationUsageDraft.toPayload(record: NotificationUsageRecord): NotificationUsageAutoAddPayload {
+    private fun draftToPayload(draft: NotificationUsageDraft, record: NotificationUsageRecord): NotificationUsageAutoAddPayload {
         return NotificationUsageAutoAddPayload(
-            title = title ?: record.packageName,
-            description = description ?: record.text,
-            amount = amount ?: 0,
-            dateTime = dateTime ?: Instant
+            title = draft.title ?: record.packageName,
+            description = draft.description ?: record.text,
+            amount = draft.amount ?: 0,
+            dateTime = draft.dateTime ?: Instant
                 .fromEpochMilliseconds(record.postedAtEpochMillis)
                 .toLocalDateTime(TimeZone.currentSystemDefault()),
-            subCategoryId = subCategoryId,
+            subCategoryId = draft.subCategoryId,
         )
     }
 }
