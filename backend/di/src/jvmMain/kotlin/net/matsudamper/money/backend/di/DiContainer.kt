@@ -1,5 +1,6 @@
 package net.matsudamper.money.backend.di
 
+import java.time.Clock
 import net.matsudamper.money.backend.app.interfaces.AdminRepository
 import net.matsudamper.money.backend.app.interfaces.AdminSessionRepository
 import net.matsudamper.money.backend.app.interfaces.ApiTokenRepository
@@ -86,6 +87,7 @@ interface DiContainer {
     fun userLoginRepository(): UserLoginRepository
     fun createApiTokenRepository(): ApiTokenRepository
     fun traceLogger(): TraceLogger
+    fun clock(): Clock
 }
 
 class MainDiContainer : DiContainer {
@@ -112,9 +114,10 @@ class MainDiContainer : DiContainer {
             host = ServerEnv.redisHost!!,
             port = ServerEnv.redisPort!!,
             index = ServerVariables.REDIS_INDEX_USER_SESSION,
+            clock = clock(),
         )
     } else {
-        UserSessionRepositoryProvider.provideLocalRepository()
+        UserSessionRepositoryProvider.provideLocalRepository(clock = clock())
     }
 
     override fun createUserSessionRepository(): UserSessionRepository {
@@ -200,7 +203,7 @@ class MainDiContainer : DiContainer {
             index = ServerVariables.REDIS_INDEX_CHALLENGE,
         )
     } else {
-        ChallengeRepositoryProvider.provideLocalRepository()
+        ChallengeRepositoryProvider.provideLocalRepository(clock = clock())
     }
 
     override fun createChallengeRepository(): ChallengeRepository {
@@ -208,7 +211,7 @@ class MainDiContainer : DiContainer {
     }
 
     override fun createAdminUserSessionRepository(): AdminSessionRepository {
-        return DbAdminSessionRepository(dbConnection = DbConnectionImpl)
+        return DbAdminSessionRepository(dbConnection = DbConnectionImpl, clock = clock())
     }
 
     override fun userLoginRepository(): UserLoginRepository {
@@ -221,5 +224,9 @@ class MainDiContainer : DiContainer {
 
     override fun traceLogger(): TraceLogger {
         return TraceLogger.impl()
+    }
+
+    override fun clock(): Clock {
+        return Clock.systemUTC()
     }
 }
