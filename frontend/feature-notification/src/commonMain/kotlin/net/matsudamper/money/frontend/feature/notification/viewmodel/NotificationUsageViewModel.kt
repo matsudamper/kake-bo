@@ -40,8 +40,7 @@ public class NotificationUsageViewModel(
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
-    private val statusStateFlow = MutableStateFlow(initialStatus(mode))
-    private val searchQueryStateFlow = MutableStateFlow("")
+    private val viewModelStateFlow = MutableStateFlow(ViewModelState(status = initialStatus(mode)))
     private val copyJsonFormatter = Json {
         prettyPrint = true
     }
@@ -55,9 +54,9 @@ public class NotificationUsageViewModel(
         NotificationUsageListScreenUiState(
             title = modeTitle(mode),
             items = listOf<NotificationUsageListScreenUiState.Item>().toImmutableList(),
-            filters = createStatusFilters(statusStateFlow.value).toImmutableList(),
+            filters = createStatusFilters(initialStatus(mode)).toImmutableList(),
             searchListener = createSearchListener(mode),
-            emptyText = emptyText(mode, statusStateFlow.value),
+            emptyText = emptyText(mode, initialStatus(mode)),
             accessSection = null,
             topBarActions = createTopBarActions(mode).toImmutableList(),
             kakeboScaffoldListener = object : KakeboScaffoldListener {
@@ -70,14 +69,13 @@ public class NotificationUsageViewModel(
         viewModelScope.launch {
             combine(
                 accessGateway.accessStateFlow(),
-                statusStateFlow,
-                searchQueryStateFlow,
+                viewModelStateFlow,
                 itemsFlow(),
-            ) { accessState, status, searchQuery, items ->
+            ) { accessState, viewModelState, items ->
                 NotificationUsageUiStateSource(
                     accessState = accessState,
-                    status = status,
-                    searchQuery = searchQuery,
+                    status = viewModelState.status,
+                    searchQuery = viewModelState.searchQuery,
                     items = items,
                 )
             }.collect { source ->
@@ -100,7 +98,7 @@ public class NotificationUsageViewModel(
 
     @Suppress("OPT_IN_USAGE")
     private fun itemsFlow(): Flow<List<ItemSource>> {
-        return statusStateFlow.flatMapLatest { status ->
+        return viewModelStateFlow.map { it.status }.flatMapLatest { status ->
             when (status) {
                 Status.All -> repository.notificationsFlow()
                     .map { records -> records.map { ItemSource.Raw(it) } }
@@ -297,7 +295,7 @@ public class NotificationUsageViewModel(
                 selected = filter == status,
                 listener = object : NotificationUsageListScreenUiState.FilterListener {
                     override fun onClick() {
-                        statusStateFlow.value = filter
+                        viewModelStateFlow.update { it.copy(status = filter) }
                     }
                 },
             )
@@ -308,10 +306,15 @@ public class NotificationUsageViewModel(
         if (mode != Mode.NotificationList) return null
         return object : NotificationUsageListScreenUiState.SearchListener {
             override fun onSearchQueryChange(query: String) {
-                searchQueryStateFlow.value = query
+                viewModelStateFlow.update { it.copy(searchQuery = query) }
             }
         }
     }
+
+    private data class ViewModelState(
+        val status: Status,
+        val searchQuery: String = "",
+    )
 
     private data class NotificationUsageUiStateSource(
         val accessState: NotificationAccessState,
