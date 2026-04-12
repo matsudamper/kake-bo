@@ -247,13 +247,18 @@ private fun NotificationCard(
             row {
                 item { Text("メタデータ") }
                 item {
+                    val hasMetadata = uiState.metadata.isNotBlank()
                     Text(
-                        modifier = Modifier.clickable { uiState.event.onClickMetadata() },
-                        text = if (uiState.metadata.isBlank()) "(なし)" else "タップして表示",
-                        color = if (uiState.metadata.isBlank()) {
-                            MaterialTheme.colorScheme.onSurface
+                        modifier = if (hasMetadata) {
+                            Modifier.clickable { uiState.event.onClickMetadata() }
                         } else {
+                            Modifier
+                        },
+                        text = if (hasMetadata) "タップして表示" else "(なし)",
+                        color = if (hasMetadata) {
                             MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
                         },
                     )
                 }
