@@ -5,13 +5,16 @@ import net.matsudamper.money.frontend.common.base.ImageUploadClient
 import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadQueue
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
 import net.matsudamper.money.frontend.graphql.GraphqlClient
+import org.koin.core.module.Module
 import org.koin.core.scope.Scope
 import org.koin.dsl.module
 
 internal expect val factory: Factory
+internal expect val platformDefaultModule: Module
 
 object DefaultModule {
     val module = module {
+        includes(platformDefaultModule)
         factory<WebAuthModel> { factory.createWebAuthModule(scope = this) }
         single<GraphqlClient> { factory.createGraphQlClient(scope = this) }
         single<ImageUploadClient> { factory.createPhotoUploadClient(scope = this) }

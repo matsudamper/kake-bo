@@ -8,7 +8,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.base.notification.EmptyNotificationUsageRepository
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageAccessGateway
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
 import net.matsudamper.money.frontend.common.ui.screen.root.add.NotificationUsageListScreen
@@ -26,8 +25,7 @@ internal fun NotificationUsageScreenContainer(
         ScreenStructure.Root.Add.NotificationUsageDebug -> NotificationUsageViewModel.Mode.NotificationList
         else -> error("Unsupported screen: $current")
     }
-    val repository = runCatching { koin.get<NotificationUsageRepository>() }
-        .getOrElse { EmptyNotificationUsageRepository }
+    val repository = koin.get<NotificationUsageRepository>()
     val accessGateway = koin.get<NotificationUsageAccessGateway>()
     val viewModel = LocalScopedObjectStore.current.putOrGet(current) {
         NotificationUsageViewModel(
