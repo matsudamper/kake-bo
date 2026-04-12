@@ -89,10 +89,11 @@ public class NotificationUsageDetailViewModel(
             is DetailState.Loaded -> detailState.detail
         }
 
+        val matched = detail.matched
         return NotificationUsageDetailScreenUiState.LoadingState.Loaded(
             notification = createNotificationUiState(detail.record),
-            filter = createFilterUiState(detail.matched),
-            draft = if (detail.matched != null) createDraftUiState(detail.matched) else null,
+            filter = createFilterUiState(matched),
+            draft = if (matched != null) createDraftUiState(matched) else null,
             canRegister = detail.record.isAdded.not(),
             linkedUsage = createLinkedUsageUiState(viewModelState.linkedUsageState),
             event = object : NotificationUsageDetailScreenUiState.LoadedEvent {
