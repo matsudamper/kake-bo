@@ -347,6 +347,8 @@ public class AddMoneyUsageViewModel(
 
                 viewModelStateFlow.update { state ->
                     state.copy(
+                        // 通知から遷移した場合は通知のデータで上書きするため、
+                        // 通知が値を持たないフィールドは既存 state を引き継がず空にリセットする
                         usageTitle = current.title ?: if (isFromNotification) "" else state.usageTitle,
                         usageDate = current.date?.date ?: if (isFromNotification) Clock.System.todayIn(TimeZone.currentSystemDefault()) else state.usageDate,
                         usageTime = current.date?.time ?: if (isFromNotification) LocalTime(0, 0, 0, 0) else state.usageTime,
@@ -372,6 +374,8 @@ public class AddMoneyUsageViewModel(
         if (importedMailId == null) {
             viewModelStateFlow.update { state ->
                 state.copy(
+                    // 通知から遷移した場合は通知のデータで上書きするため、
+                    // 通知が値を持たないフィールドは既存 state を引き継がず空にリセットする
                     usageTitle = current.title ?: if (isFromNotification) "" else state.usageTitle,
                     usageDate = current.date?.date ?: if (isFromNotification) Clock.System.todayIn(TimeZone.currentSystemDefault()) else state.usageDate,
                     usageTime = current.date?.time ?: if (isFromNotification) LocalTime(0, 0, 0, 0) else state.usageTime,
