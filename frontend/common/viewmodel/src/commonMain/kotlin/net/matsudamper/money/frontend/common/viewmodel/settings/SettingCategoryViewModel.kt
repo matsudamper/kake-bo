@@ -161,12 +161,62 @@ public class SettingCategoryViewModel(
                         }
                     }
                 }
+
+                override fun onClickDeleteCategory() {
+                    val subCategoryCount = viewModelStateFlow.value.responseList
+                        .flatMap { it.nodes }
+                        .filterNot { it.id in viewModelStateFlow.value.deletedSubCategoryIds }
+                        .size
+                    val description = if (subCategoryCount > 0) {
+                        "${subCategoryCount}件のサブカテゴリーが紐づいています"
+                    } else {
+                        null
+                    }
+                    viewModelStateFlow.update {
+                        it.copy(
+                            confirmDialog = SettingCategoryScreenUiState.ConfirmDialog(
+                                title = "このカテゴリを削除しますか",
+                                description = description,
+                                onConfirm = {
+                                    viewModelScope.launch {
+                                        val isSuccess = api.deleteCategory(id = categoryId)
+                                        viewModelStateFlow.update { state ->
+                                            state.copy(confirmDialog = null)
+                                        }
+                                        if (isSuccess) {
+                                            launch {
+                                                globalEventSender.send {
+                                                    it.showSnackBar("削除しました")
+                                                }
+                                            }
+                                            viewModelEventSender.send {
+                                                it.navigateToCategories()
+                                            }
+                                        } else {
+                                            launch {
+                                                globalEventSender.send {
+                                                    it.showNativeNotification("削除に失敗しました")
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                onDismiss = {
+                                    viewModelStateFlow.update { state ->
+                                        state.copy(confirmDialog = null)
+                                    }
+                                },
+                            ),
+                        )
+                    }
+                }
             },
             loadingState = SettingCategoryScreenUiState.LoadingState.Loading,
             showCategoryNameInput = false,
             showCategoryNameChangeDialog = null,
             showSubCategoryNameChangeDialog = null,
             showColorPickerDialog = false,
+            confirmDialog = null,
             categoryName = "",
             categoryColor = null,
             kakeboScaffoldListener = object : KakeboScaffoldListener {
@@ -199,6 +249,7 @@ public class SettingCategoryViewModel(
                         showCategoryNameChangeDialog = viewModelState.showCategoryNameChangeInput,
                         showSubCategoryNameChangeDialog = viewModelState.showSubCategoryNameChangeInput,
                         showColorPickerDialog = viewModelState.showColorPickerDialog,
+                        confirmDialog = viewModelState.confirmDialog,
                         categoryName = viewModelState.categoryInfo?.name.orEmpty(),
                         categoryColor = viewModelState.categoryInfo?.color?.let(ColorUtil::parseHexColor),
                     )
@@ -390,7 +441,10 @@ public class SettingCategoryViewModel(
         val showSubCategoryNameChangeInput: SettingCategoryScreenUiState.FullScreenInputDialog? = null,
         val showColorPickerDialog: Boolean = false,
         val deletedSubCategoryIds: List<MoneyUsageSubCategoryId> = listOf(),
+        val confirmDialog: SettingCategoryScreenUiState.ConfirmDialog? = null,
     )
 
-    public interface Event
+    public interface Event {
+        public fun navigateToCategories()
+    }
 }
