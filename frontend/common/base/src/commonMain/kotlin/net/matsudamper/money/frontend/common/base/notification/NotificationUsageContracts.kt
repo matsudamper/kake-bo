@@ -71,8 +71,6 @@ public interface NotificationUsageParser {
     public fun parse(record: NotificationUsageRecord): NotificationUsageDraft?
 }
 
-
-
 public object EmptyNotificationUsageRepository : NotificationUsageRepository {
     override fun notificationsFlow(): Flow<List<NotificationUsageRecord>> = flowOf(emptyList())
 

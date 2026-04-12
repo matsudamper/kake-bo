@@ -11,8 +11,8 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import net.matsudamper.money.frontend.common.base.notification.NotificationAccessState
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageAccessGateway
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageAccessGateway.NotificationAccessState
 
 internal class NotificationUsageAccessGatewayAndroidImpl(
     private val context: Context,

@@ -19,8 +19,8 @@ import kotlinx.serialization.json.put
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.base.notification.NotificationAccessState
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageAccessGateway
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageAccessGateway.NotificationAccessState
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageMatchedRecord
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRecord
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
