@@ -230,16 +230,13 @@ public class NotificationUsageViewModel(
     }
 
     private fun ItemSource.toCopyJsonObject(): JsonObject {
-        return when (this) {
-            is ItemSource.Matched -> record.record.toJsonObject()
-            is ItemSource.Raw -> record.toJsonObject()
+        val record = when (this) {
+            is ItemSource.Matched -> record.record
+            is ItemSource.Raw -> record
         }
-    }
-
-    private fun NotificationUsageRecord.toJsonObject(): JsonObject {
         return buildJsonObject {
-            put("packageName", packageName)
-            put("text", text)
+            put("packageName", record.packageName)
+            put("text", record.text)
         }
     }
 
@@ -302,11 +299,12 @@ public class NotificationUsageViewModel(
             when (source) {
                 is ItemSource.Matched -> {
                     source.record.record.packageName.lowercase().contains(q) ||
-                        source.record.record.text.lowercase().contains(q)
+                            source.record.record.text.lowercase().contains(q)
                 }
+
                 is ItemSource.Raw -> {
                     source.record.packageName.lowercase().contains(q) ||
-                        source.record.text.lowercase().contains(q)
+                            source.record.text.lowercase().contains(q)
                 }
             }
         }
