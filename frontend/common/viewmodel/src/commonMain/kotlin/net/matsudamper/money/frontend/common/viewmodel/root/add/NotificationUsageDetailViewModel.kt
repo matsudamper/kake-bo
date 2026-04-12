@@ -18,6 +18,7 @@ import net.matsudamper.money.frontend.common.base.notification.NotificationUsage
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageMatchedRecord
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRecord
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
+import net.matsudamper.money.frontend.common.base.runCatchingWithoutCancel
 import net.matsudamper.money.frontend.common.ui.screen.root.add.NotificationUsageDetailScreenUiState
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
@@ -122,7 +123,7 @@ public class NotificationUsageDetailViewModel(
         viewModelStateFlow.update { viewModelState ->
             viewModelState.copy(linkedUsageState = LinkedUsageState.Loading(moneyUsageId))
         }
-        val result = runCatching {
+        val result = runCatchingWithoutCancel {
             graphqlClient.apolloClient
                 .query(MoneyUsageScreenQuery(id = moneyUsageId))
                 .fetchPolicy(FetchPolicy.NetworkOnly)

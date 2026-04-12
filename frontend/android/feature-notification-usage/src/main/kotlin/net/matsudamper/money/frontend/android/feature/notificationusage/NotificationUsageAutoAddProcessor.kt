@@ -13,6 +13,7 @@ import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDraft
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageParser
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRecord
+import net.matsudamper.money.frontend.common.base.runCatchingWithoutCancel
 import net.matsudamper.money.frontend.graphql.AddMoneyUsageMutation
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.type.AddUsageQuery
@@ -109,7 +110,7 @@ internal class NotificationUsageAutoAddGraphqlApi(
     private val graphqlClient: GraphqlClient,
 ) : NotificationUsageAutoAddApi {
     override suspend fun addUsage(payload: NotificationUsageAutoAddPayload): MoneyUsageId? {
-        return runCatching {
+        return runCatchingWithoutCancel {
             graphqlClient.apolloClient
                 .mutation(
                     AddMoneyUsageMutation(

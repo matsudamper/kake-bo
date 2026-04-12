@@ -22,6 +22,7 @@ import net.matsudamper.money.frontend.common.base.immutableListOf
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
+import net.matsudamper.money.frontend.common.base.runCatchingWithoutCancel
 import net.matsudamper.money.frontend.common.ui.base.CategorySelectDialogUiState
 import net.matsudamper.money.frontend.common.ui.layout.NumberInputValue
 import net.matsudamper.money.frontend.common.ui.layout.SnackbarEventState
@@ -295,9 +296,16 @@ public class AddMoneyUsageViewModel(
                     ),
                 )
             } else {
-                viewModelStateFlow.value.notificationUsageKey?.let { notificationUsageKey ->
-                    runCatching {
+                val notificationUsageKey = viewModelStateFlow.value.notificationUsageKey
+                if (notificationUsageKey != null) {
+                    runCatchingWithoutCancel {
                         notificationUsageRepository.markNotificationAsAdded(notificationUsageKey, addedUsage.id)
+                    }.onFailure {
+                        snackbarEventState.show(
+                            SnackbarEventState.Event(
+                                message = "追加は完了しましたが、通知状態の更新に失敗しました",
+                            ),
+                        )
                     }
                 }
                 viewModelStateFlow.update {
@@ -327,6 +335,7 @@ public class AddMoneyUsageViewModel(
             )
         }
 
+        val isFromNotification = current.notificationUsageKey != null
         val subCategoryId = current.subCategoryId
         if (subCategoryId != null) {
             usageFromMailIdJob = viewModelScope.launch {
@@ -338,11 +347,11 @@ public class AddMoneyUsageViewModel(
 
                 viewModelStateFlow.update { state ->
                     state.copy(
-                        usageTitle = current.title ?: state.usageTitle,
-                        usageDate = current.date?.date ?: state.usageDate,
-                        usageTime = current.date?.time ?: state.usageTime,
-                        usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
-                        usageDescription = current.description ?: state.usageDescription,
+                        usageTitle = current.title ?: if (isFromNotification) "" else state.usageTitle,
+                        usageDate = current.date?.date ?: if (isFromNotification) Clock.System.todayIn(TimeZone.currentSystemDefault()) else state.usageDate,
+                        usageTime = current.date?.time ?: if (isFromNotification) LocalTime(0, 0, 0, 0) else state.usageTime,
+                        usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: if (isFromNotification) NumberInputValue.default() else state.usageAmount,
+                        usageDescription = current.description ?: if (isFromNotification) "" else state.usageDescription,
                         usageImages = listOf(),
                         usageCategorySet = if (subCategory != null) {
                             CategorySelectDialogViewModel.SelectedResult(
@@ -363,11 +372,11 @@ public class AddMoneyUsageViewModel(
         if (importedMailId == null) {
             viewModelStateFlow.update { state ->
                 state.copy(
-                    usageTitle = current.title ?: state.usageTitle,
-                    usageDate = current.date?.date ?: state.usageDate,
-                    usageTime = current.date?.time ?: state.usageTime,
-                    usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: state.usageAmount,
-                    usageDescription = current.description ?: state.usageDescription,
+                    usageTitle = current.title ?: if (isFromNotification) "" else state.usageTitle,
+                    usageDate = current.date?.date ?: if (isFromNotification) Clock.System.todayIn(TimeZone.currentSystemDefault()) else state.usageDate,
+                    usageTime = current.date?.time ?: if (isFromNotification) LocalTime(0, 0, 0, 0) else state.usageTime,
+                    usageAmount = current.price?.let { NumberInputValue.default(it.toInt()) } ?: if (isFromNotification) NumberInputValue.default() else state.usageAmount,
+                    usageDescription = current.description ?: if (isFromNotification) "" else state.usageDescription,
                     usageImages = listOf(),
                     usageCategorySet = null,
                 )
