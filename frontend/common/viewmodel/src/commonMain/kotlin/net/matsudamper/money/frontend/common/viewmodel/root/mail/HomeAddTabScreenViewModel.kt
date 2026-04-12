@@ -3,7 +3,6 @@ package net.matsudamper.money.frontend.common.viewmodel.root.mail
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
@@ -15,7 +14,6 @@ import net.matsudamper.money.frontend.common.ui.screen.root.mail.HomeAddTabScree
 import net.matsudamper.money.frontend.common.viewmodel.CommonViewModel
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventSender
-import net.matsudamper.money.frontend.common.viewmodel.root.add.HomeAddExtensionEntry
 import net.matsudamper.money.frontend.common.viewmodel.root.add.HomeAddExtensionEntryProvider
 
 public class HomeAddTabScreenViewModel(
@@ -161,9 +159,9 @@ public class HomeAddTabScreenViewModel(
             .map { it.item }
     }
 
-    private fun HomeAddExtensionEntry.Icon.toUiIcon(): HomeAddTabScreenUiState.Icon {
+    private fun HomeAddExtensionEntryProvider.Entry.Icon.toUiIcon(): HomeAddTabScreenUiState.Icon {
         return when (this) {
-            HomeAddExtensionEntry.Icon.Notification -> HomeAddTabScreenUiState.Icon.Notification
+            HomeAddExtensionEntryProvider.Entry.Icon.Notification -> HomeAddTabScreenUiState.Icon.Notification
         }
     }
 
