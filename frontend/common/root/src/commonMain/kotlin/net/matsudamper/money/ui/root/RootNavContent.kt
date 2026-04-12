@@ -410,7 +410,7 @@ internal fun RootNavContent(
                                     NotificationUsageFilterListViewModel(
                                         scopedObjectFeature = it,
                                         appSettingsRepository = koin.get<AppSettingsRepository>(),
-                                        parsers = runCatching { koin.getAll<NotificationUsageParser>() }.getOrDefault(listOf()),
+                                        parsers = koin.getAll<NotificationUsageParser>(),
                                         navController = navController,
                                     )
                                 }

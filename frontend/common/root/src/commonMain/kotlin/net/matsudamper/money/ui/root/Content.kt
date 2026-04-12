@@ -159,9 +159,7 @@ public fun Content(
             val mailScreenViewModel = LocalScopedObjectStore.current.putOrGet<HomeAddTabScreenViewModel>(Unit) {
                 HomeAddTabScreenViewModel(
                     scopedObjectFeature = it,
-                    additionalEntryProviders = runCatching {
-                        koin.getAll<HomeAddExtensionEntryProvider>()
-                    }.getOrDefault(emptyList()),
+                    additionalEntryProviders = koin.getAll<HomeAddExtensionEntryProvider>(),
                     navController = navController,
                 )
             }
