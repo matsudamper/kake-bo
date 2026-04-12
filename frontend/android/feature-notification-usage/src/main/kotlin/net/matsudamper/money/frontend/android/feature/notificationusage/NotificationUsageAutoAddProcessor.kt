@@ -6,17 +6,11 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import com.apollographql.apollo.api.Optional
 import net.matsudamper.money.element.MoneyUsageId
-import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDraft
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageParser
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRecord
-import net.matsudamper.money.frontend.common.base.runCatchingWithoutCancel
-import net.matsudamper.money.frontend.graphql.AddMoneyUsageMutation
-import net.matsudamper.money.frontend.graphql.GraphqlClient
-import net.matsudamper.money.frontend.graphql.type.AddUsageQuery
 
 internal class NotificationUsageAutoAddProcessor(
     private val dao: NotificationUsageDao,
@@ -91,42 +85,5 @@ internal class NotificationUsageAutoAddProcessor(
                 .toLocalDateTime(TimeZone.currentSystemDefault()),
             subCategoryId = subCategoryId,
         )
-    }
-}
-
-internal data class NotificationUsageAutoAddPayload(
-    val title: String,
-    val description: String,
-    val amount: Int,
-    val dateTime: kotlinx.datetime.LocalDateTime,
-    val subCategoryId: MoneyUsageSubCategoryId?,
-)
-
-internal interface NotificationUsageAutoAddApi {
-    suspend fun addUsage(payload: NotificationUsageAutoAddPayload): MoneyUsageId?
-}
-
-internal class NotificationUsageAutoAddGraphqlApi(
-    private val graphqlClient: GraphqlClient,
-) : NotificationUsageAutoAddApi {
-    override suspend fun addUsage(payload: NotificationUsageAutoAddPayload): MoneyUsageId? {
-        return runCatchingWithoutCancel {
-            graphqlClient.apolloClient
-                .mutation(
-                    AddMoneyUsageMutation(
-                        query = AddUsageQuery(
-                            title = payload.title,
-                            description = payload.description,
-                            subCategoryId = Optional.present(payload.subCategoryId),
-                            amount = payload.amount,
-                            date = payload.dateTime,
-                            importedMailId = Optional.absent(),
-                            imageIds = Optional.absent(),
-                        ),
-                    ),
-                )
-                .execute()
-                .data?.userMutation?.addUsage?.id
-        }.getOrNull()
     }
 }
