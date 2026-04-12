@@ -33,11 +33,9 @@ public class NotificationUsageListenerService : NotificationListenerService() {
     }
 
     private fun persist(sbn: StatusBarNotification) {
-        val repository = runCatching { GlobalContext.get().get<NotificationUsageRepository>() }
-            .getOrNull()
+        val repository = GlobalContext.getOrNull()?.get<NotificationUsageRepository>()
             ?: return
-        val autoAddProcessor = runCatching { GlobalContext.get().get<NotificationUsageAutoAddProcessor>() }
-            .getOrNull()
+        val autoAddProcessor = GlobalContext.getOrNull()?.get<NotificationUsageAutoAddProcessor>()
         val text = NotificationTextExtractor.extract(sbn.notification)
         val postedAtEpochMillis = sbn.postTime
         val packageName = sbn.packageName
