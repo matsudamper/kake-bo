@@ -189,8 +189,10 @@ public class SettingCategoryViewModel(
                                                     it.showSnackBar("削除しました")
                                                 }
                                             }
-                                            viewModelEventSender.send {
-                                                it.navigateToCategories()
+                                            launch {
+                                                viewModelEventSender.send {
+                                                    it.navigateToCategories()
+                                                }
                                             }
                                         } else {
                                             launch {
