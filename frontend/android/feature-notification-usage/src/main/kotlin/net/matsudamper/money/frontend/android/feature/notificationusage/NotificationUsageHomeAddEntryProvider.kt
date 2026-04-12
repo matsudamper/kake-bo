@@ -8,7 +8,7 @@ internal class NotificationUsageHomeAddEntryProvider : HomeAddExtensionEntryProv
         return HomeAddExtensionEntryProvider.Entry(
             title = "通知から追加",
             icon = HomeAddExtensionEntryProvider.Entry.Icon.Notification,
-            order = 25,
+            order = 40,
             screenStructure = ScreenStructure.Root.Add.NotificationUsage,
         )
     }
