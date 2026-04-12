@@ -34,6 +34,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -109,6 +111,7 @@ private fun LoadedContent(
 ) {
     val metadataDialog = uiState.metadataDialog
     if (metadataDialog != null) {
+        val clipboardManager = LocalClipboardManager.current
         AlertDialog(
             onDismissRequest = { metadataDialog.event.onDismiss() },
             title = { Text("メタデータ") },
@@ -119,6 +122,13 @@ private fun LoadedContent(
                     fontFamily = FontFamily.Monospace,
                     style = MaterialTheme.typography.bodySmall,
                 )
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { clipboardManager.setText(AnnotatedString(metadataDialog.text)) },
+                ) {
+                    Text("コピー")
+                }
             },
             confirmButton = {
                 TextButton(onClick = { metadataDialog.event.onDismiss() }) {
