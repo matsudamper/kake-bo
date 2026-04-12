@@ -10,15 +10,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.ui.Modifier
 import kotlinx.coroutines.CoroutineScope
-import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.lib.rememberSaveableStateHolder
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.base.notification.NotificationUsageAccessGateway
-import net.matsudamper.money.frontend.common.base.notification.NotificationUsageParser
-import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
 import net.matsudamper.money.frontend.common.ui.StickyHeaderState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlyCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlySubCategoryScreen
@@ -57,8 +53,6 @@ import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.subcate
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.PresetDetailViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.PresetListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.PresetScreenApi
-import net.matsudamper.money.frontend.feature.notification.root.NotificationUsageFilterListScreenContainer
-import net.matsudamper.money.frontend.feature.notification.root.NotificationUsageScreenContainer
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 private enum class SavedStateHolderKey {
@@ -382,8 +376,6 @@ internal fun RootNavContent(
                             -> {
                                 NotificationUsageScreenContainer(
                                     current = current,
-                                    repository = koin.get<NotificationUsageRepository>(),
-                                    accessGateway = koin.get<NotificationUsageAccessGateway>(),
                                     eventHandlerCollector = { viewModelEventHandlers.handleNotificationUsage(it) },
                                     windowInsets = windowInsets,
                                 )
@@ -392,9 +384,6 @@ internal fun RootNavContent(
                             ScreenStructure.Root.Add.NotificationUsageFilters -> {
                                 NotificationUsageFilterListScreenContainer(
                                     navController = navController,
-                                    appSettingsRepository = koin.get<AppSettingsRepository>(),
-                                    parsers = runCatching { koin.getAll<NotificationUsageParser>() }
-                                        .getOrDefault(emptyList()),
                                     windowInsets = windowInsets,
                                 )
                             }
