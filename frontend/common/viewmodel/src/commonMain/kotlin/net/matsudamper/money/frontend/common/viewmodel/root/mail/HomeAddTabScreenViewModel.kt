@@ -115,6 +115,22 @@ public class HomeAddTabScreenViewModel(
                     ),
                 ),
             )
+            add(
+                OrderedItem(
+                    order = 30,
+                    item = HomeAddTabScreenUiState.Item(
+                        title = "プリセットから追加",
+                        icon = HomeAddTabScreenUiState.Icon.Preset,
+                        onClick = {
+                            viewModelScope.launch {
+                                navigateEventSender.send {
+                                    it.navigate(ScreenStructure.Root.Add.Preset)
+                                }
+                            }
+                        },
+                    ),
+                ),
+            )
             additionalEntryProviders.mapTo(this) { provider ->
                 val entry = provider.createEntry()
                 OrderedItem(
@@ -132,22 +148,6 @@ public class HomeAddTabScreenViewModel(
                     ),
                 )
             }
-            add(
-                OrderedItem(
-                    order = 30,
-                    item = HomeAddTabScreenUiState.Item(
-                        title = "プリセットから追加",
-                        icon = HomeAddTabScreenUiState.Icon.Preset,
-                        onClick = {
-                            viewModelScope.launch {
-                                navigateEventSender.send {
-                                    it.navigate(ScreenStructure.Root.Add.Preset)
-                                }
-                            }
-                        },
-                    ),
-                ),
-            )
         }
         return defaultItems.sortedBy { it.order }
             .map { it.item }
