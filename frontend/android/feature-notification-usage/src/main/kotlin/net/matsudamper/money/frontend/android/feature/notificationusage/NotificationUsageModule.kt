@@ -21,6 +21,7 @@ public object NotificationUsageModule {
                 .addMigrations(
                     NotificationUsageDatabase.Migration1To2,
                     NotificationUsageDatabase.Migration2To3,
+                    NotificationUsageDatabase.Migration3To4,
                 )
                 .build()
         }

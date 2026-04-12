@@ -21,4 +21,6 @@ internal data class NotificationUsageEntity(
     val isAdded: Boolean = false,
     @ColumnInfo(name = "moneyUsageId")
     val moneyUsageId: Int? = null,
+    @ColumnInfo(name = "notificationMetadata")
+    val notificationMetadata: String = "",
 )

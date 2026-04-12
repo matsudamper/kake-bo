@@ -14,9 +14,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -26,10 +29,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
@@ -102,6 +109,34 @@ private fun LoadedContent(
     modifier: Modifier,
     uiState: NotificationUsageDetailScreenUiState.LoadingState.Loaded,
 ) {
+    val metadataDialog = uiState.metadataDialog
+    if (metadataDialog != null) {
+        val clipboardManager = LocalClipboardManager.current
+        AlertDialog(
+            onDismissRequest = { metadataDialog.event.onDismiss() },
+            title = { Text("メタデータ") },
+            text = {
+                Text(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    text = metadataDialog.text,
+                    fontFamily = FontFamily.Monospace,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { clipboardManager.setText(AnnotatedString(metadataDialog.text)) },
+                ) {
+                    Text("コピー")
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { metadataDialog.event.onDismiss() }) {
+                    Text("閉じる")
+                }
+            },
+        )
+    }
     BoxWithConstraints(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.TopCenter,
@@ -208,6 +243,25 @@ private fun NotificationCard(
             row {
                 item { Text("本文") }
                 item { Text(uiState.text) }
+            }
+            row {
+                item { Text("メタデータ") }
+                item {
+                    val hasMetadata = uiState.metadata.isNotBlank()
+                    Text(
+                        modifier = if (hasMetadata) {
+                            Modifier.clickable { uiState.event.onClickMetadata() }
+                        } else {
+                            Modifier
+                        },
+                        text = if (hasMetadata) "タップして表示" else "(なし)",
+                        color = if (hasMetadata) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        },
+                    )
+                }
             }
         }
     }

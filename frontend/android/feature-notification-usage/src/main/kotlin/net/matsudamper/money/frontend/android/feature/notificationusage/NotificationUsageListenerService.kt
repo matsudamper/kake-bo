@@ -44,6 +44,7 @@ public class NotificationUsageListenerService : NotificationListenerService() {
             text = text,
             postedAtEpochMillis = postedAtEpochMillis,
             receivedAtEpochMillis = System.currentTimeMillis(),
+            notificationMetadata = NotificationMetadataExtractor.extract(sbn),
         )
         scope.launch {
             val storedNotificationKey = repository.upsertNotification(input)

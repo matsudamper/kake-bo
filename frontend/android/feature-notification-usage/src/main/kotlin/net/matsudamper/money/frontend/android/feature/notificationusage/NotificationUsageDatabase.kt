@@ -7,7 +7,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [NotificationUsageEntity::class],
-    version = 3,
+    version = 4,
     exportSchema = false,
 )
 internal abstract class NotificationUsageDatabase : RoomDatabase() {
@@ -31,6 +31,17 @@ internal abstract class NotificationUsageDatabase : RoomDatabase() {
                     """
                     ALTER TABLE notification_usage_records
                     ADD COLUMN moneyUsageId INTEGER DEFAULT NULL
+                    """.trimIndent(),
+                )
+            }
+        }
+
+        val Migration3To4: Migration = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    ALTER TABLE notification_usage_records
+                    ADD COLUMN notificationMetadata TEXT NOT NULL DEFAULT ''
                     """.trimIndent(),
                 )
             }

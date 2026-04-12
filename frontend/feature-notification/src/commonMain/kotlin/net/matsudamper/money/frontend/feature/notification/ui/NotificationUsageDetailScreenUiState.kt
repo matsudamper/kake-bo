@@ -17,6 +17,7 @@ public data class NotificationUsageDetailScreenUiState(
             val draft: Draft?,
             val canRegister: Boolean,
             val linkedUsage: LinkedUsageState,
+            val metadataDialog: MetadataDialog?,
             val event: LoadedEvent,
         ) : LoadingState
     }
@@ -27,7 +28,24 @@ public data class NotificationUsageDetailScreenUiState(
         val postedAt: String,
         val receivedAt: String,
         val text: String,
+        val metadata: String,
+        val event: NotificationEvent,
     )
+
+    @Immutable
+    public interface NotificationEvent {
+        public fun onClickMetadata()
+    }
+
+    public data class MetadataDialog(
+        val text: String,
+        val event: MetadataDialogEvent,
+    )
+
+    @Immutable
+    public interface MetadataDialogEvent {
+        public fun onDismiss()
+    }
 
     public sealed interface Filter {
         public data object NotMatched : Filter

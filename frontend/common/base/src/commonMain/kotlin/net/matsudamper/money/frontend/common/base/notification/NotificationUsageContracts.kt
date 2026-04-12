@@ -12,6 +12,7 @@ public data class NotificationUsageRecord(
     val receivedAtEpochMillis: Long,
     val isAdded: Boolean = false,
     val moneyUsageId: MoneyUsageId? = null,
+    val notificationMetadata: String = "",
 )
 
 public data class NotificationUsageRecordInput(
@@ -20,6 +21,7 @@ public data class NotificationUsageRecordInput(
     val text: String,
     val postedAtEpochMillis: Long,
     val receivedAtEpochMillis: Long,
+    val notificationMetadata: String = "",
 )
 
 public data class NotificationUsageDraft(
