@@ -5,6 +5,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -163,14 +164,16 @@ private fun LoadedContent(
 
 @Composable
 private fun SectionTitle(text: String) {
-    Text(
-        modifier = Modifier.padding(horizontal = 12.dp),
-        text = text,
-        style = MaterialTheme.typography.headlineLarge,
-    )
-    Spacer(modifier = Modifier.height(12.dp))
-    HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
-    Spacer(modifier = Modifier.height(12.dp))
+    Column {
+        Text(
+            modifier = Modifier.padding(horizontal = 12.dp),
+            text = text,
+            style = MaterialTheme.typography.headlineLarge,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        HorizontalDivider(modifier = Modifier.fillMaxWidth().height(1.dp))
+        Spacer(modifier = Modifier.height(12.dp))
+    }
 }
 
 @Composable
