@@ -20,6 +20,5 @@ public object EmptyNotificationUsageAccessGateway : NotificationUsageAccessGatew
         return flowOf(NotificationUsageAccessGateway.NotificationAccessState.NotGranted)
     }
 
-    override fun openAccessSettings() {
-    }
+    override fun openAccessSettings() = Unit
 }
