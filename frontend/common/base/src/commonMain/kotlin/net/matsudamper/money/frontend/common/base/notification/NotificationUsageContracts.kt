@@ -78,8 +78,6 @@ public interface NotificationUsageAccessGateway {
 }
 
 public sealed interface NotificationAccessState {
-    public data object Unsupported : NotificationAccessState
-
     public data object Granted : NotificationAccessState
 
     public data object NotGranted : NotificationAccessState
@@ -101,12 +99,5 @@ public object EmptyNotificationUsageRepository : NotificationUsageRepository {
     }
 
     override suspend fun markNotificationAsAdded(notificationKey: String, moneyUsageId: MoneyUsageId?) {
-    }
-}
-
-public object EmptyNotificationUsageAccessGateway : NotificationUsageAccessGateway {
-    override fun accessStateFlow(): Flow<NotificationAccessState> = flowOf(NotificationAccessState.Unsupported)
-
-    override fun openAccessSettings() {
     }
 }

@@ -156,11 +156,6 @@ public class NotificationUsageViewModel(
                 buttonLabel = "通知アクセス設定を開く",
                 onClickButton = accessGateway::openAccessSettings,
             )
-
-            NotificationAccessState.Unsupported -> NotificationUsageListScreenUiState.AccessSection(
-                title = "この機能は利用できません",
-                description = "通知から追加は Android でのみ利用できます。",
-            )
         }
     }
 

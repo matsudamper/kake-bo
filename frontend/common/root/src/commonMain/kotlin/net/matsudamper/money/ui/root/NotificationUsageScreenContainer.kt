@@ -8,7 +8,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectStore
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
-import net.matsudamper.money.frontend.common.base.notification.EmptyNotificationUsageAccessGateway
 import net.matsudamper.money.frontend.common.base.notification.EmptyNotificationUsageRepository
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageAccessGateway
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
@@ -29,8 +28,7 @@ internal fun NotificationUsageScreenContainer(
     }
     val repository = runCatching { koin.get<NotificationUsageRepository>() }
         .getOrElse { EmptyNotificationUsageRepository }
-    val accessGateway = runCatching { koin.get<NotificationUsageAccessGateway>() }
-        .getOrElse { EmptyNotificationUsageAccessGateway }
+    val accessGateway = koin.get<NotificationUsageAccessGateway>()
     val viewModel = LocalScopedObjectStore.current.putOrGet(current) {
         NotificationUsageViewModel(
             scopedObjectFeature = it,

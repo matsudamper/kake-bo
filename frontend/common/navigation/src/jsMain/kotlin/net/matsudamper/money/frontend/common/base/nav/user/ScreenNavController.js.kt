@@ -13,7 +13,18 @@ import net.matsudamper.money.element.MoneyUsageCategoryId
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.element.MoneyUsagePresetId
 
-private val parser = UrlPlaceHolderParser(Screens.entries)
+private val browserHiddenScreens: Set<Screens> = setOf(
+    Screens.AddNotificationUsage,
+    Screens.AddNotificationUsageFilters,
+    Screens.NotificationUsageDetail,
+    Screens.AddNotificationUsageDebug,
+)
+
+private val parser = UrlPlaceHolderParser(
+    Screens.entries.filterNot { screen ->
+        screen in browserHiddenScreens
+    },
+)
 
 @Composable
 public actual fun rememberMainScreenNavController(initial: IScreenStructure): ScreenNavController {
@@ -21,11 +32,18 @@ public actual fun rememberMainScreenNavController(initial: IScreenStructure): Sc
         ScreenNavControllerImpl(
             initial = initial,
             currentScreenStructureProvider = {
-                parser.parse(pathname = window.location.pathname)
-                    .toScreenStructure(parseQueryParams(window.location.search))
+                parseBrowserScreenStructure(
+                    pathname = window.location.pathname,
+                    query = window.location.search,
+                )
             },
         )
     }
+}
+
+internal fun parseBrowserScreenStructure(pathname: String, query: String): ScreenStructure {
+    return parser.parse(pathname = pathname)
+        .toScreenStructure(parseQueryParams(query))
 }
 
 private fun parseQueryParams(query: String): Map<String, List<String>> {
