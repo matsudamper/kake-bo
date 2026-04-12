@@ -19,5 +19,5 @@ public object EmptyNotificationUsageRepository : NotificationUsageRepository {
         return record.notificationKey
     }
 
-    override suspend fun markNotificationAsAdded(notificationKey: String, moneyUsageId: MoneyUsageId?) = Unit
+    override suspend fun markNotificationAsAdded(notificationKey: String, moneyUsageId: MoneyUsageId?): Unit = Unit
 }

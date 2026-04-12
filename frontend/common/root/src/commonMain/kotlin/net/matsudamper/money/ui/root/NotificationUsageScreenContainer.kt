@@ -11,7 +11,6 @@ import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageAccessGateway
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
 import net.matsudamper.money.frontend.common.viewmodel.lib.EventHandler
-import net.matsudamper.money.frontend.feature.notification.root.NotificationUsageFilterListScreenContainer
 import net.matsudamper.money.frontend.feature.notification.ui.NotificationUsageListScreen
 import net.matsudamper.money.frontend.feature.notification.viewmodel.NotificationUsageViewModel
 
