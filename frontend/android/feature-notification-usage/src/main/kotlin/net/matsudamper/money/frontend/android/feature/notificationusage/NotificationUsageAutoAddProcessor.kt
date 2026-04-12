@@ -1,9 +1,10 @@
 package net.matsudamper.money.frontend.android.feature.notificationusage
 
 import kotlin.time.Instant
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.flow.getAndUpdate
+import kotlinx.coroutines.flow.update
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import net.matsudamper.money.element.MoneyUsageId
@@ -18,8 +19,7 @@ internal class NotificationUsageAutoAddProcessor(
     private val appSettingsRepository: AppSettingsRepository,
     private val api: NotificationUsageAutoAddApi,
 ) {
-    private val inFlightMutex = Mutex()
-    private val inFlightKeys = mutableSetOf<String>()
+    private val inFlightKeys = MutableStateFlow<Set<String>>(emptySet())
 
     suspend fun process(notificationKey: String) {
         if (!startProcessing(notificationKey)) return
@@ -46,21 +46,13 @@ internal class NotificationUsageAutoAddProcessor(
         }
     }
 
-    private suspend fun startProcessing(notificationKey: String): Boolean {
-        return inFlightMutex.withLock {
-            if (notificationKey in inFlightKeys) {
-                false
-            } else {
-                inFlightKeys += notificationKey
-                true
-            }
-        }
+    private fun startProcessing(notificationKey: String): Boolean {
+        val previous = inFlightKeys.getAndUpdate { it + notificationKey }
+        return notificationKey !in previous
     }
 
-    private suspend fun finishProcessing(notificationKey: String) {
-        inFlightMutex.withLock {
-            inFlightKeys -= notificationKey
-        }
+    private fun finishProcessing(notificationKey: String) {
+        inFlightKeys.update { it - notificationKey }
     }
 
     private fun NotificationUsageEntity.toRecord(): NotificationUsageRecord {
