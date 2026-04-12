@@ -55,6 +55,9 @@ public class NotificationUsageFilterListViewModel(
                 }
             }
         }
+    }.asStateFlow()
+
+    init {
         viewModelScope.launch {
             if (filterDefinitions.isEmpty()) return@launch
 
@@ -71,7 +74,7 @@ public class NotificationUsageFilterListViewModel(
                 }
             }
         }
-    }.asStateFlow()
+    }
 
     private fun createFilterItem(
         definition: NotificationUsageFilterDefinition,
