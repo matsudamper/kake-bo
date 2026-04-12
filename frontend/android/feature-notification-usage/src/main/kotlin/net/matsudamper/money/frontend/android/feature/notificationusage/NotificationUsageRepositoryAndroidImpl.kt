@@ -66,6 +66,7 @@ internal class NotificationUsageRepositoryAndroidImpl(
                 text = record.text,
                 postedAtEpochMillis = record.postedAtEpochMillis,
                 receivedAtEpochMillis = record.receivedAtEpochMillis,
+                notificationMetadata = record.notificationMetadata,
             ),
         )
         return notificationKey
@@ -84,6 +85,7 @@ internal class NotificationUsageRepositoryAndroidImpl(
             receivedAtEpochMillis = entity.receivedAtEpochMillis,
             isAdded = entity.isAdded,
             moneyUsageId = entity.moneyUsageId?.let { MoneyUsageId(it) },
+            notificationMetadata = entity.notificationMetadata,
         )
     }
 

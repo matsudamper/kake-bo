@@ -153,6 +153,7 @@ public class NotificationUsageDetailViewModel(
             postedAt = Formatter.formatDateTime(toLocalDateTime(record.postedAtEpochMillis)),
             receivedAt = Formatter.formatDateTime(toLocalDateTime(record.receivedAtEpochMillis)),
             text = record.text.ifBlank { "(テキストなし)" },
+            metadata = record.notificationMetadata,
         )
     }
 

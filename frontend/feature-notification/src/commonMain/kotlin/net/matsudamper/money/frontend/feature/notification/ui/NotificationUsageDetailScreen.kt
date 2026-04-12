@@ -209,6 +209,10 @@ private fun NotificationCard(
                 item { Text("本文") }
                 item { Text(uiState.text) }
             }
+            row {
+                item { Text("メタデータ") }
+                item { Text(uiState.metadata.ifBlank { "(なし)" }) }
+            }
         }
     }
 }

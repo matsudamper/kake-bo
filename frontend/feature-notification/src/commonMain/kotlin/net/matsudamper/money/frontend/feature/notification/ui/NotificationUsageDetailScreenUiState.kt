@@ -27,6 +27,7 @@ public data class NotificationUsageDetailScreenUiState(
         val postedAt: String,
         val receivedAt: String,
         val text: String,
+        val metadata: String,
     )
 
     public sealed interface Filter {
