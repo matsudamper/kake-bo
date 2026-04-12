@@ -35,7 +35,7 @@ private fun parseQueryParams(query: String): Map<String, List<String>> {
                 query.removePrefix("?")
                     .split("&")
                     .forEach { keyValue ->
-                        keyValue.split("=").let {
+                        keyValue.split("=", limit = 2).let {
                             val key = it.getOrNull(0) ?: return@forEach
                             val value = it.getOrNull(1)
                                 .orEmpty()
