@@ -18,7 +18,9 @@
       "Bash(jar tf:*)",
       "Bash(find . -name *.jar -path */dataloader*)",
       "Bash(javap:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m ':*)"
     ],
     "deny": [
       "Bash(cmd:*)"

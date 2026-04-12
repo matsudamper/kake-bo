@@ -20,8 +20,13 @@ dependencies {
     ksp(libs.roomCompiler)
 
     testImplementation(kotlin("test"))
+    testImplementation(libs.kotestRunnerJunit5)
 }
 
 android {
     namespace = "net.matsudamper.money.frontend.android.feature.notificationusage"
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }
