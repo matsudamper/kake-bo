@@ -66,6 +66,9 @@ public class NotificationUsageDetailViewModel(
                 }
             }
         }
+    }.asStateFlow()
+
+    init {
         viewModelScope.launch {
             repository.notificationDetailFlow(notificationUsageKey).collectLatest { detail ->
                 viewModelStateFlow.update { viewModelState ->
@@ -80,7 +83,7 @@ public class NotificationUsageDetailViewModel(
                 fetchLinkedUsage(detail?.record?.moneyUsageId)
             }
         }
-    }.asStateFlow()
+    }
 
     private fun createLoadingState(viewModelState: ViewModelState): NotificationUsageDetailScreenUiState.LoadingState {
         val detail = when (val detailState = viewModelState.detailState) {
