@@ -71,17 +71,7 @@ public interface NotificationUsageParser {
     public fun parse(record: NotificationUsageRecord): NotificationUsageDraft?
 }
 
-public interface NotificationUsageAccessGateway {
-    public fun accessStateFlow(): Flow<NotificationAccessState>
 
-    public fun openAccessSettings()
-}
-
-public sealed interface NotificationAccessState {
-    public data object Granted : NotificationAccessState
-
-    public data object NotGranted : NotificationAccessState
-}
 
 public object EmptyNotificationUsageRepository : NotificationUsageRepository {
     override fun notificationsFlow(): Flow<List<NotificationUsageRecord>> = flowOf(emptyList())
