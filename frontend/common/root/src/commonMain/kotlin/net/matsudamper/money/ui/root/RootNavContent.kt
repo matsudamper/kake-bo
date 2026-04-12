@@ -384,7 +384,7 @@ internal fun RootNavContent(
                                     current = current,
                                     repository = koin.get<NotificationUsageRepository>(),
                                     accessGateway = koin.get<NotificationUsageAccessGateway>(),
-                                    eventHandlerCollector = viewModelEventHandlers::handleNotificationUsage,
+                                    eventHandlerCollector = { viewModelEventHandlers.handleNotificationUsage(it) },
                                     windowInsets = windowInsets,
                                 )
                             }

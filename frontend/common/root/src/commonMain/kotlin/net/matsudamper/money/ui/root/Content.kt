@@ -357,7 +357,7 @@ public fun Content(
                                         current = current,
                                         repository = koin.get<NotificationUsageRepository>(),
                                         graphqlClient = koin.get(),
-                                        eventHandlerCollector = viewModelEventHandlers::handleNotificationUsageDetail,
+                                        eventHandlerCollector = { viewModelEventHandlers.handleNotificationUsageDetail(it) },
                                         windowInsets = paddingValues.value,
                                     )
                                 }
