@@ -3,6 +3,10 @@ package net.matsudamper.money.frontend.common.di
 import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.AppSettingsRepositoryJsImpl
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
+import net.matsudamper.money.frontend.common.base.notification.EmptyNotificationUsageAccessGateway
+import net.matsudamper.money.frontend.common.base.notification.EmptyNotificationUsageRepository
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageAccessGateway
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
 import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadQueue
 import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadQueueJsImpl
 import net.matsudamper.money.frontend.common.feature.webauth.WebAuthModel
@@ -11,7 +15,14 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.GraphqlClientImpl
 import net.matsudamper.money.frontend.graphql.serverHost
 import net.matsudamper.money.frontend.graphql.serverProtocol
+import org.koin.core.module.Module
 import org.koin.core.scope.Scope
+import org.koin.dsl.module
+
+internal actual val platformDefaultModule: Module = module {
+    single<NotificationUsageRepository> { EmptyNotificationUsageRepository }
+    single<NotificationUsageAccessGateway> { EmptyNotificationUsageAccessGateway }
+}
 
 internal actual val factory: Factory = object : Factory() {
     override fun createWebAuthModule(scope: Scope): WebAuthModel {

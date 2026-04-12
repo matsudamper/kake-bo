@@ -19,6 +19,8 @@ include(":backend:feature:image")
 include(":backend:feature:session")
 
 include(":frontend:app")
+include(":frontend:feature-notification")
+include(":frontend:android:feature-notification-usage")
 include(":frontend:common:ui")
 include(":frontend:common:root")
 include(":frontend:common:base")

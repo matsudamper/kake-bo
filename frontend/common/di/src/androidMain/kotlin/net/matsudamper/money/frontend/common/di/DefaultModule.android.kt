@@ -26,7 +26,12 @@ import net.matsudamper.money.frontend.graphql.BuildConfig
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.GraphqlClientImpl
 import net.matsudamper.money.frontend.graphql.ServerHostConfig
+import org.koin.core.module.Module
 import org.koin.core.scope.Scope
+import org.koin.dsl.module
+
+internal actual val platformDefaultModule: Module = module {
+}
 
 internal actual val factory: Factory = object : Factory() {
     private val UserSessionIdKey = "user_session_id"

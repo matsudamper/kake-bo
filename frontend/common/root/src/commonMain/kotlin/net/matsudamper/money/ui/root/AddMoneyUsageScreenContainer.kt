@@ -29,6 +29,7 @@ internal fun AddMoneyUsageScreenContainer(
                 imageUploadClient = koin.get(),
             ),
             graphqlClient = koin.get(),
+            notificationUsageRepository = koin.get(),
         )
     }
     LaunchedEffect(viewModel.eventHandler) {
