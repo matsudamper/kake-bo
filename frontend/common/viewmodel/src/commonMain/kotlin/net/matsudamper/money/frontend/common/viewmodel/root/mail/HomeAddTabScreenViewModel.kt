@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.viewmodel.root.mail
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList.Companion.toImmutableList
@@ -37,7 +38,7 @@ public class HomeAddTabScreenViewModel(
         ),
     ).also { uiStateFlow ->
         viewModelScope.launch {
-            viewModelStateFlow.collect { viewModelState ->
+            viewModelStateFlow.collectLatest { viewModelState ->
                 uiStateFlow.update { uiState ->
                     uiState.copy(
                         items = createItems(viewModelState).toImmutableList(),
