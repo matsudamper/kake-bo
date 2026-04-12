@@ -72,10 +72,6 @@ The project is organized into backend, frontend, and shared modules:
 ### スクリーンショットに関するルール
 スクリーンショットは撮れないため、スクリーンショットの試行をしないでください。
 
-## Claude Code Web
-Claude Code WebではGradleの依存がダウンロードでエラーになります。
-https://github.com/anthropics/claude-code/issues/13372
-
 # ビルドとテスト
 
 実装が完了したらフォーマットの後にビルドをして。
