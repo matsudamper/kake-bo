@@ -99,6 +99,18 @@ public class NotificationUsageDetailViewModel(
             draft = if (matched != null) createDraftUiState(matched) else null,
             canRegister = detail.record.isAdded.not(),
             linkedUsage = createLinkedUsageUiState(viewModelState.linkedUsageState),
+            metadataDialog = if (viewModelState.showMetadataDialog) {
+                NotificationUsageDetailScreenUiState.MetadataDialog(
+                    text = detail.record.notificationMetadata,
+                    event = object : NotificationUsageDetailScreenUiState.MetadataDialogEvent {
+                        override fun onDismiss() {
+                            viewModelStateFlow.update { it.copy(showMetadataDialog = false) }
+                        }
+                    },
+                )
+            } else {
+                null
+            },
             event = object : NotificationUsageDetailScreenUiState.LoadedEvent {
                 override fun onClickRegister() {
                     viewModelScope.launch {
@@ -154,6 +166,11 @@ public class NotificationUsageDetailViewModel(
             receivedAt = Formatter.formatDateTime(toLocalDateTime(record.receivedAtEpochMillis)),
             text = record.text.ifBlank { "(テキストなし)" },
             metadata = record.notificationMetadata,
+            event = object : NotificationUsageDetailScreenUiState.NotificationEvent {
+                override fun onClickMetadata() {
+                    viewModelStateFlow.update { it.copy(showMetadataDialog = true) }
+                }
+            },
         )
     }
 
@@ -270,5 +287,6 @@ public class NotificationUsageDetailViewModel(
     private data class ViewModelState(
         val detailState: DetailState = DetailState.Loading,
         val linkedUsageState: LinkedUsageState = LinkedUsageState.None,
+        val showMetadataDialog: Boolean = false,
     )
 }

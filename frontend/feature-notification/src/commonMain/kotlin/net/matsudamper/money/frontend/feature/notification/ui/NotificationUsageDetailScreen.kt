@@ -14,9 +14,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
@@ -26,10 +29,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.layout.GridColumn
@@ -102,6 +107,26 @@ private fun LoadedContent(
     modifier: Modifier,
     uiState: NotificationUsageDetailScreenUiState.LoadingState.Loaded,
 ) {
+    val metadataDialog = uiState.metadataDialog
+    if (metadataDialog != null) {
+        AlertDialog(
+            onDismissRequest = { metadataDialog.event.onDismiss() },
+            title = { Text("メタデータ") },
+            text = {
+                Text(
+                    modifier = Modifier.verticalScroll(rememberScrollState()),
+                    text = metadataDialog.text,
+                    fontFamily = FontFamily.Monospace,
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = { metadataDialog.event.onDismiss() }) {
+                    Text("閉じる")
+                }
+            },
+        )
+    }
     BoxWithConstraints(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.TopCenter,
@@ -211,7 +236,17 @@ private fun NotificationCard(
             }
             row {
                 item { Text("メタデータ") }
-                item { Text(uiState.metadata.ifBlank { "(なし)" }) }
+                item {
+                    Text(
+                        modifier = Modifier.clickable { uiState.event.onClickMetadata() },
+                        text = if (uiState.metadata.isBlank()) "(なし)" else "タップして表示",
+                        color = if (uiState.metadata.isBlank()) {
+                            MaterialTheme.colorScheme.onSurface
+                        } else {
+                            MaterialTheme.colorScheme.primary
+                        },
+                    )
+                }
             }
         }
     }
