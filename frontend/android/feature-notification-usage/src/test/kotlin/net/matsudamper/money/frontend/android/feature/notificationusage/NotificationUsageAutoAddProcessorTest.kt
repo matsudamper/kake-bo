@@ -3,7 +3,6 @@ package net.matsudamper.money.frontend.android.feature.notificationusage
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import io.kotest.core.spec.style.DescribeSpec
@@ -19,14 +18,16 @@ public class NotificationUsageAutoAddProcessorTest : DescribeSpec(
     {
         describe("通知利用履歴の自動追加") {
             it("自動追加が OFF の時は追加しない") {
-                val dao = AutoAddFakeNotificationUsageDao(
-                    NotificationUsageEntity(
-                        notificationKey = "key",
-                        packageName = "com.example",
-                        text = "body",
-                        postedAtEpochMillis = 10,
-                        receivedAtEpochMillis = 20,
-                        isAdded = false,
+                val dao = FakeNotificationUsageDao(
+                    listOf(
+                        NotificationUsageEntity(
+                            notificationKey = "key",
+                            packageName = "com.example",
+                            text = "body",
+                            postedAtEpochMillis = 10,
+                            receivedAtEpochMillis = 20,
+                            isAdded = false,
+                        ),
                     ),
                 )
                 val api = AutoAddFakeNotificationUsageAutoAddApi()
@@ -56,7 +57,7 @@ public class NotificationUsageAutoAddProcessorTest : DescribeSpec(
                     receivedAtEpochMillis = 2_000,
                     isAdded = false,
                 )
-                val dao = AutoAddFakeNotificationUsageDao(entity)
+                val dao = FakeNotificationUsageDao(listOf(entity))
                 val api = AutoAddFakeNotificationUsageAutoAddApi()
                 val processor = NotificationUsageAutoAddProcessor(
                     dao = dao,
@@ -87,14 +88,16 @@ public class NotificationUsageAutoAddProcessorTest : DescribeSpec(
             }
 
             it("自動追加済みの通知は再実行しない") {
-                val dao = AutoAddFakeNotificationUsageDao(
-                    NotificationUsageEntity(
-                        notificationKey = "key",
-                        packageName = "com.example",
-                        text = "body",
-                        postedAtEpochMillis = 10,
-                        receivedAtEpochMillis = 20,
-                        isAdded = true,
+                val dao = FakeNotificationUsageDao(
+                    listOf(
+                        NotificationUsageEntity(
+                            notificationKey = "key",
+                            packageName = "com.example",
+                            text = "body",
+                            postedAtEpochMillis = 10,
+                            receivedAtEpochMillis = 20,
+                            isAdded = true,
+                        ),
                     ),
                 )
                 val api = AutoAddFakeNotificationUsageAutoAddApi()
@@ -133,47 +136,6 @@ private class AutoAddFakeAppSettingsRepository(
 
     override fun setNotificationUsageAutoAddEnabled(filterId: String, value: Boolean) {
         notificationUsageAutoAddEnabledFlows.getOrPut(filterId) { MutableStateFlow(value) }.value = value
-    }
-}
-
-private class AutoAddFakeNotificationUsageDao(
-    entity: NotificationUsageEntity,
-) : NotificationUsageDao {
-    private val entities = mutableMapOf(entity.notificationKey to entity)
-
-    override fun observeAll(): Flow<List<NotificationUsageEntity>> = MutableStateFlow(entities.values.toList())
-
-    override fun observeNotAdded(): Flow<List<NotificationUsageEntity>> {
-        return MutableStateFlow(entities.values.toList()).map { entities ->
-            entities.filter { it.isAdded.not() }
-        }
-    }
-
-    override fun observeAdded(): Flow<List<NotificationUsageEntity>> {
-        return MutableStateFlow(entities.values.toList()).map { entities ->
-            entities.filter { it.isAdded }
-        }
-    }
-
-    override suspend fun insert(entity: NotificationUsageEntity) {
-        if (entity.notificationKey !in entities) {
-            entities[entity.notificationKey] = entity
-        }
-    }
-
-    override suspend fun findByKey(notificationKey: String): NotificationUsageEntity? {
-        return entities[notificationKey]
-    }
-
-    override fun observeByKey(notificationKey: String): Flow<NotificationUsageEntity?> {
-        return MutableStateFlow(entities[notificationKey])
-    }
-
-    override suspend fun markAsAdded(notificationKey: String, moneyUsageId: Int?) {
-        entities[notificationKey] = entities[notificationKey]?.copy(
-            isAdded = true,
-            moneyUsageId = moneyUsageId,
-        ) ?: return
     }
 }
 
