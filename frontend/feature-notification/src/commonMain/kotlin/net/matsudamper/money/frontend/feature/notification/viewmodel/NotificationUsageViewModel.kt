@@ -1,12 +1,12 @@
 package net.matsudamper.money.frontend.feature.notification.viewmodel
 
 import kotlin.time.Instant
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
@@ -41,7 +41,13 @@ public class NotificationUsageViewModel(
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
-    private val viewModelStateFlow = MutableStateFlow(ViewModelState(status = initialStatus(mode)))
+    private val viewModelStateFlow = MutableStateFlow(
+        ViewModelState(
+            status = initialStatus(mode),
+            accessState = NotificationAccessState.NotGranted,
+            items = listOf(),
+        ),
+    )
     private val copyJsonFormatter = Json {
         prettyPrint = true
     }
@@ -68,55 +74,55 @@ public class NotificationUsageViewModel(
         ),
     ).also { uiStateFlow ->
         viewModelScope.launch {
-            combine(
-                accessGateway.accessStateFlow(),
-                viewModelStateFlow,
-                itemsFlow(),
-            ) { accessState, viewModelState, items ->
-                NotificationUsageUiStateSource(
-                    accessState = accessState,
-                    status = viewModelState.status,
-                    searchQuery = viewModelState.searchQuery,
-                    items = items,
-                )
-            }.collect { source ->
+            viewModelStateFlow.collectLatest { viewModelState ->
                 uiStateFlow.update { uiState ->
                     val filteredItems = if (mode == Mode.NotificationList) {
-                        filterByQuery(source.items, source.searchQuery)
+                        filterByQuery(viewModelState.items, viewModelState.searchQuery)
                     } else {
-                        source.items
+                        viewModelState.items
                     }
                     uiState.copy(
                         items = filteredItems.map { createUiItem(it) }.toImmutableList(),
-                        filters = createStatusFilters(source.status).toImmutableList(),
-                        emptyText = emptyText(mode, source.status),
-                        accessSection = createAccessSection(source.accessState),
+                        filters = createStatusFilters(viewModelState.status).toImmutableList(),
+                        emptyText = emptyText(mode, viewModelState.status),
+                        accessSection = createAccessSection(viewModelState.accessState),
                     )
                 }
             }
         }
+        viewModelScope.launch {
+            accessGateway.accessStateFlow().collectLatest { accessState ->
+                viewModelStateFlow.update { it.copy(accessState = accessState) }
+            }
+        }
+        viewModelScope.launch {
+            viewModelStateFlow
+                .map { it.status }
+                .distinctUntilChanged()
+                .flatMapLatest { status -> itemsFlow(status) }
+                .collectLatest { items ->
+                    viewModelStateFlow.update { it.copy(items = items) }
+                }
+        }
     }.asStateFlow()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private fun itemsFlow(): Flow<List<ItemSource>> {
-        return viewModelStateFlow.map { it.status }.flatMapLatest { status ->
-            when (status) {
-                Status.All -> repository.notificationsFlow()
-                    .map { records -> records.map { ItemSource.Raw(it) } }
+    private fun itemsFlow(status: Status): Flow<List<ItemSource>> {
+        return when (status) {
+            Status.All -> repository.notificationsFlow()
+                .map { records -> records.map { ItemSource.Raw(it) } }
 
-                Status.NotAdded -> {
-                    when (mode) {
-                        Mode.AddFromNotification -> repository.unaddedMatchedNotificationsFlow()
-                            .map { records -> records.map { ItemSource.Matched(it) } }
+            Status.NotAdded -> {
+                when (mode) {
+                    Mode.AddFromNotification -> repository.unaddedMatchedNotificationsFlow()
+                        .map { records -> records.map { ItemSource.Matched(it) } }
 
-                        Mode.NotificationList -> repository.notAddedNotificationsFlow()
-                            .map { records -> records.map { ItemSource.Raw(it) } }
-                    }
+                    Mode.NotificationList -> repository.notAddedNotificationsFlow()
+                        .map { records -> records.map { ItemSource.Raw(it) } }
                 }
-
-                Status.Added -> repository.addedNotificationsFlow()
-                    .map { records -> records.map { ItemSource.Raw(it) } }
             }
+
+            Status.Added -> repository.addedNotificationsFlow()
+                .map { records -> records.map { ItemSource.Raw(it) } }
         }
     }
 
@@ -315,12 +321,7 @@ public class NotificationUsageViewModel(
     private data class ViewModelState(
         val status: Status,
         val searchQuery: String = "",
-    )
-
-    private data class NotificationUsageUiStateSource(
         val accessState: NotificationAccessState,
-        val status: Status,
-        val searchQuery: String,
         val items: List<ItemSource>,
     )
 
