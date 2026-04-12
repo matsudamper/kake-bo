@@ -199,6 +199,8 @@ public fun NotificationUsageListScreen(
                     Box(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
+                        // TODO: pointerInput+detectTapGestures はアクセシビリティ（TalkBack/キーボード）に対応していない。
+                        //  Jetbrains Compose に combinedClickable がないため、clickable + semantics(customActions) での修正が必要。
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
