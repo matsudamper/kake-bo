@@ -5,7 +5,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.number
 
-internal object Formatter {
+public object Formatter {
     fun formatMoney(value: Number): String {
         return value.toString().toList()
             .reversed()
