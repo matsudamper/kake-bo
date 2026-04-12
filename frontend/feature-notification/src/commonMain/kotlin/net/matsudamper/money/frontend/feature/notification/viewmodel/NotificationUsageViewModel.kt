@@ -40,7 +40,7 @@ public class NotificationUsageViewModel(
     private val eventSender = EventSender<Event>()
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
-    private val statusStateFlow = MutableStateFlow(mode.initialStatus)
+    private val statusStateFlow = MutableStateFlow(initialStatus(mode))
     private val searchQueryStateFlow = MutableStateFlow("")
     private val copyJsonFormatter = Json {
         prettyPrint = true
@@ -53,18 +53,13 @@ public class NotificationUsageViewModel(
 
     public val uiStateFlow: StateFlow<NotificationUsageListScreenUiState> = MutableStateFlow(
         NotificationUsageListScreenUiState(
-            title = mode.title,
-            items = emptyList<NotificationUsageListScreenUiState.Item>().toImmutableList(),
-            filters = statusStateFlow.value.toUiState().toImmutableList(),
-            showSearch = mode == Mode.NotificationList,
-            onSearchQueryChange = if (mode == Mode.NotificationList) {
-                { query -> searchQueryStateFlow.value = query }
-            } else {
-                null
-            },
-            emptyText = mode.emptyText(statusStateFlow.value),
+            title = modeTitle(mode),
+            items = listOf<NotificationUsageListScreenUiState.Item>().toImmutableList(),
+            filters = createStatusFilters(statusStateFlow.value).toImmutableList(),
+            searchListener = createSearchListener(mode),
+            emptyText = emptyText(mode, statusStateFlow.value),
             accessSection = null,
-            topBarActions = mode.topBarActions().toImmutableList(),
+            topBarActions = createTopBarActions(mode).toImmutableList(),
             kakeboScaffoldListener = object : KakeboScaffoldListener {
                 override fun onClickTitle() {
                     navigateToHome()
@@ -88,15 +83,15 @@ public class NotificationUsageViewModel(
             }.collect { source ->
                 uiStateFlow.update { uiState ->
                     val filteredItems = if (mode == Mode.NotificationList) {
-                        source.items.filterByQuery(source.searchQuery)
+                        filterByQuery(source.items, source.searchQuery)
                     } else {
                         source.items
                     }
                     uiState.copy(
-                        items = filteredItems.map { it.toUiItem() }.toImmutableList(),
-                        filters = source.status.toUiState().toImmutableList(),
-                        emptyText = mode.emptyText(source.status),
-                        accessSection = source.accessState.toAccessSection(),
+                        items = filteredItems.map { createUiItem(it) }.toImmutableList(),
+                        filters = createStatusFilters(source.status).toImmutableList(),
+                        emptyText = emptyText(mode, source.status),
+                        accessSection = createAccessSection(source.accessState),
                     )
                 }
             }
@@ -126,19 +121,23 @@ public class NotificationUsageViewModel(
         }
     }
 
-    private fun Mode.topBarActions(): List<NotificationUsageListScreenUiState.TopBarAction> {
-        return when (this) {
+    private fun createTopBarActions(mode: Mode): List<NotificationUsageListScreenUiState.TopBarAction> {
+        return when (mode) {
             Mode.AddFromNotification -> listOf(
                 NotificationUsageListScreenUiState.TopBarAction(
                     label = "条件",
-                    onClick = {
-                        navigate(ScreenStructure.Root.Add.NotificationUsageFilters)
+                    listener = object : NotificationUsageListScreenUiState.TopBarActionListener {
+                        override fun onClick() {
+                            navigate(ScreenStructure.Root.Add.NotificationUsageFilters)
+                        }
                     },
                 ),
                 NotificationUsageListScreenUiState.TopBarAction(
                     label = "一覧",
-                    onClick = {
-                        navigate(ScreenStructure.Root.Add.NotificationUsageDebug)
+                    listener = object : NotificationUsageListScreenUiState.TopBarActionListener {
+                        override fun onClick() {
+                            navigate(ScreenStructure.Root.Add.NotificationUsageDebug)
+                        }
                     },
                 ),
             )
@@ -147,93 +146,110 @@ public class NotificationUsageViewModel(
         }
     }
 
-    private fun NotificationAccessState.toAccessSection(): NotificationUsageListScreenUiState.AccessSection? {
-        return when (this) {
+    private fun createAccessSection(accessState: NotificationAccessState): NotificationUsageListScreenUiState.AccessSection? {
+        return when (accessState) {
             NotificationAccessState.Granted -> null
             NotificationAccessState.NotGranted -> NotificationUsageListScreenUiState.AccessSection(
                 title = "通知アクセスが必要です",
                 description = "通知アクセスを有効にすると、通知から追加に使う一覧を取得できます。",
                 buttonLabel = "通知アクセス設定を開く",
-                onClickButton = accessGateway::openAccessSettings,
+                listener = object : NotificationUsageListScreenUiState.AccessSectionListener {
+                    override fun onClickButton() {
+                        accessGateway.openAccessSettings()
+                    }
+                },
             )
         }
     }
 
-    private fun ItemSource.toUiItem(): NotificationUsageListScreenUiState.Item {
-        val source = this
+    private fun createUiItem(source: ItemSource): NotificationUsageListScreenUiState.Item {
         return when (source) {
-            is ItemSource.Matched -> source.record.toUiItem(
+            is ItemSource.Matched -> createMatchedUiItem(
+                record = source.record,
                 title = source.record.record.packageName,
                 statusLabel = "未追加",
                 description = source.record.record.text.ifBlank { "(テキストなし)" },
-                onClickCopyJson = {
-                    copyNotificationJson(source.toCopyJson())
-                },
+                copyJson = createCopyJson(source),
             )
 
-            is ItemSource.Raw -> source.record.toUiItem(
+            is ItemSource.Raw -> createRawUiItem(
+                record = source.record,
                 title = source.record.packageName,
                 statusLabel = if (source.record.isAdded) "追加済み" else "未追加",
                 description = source.record.text.ifBlank { "(テキストなし)" },
-                onClickCopyJson = {
-                    copyNotificationJson(source.toCopyJson())
-                },
+                copyJson = createCopyJson(source),
             )
         }
     }
 
-    private fun NotificationUsageMatchedRecord.toUiItem(
+    private fun createMatchedUiItem(
+        record: NotificationUsageMatchedRecord,
         title: String,
         statusLabel: String,
         description: String,
-        onClickCopyJson: () -> Unit,
+        copyJson: String,
     ): NotificationUsageListScreenUiState.Item {
         return NotificationUsageListScreenUiState.Item(
             title = title,
-            receivedAt = Formatter.formatYearMonthDateTime(record.receivedAtEpochMillis.toLocalDateTime()),
+            receivedAt = Formatter.formatYearMonthDateTime(
+                toLocalDateTime(record.record.receivedAtEpochMillis),
+            ),
             statusLabel = statusLabel,
             description = description,
-            onClick = {
-                navigate(
-                    ScreenStructure.NotificationUsageDetail(
-                        notificationUsageKey = record.notificationKey,
-                    ),
-                )
+            listener = object : NotificationUsageListScreenUiState.ItemListener {
+                override fun onClick() {
+                    navigate(
+                        ScreenStructure.NotificationUsageDetail(
+                            notificationUsageKey = record.record.notificationKey,
+                        ),
+                    )
+                }
+
+                override fun onClickCopyJson() {
+                    copyNotificationJson(copyJson)
+                }
             },
-            onClickCopyJson = onClickCopyJson,
         )
     }
 
-    private fun NotificationUsageRecord.toUiItem(
+    private fun createRawUiItem(
+        record: NotificationUsageRecord,
         title: String,
         statusLabel: String,
         description: String,
-        onClickCopyJson: () -> Unit,
+        copyJson: String,
     ): NotificationUsageListScreenUiState.Item {
         return NotificationUsageListScreenUiState.Item(
             title = title,
-            receivedAt = Formatter.formatYearMonthDateTime(receivedAtEpochMillis.toLocalDateTime()),
+            receivedAt = Formatter.formatYearMonthDateTime(
+                toLocalDateTime(record.receivedAtEpochMillis),
+            ),
             statusLabel = statusLabel,
             description = description,
-            onClick = {
-                navigate(
-                    ScreenStructure.NotificationUsageDetail(
-                        notificationUsageKey = notificationKey,
-                    ),
-                )
+            listener = object : NotificationUsageListScreenUiState.ItemListener {
+                override fun onClick() {
+                    navigate(
+                        ScreenStructure.NotificationUsageDetail(
+                            notificationUsageKey = record.notificationKey,
+                        ),
+                    )
+                }
+
+                override fun onClickCopyJson() {
+                    copyNotificationJson(copyJson)
+                }
             },
-            onClickCopyJson = onClickCopyJson,
         )
     }
 
-    private fun ItemSource.toCopyJson(): String {
-        return copyJsonFormatter.encodeToString(JsonObject.serializer(), toCopyJsonObject())
+    private fun createCopyJson(source: ItemSource): String {
+        return copyJsonFormatter.encodeToString(JsonObject.serializer(), createCopyJsonObject(source))
     }
 
-    private fun ItemSource.toCopyJsonObject(): JsonObject {
-        val record = when (this) {
-            is ItemSource.Matched -> record.record
-            is ItemSource.Raw -> record
+    private fun createCopyJsonObject(source: ItemSource): JsonObject {
+        val record = when (source) {
+            is ItemSource.Matched -> source.record.record
+            is ItemSource.Raw -> source.record
         }
         return buildJsonObject {
             put("packageName", record.packageName)
@@ -241,8 +257,8 @@ public class NotificationUsageViewModel(
         }
     }
 
-    private fun Long.toLocalDateTime(): kotlinx.datetime.LocalDateTime {
-        return Instant.fromEpochMilliseconds(this)
+    private fun toLocalDateTime(epochMillis: Long): kotlinx.datetime.LocalDateTime {
+        return Instant.fromEpochMilliseconds(epochMillis)
             .toLocalDateTime(TimeZone.currentSystemDefault())
     }
 
@@ -271,18 +287,29 @@ public class NotificationUsageViewModel(
         }
     }
 
-    private fun Status.toUiState(): List<NotificationUsageListScreenUiState.Filter> {
+    private fun createStatusFilters(status: Status): List<NotificationUsageListScreenUiState.Filter> {
         return when (mode) {
             Mode.AddFromNotification -> listOf(Status.NotAdded, Status.Added)
             Mode.NotificationList -> listOf(Status.All, Status.Added, Status.NotAdded)
         }.map { filter ->
             NotificationUsageListScreenUiState.Filter(
                 label = filter.label,
-                selected = filter == this,
-                onClick = {
-                    statusStateFlow.value = filter
+                selected = filter == status,
+                listener = object : NotificationUsageListScreenUiState.FilterListener {
+                    override fun onClick() {
+                        statusStateFlow.value = filter
+                    }
                 },
             )
+        }
+    }
+
+    private fun createSearchListener(mode: Mode): NotificationUsageListScreenUiState.SearchListener? {
+        if (mode != Mode.NotificationList) return null
+        return object : NotificationUsageListScreenUiState.SearchListener {
+            override fun onSearchQueryChange(query: String) {
+                searchQueryStateFlow.value = query
+            }
         }
     }
 
@@ -293,19 +320,19 @@ public class NotificationUsageViewModel(
         val items: List<ItemSource>,
     )
 
-    private fun List<ItemSource>.filterByQuery(query: String): List<ItemSource> {
-        if (query.isBlank()) return this
+    private fun filterByQuery(items: List<ItemSource>, query: String): List<ItemSource> {
+        if (query.isBlank()) return items
         val q = query.lowercase()
-        return filter { source ->
+        return items.filter { source ->
             when (source) {
                 is ItemSource.Matched -> {
                     source.record.record.packageName.lowercase().contains(q) ||
-                            source.record.record.text.lowercase().contains(q)
+                        source.record.record.text.lowercase().contains(q)
                 }
 
                 is ItemSource.Raw -> {
                     source.record.packageName.lowercase().contains(q) ||
-                            source.record.text.lowercase().contains(q)
+                        source.record.text.lowercase().contains(q)
                 }
             }
         }
@@ -327,20 +354,22 @@ public class NotificationUsageViewModel(
         public fun showToast(text: String)
     }
 
-    private val Mode.title: String
-        get() = when (this) {
+    private fun modeTitle(mode: Mode): String {
+        return when (mode) {
             Mode.AddFromNotification -> "通知から追加"
             Mode.NotificationList -> "通知一覧"
         }
+    }
 
-    private val Mode.initialStatus: Status
-        get() = when (this) {
+    private fun initialStatus(mode: Mode): Status {
+        return when (mode) {
             Mode.AddFromNotification -> Status.NotAdded
             Mode.NotificationList -> Status.All
         }
+    }
 
-    private fun Mode.emptyText(status: Status): String {
-        return when (this) {
+    private fun emptyText(mode: Mode, status: Status): String {
+        return when (mode) {
             Mode.AddFromNotification -> status.addFromNotificationEmptyText
             Mode.NotificationList -> status.notificationListEmptyText
         }

@@ -35,49 +35,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
-import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
-import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
-
-public data class NotificationUsageListScreenUiState(
-    val title: String,
-    val items: ImmutableList<Item>,
-    val filters: ImmutableList<Filter>,
-    val showSearch: Boolean,
-    val onSearchQueryChange: ((String) -> Unit)?,
-    val emptyText: String,
-    val accessSection: AccessSection?,
-    val topBarActions: ImmutableList<TopBarAction>,
-    val kakeboScaffoldListener: KakeboScaffoldListener,
-) {
-    public data class AccessSection(
-        val title: String,
-        val description: String,
-        val buttonLabel: String? = null,
-        val onClickButton: (() -> Unit)? = null,
-    )
-
-    public data class Item(
-        val title: String,
-        val receivedAt: String,
-        val statusLabel: String,
-        val description: String,
-        val onClick: (() -> Unit)? = null,
-        val onClickCopyJson: (() -> Unit)? = null,
-    )
-
-    public data class Filter(
-        val label: String,
-        val selected: Boolean,
-        val onClick: () -> Unit,
-    )
-
-    public data class TopBarAction(
-        val label: String,
-        val onClick: () -> Unit,
-    )
-}
 
 @Composable
 public fun NotificationUsageListScreen(
@@ -101,7 +60,7 @@ public fun NotificationUsageListScreen(
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         uiState.topBarActions.forEach { action ->
-                            TextButton(onClick = action.onClick) {
+                            TextButton(onClick = { action.listener.onClick() }) {
                                 Text(action.label)
                             }
                         }
@@ -140,7 +99,7 @@ public fun NotificationUsageListScreen(
                             accessSection.buttonLabel?.let { buttonLabel ->
                                 Spacer(modifier = Modifier.height(12.dp))
                                 TextButton(
-                                    onClick = { accessSection.onClickButton?.invoke() },
+                                    onClick = { accessSection.listener?.onClickButton() },
                                 ) {
                                     Text(buttonLabel)
                                 }
@@ -159,7 +118,7 @@ public fun NotificationUsageListScreen(
                         uiState.filters.forEachIndexed { index, filter ->
                             FilterChip(
                                 selected = filter.selected,
-                                onClick = filter.onClick,
+                                onClick = { filter.listener.onClick() },
                                 label = {
                                     Text(filter.label)
                                 },
@@ -171,15 +130,16 @@ public fun NotificationUsageListScreen(
                     }
                 }
             }
-            if (uiState.showSearch) {
+            if (uiState.searchListener != null) {
                 item {
+                    val searchListener = uiState.searchListener
                     var textFieldValue by remember { mutableStateOf(TextFieldValue()) }
                     OutlinedTextField(
                         modifier = Modifier.fillMaxWidth(),
                         value = textFieldValue,
                         onValueChange = { newValue ->
                             textFieldValue = newValue
-                            uiState.onSearchQueryChange?.invoke(newValue.text)
+                            searchListener.onSearchQueryChange(newValue.text)
                         },
                         placeholder = { Text("検索") },
                         singleLine = true,
@@ -204,16 +164,14 @@ public fun NotificationUsageListScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .then(
-                                    if (item.onClick != null || item.onClickCopyJson != null) {
+                                    if (item.listener != null) {
                                         Modifier.pointerInput(item) {
                                             detectTapGestures(
                                                 onTap = {
-                                                    item.onClick?.invoke()
+                                                    item.listener.onClick()
                                                 },
                                                 onLongPress = {
-                                                    if (item.onClickCopyJson != null) {
-                                                        showMenu = true
-                                                    }
+                                                    showMenu = true
                                                 },
                                             )
                                         }
@@ -262,7 +220,7 @@ public fun NotificationUsageListScreen(
                                 text = { Text("JSONでコピー") },
                                 onClick = {
                                     showMenu = false
-                                    item.onClickCopyJson?.invoke()
+                                    item.listener?.onClickCopyJson()
                                 },
                             )
                         }
