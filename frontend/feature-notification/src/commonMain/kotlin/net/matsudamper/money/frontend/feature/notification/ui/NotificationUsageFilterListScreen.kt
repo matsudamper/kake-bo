@@ -28,8 +28,6 @@ import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 
 public data class NotificationUsageFilterListScreenUiState(
-    val title: String,
-    val description: String,
     val filters: ImmutableList<FilterItem>,
     val kakeboScaffoldListener: KakeboScaffoldListener,
 ) {
@@ -60,7 +58,7 @@ public fun NotificationUsageFilterListScreen(
                 title = {
                     Text(
                         modifier = Modifier.clickable { uiState.kakeboScaffoldListener.onClickTitle() },
-                        text = uiState.title,
+                        text = "通知フィルター",
                     )
                 },
                 windowInsets = windowInsets,

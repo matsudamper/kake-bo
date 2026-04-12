@@ -30,8 +30,6 @@ public class NotificationUsageFilterListViewModel(
 
     public val uiStateFlow: StateFlow<NotificationUsageFilterListScreenUiState> = MutableStateFlow(
         NotificationUsageFilterListScreenUiState(
-            title = "通知フィルター",
-            description = "フィルターごとに自動追加を切り替えます。ON にすると、その条件に一致した通知を受信時に自動追加します。未設定の項目は package 名 / 通知全文 / 0円 / 通知時刻で補完します。",
             filters = listOf<NotificationUsageFilterListScreenUiState.FilterItem>().toImmutableList(),
             kakeboScaffoldListener = object : KakeboScaffoldListener {
                 override fun onClickTitle() {
