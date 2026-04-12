@@ -132,20 +132,24 @@ public class NotificationUsageDetailViewModel(
             viewModelState.copy(linkedUsagesState = LinkedUsagesState.Loading)
         }
 
-        val usages = moneyUsageIds.mapNotNull { moneyUsageId ->
-            val result = runCatchingWithoutCancel {
-                graphqlClient.apolloClient
-                    .query(MoneyUsageScreenQuery(id = moneyUsageId))
-                    .fetchPolicy(FetchPolicy.NetworkOnly)
-                    .execute()
-            }.getOrNull()
+        val usages = kotlinx.coroutines.coroutineScope {
+            moneyUsageIds.map { moneyUsageId ->
+                kotlinx.coroutines.async {
+                    val result = runCatchingWithoutCancel {
+                        graphqlClient.apolloClient
+                            .query(MoneyUsageScreenQuery(id = moneyUsageId))
+                            .fetchPolicy(FetchPolicy.NetworkOnly)
+                            .execute()
+                    }.getOrNull()
 
-            val moneyUsage = result?.data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage
-            if (moneyUsage != null) {
-                moneyUsageId to moneyUsage
-            } else {
-                null
-            }
+                    val moneyUsage = result?.data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage
+                    if (moneyUsage != null) {
+                        moneyUsageId to moneyUsage
+                    } else {
+                        null
+                    }
+                }
+            }.mapNotNull { it.await() }
         }
 
         viewModelStateFlow.update { viewModelState ->
