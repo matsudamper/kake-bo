@@ -33,9 +33,8 @@ public class NotificationUsageListenerService : NotificationListenerService() {
     }
 
     private fun persist(sbn: StatusBarNotification) {
-        val repository = GlobalContext.getOrNull()?.get<NotificationUsageRepository>()
-            ?: return
-        val autoAddProcessor = GlobalContext.getOrNull()?.get<NotificationUsageAutoAddProcessor>()
+        val repository = GlobalContext.get().get<NotificationUsageRepository>()
+        val autoAddProcessor = GlobalContext.get().get<NotificationUsageAutoAddProcessor>()
         val text = NotificationTextExtractor.extract(sbn.notification)
         val postedAtEpochMillis = sbn.postTime
         val packageName = sbn.packageName
@@ -48,7 +47,7 @@ public class NotificationUsageListenerService : NotificationListenerService() {
         )
         scope.launch {
             val storedNotificationKey = repository.upsertNotification(input)
-            autoAddProcessor?.process(storedNotificationKey)
+            autoAddProcessor.process(storedNotificationKey)
         }
     }
 }
