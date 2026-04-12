@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.feature.notification.viewmodel
 
 import kotlin.time.Instant
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -96,7 +97,7 @@ public class NotificationUsageViewModel(
         }
     }.asStateFlow()
 
-    @Suppress("OPT_IN_USAGE")
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun itemsFlow(): Flow<List<ItemSource>> {
         return viewModelStateFlow.map { it.status }.flatMapLatest { status ->
             when (status) {
