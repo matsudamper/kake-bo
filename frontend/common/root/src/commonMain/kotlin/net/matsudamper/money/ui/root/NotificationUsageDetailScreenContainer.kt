@@ -32,7 +32,7 @@ internal fun NotificationUsageDetailScreenContainer(
         )
     }
 
-    LaunchedEffect(viewModel.eventHandler) {
+    LaunchedEffect(viewModelEventHandlers, viewModel.eventHandler) {
         viewModelEventHandlers.handleNotificationUsageDetail(viewModel.eventHandler)
     }
 
