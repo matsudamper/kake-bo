@@ -52,6 +52,8 @@ kotlin {
 
                 implementation(libs.composeRuntime)
                 implementation(libs.composeUi)
+
+                implementation(libs.androidxCoreKtx)
             }
         }
         val jvmTest by getting {

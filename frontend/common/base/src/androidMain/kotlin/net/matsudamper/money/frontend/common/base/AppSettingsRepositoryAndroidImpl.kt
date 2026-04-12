@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.common.base
 
 import android.content.Context
+import androidx.core.content.edit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -16,7 +17,7 @@ public class AppSettingsRepositoryAndroidImpl(context: Context) : AppSettingsRep
     override val showImagesInMonthlyScreen: Flow<Boolean> = _showImagesInMonthlyScreen
 
     override fun setShowImagesInMonthlyScreen(value: Boolean) {
-        prefs.edit().putBoolean(showImagesKey, value).apply()
+        prefs.edit { putBoolean(showImagesKey, value) }
         _showImagesInMonthlyScreen.value = value
     }
 
@@ -31,7 +32,7 @@ public class AppSettingsRepositoryAndroidImpl(context: Context) : AppSettingsRep
     }
 
     override fun setNotificationUsageAutoAddEnabled(filterId: String, value: Boolean) {
-        prefs.edit().putBoolean(notificationUsageAutoAddEnabledKey(filterId), value).apply()
+        prefs.edit { putBoolean(notificationUsageAutoAddEnabledKey(filterId), value) }
         synchronized(notificationUsageAutoAddEnabledFlows) {
             notificationUsageAutoAddEnabledFlows.getOrPut(filterId) {
                 MutableStateFlow(value)
