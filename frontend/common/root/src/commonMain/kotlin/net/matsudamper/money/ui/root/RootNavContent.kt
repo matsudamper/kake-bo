@@ -54,6 +54,13 @@ import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.subcate
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.PresetDetailViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.PresetListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.PresetScreenApi
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageAccessGateway
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageParser
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
+import net.matsudamper.money.frontend.feature.notification.ui.NotificationUsageFilterListScreen
+import net.matsudamper.money.frontend.feature.notification.ui.NotificationUsageListScreen
+import net.matsudamper.money.frontend.feature.notification.viewmodel.NotificationUsageFilterListViewModel
+import net.matsudamper.money.frontend.feature.notification.viewmodel.NotificationUsageViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 private enum class SavedStateHolderKey {
@@ -375,16 +382,41 @@ internal fun RootNavContent(
                             ScreenStructure.Root.Add.NotificationUsage,
                             ScreenStructure.Root.Add.NotificationUsageDebug,
                             -> {
-                                NotificationUsageScreenContainer(
-                                    current = current,
-                                    eventHandlerCollector = { viewModelEventHandlers.handleNotificationUsage(it) },
+                                val mode = when (current) {
+                                    ScreenStructure.Root.Add.NotificationUsage -> NotificationUsageViewModel.Mode.AddFromNotification
+                                    ScreenStructure.Root.Add.NotificationUsageDebug -> NotificationUsageViewModel.Mode.NotificationList
+                                    else -> error("Unsupported screen: $current")
+                                }
+                                val viewModel = LocalScopedObjectStore.current.putOrGet(current) {
+                                    NotificationUsageViewModel(
+                                        scopedObjectFeature = it,
+                                        mode = mode,
+                                        repository = koin.get<NotificationUsageRepository>(),
+                                        accessGateway = koin.get<NotificationUsageAccessGateway>(),
+                                    )
+                                }
+                                LaunchedEffect(viewModel.eventHandler) {
+                                    viewModelEventHandlers.handleNotificationUsage(viewModel.eventHandler)
+                                }
+                                NotificationUsageListScreen(
+                                    modifier = Modifier.fillMaxSize(),
+                                    uiState = viewModel.uiStateFlow.collectAsState().value,
                                     windowInsets = windowInsets,
                                 )
                             }
 
                             ScreenStructure.Root.Add.NotificationUsageFilters -> {
-                                NotificationUsageFilterListScreenContainer(
-                                    navController = navController,
+                                val viewModel = LocalScopedObjectStore.current.putOrGet<NotificationUsageFilterListViewModel>(Unit) {
+                                    NotificationUsageFilterListViewModel(
+                                        scopedObjectFeature = it,
+                                        appSettingsRepository = koin.get<AppSettingsRepository>(),
+                                        parsers = runCatching { koin.getAll<NotificationUsageParser>() }.getOrDefault(listOf()),
+                                        navController = navController,
+                                    )
+                                }
+                                NotificationUsageFilterListScreen(
+                                    modifier = Modifier.fillMaxSize(),
+                                    uiState = viewModel.uiStateFlow.collectAsState().value,
                                     windowInsets = windowInsets,
                                 )
                             }
