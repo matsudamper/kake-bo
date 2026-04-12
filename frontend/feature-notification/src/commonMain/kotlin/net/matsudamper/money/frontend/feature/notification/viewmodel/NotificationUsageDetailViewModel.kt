@@ -61,7 +61,7 @@ public class NotificationUsageDetailViewModel(
             viewModelStateFlow.collectLatest { viewModelState ->
                 uiStateFlow.update { uiState ->
                     uiState.copy(
-                        loadingState = viewModelState.toLoadingState(),
+                        loadingState = createLoadingState(viewModelState),
                     )
                 }
             }
@@ -82,23 +82,23 @@ public class NotificationUsageDetailViewModel(
         }
     }.asStateFlow()
 
-    private fun ViewModelState.toLoadingState(): NotificationUsageDetailScreenUiState.LoadingState {
-        val detail = when (val detailState = detailState) {
+    private fun createLoadingState(viewModelState: ViewModelState): NotificationUsageDetailScreenUiState.LoadingState {
+        val detail = when (val detailState = viewModelState.detailState) {
             DetailState.Loading -> return NotificationUsageDetailScreenUiState.LoadingState.Loading
             DetailState.NotFound -> return NotificationUsageDetailScreenUiState.LoadingState.NotFound
             is DetailState.Loaded -> detailState.detail
         }
 
         return NotificationUsageDetailScreenUiState.LoadingState.Loaded(
-            notification = detail.record.toNotificationUiState(),
-            filter = detail.matched.toFilterUiState(),
-            draft = detail.matched?.toDraftUiState(),
+            notification = createNotificationUiState(detail.record),
+            filter = createFilterUiState(detail.matched),
+            draft = if (detail.matched != null) createDraftUiState(detail.matched) else null,
             canRegister = detail.record.isAdded.not(),
-            linkedUsage = linkedUsageState.toUiState(),
+            linkedUsage = createLinkedUsageUiState(viewModelState.linkedUsageState),
             event = object : NotificationUsageDetailScreenUiState.LoadedEvent {
                 override fun onClickRegister() {
                     viewModelScope.launch {
-                        eventSender.send { it.navigate(detail.toAddMoneyUsageScreen()) }
+                        eventSender.send { it.navigate(createAddMoneyUsageScreen(detail)) }
                     }
                 }
             },
@@ -142,59 +142,60 @@ public class NotificationUsageDetailViewModel(
         }
     }
 
-    private fun NotificationUsageRecord.toNotificationUiState(): NotificationUsageDetailScreenUiState.Notification {
+    private fun createNotificationUiState(record: NotificationUsageRecord): NotificationUsageDetailScreenUiState.Notification {
         return NotificationUsageDetailScreenUiState.Notification(
-            packageName = packageName,
-            status = if (isAdded) "追加済み" else "未追加",
-            postedAt = Formatter.formatDateTime(postedAtEpochMillis.toLocalDateTime()),
-            receivedAt = Formatter.formatDateTime(receivedAtEpochMillis.toLocalDateTime()),
-            text = text.ifBlank { "(テキストなし)" },
+            packageName = record.packageName,
+            status = if (record.isAdded) "追加済み" else "未追加",
+            postedAt = Formatter.formatDateTime(toLocalDateTime(record.postedAtEpochMillis)),
+            receivedAt = Formatter.formatDateTime(toLocalDateTime(record.receivedAtEpochMillis)),
+            text = record.text.ifBlank { "(テキストなし)" },
         )
     }
 
-    private fun NotificationUsageMatchedRecord?.toFilterUiState(): NotificationUsageDetailScreenUiState.Filter {
-        if (this == null) {
+    private fun createFilterUiState(matched: NotificationUsageMatchedRecord?): NotificationUsageDetailScreenUiState.Filter {
+        if (matched == null) {
             return NotificationUsageDetailScreenUiState.Filter.NotMatched
         }
         return NotificationUsageDetailScreenUiState.Filter.Matched(
-            title = filterDefinition.title,
-            description = filterDefinition.description,
+            title = matched.filterDefinition.title,
+            description = matched.filterDefinition.description,
         )
     }
 
-    private fun NotificationUsageMatchedRecord.toDraftUiState(): NotificationUsageDetailScreenUiState.Draft {
+    private fun createDraftUiState(matched: NotificationUsageMatchedRecord): NotificationUsageDetailScreenUiState.Draft {
         return NotificationUsageDetailScreenUiState.Draft(
-            title = draft.title ?: record.packageName,
-            description = draft.description ?: record.text,
-            amount = draft.amount?.let { "${Formatter.formatMoney(it)}円" }.orEmpty(),
-            dateTime = draft.dateTime?.let { Formatter.formatDateTime(it) }.orEmpty(),
-            subCategory = draft.subCategoryId?.id?.toString().orEmpty(),
+            title = matched.draft.title ?: matched.record.packageName,
+            description = matched.draft.description ?: matched.record.text,
+            amount = matched.draft.amount?.let { "${Formatter.formatMoney(it)}円" }.orEmpty(),
+            dateTime = matched.draft.dateTime?.let { Formatter.formatDateTime(it) }.orEmpty(),
+            subCategory = matched.draft.subCategoryId?.id?.toString().orEmpty(),
         )
     }
 
-    private fun LinkedUsageState.toUiState(): NotificationUsageDetailScreenUiState.LinkedUsageState {
-        return when (this) {
+    private fun createLinkedUsageUiState(linkedUsageState: LinkedUsageState): NotificationUsageDetailScreenUiState.LinkedUsageState {
+        return when (linkedUsageState) {
             LinkedUsageState.None -> NotificationUsageDetailScreenUiState.LinkedUsageState.None
             is LinkedUsageState.Loading -> NotificationUsageDetailScreenUiState.LinkedUsageState.Loading
             LinkedUsageState.MissingUsageId -> NotificationUsageDetailScreenUiState.LinkedUsageState.MissingUsageId
             is LinkedUsageState.Error -> NotificationUsageDetailScreenUiState.LinkedUsageState.Error
             is LinkedUsageState.Loaded -> NotificationUsageDetailScreenUiState.LinkedUsageState.Loaded(
-                usage = moneyUsage.toLinkedUsageUiState(moneyUsageId),
+                usage = createLinkedUsageItemUiState(linkedUsageState.moneyUsageId, linkedUsageState.moneyUsage),
             )
         }
     }
 
-    private fun MoneyUsageScreenMoneyUsage.toLinkedUsageUiState(
+    private fun createLinkedUsageItemUiState(
         moneyUsageId: MoneyUsageId,
+        moneyUsage: MoneyUsageScreenMoneyUsage,
     ): NotificationUsageDetailScreenUiState.LinkedUsage {
         return NotificationUsageDetailScreenUiState.LinkedUsage(
-            title = title,
+            title = moneyUsage.title,
             category = run {
-                val subCategory = moneyUsageSubCategory ?: return@run "未指定"
+                val subCategory = moneyUsage.moneyUsageSubCategory ?: return@run "未指定"
                 "${subCategory.category.name} / ${subCategory.name}"
             },
-            amount = "${Formatter.formatMoney(amount)}円",
-            dateTime = Formatter.formatDateTime(date),
+            amount = "${Formatter.formatMoney(moneyUsage.amount)}円",
+            dateTime = Formatter.formatDateTime(moneyUsage.date),
             event = object : NotificationUsageDetailScreenUiState.LinkedUsageEvent {
                 override fun onClick() {
                     viewModelScope.launch {
@@ -205,15 +206,15 @@ public class NotificationUsageDetailViewModel(
         )
     }
 
-    private fun NotificationUsageDetail.toAddMoneyUsageScreen(): ScreenStructure.AddMoneyUsage {
-        val draft = matched?.draft
+    private fun createAddMoneyUsageScreen(detail: NotificationUsageDetail): ScreenStructure.AddMoneyUsage {
+        val draft = detail.matched?.draft
         val description = buildString {
             val draftDesc = draft?.description
             if (!draftDesc.isNullOrBlank()) {
                 append(draftDesc)
                 append("\n")
             }
-            append(record.text)
+            append(detail.record.text)
         }
         return ScreenStructure.AddMoneyUsage(
             title = draft?.title,
@@ -221,12 +222,12 @@ public class NotificationUsageDetailViewModel(
             price = draft?.amount?.toFloat(),
             date = draft?.dateTime,
             subCategoryId = draft?.subCategoryId?.id?.toString(),
-            notificationUsageKey = record.notificationKey,
+            notificationUsageKey = detail.record.notificationKey,
         )
     }
 
-    private fun Long.toLocalDateTime(): kotlinx.datetime.LocalDateTime {
-        return Instant.fromEpochMilliseconds(this)
+    private fun toLocalDateTime(epochMillis: Long): kotlinx.datetime.LocalDateTime {
+        return Instant.fromEpochMilliseconds(epochMillis)
             .toLocalDateTime(TimeZone.currentSystemDefault())
     }
 
