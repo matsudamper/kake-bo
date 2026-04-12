@@ -1,7 +1,7 @@
 package net.matsudamper.money.backend.datasource.session
 
+import java.time.Clock
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import net.matsudamper.money.backend.app.interfaces.UserSessionRepository
@@ -9,7 +9,9 @@ import net.matsudamper.money.backend.app.interfaces.element.UserSessionId
 import net.matsudamper.money.backend.base.TraceLogger
 import net.matsudamper.money.element.UserId
 
-internal class LocalUserSessionRepository : UserSessionRepository {
+internal class LocalUserSessionRepository(
+    private val clock: Clock,
+) : UserSessionRepository {
 
     private val sessions = ConcurrentHashMap<UserSessionId, SessionData>()
     private val userSessions = ConcurrentHashMap<UserId, MutableSet<UserSessionId>>()
@@ -31,7 +33,7 @@ internal class LocalUserSessionRepository : UserSessionRepository {
 
     override fun createSession(userId: UserId): UserSessionRepository.CreateSessionResult {
         val sessionId = UserSessionId(UUID.randomUUID().toString().replace("-", ""))
-        val now = LocalDateTime.now(ZoneOffset.UTC)
+        val now = LocalDateTime.now(clock)
 
         val sessionData = SessionData(
             userId = userId.value,
@@ -54,7 +56,7 @@ internal class LocalUserSessionRepository : UserSessionRepository {
     ): UserSessionRepository.VerifySessionResult {
         val sessionData = sessions[sessionId] ?: return UserSessionRepository.VerifySessionResult.Failure
 
-        val now = LocalDateTime.now(ZoneOffset.UTC)
+        val now = LocalDateTime.now(clock)
         sessions[sessionId] = sessionData.copy(latestAccess = now.toString())
 
         return UserSessionRepository.VerifySessionResult.Success(
@@ -71,7 +73,7 @@ internal class LocalUserSessionRepository : UserSessionRepository {
         } catch (e: Throwable) {
             TraceLogger.impl().noticeThrowable(e, true)
             TraceLogger.impl().setAttribute("jsonData", sessionData.toString())
-            LocalDateTime.now(ZoneOffset.UTC)
+            LocalDateTime.now(clock)
         }
         return UserSessionRepository.SessionInfo(
             name = sessionData.sessionName,
@@ -89,7 +91,7 @@ internal class LocalUserSessionRepository : UserSessionRepository {
                 } catch (e: Throwable) {
                     TraceLogger.impl().noticeThrowable(e, true)
                     TraceLogger.impl().setAttribute("latestAccess", data.latestAccess)
-                    LocalDateTime.now(ZoneOffset.UTC)
+                    LocalDateTime.now(clock)
                 }
                 UserSessionRepository.SessionInfo(
                     name = data.sessionName,
@@ -135,7 +137,7 @@ internal class LocalUserSessionRepository : UserSessionRepository {
         } catch (e: Throwable) {
             TraceLogger.impl().noticeThrowable(e, true)
             TraceLogger.impl().setAttribute("latestAccess", updatedSessionData.latestAccess)
-            LocalDateTime.now(ZoneOffset.UTC)
+            LocalDateTime.now(clock)
         }
 
         return UserSessionRepository.SessionInfo(
@@ -147,7 +149,7 @@ internal class LocalUserSessionRepository : UserSessionRepository {
     private data class SessionData(
         val userId: Int,
         val sessionName: String = "",
-        val latestAccess: String = LocalDateTime.now(ZoneOffset.UTC).toString(),
+        val latestAccess: String,
         val sessionId: String,
     )
 }

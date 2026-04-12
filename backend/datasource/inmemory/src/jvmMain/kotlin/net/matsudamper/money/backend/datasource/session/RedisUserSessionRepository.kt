@@ -1,7 +1,7 @@
 package net.matsudamper.money.backend.datasource.session
 
+import java.time.Clock
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.util.UUID
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -25,6 +25,7 @@ internal class RedisUserSessionRepository(
     host: String,
     port: Int,
     index: Int,
+    private val clock: Clock,
 ) : UserSessionRepository {
     private val redisClient: RedisClient = run {
         val uri = RedisURI.Builder.redis(host, port).withDatabase(index).build()
@@ -72,7 +73,7 @@ internal class RedisUserSessionRepository(
 
     override fun createSession(userId: UserId): UserSessionRepository.CreateSessionResult {
         val sessionId = UserSessionId(UUID.randomUUID().toString().replace("-", ""))
-        val now = LocalDateTime.now(ZoneOffset.UTC)
+        val now = LocalDateTime.now(clock)
 
         val sessionData = SessionData(
             userId = userId.value,
@@ -101,7 +102,7 @@ internal class RedisUserSessionRepository(
         sessionId: UserSessionId,
         expireDay: Long,
     ): UserSessionRepository.VerifySessionResult {
-        val now = LocalDateTime.now(ZoneOffset.UTC)
+        val now = LocalDateTime.now(clock)
 
         val sessionKey = getSessionKey(sessionId)
         val jsonData = commands.get(sessionKey) ?: return UserSessionRepository.VerifySessionResult.Failure
@@ -148,7 +149,7 @@ internal class RedisUserSessionRepository(
         } catch (e: Throwable) {
             TraceLogger.impl().noticeThrowable(e, true)
             TraceLogger.impl().setAttribute("latestAccess", sessionData.latestAccess)
-            LocalDateTime.now(ZoneOffset.UTC)
+            LocalDateTime.now(clock)
         }
 
         return UserSessionRepository.SessionInfo(
@@ -178,7 +179,7 @@ internal class RedisUserSessionRepository(
             } catch (e: Throwable) {
                 TraceLogger.impl().noticeThrowable(e, true)
                 TraceLogger.impl().setAttribute("latestAccess", sessionData.latestAccess)
-                LocalDateTime.now(ZoneOffset.UTC)
+                LocalDateTime.now(clock)
             }
 
             UserSessionRepository.SessionInfo(
@@ -228,7 +229,7 @@ internal class RedisUserSessionRepository(
         } catch (e: Throwable) {
             TraceLogger.impl().noticeThrowable(e, true)
             TraceLogger.impl().setAttribute("latestAccess", sessionData.latestAccess)
-            LocalDateTime.now(ZoneOffset.UTC)
+            LocalDateTime.now(clock)
         }
 
         if (oldName.isNotEmpty()) {
@@ -257,6 +258,6 @@ internal class RedisUserSessionRepository(
     private data class SessionData(
         val userId: Int,
         val sessionName: String = "",
-        val latestAccess: String = LocalDateTime.now(ZoneOffset.UTC).toString(),
+        val latestAccess: String,
     )
 }
