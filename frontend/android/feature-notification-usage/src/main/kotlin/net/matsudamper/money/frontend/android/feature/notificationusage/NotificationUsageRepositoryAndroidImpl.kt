@@ -17,7 +17,7 @@ internal class NotificationUsageRepositoryAndroidImpl(
     override fun notificationsFlow(): Flow<List<NotificationUsageRecord>> {
         return dao.observeAll().map { entities ->
             entities.map { entity ->
-                entity.toRecord()
+                entityToRecord(entity)
             }
         }
     }
@@ -25,8 +25,8 @@ internal class NotificationUsageRepositoryAndroidImpl(
     override fun unaddedMatchedNotificationsFlow(): Flow<List<NotificationUsageMatchedRecord>> {
         return dao.observeNotAdded().map { entities ->
             entities.mapNotNull { entity ->
-                val record = entity.toRecord()
-                record.toMatchedRecord()
+                val record = entityToRecord(entity)
+                recordToMatchedRecord(record)
             }
         }
     }
@@ -34,7 +34,7 @@ internal class NotificationUsageRepositoryAndroidImpl(
     override fun notAddedNotificationsFlow(): Flow<List<NotificationUsageRecord>> {
         return dao.observeNotAdded().map { entities ->
             entities.map { entity ->
-                entity.toRecord()
+                entityToRecord(entity)
             }
         }
     }
@@ -42,23 +42,23 @@ internal class NotificationUsageRepositoryAndroidImpl(
     override fun addedNotificationsFlow(): Flow<List<NotificationUsageRecord>> {
         return dao.observeAdded().map { entities ->
             entities.map { entity ->
-                entity.toRecord()
+                entityToRecord(entity)
             }
         }
     }
 
     override fun notificationDetailFlow(notificationKey: String): Flow<NotificationUsageDetail?> {
         return dao.observeByKey(notificationKey).map { entity ->
-            val record = entity?.toRecord() ?: return@map null
+            val record = if (entity != null) entityToRecord(entity) else return@map null
             NotificationUsageDetail(
                 record = record,
-                matched = record.toMatchedRecord(),
+                matched = recordToMatchedRecord(record),
             )
         }
     }
 
     override suspend fun upsertNotification(record: NotificationUsageRecordInput): String {
-        val notificationKey = record.resolveNotificationKey()
+        val notificationKey = resolveNotificationKey(record)
         dao.insert(
             NotificationUsageEntity(
                 notificationKey = notificationKey,
@@ -75,42 +75,42 @@ internal class NotificationUsageRepositoryAndroidImpl(
         dao.markAsAdded(notificationKey, moneyUsageId?.id)
     }
 
-    private fun NotificationUsageEntity.toRecord(): NotificationUsageRecord {
+    private fun entityToRecord(entity: NotificationUsageEntity): NotificationUsageRecord {
         return NotificationUsageRecord(
-            notificationKey = notificationKey,
-            packageName = packageName,
-            text = text,
-            postedAtEpochMillis = postedAtEpochMillis,
-            receivedAtEpochMillis = receivedAtEpochMillis,
-            isAdded = isAdded,
-            moneyUsageId = moneyUsageId?.let { MoneyUsageId(it) },
+            notificationKey = entity.notificationKey,
+            packageName = entity.packageName,
+            text = entity.text,
+            postedAtEpochMillis = entity.postedAtEpochMillis,
+            receivedAtEpochMillis = entity.receivedAtEpochMillis,
+            isAdded = entity.isAdded,
+            moneyUsageId = entity.moneyUsageId?.let { MoneyUsageId(it) },
         )
     }
 
-    private suspend fun NotificationUsageRecordInput.resolveNotificationKey(): String {
-        val legacyEntity = dao.findByKey(notificationKey)
-        if (legacyEntity != null && legacyEntity.hasSameNotificationValue(this)) {
-            return notificationKey
+    private suspend fun resolveNotificationKey(record: NotificationUsageRecordInput): String {
+        val legacyEntity = dao.findByKey(record.notificationKey)
+        if (legacyEntity != null && hasSameNotificationValue(legacyEntity, record)) {
+            return record.notificationKey
         }
         return NotificationUsageKeyBuilder.build(
-            notificationKey = notificationKey,
-            packageName = packageName,
-            text = text,
-            postedAtEpochMillis = postedAtEpochMillis,
+            notificationKey = record.notificationKey,
+            packageName = record.packageName,
+            text = record.text,
+            postedAtEpochMillis = record.postedAtEpochMillis,
         )
     }
 
-    private fun NotificationUsageEntity.hasSameNotificationValue(record: NotificationUsageRecordInput): Boolean {
-        return packageName == record.packageName &&
-            text == record.text &&
-            postedAtEpochMillis == record.postedAtEpochMillis
+    private fun hasSameNotificationValue(entity: NotificationUsageEntity, record: NotificationUsageRecordInput): Boolean {
+        return entity.packageName == record.packageName &&
+            entity.text == record.text &&
+            entity.postedAtEpochMillis == record.postedAtEpochMillis
     }
 
-    private fun NotificationUsageRecord.toMatchedRecord(): NotificationUsageMatchedRecord? {
+    private fun recordToMatchedRecord(record: NotificationUsageRecord): NotificationUsageMatchedRecord? {
         return parsers.firstNotNullOfOrNull { parser ->
-            val draft = parser.parse(this) ?: return@firstNotNullOfOrNull null
+            val draft = parser.parse(record) ?: return@firstNotNullOfOrNull null
             NotificationUsageMatchedRecord(
-                record = this,
+                record = record,
                 draft = draft,
                 filterDefinition = parser.filterDefinition,
             )
