@@ -109,13 +109,10 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
 
         Screens.SettingsTextFieldTest -> ScreenStructure.Root.Settings.TextFieldTest
         Screens.AddPresets -> ScreenStructure.Root.Add.Preset
-        Screens.AddNotificationUsage -> ScreenStructure.Root.Add.NotificationUsage
-        Screens.AddNotificationUsageFilters -> ScreenStructure.Root.Add.NotificationUsageFilters
-        Screens.NotificationUsageDetail ->
-            ScreenStructure.NotificationUsageDetail.fromQueryParams(
-                queryParams = queryParams,
-            ) ?: ScreenStructure.NotFound
-        Screens.AddNotificationUsageDebug -> ScreenStructure.Root.Add.NotificationUsageDebug
+        Screens.AddNotificationUsage -> ScreenStructure.NotFound
+        Screens.AddNotificationUsageFilters -> ScreenStructure.NotFound
+        Screens.NotificationUsageDetail -> ScreenStructure.NotFound
+        Screens.AddNotificationUsageDebug -> ScreenStructure.NotFound
         Screens.AddPresetDetail -> {
             ScreenStructure.Root.Add.PresetDetail(
                 id = run id@{
