@@ -80,7 +80,7 @@ public class NotificationUsageDetailViewModel(
                         },
                     )
                 }
-                fetchLinkedUsage(detail?.record?.moneyUsageId)
+                fetchLinkedUsages(detail?.record?.moneyUsageIds.orEmpty())
             }
         }
     }
@@ -97,8 +97,7 @@ public class NotificationUsageDetailViewModel(
             notification = createNotificationUiState(detail.record),
             filter = createFilterUiState(matched),
             draft = if (matched != null) createDraftUiState(matched) else null,
-            canRegister = detail.record.isAdded.not(),
-            linkedUsage = createLinkedUsageUiState(viewModelState.linkedUsageState),
+            linkedUsages = createLinkedUsagesUiState(viewModelState.linkedUsagesState),
             metadataDialog = if (viewModelState.showMetadataDialog) {
                 NotificationUsageDetailScreenUiState.MetadataDialog(
                     text = detail.record.notificationMetadata,
@@ -121,47 +120,54 @@ public class NotificationUsageDetailViewModel(
         )
     }
 
-    private suspend fun fetchLinkedUsage(moneyUsageId: MoneyUsageId?) {
-        if (moneyUsageId == null) {
-            val detail = viewModelStateFlow.value.detailState as? DetailState.Loaded
+    private suspend fun fetchLinkedUsages(moneyUsageIds: List<MoneyUsageId>) {
+        if (moneyUsageIds.isEmpty()) {
             viewModelStateFlow.update { viewModelState ->
-                viewModelState.copy(
-                    linkedUsageState = if (detail?.detail?.record?.isAdded == true) {
-                        LinkedUsageState.MissingUsageId
-                    } else {
-                        LinkedUsageState.None
-                    },
-                )
+                viewModelState.copy(linkedUsagesState = LinkedUsagesState.None)
             }
             return
         }
 
         viewModelStateFlow.update { viewModelState ->
-            viewModelState.copy(linkedUsageState = LinkedUsageState.Loading(moneyUsageId))
+            viewModelState.copy(linkedUsagesState = LinkedUsagesState.Loading)
         }
-        val result = runCatchingWithoutCancel {
-            graphqlClient.apolloClient
-                .query(MoneyUsageScreenQuery(id = moneyUsageId))
-                .fetchPolicy(FetchPolicy.NetworkOnly)
-                .execute()
-        }.getOrNull()
 
-        val moneyUsage = result?.data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage
+        val usages = moneyUsageIds.mapNotNull { moneyUsageId ->
+            val result = runCatchingWithoutCancel {
+                graphqlClient.apolloClient
+                    .query(MoneyUsageScreenQuery(id = moneyUsageId))
+                    .fetchPolicy(FetchPolicy.NetworkOnly)
+                    .execute()
+            }.getOrNull()
+
+            val moneyUsage = result?.data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage
+            if (moneyUsage != null) {
+                moneyUsageId to moneyUsage
+            } else {
+                null
+            }
+        }
+
         viewModelStateFlow.update { viewModelState ->
             viewModelState.copy(
-                linkedUsageState = if (result == null || result.hasErrors() || moneyUsage == null) {
-                    LinkedUsageState.Error(moneyUsageId)
+                linkedUsagesState = if (usages.isEmpty()) {
+                    LinkedUsagesState.None
                 } else {
-                    LinkedUsageState.Loaded(moneyUsageId, moneyUsage)
+                    LinkedUsagesState.Loaded(usages)
                 },
             )
         }
     }
 
     private fun createNotificationUiState(record: NotificationUsageRecord): NotificationUsageDetailScreenUiState.Notification {
+        val statusText = when (record.moneyUsageIds.size) {
+            0 -> "未追加"
+            1 -> "追加済み"
+            else -> "${record.moneyUsageIds.size}件追加済み"
+        }
         return NotificationUsageDetailScreenUiState.Notification(
             packageName = record.packageName,
-            status = if (record.isAdded) "追加済み" else "未追加",
+            status = statusText,
             postedAt = Formatter.formatDateTime(toLocalDateTime(record.postedAtEpochMillis)),
             receivedAt = Formatter.formatDateTime(toLocalDateTime(record.receivedAtEpochMillis)),
             text = record.text.ifBlank { "(テキストなし)" },
@@ -194,14 +200,14 @@ public class NotificationUsageDetailViewModel(
         )
     }
 
-    private fun createLinkedUsageUiState(linkedUsageState: LinkedUsageState): NotificationUsageDetailScreenUiState.LinkedUsageState {
-        return when (linkedUsageState) {
-            LinkedUsageState.None -> NotificationUsageDetailScreenUiState.LinkedUsageState.None
-            is LinkedUsageState.Loading -> NotificationUsageDetailScreenUiState.LinkedUsageState.Loading
-            LinkedUsageState.MissingUsageId -> NotificationUsageDetailScreenUiState.LinkedUsageState.MissingUsageId
-            is LinkedUsageState.Error -> NotificationUsageDetailScreenUiState.LinkedUsageState.Error
-            is LinkedUsageState.Loaded -> NotificationUsageDetailScreenUiState.LinkedUsageState.Loaded(
-                usage = createLinkedUsageItemUiState(linkedUsageState.moneyUsageId, linkedUsageState.moneyUsage),
+    private fun createLinkedUsagesUiState(linkedUsagesState: LinkedUsagesState): NotificationUsageDetailScreenUiState.LinkedUsagesState {
+        return when (linkedUsagesState) {
+            LinkedUsagesState.None -> NotificationUsageDetailScreenUiState.LinkedUsagesState.None
+            LinkedUsagesState.Loading -> NotificationUsageDetailScreenUiState.LinkedUsagesState.Loading
+            is LinkedUsagesState.Loaded -> NotificationUsageDetailScreenUiState.LinkedUsagesState.Loaded(
+                usages = linkedUsagesState.usages.map { (moneyUsageId, moneyUsage) ->
+                    createLinkedUsageItemUiState(moneyUsageId, moneyUsage)
+                },
             )
         }
     }
@@ -269,24 +275,19 @@ public class NotificationUsageDetailViewModel(
         data class Loaded(val detail: NotificationUsageDetail) : DetailState
     }
 
-    private sealed interface LinkedUsageState {
-        data object None : LinkedUsageState
+    private sealed interface LinkedUsagesState {
+        data object None : LinkedUsagesState
 
-        data class Loading(val moneyUsageId: MoneyUsageId) : LinkedUsageState
-
-        data object MissingUsageId : LinkedUsageState
-
-        data class Error(val moneyUsageId: MoneyUsageId) : LinkedUsageState
+        data object Loading : LinkedUsagesState
 
         data class Loaded(
-            val moneyUsageId: MoneyUsageId,
-            val moneyUsage: MoneyUsageScreenMoneyUsage,
-        ) : LinkedUsageState
+            val usages: List<Pair<MoneyUsageId, MoneyUsageScreenMoneyUsage>>,
+        ) : LinkedUsagesState
     }
 
     private data class ViewModelState(
         val detailState: DetailState = DetailState.Loading,
-        val linkedUsageState: LinkedUsageState = LinkedUsageState.None,
+        val linkedUsagesState: LinkedUsagesState = LinkedUsagesState.None,
         val showMetadataDialog: Boolean = false,
     )
 }

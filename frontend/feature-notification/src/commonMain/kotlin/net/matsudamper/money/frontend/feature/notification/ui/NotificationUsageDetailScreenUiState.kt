@@ -15,8 +15,7 @@ public data class NotificationUsageDetailScreenUiState(
             val notification: Notification,
             val filter: Filter,
             val draft: Draft?,
-            val canRegister: Boolean,
-            val linkedUsage: LinkedUsageState,
+            val linkedUsages: LinkedUsagesState,
             val metadataDialog: MetadataDialog?,
             val event: LoadedEvent,
         ) : LoadingState
@@ -64,18 +63,14 @@ public data class NotificationUsageDetailScreenUiState(
         val subCategory: String,
     )
 
-    public sealed interface LinkedUsageState {
-        public data object None : LinkedUsageState
+    public sealed interface LinkedUsagesState {
+        public data object None : LinkedUsagesState
 
-        public data object Loading : LinkedUsageState
-
-        public data object MissingUsageId : LinkedUsageState
-
-        public data object Error : LinkedUsageState
+        public data object Loading : LinkedUsagesState
 
         public data class Loaded(
-            val usage: LinkedUsage,
-        ) : LinkedUsageState
+            val usages: List<LinkedUsage>,
+        ) : LinkedUsagesState
     }
 
     public data class LinkedUsage(

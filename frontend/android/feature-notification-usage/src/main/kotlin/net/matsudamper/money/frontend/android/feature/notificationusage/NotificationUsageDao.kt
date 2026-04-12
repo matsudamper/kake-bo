@@ -63,10 +63,30 @@ internal interface NotificationUsageDao {
     @Query(
         """
         UPDATE notification_usage_records
-        SET isAdded = 1,
-            moneyUsageId = :moneyUsageId
+        SET isAdded = 1
         WHERE notificationKey = :notificationKey
         """,
     )
-    suspend fun markAsAdded(notificationKey: String, moneyUsageId: Int?)
+    suspend fun markAsAdded(notificationKey: String)
+
+    @Insert
+    suspend fun insertLinkedUsage(entity: NotificationUsageLinkedUsageEntity)
+
+    @Query(
+        """
+        SELECT *
+        FROM notification_usage_linked_usages
+        WHERE notificationKey = :notificationKey
+        """,
+    )
+    fun observeLinkedUsages(notificationKey: String): Flow<List<NotificationUsageLinkedUsageEntity>>
+
+    @Query(
+        """
+        SELECT *
+        FROM notification_usage_linked_usages
+        WHERE notificationKey = :notificationKey
+        """,
+    )
+    suspend fun getLinkedUsages(notificationKey: String): List<NotificationUsageLinkedUsageEntity>
 }

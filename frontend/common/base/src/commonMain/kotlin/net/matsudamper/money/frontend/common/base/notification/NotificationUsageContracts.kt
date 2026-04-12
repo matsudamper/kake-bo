@@ -11,7 +11,7 @@ public data class NotificationUsageRecord(
     val postedAtEpochMillis: Long,
     val receivedAtEpochMillis: Long,
     val isAdded: Boolean = false,
-    val moneyUsageId: MoneyUsageId? = null,
+    val moneyUsageIds: List<MoneyUsageId> = emptyList(),
     val notificationMetadata: String = "",
 )
 

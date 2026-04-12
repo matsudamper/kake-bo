@@ -1,6 +1,7 @@
 package net.matsudamper.money.frontend.android.feature.notificationusage
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDetail
@@ -48,8 +49,18 @@ internal class NotificationUsageRepositoryAndroidImpl(
     }
 
     override fun notificationDetailFlow(notificationKey: String): Flow<NotificationUsageDetail?> {
-        return dao.observeByKey(notificationKey).map { entity ->
-            val record = if (entity != null) entityToRecord(entity) else return@map null
+        return combine(
+            dao.observeByKey(notificationKey),
+            dao.observeLinkedUsages(notificationKey),
+        ) { entity, linkedUsages ->
+            val record = if (entity != null) {
+                entityToRecord(
+                    entity = entity,
+                    linkedUsages = linkedUsages,
+                )
+            } else {
+                return@combine null
+            }
             NotificationUsageDetail(
                 record = record,
                 matched = recordToMatchedRecord(record),
@@ -73,10 +84,21 @@ internal class NotificationUsageRepositoryAndroidImpl(
     }
 
     override suspend fun markNotificationAsAdded(notificationKey: String, moneyUsageId: MoneyUsageId?) {
-        dao.markAsAdded(notificationKey, moneyUsageId?.id)
+        dao.markAsAdded(notificationKey)
+        if (moneyUsageId != null) {
+            dao.insertLinkedUsage(
+                NotificationUsageLinkedUsageEntity(
+                    notificationKey = notificationKey,
+                    moneyUsageId = moneyUsageId.id,
+                ),
+            )
+        }
     }
 
-    private fun entityToRecord(entity: NotificationUsageEntity): NotificationUsageRecord {
+    private fun entityToRecord(
+        entity: NotificationUsageEntity,
+        linkedUsages: List<NotificationUsageLinkedUsageEntity> = emptyList(),
+    ): NotificationUsageRecord {
         return NotificationUsageRecord(
             notificationKey = entity.notificationKey,
             packageName = entity.packageName,
@@ -84,7 +106,7 @@ internal class NotificationUsageRepositoryAndroidImpl(
             postedAtEpochMillis = entity.postedAtEpochMillis,
             receivedAtEpochMillis = entity.receivedAtEpochMillis,
             isAdded = entity.isAdded,
-            moneyUsageId = entity.moneyUsageId?.let { MoneyUsageId(it) },
+            moneyUsageIds = linkedUsages.map { MoneyUsageId(it.moneyUsageId) },
             notificationMetadata = entity.notificationMetadata,
         )
     }

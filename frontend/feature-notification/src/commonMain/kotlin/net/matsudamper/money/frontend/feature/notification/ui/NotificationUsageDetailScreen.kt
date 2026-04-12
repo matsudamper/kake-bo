@@ -171,16 +171,14 @@ private fun LoadedContent(
                         modifier = Modifier.fillMaxWidth(),
                         uiState = uiState.draft,
                     )
-                    if (uiState.canRegister) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Row {
-                            Spacer(modifier = Modifier.weight(1f))
-                            OutlinedButton(
-                                onClick = { uiState.event.onClickRegister() },
-                            ) {
-                                Icon(Icons.Default.Add, contentDescription = null)
-                                Text("登録")
-                            }
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row {
+                        Spacer(modifier = Modifier.weight(1f))
+                        OutlinedButton(
+                            onClick = { uiState.event.onClickRegister() },
+                        ) {
+                            Icon(Icons.Default.Add, contentDescription = null)
+                            Text("登録")
                         }
                     }
                     Spacer(modifier = Modifier.height(24.dp))
@@ -188,9 +186,9 @@ private fun LoadedContent(
             }
             item {
                 SectionTitle("登録済み")
-                LinkedUsageContent(
+                LinkedUsagesContent(
                     modifier = Modifier.fillMaxWidth(),
-                    uiState = uiState.linkedUsage,
+                    uiState = uiState.linkedUsages,
                 )
             }
         }
@@ -346,16 +344,16 @@ private fun DraftCard(
 }
 
 @Composable
-private fun LinkedUsageContent(
-    uiState: NotificationUsageDetailScreenUiState.LinkedUsageState,
+private fun LinkedUsagesContent(
+    uiState: NotificationUsageDetailScreenUiState.LinkedUsagesState,
     modifier: Modifier = Modifier,
 ) {
     when (uiState) {
-        NotificationUsageDetailScreenUiState.LinkedUsageState.None -> {
+        NotificationUsageDetailScreenUiState.LinkedUsagesState.None -> {
             EmptyText(modifier = modifier, text = "まだ使用用途に追加されていません。")
         }
 
-        NotificationUsageDetailScreenUiState.LinkedUsageState.Loading -> {
+        NotificationUsageDetailScreenUiState.LinkedUsagesState.Loading -> {
             Box(
                 modifier = modifier.height(120.dp),
                 contentAlignment = Alignment.Center,
@@ -364,19 +362,18 @@ private fun LinkedUsageContent(
             }
         }
 
-        NotificationUsageDetailScreenUiState.LinkedUsageState.MissingUsageId -> {
-            EmptyText(modifier = modifier, text = "追加済みですが、使用用途IDが保存されていません。")
-        }
-
-        NotificationUsageDetailScreenUiState.LinkedUsageState.Error -> {
-            EmptyText(modifier = modifier, text = "使用用途を取得できませんでした。")
-        }
-
-        is NotificationUsageDetailScreenUiState.LinkedUsageState.Loaded -> {
-            LinkedUsageCard(
-                modifier = modifier,
-                uiState = uiState.usage,
-            )
+        is NotificationUsageDetailScreenUiState.LinkedUsagesState.Loaded -> {
+            Column(modifier = modifier) {
+                uiState.usages.forEachIndexed { index, usage ->
+                    if (index > 0) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                    LinkedUsageCard(
+                        modifier = Modifier.fillMaxWidth(),
+                        uiState = usage,
+                    )
+                }
+            }
         }
     }
 }

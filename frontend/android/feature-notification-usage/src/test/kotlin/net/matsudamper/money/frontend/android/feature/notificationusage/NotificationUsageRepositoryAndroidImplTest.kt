@@ -125,7 +125,9 @@ public class NotificationUsageRepositoryAndroidImplTest : DescribeSpec(
                 val added = repository.addedNotificationsFlow().first()
                 matched.map { it.record.notificationKey }.shouldBe(listOf())
                 added.single().isAdded.shouldBe(true)
-                added.single().moneyUsageId.shouldBe(MoneyUsageId(10))
+
+                val detail = repository.notificationDetailFlow("matched").first()
+                detail?.record?.moneyUsageIds.shouldBe(listOf(MoneyUsageId(10)))
             }
 
             it("値が変わった同じ Android 通知は別通知として保存する") {
@@ -163,7 +165,7 @@ public class NotificationUsageRepositoryAndroidImplTest : DescribeSpec(
                 storedKey.shouldNotBe("matched")
                 all.map { it.notificationKey }.shouldBe(listOf(storedKey, "matched"))
                 detail?.record?.isAdded.shouldBe(true)
-                detail?.record?.moneyUsageId.shouldBe(MoneyUsageId(10))
+                detail?.record?.moneyUsageIds.shouldBe(listOf(MoneyUsageId(10)))
                 detail?.record?.text.shouldBe("old text")
                 newDetail?.record?.isAdded.shouldBe(false)
                 newDetail?.record?.text.shouldBe("new text")
@@ -202,7 +204,8 @@ public class NotificationUsageRepositoryAndroidImplTest : DescribeSpec(
                 storedKey.shouldBe("matched")
                 all.map { it.notificationKey }.shouldBe(listOf("matched"))
                 all.single().isAdded.shouldBe(true)
-                all.single().moneyUsageId.shouldBe(MoneyUsageId(10))
+                val detail = repository.notificationDetailFlow("matched").first()
+                detail?.record?.moneyUsageIds.shouldBe(listOf(MoneyUsageId(10)))
                 all.single().receivedAtEpochMillis.shouldBe(20L)
             }
         }

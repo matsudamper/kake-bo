@@ -22,6 +22,7 @@ public object NotificationUsageModule {
                     NotificationUsageDatabase.Migration1To2,
                     NotificationUsageDatabase.Migration2To3,
                     NotificationUsageDatabase.Migration3To4,
+                    NotificationUsageDatabase.Migration4To5,
                 )
                 .build()
         }

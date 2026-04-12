@@ -84,7 +84,7 @@ public class NotificationUsageAutoAddProcessorTest : DescribeSpec(
                     ),
                 )
                 dao.findByKey("key")?.isAdded.shouldBe(true)
-                dao.findByKey("key")?.moneyUsageId.shouldBe(10)
+                dao.getLinkedUsages("key").single().moneyUsageId.shouldBe(10)
             }
 
             it("自動追加済みの通知は再実行しない") {

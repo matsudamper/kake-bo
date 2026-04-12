@@ -39,7 +39,13 @@ internal class NotificationUsageAutoAddProcessor(
             val draft = parserAndDraft.second
             val moneyUsageId = api.addUsage(draftToPayload(draft, record))
             if (moneyUsageId != null) {
-                dao.markAsAdded(notificationKey, moneyUsageId.id)
+                dao.markAsAdded(notificationKey)
+                dao.insertLinkedUsage(
+                    NotificationUsageLinkedUsageEntity(
+                        notificationKey = notificationKey,
+                        moneyUsageId = moneyUsageId.id,
+                    ),
+                )
             }
         } finally {
             finishProcessing(notificationKey)
@@ -63,7 +69,6 @@ internal class NotificationUsageAutoAddProcessor(
             postedAtEpochMillis = postedAtEpochMillis,
             receivedAtEpochMillis = receivedAtEpochMillis,
             isAdded = isAdded,
-            moneyUsageId = moneyUsageId?.let { MoneyUsageId(it) },
         )
     }
 
