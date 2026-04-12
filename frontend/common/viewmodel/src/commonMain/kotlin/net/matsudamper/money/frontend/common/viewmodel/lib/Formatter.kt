@@ -5,8 +5,8 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.number
 
-internal object Formatter {
-    fun formatMoney(value: Number): String {
+public object Formatter {
+    public fun formatMoney(value: Number): String {
         return value.toString().toList()
             .reversed()
             .windowed(3, 3, partialWindows = true)
@@ -15,7 +15,7 @@ internal object Formatter {
             .joinToString(",") { it.joinToString("") }
     }
 
-    fun dayOfWeekToJapanese(dayOfWeek: DayOfWeek): String {
+    public fun dayOfWeekToJapanese(dayOfWeek: DayOfWeek): String {
         return when (dayOfWeek) {
             DayOfWeek.MONDAY -> "月"
             DayOfWeek.TUESDAY -> "火"
@@ -27,7 +27,7 @@ internal object Formatter {
         }
     }
 
-    fun formatDateTime(dateTime: LocalDateTime): String {
+    public fun formatDateTime(dateTime: LocalDateTime): String {
         return buildString {
             append("${dateTime.year}/${dateTime.monthNumber}/${dateTime.dayOfMonth}")
             append("(${dayOfWeekToJapanese(dateTime.date.dayOfWeek)})")
@@ -38,7 +38,7 @@ internal object Formatter {
         }
     }
 
-    fun formatTime(time: LocalTime): String {
+    public fun formatTime(time: LocalTime): String {
         return buildString {
             append(time.hour.toString().padStart(2, padChar = '0'))
             append(":")
@@ -46,7 +46,7 @@ internal object Formatter {
         }
     }
 
-    fun formatDayOfMonthDateTime(dateTime: LocalDateTime): String {
+    public fun formatDayOfMonthDateTime(dateTime: LocalDateTime): String {
         return buildString {
             append("${dateTime.dayOfMonth}日")
             append("(${dayOfWeekToJapanese(dateTime.date.dayOfWeek)})")
@@ -57,7 +57,21 @@ internal object Formatter {
         }
     }
 
-    fun formatDate(date: LocalDateTime): String {
+    public fun formatYearMonthDateTime(dateTime: LocalDateTime): String {
+        return buildString {
+            append(dateTime.year.toString().padStart(4, padChar = '0'))
+            append("/")
+            append(dateTime.monthNumber.toString().padStart(2, padChar = '0'))
+            append("/")
+            append(dateTime.dayOfMonth.toString().padStart(2, padChar = '0'))
+            append("・")
+            append(dateTime.hour.toString().padStart(2, padChar = '0'))
+            append(":")
+            append(dateTime.minute.toString().padStart(2, padChar = '0'))
+        }
+    }
+
+    public fun formatDate(date: LocalDateTime): String {
         return buildString {
             append("${date.year}/${date.month.number}/${date.day}")
             append("(${dayOfWeekToJapanese(date.date.dayOfWeek)})")

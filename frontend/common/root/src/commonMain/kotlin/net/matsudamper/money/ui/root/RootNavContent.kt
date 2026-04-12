@@ -16,6 +16,9 @@ import net.matsudamper.money.frontend.common.base.lifecycle.LocalScopedObjectSto
 import net.matsudamper.money.frontend.common.base.nav.user.RootHomeScreenStructure
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenNavController
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageAccessGateway
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageParser
+import net.matsudamper.money.frontend.common.base.notification.NotificationUsageRepository
 import net.matsudamper.money.frontend.common.ui.StickyHeaderState
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlyCategoryScreen
 import net.matsudamper.money.frontend.common.ui.screen.root.home.RootHomeMonthlySubCategoryScreen
@@ -54,6 +57,10 @@ import net.matsudamper.money.frontend.common.viewmodel.root.home.monthly.subcate
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.PresetDetailViewModel
 import net.matsudamper.money.frontend.common.viewmodel.root.mail.PresetListViewModel
 import net.matsudamper.money.frontend.common.viewmodel.settings.PresetScreenApi
+import net.matsudamper.money.frontend.feature.notification.ui.NotificationUsageFilterListScreen
+import net.matsudamper.money.frontend.feature.notification.ui.NotificationUsageListScreen
+import net.matsudamper.money.frontend.feature.notification.viewmodel.NotificationUsageFilterListViewModel
+import net.matsudamper.money.frontend.feature.notification.viewmodel.NotificationUsageViewModel
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 
 private enum class SavedStateHolderKey {
@@ -365,6 +372,55 @@ internal fun RootNavContent(
                             uiState = viewModel.uiStateFlow.collectAsState().value,
                             windowInsets = windowInsets,
                         )
+                    }
+
+                    ScreenStructure.Root.Add.NotificationUsage,
+                    ScreenStructure.Root.Add.NotificationUsageFilters,
+                    ScreenStructure.Root.Add.NotificationUsageDebug,
+                    -> {
+                        when (current) {
+                            ScreenStructure.Root.Add.NotificationUsage,
+                            ScreenStructure.Root.Add.NotificationUsageDebug,
+                            -> {
+                                val mode = when (current) {
+                                    ScreenStructure.Root.Add.NotificationUsage -> NotificationUsageViewModel.Mode.AddFromNotification
+                                    ScreenStructure.Root.Add.NotificationUsageDebug -> NotificationUsageViewModel.Mode.NotificationList
+                                    else -> error("Unsupported screen: $current")
+                                }
+                                val viewModel = LocalScopedObjectStore.current.putOrGet(current) {
+                                    NotificationUsageViewModel(
+                                        scopedObjectFeature = it,
+                                        mode = mode,
+                                        repository = koin.get<NotificationUsageRepository>(),
+                                        accessGateway = koin.get<NotificationUsageAccessGateway>(),
+                                    )
+                                }
+                                LaunchedEffect(viewModel.eventHandler) {
+                                    viewModelEventHandlers.handleNotificationUsage(viewModel.eventHandler)
+                                }
+                                NotificationUsageListScreen(
+                                    modifier = Modifier.fillMaxSize(),
+                                    uiState = viewModel.uiStateFlow.collectAsState().value,
+                                    windowInsets = windowInsets,
+                                )
+                            }
+
+                            ScreenStructure.Root.Add.NotificationUsageFilters -> {
+                                val viewModel = LocalScopedObjectStore.current.putOrGet<NotificationUsageFilterListViewModel>(Unit) {
+                                    NotificationUsageFilterListViewModel(
+                                        scopedObjectFeature = it,
+                                        appSettingsRepository = koin.get<AppSettingsRepository>(),
+                                        parsers = koin.getAll<NotificationUsageParser>(),
+                                        navController = navController,
+                                    )
+                                }
+                                NotificationUsageFilterListScreen(
+                                    modifier = Modifier.fillMaxSize(),
+                                    uiState = viewModel.uiStateFlow.collectAsState().value,
+                                    windowInsets = windowInsets,
+                                )
+                            }
+                        }
                     }
                 }
             }

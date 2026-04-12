@@ -26,6 +26,7 @@ kotlin {
                 implementation(projects.frontend.common.viewmodel)
                 implementation(projects.frontend.common.usecase)
                 implementation(projects.frontend.common.graphql)
+                implementation(projects.frontend.featureNotification)
 
                 implementation(kotlin("stdlib"))
                 implementation(kotlin("reflect"))

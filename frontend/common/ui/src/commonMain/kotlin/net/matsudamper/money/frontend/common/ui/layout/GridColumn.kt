@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal fun GridColumn(
+public fun GridColumn(
     modifier: Modifier = Modifier,
     horizontalPadding: Dp = 0.dp,
     verticalPadding: Dp = 0.dp,
@@ -131,10 +131,10 @@ private class GridColumnScopeImpl : GridColumnScope {
     }
 }
 
-internal interface GridColumnScope {
-    fun row(content: RowScope.() -> Unit)
+public interface GridColumnScope {
+    public fun row(content: RowScope.() -> Unit)
 
-    interface RowScope {
-        fun item(content: @Composable () -> Unit)
+    public interface RowScope {
+        public fun item(content: @Composable () -> Unit)
     }
 }

@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.kotest)
     id("net.matsudamper.money.buildlogic.compose")
     id("net.matsudamper.money.buildlogic.androidLibrary")
     alias(libs.plugins.kotlin.serialization)
@@ -75,7 +77,8 @@ kotlin {
         }
         val jsTest by getting {
             dependencies {
-                implementation(kotlin("test"))
+                implementation(libs.kotestFrameworkEngine)
+                implementation(libs.kotestAssertionsCore)
             }
         }
     }

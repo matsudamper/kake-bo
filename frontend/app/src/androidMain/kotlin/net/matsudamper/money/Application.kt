@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.work.Configuration
 import androidx.work.WorkManager
 import androidx.work.WorkerFactory
+import net.matsudamper.money.frontend.android.feature.notificationusage.NotificationUsageModule
 import net.matsudamper.money.frontend.common.di.AndroidModule
 import net.matsudamper.money.frontend.common.di.DefaultModule
 import net.matsudamper.money.frontend.common.feature.localstore.DataStores
@@ -17,6 +18,7 @@ class Application : Application() {
             modules(
                 AndroidModule.getModule(context = this@Application),
             )
+            modules(NotificationUsageModule.module)
             modules(DefaultModule.module)
         }
 
