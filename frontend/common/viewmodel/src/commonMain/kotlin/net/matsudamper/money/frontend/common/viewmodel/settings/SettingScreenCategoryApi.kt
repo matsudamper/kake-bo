@@ -15,6 +15,7 @@ import net.matsudamper.money.frontend.graphql.AddSubCategoryMutation
 import net.matsudamper.money.frontend.graphql.CategoriesSettingScreenCategoriesPagingQuery
 import net.matsudamper.money.frontend.graphql.CategorySettingScreenQuery
 import net.matsudamper.money.frontend.graphql.CategorySettingScreenSubCategoriesPagingQuery
+import net.matsudamper.money.frontend.graphql.DeleteCategoryMutation
 import net.matsudamper.money.frontend.graphql.DeleteSubCategoryMutation
 import net.matsudamper.money.frontend.graphql.UpdateCategoryMutation
 import net.matsudamper.money.frontend.graphql.UpdateSubCategoryMutation
@@ -154,6 +155,18 @@ public class SettingScreenCategoryApi(
             apolloClient
                 .mutation(
                     DeleteSubCategoryMutation(
+                        id = id,
+                    ),
+                )
+                .execute()
+        }.getOrNull()?.data?.userMutation != null
+    }
+
+    public suspend fun deleteCategory(id: MoneyUsageCategoryId): Boolean {
+        return runCatching {
+            apolloClient
+                .mutation(
+                    DeleteCategoryMutation(
                         id = id,
                     ),
                 )
