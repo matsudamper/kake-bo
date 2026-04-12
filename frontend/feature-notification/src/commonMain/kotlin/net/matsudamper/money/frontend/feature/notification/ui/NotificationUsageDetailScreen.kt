@@ -175,8 +175,8 @@ private fun SectionTitle(text: String) {
 
 @Composable
 private fun NotificationCard(
-    modifier: Modifier = Modifier,
     uiState: NotificationUsageDetailScreenUiState.Notification,
+    modifier: Modifier = Modifier,
 ) {
     Card(modifier = modifier) {
         GridColumn(
@@ -212,8 +212,8 @@ private fun NotificationCard(
 
 @Composable
 private fun FilterCard(
-    modifier: Modifier = Modifier,
     uiState: NotificationUsageDetailScreenUiState.Filter,
+    modifier: Modifier = Modifier,
 ) {
     Card(modifier = modifier) {
         when (uiState) {
@@ -253,8 +253,8 @@ private fun FilterCard(
 
 @Composable
 private fun DraftCard(
-    modifier: Modifier = Modifier,
     uiState: NotificationUsageDetailScreenUiState.Draft,
+    modifier: Modifier = Modifier,
 ) {
     Card(modifier = modifier) {
         GridColumn(
@@ -290,8 +290,8 @@ private fun DraftCard(
 
 @Composable
 private fun LinkedUsageContent(
-    modifier: Modifier = Modifier,
     uiState: NotificationUsageDetailScreenUiState.LinkedUsageState,
+    modifier: Modifier = Modifier,
 ) {
     when (uiState) {
         NotificationUsageDetailScreenUiState.LinkedUsageState.None -> {
@@ -326,8 +326,8 @@ private fun LinkedUsageContent(
 
 @Composable
 private fun LinkedUsageCard(
-    modifier: Modifier = Modifier,
     uiState: NotificationUsageDetailScreenUiState.LinkedUsage,
+    modifier: Modifier = Modifier,
 ) {
     Card(
         modifier = modifier.clickable { uiState.event.onClick() },
@@ -361,8 +361,8 @@ private fun LinkedUsageCard(
 
 @Composable
 private fun EmptyText(
-    modifier: Modifier = Modifier,
     text: String,
+    modifier: Modifier = Modifier,
 ) {
     Text(
         modifier = modifier.padding(20.dp),
