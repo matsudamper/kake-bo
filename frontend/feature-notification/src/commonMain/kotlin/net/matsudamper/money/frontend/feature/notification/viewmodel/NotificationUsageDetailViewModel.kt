@@ -235,6 +235,14 @@ public class NotificationUsageDetailViewModel(
             .toLocalDateTime(TimeZone.currentSystemDefault())
     }
 
+    public interface Event {
+        public fun navigate(structure: ScreenStructure)
+
+        public fun navigateBack()
+
+        public fun navigateToHome()
+    }
+
     private sealed interface DetailState {
         data object Loading : DetailState
 
@@ -262,12 +270,4 @@ public class NotificationUsageDetailViewModel(
         val detailState: DetailState = DetailState.Loading,
         val linkedUsageState: LinkedUsageState = LinkedUsageState.None,
     )
-
-    public interface Event {
-        public fun navigate(structure: ScreenStructure)
-
-        public fun navigateBack()
-
-        public fun navigateToHome()
-    }
 }

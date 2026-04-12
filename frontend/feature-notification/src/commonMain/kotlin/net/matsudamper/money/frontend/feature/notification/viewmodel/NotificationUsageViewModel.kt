@@ -52,11 +52,6 @@ public class NotificationUsageViewModel(
         prettyPrint = true
     }
 
-    public enum class Mode {
-        AddFromNotification,
-        NotificationList,
-    }
-
     public val uiStateFlow: StateFlow<NotificationUsageListScreenUiState> = MutableStateFlow(
         NotificationUsageListScreenUiState(
             title = modeTitle(mode),
@@ -90,6 +85,9 @@ public class NotificationUsageViewModel(
                 }
             }
         }
+    }.asStateFlow()
+
+    init {
         viewModelScope.launch {
             accessGateway.accessStateFlow().collectLatest { accessState ->
                 viewModelStateFlow.update { it.copy(accessState = accessState) }
@@ -104,25 +102,25 @@ public class NotificationUsageViewModel(
                     viewModelStateFlow.update { it.copy(items = items) }
                 }
         }
-    }.asStateFlow()
+    }
 
-    private fun itemsFlow(status: Status): Flow<List<ItemSource>> {
+    private fun itemsFlow(status: Status): Flow<List<ViewModelState.ItemSource>> {
         return when (status) {
             Status.All -> repository.notificationsFlow()
-                .map { records -> records.map { ItemSource.Raw(it) } }
+                .map { records -> records.map { ViewModelState.ItemSource.Raw(it) } }
 
             Status.NotAdded -> {
                 when (mode) {
                     Mode.AddFromNotification -> repository.unaddedMatchedNotificationsFlow()
-                        .map { records -> records.map { ItemSource.Matched(it) } }
+                        .map { records -> records.map { ViewModelState.ItemSource.Matched(it) } }
 
                     Mode.NotificationList -> repository.notAddedNotificationsFlow()
-                        .map { records -> records.map { ItemSource.Raw(it) } }
+                        .map { records -> records.map { ViewModelState.ItemSource.Raw(it) } }
                 }
             }
 
             Status.Added -> repository.addedNotificationsFlow()
-                .map { records -> records.map { ItemSource.Raw(it) } }
+                .map { records -> records.map { ViewModelState.ItemSource.Raw(it) } }
         }
     }
 
@@ -167,9 +165,9 @@ public class NotificationUsageViewModel(
         }
     }
 
-    private fun createUiItem(source: ItemSource): NotificationUsageListScreenUiState.Item {
+    private fun createUiItem(source: ViewModelState.ItemSource): NotificationUsageListScreenUiState.Item {
         return when (source) {
-            is ItemSource.Matched -> createMatchedUiItem(
+            is ViewModelState.ItemSource.Matched -> createMatchedUiItem(
                 record = source.record,
                 title = source.record.record.packageName,
                 statusLabel = "未追加",
@@ -177,7 +175,7 @@ public class NotificationUsageViewModel(
                 copyJson = createCopyJson(source),
             )
 
-            is ItemSource.Raw -> createRawUiItem(
+            is ViewModelState.ItemSource.Raw -> createRawUiItem(
                 record = source.record,
                 title = source.record.packageName,
                 statusLabel = if (source.record.isAdded) "追加済み" else "未追加",
@@ -247,14 +245,14 @@ public class NotificationUsageViewModel(
         )
     }
 
-    private fun createCopyJson(source: ItemSource): String {
+    private fun createCopyJson(source: ViewModelState.ItemSource): String {
         return copyJsonFormatter.encodeToString(JsonObject.serializer(), createCopyJsonObject(source))
     }
 
-    private fun createCopyJsonObject(source: ItemSource): JsonObject {
+    private fun createCopyJsonObject(source: ViewModelState.ItemSource): JsonObject {
         val record = when (source) {
-            is ItemSource.Matched -> source.record.record
-            is ItemSource.Raw -> source.record
+            is ViewModelState.ItemSource.Matched -> source.record.record
+            is ViewModelState.ItemSource.Raw -> source.record
         }
         return buildJsonObject {
             put("packageName", record.packageName)
@@ -318,45 +316,25 @@ public class NotificationUsageViewModel(
         }
     }
 
-    private data class ViewModelState(
-        val status: Status,
-        val searchQuery: String = "",
-        val accessState: NotificationAccessState,
-        val items: List<ItemSource>,
-    )
-
-    private fun filterByQuery(items: List<ItemSource>, query: String): List<ItemSource> {
+    private fun filterByQuery(
+        items: List<ViewModelState.ItemSource>,
+        query: String,
+    ): List<ViewModelState.ItemSource> {
         if (query.isBlank()) return items
         val q = query.lowercase()
         return items.filter { source ->
             when (source) {
-                is ItemSource.Matched -> {
+                is ViewModelState.ItemSource.Matched -> {
                     source.record.record.packageName.lowercase().contains(q) ||
                         source.record.record.text.lowercase().contains(q)
                 }
 
-                is ItemSource.Raw -> {
+                is ViewModelState.ItemSource.Raw -> {
                     source.record.packageName.lowercase().contains(q) ||
                         source.record.text.lowercase().contains(q)
                 }
             }
         }
-    }
-
-    private sealed interface ItemSource {
-        data class Matched(val record: NotificationUsageMatchedRecord) : ItemSource
-
-        data class Raw(val record: NotificationUsageRecord) : ItemSource
-    }
-
-    public interface Event {
-        public fun navigate(structure: ScreenStructure)
-
-        public fun navigateToHome()
-
-        public fun copyToClipboard(text: String)
-
-        public fun showToast(text: String)
     }
 
     private fun modeTitle(mode: Mode): String {
@@ -377,6 +355,34 @@ public class NotificationUsageViewModel(
         return when (mode) {
             Mode.AddFromNotification -> status.addFromNotificationEmptyText
             Mode.NotificationList -> status.notificationListEmptyText
+        }
+    }
+
+    public enum class Mode {
+        AddFromNotification,
+        NotificationList,
+    }
+
+    public interface Event {
+        public fun navigate(structure: ScreenStructure)
+
+        public fun navigateToHome()
+
+        public fun copyToClipboard(text: String)
+
+        public fun showToast(text: String)
+    }
+
+    private data class ViewModelState(
+        val status: Status,
+        val searchQuery: String = "",
+        val accessState: NotificationAccessState,
+        val items: List<ItemSource>,
+    ) {
+        sealed interface ItemSource {
+            data class Matched(val record: NotificationUsageMatchedRecord) : ItemSource
+
+            data class Raw(val record: NotificationUsageRecord) : ItemSource
         }
     }
 
