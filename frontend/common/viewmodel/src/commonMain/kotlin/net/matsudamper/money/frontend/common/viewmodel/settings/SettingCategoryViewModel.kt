@@ -188,9 +188,9 @@ public class SettingCategoryViewModel(
                                                 globalEventSender.send {
                                                     it.showSnackBar("削除しました")
                                                 }
-                                            }
-                                            viewModelEventSender.send {
-                                                it.navigateToCategories()
+                                                viewModelEventSender.send {
+                                                    it.navigateToCategories()
+                                                }
                                             }
                                         } else {
                                             launch {
