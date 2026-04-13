@@ -4,6 +4,7 @@ import java.io.File
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.withTimeout
 import kotlinx.serialization.json.Json
+import io.ktor.http.CacheControl
 import io.ktor.http.ContentType
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -24,6 +25,7 @@ import io.ktor.server.plugins.statuspages.StatusPages
 import io.ktor.server.request.httpMethod
 import io.ktor.server.request.path
 import io.ktor.server.request.receiveStream
+import io.ktor.server.response.cacheControl
 import io.ktor.server.response.respondFile
 import io.ktor.server.response.respondText
 import io.ktor.server.routing.accept
@@ -118,6 +120,7 @@ fun Application.myApplicationModule() {
         }
         status(HttpStatusCode.NotFound) { call, _ ->
             if (call.request.httpMethod == HttpMethod.Get) {
+                call.response.cacheControl(CacheControl.NoCache(null))
                 call.respondFile(File(ServerEnv.htmlPath))
             } else {
                 call.respondText(
@@ -209,6 +212,9 @@ fun Application.myApplicationModule() {
             remotePath = "/",
             dir = File(ServerEnv.frontPath),
         ) {
+            cacheControl { _ ->
+                listOf(CacheControl.NoCache(null))
+            }
             contentType { file ->
                 when (file.extension) {
                     "wasm" -> ContentType.Application.Wasm
