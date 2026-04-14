@@ -32,6 +32,11 @@ public class SettingMailCategoryFiltersViewModel(
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
     private val loadedEvent = object : SettingMailCategoryFilterScreenUiState.LoadedEvent {
+        override fun onPullToRefresh() {
+            pagingModel.clear()
+            listFetch()
+        }
+
         override fun onClickAdd() {
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(

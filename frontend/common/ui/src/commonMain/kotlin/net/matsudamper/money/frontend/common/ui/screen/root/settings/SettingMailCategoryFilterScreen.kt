@@ -1,5 +1,8 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.settings
 
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
@@ -15,14 +18,21 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -66,6 +76,8 @@ public data class SettingMailCategoryFilterScreenUiState(
     @Immutable
     public interface LoadedEvent {
         public fun onClickAdd()
+
+        public fun onPullToRefresh()
     }
 
     @Immutable
@@ -163,6 +175,7 @@ public fun SettingMailCategoryFiltersScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LoadedContent(
     modifier: Modifier = Modifier,
@@ -173,7 +186,22 @@ private fun LoadedContent(
     val lazyListState = rememberLazyListState()
     val fabSize = 56.dp
     val fabPadding = 16.dp
-    Box(modifier = modifier) {
+    val pullToRefreshState = rememberPullToRefreshState()
+    val coroutineScope = rememberCoroutineScope()
+    var isRefreshing by remember { mutableStateOf(false) }
+    PullToRefreshBox(
+        isRefreshing = isRefreshing,
+        modifier = modifier,
+        state = pullToRefreshState,
+        onRefresh = {
+            coroutineScope.launch {
+                isRefreshing = true
+                uiState.event.onPullToRefresh()
+                delay(1000)
+                isRefreshing = false
+            }
+        },
+    ) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize(),
