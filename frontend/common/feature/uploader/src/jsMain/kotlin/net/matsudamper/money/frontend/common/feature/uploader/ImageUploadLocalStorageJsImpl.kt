@@ -14,8 +14,11 @@ internal class ImageUploadLocalStorageJsImpl : ImageUploadLocalStorage {
         const val STORE_PREVIEWS = "previews"
     }
 
+    private var cachedDb: dynamic = null
+
     private suspend fun openDb(): dynamic {
-        return suspendCancellableCoroutine { cont ->
+        cachedDb?.let { return it }
+        val db = suspendCancellableCoroutine { cont ->
             val request = js("self.indexedDB || self.webkitIndexedDB || self.mozIndexedDB").open(DB_NAME, DB_VERSION)
             request.onupgradeneeded = { event: dynamic ->
                 val db = event.target.result
@@ -33,6 +36,8 @@ internal class ImageUploadLocalStorageJsImpl : ImageUploadLocalStorage {
                 cont.resumeWithException(Exception("IndexedDB open error: ${event.target.error}"))
             }
         }
+        cachedDb = db
+        return db
     }
 
     private suspend fun put(storeName: String, key: String, bytes: ByteArray) {
@@ -70,21 +75,6 @@ internal class ImageUploadLocalStorageJsImpl : ImageUploadLocalStorage {
         }
     }
 
-    private suspend fun delete(storeName: String, key: String) {
-        val db = openDb()
-        suspendCancellableCoroutine { cont ->
-            val tx = db.transaction(storeName, "readwrite")
-            val store = tx.objectStore(storeName)
-            store.delete(key)
-            tx.oncomplete = {
-                cont.resume(Unit)
-            }
-            tx.onerror = { event: dynamic ->
-                cont.resumeWithException(Exception("IndexedDB delete error: ${event.target.error}"))
-            }
-        }
-    }
-
     override suspend fun writeRawImage(id: String, bytes: ByteArray) {
         put(STORE_RAW_IMAGES, id, bytes)
     }
@@ -102,7 +92,20 @@ internal class ImageUploadLocalStorageJsImpl : ImageUploadLocalStorage {
     }
 
     override suspend fun deleteImages(id: String) {
-        delete(STORE_RAW_IMAGES, id)
-        delete(STORE_PREVIEWS, id)
+        val db = openDb()
+        suspendCancellableCoroutine { cont ->
+            val storeNames = js("[]")
+            storeNames.push(STORE_RAW_IMAGES)
+            storeNames.push(STORE_PREVIEWS)
+            val tx = db.transaction(storeNames, "readwrite")
+            tx.objectStore(STORE_RAW_IMAGES).delete(id)
+            tx.objectStore(STORE_PREVIEWS).delete(id)
+            tx.oncomplete = {
+                cont.resume(Unit)
+            }
+            tx.onerror = { event: dynamic ->
+                cont.resumeWithException(Exception("IndexedDB delete error: ${event.target.error}"))
+            }
+        }
     }
 }

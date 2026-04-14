@@ -31,7 +31,7 @@ function openRequest(id, requestData) {
         const newDatabaseId = nextDatabaseId++;
         let newDatabase;
         const fileName = requestData.fileName;
-        if (fileName && fileName !== ':memory:' && fileName !== '' && sqlite3.oo1.OpfsDb) {
+        if (fileName && fileName !== ':memory:' && sqlite3.oo1.OpfsDb) {
             newDatabase = new sqlite3.oo1.OpfsDb(fileName, 'ct');
         } else {
             newDatabase = new sqlite3.oo1.DB(fileName, 'ct');
