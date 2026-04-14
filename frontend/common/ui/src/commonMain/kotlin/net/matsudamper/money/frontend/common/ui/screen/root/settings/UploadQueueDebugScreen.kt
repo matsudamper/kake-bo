@@ -16,12 +16,12 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 
@@ -82,7 +82,7 @@ private fun StatusFilterRow(
     uiState: UploadQueueDebugScreenUiState,
 ) {
     Box(modifier = modifier) {
-        OutlinedButton(
+        DropDownMenuButton(
             onClick = { uiState.event.onClickStatusFilter() },
         ) {
             Text(
