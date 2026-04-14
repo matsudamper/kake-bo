@@ -57,6 +57,7 @@ public data class RootSettingScreenUiState(
         public fun onClickLoginSetting()
         public fun onClickApiSetting()
         public fun onClickTextFieldTest()
+        public fun onClickUploadQueueDebug()
     }
 }
 
@@ -191,6 +192,11 @@ private fun MainContent(
                     ) {
                         Text("TextFieldテスト")
                     }
+                    SettingListMenuItemButton(
+                        onClick = { uiState.event.onClickUploadQueueDebug() },
+                    ) {
+                        Text("画像アップロードキュー")
+                    }
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                     ) {
@@ -225,6 +231,7 @@ private fun Preview() {
                     override fun onClickLoginSetting() {}
                     override fun onClickApiSetting() {}
                     override fun onClickTextFieldTest() {}
+                    override fun onClickUploadQueueDebug() {}
                 },
             ),
             windowInsets = PaddingValues(),

@@ -19,6 +19,7 @@ import io.ktor.server.plugins.compression.Compression
 import io.ktor.server.plugins.conditionalheaders.ConditionalHeaders
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.server.plugins.defaultheaders.DefaultHeaders
 import io.ktor.server.plugins.forwardedheaders.ForwardedHeaders
 import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import io.ktor.server.plugins.statuspages.StatusPages
@@ -109,6 +110,11 @@ fun Application.myApplicationModule() {
                 )
             }
         }
+    }
+    // OPFS（Origin Private File System）を Web Worker から使用するために必要なクロスオリジン分離ヘッダ
+    install(DefaultHeaders) {
+        header("Cross-Origin-Opener-Policy", "same-origin")
+        header("Cross-Origin-Embedder-Policy", "require-corp")
     }
     install(StatusPages) {
         exception<Throwable> { call, cause ->

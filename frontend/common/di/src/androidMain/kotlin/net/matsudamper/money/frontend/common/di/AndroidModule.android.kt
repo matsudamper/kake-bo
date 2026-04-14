@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.runBlocking
 import net.matsudamper.money.frontend.common.feature.localstore.DataStores
 import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadDatabase
+import net.matsudamper.money.frontend.common.feature.uploader.ImageUploadLocalStorage
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ServerHostConfig
 import net.matsudamper.money.frontend.graphql.serverHost
@@ -31,11 +32,13 @@ object AndroidModule {
             )
         }
         single<ImageUploadDatabase> { ImageUploadDatabase.create(get()) }
+        single<ImageUploadLocalStorage> { get<ImageUploadDatabase>().createLocalStorage(context = get()) }
         single<WorkerFactory> {
             get<ImageUploadDatabase>().createWorkerFactory(
                 dataStores = get(),
                 graphqlClient = get<GraphqlClient>(),
                 serverHostConfig = get(),
+                localStorage = get(),
             )
         }
     }

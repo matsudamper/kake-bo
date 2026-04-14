@@ -108,6 +108,7 @@ private fun UrlPlaceHolderParser.ScreenState<Screens>.toScreenStructure(queryPar
         }
 
         Screens.SettingsTextFieldTest -> ScreenStructure.Root.Settings.TextFieldTest
+        Screens.SettingsUploadQueueDebug -> ScreenStructure.Root.Settings.UploadQueueDebug
         Screens.AddPresets -> ScreenStructure.Root.Add.Preset
         Screens.AddNotificationUsage -> ScreenStructure.NotFound
         Screens.AddNotificationUsageFilters -> ScreenStructure.NotFound

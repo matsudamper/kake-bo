@@ -417,11 +417,15 @@ public class MoneyUsageScreenViewModel(
 
                     eventSender.send { it.requestNotificationPermission() }
                     images.forEach { image ->
-                        val rawBytes = image.previewBytes ?: return@forEach
+                        val imageData = image.await() ?: run {
+                            eventSender.send { it.showToast("画像の読み込みに失敗しました") }
+                            return@forEach
+                        }
                         imageUploadQueue.enqueue(
                             moneyUsageId = moneyUsageId,
-                            rawImageBytes = rawBytes,
+                            rawImageBytes = imageData.bytes,
                             previewBytes = image.previewBytes,
+                            contentType = imageData.contentType,
                         )
                     }
                 }
@@ -488,7 +492,7 @@ public class MoneyUsageScreenViewModel(
         viewModelScope.launch {
             imageUploadQueue.observeItems(moneyUsageId).collect { items ->
                 viewModelStateFlow.update { state ->
-                    state.copy(uploadQueueItems = items)
+                    state.copy(uploadQueueItems = items.filter { it.status !is ImageUploadQueue.Status.Completed })
                 }
             }
         }

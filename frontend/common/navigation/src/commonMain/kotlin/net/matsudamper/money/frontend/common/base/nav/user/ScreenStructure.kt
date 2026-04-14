@@ -68,6 +68,12 @@ public sealed interface ScreenStructure : IScreenStructure {
             }
 
             @Serializable
+            public data object UploadQueueDebug : Settings {
+                override val direction: Screens = Screens.SettingsUploadQueueDebug
+                override val sameScreenId: String = "ScreenStructure#Root#Settings#UploadQueueDebug"
+            }
+
+            @Serializable
             public data class MailCategoryFilter(
                 val id: ImportedMailCategoryFilterId,
             ) : Settings {
