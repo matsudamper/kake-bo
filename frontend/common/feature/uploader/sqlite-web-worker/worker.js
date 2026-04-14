@@ -29,7 +29,13 @@ let nextStatementId = 0;
 function openRequest(id, requestData) {
     try {
         const newDatabaseId = nextDatabaseId++;
-        const newDatabase = new sqlite3.oo1.DB(requestData.fileName, 'ct');
+        let newDatabase;
+        const fileName = requestData.fileName;
+        if (fileName && fileName !== ':memory:' && fileName !== '' && sqlite3.oo1.OpfsDb) {
+            newDatabase = new sqlite3.oo1.OpfsDb(fileName, 'ct');
+        } else {
+            newDatabase = new sqlite3.oo1.DB(fileName, 'ct');
+        }
         databases.set(newDatabaseId, newDatabase);
         postMessage({'id': id, data: {'databaseId': newDatabaseId}});
     } catch (error) {
