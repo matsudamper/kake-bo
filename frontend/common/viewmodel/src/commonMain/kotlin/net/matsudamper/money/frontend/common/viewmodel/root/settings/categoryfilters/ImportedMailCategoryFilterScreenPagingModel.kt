@@ -4,7 +4,6 @@ import kotlinx.coroutines.flow.Flow
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.Optional
 import com.apollographql.apollo.cache.normalized.FetchPolicy
-import com.apollographql.apollo.cache.normalized.api.CacheKey
 import com.apollographql.apollo.cache.normalized.apolloStore
 import com.apollographql.apollo.cache.normalized.fetchPolicy
 import com.apollographql.apollo.cache.normalized.watch
@@ -28,8 +27,17 @@ public class ImportedMailCategoryFilterScreenPagingModel(
             .watch()
     }
 
-    internal fun clear() {
-        graphqlClient.apolloClient.apolloStore.remove(CacheKey(firstQuery.name()))
+    internal suspend fun refresh(): UpdateOperationResponseResult<ImportedMailCategoryFiltersScreenPagingQuery.Data> {
+        val response = fetch(cursor = null)
+        val data = response.data
+            ?: return UpdateOperationResponseResult.Error(NullPointerException("ApolloResponse.data is null"))
+        graphqlClient.apolloClient.apolloStore.writeOperation(
+            operation = firstQuery,
+            operationData = data,
+            customScalarAdapters = graphqlClient.apolloClient.customScalarAdapters,
+            publish = true,
+        )
+        return UpdateOperationResponseResult.Success(response)
     }
 
     private val firstQuery = ImportedMailCategoryFiltersScreenPagingQuery(

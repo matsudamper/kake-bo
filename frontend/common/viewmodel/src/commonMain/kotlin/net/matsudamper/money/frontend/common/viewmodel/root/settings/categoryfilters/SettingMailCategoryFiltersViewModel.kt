@@ -37,8 +37,12 @@ public class SettingMailCategoryFiltersViewModel(
         }
 
         override fun onPullToRefresh() {
-            pagingModel.clear()
-            listFetch()
+            viewModelScope.launch {
+                val result = pagingModel.refresh()
+                viewModelStateFlow.update {
+                    it.copy(lastLoadingState = result)
+                }
+            }
         }
 
         override fun onClickAdd() {
@@ -57,8 +61,10 @@ public class SettingMailCategoryFiltersViewModel(
                         runCatching {
                             api.addFilter(text)
                         }.onSuccess {
-                            pagingModel.clear()
-                            listFetch()
+                            val result = pagingModel.refresh()
+                            viewModelStateFlow.update {
+                                it.copy(lastLoadingState = result)
+                            }
                         }.onFailure {
                             it.printStackTrace()
                         }
