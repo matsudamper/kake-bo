@@ -49,7 +49,7 @@ public class ImportedMailCategoryFilterScreenPagingModel(
             val cursor = before.user?.importedMailCategoryFilters?.cursor ?: return@update error()
             val newData = fetch(cursor = cursor)
             success(
-                fetch(cursor).newBuilder()
+                newData.newBuilder()
                     .data(
                         data = before.copy(
                             user = before.user?.copy(

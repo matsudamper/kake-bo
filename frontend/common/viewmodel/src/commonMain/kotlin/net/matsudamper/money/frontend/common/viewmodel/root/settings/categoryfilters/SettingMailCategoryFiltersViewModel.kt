@@ -126,7 +126,7 @@ public class SettingMailCategoryFiltersViewModel(
                                 is UpdateOperationResponseResult.NoHasMore -> false
                                 null -> false
                                 is UpdateOperationResponseResult.Success -> {
-                                    it.result.data?.user?.importedMailCategoryFilters != null
+                                    it.result.data?.user?.importedMailCategoryFilters == null
                                 }
                             },
                             event = loadedEvent,
