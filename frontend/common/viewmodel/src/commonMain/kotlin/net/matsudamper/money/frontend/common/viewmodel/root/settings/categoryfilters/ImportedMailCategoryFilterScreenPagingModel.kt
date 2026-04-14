@@ -21,6 +21,15 @@ public class ImportedMailCategoryFilterScreenPagingModel(
     private val graphqlClient: GraphqlClient,
 ) : CommonViewModel(scopedObjectFeature) {
 
+    private val firstQuery = ImportedMailCategoryFiltersScreenPagingQuery(
+        query = ImportedMailCategoryFiltersQuery(
+            cursor = Optional.present(null),
+            isAsc = true,
+            size = 10,
+            sortType = Optional.present(ImportedMailCategoryFiltersSortType.TITLE),
+        ),
+    )
+
     internal fun getFlow(): Flow<ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data>> {
         return graphqlClient.apolloClient.query(firstQuery)
             .fetchPolicy(FetchPolicy.CacheFirst)
@@ -28,7 +37,9 @@ public class ImportedMailCategoryFilterScreenPagingModel(
     }
 
     internal suspend fun refresh(): UpdateOperationResponseResult<ImportedMailCategoryFiltersScreenPagingQuery.Data> {
-        val response = fetch(cursor = null)
+        val response = graphqlClient.apolloClient.query(firstQuery)
+            .fetchPolicy(FetchPolicy.NetworkOnly)
+            .execute()
         val data = response.data
             ?: return UpdateOperationResponseResult.Error(NullPointerException("ApolloResponse.data is null"))
         graphqlClient.apolloClient.apolloStore.writeOperation(
@@ -40,22 +51,13 @@ public class ImportedMailCategoryFilterScreenPagingModel(
         return UpdateOperationResponseResult.Success(response)
     }
 
-    private val firstQuery = ImportedMailCategoryFiltersScreenPagingQuery(
-        query = ImportedMailCategoryFiltersQuery(
-            cursor = Optional.present(null),
-            isAsc = true,
-            size = 10,
-            sortType = Optional.present(ImportedMailCategoryFiltersSortType.TITLE),
-        ),
-    )
-
     internal suspend fun fetch(): UpdateOperationResponseResult<ImportedMailCategoryFiltersScreenPagingQuery.Data> {
         return graphqlClient.apolloClient.updateOperation(firstQuery) update@{ before ->
-            if (before == null) return@update success(fetch(cursor = null))
+            if (before == null) return@update success(fetchPage(cursor = null))
             if (before.user?.importedMailCategoryFilters?.isLast == true) return@update noHasMore()
 
             val cursor = before.user?.importedMailCategoryFilters?.cursor ?: return@update error()
-            val newData = fetch(cursor = cursor)
+            val newData = fetchPage(cursor = cursor)
             success(
                 newData.newBuilder()
                     .data(
@@ -78,7 +80,7 @@ public class ImportedMailCategoryFilterScreenPagingModel(
         }
     }
 
-    private suspend fun fetch(cursor: String?): ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data> {
+    private suspend fun fetchPage(cursor: String?): ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data> {
         return graphqlClient.apolloClient.query(
             query = ImportedMailCategoryFiltersScreenPagingQuery(
                 query = ImportedMailCategoryFiltersQuery(
@@ -88,8 +90,6 @@ public class ImportedMailCategoryFilterScreenPagingModel(
                     sortType = Optional.present(ImportedMailCategoryFiltersSortType.TITLE),
                 ),
             ),
-        )
-            .fetchPolicy(FetchPolicy.NetworkOnly)
-            .execute()
+        ).execute()
     }
 }
