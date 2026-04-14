@@ -88,6 +88,8 @@ public class ImportedMailCategoryFilterScreenPagingModel(
                     sortType = Optional.present(ImportedMailCategoryFiltersSortType.TITLE),
                 ),
             ),
-        ).execute()
+        )
+            .fetchPolicy(FetchPolicy.NetworkOnly)
+            .execute()
     }
 }
