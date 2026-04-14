@@ -1,3 +1,5 @@
+// Based on: https://github.com/androidx/androidx/blob/26a52f3b9e3664150571cc69bc3d20c38cfd027a/sqlite/sqlite-web-worker-test/web-worker/worker.js
+
 /**
  * Copyright 2026 The Android Open Source Project
  *
