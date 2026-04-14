@@ -114,7 +114,7 @@ fun Application.myApplicationModule() {
     // OPFS（Origin Private File System）を Web Worker から使用するために必要なクロスオリジン分離ヘッダ
     install(
         createApplicationPlugin("CrossOriginIsolation") {
-            onCallRespond { call ->
+            onCall { call ->
                 call.response.headers.append("Cross-Origin-Opener-Policy", "same-origin")
                 call.response.headers.append("Cross-Origin-Embedder-Policy", "require-corp")
             }
