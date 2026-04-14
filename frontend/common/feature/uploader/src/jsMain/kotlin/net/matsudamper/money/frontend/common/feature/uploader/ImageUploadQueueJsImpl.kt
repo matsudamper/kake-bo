@@ -133,7 +133,7 @@ public class ImageUploadQueueJsImpl private constructor(
             imageUploadClient.upload(
                 bytes = rawImageBytes,
                 contentType = null,
-            )
+            ) ?: throw IllegalStateException("upload returned null")
         }
         val uploaded = uploadedResult.getOrNull()
         if (uploaded == null) {
@@ -151,6 +151,11 @@ public class ImageUploadQueueJsImpl private constructor(
             graphqlClient.apolloClient
                 .query(MoneyUsageScreenQuery(id = moneyUsageId))
                 .execute()
+                .also { response ->
+                    if (response.hasErrors()) {
+                        throw IllegalStateException("GraphQL query errors: ${response.errors}")
+                    }
+                }
                 .data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage?.images
                 ?.map { it.id }
         }
@@ -160,7 +165,7 @@ public class ImageUploadQueueJsImpl private constructor(
             .distinctBy { it.value }
 
         val mutationResult = runCatching {
-            graphqlClient.apolloClient
+            val response = graphqlClient.apolloClient
                 .mutation(
                     MoneyUsageScreenUpdateUsageMutation(
                         query = UpdateUsageQuery(
@@ -170,7 +175,10 @@ public class ImageUploadQueueJsImpl private constructor(
                     ),
                 )
                 .execute()
-                .data?.userMutation?.updateUsage != null
+            if (response.hasErrors()) {
+                throw IllegalStateException("GraphQL mutation errors: ${response.errors}")
+            }
+            response.data?.userMutation?.updateUsage != null
         }
 
         if (mutationResult.getOrDefault(false) == false) {
