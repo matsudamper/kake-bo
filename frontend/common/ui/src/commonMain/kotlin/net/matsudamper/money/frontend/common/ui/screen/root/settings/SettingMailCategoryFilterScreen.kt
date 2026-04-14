@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -63,6 +64,7 @@ public data class SettingMailCategoryFilterScreenUiState(
         public data class Loaded(
             val filters: ImmutableList<Item>,
             val isError: Boolean,
+            val loadToEnd: Boolean,
             val event: LoadedEvent,
         ) : LoadingState
     }
@@ -77,6 +79,8 @@ public data class SettingMailCategoryFilterScreenUiState(
         public fun onClickAdd()
 
         public fun onPullToRefresh()
+
+        public fun loadMore()
     }
 
     @Immutable
@@ -215,6 +219,21 @@ private fun LoadedContent(
             items(uiState.filters) { item ->
                 SettingListMenuItemButton(onClick = { item.event.onClick() }) {
                     Text(item.title)
+                }
+            }
+            if (uiState.loadToEnd.not()) {
+                item {
+                    LaunchedEffect(Unit) {
+                        uiState.event.loadMore()
+                    }
+                    Box(
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(vertical = 12.dp),
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.align(Alignment.Center),
+                        )
+                    }
                 }
             }
         }

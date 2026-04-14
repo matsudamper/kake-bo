@@ -32,6 +32,10 @@ public class SettingMailCategoryFiltersViewModel(
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
     private val loadedEvent = object : SettingMailCategoryFilterScreenUiState.LoadedEvent {
+        override fun loadMore() {
+            listFetch()
+        }
+
         override fun onPullToRefresh() {
             pagingModel.clear()
             listFetch()
@@ -129,6 +133,7 @@ public class SettingMailCategoryFiltersViewModel(
                                     it.result.data?.user?.importedMailCategoryFilters == null
                                 }
                             },
+                            loadToEnd = viewModelState.apolloResponseStates?.data?.user?.importedMailCategoryFilters?.isLast == true,
                             event = loadedEvent,
                         )
                     }
