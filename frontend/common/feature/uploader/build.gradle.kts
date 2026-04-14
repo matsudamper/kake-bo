@@ -38,10 +38,6 @@ kotlin {
         }
     }
     explicitApi()
-    compilerOptions {
-        // expect/actual クラスは Beta 機能のため警告を抑制する
-        freeCompilerArgs.add("-Xexpect-actual-classes")
-    }
 }
 
 dependencies {

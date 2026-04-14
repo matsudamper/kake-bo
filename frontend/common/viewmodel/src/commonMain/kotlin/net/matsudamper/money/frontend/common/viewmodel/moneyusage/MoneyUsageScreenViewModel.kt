@@ -417,7 +417,10 @@ public class MoneyUsageScreenViewModel(
 
                     eventSender.send { it.requestNotificationPermission() }
                     images.forEach { image ->
-                        val imageData = image.await() ?: return@forEach
+                        val imageData = image.await() ?: run {
+                            eventSender.send { it.showToast("画像の読み込みに失敗しました") }
+                            return@forEach
+                        }
                         imageUploadQueue.enqueue(
                             moneyUsageId = moneyUsageId,
                             rawImageBytes = imageData.bytes,

@@ -93,11 +93,11 @@ internal class ImageUploadWorker(
             return Result.success()
         }
 
-        val webpBytes = withContext(Dispatchers.Default) {
-            convertToWebP(rawImageBytes)
+        val webpResult = withContext(Dispatchers.Default) {
+            runCatching { convertToWebP(rawImageBytes) }
         }
-        if (webpBytes == null) {
-            dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "画像変換に失敗しました", null)
+        val webpBytes = webpResult.getOrNull() ?: run {
+            dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "画像変換に失敗しました", webpResult.exceptionOrNull()?.stackTraceToString())
             return Result.failure()
         }
 
@@ -111,16 +111,18 @@ internal class ImageUploadWorker(
         }
         val protocol = serverHostConfig.protocol.ifEmpty { serverProtocol.ifEmpty { "https" } }
 
-        val uploadedImageId = withContext(Dispatchers.IO) {
-            uploadImage(
-                bytes = webpBytes,
-                host = host,
-                protocol = protocol,
-                userSessionId = userSessionId,
-            )
+        val uploadResult = withContext(Dispatchers.IO) {
+            runCatching {
+                uploadImage(
+                    bytes = webpBytes,
+                    host = host,
+                    protocol = protocol,
+                    userSessionId = userSessionId,
+                )
+            }
         }
-        if (uploadedImageId == null) {
-            dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "アップロードに失敗しました", null)
+        val uploadedImageId = uploadResult.getOrNull() ?: run {
+            dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "アップロードに失敗しました", uploadResult.exceptionOrNull()?.stackTraceToString())
             return Result.failure()
         }
 
@@ -138,7 +140,7 @@ internal class ImageUploadWorker(
         val updatedImageIds = ((currentImageIds ?: listOf()) + uploadedImageId)
             .distinctBy { it.value }
 
-        val isSuccess = runCatching {
+        val mutationResult = runCatching {
             graphqlClient.apolloClient
                 .mutation(
                     MoneyUsageScreenUpdateUsageMutation(
@@ -150,10 +152,10 @@ internal class ImageUploadWorker(
                 )
                 .execute()
                 .data?.userMutation?.updateUsage != null
-        }.getOrDefault(false)
+        }
 
-        if (!isSuccess) {
-            dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "使用用途の更新に失敗しました", null)
+        if (!mutationResult.getOrDefault(false)) {
+            dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "使用用途の更新に失敗しました", mutationResult.exceptionOrNull()?.stackTraceToString())
             return Result.failure()
         }
 
@@ -176,19 +178,17 @@ internal class ImageUploadWorker(
     }
 
     private fun convertToWebP(bytes: ByteArray): ByteArray? {
-        return runCatching {
-            val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
-            val rotatedBitmap = rotateByExif(bytes, bitmap)
-            try {
-                val stream = ByteArrayOutputStream()
-                val success = rotatedBitmap.compress(Bitmap.CompressFormat.WEBP_LOSSLESS, 100, stream)
-                if (!success) return null
-                stream.toByteArray()
-            } finally {
-                if (rotatedBitmap !== bitmap) rotatedBitmap.recycle()
-                bitmap.recycle()
-            }
-        }.getOrNull()
+        val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size) ?: return null
+        val rotatedBitmap = rotateByExif(bytes, bitmap)
+        return try {
+            val stream = ByteArrayOutputStream()
+            val success = rotatedBitmap.compress(Bitmap.CompressFormat.WEBP_LOSSLESS, 100, stream)
+            if (!success) return null
+            stream.toByteArray()
+        } finally {
+            if (rotatedBitmap !== bitmap) rotatedBitmap.recycle()
+            bitmap.recycle()
+        }
     }
 
     private fun rotateByExif(bytes: ByteArray, bitmap: Bitmap): Bitmap {
@@ -218,31 +218,29 @@ internal class ImageUploadWorker(
     ): ImageId? {
         if (host.isBlank()) return null
         val requestUrl = "$protocol://$host${ImageUploadApiPath.uploadV1}"
-        return runCatching {
-            val requestBody = MultipartBody.Builder()
-                .setType(MultipartBody.FORM)
-                .addFormDataPart(
-                    name = "file",
-                    filename = "image",
-                    body = bytes.toRequestBody("image/webp".toMediaTypeOrNull()),
-                )
-                .build()
+        val requestBody = MultipartBody.Builder()
+            .setType(MultipartBody.FORM)
+            .addFormDataPart(
+                name = "file",
+                filename = "image",
+                body = bytes.toRequestBody("image/webp".toMediaTypeOrNull()),
+            )
+            .build()
 
-            val request = Request.Builder()
-                .url(requestUrl)
-                .post(requestBody)
-                .apply {
-                    if (userSessionId.isNotBlank()) {
-                        header("Cookie", "user_session_id=$userSessionId")
-                    }
+        val request = Request.Builder()
+            .url(requestUrl)
+            .post(requestBody)
+            .apply {
+                if (userSessionId.isNotBlank()) {
+                    header("Cookie", "user_session_id=$userSessionId")
                 }
-                .build()
-
-            val responseBody = okHttpClient.newCall(request).execute().use { response ->
-                response.body.string()
             }
-            Json.decodeFromString<ImageUploadImageResponse>(responseBody).success?.imageId
-        }.getOrNull()
+            .build()
+
+        val responseBody = okHttpClient.newCall(request).execute().use { response ->
+            response.body.string()
+        }
+        return Json.decodeFromString<ImageUploadImageResponse>(responseBody).success?.imageId
     }
 
     private fun createForegroundInfo(): ForegroundInfo {
