@@ -8,7 +8,7 @@ import androidx.room3.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
-@Database(entities = [ImageUploadRoomEntity::class], version = 2, exportSchema = false)
+@Database(entities = [ImageUploadRoomEntity::class], version = 3, exportSchema = false)
 @ConstructedBy(ImageUploadDatabaseConstructor::class)
 internal abstract class ImageUploadRoomDatabase : RoomDatabase() {
     internal abstract fun dao(): ImageUploadRoomDao
@@ -17,6 +17,11 @@ internal abstract class ImageUploadRoomDatabase : RoomDatabase() {
         val MIGRATION_1_2 = object : Migration(1, 2) {
             override suspend fun migrate(connection: SQLiteConnection) {
                 connection.execSQL("ALTER TABLE image_upload_queue ADD COLUMN stackTrace TEXT")
+            }
+        }
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override suspend fun migrate(connection: SQLiteConnection) {
+                connection.execSQL("ALTER TABLE image_upload_queue ADD COLUMN contentType TEXT")
             }
         }
     }

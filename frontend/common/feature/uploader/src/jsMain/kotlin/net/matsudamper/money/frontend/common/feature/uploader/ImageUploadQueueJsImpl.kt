@@ -67,6 +67,7 @@ public class ImageUploadQueueJsImpl private constructor(
         moneyUsageId: MoneyUsageId,
         rawImageBytes: ByteArray,
         previewBytes: ByteArray?,
+        contentType: String?,
     ) {
         val id = Uuid.random().toString()
         dao.insert(
@@ -77,6 +78,7 @@ public class ImageUploadQueueJsImpl private constructor(
                 workManagerId = null,
                 errorMessage = null,
                 stackTrace = null,
+                contentType = contentType,
                 createdAt = js("Date.now()").unsafeCast<Double>().toLong(),
                 rawImageBytes = rawImageBytes,
                 previewBytes = previewBytes,
@@ -132,7 +134,7 @@ public class ImageUploadQueueJsImpl private constructor(
         val uploadedResult = runCatching {
             imageUploadClient.upload(
                 bytes = rawImageBytes,
-                contentType = null,
+                contentType = entity.contentType,
             ) ?: throw IllegalStateException("upload returned null")
         }
         val uploaded = uploadedResult.getOrNull()

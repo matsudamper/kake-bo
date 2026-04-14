@@ -41,6 +41,7 @@ internal class ImageUploadQueueImpl(
         moneyUsageId: MoneyUsageId,
         rawImageBytes: ByteArray,
         previewBytes: ByteArray?,
+        contentType: String?,
     ) {
         val id = UUID.randomUUID().toString()
         withContext(Dispatchers.IO) {
@@ -57,6 +58,7 @@ internal class ImageUploadQueueImpl(
                 workManagerId = null,
                 errorMessage = null,
                 stackTrace = null,
+                contentType = contentType,
                 createdAt = System.currentTimeMillis(),
                 rawImageBytes = null,
                 previewBytes = null,

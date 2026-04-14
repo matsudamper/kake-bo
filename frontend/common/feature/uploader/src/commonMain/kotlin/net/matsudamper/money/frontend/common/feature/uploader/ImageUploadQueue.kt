@@ -38,6 +38,7 @@ public interface ImageUploadQueue {
         moneyUsageId: MoneyUsageId,
         rawImageBytes: ByteArray,
         previewBytes: ByteArray?,
+        contentType: String?,
     )
 
     public suspend fun retry(itemId: String)

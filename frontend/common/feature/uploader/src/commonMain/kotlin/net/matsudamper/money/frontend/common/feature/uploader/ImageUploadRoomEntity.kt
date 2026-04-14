@@ -11,6 +11,7 @@ internal data class ImageUploadRoomEntity(
     val status: String,
     val errorMessage: String?,
     val stackTrace: String?,
+    val contentType: String?,
     val createdAt: Long,
     val workManagerId: String?,
     val rawImageBytes: ByteArray?,

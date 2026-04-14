@@ -417,11 +417,12 @@ public class MoneyUsageScreenViewModel(
 
                     eventSender.send { it.requestNotificationPermission() }
                     images.forEach { image ->
-                        val rawBytes = image.previewBytes ?: return@forEach
+                        val imageData = image.await() ?: return@forEach
                         imageUploadQueue.enqueue(
                             moneyUsageId = moneyUsageId,
-                            rawImageBytes = rawBytes,
+                            rawImageBytes = imageData.bytes,
                             previewBytes = image.previewBytes,
+                            contentType = imageData.contentType,
                         )
                     }
                 }
