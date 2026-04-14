@@ -10,7 +10,6 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
-import io.ktor.server.application.createApplicationPlugin
 import io.ktor.server.application.install
 import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
@@ -20,6 +19,7 @@ import io.ktor.server.plugins.compression.Compression
 import io.ktor.server.plugins.conditionalheaders.ConditionalHeaders
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
+import io.ktor.server.plugins.defaultheaders.DefaultHeaders
 import io.ktor.server.plugins.forwardedheaders.ForwardedHeaders
 import io.ktor.server.plugins.forwardedheaders.XForwardedHeaders
 import io.ktor.server.plugins.statuspages.StatusPages
@@ -112,14 +112,10 @@ fun Application.myApplicationModule() {
         }
     }
     // OPFS（Origin Private File System）を Web Worker から使用するために必要なクロスオリジン分離ヘッダ
-    install(
-        createApplicationPlugin("CrossOriginIsolation") {
-            onCall { call ->
-                call.response.headers.append("Cross-Origin-Opener-Policy", "same-origin")
-                call.response.headers.append("Cross-Origin-Embedder-Policy", "require-corp")
-            }
-        },
-    )
+    install(DefaultHeaders) {
+        header("Cross-Origin-Opener-Policy", "same-origin")
+        header("Cross-Origin-Embedder-Policy", "require-corp")
+    }
     install(StatusPages) {
         exception<Throwable> { call, cause ->
             TraceLogger.impl().noticeThrowable(cause, isError = true)
