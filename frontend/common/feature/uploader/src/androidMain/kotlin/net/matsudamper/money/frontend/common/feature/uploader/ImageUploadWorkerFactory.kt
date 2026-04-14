@@ -13,6 +13,7 @@ internal class ImageUploadWorkerFactory(
     private val dataStores: DataStores,
     private val graphqlClient: GraphqlClient,
     private val serverHostConfig: ServerHostConfig,
+    private val localStorage: ImageUploadLocalStorage,
 ) : WorkerFactory() {
     override fun createWorker(
         appContext: Context,
@@ -27,6 +28,7 @@ internal class ImageUploadWorkerFactory(
             dataStores = dataStores,
             graphqlClient = graphqlClient,
             serverHostConfig = serverHostConfig,
+            localStorage = localStorage,
         )
     }
 }

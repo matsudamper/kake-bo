@@ -29,6 +29,7 @@ public class ImageUploadQueueJsImpl private constructor(
     private val dao: ImageUploadRoomDao,
     private val graphqlClient: GraphqlClient,
     private val imageUploadClient: ImageUploadClient,
+    private val localStorage: ImageUploadLocalStorage,
 ) : ImageUploadQueue {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val activeJobs = mutableMapOf<Int, Job>()
@@ -50,7 +51,7 @@ public class ImageUploadQueueJsImpl private constructor(
             entities.map { entity ->
                 ImageUploadQueue.QueueItem(
                     id = entity.id,
-                    previewBytes = entity.previewBytes,
+                    previewBytes = localStorage.readPreview(entity.id),
                     status = when (entity.status) {
                         STATUS_UPLOADING -> ImageUploadQueue.Status.Uploading
                         STATUS_COMPLETED -> ImageUploadQueue.Status.Completed
@@ -70,6 +71,10 @@ public class ImageUploadQueueJsImpl private constructor(
         contentType: String?,
     ) {
         val id = Uuid.random().toString()
+        localStorage.writeRawImage(id, rawImageBytes)
+        if (previewBytes != null) {
+            localStorage.writePreview(id, previewBytes)
+        }
         dao.insert(
             ImageUploadRoomEntity(
                 id = id,
@@ -80,8 +85,6 @@ public class ImageUploadQueueJsImpl private constructor(
                 stackTrace = null,
                 contentType = contentType,
                 createdAt = js("Date.now()").unsafeCast<Double>().toLong(),
-                rawImageBytes = rawImageBytes,
-                previewBytes = previewBytes,
             ),
         )
         triggerNext(moneyUsageId)
@@ -101,6 +104,7 @@ public class ImageUploadQueueJsImpl private constructor(
             activeItemIds.remove(moneyUsageKey)
         }
         dao.deleteById(itemId)
+        localStorage.deleteImages(itemId)
         triggerNext(MoneyUsageId(entity.moneyUsageId))
     }
 
@@ -129,7 +133,7 @@ public class ImageUploadQueueJsImpl private constructor(
     private suspend fun processEntry(itemId: String) {
         dao.updateStatus(itemId, STATUS_UPLOADING)
         val entity = dao.getById(itemId) ?: return
-        val rawImageBytes = entity.rawImageBytes ?: return
+        val rawImageBytes = localStorage.readRawImage(itemId) ?: return
 
         val uploadedResult = runCatching {
             imageUploadClient.upload(
@@ -194,6 +198,7 @@ public class ImageUploadQueueJsImpl private constructor(
         }
 
         dao.updateStatus(itemId, STATUS_COMPLETED)
+        localStorage.deleteImages(itemId)
     }
 
     override fun observeAllDebugItems(): Flow<List<ImageUploadQueue.DebugItem>> {
@@ -231,6 +236,7 @@ public class ImageUploadQueueJsImpl private constructor(
                 dao = db.dao(),
                 graphqlClient = graphqlClient,
                 imageUploadClient = imageUploadClient,
+                localStorage = ImageUploadLocalStorageJsImpl(),
             )
         }
     }

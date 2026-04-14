@@ -51,6 +51,7 @@ internal class ImageUploadWorker(
     private val dataStores: DataStores,
     private val graphqlClient: GraphqlClient,
     private val serverHostConfig: ServerHostConfig,
+    private val localStorage: ImageUploadLocalStorage,
 ) : CoroutineWorker(appContext, params) {
 
     private val okHttpClient by lazy {
@@ -85,9 +86,7 @@ internal class ImageUploadWorker(
     }
 
     private suspend fun doUploadWork(recordId: String): Result {
-        val rawImageBytes = withContext(Dispatchers.IO) {
-            runCatching { rawImageBytesFile(applicationContext, recordId).readBytes() }.getOrNull()
-        }
+        val rawImageBytes = localStorage.readRawImage(recordId)
         if (rawImageBytes == null) {
             // キャッシュがクリアされてファイルが消えた場合はDBレコードも削除してクリーンアップ
             dao.deleteById(recordId)
@@ -159,8 +158,7 @@ internal class ImageUploadWorker(
         }
 
         dao.updateStatus(recordId, ImageUploadQueueImpl.STATUS_COMPLETED)
-        rawImageBytesFile(applicationContext, recordId).delete()
-        previewBytesFile(applicationContext, recordId).delete()
+        localStorage.deleteImages(recordId)
         return Result.success()
     }
 

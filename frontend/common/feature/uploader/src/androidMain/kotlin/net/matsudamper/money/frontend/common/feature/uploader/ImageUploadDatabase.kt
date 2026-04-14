@@ -20,20 +20,26 @@ public class ImageUploadDatabase private constructor(private val db: ImageUpload
 
     private val dao: ImageUploadRoomDao get() = db.dao()
 
-    public fun createQueue(context: Context): ImageUploadQueue {
-        return ImageUploadQueueImpl(context = context, dao = dao)
+    public fun createLocalStorage(context: Context): ImageUploadLocalStorage {
+        return ImageUploadLocalStorageAndroidImpl(context = context)
+    }
+
+    public fun createQueue(context: Context, localStorage: ImageUploadLocalStorage): ImageUploadQueue {
+        return ImageUploadQueueImpl(context = context, dao = dao, localStorage = localStorage)
     }
 
     public fun createWorkerFactory(
         dataStores: DataStores,
         graphqlClient: GraphqlClient,
         serverHostConfig: ServerHostConfig,
+        localStorage: ImageUploadLocalStorage,
     ): WorkerFactory {
         return ImageUploadWorkerFactory(
             dao = dao,
             dataStores = dataStores,
             graphqlClient = graphqlClient,
             serverHostConfig = serverHostConfig,
+            localStorage = localStorage,
         )
     }
 
@@ -64,7 +70,7 @@ public class ImageUploadDatabase private constructor(private val db: ImageUpload
                 name = dbFile.absolutePath,
             )
                 .setDriver(AndroidSQLiteDriver())
-                .addMigrations(ImageUploadRoomDatabase.MIGRATION_1_2, ImageUploadRoomDatabase.MIGRATION_2_3)
+                .addMigrations(ImageUploadRoomDatabase.MIGRATION_1_2, ImageUploadRoomDatabase.MIGRATION_2_3, ImageUploadRoomDatabase.MIGRATION_3_4)
                 .fallbackToDestructiveMigration(dropAllTables = true)
                 .build()
             return ImageUploadDatabase(db)

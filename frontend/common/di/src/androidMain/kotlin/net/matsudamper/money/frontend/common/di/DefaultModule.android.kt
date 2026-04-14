@@ -126,6 +126,9 @@ internal actual val factory: Factory = object : Factory() {
     }
 
     override fun createImageUploadQueue(scope: Scope): ImageUploadQueue {
-        return scope.get<ImageUploadDatabase>().createQueue(context = scope.get())
+        return scope.get<ImageUploadDatabase>().createQueue(
+            context = scope.get(),
+            localStorage = scope.get(),
+        )
     }
 }

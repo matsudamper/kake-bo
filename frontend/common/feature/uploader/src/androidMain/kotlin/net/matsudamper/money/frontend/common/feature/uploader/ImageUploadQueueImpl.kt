@@ -6,26 +6,22 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
 import java.util.UUID
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import net.matsudamper.money.element.MoneyUsageId
 
 internal class ImageUploadQueueImpl(
     private val context: Context,
     private val dao: ImageUploadRoomDao,
+    private val localStorage: ImageUploadLocalStorage,
 ) : ImageUploadQueue {
 
     override fun observeItems(moneyUsageId: MoneyUsageId): Flow<List<ImageUploadQueue.QueueItem>> {
         return dao.observeByMoneyUsageId(moneyUsageId.id).map { entities ->
             entities.map { entity ->
-                val previewBytes = previewBytesFile(context, entity.id)
-                    .takeIf { it.exists() }
-                    ?.readBytes()
                 ImageUploadQueue.QueueItem(
                     id = entity.id,
-                    previewBytes = previewBytes,
+                    previewBytes = localStorage.readPreview(entity.id),
                     status = when (entity.status) {
                         STATUS_UPLOADING -> ImageUploadQueue.Status.Uploading
                         STATUS_COMPLETED -> ImageUploadQueue.Status.Completed
@@ -44,11 +40,9 @@ internal class ImageUploadQueueImpl(
         contentType: String?,
     ) {
         val id = UUID.randomUUID().toString()
-        withContext(Dispatchers.IO) {
-            rawImageBytesFile(context, id).also { it.parentFile?.mkdirs() }.writeBytes(rawImageBytes)
-            if (previewBytes != null) {
-                previewBytesFile(context, id).also { it.parentFile?.mkdirs() }.writeBytes(previewBytes)
-            }
+        localStorage.writeRawImage(id, rawImageBytes)
+        if (previewBytes != null) {
+            localStorage.writePreview(id, previewBytes)
         }
         dao.insert(
             ImageUploadRoomEntity(
@@ -60,8 +54,6 @@ internal class ImageUploadQueueImpl(
                 stackTrace = null,
                 contentType = contentType,
                 createdAt = System.currentTimeMillis(),
-                rawImageBytes = null,
-                previewBytes = null,
             ),
         )
         val request = OneTimeWorkRequestBuilder<ImageUploadWorker>()
@@ -114,10 +106,7 @@ internal class ImageUploadQueueImpl(
         val entity = dao.getById(itemId) ?: return
         val workManagerId = entity.workManagerId
         dao.deleteById(itemId)
-        withContext(Dispatchers.IO) {
-            rawImageBytesFile(context, itemId).delete()
-            previewBytesFile(context, itemId).delete()
-        }
+        localStorage.deleteImages(itemId)
         if (workManagerId != null) {
             WorkManager.getInstance(context).cancelWorkById(UUID.fromString(workManagerId))
         }
