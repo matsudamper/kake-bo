@@ -36,4 +36,10 @@ internal interface ImageUploadRoomDao {
 
     @Query("UPDATE image_upload_queue SET status = 'PENDING', workManagerId = NULL, errorMessage = NULL WHERE status = 'UPLOADING'")
     suspend fun resetUploadingToPending()
+
+    @Query("SELECT * FROM image_upload_queue ORDER BY createdAt DESC LIMIT :limit OFFSET :offset")
+    suspend fun getPagedAllByCreatedAtDesc(limit: Int, offset: Int): List<ImageUploadRoomEntity>
+
+    @Query("SELECT COUNT(*) FROM image_upload_queue")
+    suspend fun countAll(): Int
 }

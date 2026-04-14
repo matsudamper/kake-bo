@@ -18,6 +18,15 @@ public interface ImageUploadQueue {
         val status: Status,
     )
 
+    public data class DebugItem(
+        val id: String,
+        val moneyUsageId: Int,
+        val status: Status,
+        val errorMessage: String?,
+        val createdAt: Long,
+        val workManagerId: String?,
+    )
+
     public fun observeItems(moneyUsageId: MoneyUsageId): Flow<List<QueueItem>>
 
     public suspend fun enqueue(
@@ -29,4 +38,8 @@ public interface ImageUploadQueue {
     public suspend fun retry(itemId: String)
 
     public suspend fun cancel(itemId: String)
+
+    public suspend fun getPagedDebugItems(offset: Int, limit: Int): List<DebugItem>
+
+    public suspend fun countAllDebugItems(): Int
 }
