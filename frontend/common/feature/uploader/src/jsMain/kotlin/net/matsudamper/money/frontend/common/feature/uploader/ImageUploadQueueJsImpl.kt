@@ -132,8 +132,14 @@ public class ImageUploadQueueJsImpl private constructor(
 
     private suspend fun processEntry(itemId: String) {
         dao.updateStatus(itemId, STATUS_UPLOADING)
-        val entity = dao.getById(itemId) ?: return
-        val rawImageBytes = localStorage.readRawImage(itemId) ?: return
+        val entity = dao.getById(itemId) ?: run {
+            dao.updateStatusWithError(itemId, STATUS_FAILED, "レコードが見つかりません", null)
+            return
+        }
+        val rawImageBytes = localStorage.readRawImage(itemId) ?: run {
+            dao.updateStatusWithError(itemId, STATUS_FAILED, "画像データが見つかりません", null)
+            return
+        }
 
         val uploadedResult = runCatching {
             imageUploadClient.upload(

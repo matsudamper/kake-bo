@@ -3,7 +3,6 @@ package net.matsudamper.money.frontend.common.viewmodel.root.settings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
@@ -56,19 +55,19 @@ public class UploadQueueDebugViewModel(
         ),
     ).also { stateFlow ->
         viewModelScope.launch {
-            combine(
-                imageUploadQueue.observeAllDebugItems(),
-                viewModelState,
-            ) { allItems, state ->
+            imageUploadQueue.observeAllDebugItems().collect { allItems ->
+                viewModelState.update { it.copy(allItems = allItems) }
+            }
+        }
+        viewModelScope.launch {
+            viewModelState.collect { state ->
                 val filteredItems = when (state.selectedStatusFilter) {
-                    UploadQueueDebugScreenUiState.StatusFilter.All -> allItems
-                    UploadQueueDebugScreenUiState.StatusFilter.Pending -> allItems.filter { it.status is ImageUploadQueue.Status.Pending }
-                    UploadQueueDebugScreenUiState.StatusFilter.Uploading -> allItems.filter { it.status is ImageUploadQueue.Status.Uploading }
-                    UploadQueueDebugScreenUiState.StatusFilter.Completed -> allItems.filter { it.status is ImageUploadQueue.Status.Completed }
-                    UploadQueueDebugScreenUiState.StatusFilter.Failed -> allItems.filter { it.status is ImageUploadQueue.Status.Failed }
+                    UploadQueueDebugScreenUiState.StatusFilter.All -> state.allItems
+                    UploadQueueDebugScreenUiState.StatusFilter.Pending -> state.allItems.filter { it.status is ImageUploadQueue.Status.Pending }
+                    UploadQueueDebugScreenUiState.StatusFilter.Uploading -> state.allItems.filter { it.status is ImageUploadQueue.Status.Uploading }
+                    UploadQueueDebugScreenUiState.StatusFilter.Completed -> state.allItems.filter { it.status is ImageUploadQueue.Status.Completed }
+                    UploadQueueDebugScreenUiState.StatusFilter.Failed -> state.allItems.filter { it.status is ImageUploadQueue.Status.Failed }
                 }
-                filteredItems to state
-            }.collect { (filteredItems, state) ->
                 stateFlow.update { uiState ->
                     uiState.copy(
                         items = filteredItems.map { item ->
@@ -97,6 +96,7 @@ public class UploadQueueDebugViewModel(
     }.asStateFlow()
 
     private data class ViewModelState(
+        val allItems: List<ImageUploadQueue.DebugItem> = listOf(),
         val selectedStatusFilter: UploadQueueDebugScreenUiState.StatusFilter = UploadQueueDebugScreenUiState.StatusFilter.All,
         val statusFilterExpanded: Boolean = false,
         val errorDialogItem: UploadQueueDebugScreenUiState.Item? = null,
