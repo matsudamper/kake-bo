@@ -45,7 +45,11 @@ internal class ImageUploadLocalStorageJsImpl : ImageUploadLocalStorage {
         suspendCancellableCoroutine { cont ->
             val tx = db.transaction(storeName, "readwrite")
             val store = tx.objectStore(storeName)
-            store.put(Uint8Array(bytes.unsafeCast<Int8Array>().buffer), key)
+            val uint8Array = Uint8Array(bytes.size)
+            for (i in bytes.indices) {
+                uint8Array.asDynamic()[i] = bytes[i].toInt() and 0xFF
+            }
+            store.put(uint8Array, key)
             tx.oncomplete = {
                 cont.resume(Unit)
             }
@@ -66,7 +70,13 @@ internal class ImageUploadLocalStorageJsImpl : ImageUploadLocalStorage {
                 if (result == null) {
                     cont.resume(null)
                 } else {
-                    cont.resume(Int8Array(result.unsafeCast<Uint8Array>().buffer).unsafeCast<ByteArray>())
+                    val uint8Array = result.unsafeCast<Uint8Array>()
+                    val int8Array = Int8Array(uint8Array.buffer)
+                    cont.resume(
+                        ByteArray(int8Array.length) { index ->
+                            (int8Array.asDynamic()[index] as Number).toInt().toByte()
+                        },
+                    )
                 }
             }
             request.onerror = { event: dynamic ->
