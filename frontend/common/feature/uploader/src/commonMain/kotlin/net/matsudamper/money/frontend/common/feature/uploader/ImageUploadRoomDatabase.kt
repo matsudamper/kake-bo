@@ -53,7 +53,7 @@ internal abstract class ImageUploadRoomDatabase : RoomDatabase() {
     }
 }
 
-@Suppress("KotlinNoActualForExpect")
+@Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 internal expect object ImageUploadDatabaseConstructor :
     RoomDatabaseConstructor<ImageUploadRoomDatabase> {
     override fun initialize(): ImageUploadRoomDatabase
