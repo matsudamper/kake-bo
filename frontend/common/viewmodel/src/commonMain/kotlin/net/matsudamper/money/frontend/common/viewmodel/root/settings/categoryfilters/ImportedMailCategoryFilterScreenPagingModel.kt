@@ -24,7 +24,7 @@ public class ImportedMailCategoryFilterScreenPagingModel(
 
     internal fun getFlow(): Flow<ApolloResponse<ImportedMailCategoryFiltersScreenPagingQuery.Data>> {
         return graphqlClient.apolloClient.query(firstQuery)
-            .fetchPolicy(FetchPolicy.CacheOnly)
+            .fetchPolicy(FetchPolicy.CacheFirst)
             .watch()
     }
 
@@ -36,6 +36,7 @@ public class ImportedMailCategoryFilterScreenPagingModel(
         query = ImportedMailCategoryFiltersQuery(
             cursor = Optional.present(null),
             isAsc = true,
+            size = 10,
             sortType = Optional.present(ImportedMailCategoryFiltersSortType.TITLE),
         ),
     )
@@ -75,6 +76,7 @@ public class ImportedMailCategoryFilterScreenPagingModel(
                 query = ImportedMailCategoryFiltersQuery(
                     cursor = Optional.present(cursor),
                     isAsc = true,
+                    size = 10,
                     sortType = Optional.present(ImportedMailCategoryFiltersSortType.TITLE),
                 ),
             ),

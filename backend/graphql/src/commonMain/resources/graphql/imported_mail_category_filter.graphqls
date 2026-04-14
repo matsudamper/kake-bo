@@ -1,4 +1,5 @@
 input ImportedMailCategoryFiltersQuery {
+    size: Int!
     isAsc: Boolean!
     cursor: String
     sortType: ImportedMailCategoryFiltersSortType
