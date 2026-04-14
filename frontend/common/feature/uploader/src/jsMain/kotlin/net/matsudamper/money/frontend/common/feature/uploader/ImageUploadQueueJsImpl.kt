@@ -196,7 +196,7 @@ public class ImageUploadQueueJsImpl private constructor(
             imageUploadClient: ImageUploadClient,
         ): ImageUploadQueueJsImpl {
             val worker = Worker(js("""new URL("@androidx/sqlite-web-worker/worker.js", import.meta.url)"""))
-            val db = Room.databaseBuilder<ImageUploadRoomDatabase>("image_upload_queue.db")
+            val db = Room.inMemoryDatabaseBuilder<ImageUploadRoomDatabase>()
                 .setDriver(WebWorkerSQLiteDriver(worker))
                 .setQueryCoroutineContext(Dispatchers.Default)
                 .build()
