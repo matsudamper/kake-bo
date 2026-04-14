@@ -64,6 +64,7 @@ public class ImageUploadDatabase private constructor(private val db: ImageUpload
                 name = dbFile.absolutePath,
             )
                 .setDriver(AndroidSQLiteDriver())
+                .addMigrations(ImageUploadRoomDatabase.MIGRATION_1_2)
                 .fallbackToDestructiveMigration(dropAllTables = true)
                 .build()
             return ImageUploadDatabase(db)

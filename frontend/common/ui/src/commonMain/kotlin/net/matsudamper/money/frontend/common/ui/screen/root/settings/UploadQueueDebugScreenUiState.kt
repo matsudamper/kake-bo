@@ -4,6 +4,7 @@ public data class UploadQueueDebugScreenUiState(
     val items: List<Item>,
     val selectedStatusFilter: StatusFilter,
     val statusFilterExpanded: Boolean,
+    val errorDialogItem: Item?,
     val event: Event,
 ) {
     public enum class StatusFilter {
@@ -19,6 +20,7 @@ public data class UploadQueueDebugScreenUiState(
         val moneyUsageId: Int,
         val status: Status,
         val errorMessage: String?,
+        val stackTrace: String?,
         val createdAt: Long,
         val workManagerId: String?,
     )
@@ -39,5 +41,9 @@ public data class UploadQueueDebugScreenUiState(
         public fun onDismissStatusFilter()
 
         public fun onSelectStatusFilter(filter: StatusFilter)
+
+        public fun onClickItem(item: Item)
+
+        public fun onDismissErrorDialog()
     }
 }

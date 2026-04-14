@@ -56,6 +56,7 @@ internal class ImageUploadQueueImpl(
                 status = STATUS_PENDING,
                 workManagerId = null,
                 errorMessage = null,
+                stackTrace = null,
                 createdAt = System.currentTimeMillis(),
                 rawImageBytes = null,
                 previewBytes = null,
@@ -74,7 +75,7 @@ internal class ImageUploadQueueImpl(
 
     override suspend fun retry(itemId: String) {
         val entity = dao.getById(itemId) ?: return
-        dao.updateStatusWithError(itemId, STATUS_PENDING, null)
+        dao.updateStatusWithError(itemId, STATUS_PENDING, null, null)
         val request = OneTimeWorkRequestBuilder<ImageUploadWorker>()
             .setInputData(workDataOf(ImageUploadWorker.KEY_RECORD_ID to itemId))
             .build()
@@ -99,6 +100,7 @@ internal class ImageUploadQueueImpl(
                         else -> ImageUploadQueue.Status.Pending
                     },
                     errorMessage = entity.errorMessage,
+                    stackTrace = entity.stackTrace,
                     createdAt = entity.createdAt,
                     workManagerId = entity.workManagerId,
                 )

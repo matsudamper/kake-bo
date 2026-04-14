@@ -98,7 +98,7 @@ internal class ImageUploadWorker(
             convertToWebP(rawImageBytes)
         }
         if (webpBytes == null) {
-            dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "画像変換に失敗しました")
+            dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "画像変換に失敗しました", null)
             return Result.failure()
         }
 
@@ -121,7 +121,7 @@ internal class ImageUploadWorker(
             )
         }
         if (uploadedImageId == null) {
-            dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "アップロードに失敗しました")
+            dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "アップロードに失敗しました", null)
             return Result.failure()
         }
 
@@ -154,7 +154,7 @@ internal class ImageUploadWorker(
         }.getOrDefault(false)
 
         if (!isSuccess) {
-            dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "使用用途の更新に失敗しました")
+            dao.updateStatusWithError(recordId, ImageUploadQueueImpl.STATUS_FAILED, "使用用途の更新に失敗しました", null)
             return Result.failure()
         }
 

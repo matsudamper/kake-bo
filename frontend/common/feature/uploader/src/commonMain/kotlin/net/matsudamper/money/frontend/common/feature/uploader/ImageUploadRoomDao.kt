@@ -22,8 +22,8 @@ internal interface ImageUploadRoomDao {
     @Query("UPDATE image_upload_queue SET status = :status WHERE id = :id")
     suspend fun updateStatus(id: String, status: String)
 
-    @Query("UPDATE image_upload_queue SET status = :status, errorMessage = :errorMessage WHERE id = :id")
-    suspend fun updateStatusWithError(id: String, status: String, errorMessage: String?)
+    @Query("UPDATE image_upload_queue SET status = :status, errorMessage = :errorMessage, stackTrace = :stackTrace WHERE id = :id")
+    suspend fun updateStatusWithError(id: String, status: String, errorMessage: String?, stackTrace: String?)
 
     @Query("DELETE FROM image_upload_queue WHERE id = :id")
     suspend fun deleteById(id: String)
@@ -34,7 +34,7 @@ internal interface ImageUploadRoomDao {
     @Query("SELECT DISTINCT moneyUsageId FROM image_upload_queue WHERE status = 'PENDING'")
     suspend fun getDistinctMoneyUsageIdsWithPendingItems(): List<Int>
 
-    @Query("UPDATE image_upload_queue SET status = 'PENDING', workManagerId = NULL, errorMessage = NULL WHERE status = 'UPLOADING'")
+    @Query("UPDATE image_upload_queue SET status = 'PENDING', workManagerId = NULL, errorMessage = NULL, stackTrace = NULL WHERE status = 'UPLOADING'")
     suspend fun resetUploadingToPending()
 
     @Query("SELECT * FROM image_upload_queue ORDER BY createdAt DESC")

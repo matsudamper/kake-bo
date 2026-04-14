@@ -25,6 +25,7 @@ public interface ImageUploadQueue {
         val moneyUsageId: Int,
         val status: Status,
         val errorMessage: String?,
+        val stackTrace: String?,
         val createdAt: Long,
         val workManagerId: String?,
     )

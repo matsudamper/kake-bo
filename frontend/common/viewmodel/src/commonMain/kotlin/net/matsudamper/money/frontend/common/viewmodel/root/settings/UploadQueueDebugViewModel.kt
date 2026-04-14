@@ -34,6 +34,16 @@ public class UploadQueueDebugViewModel(
                 )
             }
         }
+
+        override fun onClickItem(item: UploadQueueDebugScreenUiState.Item) {
+            if (item.errorMessage != null || item.stackTrace != null) {
+                viewModelState.update { it.copy(errorDialogItem = item) }
+            }
+        }
+
+        override fun onDismissErrorDialog() {
+            viewModelState.update { it.copy(errorDialogItem = null) }
+        }
     }
 
     public val uiStateFlow: StateFlow<UploadQueueDebugScreenUiState> = MutableStateFlow(
@@ -41,6 +51,7 @@ public class UploadQueueDebugViewModel(
             items = listOf(),
             selectedStatusFilter = UploadQueueDebugScreenUiState.StatusFilter.All,
             statusFilterExpanded = false,
+            errorDialogItem = null,
             event = event,
         ),
     ).also { stateFlow ->
@@ -71,12 +82,14 @@ public class UploadQueueDebugViewModel(
                                     is ImageUploadQueue.Status.Failed -> UploadQueueDebugScreenUiState.Status.Failed(s.message)
                                 },
                                 errorMessage = item.errorMessage,
+                                stackTrace = item.stackTrace,
                                 createdAt = item.createdAt,
                                 workManagerId = item.workManagerId,
                             )
                         },
                         selectedStatusFilter = state.selectedStatusFilter,
                         statusFilterExpanded = state.statusFilterExpanded,
+                        errorDialogItem = state.errorDialogItem,
                     )
                 }
             }
@@ -86,5 +99,6 @@ public class UploadQueueDebugViewModel(
     private data class ViewModelState(
         val selectedStatusFilter: UploadQueueDebugScreenUiState.StatusFilter = UploadQueueDebugScreenUiState.StatusFilter.All,
         val statusFilterExpanded: Boolean = false,
+        val errorDialogItem: UploadQueueDebugScreenUiState.Item? = null,
     )
 }

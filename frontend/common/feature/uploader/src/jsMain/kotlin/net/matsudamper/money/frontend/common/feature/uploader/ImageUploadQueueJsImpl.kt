@@ -76,6 +76,7 @@ public class ImageUploadQueueJsImpl private constructor(
                 status = STATUS_PENDING,
                 workManagerId = null,
                 errorMessage = null,
+                stackTrace = null,
                 createdAt = js("Date.now()").unsafeCast<Double>().toLong(),
                 rawImageBytes = rawImageBytes,
                 previewBytes = previewBytes,
@@ -86,7 +87,7 @@ public class ImageUploadQueueJsImpl private constructor(
 
     override suspend fun retry(itemId: String) {
         val entity = dao.getById(itemId) ?: return
-        dao.updateStatusWithError(itemId, STATUS_PENDING, null)
+        dao.updateStatusWithError(itemId, STATUS_PENDING, null, null)
         triggerNext(MoneyUsageId(entity.moneyUsageId))
     }
 
@@ -128,28 +129,37 @@ public class ImageUploadQueueJsImpl private constructor(
         val entity = dao.getById(itemId) ?: return
         val rawImageBytes = entity.rawImageBytes ?: return
 
-        val uploadResult = imageUploadClient.upload(
-            bytes = rawImageBytes,
-            contentType = null,
-        )
-        if (uploadResult == null) {
-            dao.updateStatusWithError(itemId, STATUS_FAILED, "アップロードに失敗しました")
+        val uploadedResult = runCatching {
+            imageUploadClient.upload(
+                bytes = rawImageBytes,
+                contentType = null,
+            )
+        }
+        val uploaded = uploadedResult.getOrNull()
+        if (uploaded == null) {
+            dao.updateStatusWithError(
+                itemId,
+                STATUS_FAILED,
+                "アップロードに失敗しました",
+                uploadedResult.exceptionOrNull()?.stackTraceToString(),
+            )
             return
         }
 
         val moneyUsageId = MoneyUsageId(entity.moneyUsageId)
-        val currentImageIds = runCatching {
+        val queryResult = runCatching {
             graphqlClient.apolloClient
                 .query(MoneyUsageScreenQuery(id = moneyUsageId))
                 .execute()
                 .data?.user?.moneyUsage?.moneyUsageScreenMoneyUsage?.images
                 ?.map { it.id }
-        }.getOrNull()
+        }
+        val currentImageIds = queryResult.getOrNull()
 
-        val updatedImageIds = ((currentImageIds ?: listOf()) + uploadResult.imageId)
+        val updatedImageIds = ((currentImageIds ?: listOf()) + uploaded.imageId)
             .distinctBy { it.value }
 
-        val isSuccess = runCatching {
+        val mutationResult = runCatching {
             graphqlClient.apolloClient
                 .mutation(
                     MoneyUsageScreenUpdateUsageMutation(
@@ -161,10 +171,15 @@ public class ImageUploadQueueJsImpl private constructor(
                 )
                 .execute()
                 .data?.userMutation?.updateUsage != null
-        }.getOrDefault(false)
+        }
 
-        if (!isSuccess) {
-            dao.updateStatusWithError(itemId, STATUS_FAILED, "使用用途の更新に失敗しました")
+        if (mutationResult.getOrDefault(false) == false) {
+            dao.updateStatusWithError(
+                itemId,
+                STATUS_FAILED,
+                "使用用途の更新に失敗しました",
+                mutationResult.exceptionOrNull()?.stackTraceToString(),
+            )
             return
         }
 
@@ -184,6 +199,7 @@ public class ImageUploadQueueJsImpl private constructor(
                         else -> ImageUploadQueue.Status.Pending
                     },
                     errorMessage = entity.errorMessage,
+                    stackTrace = entity.stackTrace,
                     createdAt = entity.createdAt,
                     workManagerId = entity.workManagerId,
                 )

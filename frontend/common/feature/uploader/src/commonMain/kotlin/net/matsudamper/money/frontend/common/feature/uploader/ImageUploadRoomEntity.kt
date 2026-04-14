@@ -10,6 +10,7 @@ internal data class ImageUploadRoomEntity(
     val moneyUsageId: Int,
     val status: String,
     val errorMessage: String?,
+    val stackTrace: String?,
     val createdAt: Long,
     val workManagerId: String?,
     val rawImageBytes: ByteArray?,

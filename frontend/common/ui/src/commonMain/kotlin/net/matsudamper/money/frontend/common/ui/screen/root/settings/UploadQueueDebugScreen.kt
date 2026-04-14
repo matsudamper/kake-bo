@@ -1,5 +1,6 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -12,14 +13,21 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import net.matsudamper.money.frontend.common.ui.base.DropDownMenuButton
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
@@ -51,7 +59,7 @@ public fun UploadQueueDebugScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text("キューにアイテムがありません")
+                        Text("一致はありません")
                     }
                 } else {
                     LazyColumn(
@@ -65,12 +73,65 @@ public fun UploadQueueDebugScreen(
                                 HorizontalDivider()
                             }
                             QueueItemRow(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { uiState.event.onClickItem(item) },
                                 item = item,
                             )
                         }
                     }
                 }
+            }
+        },
+    )
+
+    val dialogItem = uiState.errorDialogItem
+    if (dialogItem != null) {
+        ErrorDetailDialog(
+            item = dialogItem,
+            onDismiss = { uiState.event.onDismissErrorDialog() },
+        )
+    }
+}
+
+@Composable
+private fun ErrorDetailDialog(
+    item: UploadQueueDebugScreenUiState.Item,
+    onDismiss: () -> Unit,
+) {
+    val clipboardManager = LocalClipboardManager.current
+    val errorText = buildString {
+        if (item.errorMessage != null) {
+            appendLine(item.errorMessage)
+        }
+        if (item.stackTrace != null) {
+            appendLine()
+            append(item.stackTrace)
+        }
+    }.trim()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("エラー詳細") },
+        text = {
+            Text(
+                modifier = Modifier.verticalScroll(rememberScrollState()),
+                text = errorText.ifEmpty { "エラー情報はありません" },
+                style = MaterialTheme.typography.bodySmall,
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    clipboardManager.setText(AnnotatedString(errorText))
+                },
+            ) {
+                Text("コピー")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("閉じる")
             }
         },
     )
@@ -153,6 +214,8 @@ private fun QueueItemRow(
                 text = "error: ${item.errorMessage}",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.error,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
         }
         if (item.workManagerId != null) {
