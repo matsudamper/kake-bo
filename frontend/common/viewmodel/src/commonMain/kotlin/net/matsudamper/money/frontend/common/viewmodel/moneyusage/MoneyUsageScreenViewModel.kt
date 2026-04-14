@@ -489,7 +489,7 @@ public class MoneyUsageScreenViewModel(
         viewModelScope.launch {
             imageUploadQueue.observeItems(moneyUsageId).collect { items ->
                 viewModelStateFlow.update { state ->
-                    state.copy(uploadQueueItems = items)
+                    state.copy(uploadQueueItems = items.filter { it.status !is ImageUploadQueue.Status.Completed })
                 }
             }
         }
