@@ -95,7 +95,7 @@ public class ImportedMailFilterCategoryViewModel(
                                         dismissConfirmDialog()
                                         if (isSuccess) {
                                             eventSender.send {
-                                                it.navigate(ScreenStructure.Root.Settings.MailCategoryFilters)
+                                                it.navigateBack()
                                             }
                                         } else {
                                             snackbarEventState.show(
@@ -115,7 +115,7 @@ public class ImportedMailFilterCategoryViewModel(
                 override fun onClickBack() {
                     viewModelScope.launch {
                         eventSender.send {
-                            it.navigate(ScreenStructure.Root.Settings.MailCategoryFilters)
+                            it.navigateBack()
                         }
                     }
                 }
@@ -391,6 +391,8 @@ public class ImportedMailFilterCategoryViewModel(
         public fun showNativeAlert(text: String)
 
         public fun navigate(structure: ScreenStructure)
+
+        public fun navigateBack()
     }
 
     private data class ViewModelState(
