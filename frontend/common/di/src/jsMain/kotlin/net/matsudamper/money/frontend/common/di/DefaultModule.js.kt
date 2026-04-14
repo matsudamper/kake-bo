@@ -46,7 +46,7 @@ internal actual val factory: Factory = object : Factory() {
     }
 
     override fun createImageUploadQueue(scope: Scope): ImageUploadQueue {
-        return ImageUploadQueueJsImpl(
+        return ImageUploadQueueJsImpl.create(
             graphqlClient = scope.get(),
             imageUploadClient = scope.get(),
         )

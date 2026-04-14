@@ -14,7 +14,7 @@ import net.matsudamper.money.element.MoneyUsageId
 
 internal class ImageUploadQueueImpl(
     private val context: Context,
-    private val dao: ImageUploadDao,
+    private val dao: ImageUploadRoomDao,
 ) : ImageUploadQueue {
 
     override fun observeItems(moneyUsageId: MoneyUsageId): Flow<List<ImageUploadQueue.QueueItem>> {
@@ -49,13 +49,15 @@ internal class ImageUploadQueueImpl(
             }
         }
         dao.insert(
-            ImageUploadEntity(
+            ImageUploadRoomEntity(
                 id = id,
                 moneyUsageId = moneyUsageId.id,
                 status = STATUS_PENDING,
                 workManagerId = null,
                 errorMessage = null,
                 createdAt = System.currentTimeMillis(),
+                rawImageBytes = null,
+                previewBytes = null,
             ),
         )
         val request = OneTimeWorkRequestBuilder<ImageUploadWorker>()

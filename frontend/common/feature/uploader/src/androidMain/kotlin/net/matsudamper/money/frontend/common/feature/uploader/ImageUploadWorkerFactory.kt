@@ -9,7 +9,7 @@ import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.ServerHostConfig
 
 internal class ImageUploadWorkerFactory(
-    private val dao: ImageUploadDao,
+    private val dao: ImageUploadRoomDao,
     private val dataStores: DataStores,
     private val graphqlClient: GraphqlClient,
     private val serverHostConfig: ServerHostConfig,
