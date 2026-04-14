@@ -36,7 +36,7 @@ public fun UploadQueueDebugScreen(
         windowInsets = windowInsets,
         topBar = {
             KakeBoTopAppBar(
-                title = { Text("アップロードキュー") },
+                title = { Text("画像アップロードキュー") },
                 windowInsets = windowInsets,
             )
         },

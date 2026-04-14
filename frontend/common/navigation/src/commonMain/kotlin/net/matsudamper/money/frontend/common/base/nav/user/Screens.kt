@@ -67,7 +67,7 @@ public enum class Screens : Direction {
         override val placeholderUrl: String = "/settings/textfield-test"
     },
     SettingsUploadQueueDebug {
-        override val title: String = "アップロードキュー"
+        override val title: String = "画像アップロードキュー"
         override val placeholderUrl: String = "/settings/upload-queue-debug"
     },
     AddPresets {

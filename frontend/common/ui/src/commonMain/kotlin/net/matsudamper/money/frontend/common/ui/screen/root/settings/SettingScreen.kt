@@ -195,7 +195,7 @@ private fun MainContent(
                     SettingListMenuItemButton(
                         onClick = { uiState.event.onClickUploadQueueDebug() },
                     ) {
-                        Text("アップロードキューデバッグ")
+                        Text("画像アップロードキュー")
                     }
                     Column(
                         modifier = Modifier.fillMaxWidth(),
