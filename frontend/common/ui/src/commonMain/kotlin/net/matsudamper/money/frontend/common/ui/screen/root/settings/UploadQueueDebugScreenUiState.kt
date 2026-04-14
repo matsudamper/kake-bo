@@ -1,17 +1,16 @@
 package net.matsudamper.money.frontend.common.ui.screen.root.settings
 
 public data class UploadQueueDebugScreenUiState(
-    val loadingState: LoadingState,
+    val items: List<Item>,
+    val selectedStatusFilter: StatusFilter,
+    val statusFilterExpanded: Boolean,
     val event: Event,
 ) {
-    public sealed interface LoadingState {
-        public data object Loading : LoadingState
-
-        public data class Loaded(
-            val items: List<Item>,
-            val isLoadingMore: Boolean,
-            val isLast: Boolean,
-        ) : LoadingState
+    public enum class StatusFilter {
+        All,
+        Pending,
+        Uploading,
+        Failed,
     }
 
     public data class Item(
@@ -32,8 +31,10 @@ public data class UploadQueueDebugScreenUiState(
     }
 
     public interface Event {
-        public fun onLoadMore()
+        public fun onClickStatusFilter()
 
-        public fun onRetry()
+        public fun onDismissStatusFilter()
+
+        public fun onSelectStatusFilter(filter: StatusFilter)
     }
 }

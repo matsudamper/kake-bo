@@ -3,6 +3,7 @@ package net.matsudamper.money.frontend.common.viewmodel.root.settings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
@@ -16,95 +17,72 @@ public class UploadQueueDebugViewModel(
 ) : CommonViewModel(scopedObjectFeature) {
     private val viewModelState = MutableStateFlow(ViewModelState())
 
+    private val event = object : UploadQueueDebugScreenUiState.Event {
+        override fun onClickStatusFilter() {
+            viewModelState.update { it.copy(statusFilterExpanded = true) }
+        }
+
+        override fun onDismissStatusFilter() {
+            viewModelState.update { it.copy(statusFilterExpanded = false) }
+        }
+
+        override fun onSelectStatusFilter(filter: UploadQueueDebugScreenUiState.StatusFilter) {
+            viewModelState.update {
+                it.copy(
+                    selectedStatusFilter = filter,
+                    statusFilterExpanded = false,
+                )
+            }
+        }
+    }
+
     public val uiStateFlow: StateFlow<UploadQueueDebugScreenUiState> = MutableStateFlow(
         UploadQueueDebugScreenUiState(
-            loadingState = UploadQueueDebugScreenUiState.LoadingState.Loading,
-            event = object : UploadQueueDebugScreenUiState.Event {
-                override fun onLoadMore() {
-                    loadMore()
-                }
-
-                override fun onRetry() {
-                    viewModelState.update {
-                        it.copy(
-                            items = listOf(),
-                            offset = 0,
-                            isLast = false,
-                        )
-                    }
-                    loadMore()
-                }
-            },
+            items = listOf(),
+            selectedStatusFilter = UploadQueueDebugScreenUiState.StatusFilter.All,
+            statusFilterExpanded = false,
+            event = event,
         ),
     ).also { stateFlow ->
         viewModelScope.launch {
-            viewModelState.collect { state ->
+            combine(
+                imageUploadQueue.observeAllDebugItems(),
+                viewModelState,
+            ) { allItems, state ->
+                val filteredItems = when (state.selectedStatusFilter) {
+                    UploadQueueDebugScreenUiState.StatusFilter.All -> allItems
+                    UploadQueueDebugScreenUiState.StatusFilter.Pending -> allItems.filter { it.status is ImageUploadQueue.Status.Pending }
+                    UploadQueueDebugScreenUiState.StatusFilter.Uploading -> allItems.filter { it.status is ImageUploadQueue.Status.Uploading }
+                    UploadQueueDebugScreenUiState.StatusFilter.Failed -> allItems.filter { it.status is ImageUploadQueue.Status.Failed }
+                }
+                filteredItems to state
+            }.collect { (filteredItems, state) ->
                 stateFlow.update { uiState ->
                     uiState.copy(
-                        loadingState = if (state.isLoading && state.items.isEmpty()) {
-                            UploadQueueDebugScreenUiState.LoadingState.Loading
-                        } else {
-                            UploadQueueDebugScreenUiState.LoadingState.Loaded(
-                                items = state.items.map { item ->
-                                    UploadQueueDebugScreenUiState.Item(
-                                        id = item.id,
-                                        moneyUsageId = item.moneyUsageId,
-                                        status = when (val s = item.status) {
-                                            ImageUploadQueue.Status.Pending -> UploadQueueDebugScreenUiState.Status.Pending
-                                            ImageUploadQueue.Status.Uploading -> UploadQueueDebugScreenUiState.Status.Uploading
-                                            is ImageUploadQueue.Status.Failed -> UploadQueueDebugScreenUiState.Status.Failed(s.message)
-                                        },
-                                        errorMessage = item.errorMessage,
-                                        createdAt = item.createdAt,
-                                        workManagerId = item.workManagerId,
-                                    )
+                        items = filteredItems.map { item ->
+                            UploadQueueDebugScreenUiState.Item(
+                                id = item.id,
+                                moneyUsageId = item.moneyUsageId,
+                                status = when (val s = item.status) {
+                                    ImageUploadQueue.Status.Pending -> UploadQueueDebugScreenUiState.Status.Pending
+                                    ImageUploadQueue.Status.Uploading -> UploadQueueDebugScreenUiState.Status.Uploading
+                                    is ImageUploadQueue.Status.Failed -> UploadQueueDebugScreenUiState.Status.Failed(s.message)
                                 },
-                                isLoadingMore = state.isLoading,
-                                isLast = state.isLast,
+                                errorMessage = item.errorMessage,
+                                createdAt = item.createdAt,
+                                workManagerId = item.workManagerId,
                             )
                         },
+                        selectedStatusFilter = state.selectedStatusFilter,
+                        statusFilterExpanded = state.statusFilterExpanded,
                     )
                 }
             }
         }
     }.asStateFlow()
 
-    init {
-        loadMore()
-    }
-
-    private fun loadMore() {
-        val currentState = viewModelState.value
-        if (currentState.isLoading || currentState.isLast) return
-
-        viewModelState.update { it.copy(isLoading = true) }
-        viewModelScope.launch {
-            val newItems = runCatching {
-                imageUploadQueue.getPagedDebugItems(
-                    offset = currentState.offset,
-                    limit = PAGE_SIZE,
-                )
-            }.getOrDefault(listOf())
-
-            viewModelState.update { state ->
-                state.copy(
-                    items = state.items + newItems,
-                    offset = state.offset + newItems.size,
-                    isLast = newItems.size < PAGE_SIZE,
-                    isLoading = false,
-                )
-            }
-        }
-    }
-
     private data class ViewModelState(
-        val items: List<ImageUploadQueue.DebugItem> = listOf(),
-        val offset: Int = 0,
-        val isLast: Boolean = false,
-        val isLoading: Boolean = false,
+        val selectedStatusFilter: UploadQueueDebugScreenUiState.StatusFilter = UploadQueueDebugScreenUiState.StatusFilter.All,
+        val statusFilterExpanded: Boolean = false,
     )
-
-    private companion object {
-        const val PAGE_SIZE = 20
-    }
 }

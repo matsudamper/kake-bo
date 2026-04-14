@@ -169,25 +169,23 @@ public class ImageUploadQueueJsImpl private constructor(
         dao.deleteById(itemId)
     }
 
-    override suspend fun getPagedDebugItems(offset: Int, limit: Int): List<ImageUploadQueue.DebugItem> {
-        return dao.getPagedAllByCreatedAtDesc(limit = limit, offset = offset).map { entity ->
-            ImageUploadQueue.DebugItem(
-                id = entity.id,
-                moneyUsageId = entity.moneyUsageId,
-                status = when (entity.status) {
-                    STATUS_UPLOADING -> ImageUploadQueue.Status.Uploading
-                    STATUS_FAILED -> ImageUploadQueue.Status.Failed(entity.errorMessage)
-                    else -> ImageUploadQueue.Status.Pending
-                },
-                errorMessage = entity.errorMessage,
-                createdAt = entity.createdAt,
-                workManagerId = entity.workManagerId,
-            )
+    override fun observeAllDebugItems(): Flow<List<ImageUploadQueue.DebugItem>> {
+        return dao.observeAll().map { entities ->
+            entities.map { entity ->
+                ImageUploadQueue.DebugItem(
+                    id = entity.id,
+                    moneyUsageId = entity.moneyUsageId,
+                    status = when (entity.status) {
+                        STATUS_UPLOADING -> ImageUploadQueue.Status.Uploading
+                        STATUS_FAILED -> ImageUploadQueue.Status.Failed(entity.errorMessage)
+                        else -> ImageUploadQueue.Status.Pending
+                    },
+                    errorMessage = entity.errorMessage,
+                    createdAt = entity.createdAt,
+                    workManagerId = entity.workManagerId,
+                )
+            }
         }
-    }
-
-    override suspend fun countAllDebugItems(): Int {
-        return dao.countAll()
     }
 
     public companion object {

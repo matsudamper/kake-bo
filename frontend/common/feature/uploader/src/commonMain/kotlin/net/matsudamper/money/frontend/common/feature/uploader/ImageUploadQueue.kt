@@ -29,6 +29,8 @@ public interface ImageUploadQueue {
 
     public fun observeItems(moneyUsageId: MoneyUsageId): Flow<List<QueueItem>>
 
+    public fun observeAllDebugItems(): Flow<List<DebugItem>>
+
     public suspend fun enqueue(
         moneyUsageId: MoneyUsageId,
         rawImageBytes: ByteArray,
@@ -38,8 +40,4 @@ public interface ImageUploadQueue {
     public suspend fun retry(itemId: String)
 
     public suspend fun cancel(itemId: String)
-
-    public suspend fun getPagedDebugItems(offset: Int, limit: Int): List<DebugItem>
-
-    public suspend fun countAllDebugItems(): Int
 }

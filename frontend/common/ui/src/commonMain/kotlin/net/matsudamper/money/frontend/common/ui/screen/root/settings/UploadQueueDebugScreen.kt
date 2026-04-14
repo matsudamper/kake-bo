@@ -12,19 +12,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.RootScreenScaffold
 
@@ -44,22 +41,35 @@ public fun UploadQueueDebugScreen(
             )
         },
         content = {
-            when (val state = uiState.loadingState) {
-                UploadQueueDebugScreenUiState.LoadingState.Loading -> {
+            Column(modifier = Modifier.fillMaxSize()) {
+                StatusFilterRow(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
+                    uiState = uiState,
+                )
+                if (uiState.items.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
                     ) {
-                        CircularProgressIndicator()
+                        Text("キューにアイテムがありません")
                     }
-                }
-
-                is UploadQueueDebugScreenUiState.LoadingState.Loaded -> {
-                    LoadedContent(
+                } else {
+                    LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        state = state,
-                        event = uiState.event,
-                    )
+                    ) {
+                        itemsIndexed(
+                            items = uiState.items,
+                            key = { _, item -> item.id },
+                        ) { index, item ->
+                            if (index > 0) {
+                                HorizontalDivider()
+                            }
+                            QueueItemRow(
+                                modifier = Modifier.fillMaxWidth(),
+                                item = item,
+                            )
+                        }
+                    }
                 }
             }
         },
@@ -67,64 +77,41 @@ public fun UploadQueueDebugScreen(
 }
 
 @Composable
-private fun LoadedContent(
+private fun StatusFilterRow(
     modifier: Modifier = Modifier,
-    state: UploadQueueDebugScreenUiState.LoadingState.Loaded,
-    event: UploadQueueDebugScreenUiState.Event,
+    uiState: UploadQueueDebugScreenUiState,
 ) {
-    val listState = rememberLazyListState()
-
-    LaunchedEffect(listState) {
-        snapshotFlow { listState.layoutInfo }
-            .map { layoutInfo ->
-                val lastVisibleIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: return@map false
-                lastVisibleIndex >= layoutInfo.totalItemsCount - 3
-            }
-            .distinctUntilChanged()
-            .collect { isNearEnd ->
-                if (isNearEnd && !state.isLast) {
-                    event.onLoadMore()
-                }
-            }
-    }
-
-    if (state.items.isEmpty() && !state.isLoadingMore) {
-        Box(
-            modifier = modifier,
-            contentAlignment = Alignment.Center,
+    Box(modifier = modifier) {
+        OutlinedButton(
+            onClick = { uiState.event.onClickStatusFilter() },
         ) {
-            Text("キューにアイテムがありません")
-        }
-        return
-    }
-
-    LazyColumn(
-        modifier = modifier,
-        state = listState,
-    ) {
-        itemsIndexed(
-            items = state.items,
-            key = { _, item -> item.id },
-        ) { index, item ->
-            if (index > 0) {
-                HorizontalDivider()
-            }
-            QueueItemRow(
-                modifier = Modifier.fillMaxWidth(),
-                item = item,
+            Text(
+                text = when (uiState.selectedStatusFilter) {
+                    UploadQueueDebugScreenUiState.StatusFilter.All -> "すべて"
+                    UploadQueueDebugScreenUiState.StatusFilter.Pending -> "PENDING"
+                    UploadQueueDebugScreenUiState.StatusFilter.Uploading -> "UPLOADING"
+                    UploadQueueDebugScreenUiState.StatusFilter.Failed -> "FAILED"
+                },
             )
         }
-
-        if (state.isLoadingMore) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator()
-                }
+        DropdownMenu(
+            expanded = uiState.statusFilterExpanded,
+            onDismissRequest = { uiState.event.onDismissStatusFilter() },
+        ) {
+            UploadQueueDebugScreenUiState.StatusFilter.entries.forEach { filter ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = when (filter) {
+                                UploadQueueDebugScreenUiState.StatusFilter.All -> "すべて"
+                                UploadQueueDebugScreenUiState.StatusFilter.Pending -> "PENDING"
+                                UploadQueueDebugScreenUiState.StatusFilter.Uploading -> "UPLOADING"
+                                UploadQueueDebugScreenUiState.StatusFilter.Failed -> "FAILED"
+                            },
+                        )
+                    },
+                    onClick = { uiState.event.onSelectStatusFilter(filter) },
+                )
             }
         }
     }
