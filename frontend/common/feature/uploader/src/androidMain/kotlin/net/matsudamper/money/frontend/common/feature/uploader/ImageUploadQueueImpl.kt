@@ -28,6 +28,7 @@ internal class ImageUploadQueueImpl(
                     previewBytes = previewBytes,
                     status = when (entity.status) {
                         STATUS_UPLOADING -> ImageUploadQueue.Status.Uploading
+                        STATUS_COMPLETED -> ImageUploadQueue.Status.Completed
                         STATUS_FAILED -> ImageUploadQueue.Status.Failed(entity.errorMessage)
                         else -> ImageUploadQueue.Status.Pending
                     },
@@ -93,6 +94,7 @@ internal class ImageUploadQueueImpl(
                     moneyUsageId = entity.moneyUsageId,
                     status = when (entity.status) {
                         STATUS_UPLOADING -> ImageUploadQueue.Status.Uploading
+                        STATUS_COMPLETED -> ImageUploadQueue.Status.Completed
                         STATUS_FAILED -> ImageUploadQueue.Status.Failed(entity.errorMessage)
                         else -> ImageUploadQueue.Status.Pending
                     },
@@ -120,6 +122,7 @@ internal class ImageUploadQueueImpl(
     internal companion object {
         const val STATUS_PENDING = "PENDING"
         const val STATUS_UPLOADING = "UPLOADING"
+        const val STATUS_COMPLETED = "COMPLETED"
         const val STATUS_FAILED = "FAILED"
 
         fun uniqueWorkName(moneyUsageId: MoneyUsageId): String = "image_upload_${moneyUsageId.id}"

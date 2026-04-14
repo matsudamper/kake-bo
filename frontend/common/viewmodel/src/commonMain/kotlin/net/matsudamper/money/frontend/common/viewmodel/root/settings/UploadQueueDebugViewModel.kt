@@ -53,6 +53,7 @@ public class UploadQueueDebugViewModel(
                     UploadQueueDebugScreenUiState.StatusFilter.All -> allItems
                     UploadQueueDebugScreenUiState.StatusFilter.Pending -> allItems.filter { it.status is ImageUploadQueue.Status.Pending }
                     UploadQueueDebugScreenUiState.StatusFilter.Uploading -> allItems.filter { it.status is ImageUploadQueue.Status.Uploading }
+                    UploadQueueDebugScreenUiState.StatusFilter.Completed -> allItems.filter { it.status is ImageUploadQueue.Status.Completed }
                     UploadQueueDebugScreenUiState.StatusFilter.Failed -> allItems.filter { it.status is ImageUploadQueue.Status.Failed }
                 }
                 filteredItems to state
@@ -66,6 +67,7 @@ public class UploadQueueDebugViewModel(
                                 status = when (val s = item.status) {
                                     ImageUploadQueue.Status.Pending -> UploadQueueDebugScreenUiState.Status.Pending
                                     ImageUploadQueue.Status.Uploading -> UploadQueueDebugScreenUiState.Status.Uploading
+                                    ImageUploadQueue.Status.Completed -> UploadQueueDebugScreenUiState.Status.Completed
                                     is ImageUploadQueue.Status.Failed -> UploadQueueDebugScreenUiState.Status.Failed(s.message)
                                 },
                                 errorMessage = item.errorMessage,

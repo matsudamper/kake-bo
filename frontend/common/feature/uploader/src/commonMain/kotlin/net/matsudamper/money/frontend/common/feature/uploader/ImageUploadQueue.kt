@@ -9,6 +9,8 @@ public interface ImageUploadQueue {
 
         public data object Uploading : Status()
 
+        public data object Completed : Status()
+
         public data class Failed(val message: String?) : Status()
     }
 

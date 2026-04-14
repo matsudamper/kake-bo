@@ -22,6 +22,7 @@ import org.w3c.dom.Worker
 
 private const val STATUS_PENDING = "PENDING"
 private const val STATUS_UPLOADING = "UPLOADING"
+private const val STATUS_COMPLETED = "COMPLETED"
 private const val STATUS_FAILED = "FAILED"
 
 public class ImageUploadQueueJsImpl private constructor(
@@ -52,6 +53,7 @@ public class ImageUploadQueueJsImpl private constructor(
                     previewBytes = entity.previewBytes,
                     status = when (entity.status) {
                         STATUS_UPLOADING -> ImageUploadQueue.Status.Uploading
+                        STATUS_COMPLETED -> ImageUploadQueue.Status.Completed
                         STATUS_FAILED -> ImageUploadQueue.Status.Failed(entity.errorMessage)
                         else -> ImageUploadQueue.Status.Pending
                     },
@@ -166,7 +168,7 @@ public class ImageUploadQueueJsImpl private constructor(
             return
         }
 
-        dao.deleteById(itemId)
+        dao.updateStatus(itemId, STATUS_COMPLETED)
     }
 
     override fun observeAllDebugItems(): Flow<List<ImageUploadQueue.DebugItem>> {
@@ -177,6 +179,7 @@ public class ImageUploadQueueJsImpl private constructor(
                     moneyUsageId = entity.moneyUsageId,
                     status = when (entity.status) {
                         STATUS_UPLOADING -> ImageUploadQueue.Status.Uploading
+                        STATUS_COMPLETED -> ImageUploadQueue.Status.Completed
                         STATUS_FAILED -> ImageUploadQueue.Status.Failed(entity.errorMessage)
                         else -> ImageUploadQueue.Status.Pending
                     },

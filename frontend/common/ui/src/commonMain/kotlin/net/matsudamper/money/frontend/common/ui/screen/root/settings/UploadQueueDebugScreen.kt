@@ -90,6 +90,7 @@ private fun StatusFilterRow(
                     UploadQueueDebugScreenUiState.StatusFilter.All -> "すべて"
                     UploadQueueDebugScreenUiState.StatusFilter.Pending -> "PENDING"
                     UploadQueueDebugScreenUiState.StatusFilter.Uploading -> "UPLOADING"
+                    UploadQueueDebugScreenUiState.StatusFilter.Completed -> "COMPLETED"
                     UploadQueueDebugScreenUiState.StatusFilter.Failed -> "FAILED"
                 },
             )
@@ -106,6 +107,7 @@ private fun StatusFilterRow(
                                 UploadQueueDebugScreenUiState.StatusFilter.All -> "すべて"
                                 UploadQueueDebugScreenUiState.StatusFilter.Pending -> "PENDING"
                                 UploadQueueDebugScreenUiState.StatusFilter.Uploading -> "UPLOADING"
+                                UploadQueueDebugScreenUiState.StatusFilter.Completed -> "COMPLETED"
                                 UploadQueueDebugScreenUiState.StatusFilter.Failed -> "FAILED"
                             },
                         )
@@ -172,6 +174,7 @@ private fun StatusBadge(
     val (label, color) = when (status) {
         UploadQueueDebugScreenUiState.Status.Pending -> "PENDING" to MaterialTheme.colorScheme.primary
         UploadQueueDebugScreenUiState.Status.Uploading -> "UPLOADING" to MaterialTheme.colorScheme.tertiary
+        UploadQueueDebugScreenUiState.Status.Completed -> "COMPLETED" to MaterialTheme.colorScheme.secondary
         is UploadQueueDebugScreenUiState.Status.Failed -> "FAILED" to MaterialTheme.colorScheme.error
     }
     Text(

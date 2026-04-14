@@ -158,7 +158,7 @@ internal class ImageUploadWorker(
             return Result.failure()
         }
 
-        dao.deleteById(recordId)
+        dao.updateStatus(recordId, ImageUploadQueueImpl.STATUS_COMPLETED)
         rawImageBytesFile(applicationContext, recordId).delete()
         previewBytesFile(applicationContext, recordId).delete()
         return Result.success()

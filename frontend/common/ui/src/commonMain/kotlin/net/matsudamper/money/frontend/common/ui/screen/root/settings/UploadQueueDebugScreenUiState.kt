@@ -10,6 +10,7 @@ public data class UploadQueueDebugScreenUiState(
         All,
         Pending,
         Uploading,
+        Completed,
         Failed,
     }
 
@@ -26,6 +27,8 @@ public data class UploadQueueDebugScreenUiState(
         public data object Pending : Status
 
         public data object Uploading : Status
+
+        public data object Completed : Status
 
         public data class Failed(val message: String?) : Status
     }
