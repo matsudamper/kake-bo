@@ -143,7 +143,6 @@ fun Application.myApplicationModule() {
 
     routing {
         get("/healthz") {
-            call.response.headers.append("X-Test-Header", "hello")
             call.respondText("ok")
         }
         accept(ContentType.Application.Json) {
