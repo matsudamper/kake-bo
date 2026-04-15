@@ -17,7 +17,7 @@ internal class ImageUploadLocalStorageJsImpl : ImageUploadLocalStorage {
     private var cachedDb: dynamic = null
 
     private suspend fun openDb(): dynamic {
-        cachedDb?.let { return it }
+        if (cachedDb == null) return null
         val db = suspendCancellableCoroutine { cont ->
             val request = js("self.indexedDB || self.webkitIndexedDB || self.mozIndexedDB").open(DB_NAME, DB_VERSION)
             request.onupgradeneeded = { event: dynamic ->
