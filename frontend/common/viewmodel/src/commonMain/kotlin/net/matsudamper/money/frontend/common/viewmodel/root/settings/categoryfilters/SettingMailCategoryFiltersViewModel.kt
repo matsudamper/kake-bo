@@ -38,9 +38,10 @@ public class SettingMailCategoryFiltersViewModel(
 
         override fun onPullToRefresh() {
             viewModelScope.launch {
+                viewModelStateFlow.update { it.copy(isRefreshing = true) }
                 val result = pagingModel.refresh()
                 viewModelStateFlow.update {
-                    it.copy(lastLoadingState = result)
+                    it.copy(lastLoadingState = result, isRefreshing = false)
                 }
             }
         }
@@ -140,6 +141,7 @@ public class SettingMailCategoryFiltersViewModel(
                                 }
                             },
                             loadToEnd = viewModelState.apolloResponseStates?.data?.user?.importedMailCategoryFilters?.isLast == true,
+                            isRefreshing = viewModelState.isRefreshing,
                             event = loadedEvent,
                         )
                     }
@@ -200,5 +202,6 @@ public class SettingMailCategoryFiltersViewModel(
         val lastLoadingState: UpdateOperationResponseResult<ImportedMailCategoryFiltersScreenPagingQuery.Data>? = null,
         val textInputDialog: SettingMailCategoryFilterScreenUiState.TextInput? = null,
         val isLoading: Boolean = true,
+        val isRefreshing: Boolean = false,
     )
 }

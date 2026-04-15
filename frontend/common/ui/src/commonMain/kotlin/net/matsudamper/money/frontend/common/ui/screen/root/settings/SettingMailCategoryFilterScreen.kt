@@ -27,16 +27,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import net.matsudamper.money.frontend.common.base.ImmutableList
 import net.matsudamper.money.frontend.common.ui.base.KakeBoTopAppBar
 import net.matsudamper.money.frontend.common.ui.base.KakeboScaffoldListener
@@ -65,6 +60,7 @@ public data class SettingMailCategoryFilterScreenUiState(
             val filters: ImmutableList<Item>,
             val isError: Boolean,
             val loadToEnd: Boolean,
+            val isRefreshing: Boolean,
             val event: LoadedEvent,
         ) : LoadingState
     }
@@ -190,20 +186,11 @@ private fun LoadedContent(
     val fabSize = 56.dp
     val fabPadding = 16.dp
     val pullToRefreshState = rememberPullToRefreshState()
-    val coroutineScope = rememberCoroutineScope()
-    var isRefreshing by remember { mutableStateOf(false) }
     PullToRefreshBox(
-        isRefreshing = isRefreshing,
+        isRefreshing = uiState.isRefreshing,
         modifier = modifier,
         state = pullToRefreshState,
-        onRefresh = {
-            coroutineScope.launch {
-                isRefreshing = true
-                uiState.event.onPullToRefresh()
-                delay(1000)
-                isRefreshing = false
-            }
-        },
+        onRefresh = { uiState.event.onPullToRefresh() },
     ) {
         LazyColumn(
             modifier = Modifier
