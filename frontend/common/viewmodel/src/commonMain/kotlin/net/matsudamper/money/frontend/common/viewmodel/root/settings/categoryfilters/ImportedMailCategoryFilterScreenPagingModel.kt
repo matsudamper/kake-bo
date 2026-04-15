@@ -37,18 +37,20 @@ public class ImportedMailCategoryFilterScreenPagingModel(
     }
 
     internal suspend fun refresh(): UpdateOperationResponseResult<ImportedMailCategoryFiltersScreenPagingQuery.Data> {
-        val response = graphqlClient.apolloClient.query(firstQuery)
-            .fetchPolicy(FetchPolicy.NetworkOnly)
-            .execute()
-        val data = response.data
-            ?: return UpdateOperationResponseResult.Error(NullPointerException("ApolloResponse.data is null"))
-        graphqlClient.apolloClient.apolloStore.writeOperation(
-            operation = firstQuery,
-            operationData = data,
-            customScalarAdapters = graphqlClient.apolloClient.customScalarAdapters,
-            publish = true,
-        )
-        return UpdateOperationResponseResult.Success(response)
+        return runCatching {
+            val response = graphqlClient.apolloClient.query(firstQuery)
+                .fetchPolicy(FetchPolicy.NetworkOnly)
+                .execute()
+            val data = response.data
+                ?: return UpdateOperationResponseResult.Error(NullPointerException("ApolloResponse.data is null"))
+            graphqlClient.apolloClient.apolloStore.writeOperation(
+                operation = firstQuery,
+                operationData = data,
+                customScalarAdapters = graphqlClient.apolloClient.customScalarAdapters,
+                publish = true,
+            )
+            UpdateOperationResponseResult.Success(response)
+        }.getOrElse { UpdateOperationResponseResult.Error(it) }
     }
 
     internal suspend fun fetch(): UpdateOperationResponseResult<ImportedMailCategoryFiltersScreenPagingQuery.Data> {
