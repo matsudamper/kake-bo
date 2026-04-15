@@ -32,6 +32,20 @@ public class SettingMailCategoryFiltersViewModel(
     public val eventHandler: EventHandler<Event> = eventSender.asHandler()
 
     private val loadedEvent = object : SettingMailCategoryFilterScreenUiState.LoadedEvent {
+        override fun loadMore() {
+            listFetch()
+        }
+
+        override fun onPullToRefresh() {
+            viewModelScope.launch {
+                viewModelStateFlow.update { it.copy(isRefreshing = true) }
+                val result = pagingModel.refresh()
+                viewModelStateFlow.update {
+                    it.copy(lastLoadingState = result, isRefreshing = false)
+                }
+            }
+        }
+
         override fun onClickAdd() {
             viewModelStateFlow.update { viewModelState ->
                 viewModelState.copy(
@@ -48,8 +62,10 @@ public class SettingMailCategoryFiltersViewModel(
                         runCatching {
                             api.addFilter(text)
                         }.onSuccess {
-                            pagingModel.clear()
-                            listFetch()
+                            val result = pagingModel.refresh()
+                            viewModelStateFlow.update {
+                                it.copy(lastLoadingState = result)
+                            }
                         }.onFailure {
                             it.printStackTrace()
                         }
@@ -121,9 +137,11 @@ public class SettingMailCategoryFiltersViewModel(
                                 is UpdateOperationResponseResult.NoHasMore -> false
                                 null -> false
                                 is UpdateOperationResponseResult.Success -> {
-                                    it.result.data?.user?.importedMailCategoryFilters != null
+                                    it.result.data?.user?.importedMailCategoryFilters == null
                                 }
                             },
+                            loadToEnd = viewModelState.apolloResponseStates?.data?.user?.importedMailCategoryFilters?.isLast == true,
+                            isRefreshing = viewModelState.isRefreshing,
                             event = loadedEvent,
                         )
                     }
@@ -184,5 +202,6 @@ public class SettingMailCategoryFiltersViewModel(
         val lastLoadingState: UpdateOperationResponseResult<ImportedMailCategoryFiltersScreenPagingQuery.Data>? = null,
         val textInputDialog: SettingMailCategoryFilterScreenUiState.TextInput? = null,
         val isLoading: Boolean = true,
+        val isRefreshing: Boolean = false,
     )
 }

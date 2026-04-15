@@ -26,6 +26,14 @@ internal abstract class ImageUploadRoomDatabase : RoomDatabase() {
         }
         val MIGRATION_3_4 = object : Migration(3, 4) {
             override suspend fun migrate(connection: SQLiteConnection) {
+                // MIGRATION_1_2を経由せずにVersion 3になったDBにはstackTraceカラムが存在しない可能性があるため、
+                // 追加を試みてすでに存在する場合のエラーは無視する
+                try {
+                    connection.execSQL("ALTER TABLE image_upload_queue ADD COLUMN stackTrace TEXT")
+                } catch (_: Exception) {
+                    // stackTraceカラムが既に存在する場合は無視
+                }
+
                 connection.execSQL(
                     """CREATE TABLE image_upload_queue_new (
                         |id TEXT NOT NULL PRIMARY KEY,
