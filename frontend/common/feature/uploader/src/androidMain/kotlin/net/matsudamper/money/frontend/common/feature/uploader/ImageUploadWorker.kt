@@ -86,7 +86,20 @@ internal class ImageUploadWorker(
     }
 
     private suspend fun doUploadWork(recordId: String): Result {
+        val entity = dao.getById(recordId) ?: return Result.failure()
         val rawImageBytes = localStorage.readRawImage(recordId)
+            ?: if (entity.imageSourceUri != null) {
+                // bytesがnullだった場合のfallback: content URIから直接読み込み
+                withContext(Dispatchers.IO) {
+                    runCatching {
+                        applicationContext.contentResolver
+                            .openInputStream(android.net.Uri.parse(entity.imageSourceUri))
+                            ?.use { it.readBytes() }
+                    }.getOrNull()
+                }
+            } else {
+                null
+            }
         if (rawImageBytes == null) {
             // キャッシュがクリアされてファイルが消えた場合はDBレコードも削除してクリーンアップ
             dao.deleteById(recordId)
@@ -126,7 +139,6 @@ internal class ImageUploadWorker(
             return Result.failure()
         }
 
-        val entity = dao.getById(recordId) ?: return Result.failure()
         val moneyUsageId = MoneyUsageId(id = entity.moneyUsageId)
         val currentImageIds = runCatching {
             graphqlClient.apolloClient

@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import com.apollographql.apollo.api.Optional
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.ImageUploadClient
+import net.matsudamper.money.frontend.common.base.image.SelectedImage
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenQuery
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenUpdateUsageMutation
@@ -66,24 +67,24 @@ public class ImageUploadQueueJsImpl private constructor(
     @OptIn(ExperimentalUuidApi::class)
     override suspend fun enqueue(
         moneyUsageId: MoneyUsageId,
-        rawImageBytes: ByteArray,
-        previewBytes: ByteArray?,
-        contentType: String?,
+        selectedImage: SelectedImage,
     ) {
         val id = Uuid.random().toString()
-        localStorage.writeRawImage(id, rawImageBytes)
-        if (previewBytes != null) {
-            localStorage.writePreview(id, previewBytes)
+        val imageBytes = selectedImage.bytes
+        if (imageBytes != null) {
+            localStorage.writeRawImage(id, imageBytes)
+            localStorage.writePreview(id, imageBytes)
         }
         dao.insert(
             ImageUploadRoomEntity(
                 id = id,
                 moneyUsageId = moneyUsageId.id,
                 status = STATUS_PENDING,
+                imageSourceUri = null,
                 workManagerId = null,
                 errorMessage = null,
                 stackTrace = null,
-                contentType = contentType,
+                contentType = selectedImage.contentType,
                 createdAt = js("Date.now()").unsafeCast<Double>().toLong(),
             ),
         )

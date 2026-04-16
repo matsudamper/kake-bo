@@ -6,8 +6,7 @@ import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 import kotlinx.browser.document
 import kotlinx.coroutines.suspendCancellableCoroutine
-import net.matsudamper.money.frontend.common.ui.layout.image.SelectedImage
-import net.matsudamper.money.frontend.common.ui.layout.image.UploadedImageData
+import net.matsudamper.money.frontend.common.base.image.SelectedImage
 import net.matsudamper.money.ui.root.platform.ImagePicker
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Int8Array
@@ -36,13 +35,8 @@ internal class ImagePickerImpl : ImagePicker {
                                 if (bytes.isNotEmpty()) {
                                     SelectedImage(
                                         id = Uuid.random().toString(),
-                                        previewBytes = bytes,
-                                        await = {
-                                            UploadedImageData(
-                                                bytes = bytes,
-                                                contentType = file.type.ifBlank { "application/octet-stream" },
-                                            )
-                                        },
+                                        bytes = bytes,
+                                        contentType = file.type.ifBlank { "application/octet-stream" },
                                     )
                                 } else {
                                     null
