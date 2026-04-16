@@ -163,8 +163,18 @@ onmessage = (e) => {
     }
 };
 
-sqlite3InitModule().then(instance => {
+sqlite3InitModule().then(async instance => {
     sqlite3 = instance;
+    // bundler環境ではinstallOpfsVfsがプロキシURLの解決に失敗しOpfsDbが未定義になる。
+    // プロキシ不要のSAH Pool VFSを使ってOPFS永続化をリカバリする。
+    if (!sqlite3.oo1.OpfsDb) {
+        try {
+            const sahPool = await sqlite3.installOpfsSAHPoolVfs();
+            sqlite3.oo1.OpfsDb = sahPool.OpfsSAHPoolDb;
+        } catch (e) {
+            console.warn('OPFS SAH Pool VFS unavailable, falling back to in-memory:', e.message);
+        }
+    }
     while (messageQueue.length > 0) {
         handleMessage(messageQueue.shift());
     }
