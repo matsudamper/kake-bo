@@ -1,12 +1,9 @@
 package net.matsudamper.money.frontend.android.feature.notificationusage
 
-import kotlin.time.Instant
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.flow.update
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import net.matsudamper.money.element.MoneyUsageId
 import net.matsudamper.money.frontend.common.base.AppSettingsRepository
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDraft
@@ -37,7 +34,7 @@ internal class NotificationUsageAutoAddProcessor(
                 parser to draft
             } ?: return
             val draft = parserAndDraft.second
-            val moneyUsageId = api.addUsage(draftToPayload(draft, record))
+            val moneyUsageId = api.addUsage(draftToPayload(draft))
             if (moneyUsageId != null) {
                 dao.markAsAdded(notificationKey, moneyUsageId.id)
             }
@@ -67,15 +64,13 @@ internal class NotificationUsageAutoAddProcessor(
         )
     }
 
-    private fun draftToPayload(draft: NotificationUsageDraft, record: NotificationUsageRecord): NotificationUsageAutoAddPayload {
+    private fun draftToPayload(draft: NotificationUsageDraft): NotificationUsageAutoAddPayload {
         return NotificationUsageAutoAddPayload(
-            title = draft.title ?: record.packageName,
-            description = draft.description ?: record.text,
+            title = draft.title,
+            description = draft.description,
             amount = draft.amount ?: 0,
-            dateTime = draft.dateTime ?: Instant
-                .fromEpochMilliseconds(record.postedAtEpochMillis)
-                .toLocalDateTime(TimeZone.currentSystemDefault()),
-            subCategoryId = draft.subCategoryId,
+            dateTime = draft.dateTime,
+            subCategoryId = null,
         )
     }
 }

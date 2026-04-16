@@ -186,11 +186,11 @@ public class NotificationUsageDetailViewModel(
 
     private fun createDraftUiState(matched: NotificationUsageMatchedRecord): NotificationUsageDetailScreenUiState.Draft {
         return NotificationUsageDetailScreenUiState.Draft(
-            title = matched.draft.title ?: matched.record.packageName,
-            description = matched.draft.description ?: matched.record.text,
+            title = matched.draft.title,
+            description = matched.draft.description,
             amount = matched.draft.amount?.let { "${Formatter.formatMoney(it)}円" }.orEmpty(),
-            dateTime = matched.draft.dateTime?.let { Formatter.formatDateTime(it) }.orEmpty(),
-            subCategory = matched.draft.subCategoryId?.id?.toString().orEmpty(),
+            dateTime = matched.draft.dateTime.let { Formatter.formatDateTime(it) },
+            subCategory = "",
         )
     }
 
@@ -243,7 +243,7 @@ public class NotificationUsageDetailViewModel(
             description = description,
             price = draft?.amount?.toFloat(),
             date = draft?.dateTime,
-            subCategoryId = draft?.subCategoryId?.id?.toString(),
+            subCategoryId = null,
             notificationUsageKey = detail.record.notificationKey,
         )
     }
