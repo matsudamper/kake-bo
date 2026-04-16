@@ -1,6 +1,5 @@
 package net.matsudamper.money.frontend.android.feature.notificationusage
 
-import java.time.Instant
 import kotlin.time.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
