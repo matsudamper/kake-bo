@@ -70,7 +70,7 @@ public class ImageUploadDatabase private constructor(private val db: ImageUpload
                 name = dbFile.absolutePath,
             )
                 .setDriver(AndroidSQLiteDriver())
-                .addMigrations(ImageUploadRoomDatabase.MIGRATION_1_2, ImageUploadRoomDatabase.MIGRATION_2_3, ImageUploadRoomDatabase.MIGRATION_3_4)
+                .addMigrations(ImageUploadRoomDatabase.MIGRATION_1_2, ImageUploadRoomDatabase.MIGRATION_2_3, ImageUploadRoomDatabase.MIGRATION_3_4, ImageUploadRoomDatabase.MIGRATION_4_5)
                 .build()
             return ImageUploadDatabase(db)
         }

@@ -35,7 +35,9 @@ internal class ImageUploadLocalStorageAndroidImpl(
 
     override suspend fun readPreview(id: String): ByteArray? {
         return withContext(Dispatchers.IO) {
+            // 新しいレコードはpreviewファイルを作成しないため、rawImageファイルにフォールバックする
             previewFile(id).takeIf { it.exists() }?.readBytes()
+                ?: rawImageFile(id).takeIf { it.exists() }?.readBytes()
         }
     }
 

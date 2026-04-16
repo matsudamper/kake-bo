@@ -13,4 +13,5 @@ internal data class ImageUploadRoomEntity(
     val contentType: String?,
     val createdAt: Long,
     val workManagerId: String?,
+    val imageSourceUri: String?,
 )
