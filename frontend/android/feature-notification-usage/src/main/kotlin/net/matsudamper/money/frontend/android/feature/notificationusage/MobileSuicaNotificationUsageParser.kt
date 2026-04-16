@@ -17,9 +17,12 @@ internal class MobileSuicaNotificationUsageParser : NotificationUsageParser {
 
     override fun parse(record: NotificationUsageRecord): NotificationUsageDraft? {
         if (record.packageName != "com.felicanetworks.mfm.main") return null
+        val line = record.text.split("\n")
+        val title = line.getOrNull(0) ?: return null
+        if (title != "モバイルSuica") return null
 
         return NotificationUsageDraft(
-            title = "モバイルSuica",
+            title = filterDefinition.title,
             description = record.text,
             amount = parseAmount(record.text),
             dateTime = Instant.fromEpochMilliseconds(record.postedAtEpochMillis)
