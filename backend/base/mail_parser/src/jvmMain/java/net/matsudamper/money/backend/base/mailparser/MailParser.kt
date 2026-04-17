@@ -12,7 +12,7 @@ import net.matsudamper.money.element.MailId
 
 public object MailParser {
     public fun rawContentToResponse(rawContent: String): MailResult {
-        val message = MimeMessage(Session.getDefaultInstance(System.getProperties()), rawContent.byteInputStream())
+        val message = MimeMessage(Session.getInstance(System.getProperties()), rawContent.byteInputStream())
         return messageToResponse(message)
     }
 
