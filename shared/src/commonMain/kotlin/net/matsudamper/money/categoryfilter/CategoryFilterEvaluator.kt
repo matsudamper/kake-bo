@@ -11,7 +11,7 @@ fun evaluateCategoryFilters(
         .firstOrNull { filter ->
             val conditions = filter.conditions.takeIf { it.isNotEmpty() } ?: return@firstOrNull false
             val results = conditions.asSequence().map { condition ->
-                val targetText = dataExtractor(condition.dataSourceType).orEmpty()
+                val targetText = dataExtractor(condition.dataSourceType) ?: return@map false
                 when (condition.conditionType) {
                     CategoryFilterConditionType.Include -> targetText.contains(condition.text)
                     CategoryFilterConditionType.NotInclude -> !targetText.contains(condition.text)
