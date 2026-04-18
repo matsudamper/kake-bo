@@ -35,12 +35,18 @@ public object NotificationUsageModule {
                 graphqlClient = get<GraphqlClient>(),
             )
         }
+        single<NotificationUsageCategoryFilterRepository> {
+            NotificationUsageCategoryFilterGraphqlRepository(
+                graphqlClient = get<GraphqlClient>(),
+            )
+        }
         single {
             NotificationUsageAutoAddProcessor(
                 dao = get(),
                 parsers = getAll(),
                 appSettingsRepository = get<AppSettingsRepository>(),
                 api = get(),
+                categoryFilterRepository = get(),
             )
         }
         single<HomeAddExtensionEntryProvider> { NotificationUsageHomeAddEntryProvider() }

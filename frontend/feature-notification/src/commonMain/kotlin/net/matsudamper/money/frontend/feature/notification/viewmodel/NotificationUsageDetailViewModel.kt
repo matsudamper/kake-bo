@@ -9,9 +9,17 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import com.apollographql.apollo.api.Optional
 import com.apollographql.apollo.cache.normalized.FetchPolicy
 import com.apollographql.apollo.cache.normalized.fetchPolicy
+import net.matsudamper.money.categoryfilter.CategoryFilter
+import net.matsudamper.money.categoryfilter.CategoryFilterCondition
+import net.matsudamper.money.categoryfilter.CategoryFilterConditionType
+import net.matsudamper.money.categoryfilter.CategoryFilterDataSourceType
+import net.matsudamper.money.categoryfilter.CategoryFilterOperator
+import net.matsudamper.money.categoryfilter.evaluateCategoryFilters
 import net.matsudamper.money.element.MoneyUsageId
+import net.matsudamper.money.element.MoneyUsageSubCategoryId
 import net.matsudamper.money.frontend.common.base.nav.ScopedObjectFeature
 import net.matsudamper.money.frontend.common.base.nav.user.ScreenStructure
 import net.matsudamper.money.frontend.common.base.notification.NotificationUsageDetail
@@ -26,7 +34,13 @@ import net.matsudamper.money.frontend.common.viewmodel.lib.Formatter
 import net.matsudamper.money.frontend.feature.notification.ui.NotificationUsageDetailScreenUiState
 import net.matsudamper.money.frontend.graphql.GraphqlClient
 import net.matsudamper.money.frontend.graphql.MoneyUsageScreenQuery
+import net.matsudamper.money.frontend.graphql.NotificationUsageCategoryFiltersQuery
 import net.matsudamper.money.frontend.graphql.fragment.MoneyUsageScreenMoneyUsage
+import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterConditionType
+import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFilterDataSourceType
+import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersQuery
+import net.matsudamper.money.frontend.graphql.type.ImportedMailCategoryFiltersSortType
+import net.matsudamper.money.frontend.graphql.type.ImportedMailFilterCategoryConditionOperator
 
 public class NotificationUsageDetailViewModel(
     scopedObjectFeature: ScopedObjectFeature,
@@ -78,10 +92,68 @@ public class NotificationUsageDetailViewModel(
                         } else {
                             DetailState.Loaded(detail)
                         },
+                        matchedSubCategory = null,
                     )
                 }
                 fetchLinkedUsage(detail?.record?.moneyUsageId)
+                fetchMatchedSubCategory(detail?.matched)
             }
+        }
+    }
+
+    private suspend fun fetchMatchedSubCategory(matched: NotificationUsageMatchedRecord?) {
+        if (matched == null) return
+
+        val response = runCatchingWithoutCancel {
+            graphqlClient.apolloClient
+                .query(
+                    NotificationUsageCategoryFiltersQuery(
+                        query = ImportedMailCategoryFiltersQuery(
+                            size = 1000,
+                            isAsc = true,
+                            sortType = Optional.present(ImportedMailCategoryFiltersSortType.ORDER_NUMBER),
+                        ),
+                    ),
+                )
+                .execute()
+        }.getOrNull() ?: return
+
+        val nodes = response.data?.user?.importedMailCategoryFilters?.nodes.orEmpty()
+        val filters = nodes.map { node ->
+            CategoryFilter(
+                orderNumber = node.orderNumber,
+                operator = node.operator.toShared(),
+                subCategoryId = node.subCategory?.id,
+                conditions = node.conditions.orEmpty().map { c ->
+                    CategoryFilterCondition(
+                        text = c.text,
+                        dataSourceType = c.dataSourceType.toShared(),
+                        conditionType = c.conditionType.toShared(),
+                    )
+                },
+            )
+        }
+
+        val subCategoryId = evaluateCategoryFilters(filters) { dataSourceType ->
+            when (dataSourceType) {
+                CategoryFilterDataSourceType.Title -> matched.draft.title
+                CategoryFilterDataSourceType.ServiceName -> matched.filterDefinition.title
+                else -> null
+            }
+        }
+
+        if (subCategoryId == null) return
+
+        val matchedNode = nodes.firstOrNull { it.subCategory?.id == subCategoryId }
+        val subCategory = matchedNode?.subCategory ?: return
+
+        viewModelStateFlow.update { viewModelState ->
+            viewModelState.copy(
+                matchedSubCategory = MatchedSubCategory(
+                    subCategoryId = subCategoryId,
+                    displayName = "${subCategory.category.name} / ${subCategory.name}",
+                ),
+            )
         }
     }
 
@@ -96,8 +168,7 @@ public class NotificationUsageDetailViewModel(
         return NotificationUsageDetailScreenUiState.LoadingState.Loaded(
             notification = createNotificationUiState(detail.record),
             filter = createFilterUiState(matched),
-            draft = if (matched != null) createDraftUiState(matched) else null,
-            canRegister = detail.record.isAdded.not(),
+            draft = if (matched != null) createDraftUiState(matched, viewModelState.matchedSubCategory) else null,
             linkedUsage = createLinkedUsageUiState(viewModelState.linkedUsageState),
             metadataDialog = if (viewModelState.showMetadataDialog) {
                 NotificationUsageDetailScreenUiState.MetadataDialog(
@@ -114,7 +185,7 @@ public class NotificationUsageDetailViewModel(
             event = object : NotificationUsageDetailScreenUiState.LoadedEvent {
                 override fun onClickRegister() {
                     viewModelScope.launch {
-                        eventSender.send { it.navigate(createAddMoneyUsageScreen(detail)) }
+                        eventSender.send { it.navigate(createAddMoneyUsageScreen(detail, viewModelStateFlow.value.matchedSubCategory)) }
                     }
                 }
             },
@@ -184,13 +255,16 @@ public class NotificationUsageDetailViewModel(
         )
     }
 
-    private fun createDraftUiState(matched: NotificationUsageMatchedRecord): NotificationUsageDetailScreenUiState.Draft {
+    private fun createDraftUiState(
+        matched: NotificationUsageMatchedRecord,
+        matchedSubCategory: MatchedSubCategory?,
+    ): NotificationUsageDetailScreenUiState.Draft {
         return NotificationUsageDetailScreenUiState.Draft(
             title = matched.draft.title,
             description = matched.draft.description,
             amount = matched.draft.amount?.let { "${Formatter.formatMoney(it)}円" }.orEmpty(),
             dateTime = matched.draft.dateTime.let { Formatter.formatDateTime(it) },
-            subCategory = "",
+            subCategory = matchedSubCategory?.displayName.orEmpty(),
         )
     }
 
@@ -228,7 +302,10 @@ public class NotificationUsageDetailViewModel(
         )
     }
 
-    private fun createAddMoneyUsageScreen(detail: NotificationUsageDetail): ScreenStructure.AddMoneyUsage {
+    private fun createAddMoneyUsageScreen(
+        detail: NotificationUsageDetail,
+        matchedSubCategory: MatchedSubCategory?,
+    ): ScreenStructure.AddMoneyUsage {
         val draft = detail.matched?.draft
         val description = buildString {
             val draftDesc = draft?.description
@@ -243,7 +320,7 @@ public class NotificationUsageDetailViewModel(
             description = description,
             price = draft?.amount?.toFloat(),
             date = draft?.dateTime,
-            subCategoryId = null,
+            subCategoryId = matchedSubCategory?.subCategoryId?.id?.toString(),
             notificationUsageKey = detail.record.notificationKey,
         )
     }
@@ -253,6 +330,36 @@ public class NotificationUsageDetailViewModel(
             .toLocalDateTime(TimeZone.currentSystemDefault())
     }
 
+    private fun ImportedMailFilterCategoryConditionOperator.toShared(): CategoryFilterOperator {
+        return when (this) {
+            ImportedMailFilterCategoryConditionOperator.AND -> CategoryFilterOperator.AND
+            ImportedMailFilterCategoryConditionOperator.OR -> CategoryFilterOperator.OR
+            ImportedMailFilterCategoryConditionOperator.UNKNOWN__ -> CategoryFilterOperator.AND
+        }
+    }
+
+    private fun ImportedMailCategoryFilterDataSourceType.toShared(): CategoryFilterDataSourceType {
+        return when (this) {
+            ImportedMailCategoryFilterDataSourceType.MailTitle -> CategoryFilterDataSourceType.MailTitle
+            ImportedMailCategoryFilterDataSourceType.MailFrom -> CategoryFilterDataSourceType.MailFrom
+            ImportedMailCategoryFilterDataSourceType.MailHtml -> CategoryFilterDataSourceType.MailHtml
+            ImportedMailCategoryFilterDataSourceType.MailPlain -> CategoryFilterDataSourceType.MailPlain
+            ImportedMailCategoryFilterDataSourceType.Title -> CategoryFilterDataSourceType.Title
+            ImportedMailCategoryFilterDataSourceType.ServiceName -> CategoryFilterDataSourceType.ServiceName
+            ImportedMailCategoryFilterDataSourceType.UNKNOWN__ -> CategoryFilterDataSourceType.Title
+        }
+    }
+
+    private fun ImportedMailCategoryFilterConditionType.toShared(): CategoryFilterConditionType {
+        return when (this) {
+            ImportedMailCategoryFilterConditionType.Include -> CategoryFilterConditionType.Include
+            ImportedMailCategoryFilterConditionType.NotInclude -> CategoryFilterConditionType.NotInclude
+            ImportedMailCategoryFilterConditionType.Equal -> CategoryFilterConditionType.Equal
+            ImportedMailCategoryFilterConditionType.NotEqual -> CategoryFilterConditionType.NotEqual
+            ImportedMailCategoryFilterConditionType.UNKNOWN__ -> CategoryFilterConditionType.Include
+        }
+    }
+
     public interface Event {
         public fun navigate(structure: ScreenStructure)
 
@@ -260,6 +367,11 @@ public class NotificationUsageDetailViewModel(
 
         public fun navigateToHome()
     }
+
+    private data class MatchedSubCategory(
+        val subCategoryId: MoneyUsageSubCategoryId,
+        val displayName: String,
+    )
 
     private sealed interface DetailState {
         data object Loading : DetailState
@@ -288,5 +400,6 @@ public class NotificationUsageDetailViewModel(
         val detailState: DetailState = DetailState.Loading,
         val linkedUsageState: LinkedUsageState = LinkedUsageState.None,
         val showMetadataDialog: Boolean = false,
+        val matchedSubCategory: MatchedSubCategory? = null,
     )
 }
