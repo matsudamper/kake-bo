@@ -307,14 +307,7 @@ public class NotificationUsageDetailViewModel(
         matchedSubCategory: MatchedSubCategory?,
     ): ScreenStructure.AddMoneyUsage {
         val draft = detail.matched?.draft
-        val description = buildString {
-            val draftDesc = draft?.description
-            if (!draftDesc.isNullOrBlank()) {
-                append(draftDesc)
-                append("\n")
-            }
-            append(detail.record.text)
-        }
+        val description = draft?.description ?: detail.record.text
         return ScreenStructure.AddMoneyUsage(
             title = draft?.title,
             description = description,
