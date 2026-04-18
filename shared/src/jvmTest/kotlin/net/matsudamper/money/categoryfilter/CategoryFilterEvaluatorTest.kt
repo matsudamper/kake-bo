@@ -184,7 +184,7 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
             }
 
             describe("メール系データソース") {
-                it("MailTitle はデータ未提供の場合に空文字扱いになり NotInclude 条件でマッチする") {
+                it("MailTitle はデータ未提供の場合に評価不能としてマッチしない") {
                     val result = evaluateCategoryFilters(
                         filters = listOf(
                             filter(
@@ -197,7 +197,7 @@ class CategoryFilterEvaluatorTest : DescribeSpec(
                             ),
                         ),
                     ) { _ -> null }
-                    result.shouldBe(subCategoryId1)
+                    result.shouldBe(null)
                 }
             }
 
